@@ -21,7 +21,7 @@
                   $t('stats', {
                     countArticles: issue.countArticles,
                     countPages: issue.countPages,
-                    accessRights: $t(`buckets.accessRight.${issue.accessRights}`),
+                    accessRights: $t(`buckets.accessRight.${issue.accessRights}`)
                   })
                 "
               />
@@ -74,7 +74,7 @@
                   v-html="
                     $tc('numbers.articlesMatchingSearchFilters', matchingArticles.length, {
                       n: $n(matchingArticles.length),
-                      q: suggestionQuery,
+                      q: suggestionQuery
                     })
                   "
                 />
@@ -83,7 +83,7 @@
                   v-html="
                     $tc('numbers.articlesMatchingWithinSearch', matchingArticles.length, {
                       n: $n(matchingArticles.length),
-                      q: suggestionQuery,
+                      q: suggestionQuery
                     })
                   "
                 />
@@ -92,7 +92,7 @@
                   v-html="
                     $tc('numbers.articlesMatching', matchingArticles.length, {
                       n: $n(matchingArticles.length),
-                      q: suggestionQuery,
+                      q: suggestionQuery
                     })
                   "
                 />
@@ -115,69 +115,69 @@
     <i-layout-section main>
       <!-- header -->
       <template v-slot:header>
-      <div class="border-bottom" v-if="issue">
-        <b-navbar variant="light" class="px-0 py-0 border-bottom">
-          <b-navbar-nav class="p-2 pl-3">
-            <section>
-              <h3 class="m-0">
-                <b>{{ issue.newspaper.name }}</b> &middot;
-                <span class="date">{{ $d(issue.date, 'long') }}</span>
-              </h3>
-            </section>
-          </b-navbar-nav>
-          <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
-            <WithTooltip :content="$t('label_previous_page')" delay>
-              <b-button
-                class="border-dark"
-                variant="light"
-                size="sm"
-                :disabled="currentPageIndex === 0"
-                @click="changeCurrentPageIndex(currentPageIndex - 1)"
+        <div class="border-bottom" v-if="issue">
+          <b-navbar variant="light" class="px-0 py-0 border-bottom">
+            <b-navbar-nav class="p-2 pl-3">
+              <section>
+                <h3 class="m-0">
+                  <b>{{ issue.newspaper.name }}</b> &middot;
+                  <span class="date">{{ $d(issue.date, 'long') }}</span>
+                </h3>
+              </section>
+            </b-navbar-nav>
+            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
+              <WithTooltip :content="$t('label_previous_page')" delay>
+                <b-button
+                  class="border-dark"
+                  variant="light"
+                  size="sm"
+                  :disabled="currentPageIndex === 0"
+                  @click="changeCurrentPageIndex(currentPageIndex - 1)"
+                >
+                  <div class="dripicons dripicons-media-previous pt-1"></div>
+                </b-button>
+              </WithTooltip>
+              <div
+                class="px-2 pt-1 border-top border-bottom"
+                v-html="
+                  $t('ppOf', {
+                    num: page.num,
+                    pages: issue.pages.length
+                  })
+                "
+              ></div>
+              <WithTooltip :content="$t('label_next_page')" delay>
+                <b-button
+                  class="border-dark"
+                  variant="light"
+                  size="sm"
+                  :disabled="currentPageIndex + 1 === issue.pages.length"
+                  @click="changeCurrentPageIndex(currentPageIndex + 1)"
+                >
+                  <div class="dripicons dripicons-media-next pt-1"></div>
+                </b-button>
+              </WithTooltip>
+            </b-navbar-nav>
+          </b-navbar>
+          <b-navbar variant="light" class="px-0 py-0">
+            <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
+              <WithTooltip
+                placement="top"
+                :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')"
               >
-                <div class="dripicons dripicons-media-previous pt-1"></div>
-              </b-button>
-            </WithTooltip>
-            <div
-              class="px-2 pt-1 border-top border-bottom"
-              v-html="
-                $t('ppOf', {
-                  num: page.num,
-                  pages: issue.pages.length,
-                })
-              "
-            ></div>
-            <WithTooltip :content="$t('label_next_page')" delay>
-              <b-button
-                class="border-dark"
-                variant="light"
-                size="sm"
-                :disabled="currentPageIndex + 1 === issue.pages.length"
-                @click="changeCurrentPageIndex(currentPageIndex + 1)"
-              >
-                <div class="dripicons dripicons-media-next pt-1"></div>
-              </b-button>
-            </WithTooltip>
-          </b-navbar-nav>
-        </b-navbar>
-        <b-navbar variant="light" class="px-0 py-0">
-          <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-            <WithTooltip
-              placement="top"
-              :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')"
-            >
-              <b-button
-                :variant="outlinesVisible ? 'primary' : 'outline-primary'"
-                size="sm"
-                @click="outlinesVisible = !outlinesVisible"
-              >
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-duplicate my-1" />
-                  <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
-                  <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
-                </div>
-              </b-button>
-            </WithTooltip>
-            <!-- <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
+                <b-button
+                  :variant="outlinesVisible ? 'primary' : 'outline-primary'"
+                  size="sm"
+                  @click="outlinesVisible = !outlinesVisible"
+                >
+                  <div class="d-flex flex-row align-items-center">
+                    <div class="d-flex dripicons dripicons-duplicate my-1" />
+                    <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
+                    <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
+                  </div>
+                </b-button>
+              </WithTooltip>
+              <!-- <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
               <b-button
                 :variant="isFullscreen ? 'primary' : 'outline-primary'"
                 size="sm"
@@ -188,38 +188,38 @@
                 </div>
               </b-button>
             </WithTooltip> -->
-          </b-navbar-nav>
+            </b-navbar-nav>
 
-          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
-            <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
+            <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
+              <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
 
-            <b-button-group class="ml-2">
-              <b-button
-                size="sm"
-                :class="{ active: !isArticleTextDisplayed }"
-                variant="outline-primary"
-                @click="isArticleTextDisplayed = false"
-              >
-                <div class="d-flex align-items-center">
-                  {{ $t('facsimileView') }}
-                  <div class="d-flex dripicons dripicons-article ml-2" />
-                </div>
-              </b-button>
-              <b-button
-                size="sm"
-                :class="{ active: isArticleTextDisplayed }"
-                variant="outline-primary"
-                @click="isArticleTextDisplayed = true"
-              >
-                <div class="d-flex align-items-center">
-                  {{ $t('closeReadingView') }}
-                  <div class="d-flex dripicons dripicons-align-justify ml-2" />
-                </div>
-              </b-button>
-            </b-button-group>
-          </b-navbar-nav>
-        </b-navbar>
-      </div>
+              <b-button-group class="ml-2">
+                <b-button
+                  size="sm"
+                  :class="{ active: !isArticleTextDisplayed }"
+                  variant="outline-primary"
+                  @click="isArticleTextDisplayed = false"
+                >
+                  <div class="d-flex align-items-center">
+                    {{ $t('facsimileView') }}
+                    <div class="d-flex dripicons dripicons-article ml-2" />
+                  </div>
+                </b-button>
+                <b-button
+                  size="sm"
+                  :class="{ active: isArticleTextDisplayed }"
+                  variant="outline-primary"
+                  @click="isArticleTextDisplayed = true"
+                >
+                  <div class="d-flex align-items-center">
+                    {{ $t('closeReadingView') }}
+                    <div class="d-flex dripicons dripicons-align-justify ml-2" />
+                  </div>
+                </b-button>
+              </b-button-group>
+            </b-navbar-nav>
+          </b-navbar>
+        </div>
       </template>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
@@ -239,7 +239,9 @@
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
           :article="{ uid: articleId }"
-          :marginaliaSections="marginaliaSections"
+          :marginaliaSections="
+            isContentAvailable && !isArticleTextDisplayed ? marginaliaSections : []
+          "
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleIdSelectedInViewer"
         />
@@ -281,14 +283,14 @@ import {
   articles as articlesService,
   search as searchService,
   images as imagesService,
-  getAuthenticationBearer,
+  getAuthenticationBearer
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
 import {
   searchQueryGetter,
   searchQuerySetter,
-  mapApplyCurrentSearchFilters,
+  mapApplyCurrentSearchFilters
 } from '@/logic/queryParams'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Issue from '@/models/Issue'
@@ -313,7 +315,7 @@ const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
   PageNumber: 'p',
   ArticleId: 'articleId',
-  TextMode: 'text',
+  TextMode: 'text'
 })
 const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person']
 
@@ -334,7 +336,7 @@ export default {
     isFullscreen: false,
     isLoadingServiceQuery: false,
     displayOnlyMatchingArticles: false,
-    headers: /** @type {{[key: string] : string }} */ ({}),
+    headers: /** @type {{[key: string] : string }} */ ({})
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -345,14 +347,14 @@ export default {
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
     CollectionAddTo,
-    WithTooltip,
+    WithTooltip
   },
   mounted() {
     if (this.suggestionQuery.length) {
       this.displayOnlyMatchingArticles = true
     }
     this.headers = {
-      Authorization: 'Bearer ' + getAuthenticationBearer() ?? '',
+      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
     }
   },
   created() {
@@ -374,9 +376,9 @@ export default {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: '1',
-        },
-      }),
+          p: '1'
+        }
+      })
     },
     $navigation() {
       return new Navigation(this)
@@ -410,7 +412,7 @@ export default {
       /** @return {string|undefined} */
       get() {
         return getPageId(this.issueId, this.currentPageIndex)
-      },
+      }
     },
     /** @returns {string|undefined} */
     articleId() {
@@ -436,9 +438,9 @@ export default {
       /** @param {string} q */
       set(q) {
         this.$navigation.updateQueryParametersWithHistory({
-          [QueryParams.TextMode]: q ? '1' : undefined,
+          [QueryParams.TextMode]: q ? '1' : undefined
         })
-      },
+      }
     },
     /** @returns {import('@/models/Page').default|undefined} */
     page() {
@@ -459,8 +461,8 @@ export default {
         article.regions.map(region => ({
           articleUid: article.uid,
           pageUid: this.pageId,
-          coords: region.coords,
-        })),
+          coords: region.coords
+        }))
       )
     },
     /** @returns {import('@/models/ArticleBase').default[]} */
@@ -491,9 +493,9 @@ export default {
       set(q) {
         this.paginationCurrentPage = 1
         this.$navigation.updateQueryParametersWithHistory({
-          q,
+          q
         })
-      },
+      }
     },
     /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
     serviceQuery() {
@@ -502,7 +504,7 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         issueUid: this.issue?.uid,
-        filters: this.applyCurrentSearchFilters ? this.filters.map(getFilterQuery) : [],
+        filters: this.applyCurrentSearchFilters ? this.filters.map(getFilterQuery) : []
       }
       // eslint-disable-next-line
       console.debug('[IssueViewerPage] computed serviceQuery', sq)
@@ -513,7 +515,7 @@ export default {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
-        totalRows: this.paginationTotalRows,
+        totalRows: this.paginationTotalRows
       }
     },
     currentPageIndex: {
@@ -522,7 +524,7 @@ export default {
         if (!this.issue) return -1
         const pageNumber = parseInt(
           /** @type {string} */ (getQueryParameter(this, QueryParams.PageNumber)),
-          10,
+          10
         )
         if (isNaN(pageNumber)) return 0
         // handle missing pages.
@@ -533,9 +535,9 @@ export default {
         // set page num in query fro the page corresponding to the right currentPageIndex
         const pageNumber = this.issue?.pages[index]?.num
         this.$navigation.updateQueryParameters({
-          [QueryParams.PageNumber]: pageNumber,
+          [QueryParams.PageNumber]: pageNumber
         })
-      },
+      }
     },
     /** @returns {import('@/models/User')} */
     currentUser() {
@@ -551,7 +553,7 @@ export default {
     /** @returns {any[]} */
     marginaliaSections() {
       return this.pagesMarginalia[this.currentPageIndex] ?? []
-    },
+    }
   },
   watch: {
     issueId: {
@@ -564,8 +566,8 @@ export default {
           .find({
             query: {
               filters: [{ type: 'issue', q: id }],
-              limit: 100,
-            },
+              limit: 100
+            }
           })
           .then(({ data }) => data)
         // remap images by article property
@@ -582,14 +584,14 @@ export default {
           return acc
         }, {})
       },
-      immediate: true,
+      immediate: true
     },
     currentPageIndex: {
       /** @param {number} pageIndex */
       async handler(pageIndex) {
         await Promise.all([this.loadRegions(pageIndex), this.loadMarginalia(pageIndex)])
       },
-      immediate: true,
+      immediate: true
     },
     serviceQuery: {
       /**
@@ -624,8 +626,8 @@ export default {
                 filters: filters.concat(additionalFilters),
                 page,
                 limit,
-                group_by: 'articles',
-              },
+                group_by: 'articles'
+              }
             })
             .then(({ data, total }) => {
               this.paginationTotalRows = total
@@ -638,8 +640,8 @@ export default {
             })
         }
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
     handleLoginClick() {
@@ -671,7 +673,7 @@ export default {
           .then(() => {})
           .catch(err => {
             console.info(
-              `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
+              `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
             )
           })
       } else {
@@ -682,7 +684,7 @@ export default {
       this.displayOnlyMatchingArticles = true
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: filters.concat(this.ignoredFilters),
+        filters: filters.concat(this.ignoredFilters)
       })
     },
     handleMatchingArticlesChangePage(page) {
@@ -694,13 +696,13 @@ export default {
     },
     handleRemoveSelection() {
       this.$navigation.updateQueryParameters({
-        [QueryParams.ArticleId]: undefined,
+        [QueryParams.ArticleId]: undefined
       })
     },
     handleArticleSelected(article) {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(article.uid),
-        [QueryParams.PageNumber]: String(article.pages[0]?.num),
+        [QueryParams.PageNumber]: String(article.pages[0]?.num)
       })
     },
     /**
@@ -711,7 +713,7 @@ export default {
       // display the whole table of contents
       this.displayOnlyMatchingArticles = false
       this.$navigation.updateQueryParameters({
-        [QueryParams.ArticleId]: getShortArticleId(articleUid),
+        [QueryParams.ArticleId]: getShortArticleId(articleUid)
       })
     },
     /** @param {number} pageIndex */
@@ -722,8 +724,8 @@ export default {
           .find({
             query: {
               filters: [{ type: 'page', q: getPageId(this.issueId, pageIndex) }],
-              limit: 500,
-            },
+              limit: 500
+            }
           })
           .then(response => response.data.map(article => new Article(article)))
         this.pagesArticles[pageIndex] = articles
@@ -740,13 +742,13 @@ export default {
         const topicsSection = {
           title: this.$tc(`label.${results[0].type}.title`, results[0].buckets.length),
           isLeft: true,
-          items: results[0].buckets.map(bucket => `${bucket.item.htmlExcerpt} (${bucket.count})`),
+          items: results[0].buckets.map(bucket => `${bucket.item.htmlExcerpt} (${bucket.count})`)
         }
         const entitySections = results[1].map(facet => {
           return {
             title: this.$tc(`label.${facet.type}.title`, facet.buckets.length),
             isLeft: false,
-            items: facet.buckets.map(bucket => `${bucket.item.name} (${bucket.count})`),
+            items: facet.buckets.map(bucket => `${bucket.item.name} (${bucket.count})`)
           }
         })
 
@@ -757,17 +759,17 @@ export default {
     showArticleText(articleUid) {
       const params = {
         [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid),
-        [QueryParams.TextMode]: '1',
+        [QueryParams.TextMode]: '1'
       }
       this.$navigation.updateQueryParameters(params)
     },
     exitTextViewer() {
       const params = {
-        [QueryParams.TextMode]: undefined,
+        [QueryParams.TextMode]: undefined
       }
       this.$navigation.updateQueryParameters(params)
-    },
-  },
+    }
+  }
 }
 </script>
 
