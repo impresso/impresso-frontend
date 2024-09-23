@@ -21,22 +21,19 @@
         <p class="small-caps mt-3">Impresso data rundown</p>
         <p>
           <span class="number">76</span>
-          newspapers collected,<br />
+          newspapers, 2 countries<br />
           <span class="number"> 600,919</span>
           issues,<br />
           <span class="number">5,429,656</span>
-          pages scanned,<br />
+          pages,<br />
           <span class="number">47,798,468</span>
-          content items identified,<br />
+          content items,<br />
           <span class="number"> 3,462,799</span>
           images,<br />
           <span class="number">12,493,358,703</span>
-          words.<br />
+          tokens.<br />
         </p>
-        <p>
-          <span class="number">2</span> countries of publication<br />
-          <span class="number">530,086</span> named entities disambiguated
-        </p>
+
         <p>
           More? Check on our
           <a
