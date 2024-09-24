@@ -58,7 +58,10 @@
                 :children="regionsAnnotationTree[i].children"
                 :cluster-colours="clusterColourMap"
                 :selected-cluster-id="selectedClusterId"
-                @onClusterSelected="clusterSelectedHandler"
+                @clusterSelected="clusterSelectedHandler"
+                @passageClicked="passageSelectedHandler"
+                @passageMouseenter="mouseenterPassageHandler"
+                @passageMouseleave="mouseleavePassageHandler"
               />
             </div>
           </div>
@@ -99,7 +102,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import { articlesSuggestions, articleTextReusePassages, textReusePassages as textReusePassagesService, articles as articlesService } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
@@ -146,13 +149,6 @@ export default {
   updated() {
     const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
     this.viewerTopOffset = height
-
-    document.querySelectorAll('.tr-passage').forEach(element => {
-      element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
-      element.addEventListener('mouseenter', this.mouseenterPassageHandler)
-      element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
-      element.addEventListener('mouseleave', this.mouseleavePassageHandler)
-    })
   },
   computed: {
     ...mapStores(useCollectionsStore),
@@ -224,7 +220,7 @@ export default {
       return undefined
     },
     selectedClusterId() {
-      return this.$route.query.trClusterId
+      return this.$route.query.trClusterId as string
     },
     textReuseEnabled() {
       // @ts-ignore
@@ -258,30 +254,13 @@ export default {
           })
       }
     },
-    mouseenterPassageHandler(e) {
-      const { id } = e.target.dataset
-      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
-      const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
+    mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {
+      this.selectedPassageId = passageId
 
-      siblingElements.map(element => {
-        element.classList.remove('active')
-        element.removeEventListener('click', this.passageClickHandler)
-      })
-      peerElements.map(element => element.classList.add('active'))
-
-      e.target.addEventListener('click', this.passageClickHandler)
-
-      this.selectedPassageId = id
-      this.hoverPassageLineTopOffset = e.pageY
+      const el = e.currentTarget as HTMLElement
+      this.hoverPassageLineTopOffset = el.getBoundingClientRect().y
     },
-    mouseleavePassageHandler(e) {
-      const { id } = e.target.dataset
-      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
-
-      peerElements.map(element => element.classList.remove('active'))
-
-      e.target.removeEventListener('click', this.passageClickHandler)
-
+    mouseleavePassageHandler(clusterId, passageId, e) {
       this.selectedPassageId = null
     },
     passageClickHandler() {
@@ -292,38 +271,57 @@ export default {
         }
       })
     },
-    async clusterSelectedHandler(trClusterId, trPseudoPassageItem) {
-      console.info('@clusterSelectedHandler', trClusterId, trPseudoPassageItem)
-      const items = await textReusePassagesService.find({
+    passageSelectedHandler(clusterId, passageId) {
+      this.selectedPassageId = passageId
+      this.$router.push({
+        name: 'text-reuse-clusters',
         query: {
-          limit: 1,
-          filters: [{ type: 'id', q: trPseudoPassageItem.id }],
-          addons: { newspaper: 'text' }
+          q: `#${clusterId}`
         }
-      }).then(res => {
-        console.debug('passages', res)
-        return res.data
       })
-      if(!items.length) {
-        console.warn('No items found for cluster', trClusterId, 'and id', trPseudoPassageItem.id)
-        return
-      }
-      
-      this.selectionMonitorStore.show({
-        type: 'textReusePassage',
-        item: {
-          ...items[0],
-          // fix temporary issue on text reuse passage result, sometimes title is NaN...
-          title: this.article.title
-        },
-        context: 'textReuse',
-        scope: 'comparePassages',
-        applyCurrentSearchFilters: false,
-        displayTimeline: false,
-        displayActionButtons: false,
-        displayCurrentSearchFilters: false
+    },
+    async clusterSelectedHandler(trClusterId, entityId) {
+      this.$router.replace({
+        query: {
+          ...this.$route.query,
+          trClusterId
+        }
       })
-    }
+    },
+    // QQ for Daniele: this methods opens a modal which does not exist in
+    // production. I could not figure out how this was used...
+    // async clusterSelectedHandler(trClusterId, entityId) {
+    //   console.info('@clusterSelectedHandler', trClusterId, entityId)
+    //   const items = await textReusePassagesService.find({
+    //     query: {
+    //       limit: 1,
+    //       filters: [{ type: 'id', q: entityId }],
+    //       addons: { newspaper: 'text' }
+    //     }
+    //   }).then(res => {
+    //     console.debug('passages', res)
+    //     return res.data
+    //   })
+    //   if(!items.length) {
+    //     console.warn('No items found for cluster', trClusterId, 'and id', entityId)
+    //     return
+    //   }
+
+    //   this.selectionMonitorStore.show({
+    //     type: 'textReusePassage',
+    //     item: {
+    //       ...items[0],
+    //       // fix temporary issue on text reuse passage result, sometimes title is NaN...
+    //       title: this.article.title
+    //     },
+    //     context: 'textReuse',
+    //     scope: 'comparePassages',
+    //     applyCurrentSearchFilters: false,
+    //     displayTimeline: false,
+    //     displayActionButtons: false,
+    //     displayCurrentSearchFilters: false
+    //   })
+    // }
   },
   watch: {
     article_uid: {
@@ -343,7 +341,7 @@ export default {
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-        
+
         articlesSuggestions.get(articleUid).then(res => {
           this.articlesSuggestions = res.data
         })
@@ -391,20 +389,10 @@ export default {
   }
 
   .passage-control {
-    position: absolute;
+    position: fixed;
     right: 0;
     max-width: 100%;
     pointer-events: none;
-  }
-
-  .tr-passage {
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-    cursor: pointer;
-
-    &.active {
-      opacity: 1;
-    }
   }
 
   span.location::before {
