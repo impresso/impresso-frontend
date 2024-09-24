@@ -210,7 +210,6 @@
                 v-bind:checkbox="false"
                 v-on:toggleSelected="toggleSelected(searchResult)"
                 v-bind:checked="isChecked(searchResult)"
-                v-on:click="onClickResult(searchResult)"
                 v-model="searchResults[index]"
               />
             </b-col>
