@@ -4,7 +4,7 @@
       <div class="input-group">
         <input
           type="text"
-          class="form-control"
+          class="form-control form-control-sm"
           v-bind:placeholder="$t('placeholder')"
           v-on:input="onInput"
           v-on:keyup.enter="addCollection(inputString.trim())"
@@ -32,16 +32,16 @@
         {{ newCollectionError }}
       </div>
     </div>
-    <ul class="p-2">
+    <ul class="p-0">
       <li v-if="!Object.keys(this.collections).length">
         <i-spinner class="text-center p-5" />
       </li>
       <li
         v-for="(collection, index) in filteredCollections"
         v-bind:key="index"
-        class="py-2"
+        class="py-1"
         :class="{
-          active: isActive(collection),
+          active: isActive(collection)
         }"
       >
         <input
@@ -58,9 +58,9 @@
           v-on:click="toggleActive(collection, $event)"
           for="collection.uid"
         >
-          <span>{{ collection.name }}</span>
+          <b>{{ collection.name }}</b>
           <br />
-          <span class="description text-muted" :title="$t('last_edited')">
+          <span class="description text-muted small" :title="$t('last_edited')">
             {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
           >
         </label>
@@ -79,11 +79,11 @@ export default {
     show: false,
     isDisabled: true,
     inputString: '',
-    newCollectionError: '',
+    newCollectionError: ''
   }),
   props: {
     item: Object,
-    items: Array,
+    items: Array
   },
   updated() {
     this.focusInput()
@@ -99,8 +99,8 @@ export default {
     collections: {
       get() {
         return this.collectionsStore.collections
-      },
-    },
+      }
+    }
   },
   methods: {
     fetch() {
@@ -147,34 +147,39 @@ export default {
 
       if (!checked) {
         // add items to collection
-        this.collectionsStore.addCollectionItems({
-          items: itemsFiltered,
-          collection,
-          contentType: 'article',
-        }).then(() => {
-          itemsFiltered.forEach(item => {
-            item.collections.push(collection)
+        this.collectionsStore
+          .addCollectionItems({
+            items: itemsFiltered,
+            collection,
+            contentType: 'article'
           })
-        })
+          .then(() => {
+            itemsFiltered.forEach(item => {
+              item.collections.push(collection)
+            })
+          })
       } else {
         // remove items from collection
-        this.collectionsStore.removeCollectionItems({
-          items: itemsFiltered,
-          collection,
-          contentType: 'article',
-        }).then(() => {
-          itemsFiltered.forEach(item => {
-            const idx = item.collections.findIndex(c => c.uid === collection.uid)
-            item.collections.splice(idx, 1)
+        this.collectionsStore
+          .removeCollectionItems({
+            items: itemsFiltered,
+            collection,
+            contentType: 'article'
           })
-        })
+          .then(() => {
+            itemsFiltered.forEach(item => {
+              const idx = item.collections.findIndex(c => c.uid === collection.uid)
+              item.collections.splice(idx, 1)
+            })
+          })
       } // end remove items from collection
     },
     addCollection(collectionName) {
       if (this.isDisabled) {
         return
       }
-      this.collectionsStore.addCollection({ name: collectionName })
+      this.collectionsStore
+        .addCollection({ name: collectionName })
         .then(collection => {
           this.toggleActive(collection)
           this.inputString = ''
@@ -192,8 +197,8 @@ export default {
     },
     isLoggedIn() {
       return this.userStore.userData
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -214,8 +219,9 @@ export default {
 .CollectionAddToList ul li {
   position: relative;
   padding-inline-start: var(--checkmark-width);
-  border-radius: var(--impresso-border-radius-xs);
-  margin-bottom: var(--spacing-2);
+  border-radius: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--clr-grey-200-rgba-20);
 }
 .CollectionAddToList ul li label {
   font-variant: normal !important;
@@ -237,8 +243,8 @@ export default {
   text-align: center;
 }
 .CollectionAddToList ul li.active {
-  box-shadow: var(--bs-box-shadow-sm);
-  border: 1px solid var(--clr-grey-200-rgba-20);
+  // box-shadow: var(--bs-box-shadow-sm);
+  background-color: var(--clr-grey-200-rgba-20);
   padding-inline-start: var(--checkmark-width);
 }
 .CollectionAddToList ul li label .description {

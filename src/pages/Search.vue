@@ -73,6 +73,7 @@
           <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
             <ellipsis v-bind:initialHeight="60">
               <search-results-summary
+                :isLoading="isLoadingResults"
                 @onSummary="onSummary"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
@@ -210,7 +211,6 @@
                 v-bind:checkbox="false"
                 v-on:toggleSelected="toggleSelected(searchResult)"
                 v-bind:checked="isChecked(searchResult)"
-                v-on:click="onClickResult(searchResult)"
                 v-model="searchResults[index]"
               />
             </b-col>
@@ -314,7 +314,8 @@ export default {
     facets: [],
     /** @type {Filter[]} */
     // filtersWithItems: [],
-    visibleModal: null
+    visibleModal: null,
+    isLoadingResults: false
   }),
   props: {
     filtersWithItems: {
@@ -646,6 +647,7 @@ export default {
     },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
+        this.isLoadingResults = true
         const { total, data, info } = await searchService.find({
           query: {
             page,
@@ -658,6 +660,8 @@ export default {
         })
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
+        this.isLoadingResults = false
+
         let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
 
         // get remaining facets and enriched filters.
