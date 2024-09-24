@@ -40,7 +40,7 @@ export default {
   components: {
     // ClusterDetailsPanel,
     TextReusePassageItemLabel,
-    Ellipsis,
+    Ellipsis
   },
   props: {
     selected: Boolean,
@@ -48,14 +48,14 @@ export default {
     active: Boolean,
     showLink: Boolean,
     item: {
-      type: Object,
+      type: Object
     },
     click: {
-      type: Function,
-    },
+      type: Function
+    }
   },
   methods: {
-    handleClusterClick() {
+    handleClusterClick(e) {
       // <ItemSelector
       //     :uid="item.textReuseCluster.id"
       //     :item="item.textReuseCluster"
@@ -72,9 +72,10 @@ export default {
         applyCurrentSearchFilters: false,
         displayTimeline: false,
         displayActionButtons: false,
-        displayCurrentSearchFilters: false,
+        displayCurrentSearchFilters: false
       })
-    },
+      e.stopPropagation()
+    }
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
@@ -83,18 +84,18 @@ export default {
         'numbers.clusterSize',
         this.item.textReuseCluster.clusterSize,
         {
-          n: this.$n(this.item.textReuseCluster.clusterSize),
-        },
+          n: this.$n(this.item.textReuseCluster.clusterSize)
+        }
       )
       const lexicalOverlapLabel = this.$tc(
         'numbers.lexicalOverlap',
         this.item.textReuseCluster.lexicalOverlap,
         {
-          n: this.$n(Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100),
-        },
+          n: this.$n(Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100)
+        }
       )
       const sizeLabel = this.$tc('numbers.resultsAbsolute', parseInt(this.item.size), {
-        n: this.$n(this.item.size),
+        n: this.$n(this.item.size)
       })
 
       return this.$t('textReuseClusterSummary', {
@@ -102,11 +103,11 @@ export default {
         lexicalOverlap: lexicalOverlapLabel,
         size: sizeLabel,
         timespan: this.$tc('numbers.days', this.item.textReuseCluster.timeDifferenceDay, {
-          n: this.item.textReuseCluster.timeDifferenceDay,
-        }),
+          n: this.item.textReuseCluster.timeDifferenceDay
+        })
       })
-    },
-  },
+    }
+  }
 }
 </script>
 

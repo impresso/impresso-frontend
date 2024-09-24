@@ -98,7 +98,9 @@
   --bs-border-radius-lg: var(--impresso-border-radius-lg);
   --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.125);
-  --bs-box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  /* Original: --bs-box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); */
+  --bs-box-shadow-md: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em,
+    rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
   --bs-box-shadow-focus: 0 0 0 0.2rem #ffeb78;
   --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
@@ -258,6 +260,17 @@ label {
   top: 3px;
   left: 3px;
 }
+
+.btn-outline-tertiary {
+  border-color: var(--clr-grey-600) !important;
+}
+
+.btn-outline-tertiary:focus,
+.btn-outline-tertiary:hover {
+  box-shadow: none;
+  background-color: transparent !important;
+  border-bottom-color: var(--clr-grey-400) !important;
+}
 .btn-md {
   border-radius: var(--border-radius-md);
   box-shadow: var(--bs-box-shadow-sm);
@@ -338,6 +351,15 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   box-shadow: none;
 }
 
+/* Dropdown */
+.dropdown.show .dropdown-toggle.btn-outline-tertiary {
+  border: 1px solid var(--impresso-color-black) !important;
+  border-bottom-color: transparent !important;
+  background-color: white !important;
+}
+.dropdown.show .dropdown-toggle.btn-outline-tertiary:hover {
+  background-color: white !important;
+}
 /* SVGs */
 svg text {
   font-family: var(--bs-font-sans-serif), sans-serif;

@@ -5,8 +5,16 @@
       <article-item :item="article" show-entities show-topics />
       <div class="my-2" />
       <!-- <collection-add-to :item="article" :text="$t('add_to_collection')" /> -->
-      <b-badge v-for="(collection, i) in article.collections" v-bind:key="`co_${i}`" variant="info" class="mt-1 mr-1">
-        <router-link class="text-white" v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }">
+      <b-badge
+        v-for="(collection, i) in article.collections"
+        v-bind:key="`co_${i}`"
+        variant="info"
+        class="mt-1 mr-1"
+      >
+        <router-link
+          class="text-white"
+          v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+        >
           {{ collection.name }}
         </router-link>
         <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
@@ -18,26 +26,40 @@
         <p>{{ article.excerpt }}</p>
       </div>
       <b-container fluid v-else class="region-row mt-3 mb-3 position-relative">
-        <label class="text-right d-flex align-items-center">
-          <div class="ml-auto" style="line-height:1.25" v-if="textReusePassages.length" v-html="$tc('textReuseLabel', textReusePassages.length, {
-            n: textReusePassages.length,
-          })
-            " />
-          <div v-else class="ml-auto" style="line-height:1.25" v-html="$tc('textReuseLabel', 0)" />
+        <p class="small d-flex align-items-center m-0">
+          <div
+            v-html="
+              $tc('textReuseLabel', textReusePassages.length, {
+                n: textReusePassages.length
+              })
+            "
+          />
           <info-button class="ml-2" name="text-reuse" />
-        </label>
+        </p>
         <!-- computed regions -->
-        <b-row class="IssueViewerText__regions mt-1" v-for="(region, i) in computedRegions" v-bind:key="i">
+        <b-row
+          class="IssueViewerText__regions mt-1"
+          v-for="(region, i) in computedRegions"
+          v-bind:key="i"
+        >
           <div v-if="article.isCC" class="col col-sm-5">
             <div class="py-3">
-              <img v-bind:src="region.iiifFragment" alt="IIIF Region" :style="{ width: `${region.nw * 100}%` }" />
+              <img
+                v-bind:src="region.iiifFragment"
+                alt="IIIF Region"
+                :style="{ width: `${region.nw * 100}%` }"
+              />
             </div>
           </div>
           <div class="col" :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
             <div class="region py-3">
-              <annotated-text v-if="regionsAnnotationTree[i]" :children="regionsAnnotationTree[i].children"
-                :cluster-colours="clusterColourMap" :selected-cluster-id="selectedClusterId"
-                @onClusterSelected="clusterSelectedHandler" />
+              <AnnotatedText
+                v-if="regionsAnnotationTree[i]"
+                :children="regionsAnnotationTree[i].children"
+                :cluster-colours="clusterColourMap"
+                :selected-cluster-id="selectedClusterId"
+                @onClusterSelected="clusterSelectedHandler"
+              />
             </div>
           </div>
         </b-row>
@@ -48,14 +70,28 @@
       <h3>Similar Articles</h3>
       <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
       <b-row>
-        <b-col cols="12" sm="12" md="12" lg="6" xl="4" v-for="(searchResult, index) in articlesSuggestions"
-          v-bind:key="`${index}_ra`">
-          <search-results-similar-item :searchResult="searchResult" :topics="commonTopics(searchResult.topics)" />
+        <b-col
+          cols="12"
+          sm="12"
+          md="12"
+          lg="6"
+          xl="4"
+          v-for="(searchResult, index) in articlesSuggestions"
+          v-bind:key="`${index}_ra`"
+        >
+          <search-results-similar-item
+            :searchResult="searchResult"
+            :topics="commonTopics(searchResult.topics)"
+          />
         </b-col>
       </b-row>
     </b-container>
-    <div :style="`top:${hoverPassageLineTopOffset}px`" class="passage-control bs-tooltip-left" role="tooltip"
-      v-if="selectedPassage">
+    <div
+      :style="`top:${hoverPassageLineTopOffset}px`"
+      class="passage-control bs-tooltip-left"
+      role="tooltip"
+      v-if="selectedPassage"
+    >
       <div class="tooltip-inner">
         {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
       </div>
@@ -65,20 +101,22 @@
 
 <script>
 import { mapStores } from 'pinia'
-import { articlesSuggestions, articleTextReusePassages } from '@/services'
+import { articlesSuggestions, articleTextReusePassages, textReusePassages as textReusePassagesService, articles as articlesService } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 import ArticleItem from './lists/ArticleItem.vue'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import { articles as articlesService } from '@/services'
+
 import Article from '@/models/Article'
 import { useCollectionsStore } from '@/stores/collections'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 import {
   getNamedEntitiesFromArticleResponse,
   getAnnotateTextTree,
-  passageToPassageEntity,
+  passageToPassageEntity
 } from '@/logic/articleAnnotations'
+
 
 const colourScheme = [
   '#8dd3c7',
@@ -91,7 +129,7 @@ const colourScheme = [
   '#d9d9d9',
   '#bc80bd',
   '#ccebc5',
-  '#ffed6f',
+  '#ffed6f'
 ]
 
 export default {
@@ -102,7 +140,7 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0,
+      viewerTopOffset: 0
     }
   },
   updated() {
@@ -118,6 +156,7 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore),
+    ...mapStores(useSelectionMonitorStore),
     articlePages() {
       if (!this.article.pages || !this.article.pages.length) {
         return this.$t('no_page_info')
@@ -152,7 +191,7 @@ export default {
       return regions.map(r => ({
         ...r,
         // nrmalised width
-        nw: Math.min(1, r.coords.w / maxRegionWidth),
+        nw: Math.min(1, r.coords.w / maxRegionWidth)
       }))
     },
     clusterColourMap() {
@@ -175,7 +214,7 @@ export default {
         this.article.content,
         entities.concat(passageEntities),
         lineBreaks,
-        regionBreaks,
+        regionBreaks
       ).children
     },
     selectedPassage() {
@@ -190,14 +229,14 @@ export default {
     textReuseEnabled() {
       // @ts-ignore
       return !!window.impressoFeatures?.textReuse?.enabled
-    },
+    }
   },
   props: ['article_uid'],
   components: {
     ArticleItem,
     SearchResultsSimilarItem,
     AnnotatedText,
-    InfoButton,
+    InfoButton
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -211,7 +250,7 @@ export default {
         this.collectionsStore
           .removeCollectionItem({
             collection,
-            item,
+            item
           })
           .then(() => {
             item.collections.splice(idx, 1)
@@ -249,17 +288,42 @@ export default {
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
-          q: `#${this.selectedClusterId}`,
+          q: `#${this.selectedClusterId}`
+        }
+      })
+    },
+    async clusterSelectedHandler(trClusterId, trPseudoPassageItem) {
+      console.info('@clusterSelectedHandler', trClusterId, trPseudoPassageItem)
+      const items = await textReusePassagesService.find({
+        query: {
+          limit: 1,
+          filters: [{ type: 'id', q: trPseudoPassageItem.id }],
+          addons: { newspaper: 'text' }
+        }
+      }).then(res => {
+        console.debug('passages', res)
+        return res.data
+      })
+      if(!items.length) {
+        console.warn('No items found for cluster', trClusterId, 'and id', trPseudoPassageItem.id)
+        return
+      }
+      
+      this.selectionMonitorStore.show({
+        type: 'textReusePassage',
+        item: {
+          ...items[0],
+          // fix temporary issue on text reuse passage result, sometimes title is NaN...
+          title: this.article.title
         },
+        context: 'textReuse',
+        scope: 'comparePassages',
+        applyCurrentSearchFilters: false,
+        displayTimeline: false,
+        displayActionButtons: false,
+        displayCurrentSearchFilters: false
       })
-    },
-    clusterSelectedHandler(trClusterId) {
-      const { query } = this.$route
-      const updatedQuery = Object.assign({}, query, {
-        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId,
-      })
-      this.$router.replace({ query: updatedQuery }).catch(() => { })
-    },
+    }
   },
   watch: {
     article_uid: {
@@ -269,23 +333,23 @@ export default {
 
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
-            .find({ query: { id: articleUid } })
-            .then(({ passages }) => passages)
+              .find({ query: { id: articleUid } })
+              .then(({ passages }) => passages)
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
           articlesService.get(articleUid).then(d => new Article(d)),
-          trPromise,
+          trPromise
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-
+        
         articlesSuggestions.get(articleUid).then(res => {
           this.articlesSuggestions = res.data
         })
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 
@@ -375,13 +439,15 @@ export default {
 }
 </style>
 
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
     "cluster_tooltip": "View all {size} articles containing this passage",
-    "textReuseLabel": "No text reuse<br/> passages available| <b>1</b> text reuse <br/>passage available | <b>{n}</b> text reuse <br/>passages available"
+    "textReuseLabel": "No text reuse passages available| <b>1</b> text reuse passage available | <b>{n}</b> text reuse passages available"
   }
-}</i18n>
+}
+</i18n>
