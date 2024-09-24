@@ -23,8 +23,13 @@
               (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
             </span>
             <item-selector :uid="bucket.val" :item="bucket.item" :type="type" />
-            <div class="matches" v-if="bucket.item && bucket.item.matches">
-              <span v-for="(match, i) in bucket.item.matches" v-html="match" :key="i" />
+            <div class="matches d-flex flex-wrap" v-if="bucket.item && bucket.item.matches">
+              <span
+                v-for="(match, i) in bucket.item.matches"
+                v-html="match"
+                :key="i"
+                class="mr-1 text-muted"
+              />
             </div>
           </b-form-checkbox>
         </div>

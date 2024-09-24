@@ -128,6 +128,20 @@ const Icons: Record<string, IconData> = {
         d: 'M6 9L12 15L18 9'
       }
     ]
+  },
+  cross: {
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;',
+        d: 'M6 6L18 18'
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;',
+        d: 'M6 18L18 6'
+      }
+    ]
   }
 }
 

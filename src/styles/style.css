@@ -167,6 +167,7 @@ h6.dropdown-header {
 }
 
 label {
+  font-variant: normal;
   font-family: var(--bs-font-sans-serif);
   font-weight: 450;
   font-variation-settings: 'wght' 450;
@@ -335,8 +336,9 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   border: 1px solid transparent;
   transition: background-color 0.5s var(--impresso-transition-ease);
 }
-.btn-icon > path {
+.btn-icon path {
   fill: transparent;
+  stroke: currentColor;
 }
 .btn-icon:hover,
 .btn-icon.active {
@@ -359,6 +361,25 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .dropdown.show .dropdown-toggle.btn-outline-tertiary:hover {
   background-color: white !important;
+}
+/* Bootstrap Modals */
+.modal {
+  z-index: 1041;
+}
+.modal .modal-dialog {
+  border-radius: var(--impresso-border-radius-md);
+  border: 0px solid transparent;
+}
+
+.modal .modal-content {
+  border: 0px solid transparent;
+  border-radius: var(--impresso-border-radius-md);
+  box-shadow: var(--bs-box-shadow-md);
+  background-clip: border-box;
+}
+
+.modal .modal-footer {
+  padding: var(--spacing-1);
 }
 /* SVGs */
 svg text {
@@ -409,4 +430,17 @@ svg path.domain {
 
 .border-primary {
   border-color: var(--impresso-color-black) !important;
+}
+
+.right-0 {
+  right: 0;
+}
+.left-0 {
+  left: 0;
+}
+.top-0 {
+  top: 0;
+}
+.bottom-0 {
+  bottom: 0;
 }

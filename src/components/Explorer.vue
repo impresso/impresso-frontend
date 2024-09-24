@@ -2,18 +2,21 @@
   <Modal :id="id" :show="isVisible" body-class="p-0" @close="$emit(events.Hide)">
     <template v-slot:modal-header="{ titleId, close }">
       <div data-testid="tabs">
-        <div class="tb-title small-caps font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
-        <b-button
-          v-for="(availableType, i) in typeOptions"
-          v-bind:key="i"
-          class="mr-1 mt-1"
-          variant="outline-primary"
-          size="sm"
-          v-on:click="handleTypeChange(availableType)"
-          v-bind:class="{ active: currentType === availableType }"
-        >
-          {{ $t(`labels.${availableType}`) }}
-        </b-button>
+        <div class="tb-title small font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
+
+        <div class="mr-4 mt-2">
+          <b-button
+            v-for="(availableType, i) in typeOptions"
+            v-bind:key="i"
+            class="mr-1 mt-1"
+            variant="outline-primary"
+            size="sm"
+            v-on:click="handleTypeChange(availableType)"
+            v-bind:class="{ active: currentType === availableType }"
+          >
+            {{ $t(`labels.${availableType}`) }}
+          </b-button>
+        </div>
         <div class="small mt-2">
           <span v-if="isLoading">{{ $t('loading') }}</span>
           <span
@@ -45,16 +48,10 @@
           </div>
         </form>
       </div>
-      <div class="ml-auto">
-        <b-button
-          pill
-          class="dripicons-cross px-0"
-          variant="outline-danger"
-          style="width: 1.5em; height: 1.5em"
-          size="sm"
-          v-on:click.prevent="close"
-        >
-        </b-button>
+      <div class="position-absolute right-0 top-0">
+        <button class="btn btn-icon" v-on:click.prevent="close">
+          <Icon name="cross" />
+        </button>
       </div>
     </template>
     <!-- .modal-body -->
@@ -117,6 +114,7 @@ import Pagination from './modules/Pagination.vue'
 import Bucket from '@/models/Bucket'
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
 import { v4 } from 'uuid'
+import Icon from '@/components/base/Icon.vue'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -367,7 +365,8 @@ export default {
     Pagination,
     RangeFacetExplorer,
     TimeFacetExplorer,
-    Modal
+    Modal,
+    Icon
   },
   watch: {
     searchParameters: {
@@ -410,7 +409,7 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "explore": "refine",
+    "explore": "Refine your search query",
     "description": {
       "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option matching for type:| Select among<b> {count}</b> options matching {q} for type:",
       "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
