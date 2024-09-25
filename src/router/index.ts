@@ -50,56 +50,56 @@ const router = createRouter({
       name: 'home',
       component: HomePage2020,
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/2019',
       name: '2019',
       component: HomePage,
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/search/ngrams',
       name: 'searchNgrams',
       component: () => import('@/pages/SearchNgrams.vue'),
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/faq',
       name: 'faq',
       component: FaqPage,
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/terms-of-use',
       name: 'termsOfUse',
       component: TermsOfUsePage,
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/search',
       name: 'search',
       component: () => import('@/pages/Search.vue'),
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/search/images',
       name: 'searchImages',
       component: () => import('@/pages/SearchImages.vue'),
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/user/login',
@@ -107,8 +107,8 @@ const router = createRouter({
       component: UserLoginPage,
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/user/logout',
@@ -122,13 +122,13 @@ const router = createRouter({
             console.error(err)
             // what was supposed to be `this`?
             // this.error = this.$t(err.message)
-          },
+          }
         )
       },
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/user',
@@ -136,8 +136,8 @@ const router = createRouter({
       component: () => import('@/pages/User.vue'),
       meta: {
         realm: 'user',
-        requiresAuth: true,
-      },
+        requiresAuth: true
+      }
     },
     {
       path: '/user/register',
@@ -145,8 +145,8 @@ const router = createRouter({
       component: () => import('@/pages/UserRegister.vue'),
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/password-reset',
@@ -154,8 +154,8 @@ const router = createRouter({
       component: () => import('@/pages/PasswordReset.vue'),
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/password-reset/:token',
@@ -163,8 +163,8 @@ const router = createRouter({
       component: () => import('@/pages/PasswordChange.vue'),
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/password-reset-sent',
@@ -172,8 +172,8 @@ const router = createRouter({
       component: () => import('@/pages/PasswordResetSent.vue'),
       meta: {
         realm: 'user',
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/collections',
@@ -185,8 +185,8 @@ const router = createRouter({
           name: 'collections',
           meta: {
             requiresAuth: true,
-            realm: 'user',
-          },
+            realm: 'user'
+          }
         },
         {
           path: ':collection_uid',
@@ -194,10 +194,10 @@ const router = createRouter({
           name: 'collection',
           meta: {
             requiresAuth: true,
-            realm: 'user',
-          },
-        },
-      ],
+            realm: 'user'
+          }
+        }
+      ]
     },
     {
       path: '/issue/:issue_uid',
@@ -206,8 +206,8 @@ const router = createRouter({
       props: true,
       meta: {
         requiresAuth: false,
-        realm: 'issueviewer',
-      },
+        realm: 'issueviewer'
+      }
     },
     {
       path: '/issue/:issue_uid/view',
@@ -216,8 +216,8 @@ const router = createRouter({
       props: true,
       meta: {
         requiresAuth: false,
-        realm: 'issueviewer',
-      },
+        realm: 'issueviewer'
+      }
     },
     {
       path: '/issue/:issue_uid/page/:page_uid',
@@ -226,8 +226,8 @@ const router = createRouter({
       props: true,
       meta: {
         requiresAuth: false,
-        realm: 'issueviewer',
-      },
+        realm: 'issueviewer'
+      }
     },
     {
       path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
@@ -235,13 +235,13 @@ const router = createRouter({
       redirect: to => ({
         name: 'issue-viewer',
         params: {
-          issue_uid: to.params.issue_uid,
+          issue_uid: to.params.issue_uid
         },
         query: {
           p: (to.params.page_uid as string).match(/p0*(\d+)$/)[1],
-          articleId: getShortArticleId(to.params.article_uid as string),
-        },
-      }),
+          articleId: getShortArticleId(to.params.article_uid as string)
+        }
+      })
     },
     {
       path: '/newspapers',
@@ -253,8 +253,8 @@ const router = createRouter({
           name: 'newspapers',
           meta: {
             requiresAuth: false,
-            realm: 'newspapers',
-          },
+            realm: 'newspapers'
+          }
         },
         {
           path: ':newspaper_uid',
@@ -262,8 +262,8 @@ const router = createRouter({
           name: 'newspaper',
           meta: {
             requiresAuth: false,
-            realm: 'newspapers',
-          },
+            realm: 'newspapers'
+          }
         },
         {
           path: ':newspaper_uid/metadata',
@@ -271,10 +271,10 @@ const router = createRouter({
           name: 'newspaper_metadata',
           meta: {
             requiresAuth: false,
-            realm: 'newspapers',
-          },
-        },
-      ],
+            realm: 'newspapers'
+          }
+        }
+      ]
     },
     {
       path: '/entities',
@@ -286,8 +286,8 @@ const router = createRouter({
           name: 'entities',
           meta: {
             requiresAuth: false,
-            realm: 'entities',
-          },
+            realm: 'entities'
+          }
         },
         {
           path: ':entity_id',
@@ -295,17 +295,17 @@ const router = createRouter({
           name: 'entity',
           meta: {
             requiresAuth: false,
-            realm: 'entities',
-          },
-        },
-      ],
+            realm: 'entities'
+          }
+        }
+      ]
     },
     {
       path: '/playground',
       component: TestPage,
       meta: {
-        requiresAuth: true,
-      },
+        requiresAuth: true
+      }
     },
     {
       path: '/topics',
@@ -316,51 +316,51 @@ const router = createRouter({
           component: TopicsExplorerPage,
           name: 'topics',
           meta: {
-            requiresAuth: false,
-          },
+            requiresAuth: false
+          }
         },
         {
           path: ':topic_uid',
           component: TopicDetailPage,
           name: 'topic',
           meta: {
-            requiresAuth: false,
-          },
-        },
-      ],
+            requiresAuth: false
+          }
+        }
+      ]
     },
     {
       path: '/article/:article_uid',
       component: () => null,
-      beforeEnter: async (to) => {
+      beforeEnter: async to => {
         const res = await services.articles.get(to.params.article_uid as string)
         return {
           name: 'issue-viewer',
           params: {
-            issue_uid: res.issue.uid,
+            issue_uid: res.issue.uid
           },
           query: {
             p: res.pages[0]?.num,
             articleId: getShortArticleId(res.uid),
-            text: '1',
-          },
+            text: '1'
+          }
         }
-      },
+      }
     },
     {
       path: '/compare',
       component: () => import('@/pages/SearchQueriesComparison.vue'),
       name: 'compare',
       meta: {
-        requiresAuth: false,
-      },
+        requiresAuth: false
+      }
     },
     {
       path: '/text-reuse',
       component: () => import('@/pages/TextReuse.vue'),
       meta: {
         requiresAuth: false,
-        realm: 'textReuse',
+        realm: 'textReuse'
       },
       children: [
         {
@@ -369,8 +369,8 @@ const router = createRouter({
           name: 'textReuseOverview',
           meta: {
             requiresAuth: false,
-            realm: 'textReuse',
-          },
+            realm: 'textReuse'
+          }
         },
         {
           path: 'statistics',
@@ -378,8 +378,8 @@ const router = createRouter({
           name: 'textReuseStatistics',
           meta: {
             requiresAuth: false,
-            realm: 'textReuse',
-          },
+            realm: 'textReuse'
+          }
         },
         {
           path: 'clusters',
@@ -387,8 +387,8 @@ const router = createRouter({
           name: 'textReuseClusters',
           meta: {
             requiresAuth: false,
-            realm: 'textReuse',
-          },
+            realm: 'textReuse'
+          }
         },
         {
           path: 'passages',
@@ -396,17 +396,19 @@ const router = createRouter({
           name: 'textReusePassages',
           meta: {
             requiresAuth: false,
-            realm: 'textReuse',
-          },
-        },
-      ],
+            realm: 'textReuse'
+          }
+        }
+      ]
     },
     {
       path: '/text-reuse-clusters',
       component: () => import('@/pages/TextReuseClusters.vue'),
       name: 'text-reuse-clusters',
+      // because of https://github.com/vuejs/vue-router/issues/822#issuecomment-255685008
+      redirect: '/text-reuse-clusters/',
       meta: {
-        requiresAuth: false,
+        requiresAuth: false
       },
       children: [
         {
@@ -414,34 +416,34 @@ const router = createRouter({
           component: () => import('@/components/TextReuseClusterDetailPage.vue'),
           name: 'text-reuse-cluster-passages',
           meta: {
-            requiresAuth: false,
-          },
+            requiresAuth: false
+          }
         },
         {
           path: 'card',
           component: () => import('@/components/TextReuseClusterIdCardPage.vue'),
           name: 'text-reuse-cluster-detail',
           meta: {
-            requiresAuth: false,
-          },
+            requiresAuth: false
+          }
         },
         {
           path: 'connected-clusters',
           component: () => import('@/components/TextReuseConnectedClusters.vue'),
           name: 'text-reuse-connected-clusters',
           meta: {
-            requiresAuth: false,
-          },
-        },
-      ],
+            requiresAuth: false
+          }
+        }
+      ]
     },
     {
       path: '/powervis',
       component: PowerUserVisualisation,
       name: 'powervis',
-      meta: { requiresAuth: false },
-    },
-  ],
+      meta: { requiresAuth: false }
+    }
+  ]
 })
 
 router.beforeEach((to, from, next) => {
@@ -455,7 +457,7 @@ router.beforeEach((to, from, next) => {
       '[router/index] Matomo tracking \n - path: ',
       pathWithPrefix,
       ' \n - title:',
-      to.name,
+      to.name
     )
     analytics.push(['setCustomUrl', pathWithPrefix])
     analytics.push(['setDocumentTitle', to.name as string])
@@ -471,7 +473,7 @@ router.beforeEach((to, from, next) => {
     userStore.setRedirectionRoute({
       name: from.name,
       path: from.path,
-      query: from.query,
+      query: from.query
     })
     next()
   } else if (to.meta.requiresAuth === false) {
@@ -484,8 +486,8 @@ router.beforeEach((to, from, next) => {
         next({
           name: 'login',
           query: {
-            redirect: to.path,
-          },
+            redirect: to.path
+          }
         })
       }
     })
