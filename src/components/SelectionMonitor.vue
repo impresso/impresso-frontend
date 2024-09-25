@@ -181,7 +181,7 @@ import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import { SupportedFiltersByIndex } from '@/logic/filters'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
@@ -286,7 +286,8 @@ export default defineComponent({
       console.debug(
         '[SelectionMonitor] timelineApiQueryParams',
         this.displayCurrentSearchFilters,
-        this.applyCurrentSearchFilters
+        this.applyCurrentSearchFilters,
+        query
       )
       if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.monitorFilters]
@@ -384,7 +385,8 @@ export default defineComponent({
     },
     loadTimeline() {
       // eslint-disable-next-line
-      console.debug('[ItemSelector] loadTimeline')
+      console.debug('[ItemSelector] loadTimeline index:', this.timelineApiQueryParams.query.index)
+      const searchFacets = getSearchFacetsService(this.timelineApiQueryParams.query.index)
       searchFacets
         .get(
           'year',
