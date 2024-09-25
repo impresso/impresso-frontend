@@ -912,9 +912,9 @@ const meta: Meta = {
     template: '<AnnotatedText v-bind="args" :selectedClusterId="selectedClusterId" />',
     setup() {
       const selectedClusterId = ref(Object.keys(args.clusterColours)[0])
-      const onClusterSelected = clusterId => {
+      const onClusterSelected = (clusterId, entityId) => {
         selectedClusterId.value = clusterId
-        args.onClusterSelected?.(clusterId)
+        args.onClusterSelected?.(clusterId, entityId)
       }
       return { args: { ...args, onClusterSelected }, selectedClusterId }
     }
