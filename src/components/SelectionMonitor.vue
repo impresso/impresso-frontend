@@ -99,7 +99,7 @@
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
         v-if="monitor.type === 'textReuseCluster'"
-        class="flex-grow-1 bg-dark"
+        class="flex-grow-1"
       />
       <TextReusePassageMonitor
         :filters="applyCurrentSearchFilters ? monitorFilters : []"

@@ -2,7 +2,7 @@
   <!-- on hover, show the buttons -->
   <div class="TextReusePassageItem">
     <div>
-      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2 small border-tertiary" />
+      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2" />
     </div>
     <!-- {{ item.collections }} -->
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">
@@ -17,9 +17,14 @@
         </p>
       </Ellipsis>
     </div>
-    <div class="small text-muted mb-2" v-html="textReuseClusterSummary"></div>
+    <div
+      class="small text-muted mb-2"
+      v-if="!hideCompareButton"
+      v-html="textReuseClusterSummary"
+    ></div>
 
     <b-button
+      v-if="!hideCompareButton"
       variant="outline-secondary"
       size="sm"
       class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
@@ -43,6 +48,7 @@ export default {
     Ellipsis
   },
   props: {
+    hideCompareButton: Boolean,
     selected: Boolean,
     isObservable: Boolean,
     active: Boolean,

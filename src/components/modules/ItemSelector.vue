@@ -1,5 +1,5 @@
 <template>
-  <div class="ItemSelector d-inline" v-on:click.prevent.stop="selectItem">
+  <div class="ItemSelector d-inline" v-on:click.prevent.stop="selectItem" title="See details">
     <slot></slot>
     <span v-if="label" class="ItemSelector_label underline">{{ label }}</span>
     <span v-else-if="!hideIcon" class="dripicons-enter icon-link"></span>
