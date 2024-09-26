@@ -1,10 +1,15 @@
 <template>
   <div class="ClusterItem">
     <span class="d-flex align-self-stretch flex-shrink-0 selection-indicator" />
-    <TextReusePassageItemLabel :item="textReusePassageItem" class="border-left pl-2 my-2 small border-tertiary" />
+    <TextReusePassageItemLabel :item="textReusePassageItem" class="border-left pl-2 my-2" />
 
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">
-      <Ellipsis v-bind:max-height="300" v-bind:initialHeight="200" :additional-height="50" @click.prevent.stop>
+      <Ellipsis
+        v-bind:max-height="300"
+        v-bind:initialHeight="200"
+        :additional-height="50"
+        @click.prevent.stop
+      >
         <p class="text-sample p-2">
           <span>{{ item.textSampleContent }}</span>
         </p>
@@ -12,8 +17,12 @@
     </div>
     <div class="small text-muted mb-2" v-html="textReuseClusterSummary"></div>
 
-    <b-button variant="outline-secondary" size="sm" class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
-      @click="handleClusterClick">
+    <b-button
+      variant="outline-secondary"
+      size="sm"
+      class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
+      @click="handleClusterClick"
+    >
       {{ $t('seeTextReuseCluster') }}
     </b-button>
   </div>
@@ -30,7 +39,7 @@ export default {
   name: 'ClusterItem',
   components: {
     TextReusePassageItemLabel,
-    Ellipsis,
+    Ellipsis
   },
   props: {
     selected: Boolean,
@@ -39,8 +48,8 @@ export default {
     showLink: Boolean,
     item: {
       // must be an instance of TextReuseCluster
-      type: Object,
-    },
+      type: Object
+    }
   },
   methods: {
     handleClusterClick() {
@@ -60,9 +69,9 @@ export default {
         applyCurrentSearchFilters: false,
         displayTimeline: false,
         displayActionButtons: false,
-        displayCurrentSearchFilters: false,
+        displayCurrentSearchFilters: false
       })
-    },
+    }
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
@@ -71,15 +80,15 @@ export default {
         id: this.item.textSampleArticle.id,
         title: this.item.textSampleTitle,
         newspaper: {
-          id: this.item.textSampleArticle.id.split('-')[0],
+          id: this.item.textSampleArticle.id.split('-')[0]
         },
         date: this.item.textSampleDate,
         pageNumbers: [1],
         issue: {
-          id: this.item.textSampleArticle.id.split('-i')[0],
+          id: this.item.textSampleArticle.id.split('-i')[0]
         },
         article: {
-          id: this.item.textSampleArticle.id,
+          id: this.item.textSampleArticle.id
         },
         content: this.item.textSampleContent,
         textReuseCluster: {
@@ -88,28 +97,28 @@ export default {
           lexicalOverlap: this.item.lexicalOverlap,
           timeDifferenceDay: this.item.timeDifferenceDay,
           article: {
-            id: this.item.textSampleArticle.id,
-          },
-        },
+            id: this.item.textSampleArticle.id
+          }
+        }
       }
     },
     textReuseClusterSummary() {
       const clusterSizeLabel = this.$tc('numbers.clusterSize', this.item.clusterSize, {
-        n: this.$n(this.item.clusterSize),
+        n: this.$n(this.item.clusterSize)
       })
       const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', this.item.lexicalOverlap, {
-        n: this.$n(Math.round(this.item.lexicalOverlap * 100) / 100),
+        n: this.$n(Math.round(this.item.lexicalOverlap * 100) / 100)
       })
 
       return this.$t('textReuseClusterSummary', {
         clusterSize: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
         timespan: this.$tc('numbers.days', this.item.timeDifferenceDay, {
-          n: this.item.timeDifferenceDay,
-        }),
+          n: this.item.timeDifferenceDay
+        })
       })
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -127,7 +136,8 @@ export default {
 }
 </style>
 
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "numbers": {
       "days": "<span class='number'>{n}</span> day|<span class='number'>{n}</span> days"
@@ -136,4 +146,5 @@ export default {
     "seeTextReuseCluster": "Compare passages in cluster",
     "textReuseClusterSummary": "Cluster size: {clusterSize} with {lexicalOverlap} over {timespan}."
   }
-}</i18n>
+}
+</i18n>
