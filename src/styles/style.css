@@ -186,6 +186,9 @@ label {
   font-weight: 700;
   font-variation-settings: 'wght' 700;
 }
+.font-size-inherit {
+  font-size: inherit;
+}
 .btn-sm,
 .btn-group-sm > .btn {
   font-size: var(--impresso-font-size-smallcaps);
