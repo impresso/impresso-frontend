@@ -182,6 +182,9 @@ label {
   font-weight: var(--impresso-wght-smallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
+.text-decoration-underline {
+  text-decoration: underline;
+}
 .font-weight-bold {
   font-weight: 700;
   font-variation-settings: 'wght' 700;

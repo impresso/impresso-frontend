@@ -2,7 +2,7 @@
   <!-- on hover, show the buttons -->
   <div class="TextReusePassageItem">
     <div>
-      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2 small border-tertiary" />
+      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2" />
     </div>
     <!-- {{ item.collections }} -->
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">

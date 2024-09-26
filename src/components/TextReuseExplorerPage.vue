@@ -180,7 +180,6 @@
             class="m-3 pb-4 border-bottom"
             v-for="item in passages"
             :key="item.id"
-            @click="handleTextReusePassageClick"
           />
         </div>
       </template>
@@ -391,29 +390,37 @@ export default {
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     },
-    handleTextReusePassageClick(passage) {
-      // eslint-disable-next-line
-      console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
-      // filter exists, update it
-      const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
-      const trcFilter = FilterFactory.create({
-        type: 'textReuseCluster',
-        q: passage.textReuseCluster.id
-      })
-      if (filterExists) {
-        this.handleFiltersChanged(
-          this.filters.map(filter => {
-            if (filter.type === 'textReuseCluster') {
-              return trcFilter
-            }
-            return filter
-          })
-        )
-        return
-      } else {
-        this.handleFiltersChanged([...this.filters, trcFilter])
-      }
-    },
+    // UNUSED CODE
+    // handleTextReusePassageClick(passage) {
+    //   // eslint-disable-next-line
+    //   console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
+    //   if (typeof passage.textReuseCluster?.id !== 'string') {
+    //     console.warn(
+    //       '[TextReuseExplorer] handleTextReusePassageClick \n - no textReuseCluster.id found in passage:',
+    //       passage
+    //     )
+    //     return
+    //   }
+    //   // filter exists, update it
+    //   const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
+    //   const trcFilter = FilterFactory.create({
+    //     type: 'textReuseCluster',
+    //     q: passage.textReuseCluster.id
+    //   })
+    //   if (filterExists) {
+    //     this.handleFiltersChanged(
+    //       this.filters.map(filter => {
+    //         if (filter.type === 'textReuseCluster') {
+    //           return trcFilter
+    //         }
+    //         return filter
+    //       })
+    //     )
+    //     return
+    //   } else {
+    //     this.handleFiltersChanged([...this.filters, trcFilter])
+    //   }
+    // },
     handleAddToCollectionClick(item) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)

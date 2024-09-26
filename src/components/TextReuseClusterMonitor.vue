@@ -11,9 +11,11 @@
           <h4
             class="font-size-inherit sans m-0 px-2"
             v-html="
-              $t('numbers.passages', {
-                n: totalItems
-              })
+              isLoading
+                ? $t('loading')
+                : $t('numbers.passages', {
+                    n: totalItems
+                  })
             "
           ></h4>
           <i-dropdown
@@ -81,6 +83,8 @@ const items = ref<TextReusePassage[]>([])
 const orderBy = ref<string>('-date')
 const limit = ref<number>(10)
 const offset = ref<number>(0)
+const isLoading = ref<boolean>(false)
+
 const shouldUseSearchFilters = ref<boolean>(false)
 
 const pagination = computed(() => ({
@@ -94,8 +98,18 @@ const changePage = (page: number) => {
   loadPassages()
 }
 
+const query = computed(() => {
+  return {
+    filters: shouldUseSearchFilters.value ? props.filters : [],
+    offset: offset.value,
+    limit: limit.value,
+    order_by: orderBy.value
+  }
+})
+
 const loadPassages = async () => {
   const filters = shouldUseSearchFilters.value ? props.filters : []
+  isLoading.value = true
   const { data, total } = await textReusePassageService.find({
     query: {
       filters: filters.concat([{ type: 'textReuseCluster', q: props.item.id }]),
@@ -106,6 +120,7 @@ const loadPassages = async () => {
   })
   totalItems.value = total
   items.value = data
+  isLoading.value = false
 }
 
 onMounted(async () => {
