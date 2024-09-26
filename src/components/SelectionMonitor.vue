@@ -181,7 +181,7 @@ import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import { SupportedFiltersByIndex } from '@/logic/filters'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
@@ -286,14 +286,14 @@ export default defineComponent({
       console.debug(
         '[SelectionMonitor] timelineApiQueryParams',
         this.displayCurrentSearchFilters,
-        this.applyCurrentSearchFilters
+        this.applyCurrentSearchFilters,
+        query
       )
       if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.monitorFilters]
       } else if (!this.applyCurrentSearchFilters && this.monitor.item) {
         query.filters = [{ ...this.monitorFilter }]
       }
-
       return {
         query,
         hash: JSON.stringify(query).split('').sort().join('')
@@ -384,7 +384,8 @@ export default defineComponent({
     },
     loadTimeline() {
       // eslint-disable-next-line
-      console.debug('[ItemSelector] loadTimeline')
+      console.debug('[ItemSelector] loadTimeline index:', this.timelineApiQueryParams.query.index)
+      const searchFacets = getSearchFacetsService(this.timelineApiQueryParams.query.index)
       searchFacets
         .get(
           'year',
@@ -441,7 +442,7 @@ export default defineComponent({
 .SelectionMonitor.textReusePassage {
   width: 800px;
   top: 100px;
-  height: 600px;
+  height: calc(100% - 200px);
   margin-top: auto;
   margin-left: -400px;
 }
@@ -523,7 +524,7 @@ export default defineComponent({
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs_collection_overview": "collection",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
-    "tabs_textReuseCluster_comparePassages": "compare text reuse passages",
+    "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
     "tabs_textReusePassage_comparePassages": "compare text reuse passages",
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
     "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",

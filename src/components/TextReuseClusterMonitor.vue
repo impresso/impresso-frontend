@@ -4,33 +4,67 @@
       <!-- add pagination for startPassage and endPassage -->
       <div class="d-flex flex-row p-3">
         <div class="w-50">
-          <i-dropdown v-model="startPassageOrderBy" :options="orderByOptions.map(value => ({
-            value,
-            text: $t(`sort_${value}`),
-          }))
-            " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
-          <Pagination size="sm" :totalRows="totalPassages" :perPage="1" :currentPage="startPassageOffset"
-            @change="handleStartPassageOffsetChange" class="d-flex justify-content-center" />
+          <i-dropdown
+            v-model="startPassageOrderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`)
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
+          <Pagination
+            size="sm"
+            :totalRows="totalPassages"
+            :perPage="1"
+            :currentPage="startPassageOffset + 1"
+            @change="handleStartPassageOffsetChange"
+            class="d-flex justify-content-center"
+          />
         </div>
         <div class="w-50">
-          <i-dropdown v-model="endPassageOrderBy" :options="orderByOptions.map(value => ({
-            value,
-            text: $t(`sort_${value}`),
-          }))
-            " class="mr-auto" size="sm" variant="outline-primary"></i-dropdown>
-          <Pagination size="sm" :totalRows="totalPassages" :perPage="1" :currentPage="endPassageOffset"
-            @change="handleEndPassageOffsetChange" class="d-flex justify-content-center" />
+          <i-dropdown
+            v-model="endPassageOrderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`)
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
+          <Pagination
+            size="sm"
+            :totalRows="totalPassages"
+            :perPage="1"
+            :currentPage="endPassageOffset + 1"
+            @change="handleEndPassageOffsetChange"
+            class="d-flex justify-content-center"
+          />
         </div>
       </div>
       <div class="d-flex flex-row TextReuseClusterMonitor_header">
-        <TextReusePassageItemLabel v-if="startPassage" :item="startPassage" class="py-2 mx-3 border-bottom" />
-        <TextReusePassageItemLabel v-if="endPassage" :item="endPassage" class="py-2 mx-3 border-bottom" />
+        <TextReusePassageItemLabel
+          v-if="startPassage"
+          :item="startPassage"
+          class="py-2 mx-3 border-bottom"
+        />
+        <TextReusePassageItemLabel
+          v-if="endPassage"
+          :item="endPassage"
+          class="py-2 mx-3 border-bottom"
+        />
       </div>
     </div>
     <div class="position-relative flex-grow-1 mb-1">
-      <div class="left w-50 position-absolute h-100 ">
+      <div class="left w-50 position-absolute h-100">
         <p class="p-3" v-if="diff.length">
-          <span v-for="part in diff" :key="part.value">
+          <span v-for="(part, index) in diff" :key="index">
             <span v-if="part.added" class="added">{{ part.value }}</span>
             <span v-else-if="part.removed" class="removed">{{ part.value }}</span>
             <span v-else-if="part.value">{{ part.value }}</span>
@@ -42,7 +76,7 @@
       </div>
       <div class="right w-50 position-absolute h-100">
         <p class="p-3">
-          <span v-for="part in diff" :key="part.value">
+          <span v-for="(part, index) in diff" :key="index">
             <span v-if="part.added" class="added">{{ part.value }}</span>
             <span v-else-if="part.removed" class="removed">{{ part.value }}</span>
             <span v-else-if="part.value">{{ part.value }}</span>
@@ -67,18 +101,18 @@ export default {
   name: 'TextReuseClusterMonitor',
   components: {
     TextReusePassageItemLabel,
-    Pagination,
+    Pagination
   },
   props: {
     // item is a textReuseCluster item
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     filters: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   data: () => ({
     totalPassages: -1,
@@ -90,53 +124,50 @@ export default {
     endPassageOrderBy: '-date',
 
     startPassageOffset: 0,
-    endPassageOffset: 1,
+    endPassageOffset: 0,
 
     startPassageIsLoading: false,
     endPassageIsLoading: false,
 
     isLoading: false,
-    orderByOptions: OrderByOptions,
+    orderByOptions: OrderByOptions
   }),
 
   methods: {
     handleStartPassageOffsetChange(offset) {
-      this.startPassageOffset = offset
+      this.startPassageOffset = offset - 1
     },
     handleEndPassageOffsetChange(offset) {
-      this.endPassageOffset = offset
+      this.endPassageOffset = offset - 1
     },
     async loadStartPassage({ query }) {
       this.startPassageIsLoading = true
-      await textReusePassages
+      this.startPassage = await textReusePassages
         .find({ query })
         .then(res => {
-          this.startPassage = new TextReusePassage(res.data[0])
           this.totalPassages = res.total
-          this.startPassageIsLoading = false
-          return res
+          return res.data.length ? new TextReusePassage(res.data[0]) : null
         })
         .catch(err => {
           console.error('[TextReuseClusterMonitor] loadPassages', err)
-          this.startPassageIsLoading = false
+          return null
         })
+      this.startPassageIsLoading = false
     },
     async loadEndPassage({ query }) {
       this.endPassageIsLoading = true
-      await textReusePassages
+      this.endPassage = await textReusePassages
         .find({ query })
         .then(res => {
-          this.endPassage = new TextReusePassage(res.data[0])
           this.totalPassages = res.total
-          this.endPassageIsLoading = false
-          return res
+          return res.data.length ? new TextReusePassage(res.data[0]) : null
         })
         .catch(err => {
           console.error('[TextReuseClusterMonitor] loadPassages', err)
-          this.endPassageIsLoading = false
-          return { data: [] }
+          return null
         })
-    },
+      this.endPassageIsLoading = false
+    }
   },
   computed: {
     diff() {
@@ -147,40 +178,40 @@ export default {
     },
     searchApiStartPassageQueryParameters() {
       const query = {
-        page: this.startPassageOffset,
+        offset: this.startPassageOffset,
         limit: 1,
         order_by: this.startPassageOrderBy,
         filters: this.filters.length
           ? optimizeFilters(this.filters)
           : [{ type: 'textReuseCluster', q: this.item.id }],
-        addons: { newspaper: 'text' },
+        addons: { newspaper: 'text' }
       }
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
     },
     searchApiEndPassageQueryParameters() {
+      const filters = this.filters.length
+        ? optimizeFilters(this.filters)
+        : [{ type: 'textReuseCluster', q: this.item.id }]
+
+      if (this.startPassage) {
+        filters.push({ type: 'textReusePassage', context: 'exclude', q: this.startPassage.id })
+      }
+
       const query = {
-        page: this.endPassageOffset,
+        offset: this.endPassageOffset,
         limit: 1,
         order_by: this.endPassageOrderBy,
-        filters: this.filters.length
-          ? optimizeFilters(this.filters)
-          : [{ type: 'textReuseCluster', q: this.item.id }],
-        addons: { newspaper: 'text' },
+        filters,
+        addons: { newspaper: 'text' }
       }
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   watch: {
     searchApiStartPassageQueryParameters: {
@@ -191,11 +222,11 @@ export default {
         // eslint-disable-next-line
         console.debug(
           '[TextReuseClusterMonitor] @searchApiStartPassageQueryParameters \n query:',
-          query,
+          query
         )
         await this.loadStartPassage({ query })
       },
-      immediate: true,
+      immediate: true
     },
     searchApiEndPassageQueryParameters: {
       async handler({ query, hash }, previousValue) {
@@ -205,18 +236,18 @@ export default {
         // eslint-disable-next-line
         console.debug(
           '[TextReuseClusterMonitor] @searchApiEndPassageQueryParameters \n query:',
-          query,
+          query
         )
         await this.loadEndPassage({ query })
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 }
 </script>
 
 <style lang="css">
-.TextReuseClusterMonitor_header>div {
+.TextReuseClusterMonitor_header > div {
   flex: 1 1 0px;
 }
 

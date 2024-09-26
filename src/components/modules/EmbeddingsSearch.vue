@@ -19,7 +19,7 @@
         :options="languageEmbeddingsOptions"
         size="sm"
         variant="outline-primary"
-        style="border-left-color: black;width: 75px; text-overflow: ellipsis;"
+        style="border-left-color: black; width: 75px; text-overflow: ellipsis"
         class="pl-1 pr-4"
       />
       <b-form-select
@@ -28,7 +28,7 @@
         :options="limitEmbeddingsOptions"
         size="sm"
         variant="outline-primary"
-        style="width:75px "
+        style="width: 75px"
         class="pl-1 pr-4"
       />
     </div>
@@ -63,21 +63,21 @@ export default {
     languageEmbeddingsOptions: [
       { value: 'fr', text: 'French' },
       { value: 'de', text: 'German' },
-      { value: 'lb', text: 'Luxembourgish' },
+      { value: 'lb', text: 'Luxembourgish' }
     ],
     limitEmbeddingsOptions: [
       { value: 25, text: '25' },
-      { value: 50, text: '50' },
+      { value: 50, text: '50' }
     ],
     errorType: null,
     words: [],
     observingWords: [],
     isLoading: false,
     isPristine: true,
-    query: '',
+    query: ''
   }),
   props: {
-    filter: Object,
+    filter: Object
   },
   computed: {
     ...mapStores(useEmbeddingsStore),
@@ -98,7 +98,7 @@ export default {
       },
       set(limitEmbeddings) {
         this.embeddingsStore.updateLimit(limitEmbeddings)
-      },
+      }
     },
     languageEmbeddings: {
       get() {
@@ -106,20 +106,20 @@ export default {
       },
       set(languageEmbeddings) {
         this.embeddingsStore.updateLanguage(languageEmbeddings)
-      },
+      }
     },
     serviceQuery() {
       return {
         q: this.query,
         language: this.languageEmbeddings,
-        limit: this.limitEmbeddings,
+        limit: this.limitEmbeddings
       }
-    },
+    }
   },
   methods: {
     updateFilter(embedding) {
       this.$emit('embdding-selected', embedding)
-    },
+    }
   },
   mounted() {
     if (this.filterQuery) {
@@ -136,7 +136,7 @@ export default {
         embeddingsService
           .find({
             ignoreErrors: true,
-            query: { q, language, limit },
+            query: { q, language, limit }
           })
           .then(({ data }) => {
             this.words = data.filter(w => w !== q.toLowerCase())
@@ -149,9 +149,9 @@ export default {
             this.isLoading = false
           })
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 }
 </script>
 
@@ -171,7 +171,7 @@ export default {
     "filter": {
       "add": "Add {word} to filter"
     },
-    "embedding_howto": "Enlarge you search! Type <b>one word</b> and obtain a list of surrounding words",
+    "embedding_howto": "Expand you search! Type <b>one word</b> and obtain a list of similar words",
     "embeddings_words": "Click on one of the following words to update your search"
   }
 }

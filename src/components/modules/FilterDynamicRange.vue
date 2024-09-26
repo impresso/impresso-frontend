@@ -249,6 +249,15 @@ export default defineComponent({
     },
     handleClick({ bucket }) {
       if (isNaN(bucket.upper) || isNaN(bucket.lower)) {
+        // check if value is a number
+        if (!isNaN(bucket.val)) {
+          // create a filter and emit it
+          const rangeFilter = FilterFactory.create({
+            type: this.facetType,
+            q: [bucket.val, bucket.val]
+          })
+          this.$emit('clicked', rangeFilter)
+        }
         return
       }
 

@@ -126,9 +126,8 @@ export default {
         limit: 1,
         order_by: this.endPassageOrderBy,
         filters: [
-          { type: 'textReuseCluster', q: this.item.textReuseCluster.id }
-          // temporarily disabled.
-          // filters.push({ type: 'id', q: this.item.id, context: 'exclude' })
+          { type: 'textReuseCluster', q: this.item.textReuseCluster.id },
+          { type: 'id', q: this.item.id, context: 'exclude' }
         ],
         addons: { newspaper: 'text' }
       }
