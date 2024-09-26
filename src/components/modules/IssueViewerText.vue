@@ -26,7 +26,7 @@
         <p>{{ article.excerpt }}</p>
       </div>
       <b-container fluid v-else class="region-row mt-3 mb-3 position-relative">
-        <p class="small d-flex align-items-center m-0">
+        <div class="small d-flex align-items-center m-0">
           <div
             v-html="
               $tc('textReuseLabel', textReusePassages.length, {
@@ -35,7 +35,7 @@
             "
           />
           <info-button class="ml-2" name="text-reuse" />
-        </p>
+        </div>
         <!-- computed regions -->
         <b-row
           class="IssueViewerText__regions mt-1"
@@ -51,7 +51,7 @@
               />
             </div>
           </div>
-          <div class="col" :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+          <div class="col col-sm-7">
             <div class="region py-3">
               <AnnotatedText
                 v-if="regionsAnnotationTree[i]"
@@ -104,7 +104,12 @@
 
 <script lang="ts">
 import { mapStores } from 'pinia'
-import { articlesSuggestions, articleTextReusePassages, textReusePassages as textReusePassagesService, articles as articlesService } from '@/services'
+import {
+  articlesSuggestions,
+  articleTextReusePassages,
+  textReusePassages as textReusePassagesService,
+  articles as articlesService
+} from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 import ArticleItem from './lists/ArticleItem.vue'
 import AnnotatedText from './AnnotatedText.vue'
@@ -119,7 +124,8 @@ import {
   getAnnotateTextTree,
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
-
+import TextReuseCluster from '@/models/TextReuseCluster'
+import TextReusePassage from '@/models/TextReusePassage'
 
 const colourScheme = [
   '#8dd3c7',
@@ -264,6 +270,8 @@ export default {
       this.selectedPassageId = null
     },
     passageClickHandler() {
+      // create a filter for the selected cluster
+
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
@@ -271,57 +279,39 @@ export default {
         }
       })
     },
-    passageSelectedHandler(clusterId, passageId) {
-      this.selectedPassageId = passageId
-      this.$router.push({
-        name: 'text-reuse-clusters',
-        query: {
-          q: `#${clusterId}`
-        }
+    passageSelectedHandler(trClusterId: string, trPassageId: string) {
+      const trPassage = this.textReusePassages.find(p => p.id === trPassageId)
+      if (!trPassage) {
+        console.error(
+          '[issueViewerText] @passageSelectedHandler Passage not found with id:',
+          trPassageId
+        )
+        return
+      }
+      const item = new TextReuseCluster({
+        id: trClusterId,
+        maxDate: new Date(trPassage.timeCoverage.to),
+        minDate: new Date(trPassage.timeCoverage.from),
+        clusterSize: trPassage.clusterSize,
+        lexicalOverlap: trPassage.lexicalOverlap
+      })
+      console.info('[issueViewerText] @passageSelectedHandler', item)
+      this.selectionMonitorStore.show({
+        type: 'textReuseCluster',
+        item,
+        scope: 'comparePassages',
+        applyCurrentSearchFilters: false,
+        displayCurrentSearchFilters: false
       })
     },
-    async clusterSelectedHandler(trClusterId, entityId) {
+    clusterSelectedHandler(trClusterId: string) {
       this.$router.replace({
         query: {
           ...this.$route.query,
           trClusterId
         }
       })
-    },
-    // QQ for Daniele: this methods opens a modal which does not exist in
-    // production. I could not figure out how this was used...
-    // async clusterSelectedHandler(trClusterId, entityId) {
-    //   console.info('@clusterSelectedHandler', trClusterId, entityId)
-    //   const items = await textReusePassagesService.find({
-    //     query: {
-    //       limit: 1,
-    //       filters: [{ type: 'id', q: entityId }],
-    //       addons: { newspaper: 'text' }
-    //     }
-    //   }).then(res => {
-    //     console.debug('passages', res)
-    //     return res.data
-    //   })
-    //   if(!items.length) {
-    //     console.warn('No items found for cluster', trClusterId, 'and id', entityId)
-    //     return
-    //   }
-
-    //   this.selectionMonitorStore.show({
-    //     type: 'textReusePassage',
-    //     item: {
-    //       ...items[0],
-    //       // fix temporary issue on text reuse passage result, sometimes title is NaN...
-    //       title: this.article.title
-    //     },
-    //     context: 'textReuse',
-    //     scope: 'comparePassages',
-    //     applyCurrentSearchFilters: false,
-    //     displayTimeline: false,
-    //     displayActionButtons: false,
-    //     displayCurrentSearchFilters: false
-    //   })
-    // }
+    }
   },
   watch: {
     article_uid: {
