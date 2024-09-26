@@ -422,7 +422,8 @@ export default defineComponent({
       immediate: true,
       deep: false
     }
-  }
+  },
+  emits: ['change']
 })
 </script>
 

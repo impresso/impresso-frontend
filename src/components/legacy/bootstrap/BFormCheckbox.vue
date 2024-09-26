@@ -1,7 +1,15 @@
 <template>
   <div :class="cbClass">
-    <input type="checkbox" class="custom-control-input" :value="props.modelValue" :checked="props.modelValue" :id="uid"
-      :disabled="props.disabled" @change="handleChanged" :data-testid="dataTestid">
+    <input
+      type="checkbox"
+      class="custom-control-input"
+      :value="props.modelValue"
+      :checked="props.modelValue"
+      :id="uid"
+      :disabled="props.disabled"
+      @change="handleChanged"
+      :data-testid="dataTestid"
+    />
     <label class="custom-control-label" :for="uid">
       <slot></slot>
     </label>
@@ -15,20 +23,20 @@ import { v4 } from 'uuid'
 const props = defineProps({
   modelValue: {
     type: Boolean,
-    default: false,
+    default: false
   },
   switch: {
     type: Boolean,
-    default: false,
+    default: false
   },
   disabled: {
     type: Boolean,
-    default: false,
+    default: false
   },
   dataTestid: {
     type: String,
-    default: undefined,
-  },
+    default: undefined
+  }
 })
 const emit = defineEmits(['update:modelValue'])
 
@@ -45,7 +53,7 @@ const uid = computed(() => v4())
 const cbClass = computed(() => ({
   'custom-control': true,
   'custom-switch': props.switch,
-  'custom-checkbox': !props.switch,
+  'custom-checkbox': !props.switch
 }))
 
 const handleChanged = (event: Event) => {

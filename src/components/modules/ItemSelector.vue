@@ -59,7 +59,8 @@ export default {
           item: this.item,
           searchIndex: this.searchIndex,
           type: this.type,
-          applyCurrentSearchFilters: true
+          applyCurrentSearchFilters: true,
+          displayCurrentSearchFilters: true
         })
       }
 
