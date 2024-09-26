@@ -19,40 +19,40 @@ export default {
   props: {
     uid: {
       type: String,
-      required: true,
+      required: true
     },
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     type: {
       type: String,
-      required: true,
+      required: true
     },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false,
+      default: false
     },
     label: {
-      type: String,
+      type: String
     },
     searchIndex: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     hideIcon: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   methods: {
     selectItem() {
       const params = {
         item: {
           ...this.item,
-          uid: this.uid,
+          uid: this.uid
         },
-        type: this.type,
+        type: this.type
       }
       if (!this.defaultClickActionDisabled) {
         this.selectionMonitorStore.show({
@@ -60,17 +60,18 @@ export default {
           searchIndex: this.searchIndex,
           type: this.type,
           applyCurrentSearchFilters: true,
+          displayCurrentSearchFilters: true
         })
       }
 
       this.$emit('click', {
         params,
-        defaultActionExecuted: !this.defaultClickActionDisabled,
+        defaultActionExecuted: !this.defaultClickActionDisabled
       })
-    },
+    }
   },
   computed: {
-    ...mapStores(useSelectionMonitorStore),
+    ...mapStores(useSelectionMonitorStore)
   }
 }
 </script>
