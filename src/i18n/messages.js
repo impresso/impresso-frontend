@@ -217,7 +217,7 @@ export default {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!'
       },
-      GeneralError: 'An error occurred. Please try again later.',
+      GeneralError: 'An error occurred: "{error}". Please try again later.',
       loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',

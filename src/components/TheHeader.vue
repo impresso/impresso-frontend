@@ -205,8 +205,9 @@
             <span v-if="error.message === 'Login incorrect'">{{ error.message }}</span>
           </span>
           <span v-else-if="error.name === 'GeneralError'">
-            {{ $t(`errors.GeneralError`) }}
-            <span v-if="error.message">{{ error.message }}</span>
+            {{
+              $t(`errors.GeneralError`, { error: error.message ?? 'general error, unspecified' })
+            }}
           </span>
           <span v-else>{{ error }}</span>
         </span>
