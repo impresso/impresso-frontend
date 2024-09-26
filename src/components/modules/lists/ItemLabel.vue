@@ -104,7 +104,7 @@ export default {
           ? this.$tc('numbers.clusterSize', item.clusterSize, {
               n: this.$n(item.clusterSize)
             })
-          : ''
+          : 'size'
       const lexicalOverlapLabel =
         item.lexicalOverlap != null
           ? this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
@@ -134,7 +134,7 @@ export default {
       return this.$t('textReuseClusterSummary', {
         shortId: item.shortId,
         textSampleExcerpt: item.textSampleExcerpt,
-        clusterSize: clusterSizeLabel,
+        size: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
         timespan: this.$tc('numbers.days', item.timeDifferenceDay, {
           n: item.timeDifferenceDay
@@ -162,7 +162,7 @@ export default {
     "numbers": {
       "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
     },
-    "textReuseClusterSummary": "cluster <b>{shortId}</b><br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
+    "textReuseClusterSummary": "cluster <b>{shortId}</b> ({size})<br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
   }
 }
 </i18n>

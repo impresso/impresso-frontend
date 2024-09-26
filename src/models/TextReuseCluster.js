@@ -27,7 +27,7 @@ export default class TextReuseCluster {
     minDate = new Date(),
     clusterSize = 0,
     lexicalOverlap = 0,
-    connectedClusters = [],
+    connectedClusters = []
   } = {}) {
     this.id = String(id)
     this.shortId = this.id.split('-').pop()
@@ -37,9 +37,18 @@ export default class TextReuseCluster {
     this.textSampleContent = String(textSampleContent)
     this.textSampleExcerpt = String(textSampleExcerpt)
     this.textSampleDate = String(textSampleDate)
-    this.timeDifferenceDay = parseInt(timeDifferenceDay, 10)
     this.maxDate = maxDate
     this.minDate = minDate
+    // recalculate timedifferencedya using dates
+    const computedTimeDifferenceDay = Math.floor(
+      (this.maxDate - this.minDate) / (24 * 60 * 60 * 1000)
+    )
+    if (computedTimeDifferenceDay !== timeDifferenceDay) {
+      console.warn('recalculating timeDifferenceDay', this.timeDifferenceDay, timeDifferenceDay)
+      this.timeDifferenceDay = computedTimeDifferenceDay
+    } else {
+      this.timeDifferenceDay = timeDifferenceDay
+    }
     this.clusterSize = parseInt(clusterSize, 10)
     this.connectedClusters = connectedClusters
     this.lexicalOverlap = parseFloat(lexicalOverlap)
@@ -48,7 +57,7 @@ export default class TextReuseCluster {
   static fromSolrResponse(response) {
     return response.map(cluster => {
       return new TextReuseCluster({
-        id: cluster.id,
+        id: cluster.id
       })
     })
   }
@@ -62,7 +71,7 @@ export default class TextReuseCluster {
 
     const maxDate = new Date(item.date)
     const minDate = new Date(
-      +maxDate - item.textReuseCluster.timeDifferenceDay * 24 * 60 * 60 * 1000,
+      +maxDate - item.textReuseCluster.timeDifferenceDay * 24 * 60 * 60 * 1000
     )
     return new TextReuseCluster({
       id: item.textReuseCluster.id,
@@ -77,7 +86,7 @@ export default class TextReuseCluster {
       minDate,
       clusterSize: item.textReuseCluster.clusterSize,
       lexicalOverlap: item.textReuseCluster.lexicalOverlap,
-      connectedClusters: item.connectedClusters,
+      connectedClusters: item.connectedClusters
     })
   }
 }
