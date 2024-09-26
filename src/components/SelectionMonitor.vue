@@ -294,7 +294,6 @@ export default defineComponent({
       } else if (!this.applyCurrentSearchFilters && this.monitor.item) {
         query.filters = [{ ...this.monitorFilter }]
       }
-
       return {
         query,
         hash: JSON.stringify(query).split('').sort().join('')
@@ -443,7 +442,7 @@ export default defineComponent({
 .SelectionMonitor.textReusePassage {
   width: 800px;
   top: 100px;
-  height: 600px;
+  height: calc(100% - 200px);
   margin-top: auto;
   margin-left: -400px;
 }
@@ -525,7 +524,7 @@ export default defineComponent({
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs_collection_overview": "collection",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
-    "tabs_textReuseCluster_comparePassages": "compare text reuse passages",
+    "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
     "tabs_textReusePassage_comparePassages": "compare text reuse passages",
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
     "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",
