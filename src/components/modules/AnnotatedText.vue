@@ -90,7 +90,7 @@ const getBorderlinePassages = (item: Child) => {
 
 const getClusterTagStyle = (entity: Entity, colourMap: ColourMap, offsetRight: number) => {
   const borderColor = colourMap[entity.clusterId]
-  const right = offsetRight * 8 + 'px'
+  const right = (offsetRight + 1) * 8 + 'px'
   return { borderColor, right }
 }
 const getClusterInnerTagStyle = (props: RenderProps, entity: Entity, colourMap: ColourMap) => {
@@ -150,7 +150,7 @@ const renderVericalLine = (props: RenderProps, child: Child) => {
   return (
     <span
       class="vertical-line"
-      style={`background-color: ${backgroundColour}; right: ${offsetRight * 8}px`}
+      style={`background-color: ${backgroundColour}; right: ${(offsetRight + 1) * 8}px`}
     />
   )
 }
