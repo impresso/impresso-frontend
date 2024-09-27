@@ -13,6 +13,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev-staging": "vite --mode staging",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
