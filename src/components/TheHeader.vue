@@ -693,7 +693,7 @@ export default {
 .jobs-list > .list {
   width: 350px;
   height: 300px;
-  overflow: scroll;
+  overflow: auto;
   border-bottom: 1px solid #3d434a;
 }
 

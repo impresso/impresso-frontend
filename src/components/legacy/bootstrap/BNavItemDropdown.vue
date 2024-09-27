@@ -1,9 +1,24 @@
 <template>
   <li class="nav-item b-nav-dropdown dropdown" :class="ddClasses">
-    <a :class="linkClasses" href="#" target="_self" @click="handleChanged">
+    <a
+      :class="linkClasses"
+      href="#"
+      target="_self"
+      @click="handleChanged"
+      :id="elementId"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
       <slot name="button-content"></slot>
     </a>
-    <ul tabindex="-1" class="dropdown-menu dropdown-menu-right" :class="menuClasses" x-placement="top-end" :style="menuStyle">
+    <ul
+      tabindex="-1"
+      class="dropdown-menu dropdown-menu-right"
+      :class="menuClasses"
+      x-placement="top-end"
+      :style="menuStyle"
+      :aria-labelledby="elementId"
+    >
       <slot></slot>
     </ul>
   </li>
@@ -15,7 +30,7 @@
  */
 
 import { computed, useAttrs, ref, watch } from 'vue'
-import {  } from 'vue-router'
+import { v4 } from 'uuid'
 
 const props = defineProps({
   to: {
@@ -30,7 +45,6 @@ const props = defineProps({
 const attrs = useAttrs()
 const emit = defineEmits(['hidden'])
 
-
 const allowedAttrs = ['onClick', 'title', 'id', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
@@ -39,11 +53,12 @@ if (unknownAttrs.length) {
 
 const isDisplayed = ref(false)
 
-const handleChanged = () => {
+const handleChanged = (e: Event) => {
+  e.preventDefault()
   isDisplayed.value = !isDisplayed.value
 }
 
-watch(isDisplayed, (value) => {
+watch(isDisplayed, value => {
   if (!value) {
     emit('hidden')
   }
@@ -64,13 +79,21 @@ const menuClasses = computed(() => ({
   show: isDisplayed.value
 }))
 
-const menuStyle = computed(() => isDisplayed.value ? 'position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-214px, -3px, 0px);' : '')
+const menuStyle = computed(() =>
+  isDisplayed.value
+    ? 'position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, -3px, 0px);'
+    : ''
+)
+
+const elementId = computed(() => v4())
 
 interface Showable {
   show: () => void
 }
 
 defineExpose({
-  show: () => { isDisplayed.value = true }
+  show: () => {
+    isDisplayed.value = true
+  }
 })
 </script>
