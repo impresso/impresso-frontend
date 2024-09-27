@@ -481,8 +481,7 @@ export default {
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged({ items }) {
-      console.info('handleFilterChanged')
-      this.itemsToAdd = items // eslint-disable-line
+      this.itemsToAdd.splice(0, this.itemsToAdd.length, ...items) // eslint-disable-line
       // TODO:  exclude item already present
     }
   },
