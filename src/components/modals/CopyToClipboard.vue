@@ -4,7 +4,8 @@
     dialog-class="CopyToClipboard"
     content-class="CopyToClipboard__content drop-shadow rounded"
     @shown="delayIframePreview"
-    @close="handleModalClosed">
+    @close="handleModalClosed"
+  >
     <template #modal-header="{ close }">
       <!-- Emulate built in modal header close button action -->
 
@@ -69,7 +70,7 @@
                       backgroundColor: `#${backgroundColor}`,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     #
@@ -97,7 +98,7 @@
                       color: textColor,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     css
@@ -128,7 +129,7 @@
                       backgroundColor: `#${overlayBackgroundColor}`,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     #
@@ -206,7 +207,8 @@
             :modelValue="String(fitCoords)"
             :options="fitCoordsOptions"
             @update:modelValue="fitCoords = $event == 'true'"
-            type="radio" />
+            type="radio"
+          />
 
           <label for="form-input-max-height" class="mt-2">{{
             $t('options_customise_viewport_max_height')
@@ -266,7 +268,7 @@ import { mapActions } from 'pinia'
 import { useNotificationsStore } from '@/stores/notifications'
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
-import RadioGroup from '@/components/layout/RadioGroup.vue';
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from '@/components/base/Modal.vue'
 
 export default {
@@ -287,23 +289,23 @@ export default {
     title: '',
     newspaper: null,
     partner: null,
-    isModalVisible: false,
+    isModalVisible: false
   }),
   props: {
-    article: Object,
+    article: Object
   },
   computed: {
     fitCoordsOptions() {
       return [
-        { value: "true", text: this.$t('fixed_ratio') },
-        { value: "false", text: this.$t('fixed_height') },
+        { value: 'true', text: this.$t('fixed_ratio') },
+        { value: 'false', text: this.$t('fixed_height') }
       ]
     },
     customisation() {
       const params = [
         `backgroundColor=${this.backgroundColor}`,
         `overlayBackgroundColor=${this.overlayBackgroundColor}`,
-        `coordsMargin=${this.coordsMargin}`,
+        `coordsMargin=${this.coordsMargin}`
       ]
       if (this.fitCoords) {
         params.push(`coords=${this.cx},${this.cy},${this.cw},${this.ch}`)
@@ -318,7 +320,7 @@ export default {
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
         `<p style="padding: 0 ${this.captionPadding}px;  margin: 0; font-size: .8em"><b>${this.article.newspaper.name}</b> ${this.computedPartner}</p>`,
         `<p style="padding: 0 ${this.captionPadding}px ${this.captionPadding}px; margin: 0; font-size: .8em">${date}</p>`,
-        '</div>',
+        '</div>'
       ].join('')
     },
     iframeCode() {
@@ -329,7 +331,7 @@ export default {
         `<iframe src="${this.widgetLink}" style="position:absolute;top:0;left:0;width:100%;height:100%;"
             frameborder="0" allow="autoplay; fullscreen"
             allowfullscreen><p>Your browser does not support iframes.</p></iframe>`,
-        '</div>',
+        '</div>'
       ].join('')
     },
     computedCoords() {
@@ -349,13 +351,14 @@ export default {
     getIframeWrapperStyle() {
       return {
         // minHeight: '200px',
-        backgroundColor: `#${this.backgroundColor}`,
+        backgroundColor: `#${this.backgroundColor}`
       }
     },
     widgetLink() {
-      const { base: urlPrefix } = this.$router.options
-      return `${window.location.origin}${urlPrefix}widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
-    },
+      const { base: urlPrefix } = this.$router.options.history
+      const formattedUrlPrefix = urlPrefix.startsWith('/') ? urlPrefix : `/${urlPrefix}`
+      return `${window.location.origin}${formattedUrlPrefix}widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
+    }
   },
   mounted() {
     setTimeout(() => {
@@ -444,13 +447,13 @@ export default {
         this.cx,
         this.cy,
         this.cw,
-        this.ch,
+        this.ch
       )
-    },
+    }
   },
   components: {
     RadioGroup,
-    Modal,
+    Modal
   }
 }
 </script>
@@ -504,12 +507,12 @@ export default {
   "en": {
     "title": "title",
     "article_title": "Article title",
-    "copy_to_clipboard" : "Copy to clipboard",
+    "copy_to_clipboard": "Copy to clipboard",
     "iframe_preview": "iframe preview",
-    "iframe_code" : "copy & paste html code",
-    "url_copied_title" : "URL copied to clipboard",
-    "url_copied_message" : "{n} copied to clipboard",
-    "modal_title_share_article" : "share newspaper article",
+    "iframe_code": "copy & paste html code",
+    "url_copied_title": "URL copied to clipboard",
+    "url_copied_message": "{n} copied to clipboard",
+    "modal_title_share_article": "share newspaper article",
     "options_bgcolor": "background color",
     "options_bgcolor_help": "format hex RGB",
     "options_text_color": "text color",
