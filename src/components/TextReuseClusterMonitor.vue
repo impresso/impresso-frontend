@@ -108,6 +108,15 @@ const query = computed(() => {
 })
 
 watch(orderBy, () => loadPassages())
+watch(
+  () => props.item?.id,
+  () => loadPassages()
+)
+watch(
+  () => props.filters,
+  () => loadPassages(),
+  { deep: true }
+)
 
 const loadPassages = async () => {
   const filters = shouldUseSearchFilters.value ? props.filters : []
