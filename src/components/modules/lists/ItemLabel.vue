@@ -82,13 +82,13 @@ export default {
     },
     newspaperDetailedLabel() {
       const firstIssueDate =
-        this.item.firstIssue?.date instanceof Date
-          ? this.$d(this.item.firstIssue.date, 'short')
-          : this.$d(new Date(this.item.firstIssue.date), 'short')
+        this.item?.firstIssue?.date instanceof Date
+          ? this.$d(this.item?.firstIssue?.date ?? 0, 'short')
+          : this.$d(new Date(this.item?.firstIssue?.date ?? 0), 'short')
       const lastIssueDate =
-        this.item.lastIssue?.date instanceof Date
-          ? this.$d(this.item.lastIssue.date, 'short')
-          : this.$d(new Date(this.item.lastIssue.date), 'short')
+        this.item?.lastIssue?.date instanceof Date
+          ? this.$d(this.item?.lastIssue?.date ?? 0, 'short')
+          : this.$d(new Date(this.item?.lastIssue?.date ?? 0), 'short')
       return [
         `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
         `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
