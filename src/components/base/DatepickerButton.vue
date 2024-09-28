@@ -39,7 +39,7 @@
       :min="minDate"
       :max="maxDate"
       :id="`${uid}-value`"
-      :value="props.value"
+      :value="props.modelValue"
       @input="handleInput"
       style="width: 0px; height: 0px; border: 0px; margin: 0px; padding: 0px"
       ref="dateInput"
