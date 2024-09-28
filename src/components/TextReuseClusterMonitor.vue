@@ -107,6 +107,8 @@ const query = computed(() => {
   }
 })
 
+watch(orderBy, () => loadPassages())
+
 const loadPassages = async () => {
   const filters = shouldUseSearchFilters.value ? props.filters : []
   isLoading.value = true
@@ -132,7 +134,7 @@ onMounted(async () => {
 <i18n>
   {
     "en": {
-      
+
       "sort_date": "Sort by date",
       "sort_-date": "Sort by date (desc)",
       "sort_size": "Sort by size",
