@@ -45,6 +45,7 @@ export default {
       default: false
     }
   },
+  emits: ['click'],
   methods: {
     selectItem() {
       const params = {

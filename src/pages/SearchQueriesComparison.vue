@@ -451,7 +451,7 @@ export default {
     rightComparableEnriched() {
       if (
         this.rightComparable?.query?.filters != null &&
-        this.filtersWithItems[QueryIndex.Left] != null
+        this.filtersWithItems[QueryIndex.Right] != null
       ) {
         return {
           type: this.rightComparable.type,
