@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia'
-import {
-  search as searchService,
-  entities as entitiesService
-} from '@/services'
+import { search as searchService, entities as entitiesService } from '@/services'
 import Helpers from '@/plugins/Helpers'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 
 interface Filter {
-  q?: string, type?: string
+  q?: string
+  type?: string
 }
 
 interface ActivateParameters {
@@ -46,46 +44,53 @@ export const useMonitorStore = defineStore('monitor', {
     isActive: false,
     subtitle: undefined,
     disableFilterModification: false,
-    isPending: false,
+    isPending: false
   }),
   getters: {},
   actions: {
-    hide() { this.isActive = false },
+    hide() {
+      this.isActive = false
+    },
     setApplyCurrentSearchFilters(value: boolean) {
-      this.applyCurrentSearchFilters = value;
+      this.applyCurrentSearchFilters = value
     },
     updateFilters(filters: Filter[]) {
       this.filters = filters
     },
     loadItemTimeline() {
       // reset timeline
-      this.timeline = [];
-      this.isPendingTimeline = true;
+      this.timeline = []
+      this.isPendingTimeline = true
 
       let filters: Filter[] = [
         {
           type: this.type,
-          q: this.item?.uid,
-        },
-      ];
+          q: this.item?.uid
+        }
+      ]
       // if user asked to get details in current search:
       if (this.applyCurrentSearchFilters) {
-        filters = filters.concat(this.filters);
+        filters = filters.concat(this.filters)
       }
       // fetch article timeline related to the given type
-      return searchService.find({
-        query: {
-          group_by: this.groupBy,
-          filters,
-          facets: 'year',
-          limit: 0,
-        },
-      }).then((res) => {
-        this.itemCountRelated = res.total;
-        if (res.info.facets && res.info.facets.year) {
-          this.timeline = Helpers.timeline.fromBuckets(res.info.facets.year.buckets);
-        }
-      }).finally(() => { this.isPendingTimeline = false });
+      return searchService
+        .find({
+          query: {
+            group_by: this.groupBy,
+            filters,
+            facets: 'year',
+            limit: 0
+          }
+        })
+        .then(res => {
+          this.itemCountRelated = res.total
+          if (res.info.facets && res.info.facets.year) {
+            this.timeline = Helpers.timeline.fromBuckets(res.info.facets.year.buckets)
+          }
+        })
+        .finally(() => {
+          this.isPendingTimeline = false
+        })
     },
     activate({
       item,
@@ -95,9 +100,8 @@ export const useMonitorStore = defineStore('monitor', {
       subtitle = undefined,
       disableFilterModification = false
     }: ActivateParameters) {
-
       const unsubscribe = this.$onAction(({ name, args }) => {
-        if (name === 'updateFilters') filtersUpdatedCallback(args)
+        if (name === 'updateFilters') filtersUpdatedCallback(args[0])
         if (name === 'hide') unsubscribe()
       })
 
@@ -107,7 +111,7 @@ export const useMonitorStore = defineStore('monitor', {
 
       this.setItem({ item, type })
     },
-    setItem({ item, type }: { item: { uid: string }, type: string }) {
+    setItem({ item, type }: { item: { uid: string }; type: string }) {
       this.isActive = true
       this.item = item
       this.type = type
@@ -118,7 +122,7 @@ export const useMonitorStore = defineStore('monitor', {
       if (['persion', 'location'].includes(type)) {
         return Promise.all([
           this.loadItemTimeline(),
-          entitiesService.get(item.uid).then((res) => {
+          entitiesService.get(item.uid).then(res => {
             if (['location', 'person'].indexOf(type) !== -1) {
               this.item = new Entity(res)
             } else if (type === 'topic') {
@@ -126,19 +130,23 @@ export const useMonitorStore = defineStore('monitor', {
             } else {
               this.item = res
             }
-          }),
-        ]).catch((err) => {
-          console.error(err);
-        }).finally(() => { this.isPending = false })
+          })
+        ])
+          .catch(err => {
+            console.error(err)
+          })
+          .finally(() => {
+            this.isPending = false
+          })
       }
       // if there is no item to fetch, just get the timeline data.
       this.item = item
       this.isPending = false
 
       return this.loadItemTimeline()
-    },
+    }
   },
   persist: {
-    paths: [],
-  },
+    paths: []
+  }
 })
