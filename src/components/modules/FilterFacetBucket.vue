@@ -1,12 +1,28 @@
 <template>
   <div class="FilterFacetBucket d-flex text-small">
-    <b-form-checkbox v-model="isChecked" data-testid="filter-facet-bucket-checkbox"> </b-form-checkbox>
+    <b-form-checkbox v-model="isChecked" data-testid="filter-facet-bucket-checkbox">
+    </b-form-checkbox>
 
-    <item-selector hide-icon :uid="bucket.val" :item="bucket.item" :type="type" :searchIndex="searchIndex">
+    <item-selector
+      hide-icon
+      :uid="bucket.val"
+      :item="bucket.item"
+      :type="type"
+      :searchIndex="searchIndex"
+    >
       <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
       <span class="FilterFacetBucket__label" v-else>{{ item }}</span>
       <span v-if="bucket.count > -1">
-        (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
+        (<span
+          v-html="
+            $tc(
+              type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results',
+              bucket.count,
+              { n: $n(bucket.count) }
+            )
+          "
+        />
+        {{ type }})
       </span>
     </item-selector>
   </div>
@@ -21,23 +37,23 @@ export default {
   data: () => ({
     operators: ['or', 'and', 'not'],
     operator: 'or',
-    checked: false,
+    checked: false
   }),
   props: {
     bucket: {
-      type: Object,
+      type: Object
     },
     type: {
-      type: String,
+      type: String
     },
     isLoadingResults: {
       type: Boolean,
-      default: true,
+      default: true
     },
     searchIndex: {
       type: String,
-      default: 'search',
-    },
+      default: 'search'
+    }
   },
   computed: {
     isChecked: {
@@ -46,27 +62,27 @@ export default {
       },
       set(checked) {
         this.checked = checked
-        this.bucket.checked = checked  // eslint-disable-line
-        this.bucket.operator = this.operator  // eslint-disable-line
+        this.bucket.checked = checked // eslint-disable-line
+        this.bucket.operator = this.operator // eslint-disable-line
         this.$emit('toggle-bucket', this.bucket)
-      },
+      }
     },
     selectedOperator() {
       return this.$t(`operator.${this.operator}`)
-    },
+    }
   },
   methods: {
     selectOperator(operator) {
       this.operator = operator
-    },
+    }
   },
   components: {
     ItemSelector,
-    ItemLabel,
+    ItemLabel
   },
   mounted() {
     this.checked = !!this.bucket.checked
-  },
+  }
 }
 </script>
 
@@ -85,7 +101,8 @@ export default {
 }
 </style>
 
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "dates": {
       "lastModifiedDate": "Last-Modified-Date"
@@ -96,4 +113,5 @@ export default {
       "and": "include (AND)"
     }
   }
-}</i18n>
+}
+</i18n>

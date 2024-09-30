@@ -166,6 +166,13 @@ h6.dropdown-header {
   font-variation-settings: 'wght' 450;
 }
 
+b {
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
+}
+span.number {
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
+}
 label {
   font-variant: normal;
   font-family: var(--bs-font-sans-serif);

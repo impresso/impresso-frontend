@@ -215,6 +215,7 @@ export default defineComponent({
             items: filter.items.map(item => {
               if (this.bucketsIndex[item.uid]) {
                 return {
+                  ...this.bucketsIndex[item.uid].item,
                   ...item,
                   count: this.bucketsIndex[item.uid].count
                 }
@@ -243,7 +244,7 @@ export default defineComponent({
     bucketsIndex() {
       const index = {}
       this.facet.buckets.forEach(({ item, count }) => {
-        index[item.uid] = { count }
+        index[item.uid] = { count, item }
       })
       return index
     },

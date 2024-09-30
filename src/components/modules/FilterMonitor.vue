@@ -102,7 +102,15 @@
             <span v-if="!item.uid">...</span>
             <span v-if="item.count"
               >&nbsp;(<span
-                v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
+                v-html="
+                  $tc(
+                    type === 'collection'
+                      ? 'numbers.articlesMatchingSearchFilters'
+                      : 'numbers.results',
+                    item.count,
+                    { n: $n(item.count) }
+                  )
+                "
               />)&nbsp;</span
             >
           </item-selector>
