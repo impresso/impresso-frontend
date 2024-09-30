@@ -171,7 +171,7 @@ b {
   font-variation-settings: 'wght' var(--impresso-wght-bold);
 }
 span.number {
-  font-variation-settings: 'wght' var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 label {
   font-variant: normal;
