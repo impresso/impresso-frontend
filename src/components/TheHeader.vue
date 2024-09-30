@@ -468,6 +468,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   max-width: 100px;
+  min-width: 50px;
 }
 
 #app-header .dropdown-toggle[aria-expanded='true'] {
@@ -567,6 +568,7 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    min-width: 50px;
     > span {
       position: relative;
     }
