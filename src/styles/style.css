@@ -22,7 +22,7 @@
 
 :root {
   --impresso-color-paper: #fafbf2;
-
+  --impresso-color-white: #ffffff;
   --impresso-color-yellow-code: 255, 235, 120;
   --impresso-color-yellow: #ffeb78;
   --impresso-color-yellow-alpha-20: rgba(255, 235, 120, 0.2);
@@ -46,6 +46,7 @@
   --impresso-letter-spacing-smallcaps-md: 0.12em;
   --impresso-font-size-smaller: 0.85em;
   --impresso-wght: 450;
+  --impresso-wght-medium: 550;
   --impresso-wght-bold: 700;
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
@@ -74,6 +75,7 @@
 
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
+  --spacing-2-5: 0.75rem;
   --spacing-3: 1rem;
   --spacing-4: 1.5rem;
   --spacing-5: 3rem;
