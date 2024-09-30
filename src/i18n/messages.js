@@ -21,8 +21,8 @@ export default {
         ob: 'obituary',
         tb: 'tables',
         section: 'section',
-        uc: 'unclassified content',
-        page: 'No article segmentation',
+        uc: 'unclassified items',
+        page: 'no article segmentation',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
@@ -283,13 +283,13 @@ export default {
         optionsDescription: 'Total number of articles per day'
       },
       type: {
-        title: 'Article content type | Article content types | Article content types',
+        title: 'Item type | Item types | Item types',
         optionsTitle: 'Article content type',
-        filterTitle: 'article type',
+        filterTitle: 'item types',
         filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> article types applies',
-        description: 'check one or more article types to filter results',
-        empty: 'No articles types available',
+        selected: 'filter results if the item type is <b>one of {count} selected</b>',
+        description: 'check one or more item types to filter results',
+        empty: 'No item types available',
         context: {
           include: 'tagged as',
           exclude: '<b>NOT</b> tagged as'
