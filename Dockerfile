@@ -13,10 +13,11 @@ RUN npm install
 COPY src ./src
 COPY static ./static
 COPY public ./public
+COPY widget ./widget
 
 
 COPY .eslintrc.cjs .eslintignore tsconfig.app.json tsconfig.json tsconfig.node.json tsconfig.vitest.json ./
-COPY env.d.ts .prettierrc.json index.html widget/index.html ./
+COPY env.d.ts .prettierrc.json index.html ./
 COPY vite.config.ts vitest.config.ts ./
 COPY .env .env.production ./
 
