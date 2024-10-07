@@ -2,9 +2,10 @@
   <div class="TextReusePassageMonitor d-flex flex-column">
     <div class="flex-shrink-1">
       <!-- add pagination for startPassage and endPassage -->
-      <div class="d-flex flex-row w-100 py-2 align-items-center TextReusePassageMonitor_pagination">
-        <div class="mx-3 d-flex flex-wrap align-items-center">
+      <div class="w-100 py-2 d-flex flex-row">
+        <div class="w-50">
           <div
+            class="p-3 text-white"
             v-html="
               $tc('passages_in_same_cluster', totalPassages, {
                 offset: endPassageOffset + 1,
@@ -12,6 +13,8 @@
               })
             "
           />
+        </div>
+        <div class="d-flex flex-column w-50 align-items-center">
           <i-dropdown
             v-model="endPassageOrderBy"
             :options="
@@ -20,14 +23,22 @@
                 text: $t(`sort_${value}`)
               }))
             "
-            class="ml-2"
+            class="d-inline-block my-2"
             size="sm"
             variant="outline-tertiary"
           ></i-dropdown>
+          <pagination
+            :total-rows="totalPassages"
+            :per-page="1"
+            :current-page="endPassageOffset + 1"
+            @change="endPassageOffset = $event - 1"
+            class="mr-2"
+          ></pagination>
         </div>
       </div>
       <div class="d-flex flex-row TextReusePassageMonitor_header">
-        <TextReusePassageItemLabel :item="item" class="px-3" />
+        <TextReusePassageItemLabel :item="item" class="px-3" style="min-width: 50%" />
+
         <TextReusePassageItemLabel v-if="endPassage" :item="endPassage" class="px-3" />
       </div>
     </div>
@@ -62,12 +73,14 @@ import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel.vue'
 import { textReusePassages } from '@/services'
 import { offset } from '@floating-ui/vue'
+import Pagination from './modules/Pagination.vue'
 const OrderByOptions = ['date', '-date', 'size', '-size']
 
 export default {
   name: 'TextReusePassageMonitor',
   components: {
-    TextReusePassageItemLabel
+    TextReusePassageItemLabel,
+    Pagination
   },
   props: {
     item: {
@@ -126,8 +139,8 @@ export default {
         limit: 1,
         order_by: this.endPassageOrderBy,
         filters: [
-          { type: 'textReuseCluster', q: this.item.textReuseCluster.id },
-          { type: 'id', q: this.item.id, context: 'exclude' }
+          { type: 'textReuseCluster', q: this.item.textReuseCluster.id }
+          // { type: 'id', q: this.item.id, context: 'exclude' }
         ],
         addons: { newspaper: 'text' }
       }
@@ -208,10 +221,10 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "sort_date": "sorted by date",
-    "sort_-date": "sorted by date (desc)",
-    "sort_size": "sorted by size",
-    "sort_-size": "sorted by size (desc)",
+    "sort_date": "sort by date",
+    "sort_-date": "sort by date (desc)",
+    "sort_size": "sort by size",
+    "sort_-size": "sort by size (desc)",
     "passages_in_same_cluster": "Compare the passage on the left side with passage <b>#{offset}</b> of <b>{ n }</b> in the same cluster"
   }
 }
