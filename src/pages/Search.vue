@@ -201,6 +201,7 @@
 
       <div class="p-1">
         <b-container fluid>
+          <div ref="searchResultsFirstElement" />
           <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
               cols="12"
@@ -661,6 +662,8 @@ export default {
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false
+
+        this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
 
         let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
 

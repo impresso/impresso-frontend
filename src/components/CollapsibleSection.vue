@@ -15,10 +15,12 @@
     <ol>
       <li v-for="(paragraph, idx) in paragraphs" :key="paragraph.id">
         <CollapsibleParagraph
-          :modelValue="currentOpenTaskId === paragraph.id"
+          :modelValue="currentOpenParagraphId === paragraph.id"
           :paragraph="paragraph"
           :taskNum="idx + 1"
-          @update:modelValue="(value: boolean) => (currentOpenTaskId = value ? task.id : null)"
+          @update:modelValue="
+            (value: boolean) => (currentOpenParagraphId = value ? paragraph.id : null)
+          "
           @heightChanged="(e: string) => updateHeight(paragraph.id, e)"
         >
         </CollapsibleParagraph>
@@ -64,7 +66,7 @@ const props = defineProps({
 })
 
 const isOpen = ref(!props.isCollapsed)
-const currentOpenTaskId = ref<string | null>(props.initialOpenedParagraphId)
+const currentOpenParagraphId = ref<string | null>(props.initialOpenedParagraphId)
 
 watch(
   () => props.isCollapsed,
