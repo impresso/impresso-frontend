@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import * as services from '@/services'
-import HomePage from '@/components/HomePage.vue'
 import HomePage2020 from '@/components/HomePage2020.vue'
-import FaqPage from '@/components/FaqPage.vue'
+import FaqPage from '@/pages/FaqPage.vue'
 import TermsOfUsePage from '@/components/TermsOfUsePage.vue'
 import IssuePage from '@/components/IssuePage.vue'
 import UserLoginPage from '@/components/UserLoginPage.vue'
@@ -53,14 +52,7 @@ const router = createRouter({
         requiresAuth: false
       }
     },
-    {
-      path: '/2019',
-      name: '2019',
-      component: HomePage,
-      meta: {
-        requiresAuth: false
-      }
-    },
+
     {
       path: '/search/ngrams',
       name: 'searchNgrams',

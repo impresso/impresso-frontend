@@ -191,6 +191,15 @@ label {
   font-weight: var(--impresso-wght-smallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
+.small-caps-bold {
+  text-transform: uppercase;
+  font-family: var(--bs-font-sans-serif);
+  font-size: var(--impresso-font-size-smallcaps);
+  font-variant: normal;
+  letter-spacing: var(--impresso-letter-spacing-smallcaps);
+  font-weight: var(--impresso-wght-smallcaps-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
+}
 .text-decoration-underline {
   text-decoration: underline;
 }
@@ -415,6 +424,10 @@ svg path.domain {
 .rounded-lg {
   border-radius: var(--border-radius-lg) !important;
 }
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
 .bg-medium {
   background: var(--clr-grey-300);
 }
@@ -458,4 +471,7 @@ svg path.domain {
 }
 .bottom-0 {
   bottom: 0;
+}
+.z-index-1 {
+  z-index: 1;
 }

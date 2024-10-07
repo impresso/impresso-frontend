@@ -8,8 +8,13 @@
     >
       <slot></slot>
     </div>
-    <div class="more" v-bind:style="gradientStyle" v-if="contentHeight > initialHeight">
-      <b-button size="sm" variant="outline-primary" v-on:click.prevent.stop="onClick">
+    <div
+      class="more w-100"
+      :class="moreClass"
+      v-bind:style="gradientStyle"
+      v-if="contentHeight > initialHeight"
+    >
+      <b-button size="sm" variant="outline-secondary" v-on:click.prevent.stop="onClick">
         {{ $t(this.isCollapsed ? 'more' : 'less') }}</b-button
       >
     </div>
@@ -25,25 +30,29 @@ export default {
     isCollapsed: true,
     height: 0,
     collapsedHeight: 0,
-    contentHeight: 0,
+    contentHeight: 0
   }),
   props: {
     initialHeight: {
       type: Number,
-      default: 50,
+      default: 50
     },
     maxHeight: {
       type: Number,
-      default: 0,
+      default: 0
     },
     additionalHeight: {
       type: Number,
-      default: 0,
+      default: 0
     },
     backgroundColor: {
       type: String,
-      default: '#f8f9fa',
+      default: '#f8f9fa'
     },
+    moreClass: {
+      type: String,
+      default: ''
+    }
   },
   updated() {
     if (this.$refs && this.$refs.contents) {
@@ -63,13 +72,13 @@ export default {
     gradientStyle() {
       if (!this.isCollapsed) {
         return {
-          background: 'transparent',
+          background: 'transparent'
         }
       }
       return {
-        background: `linear-gradient(${this.backgroundColor}00 20%, ${this.backgroundColor})`,
+        background: `linear-gradient(${this.backgroundColor}00 20%, ${this.backgroundColor})`
       }
-    },
+    }
   },
   methods: {
     onClick() {
@@ -87,30 +96,32 @@ export default {
             : Math.min(+this.$refs.contents.scrollHeight, window.innerHeight / 2) +
               this.additionalHeight
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
-<style lang="scss">
+<style lang="css">
 .Ellipsis {
   position: relative;
-
-  .contents {
-    height: 100%;
-    overflow: hidden;
-  }
-  // .btn {
-  //   background-color: #f8f9fa;
-  // }
-  > .more {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 150px;
-    text-align: right;
-    background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
-  }
+}
+.Ellipsis .contents {
+  height: 100%;
+  overflow: hidden;
+}
+.Ellipsis .btn {
+  background-color: #f8f9fa;
+}
+.Ellipsis .btn:hover {
+  color: var(--impresso-color-black);
+}
+.Ellipsis .more {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+  text-align: right;
+  background: linear-gradient(#f8f9fa00 20%, #f8f9fa);
 }
 </style>
 
