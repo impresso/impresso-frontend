@@ -52,6 +52,7 @@
   --impresso-wght-smallcaps-bold: 800;
   --clr-white: #f8f8ff;
   --clr-white-rgba-20: #ffffff33;
+  --clr-white-rgba-50: #f8f8ff80;
   --clr-dark: var(--impresso-color-black);
 
   --clr-grey-100: #3d4146;
@@ -387,6 +388,15 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .dropdown.show .dropdown-toggle.btn-outline-tertiary:hover {
   background-color: white !important;
+}
+.bg-dark .dropdown .Icon path {
+  stroke: var(--clr-white) !important;
+}
+.bg-dark .dropdown-toggle {
+  color: var(--clr-white) !important;
+}
+.bg-dark .dropdown-toggle:hover {
+  color: var(--white) !important;
 }
 /* Bootstrap Modals */
 .modal {
