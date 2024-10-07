@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, withDefaults } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import ItemSelector from '../ItemSelector.vue'
 
@@ -94,3 +94,10 @@ const newspaperRoute = computed(() => {
   }
 })
 </script>
+<style>
+.bg-dark .TextReusePassageItemLabel h3,
+.bg-dark .TextReusePassageItemLabel span,
+.bg-dark .TextReusePassageItemLabel a {
+  color: var(--clr-white);
+}
+</style>
