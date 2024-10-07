@@ -209,6 +209,9 @@
               $t(`errors.GeneralError`, { error: error.message ?? 'general error, unspecified' })
             }}
           </span>
+          <span v-else-if="error.name === 'Error'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
+          </span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">&nbsp;{{ $t(['paths', ...error.route].join('.')) }}</span>
