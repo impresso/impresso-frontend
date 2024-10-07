@@ -11,7 +11,7 @@ const meta: Meta = {
   argTypes: {},
   args: {
     onClick: fn()
-  },
+  } as any,
   render: args => {
     return {
       components: { BNavItemDropdown, BDropdownItem },
