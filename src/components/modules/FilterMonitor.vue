@@ -85,7 +85,7 @@
             size="sm"
             placeholder=""
             class="accepted"
-            v-model="item.uid"
+            :value="item.uid"
             @click.prevent.stop
             @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
           >
