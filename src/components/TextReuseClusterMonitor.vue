@@ -35,7 +35,7 @@
       <template v-slot:default>
         <div class="container-fluid">
           <div class="row">
-            <div class="col-6" v-for="(passage, i) in items" :key="passage.id">
+            <div class="col-6" v-for="passage in items" :key="passage.id">
               <TextReusePassageItem
                 hideCompareButton
                 :item="passage"

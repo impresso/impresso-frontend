@@ -13,7 +13,7 @@
     <div v-html="paragraph.description"></div>
     <ol v-if="paragraph.paragraphs.length">
       <li
-        v-for="(subtask, idx) in paragraph.paragraphs"
+        v-for="subtask in paragraph.paragraphs"
         :key="subtask.id"
         class="pt-2 mb-2 mx-2 d-flex align-items-center"
       >

@@ -10,7 +10,7 @@ const meta: Meta<typeof CollapsiblePanel> = {
     return {
       components: { CollapsiblePanel },
       setup() {
-        let model = ref(false)
+        const model = ref(false)
         const updateModel = v => (model.value = v)
 
         return { args, model, updateModel }
