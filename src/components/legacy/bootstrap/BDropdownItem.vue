@@ -1,6 +1,14 @@
 <template>
   <li role="presentation">
-    <a role="menuitem" :class="linkClasses" :href="href" :target="props.target" :aria-disabled="disabled ? true : undefined" v-bind="$attrs" @click="onClick">
+    <a
+      role="menuitem"
+      :class="linkClasses"
+      :href="href"
+      :target="props.target"
+      :aria-disabled="disabled ? true : undefined"
+      v-bind="$attrs"
+      @click.stop="onClick"
+    >
       <slot></slot>
     </a>
   </li>
@@ -34,12 +42,12 @@ const props = defineProps({
 const attrs = useAttrs()
 
 const router = useRouter()
-const route = router.currentRoute
+const route = router?.currentRoute
 
 // NOTE: There seems to be no easy way to get $parent in Vue 3
 const parent = getCurrentInstance()?.proxy?.$parent
 
-const onClick = () => {
+const onClick = e => {
   if ((parent as any as WithHide)?.hide) {
     const el = parent as any as WithHide
     el.hide(true)
@@ -63,7 +71,7 @@ const href = computed(() => {
 
 const linkClasses = computed(() => ({
   'dropdown-item': true,
-  [String(props.activeClass)]: props.active || href.value === route.value?.fullPath,
-  'disabled': props.disabled
+  [String(props.activeClass)]: props.active || href.value === route?.value?.fullPath,
+  disabled: props.disabled
 }))
 </script>
