@@ -303,7 +303,7 @@ export default {
         const query = {
           filters: filters.map(toCanonicalFilter),
           limit: 0,
-          facets: SupportedFacetTypes.filter(f => f !== 'collection'),
+          facets: SupportedFacetTypes,
           group_by: 'articles'
         }
         const facets = await searchService

@@ -357,7 +357,7 @@ export default {
     widgetLink() {
       const { base: urlPrefix } = this.$router.options.history
       const formattedUrlPrefix = urlPrefix.startsWith('/') ? urlPrefix : `/${urlPrefix}`
-      return `${window.location.origin}${formattedUrlPrefix}widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
+      return `${window.location.origin}${formattedUrlPrefix}/widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
     }
   },
   mounted() {

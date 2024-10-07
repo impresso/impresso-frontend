@@ -13,6 +13,7 @@ RUN npm install
 COPY src ./src
 COPY static ./static
 COPY public ./public
+COPY widget ./widget
 
 
 COPY .eslintrc.cjs .eslintignore tsconfig.app.json tsconfig.json tsconfig.node.json tsconfig.vitest.json ./
