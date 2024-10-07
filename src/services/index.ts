@@ -28,8 +28,8 @@ switch (transport) {
 
 app.configure(
   auth({
-    storage: window.localStorage,
-  }),
+    storage: window.localStorage
+  })
 )
 
 const needsLockScreen = (p: string) => ['search.find', 'ngram-trends.create'].includes(p)
@@ -46,8 +46,8 @@ app.hooks({
         if (needsLockScreen(route) && context.params.lock !== false) {
           notificationsStore.lockScreen(true)
         }
-      },
-    ],
+      }
+    ]
   },
   after: {
     all: [
@@ -58,8 +58,8 @@ app.hooks({
         if (needsLockScreen(route)) {
           notificationsStore.lockScreen(false)
         }
-      },
-    ],
+      }
+    ]
   },
   error: {
     all: [
@@ -79,30 +79,27 @@ app.hooks({
             '\n - type:',
             context.error?.type,
             '\n - data:',
-            context.error?.data,
+            context.error?.data
           )
-        } else if (
-          route === 'authentication.remove' &&
-          context.error.name === 'NotAuthenticated'
-        ) {
+        } else if (route === 'authentication.remove' && context.error.name === 'NotAuthenticated') {
           console.warn('Ignore NotAuthenticated error on "authentication.remove" route.')
         } else if (route === 'authentication.create') {
           console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
         } else if (!silentErrorCodes.includes(context.error.code)) {
           // eslint-disable-next-line no-console
-          console.warn('app.hooks.error.all', context.error)
+          console.warn('app.hooks.error.all', context.error, context.error.stack, route)
           notificationsStore.displayError({
             error: context.error,
-            origin: 'app.hooks.error.all',
+            origin: route
           })
         }
         notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
         if (needsLockScreen(route)) {
           notificationsStore.lockScreen(false)
         }
-      },
-    ],
-  },
+      }
+    ]
+  }
 })
 
 app.service('logs').on('created', payload => {
@@ -116,7 +113,7 @@ app.service('logs').on('created', payload => {
     jobsStore.updateJob({
       ...payload.job,
       progress: payload.progress,
-      extra,
+      extra
     })
   }
 })
