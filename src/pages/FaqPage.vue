@@ -1,24 +1,30 @@
 <template>
   <div id="faq-items" class="container py-5">
-    <div class="row justify-content-md-center">
-      <h1>{{ title }}</h1>
-      <div class="col col-xl-6 col-lg-8 col-md-10">
-        <CollapsibleSection
-          v-for="(section, idx) in sections"
-          :key="section.id ?? idx"
-          :paragraphs="section.paragraphs"
-          :title="section.title"
-          v-bind:isCollapsed="false"
-        >
-          <template v-slot:header>
-            <div class="p-3">
-              <h1 class="m-0">{{ section.title }}</h1>
-              <p class="text-muted">{{ $t('summary.faq') }}</p>
-            </div>
-          </template>
-        </CollapsibleSection>
+    <h1>{{ title }}</h1>
+    <section v-for="(section, i) in sections" :key="i" class="my-5">
+      <div class="row position-sticky top-0 bg-light z-index-1 border-bottom py-3">
+        <h2 class="col-12 small-caps-bold m-0">{{ section.title }}</h2>
       </div>
-    </div>
+
+      <div v-for="(paragraph, j) in section.paragraphs" :key="j" class="row mb-3">
+        <a :id="paragraph.id" class="col-12" style="scroll-margin-top: 100px" />
+        <div class="col-12">
+          <h3 class="sans pt-4 font-size-inherit font-weight-bold">
+            {{ paragraph.title }}
+          </h3>
+          <p v-html="paragraph.summary" />
+
+          <ellipsis
+            v-if="paragraph.description.length"
+            class="p-3 rounded shadow"
+            moreClass="rounded pr-1 pb-1"
+            v-bind:initialHeight="70"
+          >
+            <div v-html="paragraph.description" />
+          </ellipsis>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -26,8 +32,8 @@
 import content from '@/assets/faqpage.json'
 import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
-import CollapsibleSection from '@/components/CollapsibleSection.vue'
-import { CollapsibleParagraph } from '@/models/CollapsibleParagraph'
+import { CollapsibleParagraph as Paragraph } from '@/models/CollapsibleParagraph'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
 
 const ApiVersionLine = apiVersion => `
 API: v${apiVersion.version},
@@ -43,10 +49,15 @@ Revision <a href="https://github.com/impresso/impresso-frontend/commit/${import.
 
 export default {
   components: {
-    CollapsibleSection
+    Ellipsis
   },
   computed: {
     ...mapStores(useSettingsStore),
+    route: {
+      get() {
+        return this.$route
+      }
+    },
     title: {
       get() {
         return this.$t('title.faq')
@@ -58,12 +69,12 @@ export default {
         faqContent.groups.push(this.getVersionGroup())
         return faqContent.groups.map(g => {
           console.debug('[FaqPage] group:', g)
-          return new CollapsibleParagraph({
+          return new Paragraph({
             id: g.title,
             title: g.title,
             paragraphs: g.faq.map(f => {
               console.debug('[FaqPage] paragraph:', f)
-              return new CollapsibleParagraph({
+              return new Paragraph({
                 id: f.id,
                 title: f.title,
                 summary: f.summary,
@@ -78,30 +89,19 @@ export default {
       return this.settingsStore.language_code
     }
   },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.route.hash) {
+        const el = document.getElementById(this.route.hash.slice(1))
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', offset: { top: -100 } })
+          // add actoive class tp the parent
+          el.parentNode.classList.add('border-left', 'border-primary', 'pl-3')
+        }
+      }
+    })
+  },
   methods: {
-    toggleExpandGroup(groupIdx) {
-      if (this.expandedGroupIdx === groupIdx) {
-        this.expandedGroupIdx = -1
-      } else {
-        this.expandedGroupIdx = groupIdx
-      }
-    },
-    toggleExpandSection(groupIdx, sectionIdx) {
-      if (this.expandedGroupIdx === groupIdx && this.expandedSectionIdx === sectionIdx) {
-        this.expandedSectionIdx = -1
-      } else {
-        this.expandedGroupIdx = groupIdx
-        this.expandedSectionIdx = sectionIdx
-      }
-    },
-    // toggleOpen(term) {
-    //   if (this.isOpen(term)) {
-    //     this.$router.push({ hash: '' })
-    //   } else {
-    //     this.$router.push({ hash: `#${term}` })
-    //   }
-    // },
-
     getVersionGroup() {
       return {
         title: this.$t('title.version'),
@@ -159,6 +159,7 @@ export default {
 {
   "en": {
     "title": {
+      "faq": "Frequently Asked Questions",
       "version": "Version",
       "whichVersion": "Which version of Impresso am I using"
     },
