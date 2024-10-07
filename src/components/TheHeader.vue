@@ -122,7 +122,7 @@
                 :key="i"
               />
             </div>
-            <div class="pt-2 pb-1">
+            <div class="pt-2 pb-1 d-flex justify-content-center">
               <pagination
                 @click.prevent.stop
                 :current-page="jobsPaginationCurrentPage"
@@ -130,7 +130,7 @@
                 :total-rows="jobsPaginationTotalRows"
                 :per-page="jobsPaginationPerPage"
                 aria-controls="my-table"
-                class="small-caps justify-content-center"
+                class="small-caps d-inline-block"
                 :showDescription="false"
               />
             </div>
@@ -208,6 +208,9 @@
             {{
               $t(`errors.GeneralError`, { error: error.message ?? 'general error, unspecified' })
             }}
+          </span>
+          <span v-else-if="error.name === 'Error'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
           </span>
           <span v-else>{{ error }}</span>
         </span>
