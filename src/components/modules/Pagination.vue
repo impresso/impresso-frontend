@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'dark-mode': props.darkMode }">
+  <div class="Pagination" :class="{ 'dark-mode': props.darkMode }">
     <ul
       class="pagination b-pagination m-0"
       :class="{
@@ -209,8 +209,21 @@ const goToLast = () => {
 }
 </script>
 
-<style scoped lang="less">
+<style>
 .dark-mode {
   background: transparent;
+}
+
+.fixed-pagination-footer .Pagination {
+  border-radius: var(--impresso-border-radius-xs);
+  box-shadow: var(--bs-box-shadow-md);
+}
+.Pagination .pagination li.page-item > a,
+.Pagination .pagination li.page-item > .page-link {
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--clr-white);
+}
+.Pagination .pagination li.page-item.active > .page-link {
+  background-color: var(--impresso-color-black);
 }
 </style>

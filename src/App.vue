@@ -482,21 +482,7 @@ input[type='range']:active::-ms-thumb {
     font-weight: bold;
   }
 }
-.fixed-pagination-footer {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 100%;
 
-  .pagination {
-    li.page-item > a,
-    li.page-item > .page-link {
-      border-color: $clr-secondary;
-      padding: 0.15em 0.6em;
-    }
-  }
-}
 .dark-mode,
 .navbar-dark {
   .fixed-pagination-footer {
