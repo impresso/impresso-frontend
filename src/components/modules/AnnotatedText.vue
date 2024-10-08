@@ -1,127 +1,202 @@
-<script>
+<script lang="tsx">
+import { defineComponent, PropType } from 'vue'
 
-const getItemTag = item => {
+interface Entity {
+  kind: string
+  offset: { start: number; end: number }
+  clusterId?: string
+  type?: string
+  id?: string
+}
+
+interface Child {
+  entity: Entity
+  children: (Child | string)[]
+  isContinuation?: boolean
+  isLast?: boolean
+}
+
+type ColourMap = Record<string, string>
+
+export interface Props {
+  children: Child[]
+  clusterColours: ColourMap
+  selectedClusterId?: string
+}
+
+export interface RenderProps extends Props {
+  onClusterSelected: (clusterId: string, entityId: string) => void
+  onPassageClicked: (clusterId: string, passageId: string) => void
+  onPassageMouseenter: (clusterId: string, passageId: string, event: MouseEvent) => void
+  onPassageMouseleave: (clusterId: string, passageId: string, event: MouseEvent) => void
+}
+
+const isChild = (item: Child | string): item is Child => {
+  return typeof item !== 'string' && 'entity' in item
+}
+
+const getItemTag = (item: Child) => {
   switch (item.entity.kind) {
-  case 'line':
-    return 'p'
-  case 'namedEntity':
-  case 'passage':
-    return 'span'
-  default:
-    return 'div'
+    case 'line':
+      return 'p'
+    case 'namedEntity':
+    case 'passage':
+      return 'span'
+    default:
+      return 'div'
   }
 }
 
-const getItemClasses = item => {
+const getItemClasses = (item: Child) => {
   switch (item.entity.kind) {
-  case 'namedEntity':
-    return `entity ${item.entity.type}${item.isContinuation ? ' continuation' : ''}`
-  case 'passage':
-    return `tr-passage ${item.isContinuation ? ' continuation' : ''}`
-  default:
-    return item.entity.kind
+    case 'namedEntity':
+      return `entity ${item.entity.type}${item.isContinuation ? ' continuation' : ''}`
+    case 'passage':
+      return `tr-passage ${item.isContinuation ? ' continuation' : ''}`
+    default:
+      return item.entity.kind
   }
 }
 
-const getItemStyles = (item, colourMap) => {
+const getItemStyles = (item: Child, colourMap: ColourMap) => {
   switch (item.entity.kind) {
-  case 'passage':
-    return { backgroundColor: colourMap[item.entity.clusterId] }
-  default:
-    return {}
+    case 'passage':
+      return { backgroundColor: colourMap[item.entity.clusterId] }
+    default:
+      return {}
   }
 }
 
-const getDataId = item => item.entity.id != null ? item.entity.id : undefined
+const getDataId = (item: Child) => (item.entity.id != null ? item.entity.id : undefined)
 
-const flattenChildrenDeep = children => children.flatMap(child => (Array.isArray(child.children) && child.children.length) > 0 ? [child].concat(flattenChildrenDeep(child.children)) : child)
+const flattenChildrenDeep = (children: (Child | string)[]) =>
+  children.flatMap(child => {
+    if (isChild(child) && child.children.length > 0)
+      return [child].concat(flattenChildrenDeep(child.children))
+    return child
+  })
 
-
-const getBorderlinePassages = item => {
-  const passages = flattenChildrenDeep(item.children)
-    .filter(child => child.entity && child.entity.kind === 'passage')
-  const startingPassages = passages
-    .filter(({ isLast, isContinuation }) => !isLast && !isContinuation)
-  const finishingPassages = passages
-    .filter(({ isLast }) => isLast)
+const getBorderlinePassages = (item: Child) => {
+  const passages = flattenChildrenDeep(item.children).filter(
+    child => child.entity && child.entity.kind === 'passage'
+  )
+  const startingPassages = passages.filter(
+    ({ isLast, isContinuation }) => !isLast && !isContinuation
+  )
+  const finishingPassages = passages.filter(({ isLast }) => isLast)
 
   return startingPassages.concat(finishingPassages)
 }
 
-const getClusterTagStyle = (entity, colourMap, offsetRight) => {
-  const borderColor = colourMap[entity.clusterId];
-  const right = (offsetRight * 8) + 'px';
+const getClusterTagStyle = (entity: Entity, colourMap: ColourMap, offsetRight: number) => {
+  const borderColor = colourMap[entity.clusterId]
+  const right = (offsetRight + 1) * 8 + 'px'
   return { borderColor, right }
 }
-const getClusterInnerTagStyle = (context, entity, colourMap) => {
-  const backgroundColor = context.props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent';
+const getClusterInnerTagStyle = (props: RenderProps, entity: Entity, colourMap: ColourMap) => {
+  const backgroundColor =
+    props.selectedClusterId === entity.clusterId ? colourMap[entity.clusterId] : 'transparent'
   return { backgroundColor }
 }
 
-const getClusterTitle = (context, clusterId) => {
-  const select = context.props.selectedClusterId === clusterId ? 'unselect' : 'select';
+const getClusterTitle = (props: RenderProps, clusterId: string) => {
+  const select = props.selectedClusterId === clusterId ? 'unselect' : 'select'
   return select + ' this passage'
 }
 
-const getClusterClass = isLast => isLast ? 'cluster-tag ending' : 'cluster-tag starting';
+const getClusterClass = (isLast: boolean) =>
+  isLast ? 'cluster-tag ending' : 'cluster-tag starting'
 
-const renderChildren = (h, context, child) => (
+const renderChildren = (props: RenderProps, child: Child) => (
   <annotated-text
     children={child.children}
-    cluster-colours={context.props.clusterColours}
-    selected-cluster-id={context.props.selectedClusterId}/>
+    cluster-colours={props.clusterColours}
+    selected-cluster-id={props.selectedClusterId}
+    onClusterSelected={props.onClusterSelected}
+    onPassageClicked={props.onPassageClicked}
+    onPassageMouseenter={props.onPassageMouseenter}
+    onPassageMouseleave={props.onPassageMouseleave}
+  />
 )
 
-const renderClusterTags = (h, context, child) => {
+const renderClusterTags = (props: RenderProps, child: Child) => {
   if (child.entity.kind !== 'line') return ''
 
-  const { onClusterSelected = (() => ({})) } = context.listeners
+  const clusterIndexes = Object.keys(props.clusterColours ?? {})
+  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId)
 
-  const clusterIndexes = Object.keys(context.props.clusterColours);
-  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
+  const borderlinePassages = getBorderlinePassages(child)
 
-  return getBorderlinePassages(child).map(({ entity, isLast }) => (
+  return borderlinePassages.map(({ entity, isLast }) => (
     <span
-      title={getClusterTitle(context, entity.clusterId)}
+      title={getClusterTitle(props, entity.clusterId)}
       class={getClusterClass(isLast)}
-      style={getClusterTagStyle(entity, context.props.clusterColours, getClusterIndex(entity.clusterId))}
-      onClick={() => { onClusterSelected(entity.clusterId); }}>
-      <span class="select" style={getClusterInnerTagStyle(context, entity, context.props.clusterColours)} />
+      style={getClusterTagStyle(entity, props.clusterColours, getClusterIndex(entity.clusterId))}
+      onClick={() => props.onClusterSelected(entity.clusterId, entity.id)}
+    >
+      <span class="select" style={getClusterInnerTagStyle(props, entity, props.clusterColours)} />
     </span>
   ))
 }
 
-const renderVericalLine = (h, context, child) => {
+const renderVericalLine = (props: RenderProps, child: Child) => {
+  if (child.entity.kind !== 'passage') return
 
-  if (child.entity.kind !== 'passage') return;
+  const clusterIndexes = Object.keys(props.clusterColours ?? {})
+  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId)
+  const offsetRight = getClusterIndex(child.entity.clusterId)
+  const backgroundColour = props.clusterColours?.[child.entity.clusterId]
 
-  const clusterIndexes = Object.keys(context.props.clusterColours);
-  const getClusterIndex = clusterId => clusterIndexes.indexOf(clusterId);
-  const offsetRight = getClusterIndex(child.entity.clusterId);
-
-  return <span class="vertical-line" style={`backgroundColor: ${context.props.clusterColours[child.entity.clusterId]}; right: ${(offsetRight * 8)}px`} />
+  return (
+    <span
+      class="vertical-line"
+      style={`background-color: ${backgroundColour}; right: ${(offsetRight + 1) * 8}px`}
+    />
+  )
 }
 
-export default {
+export default defineComponent({
   name: 'annotated-text',
   functional: true,
   props: {
-    children: Array,
+    children: {
+      type: Array as PropType<Child[]>,
+      default: () => []
+    },
     clusterColours: {
-      type: Object,
+      type: Object as PropType<Record<string, string>>,
       default: () => ({})
     },
     selectedClusterId: String
   },
-  render (h, context) {
-    return (context.props.children || []).map(child => {
+  emits: ['clusterSelected', 'passageClicked', 'passageMouseenter', 'passageMouseleave'],
+  render(_, __, opts) {
+    const { children, clusterColours, selectedClusterId } = opts
+    const props = {
+      children,
+      clusterColours,
+      selectedClusterId,
+      onClusterSelected: (clusterId, entityId) => {
+        this.$emit('clusterSelected', clusterId, entityId)
+      },
+      onPassageClicked: (clusterId, passageId) => {
+        this.$emit('passageClicked', clusterId, passageId)
+      },
+      onPassageMouseenter: (clusterId, passageId, event) => {
+        this.$emit('passageMouseenter', clusterId, passageId, event)
+      },
+      onPassageMouseleave: (clusterId, passageId, event) => {
+        this.$emit('passageMouseleave', clusterId, passageId, event)
+      }
+    } satisfies RenderProps
+    return (children || []).map(child => {
       if (typeof child === 'string') return child
 
-      if (child.entity.kind === 'passage' && child.entity.clusterId !== context.props.selectedClusterId) {
+      if (child.entity.kind === 'passage' && child.entity.clusterId !== props.selectedClusterId) {
         return [
-          renderChildren(h, context, child),
-          renderClusterTags(h, context, child),
-          renderVericalLine(h, context, child)
+          renderChildren(props, child),
+          renderClusterTags(props, child),
+          renderVericalLine(props, child)
         ]
       }
 
@@ -130,50 +205,77 @@ export default {
         <Tag
           class={getItemClasses(child)}
           data-id={getDataId(child)}
-          style={getItemStyles(child, context.props.clusterColours)}>
-          {renderChildren(h, context, child)}
-          {renderClusterTags(h, context, child)}
-          {renderVericalLine(h, context, child)}
+          style={getItemStyles(child, props.clusterColours)}
+          onClick={() => {
+            if (child.entity.kind === 'passage') {
+              props.onPassageClicked(child.entity.clusterId, child.entity.id)
+            }
+          }}
+          onMouseenter={(e: MouseEvent) => {
+            if (child.entity.kind === 'passage') {
+              props.onPassageMouseenter(child.entity.clusterId, child.entity.id, e)
+            }
+          }}
+          onMouseleave={(e: MouseEvent) => {
+            if (child.entity.kind === 'passage') {
+              props.onPassageMouseleave(child.entity.clusterId, child.entity.id, e)
+            }
+          }}
+        >
+          {renderChildren(props, child)}
+          {renderClusterTags(props, child)}
+          {renderVericalLine(props, child)}
         </Tag>
       )
     })
   }
-}
+})
 </script>
 
 <style lang="scss">
-  p.line {
-    position: relative;
-    .vertical-line {
-      position: absolute;
-      height: calc(100% + 2px);
-      width: 2px;
-      margin-right: -20px;
-      pointer-events: none;
-    }
-  }
-  .cluster-tag {
+p.line {
+  position: relative;
+  margin-bottom: 0;
+  .vertical-line {
     position: absolute;
-    width: 12px;
-    height: 12px;
-    margin-right: -25px;
-    border-radius: 50%;
+    height: calc(100% + 2px);
+    width: 2px;
+    margin-right: -20px;
+    pointer-events: none;
+  }
+
+  .tr-passage {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
     cursor: pointer;
-    border: 2px solid;
-    background: white;
-    &:hover {
-      transform: scale(1.5);
-      z-index: 1;
-    }
-    .select {
-      display: block;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      margin: 2px;
-    }
-    &.ending {
-      top: 16px;
+
+    &.active {
+      opacity: 1;
     }
   }
+}
+.cluster-tag {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin-right: -25px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid;
+  background: white;
+  &:hover {
+    transform: scale(1.5);
+    z-index: 1;
+  }
+  .select {
+    display: block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    margin: 2px;
+  }
+  &.ending {
+    top: 16px;
+  }
+}
 </style>

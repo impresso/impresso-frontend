@@ -1,16 +1,20 @@
 <template>
   <div class="IIIFFragment">
-    <figure @click="e => $emit('click', e)" class="position-relative IIIFFragment overflow-hidden">
+    <figure class="position-relative IIIFFragment overflow-hidden">
       <img
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
         :style="{
           transform: `scale(${scale})`,
-          'transform-origin': 'left top',
+          'transform-origin': 'left top'
         }"
       />
-      <div class="IIIFFragment__regions" :style="computedRegionsStyle">
+      <div
+        class="IIIFFragment__regions"
+        :style="computedRegionsStyle"
+        @click="e => $emit('selected', e)"
+      >
         <div
           v-for="region in computedRegions"
           :key="region.id"
@@ -19,7 +23,7 @@
             top: `${region.y}%`,
             left: `${region.x}%`,
             width: `${region.w}%`,
-            height: `${region.h}%`,
+            height: `${region.h}%`
           }"
         ></div>
       </div>
@@ -44,46 +48,46 @@ export default defineComponent({
       image: null,
       isLoaded: false,
       isNotFound: false,
-      errorMessage: null,
+      errorMessage: null
     }
   },
   props: {
     iiif: {
       // IIIF root URL
       type: String,
-      required: true,
+      required: true
     },
     fitToRegions: {
       // IIIF size parameter
       type: Boolean,
-      default: false,
+      default: false
     },
     size: {
       // IIIF size parameter
       type: String,
-      default: 'max',
+      default: 'max'
     },
     scale: {
       // scale down size parameter when printing image
       type: Number,
-      default: 1,
+      default: 1
     },
     coords: {
       // IIIF size parameter
-      type: Object,
+      type: Object
     },
     regions: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     matches: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     coordMinArea: {
       type: Number,
-      default: 250 * 250,
-    },
+      default: 250 * 250
+    }
   },
   computed: {
     computedImageUrl() {
@@ -109,7 +113,7 @@ export default defineComponent({
         height: `${this.imageHeight}px`,
         opacity: this.isLoaded ? 1 : 0,
         transform: `scale(${this.scale})`,
-        'transform-origin': 'left top',
+        'transform-origin': 'left top'
       }
     },
     computedRegions() {
@@ -123,7 +127,7 @@ export default defineComponent({
             x: ((x - offsets.x) / offsets.w) * 100,
             y: ((y - offsets.y) / offsets.h) * 100,
             w: (w / offsets.w) * 100,
-            h: (h / offsets.h) * 100,
+            h: (h / offsets.h) * 100
           }
         }
 
@@ -132,10 +136,10 @@ export default defineComponent({
           x: (x / this.width) * 100,
           y: (y / this.height) * 100,
           w: (w / this.width) * 100,
-          h: (h / this.height) * 100,
+          h: (h / this.height) * 100
         }
       })
-    },
+    }
   },
   methods: {
     getCoordsFromArticleRegions() {
@@ -162,13 +166,13 @@ export default defineComponent({
         x: x0,
         y: y0,
         w: x1 - x0,
-        h: y1 - y0,
+        h: y1 - y0
       }
     },
     async getIIIFInfo() {
       const iiif = this.iiif
         .replace('/info.json', '')
-        .replace(String(process.env.VUE_APP_BASE_URL), '')
+        .replace(String(import.meta.env.VITE_BASE_URL), '')
 
       const status = await axios
         .get(`${iiif}/info.json`)
@@ -195,23 +199,26 @@ export default defineComponent({
             iiif,
             '\nerror:',
             error.message,
-            error,
+            error
           )
           this.isLoaded = false
           this.isNotFound = true
           return 'not found'
         })
       console.info('[IIIFFragment] \n - iiif:', iiif, '\n - status:', status)
-    },
+    }
   },
 
   mounted() {
     this.getIIIFInfo()
     // load iiiif info.json
-  },
+  }
 })
 </script>
 <style type="text/css">
+.IIIFFragment {
+  cursor: auto;
+}
 .IIIFFragment img {
   border: 1px solid #8e8e8e !important;
 }
@@ -221,6 +228,7 @@ export default defineComponent({
   left: 0;
   transition: opacity 0.2s ease-in-out;
   z-index: 1;
+  cursor: pointer;
 }
 .IIIFFragment__region {
   position: absolute;

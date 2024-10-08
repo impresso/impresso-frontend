@@ -11,10 +11,13 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+
 export default {
   methods: {
     accept() {
-      this.$store.dispatch('settings/ACCEPT_COOKIES')
+      this.settingsStore.setCookiesAccepted(true)
       if (window._paq) {
         console.info('[CookieDisclaimer] Matomo: Remembering cookie consent was given')
         // accept matomo cookies
@@ -27,8 +30,9 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSettingsStore),
     cookiesAccepted() {
-      return this.$store.state.settings.cookiesAccepted
+      return this.settingsStore.cookiesAccepted
     },
   },
 }

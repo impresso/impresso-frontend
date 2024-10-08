@@ -1,7 +1,7 @@
-<template lang="html">
+<template>
   <i-layout-section>
 
-    <div slot="header">
+    <template v-slot:header>
 
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
 
@@ -19,10 +19,9 @@
 
         <section class="ml-auto py-3 text-right">
           <router-link :to="updateCurrentRoute({ name: 'compare', query: { left: `c:${$route.params.collection_uid}`} })" class="m-1">
-            <b-button
-              variant="outline-info" size="sm"
-              v-b-modal.confirmDelete>{{ $t('compare_collection') }}
-            </b-button>
+            <button type="button" class="btn btn-outline-info btn-sm"
+              @click="showConfirmDeleteModal()">{{ $t('compare_collection') }}
+            </button>
           </router-link>
 
           <b-dropdown class="m-1" size="sm" variant="outline-primary" :text="$t('edit_collection')"
@@ -36,24 +35,22 @@
               <textarea type="text" name="collectionDesc" class="form-control"
                 v-on:keyup.enter="save(collection)"
                 v-model="collection.description" />
-              <b-button variant="outline-primary" size="sm" class="form-control my-3"
+              <button type="button" class="btn btn-outline-primary btn-sm form-control my-3"
                 v-on:click="save(collection)">{{ $t('update_collection') }}
-              </b-button>
-              <b-button
-                class="form-control mb-3"
-                variant="outline-danger" size="sm"
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
-                v-on:click.exact="$bvModal.show('confirmDelete')">
+                v-on:click.exact="showConfirmDeleteModal()">
                 {{ $t('delete_collection') }}
-              </b-button>
+              </button>
             </div>
           </b-dropdown>
 
         </section>
 
-        <b-modal id="confirmDelete" v-on:ok="remove(collection)">
+        <Modal id="confirmDelete" :show="isConfirmDeleteModalVisible" @ok="remove(collection)">
           {{this.$t('confirm_delete', [collection.name])}}
-        </b-modal>
+        </Modal>
       </b-navbar>
 
       <b-navbar v-else type="light" variant="light">
@@ -80,16 +77,20 @@
           && (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)">
 
         <b-navbar-nav v-if="$route.params.collection_uid">
-          <b-nav-form class="p-2 ml-3">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
-          </b-nav-form>
-          <b-nav-form class="p-2">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
+          <li class="p-2 ml-3 form-inline">
+            <form class="form-inline">
+              <button type="button" class="btn btn-outline-primary btn-sm" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </button>
+            </form>
+          </li>
+          <li class="p-2 form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
         </b-navbar-nav>
         <b-navbar-nav class="ml-3">
           <b-button @click="handleExportCollection" size="sm" variant="outline-primary" class="d-flex align-items-center">
@@ -105,16 +106,17 @@
           </b-navbar-form> -->
           <div class="p-2 m-auto">
             <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-              <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-              <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-            </b-form-radio-group>
+            <radio-group
+              :modelValue="displayStyle"
+              @update:modelValue="displayStyle = $event"
+              :options="displayStyleOptions"
+              type="button" />
           </div>
         </b-navbar-nav>
 
       </b-navbar>
 
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="collection-group">
 
@@ -158,8 +160,8 @@
         <p class="text-center">{{ $t('no_articles_in_collection_long')}}</p>
       </div>
 
-      <div class="my-5" />
-      <div v-if="!fetching && paginationTotalRows > paginationPerPage" slot="footer" class="fixed-pagination-footer p-1 m-0">
+      <div class="my-5"></div>
+      <div v-if="!fetching && paginationTotalRows > paginationPerPage" class="fixed-pagination-footer p-1 m-0">
         <pagination
           size="sm"
           v-bind:perPage="paginationPerPage"
@@ -184,12 +186,12 @@
             :class="{'loading': isTimelineLoading}"
             :domain="[startYear, endYear]"
             :values="timevalues">
-        <div slot-scope="tooltipScope">
+        <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
-        </div>
+        </template>
       </timeline>
 
       <b-container fluid class="my-3">
@@ -217,13 +219,16 @@
         @settings-updated="handleRecommendersSettingsUpdated">
         <template v-slot:additional-navbar>
           <b-navbar-nav class="ml-auto">
-            <b-nav-form class="p-2">
-              <label class="mr-1">{{ $t('label_display') }}</label>
-              <b-form-radio-group v-model="displayStyle" button-variant="outline-primary" size="sm" buttons>
-                <b-form-radio value="list">{{$t("display_button_list")}}</b-form-radio>
-                <b-form-radio value="tiles">{{$t("display_button_tiles")}}</b-form-radio>
-              </b-form-radio-group>
-            </b-nav-form>
+            <li class="p-2 form-inline">
+              <form class="form-inline">
+                <label class="mr-1">{{ $t('label_display') }}</label>
+                <radio-group
+                  :modelValue="displayStyle"
+                  @update:modelValue="displayStyle = $event"
+                  :options="displayStyleOptions"
+                  type="button" />
+              </form>
+            </li>
           </b-navbar-nav>
         </template>
       </collection-recommendations-panel>
@@ -232,27 +237,34 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection';
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem';
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue';
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
 import Article from '@/models/Article';
-import Pagination from '@/components/modules/Pagination';
+import Pagination from '@/components/modules/Pagination.vue';
 import SearchQuery from '@/models/SearchQuery';
 import Facet from '@/models/Facet';
-import Timeline from '@/components/modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Timeline from '@/components/modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel'
-import InfoButton from '@/components/base/InfoButton';
+import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
+import InfoButton from '@/components/base/InfoButton.vue';
 import { getQueryParameter } from '../router/util';
 import { exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
   collectionsItems as collectionsItemsService
 } from '@/services';
+import RadioGroup from '@/components/layout/RadioGroup.vue';
+import Modal from '@/components/base/Modal.vue'
+import { useCollectionsStore } from '@/stores/collections'
+import { useSettingsStore } from '@/stores/settings'
+import { Navigation } from '@/plugins/Navigation';
+
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -279,6 +291,7 @@ export default {
     timevalues: [],
     facets: [],
     facetTypes: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic', 'partner', 'accessRight'],
+    isConfirmDeleteModalVisible: false,
   }),
   components: {
     SearchResultsListItem,
@@ -289,8 +302,20 @@ export default {
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    RadioGroup,
+    Modal,
   },
   computed: {
+    ...mapStores(useCollectionsStore, useSettingsStore),
+    $navigation() {
+      return new Navigation(this)
+    },
+    displayStyleOptions() {
+      return [
+        {value: 'list', text: this.$t('display_button_list')},
+        {value: 'tiles', text: this.$t('display_button_tiles')}
+      ]
+    },
     collectionUid() {
       return this.$route.params.collection_uid;
     },
@@ -317,15 +342,19 @@ export default {
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections'];
+        return this.collectionsStore.collections
       },
     },
     displayStyle: {
       get() {
-        return this.$store.state.search.displayStyle;
+        const style = this.settingsStore.searchDisplayStyle
+        if (['list', 'tiles'].includes(style)) {
+          return style
+        }
+        return 'list'
       },
       set(displayStyle) {
-        this.$store.commit('search/UPDATE_SEARCH_DISPLAY_STYLE', displayStyle);
+        this.settingsStore.updateSearchDisplayStyle(displayStyle)
       },
     },
     tabs() {
@@ -391,6 +420,12 @@ export default {
     },
   },
   methods: {
+    showConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = true;
+    },
+    hideConfirmDeleteModal() {
+      this.isConfirmDeleteModalVisible = false;
+    },
     handleExportCollection() {
       exporterService.create({
         description: this.collectionUid,
@@ -454,27 +489,26 @@ export default {
       });
     },
     remove(collection) {
-      this.$store.dispatch('collections/DELETE_COLLECTION', collection.uid).then(() => {
-        this.$store.dispatch('collections/LOAD_COLLECTIONS').then(() => {
-          this.$router.push({
-            name: 'collections',
-          });
-        });
-      });
+      this.collectionsStore
+        .deleteCollection(collection.uid)
+        .then(() => this.collectionsStore.loadCollections())
+        .then(() => this.$router.push({ name: 'collections' }))
     },
     save(collection) {
       if (collection.uid) {
-        this.$store.dispatch('collections/EDIT_COLLECTION', {
+        this.collectionsStore.editCollection({
           uid: collection.uid,
           name: collection.name,
           description: collection.description,
         }).then((res) => {
           const idx = this.collections.findIndex(c => c.uid === res.uid);
-          this.collections[idx].name = res.name;
-          this.collections[idx].description = res.description;
+          if (idx >= 0 && this.collections[idx]) {
+            this.collections[idx].name = res.name;
+            this.collections[idx].description = res.description;
+          }
         });
       } else {
-        this.$store.dispatch('collections/ADD_COLLECTION', {
+        this.collectionsStore.addCollection({
           name: collection.name,
           description: collection.description,
         }).then((res) => {
@@ -512,10 +546,11 @@ export default {
     },
     loadTimeline() {
       this.isTimelineLoading = true;
-      return this.$store.dispatch('collections/LOAD_TIMELINE', this.$route.params.collection_uid).then((values) => {
-        this.timevalues = values;
-        this.isTimelineLoading = false;
-      });
+      return this.collectionsStore.loadTimeline(this.$route.params.collection_uid)
+        .then((values) => {
+          this.timevalues = values;
+          this.isTimelineLoading = false;
+        });
     },
     loadFacets(type) {
       return searchFacetsService.get(type, {
@@ -524,9 +559,9 @@ export default {
             type: 'collection',
             q: this.collectionUid,
           }],
-          group_by: 'articles',
+          // group_by: 'articles',
         }
-      }).then(([type]) => new Facet(type));
+      }).then((type) => new Facet(type));
     },
   },
 };
@@ -544,7 +579,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "collections": "collections",

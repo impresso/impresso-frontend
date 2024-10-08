@@ -1,14 +1,9 @@
 <template>
-  <div v-if="!detailed" class="d-inline" v-html="label" />
-  <div v-else>
+  <div v-if="!detailed" class="ItemLabel d-inline" v-html="label" />
+  <div v-else class="ItemLabel">
     <div v-if="type === 'newspaper'">
       <div><label className="small-caps">newspaper's metadata</label></div>
-      total pages: {{ $n(item.countArticles) }} <br />
-      total issues: {{ $n(item.countIssues) }} <br />
-      total extracted articles: {{ $n(item.countArticles) }};<br />
-      first issue: <span v-if="item.firstIssue">{{ $d(item.firstIssue.date, 'short') }}</span>
-      <br />
-      last issue: <span v-if="item.lastIssue">{{ $d(item.lastIssue.date, 'short') }}</span>
+      <p v-html="newspaperDetailedLabel"></p>
     </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
@@ -29,18 +24,18 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     type: {
       type: String,
-      required: true,
+      required: true
     },
     detailed: {
-      type: Boolean,
+      type: Boolean
     },
     hideuser: {
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
   computed: {
     label() {
@@ -60,13 +55,13 @@ export default {
             username,
             '<span class="small-caps">',
             this.$t('dates.lastModifiedDate'),
-            this.$d(this.item.lastModifiedDate, 'short'),
+            this.item.lastModifiedDate ? this.$d(this.item.lastModifiedDate, 'short') : '(unknown)',
             '</span><br/>',
             this.item.countItems
               ? this.$tc('numbers.articles', this.item.countItems, {
-                  n: this.$n(this.item.countItems),
+                  n: this.$n(this.item.countItems)
                 })
-              : '(empty)',
+              : '(empty)'
           ].join(' ')
         } else {
           t = this.item.uid
@@ -75,6 +70,9 @@ export default {
         t = this.item ? this.item.y : this.val
       } else if (['type', 'country', 'language', 'partner'].includes(this.type)) {
         t = this.$t(`buckets.${this.type}.${this.item.uid}`)
+        if (t.startsWith('buckets.')) {
+          t = `"${this.item.uid}"`
+        }
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
@@ -82,15 +80,37 @@ export default {
       }
       return t
     },
+    newspaperDetailedLabel() {
+      const firstIssueDate =
+        this.item?.firstIssue?.date instanceof Date
+          ? this.$d(this.item?.firstIssue?.date ?? 0, 'short')
+          : this.$d(new Date(this.item?.firstIssue?.date ?? 0), 'short')
+      const lastIssueDate =
+        this.item?.lastIssue?.date instanceof Date
+          ? this.$d(this.item?.lastIssue?.date ?? 0, 'short')
+          : this.$d(new Date(this.item?.lastIssue?.date ?? 0), 'short')
+      return [
+        `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
+        `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
+        `<span class="number">${this.$n(this.item.countIssues)}</span> issues. <br/>`,
+        `Published from: ${firstIssueDate} to ${lastIssueDate}.`
+      ].join(' ')
+    }
   },
   methods: {
     getTextReuseClusterSummary(item) {
-      const clusterSizeLabel = this.$tc('numbers.clusterSize', item.clusterSize, {
-        n: this.$n(item.clusterSize),
-      })
-      const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
-        n: this.$n(Math.round(item.lexicalOverlap * 100) / 100),
-      })
+      const clusterSizeLabel =
+        item.clusterSize != null
+          ? this.$tc('numbers.clusterSize', item.clusterSize, {
+              n: this.$n(item.clusterSize)
+            })
+          : 'size'
+      const lexicalOverlapLabel =
+        item.lexicalOverlap != null
+          ? this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
+              n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
+            })
+          : ''
       let dates = []
       if (!item.maxDate || !item.minDate) {
         dates = []
@@ -114,12 +134,12 @@ export default {
       return this.$t('textReuseClusterSummary', {
         shortId: item.shortId,
         textSampleExcerpt: item.textSampleExcerpt,
-        clusterSize: clusterSizeLabel,
+        size: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
         timespan: this.$tc('numbers.days', item.timeDifferenceDay, {
-          n: item.timeDifferenceDay,
+          n: item.timeDifferenceDay
         }),
-        dates: dates.join(' - '),
+        dates: dates.join(' - ')
       })
     },
     getTextReusePassageSummary(item) {
@@ -128,21 +148,21 @@ export default {
       const excerpt = item.content.length > 50 ? `${item.content.substring(0, 50)}…` : item.content
       return [
         `<span class='small-caps'>${this.$d(passageDate, 'long').toLowerCase()}</span>`,
-        `"${excerpt}"`,
+        `"${excerpt}"`
       ].join(' ')
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="css"></style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "numbers": {
       "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
     },
-    "textReuseClusterSummary": "cluster <b>{shortId}</b><br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
+    "textReuseClusterSummary": "cluster <b>{shortId}</b> ({size})<br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
   }
 }
 </i18n>

@@ -3,17 +3,17 @@
     <tooltip :tooltip="tooltip">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.isActive">
-          {{tooltip.item}}
+          {{ tooltip.item }}
         </div>
       </slot>
     </tooltip>
-    <div ref="chart" :style="{ height: `${height}px` }"/>
+    <div ref="chart" :style="{ height: `${height}px` }" />
   </div>
 </template>
 
 <script>
 import TimeMultiLineChart from '@/d3-modules/TimeMultiLineChart'
-import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip.vue'
 
 /**
  * @typedef {{ value: number, time: Date }} Item
@@ -23,7 +23,13 @@ import Tooltip from '../tooltips/Tooltip'
 export default {
   data: () => ({
     /** @type {TimeMultiLineChart | undefined} */
-    chart: undefined
+    chart: undefined,
+    tooltip: {
+      x: 0,
+      y: 0,
+      isActive: false,
+      item: { items: [] }
+    }
   }),
   props: {
     /** @type {import('vue').PropOptions<ItemsSet[]>} */
@@ -44,32 +50,28 @@ export default {
   components: {
     Tooltip
   },
-  computed: {
-    /** @returns {any} */
-    tooltip() {
-      return this.chart
-        ? this.chart.tooltipData()
-        : {
-          x: 0,
-          y: 0,
-          isActive: false,
-          item: { items: [] }
-        }
-    }
-  },
   mounted() {
-    this.chart = new TimeMultiLineChart({ element: this.$refs.chart, roundValueFn: this.roundValueFn })
+    this.chart = new TimeMultiLineChart({
+      element: this.$refs.chart,
+      roundValueFn: this.roundValueFn
+    })
     this.chart.render(this.itemsSets)
+    this.$refs.chart.addEventListener('tooltip', e => {
+      console.debug('[MultiLinePlot] tooltip', e.detail)
+      this.tooltip = e.detail
+    })
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.render.bind(this))
   },
   watch: {
     itemsSets: {
-      handler() { this.render() },
+      handler() {
+        this.render()
+      },
       deep: true
     }
   },
@@ -82,7 +84,7 @@ export default {
 </script>
 
 <style lang="scss">
-  .crosshair {
-    cursor: crosshair;
-  }
+.crosshair {
+  cursor: crosshair;
+}
 </style>

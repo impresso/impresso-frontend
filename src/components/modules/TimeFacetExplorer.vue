@@ -7,14 +7,14 @@
       :height="'120px'"
       @brush-end="handleTimelineBrushed"
       @clear-selection="handleTimelineCleared">
-      <div slot-scope="tooltipScope">
+      <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
           {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
           <span v-html="$tc('numbers.articles', tooltipScope.tooltip.item.w, {
             n: $n(tooltipScope.tooltip.item.w),
           })"/>
         </div>
-      </div>
+      </template>
     </timeline>
     <div class="p-3" v-if="currentTimelineSelectionSpan.length">
       <filter-date-range
@@ -32,23 +32,19 @@
 </template>
 
 <script>
-import Timeline from '@/components/modules/Timeline'
-import FilterDateRange from '@/components/modules/FilterDateRange'
+import Timeline from '@/components/modules/Timeline.vue'
+import FilterDateRange from '@/components/modules/FilterDateRange.vue'
 import Helpers from '@/plugins/Helpers';
 import Daterange from '@/models/Daterange';
 
 export default {
-  model: {
-    prop: 'filter',
-    event: 'change'
-  },
   data: () => ({
     timelineSpan: /** @type {Date[]} */ ([]),
     timelineSelectionStart: null,
     timelineSelectionEnd: null,
   }),
   props: {
-    filter: {
+    modelValue: {
       /** @type {import('vue').PropType<import('../../models/models').Filter>} */
       type: Object
     },
@@ -61,11 +57,13 @@ export default {
       default: () => []
     }
   },
+  emits: ['update:modelValue'],
   components: {
     Timeline,
     FilterDateRange,
   },
   computed: {
+    filter() { return this.modelValue },
     timevalues() {
       return Helpers.timeline.fromBuckets(this.buckets);
     },
@@ -104,7 +102,7 @@ export default {
           end: this.timelineSelectionEnd
         }).getValue()
       })
-      this.$emit('change', updatedFilter)
+      this.$emit('update:modelValue', updatedFilter)
     },
     handleTimelineBrushed({ minDate, maxDate }) {
       this.timelineSelectionStart = minDate

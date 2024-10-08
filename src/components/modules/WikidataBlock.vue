@@ -44,6 +44,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+
 export default {
   props: {
     item: {
@@ -56,6 +59,7 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useSettingsStore),
     geoCoordinates() {
       return [
         this.$n(parseInt(this.item.wikidata.coordinates.latitude * 100000, 10) / 100000),
@@ -82,7 +86,7 @@ export default {
       return null;
     },
     currentLanguage() {
-      return this.$store.state.settings.language_code;
+      return this.settingsStore.language_code
     },
     description() {
       return this.getTranslation(this.item.wikidata.descriptions);
@@ -153,7 +157,7 @@ export default {
     }
   }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "source": {

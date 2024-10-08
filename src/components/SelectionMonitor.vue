@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="isActive"
-    class="SelectionMonitor  rounded drop-shadow bg-light"
+    class="SelectionMonitor rounded drop-shadow bg-light"
     :class="monitor.type"
     v-on:click.stop
   >
@@ -9,8 +9,8 @@
       <!-- top -->
       <section>
         <!-- header -->
-        <div class="d-flex my-2 align-items-center">
-          <b-tabs pills class="px-2" style="flex-grow:1">
+        <div class="d-flex my-2 ml-2 ms-2 align-items-center">
+          <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
                 <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`).toLowerCase()" />
@@ -29,7 +29,7 @@
             [
               'textReuseClusterLexicalOverlap',
               'textReuseClusterDayDelta',
-              'textReuseClusterSize',
+              'textReuseClusterSize'
             ].includes(monitor.type)
           "
           :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
@@ -50,12 +50,12 @@
             :contrast="false"
             :values="timelineValues"
           >
-            <div slot-scope="tooltipScope">
-              <div v-if="tooltipScope.tooltip.item">
-                {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-                <b>{{ tooltipScope.tooltip.item.w }}</b>
+            <template v-slot="{ tooltip }">
+              <div v-if="tooltip.item">
+                {{ $d(tooltip.item?.t ?? 0, 'year') }} &middot;
+                <b>{{ tooltip.item?.w ?? 0 }}</b>
               </div>
-            </div>
+            </template>
           </timeline>
         </div>
         <!-- end timeline -->
@@ -75,7 +75,7 @@
             <SearchQuerySummary
               class="d-inline"
               :search-query="{
-                filters: additionalFilters.length ? additionalFilters : [monitorFilter],
+                filters: additionalFilters.length ? additionalFilters : [monitorFilter]
               }"
             />
             <span v-if="monitor.displayTimeline && this.total">
@@ -84,7 +84,7 @@
                 v-html="
                   $t('dates.allResultsFallBetween', {
                     from: minDate.getFullYear(),
-                    to: maxDate.getFullYear(),
+                    to: maxDate.getFullYear()
                   })
                 "
               />
@@ -99,21 +99,21 @@
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
         v-if="monitor.type === 'textReuseCluster'"
-        class="flex-grow-1 bg-dark"
+        class="flex-grow-1"
       />
       <TextReusePassageMonitor
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :item="monitor.item"
-        v-else-if="monitor.type === 'textReusePassage'"
+        v-if="monitor.type === 'textReusePassage'"
         class="flex-grow-1 bg-dark mt-2"
       ></TextReusePassageMonitor>
       <!-- range closeup view-->
       <ListOfItems
-        v-else-if="
+        v-if="
           [
             'textReuseClusterLexicalOverlap',
             'textReuseClusterDayDelta',
-            'textReuseClusterSize',
+            'textReuseClusterSize'
           ].includes(monitor.type)
         "
         :params="{ addons: { newspaper: 'text' } }"
@@ -133,6 +133,7 @@
         :id="monitor.item.id || monitor.item.uid || ''"
         :type="monitor.type"
         :search-index="monitor.searchIndex"
+        @close="hide"
       />
       <div
         v-else-if="['topic', 'newspaper'].includes(monitor.type)"
@@ -141,12 +142,8 @@
       >
         <item-label :item="monitor.item" :type="monitor.type" detailed />
         <!-- button url  -->
-        <div class="text-right bg-dark p-2" v-if="detailsUrl">
-          <router-link
-            class="btn btn-secondary px-5 rounded btn-sm"
-            :to="detailsUrl"
-            @click.native="hide"
-          >
+        <div class="text-right mt-2" v-if="detailsUrl">
+          <router-link class="btn btn-secondary px-5 btn-sm d-block" :to="detailsUrl" @click="hide">
             {{ $t('actions.detail') }}
           </router-link>
         </div>
@@ -183,16 +180,19 @@
 import Helpers from '@/plugins/Helpers'
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
-import { SupportedFiltersByIndex, optimizeFilters } from '@/logic/filters'
-import { searchFacets } from '@/services'
-import Timeline from '@/components/modules/Timeline'
+import { SupportedFiltersByIndex } from '@/logic/filters'
+import { getSearchFacetsService } from '@/services'
+import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
 import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
 import ListOfItems from './ListOfItems.vue'
 import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 import { defineComponent } from 'vue'
-
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import EntityMonitor from '@/components/EntityMonitor.vue'
+import TextReusePassageMonitor from '@/components/TextReusePassageMonitor.vue'
 /**
  * SelectionMonitor component is initialized in App.vue and it is always available.
  * The filters props is kept in sync with the current search filters.
@@ -202,14 +202,14 @@ export default defineComponent({
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     startYear: {
-      type: Number,
+      type: Number
     },
     endYear: {
-      type: Number,
-    },
+      type: Number
+    }
   },
   components: {
     Timeline,
@@ -217,23 +217,28 @@ export default defineComponent({
     ItemLabel,
     TextReuseClusterMonitor,
     SelectionMonitorFilter,
-    TextReusePassageMonitor: () => import('./TextReusePassageMonitor.vue'),
-    EntityMonitor: () => import('./EntityMonitor.vue'),
-    ListOfItems: () => import('./ListOfItems.vue'),
-    TextReusePassageItem,
+    TextReusePassageMonitor,
+    EntityMonitor,
+    ListOfItems,
+    TextReusePassageItem
+  },
+  beforeMount() {
+    const store = useSelectionMonitorStore()
+    this.applyCurrentSearchFilters = store.applyCurrentSearchFilters
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     supportedFilters() {
       return this.filters.filter(filter =>
-        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type),
+        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type)
       )
     },
     monitorFilter() {
       return FilterFactory.create({
         type: this.monitor.type,
-        q: Array.isArray(this.monitor.item.q)
-          ? this.monitor.item.q.map(d => String(d))
-          : [this.monitor.item.id ?? this.monitor.item.uid],
+        q: Array.isArray(this.monitor.item?.q)
+          ? this.monitor.item?.q?.map(d => String(d))
+          : [this.monitor.item?.id ?? this.monitor.item?.uid]
       })
     },
     isMonitorFilterChanged() {
@@ -257,15 +262,15 @@ export default defineComponent({
         return {
           name: 'newspaper',
           params: {
-            newspaper_uid: this.monitor.item.uid,
-          },
+            newspaper_uid: this.monitor.item.uid
+          }
         }
       } else if (this.monitor.type === 'topic') {
         return {
           name: 'topic',
           params: {
-            topic_uid: this.monitor.item.uid,
-          },
+            topic_uid: this.monitor.item.uid
+          }
         }
         // @ts-ignore
       }
@@ -276,35 +281,29 @@ export default defineComponent({
       const query = {
         index: this.monitor.searchIndex,
         limit: 500,
-        filters: [],
+        filters: []
       }
       console.debug(
         '[SelectionMonitor] timelineApiQueryParams',
         this.displayCurrentSearchFilters,
         this.applyCurrentSearchFilters,
+        query
       )
       if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
         query.filters = [...this.monitorFilters]
       } else if (!this.applyCurrentSearchFilters && this.monitor.item) {
         query.filters = [{ ...this.monitorFilter }]
       }
-
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
     },
     isActive() {
-      return this.$store.state.selectionMonitor.isActive
-    },
-    applyCurrentSearchFiltersOnInit() {
-      return this.$store.state.selectionMonitor.applyCurrentSearchFilters
+      return this.selectionMonitorStore.isActive
     },
     monitor() {
-      return this.$store.state.selectionMonitor
+      return this.selectionMonitorStore
     },
     /** @returns {string} */
     statsLabel() {
@@ -318,7 +317,7 @@ export default defineComponent({
       }
       return this.$t(key, {
         count: this.$n(this.total),
-        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex),
+        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex)
       })
     },
     /** @returns {Date} */
@@ -326,7 +325,7 @@ export default defineComponent({
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-01-01`)
       }
@@ -337,7 +336,7 @@ export default defineComponent({
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-12-31`)
       }
@@ -345,14 +344,14 @@ export default defineComponent({
     },
     monitorType() {
       return this.monitor.type
-    },
+    }
   },
   data: () => ({
     total: 0,
     timelineValues: [],
     applyCurrentSearchFilters: false,
     isLoading: false,
-    additionalFilters: [],
+    additionalFilters: []
   }),
   methods: {
     handleChangeFilter(newFilter) {
@@ -361,7 +360,7 @@ export default defineComponent({
       this.additionalFilters = [newFilter]
     },
     hide() {
-      this.$store.dispatch('selectionMonitor/hide')
+      this.selectionMonitorStore.hide()
     },
     applyFilter() {
       if (!this.monitorFilterExists) {
@@ -373,46 +372,41 @@ export default defineComponent({
           'change',
           this.filters
             .filter(f => f.type !== this.monitorFilter.type)
-            .concat(this.additionalFilters),
+            .concat(this.additionalFilters)
         )
       } else {
         // we replace the current filter with the monitorFilter
         this.$emit(
           'change',
-          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter),
+          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter)
         )
       }
     },
     loadTimeline() {
       // eslint-disable-next-line
-      console.debug('[ItemSelector] loadTimeline')
+      console.debug('[ItemSelector] loadTimeline index:', this.timelineApiQueryParams.query.index)
+      const searchFacets = getSearchFacetsService(this.timelineApiQueryParams.query.index)
       searchFacets
         .get(
           'year',
           {
-            query: this.timelineApiQueryParams.query,
+            query: this.timelineApiQueryParams.query
           },
-          { ignoreErrors: true },
+          { ignoreErrors: true }
         )
         .then(response => {
           // eslint-disable-next-line no-console
           console.debug('[ItemSelector] loadTimeline success', response)
-          this.timelineValues = Helpers.timeline.fromBuckets(response[0].buckets)
-          this.total = response[0].buckets.reduce((acc, bucket) => acc + bucket.count, 0)
+          this.timelineValues = Helpers.timeline.fromBuckets(response.buckets)
+          this.total = response.buckets.reduce((acc, bucket) => acc + bucket.count, 0)
         })
-    },
+    }
   },
   watch: {
-    applyCurrentSearchFiltersOnInit: {
-      handler() {
-        this.applyCurrentSearchFilters = this.applyCurrentSearchFiltersOnInit
-      },
-      immediate: true,
-    },
     monitorType: {
       handler() {
         this.additionalFilters = []
-      },
+      }
     },
     timelineApiQueryParams: {
       async handler({ query, hash }, previousValue) {
@@ -426,9 +420,10 @@ export default defineComponent({
         }
       },
       immediate: true,
-      deep: false,
-    },
+      deep: false
+    }
   },
+  emits: ['change']
 })
 </script>
 
@@ -448,7 +443,7 @@ export default defineComponent({
 .SelectionMonitor.textReusePassage {
   width: 800px;
   top: 100px;
-  height: 600px;
+  height: calc(100% - 200px);
   margin-top: auto;
   margin-left: -400px;
 }
@@ -503,7 +498,7 @@ export default defineComponent({
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "labels": {
@@ -519,7 +514,7 @@ export default defineComponent({
     "types_accessRight": "access right",
     "types_partner": "archive / parnter institution",
     "types_topic": "topic",
-    "types_collection"  : "collection",
+    "types_collection": "collection",
     "types_newspaper": "newspaper",
     "types_person": "person",
     "types_location": "location",
@@ -530,7 +525,7 @@ export default defineComponent({
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs_collection_overview": "collection",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
-    "tabs_textReuseCluster_comparePassages": "compare text reuse passages",
+    "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
     "tabs_textReusePassage_comparePassages": "compare text reuse passages",
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
     "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",

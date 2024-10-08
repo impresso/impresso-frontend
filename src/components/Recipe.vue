@@ -10,7 +10,7 @@
         <div class="Recipe__videoBackground "></div>
         <icon
           name="play"
-          scale="5"
+          scale="3"
           class="position-absolute"
           style="top:50%; left:50%;margin-left: -40px; margin-top: -30px"
         />
@@ -26,21 +26,8 @@
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon'
+import Icon from '@/components/base/Icon.vue'
 
-Icon.register({
-  play: {
-    width: 24,
-    height: 24,
-    paths: [
-      {
-        style: 'fill:white; stroke:black; stroke-width:1px;',
-        d:
-          'M6.90588 4.53682C6.50592 4.2998 6 4.58808 6 5.05299V18.947C6 19.4119 6.50592 19.7002 6.90588 19.4632L18.629 12.5162C19.0211 12.2838 19.0211 11.7162 18.629 11.4838L6.90588 4.53682Z',
-      },
-    ],
-  },
-})
 export default {
   name: 'Recipe',
   components: {
@@ -113,7 +100,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "perform_query": "Perform this query",

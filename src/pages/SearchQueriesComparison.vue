@@ -1,24 +1,24 @@
 <template>
   <i-layout id="SearchQueriesComparisonPage">
-    <i-layout-section class="border-top ">
-      <div slot="header">
+    <i-layout-section class="border-top">
+      <template v-slot:header>
         <div class="header row pm-fixer bg-light">
-          <div class="one-third"
-              v-for="(queryResult, queryIdx) in queriesResults"
-              :key="queryIdx">
-            <query-header-panel :left='queryIdx === 0'
-                                :comparison-options="['intersection']"
-                                :mode-options="['inspect', 'compare']"
-                                :mode="mode"
-                                :comparable="comparableForQuery(queryIdx)"
-                                :total="queryResult.total"
-                                :title="queryResult.title"
-                                :collections="collections"
-                                @mode-changed="onModeUpdated"
-                                @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"/>
+          <div class="one-third" v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">
+            <query-header-panel
+              :left="queryIdx === 0"
+              :comparison-options="['intersection']"
+              :mode-options="['inspect', 'compare']"
+              :mode="mode"
+              :comparable="comparableForQuery(queryIdx)"
+              :total="queryResult.total"
+              :title="queryResult.title"
+              :collections="collections"
+              @mode-changed="onModeUpdated"
+              @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"
+            />
           </div>
         </div>
-      </div>
+      </template>
       <!-- body -->
       <div class="aspects-container container-fluid">
         <!-- this component contains the three columns (show timeline only) -->
@@ -32,26 +32,25 @@
           <!-- scale -->
           <b-dropdown size="sm" variant="outline-primary" class="pr-1">
             <template v-slot:button-content>
-              <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
+              <span>{{ $t('scale') }}: {{ $t(`scales.${scale}`) }}</span>
             </template>
-            <b-dropdown-item v-for="s in scales"
-                             :key="s"
-                             :active="s === scale"
-                             @click="scale = s">
-              {{$t(`scales.${s}`)}}
+            <b-dropdown-item v-for="s in scales" :key="s" :active="s === scale" @click="scale = s">
+              {{ $t(`scales.${s}`) }}
             </b-dropdown-item>
           </b-dropdown>
 
           <!-- sorting method -->
           <b-dropdown size="sm" variant="outline-primary">
             <template v-slot:button-content>
-              <span>{{$t('sortBy')}} {{$t(`sortingMethods.${barSortingMethod}`)}}</span>
+              <span>{{ $t('sortBy') }} {{ $t(`sortingMethods.${barSortingMethod}`) }}</span>
             </template>
-            <b-dropdown-item v-for="sortingMethod in sortingMethods"
-                             :key="sortingMethod"
-                             :active="sortingMethod === barSortingMethod"
-                             @click="barSortingMethod = sortingMethod">
-              {{$t(`sortingMethods.${sortingMethod}`)}}
+            <b-dropdown-item
+              v-for="sortingMethod in sortingMethods"
+              :key="sortingMethod"
+              :active="sortingMethod === barSortingMethod"
+              @click="barSortingMethod = sortingMethod"
+            >
+              {{ $t(`sortingMethods.${sortingMethod}`) }}
             </b-dropdown-item>
           </b-dropdown>
         </div>
@@ -63,9 +62,9 @@
             :facets="divergingBarsFacets"
             :round-value-fn="roundValueForDisplay"
             :scale="scale"
-            @load-more-items="handleLoadMoreItemsInCompare"/>
-          <spinner v-if="compareDataIsLoading"
-                   class="pl-4 pr-4 d-flex justify-content-center"/>
+            @load-more-items="handleLoadMoreItemsInCompare"
+          />
+          <spinner v-if="compareDataIsLoading" class="pl-4 pr-4 d-flex justify-content-center" />
         </div>
 
         <side-by-side-facets-panel
@@ -75,15 +74,15 @@
           :disable-handling-loading-and-empty="true"
           :comparables="comparables"
           @load-more-items="handleLoadMoreItemsInInspect"
-          @comparable-updated="handleComparableUpdated"/>
-
+          @comparable-updated="handleComparableUpdated"
+        />
       </div>
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
-import Collection from '@/models/Collection';
+import Collection from '@/models/Collection'
 import {
   search,
   collections,
@@ -91,11 +90,11 @@ import {
   searchFacets,
   filtersItems as filtersItemsService
 } from '@/services'
-import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel';
-import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel'
-import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel'
-import Spinner from '@/components/layout/Spinner'
-import Bucket from '@/models/Bucket';
+import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel.vue'
+import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
+import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
+import Spinner from '@/components/layout/Spinner.vue'
+import Bucket from '@/models/Bucket'
 import {
   optimizeFilters,
   deserializeFilters,
@@ -103,10 +102,11 @@ import {
   joinFiltersWithItems,
   SupportedFiltersByContext
 } from '@/logic/filters'
-import { getQueryParameter } from '../router/util';
-import { getBucketLabel } from '../logic/facets';
+import { getQueryParameter } from '../router/util'
+import { getBucketLabel } from '../logic/facets'
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
-import { getLatestFilters } from '../logic/storage';
+import { getLatestFilters } from '../logic/storage'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @param {import('@/models').Filter} filter
@@ -122,16 +122,16 @@ const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.i
  */
 
 function prepareFacets(responseFacets = {}) {
-  const types = Object.keys(responseFacets).filter(k => k !== 'count');
-  return types.map((type) => {
+  const types = Object.keys(responseFacets).filter(k => k !== 'count')
+  return types.map(type => {
     const buckets = responseFacets[type].buckets || []
     const numBuckets = responseFacets[type].numBuckets ?? buckets.length
     return {
       id: type,
       buckets: buckets.map(bucket => new Bucket({ ...bucket, type })),
       numBuckets
-    };
-  });
+    }
+  })
 }
 
 /**
@@ -142,13 +142,11 @@ function comparableIsEmpty(comparable) {
   const type = comparable?.type
 
   if (type === ComparableTypes.Query) {
-    if (comparable.query == null || comparable.query.filters == null) return true;
+    if (comparable.query == null || comparable.query.filters == null) return true
     return false
   }
   if (comparable.type === ComparableTypes.Collection) {
-    return comparable.id == null || comparable.id === ''
-      ? true
-      : false
+    return comparable.id == null || comparable.id === '' ? true : false
   }
 
   if (comparable.type === ComparableTypes.Intersection) {
@@ -166,15 +164,18 @@ function comparableIsEmpty(comparable) {
  * @returns {Filter[]}
  */
 function mergeFilters(filtersSets) {
-  return optimizeFilters(filtersSets.flat().map(filter => {
-    const op = (Array.isArray(filter.q) && filter.q.length === 1) || !Array.isArray(filter.q)
-      ? 'AND'
-      : filter.op
-    return {
-      ...filter,
-      op
-    }
-  }))
+  return optimizeFilters(
+    filtersSets.flat().map(filter => {
+      const op =
+        (Array.isArray(filter.q) && filter.q.length === 1) || !Array.isArray(filter.q)
+          ? 'AND'
+          : filter.op
+      return {
+        ...filter,
+        op
+      }
+    })
+  )
 }
 
 const SortingMethods = Object.freeze({
@@ -212,7 +213,7 @@ function queryParameterToComparable(value) {
         filters: [
           {
             type: 'collection',
-            q:collectionMatch[1]
+            q: collectionMatch[1]
           }
         ]
       }
@@ -234,12 +235,11 @@ function serializeComparable(comparable) {
   const type = comparable?.type
 
   if (type === ComparableTypes.Collection) {
-    const collectionId = comparable.id ?? '';
-    return `c:${collectionId}`;
+    const collectionId = comparable.id ?? ''
+    return `c:${collectionId}`
   }
   if (type === ComparableTypes.Query) {
-    if (comparable.query == null
-      || comparable.query.filters == null) {
+    if (comparable.query == null || comparable.query.filters == null) {
       return undefined
     }
     return serializeFilters(comparable.query.filters)
@@ -295,20 +295,12 @@ export default {
       // heavyweight
       ['topic', 'bars'],
       ['person', 'bars'],
-      ['location', 'bars'],
+      ['location', 'bars']
     ]),
     /** @type {any[]} */
-    queriesResults: [
-      { },
-      { type: 'intersection' },
-      { },
-    ],
+    queriesResults: [{}, { type: 'intersection' }, {}],
     /** @type {{ [key:string]: Bucket[] }[]} */
-    additionalBuckets: [
-      { },
-      { },
-      { },
-    ],
+    additionalBuckets: [{}, {}, {}],
     /** @type {any} */
     comparisonResult: undefined,
     /**
@@ -320,7 +312,7 @@ export default {
     sortingMethods: Object.keys(SortingMethods),
     scales: Scales,
     /** @type {Filter[][]|undefined[]} */
-    filtersWithItems: [undefined, undefined, undefined],
+    filtersWithItems: [undefined, undefined, undefined]
   }),
   watch: {
     leftComparable: {
@@ -333,17 +325,19 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Left] = true
           const result = await this.getQueryResult(this.leftComparable)
-          this.$set(this.queriesResults, QueryIndex.Left, result)
+          this.queriesResults[QueryIndex.Left] = result
         } finally {
           this.loadingFlags[QueryIndex.Left] = false
         }
 
-        const filtersWithItems = await filtersItemsService.find({
-          query: {
-            filters: serializeFilters(comparableToQuery(this.leftComparable)?.filters ?? []),
-          },
-        }).then(joinFiltersWithItems)
-        this.$set(this.filtersWithItems, QueryIndex.Left, filtersWithItems)
+        const filtersWithItems = await filtersItemsService
+          .find({
+            query: {
+              filters: serializeFilters(comparableToQuery(this.leftComparable)?.filters ?? [])
+            }
+          })
+          .then(joinFiltersWithItems)
+        this.filtersWithItems[QueryIndex.Left] = filtersWithItems
       },
       deep: true,
       immediate: true
@@ -358,17 +352,19 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Right] = true
           const result = await this.getQueryResult(this.rightComparable)
-          this.$set(this.queriesResults, QueryIndex.Right, result)
+          this.queriesResults[QueryIndex.Right] = result
         } finally {
           this.loadingFlags[QueryIndex.Right] = false
         }
 
-        const filtersWithItems = await filtersItemsService.find({
-          query: {
-            filters: serializeFilters(comparableToQuery(this.rightComparable)?.filters ?? []),
-          },
-        }).then(joinFiltersWithItems)
-        this.$set(this.filtersWithItems, QueryIndex.Right, filtersWithItems)
+        const filtersWithItems = await filtersItemsService
+          .find({
+            query: {
+              filters: serializeFilters(comparableToQuery(this.rightComparable)?.filters ?? [])
+            }
+          })
+          .then(joinFiltersWithItems)
+        this.filtersWithItems[QueryIndex.Right] = filtersWithItems
       },
       deep: true,
       immediate: true
@@ -386,7 +382,7 @@ export default {
         try {
           this.loadingFlags[QueryIndex.Intersection] = true
           const result = await this.getQueryResult(this.intersection)
-          this.$set(this.queriesResults, QueryIndex.Intersection, result)
+          this.queriesResults[QueryIndex.Intersection] = result
         } finally {
           this.loadingFlags[QueryIndex.Intersection] = false
         }
@@ -398,10 +394,13 @@ export default {
   async mounted() {
     // @todo: remove collections prefecth
     // get collections on created.
-    const { data } = await collections.find();
-    this.collections = data.map(d => new Collection(d));
+    const { data } = await collections.find()
+    this.collections = data.map(d => new Collection(d))
   },
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     leftComparable: {
       /** @returns {Comparable} */
       get() {
@@ -421,7 +420,10 @@ export default {
       // e.g. this.leftComparable must be can be smthing like { type: "query", query: {filters:[]} }:
       // Before, it was { type: "collection", id: "local-xzy" } but we integrated
       // colleciton in query filters.
-      if (this.leftComparable?.query?.filters != null && this.filtersWithItems[QueryIndex.Left] != null) {
+      if (
+        this.leftComparable?.query?.filters != null &&
+        this.filtersWithItems[QueryIndex.Left] != null
+      ) {
         return {
           type: this.leftComparable.type,
           query: /** @type {SearchQuery} */ ({
@@ -447,7 +449,10 @@ export default {
     },
     /** @returns {Comparable} */
     rightComparableEnriched() {
-      if (this.rightComparable?.query?.filters != null && this.filtersWithItems[QueryIndex.Left] != null) {
+      if (
+        this.rightComparable?.query?.filters != null &&
+        this.filtersWithItems[QueryIndex.Right] != null
+      ) {
         return {
           type: this.rightComparable.type,
           query: /** @type {SearchQuery} */ ({
@@ -469,8 +474,8 @@ export default {
       if (comparablesFilters.length !== 2) {
         return {
           type: 'intersection',
-          filters: undefined,
-        };
+          filters: undefined
+        }
       }
 
       return {
@@ -479,7 +484,9 @@ export default {
       }
     },
     /** @returns {Comparable[]} */
-    comparables() { return [this.leftComparable, this.intersection, this.rightComparable] },
+    comparables() {
+      return [this.leftComparable, this.intersection, this.rightComparable]
+    },
     /**
      * @typedef {{ id: string, items: FacetItem[], numBuckets: number }} FacetContainer
      * @returns {FacetContainer[]}
@@ -493,22 +500,26 @@ export default {
         const intersectionFacet = intersectionFacets[index]
         const queriesFacets = facetsSets.map(facetSet => facetSet[index])
 
-        const items = intersectionFacet?.buckets?.map(bucket => {
-          const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }) => {
-            return buckets.find(({ val }) => bucket.val === val)
-          });
+        const items =
+          intersectionFacet?.buckets
+            ?.map(bucket => {
+              const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }) => {
+                return buckets.find(({ val }) => bucket.val === val)
+              })
 
-          const label = leftBucket != null
-            ? getBucketLabel(leftBucket, id, this)
-            : getBucketLabel(rightBucket, id, this)
+              const label =
+                leftBucket != null
+                  ? getBucketLabel(leftBucket, id, this)
+                  : getBucketLabel(rightBucket, id, this)
 
-          return {
-            intersection: bucket.count,
-            label,
-            left: leftBucket.count,
-            right: rightBucket.count
-          }
-        }).sort(SortingMethods[this.barSortingMethod]) ?? []
+              return {
+                intersection: bucket.count,
+                label,
+                left: leftBucket.count,
+                right: rightBucket.count
+              }
+            })
+            .sort(SortingMethods[this.barSortingMethod]) ?? []
 
         return {
           id,
@@ -546,7 +557,9 @@ export default {
      * @returns {SideBySideFacetContainer[]}
      */
     sideBySideTimelineFacets() {
-      return this.sideBySideFacets.filter(({ visualisationType }) => visualisationType === 'timeline')
+      return this.sideBySideFacets.filter(
+        ({ visualisationType }) => visualisationType === 'timeline'
+      )
     },
     /**
      * @returns {SideBySideFacetContainer[]}
@@ -570,7 +583,8 @@ export default {
     barSortingMethod: {
       /** @returns {string} */
       get() {
-        const value = getQueryParameter(this, QueryParameters.BarSortingMethod) ?? 'HighestAbsoluteIntersection'
+        const value =
+          getQueryParameter(this, QueryParameters.BarSortingMethod) ?? 'HighestAbsoluteIntersection'
         return this.sortingMethods.includes(value) ? value : 'HighestAbsoluteIntersection'
       },
       /** @param {string} value */
@@ -617,23 +631,23 @@ export default {
 
       const { type, id } = comparable
 
-      const resultPromise = search
-        .find({ query })
-        .then(result => ({
-          id,
-          type,
-          title: '',
-          facets: prepareFacets(result.info.facets),
-          total: result.total
-        }))
-      const collectionTitlePromise = type === ComparableTypes.Collection
-        ? collections.get(id, { query: { nameOnly: true } })
-          .then(({ name }) => name)
-          .catch(e => {
-            if (e.name === 'NotFound') return this.$t('cta.select-collection')
-            throw e;
-          })
-        : Promise.resolve('')
+      const resultPromise = search.find({ query }).then(result => ({
+        id,
+        type,
+        title: '',
+        facets: prepareFacets(result.info.facets),
+        total: result.total
+      }))
+      const collectionTitlePromise =
+        type === ComparableTypes.Collection
+          ? collections
+              .get(id, { query: { nameOnly: true } })
+              .then(({ name }) => name)
+              .catch(e => {
+                if (e.name === 'NotFound') return this.$t('cta.select-collection')
+                throw e
+              })
+          : Promise.resolve('')
 
       const [result, collectionTitle] = await Promise.all([resultPromise, collectionTitlePromise])
 
@@ -650,18 +664,20 @@ export default {
     async getAdditionalFacets(comparable, comparableIndex, facetId) {
       if (comparableIsEmpty(comparable)) return []
 
-      const skip = this.sideBySideFacets
-        .find(({ id }) => id === facetId)?.comparableItems[comparableIndex]?.buckets?.length ?? 0
+      const offset =
+        this.sideBySideFacets.find(({ id }) => id === facetId)?.comparableItems[comparableIndex]
+          ?.buckets?.length ?? 0
 
       const query = {
         filters: comparable?.query?.filters ?? comparable?.filters,
         limit: 10,
-        skip
+        offset
       }
 
       try {
         this.loadingFlags[comparableIndex] = true
-        const [{ buckets = []} = {}] = await searchFacets.get(facetId, { query })
+        const result = await searchFacets.get(facetId, { query })
+        const buckets = result != null ? result.buckets : []
         return buckets.map(bucket => new Bucket({ ...bucket, type: facetId }))
       } finally {
         this.loadingFlags[comparableIndex] = false
@@ -678,11 +694,11 @@ export default {
       const allBuckets = additionaBucketsForComparable[facetId] ?? []
       additionaBucketsForComparable[facetId] = allBuckets.concat(buckets)
 
-      this.$set(this.additionalBuckets, comparableIndex, additionaBucketsForComparable)
+      this.additionalBuckets[comparableIndex] = additionaBucketsForComparable
     },
     /** @param {string | undefined} loadMoreType */
     async updateCompareData(loadMoreType = undefined) {
-      if (comparableIsEmpty(this.leftComparable) || comparableIsEmpty(this.rightComparable)) return;
+      if (comparableIsEmpty(this.leftComparable) || comparableIsEmpty(this.rightComparable)) return
 
       const getLoadedNumberOfItems = type => {
         const facet = this.comparisonResult?.intersectionFacets?.find(({ type: t }) => type === t)
@@ -692,12 +708,19 @@ export default {
       }
 
       const query = {
-        filtersSets: [this.leftComparable, this.rightComparable]
-          .map(comparable => comparableToQuery(comparable)?.filters ?? []),
+        filtersSets: [this.leftComparable, this.rightComparable].map(
+          comparable => comparableToQuery(comparable)?.filters ?? []
+        ),
         facets: this.facets
           .filter(([type]) => type !== 'year')
           .map(([type]) => {
-            return { type, limit: loadMoreType === type ? getLoadedNumberOfItems(type) + CompareFacetItemsLimit : CompareFacetItemsLimit }
+            return {
+              type,
+              limit:
+                loadMoreType === type
+                  ? getLoadedNumberOfItems(type) + CompareFacetItemsLimit
+                  : CompareFacetItemsLimit
+            }
           })
       }
 
@@ -721,12 +744,14 @@ export default {
     onComparableUpdated(queryIdx, comparable) {
       if (queryIdx === QueryIndex.Left) this.leftComparable = comparable
       else if (queryIdx === QueryIndex.Right) this.rightComparable = comparable
-      else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`);
+      else throw new Error(`Trying to update unexpected comparable index: ${queryIdx}`)
     },
     /**
      * @param {string} mode
      */
-    onModeUpdated(mode) { this.mode = mode; },
+    onModeUpdated(mode) {
+      this.mode = mode
+    },
     /**
      * @param {number} queryIndex
      * @returns {Comparable}
@@ -736,7 +761,7 @@ export default {
       if (queryIndex === QueryIndex.Right) return this.rightComparableEnriched
       if (queryIndex === QueryIndex.Intersection) return this.intersection
 
-      throw new Error(`Trying to get unexpected comparable index: ${queryIndex}`);
+      throw new Error(`Trying to get unexpected comparable index: ${queryIndex}`)
     },
     /**
      * @param {number} queryIdx
@@ -750,12 +775,20 @@ export default {
       if (JSON.stringify(this.$route.query) !== JSON.stringify(query)) {
         this.$router.push({
           name: 'compare',
-          query: query,
+          query: query
         })
       }
     },
     /** @param {number} value */
-    roundValueForDisplay(value) { return this.$n(value, { notation: 'short' }) },
+    roundValueForDisplay(value) {
+      try {
+        return this.$n(value ?? 0, { notation: 'short' })
+      } catch (e) {
+        if (e instanceof RangeError) {
+          return this.$n(value ?? 0)
+        }
+      }
+    },
     /**
      * @param {{ comparableIndex: number, comparable: Comparable }} param
      */
@@ -763,42 +796,42 @@ export default {
       if (comparableIndex === QueryIndex.Left) this.leftComparable = comparable
       if (comparableIndex === QueryIndex.Right) this.rightComparable = comparable
     }
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .pm-fixer {
-    margin: 0;
-    &:last-child {
-      height: 100%;
-    }
-    flex-wrap: nowrap !important;
-    width: 100%;
-  }
-  .aspects-container {
-    display: flex;
-    flex: 1 1 auto;
-    flex-direction: column;
-    overflow-x: hidden;
-    max-width: 100%;
+.pm-fixer {
+  margin: 0;
+  &:last-child {
     height: 100%;
-    margin-top: 1px;
-    padding-left: 0;
-    padding-right: 0;
   }
-  .one-third {
-    flex: 1 1 auto !important;
-    max-width: 33.33%;
-    max-width: calc(100% / 3);
-  }
-  .pc30 {
-    flex-grow: 1;
-    flex-basis: 0;
-  }
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+.aspects-container {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100%;
+  height: 100%;
+  margin-top: 1px;
+  padding-left: 0;
+  padding-right: 0;
+}
+.one-third {
+  flex: 1 1 auto !important;
+  max-width: 33.33%;
+  max-width: calc(100% / 3);
+}
+.pc30 {
+  flex-grow: 1;
+  flex-basis: 0;
+}
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "cta": {

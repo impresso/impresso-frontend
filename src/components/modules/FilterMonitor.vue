@@ -1,22 +1,30 @@
 <template>
-  <div class="filter-monitor">
+  <div class="FilterMonitor filter-monitor">
     <div v-if="checkbox">
       <!--  context -->
       <b-form-group>
-        <b-form-radio-group switches v-model="currentContext" v-bind:options="checkboxContexts">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="currentContext"
+          @update:modelValue="currentContext = $event"
+          :options="checkboxContexts"
+          type="radio"
+        />
       </b-form-group>
       <!--  operator -->
       <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
-        <b-form-radio-group switches v-model="editedFilter.op" v-bind:options="checkboxOperators">
-        </b-form-radio-group>
+        <radio-group
+          :modelValue="editedFilter.op"
+          @update:modelValue="editedFilter.op = $event"
+          :options="checkboxOperators"
+          type="radio"
+        />
       </b-form-group>
     </div>
 
     <div v-else class="d-flex flex-wrap">
       <!--  context -->
       <b-dropdown size="sm" variant="outline-primary" class="mr-1">
-        <template slot="button-content">
+        <template v-slot:button-content>
           <span v-html="$t(`label.${type}.context.${currentContext}`)" />
         </template>
         <b-dropdown-item
@@ -29,7 +37,7 @@
       </b-dropdown>
       <!--  operator -->
       <b-dropdown v-if="operators.length > 1" size="sm" variant="outline-primary">
-        <template slot="button-content">
+        <template v-slot:button-content>
           <span v-html="$t(`op.${editedFilter.op}.${currentContext}`)" />
         </template>
         <b-dropdown-item
@@ -41,10 +49,11 @@
         ></b-dropdown-item>
       </b-dropdown>
       <b-button
-        class="dripicons-cross ms-auto ml-auto rounded p-0"
+        class="dripicons-cross ms-auto ml-auto rounded p-0 no-outline"
         size="sm"
         variant="transparent"
-        @click="$emit('remove')"
+        @click="removeFilter"
+        data-testid="remove-filter-button"
       ></b-button>
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
@@ -70,32 +79,42 @@
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
           v-model="checkedItems[item.uid]"
-          @change="toggleFilterItem($event, item.uid)"
+          @update:modelValue="toggleFilterItem($event, item.uid)"
         >
           <b-form-input
             size="sm"
             placeholder=""
             class="accepted"
-            v-model="item.uid"
+            :value="item.uid"
             @click.prevent.stop
-            @change="changeStringFilterItemAtIndex($event, idx)"
+            @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
           >
           </b-form-input>
         </b-form-checkbox>
-        <b-form-checkbox
-          v-else
-          v-model="checkedItems[item.uid]"
-          @change="toggleFilterItem($event, item.uid)"
-        >
-          <item-label :item="item" :type="type" />
-          <span v-if="!item.uid">...</span>
-          <span v-if="item.count"
-            >&nbsp;(<span
-              v-html="$tc('numbers.results', item.count, { n: $n(item.count) })"
-            />)&nbsp;</span
+        <div v-else class="d-flex text-small">
+          <b-form-checkbox
+            v-model="checkedItems[item.uid]"
+            @update:modelValue="toggleFilterItem($event, item.uid)"
           >
-          <item-selector :uid="item.uid" :item="item" :type="type" />
-        </b-form-checkbox>
+          </b-form-checkbox>
+          <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
+            <item-label :item="item" :type="type" />
+            <span v-if="!item.uid">...</span>
+            <span v-if="item.count"
+              >&nbsp;(<span
+                v-html="
+                  $tc(
+                    type === 'collection'
+                      ? 'numbers.articlesMatchingSearchFilters'
+                      : 'numbers.results',
+                    item.count,
+                    { n: $n(item.count) }
+                  )
+                "
+              />)&nbsp;</span
+            >
+          </item-selector>
+        </div>
       </div>
       <!-- bucket items -->
       <div class="items-to-add text-small m-2" v-if="itemsToAdd.length">
@@ -116,7 +135,7 @@
             class="dripicons-cross ml-auto"
             variant="transparent"
             size="sm"
-            style="padding:0.25rem 0.5rem 0 0.5rem"
+            style="padding: 0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeItem(idx)"
           />
         </div>
@@ -136,7 +155,7 @@
             class="dripicons-cross"
             variant="transparent"
             size="sm"
-            style="padding:0.25rem 0.5rem 0 0.5rem"
+            style="padding: 0.25rem 0.5rem 0 0.5rem"
             @click.prevent.stop="removeStringItem(idx)"
           />
         </div>
@@ -201,14 +220,6 @@
         @click.stop.prevent
         @embdding-selected="addEmbeddingSuggestion"
       />
-
-      <!-- <b-form-group v-if="checkbox">
-       <b-form-radio-group
-         switches
-         :options="checkboxPrecisions"
-         v-model="editedFilter.precision">
-       </b-form-radio-group>
-      </b-form-group> -->
     </div>
     <b-button
       class="mt-2"
@@ -224,7 +235,7 @@
         {{
           $t('actions.applyChangesDetailed', {
             added: validStringsToAdd.length || itemsToAdd.length,
-            removed: excludedItemsIds.length,
+            removed: excludedItemsIds.length
           })
         }}
       </span>
@@ -235,18 +246,19 @@
 
 <script>
 // import FilterDaterange from '@/components/modules/FilterDateRange'
-import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar'
-import FilterNumberRange from '@/components/modules/FilterNumberRange'
-import ItemSelector from '@/components/modules/ItemSelector'
-import ItemLabel from '@/components/modules/lists/ItemLabel'
-import CollectionItem from '@/components/modules/lists/CollectionItem'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
-import EntitySuggester from '@/components/modules/EntitySuggester'
+import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
+import FilterNumberRange from '@/components/modules/FilterNumberRange.vue'
+import ItemSelector from '@/components/modules/ItemSelector.vue'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
+import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
+import EntitySuggester from '@/components/modules/EntitySuggester.vue'
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
   toCanonicalFilter,
   toSerializedFilter,
   RangeFacets,
-  NumericRangeFacets,
+  NumericRangeFacets
 } from '@/logic/filters'
 
 const StringTypes = ['string', 'title']
@@ -256,10 +268,7 @@ const EntityTypes = ['person', 'location', 'entity']
  * Use with `v-model`.
  */
 export default {
-  model: {
-    prop: 'filter',
-    event: 'changed',
-  },
+  emits: ['changed', 'removed', 'daterange-changed'],
   data: () => ({
     showEmbeddings: false,
     showEntitySuggester: false,
@@ -269,25 +278,25 @@ export default {
     RangeFacets,
     NumericRangeFacets,
     StringTypes,
-    EntityTypes,
+    EntityTypes
   }),
   props: {
     operators: {
       type: Array,
-      default: () => ['OR'],
+      default: () => ['OR']
     },
     contexts: {
       type: Array,
-      default: () => ['include', 'exclude'],
+      default: () => ['include', 'exclude']
     },
     precisions: {
       type: Array,
-      default: () => ['fuzzy', 'exact', 'soft'],
+      default: () => ['fuzzy', 'exact', 'soft']
     },
     /* Render context, operators as checkboxes */
     checkbox: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** @type {import('vue').PropType<import('../../models/models').Filter>} */
     filter: Object,
@@ -295,7 +304,7 @@ export default {
     itemsToAdd: {
       /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
       type: Array,
-      default: () => [],
+      default: () => []
     },
     // ony required when type is daterange. This is implemented in FilterFacetDateRange component
     minDate: {
@@ -305,7 +314,7 @@ export default {
         const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
         date.setUTCHours(0, 0, 0, 0)
         return date
-      },
+      }
     },
     maxDate: {
       type: Date,
@@ -314,8 +323,8 @@ export default {
         const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
         date.setUTCHours(23, 59, 59, 0)
         return date
-      },
-    },
+      }
+    }
   },
   computed: {
     tooManyItems() {
@@ -346,19 +355,19 @@ export default {
     checkboxPrecisions() {
       return this.precisions.map(value => ({
         text: this.$t(`label.${this.type}.precision.${value}`),
-        value,
+        value
       }))
     },
     checkboxContexts() {
       return this.contexts.map(value => ({
         text: this.$t(`label.${this.type}.context.${value}`),
-        value,
+        value
       }))
     },
     checkboxOperators() {
       return this.operators.map(value => ({
         text: this.$t(`op.${value}.${this.currentContext}`),
-        value,
+        value
       }))
     },
     serializedFilters() {
@@ -369,7 +378,7 @@ export default {
         this.itemsToAdd.length,
         toSerializedFilter(this.filter),
         toSerializedFilter(this.editedFilter),
-        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter),
+        toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
       ]
     },
     filterItems() {
@@ -389,10 +398,15 @@ export default {
       },
       set(context) {
         this.editedFilter = { ...this.editedFilter, context }
-      },
-    },
+      }
+    }
   },
   methods: {
+    removeFilter(e) {
+      e.preventDefault()
+      console.info('[FilterMonitor] @removed')
+      this.$emit('removed', this.filter)
+    },
     applyChanges() {
       const { type } = this.editedFilter
 
@@ -402,7 +416,7 @@ export default {
           return acc
         }, {})
         const availableItemsIds = [
-          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid)),
+          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))
         ]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
         const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
@@ -410,14 +424,14 @@ export default {
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
-          q: selectedItemsIds,
+          q: selectedItemsIds
         })
       } else if (StringTypes.includes(type)) {
         const newFilter = {
           ...this.editedFilter,
           q: this.editedFilter.q
             .filter(d => !this.excludedItemsIds.includes(d))
-            .concat(this.validStringsToAdd.map(d => d.uid)),
+            .concat(this.validStringsToAdd.map(d => d.uid))
         }
         this.$emit('changed', newFilter)
         this.stringsToAdd = []
@@ -428,14 +442,14 @@ export default {
     addStringItem() {
       this.stringsToAdd.push({
         uid: '',
-        checked: true,
+        checked: true
       })
     },
     removeStringItem(idx) {
       this.stringsToAdd.splice(idx, 1)
     },
     removeItem(idx) {
-      this.itemsToAdd.splice(idx, 1)
+      this.itemsToAdd.splice(idx, 1) // eslint-disable-line
     },
     changeStringFilterItemAtIndex(value, idx) {
       const q = this.filter.items
@@ -449,6 +463,7 @@ export default {
       this.editedFilter = { ...this.editedFilter, q }
     },
     toggleFilterItem(selected, uid) {
+      console.info('[FilterMonitor] @toggleFilterItem', selected, uid)
       if (selected) {
         this.excludedItemsIds = this.excludedItemsIds.filter(id => id !== uid)
       } else {
@@ -458,7 +473,7 @@ export default {
     addEmbeddingSuggestion(embedding) {
       this.stringsToAdd.push({
         uid: embedding,
-        checked: true,
+        checked: true
       })
       // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       // this.editedFilter.precisions = 'soft'
@@ -468,15 +483,15 @@ export default {
       this.editedFilter = {
         ...this.editedFilter,
         // items: [item],
-        q,
+        q
       }
       if (!NumericRangeFacets.includes(this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged({ items }) {
-      console.info('handleFilterChanged')
-      this.itemsToAdd = items // TODO:  exclude item already present
-    },
+      this.itemsToAdd.splice(0, this.itemsToAdd.length, ...items) // eslint-disable-line
+      // TODO:  exclude item already present
+    }
   },
   components: {
     // FilterDaterange,
@@ -487,6 +502,7 @@ export default {
     ItemSelector,
     FilterNumberRange,
     EntitySuggester,
+    RadioGroup
   },
   watch: {
     /**
@@ -501,34 +517,37 @@ export default {
         if (this.itemsToAdd) {
           this.editedFilter = {
             ...this.editedFilter,
-            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid)),
+            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
           }
         }
         this.excludedItemsIds = []
       },
       immediate: true,
-      deep: true,
-    },
-  },
+      deep: true
+    }
+  }
 }
 </script>
 
-<style lang="scss">
-.items .form-control.accepted {
+<style>
+.FilterMonitor .items .form-control.accepted {
   color: #343a40;
 }
-.items-to-add {
-  // background: yellow;
-}
-label.custom-control-label {
+
+.FilterMonitor label.custom-control-label {
   font-variant: none;
 }
-.reduced {
+
+.FilterMonitor .reduced {
   max-height: 200px;
   overflow: scroll;
 }
+
+.FilterMonitor .no-outline:focus {
+  box-shadow: none;
+}
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "op": {
@@ -600,6 +619,12 @@ label.custom-control-label {
         }
       },
       "location": {
+        "context": {
+          "include": "Mentioning",
+          "exclude": "<b>NOT</b> mentioning"
+        }
+      },
+      "entity": {
         "context": {
           "include": "Mentioning",
           "exclude": "<b>NOT</b> mentioning"

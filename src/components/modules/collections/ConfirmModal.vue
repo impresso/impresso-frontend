@@ -1,18 +1,17 @@
 <template>
-  <b-modal
+  <Modal
+    :show="show"
     :id="id"
     :title="title"
     class="rounded"
     no-fade
     hide-backdrop
     modal-class="ConfirmModal"
-    dialog-class=""
     content-class="rounded drop-shadow"
-    centered
-  >
+    @close="$emit('close')">
     <slot></slot>
 
-    <template slot="modal-footer">
+    <template v-slot:modal-footer>
       <b-button
         size="sm"
         class="shadow-sm rounded"
@@ -30,10 +29,12 @@
         {{ $t(okLabel) }}
       </b-button>
     </template>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
+import Modal from '@/components/base/Modal.vue'
+
 /**
  * This modal is used to confirm an action. You can provide id, title and label for ok button in this component properties.
  * @example <ConfirmModal :id="id" :title="title" :ok-label="okLabel" @ok="okHandler" />
@@ -42,6 +43,10 @@
 export default {
   name: 'ConfirmModal',
   props: {
+    show: {
+      type: Boolean,
+      default: false,
+    },
     id: {
       type: String,
       required: true,
@@ -56,6 +61,7 @@ export default {
     },
   },
   emits: ['ok', 'close'],
+  components: { Modal },
 }
 </script>
 

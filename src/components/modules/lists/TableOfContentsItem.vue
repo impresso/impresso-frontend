@@ -1,43 +1,45 @@
-<template lang="html">
+<template>
   <div class="TableOfContentsItem">
-  <b-media :class="{ active }">
-    <article-item :item="item" class="p-3 clearfix"
-      show-excerpt
-      show-entities
-      show-size
-      show-pages
-      show-matches
-      show-type>
-      <template v-slot:title>
-        <h2 style="font-weight: bold;">
-          {{item.title}}
-        </h2>
-      </template>
-      <template v-slot:actions>
-        <slot name="actions"></slot>
-      </template>
-    </article-item>
-    <div v-bind:key="i" v-for="(image, i) in item.images">
-      <image-item
-        :height="200"
-        class="mx-3 mb-2"
-        :item="image"
-        :headers="headers"
-      />
-      <div class=" ml-3 mb-3">
-        <router-link class="btn btn-outline-secondary btn-sm "
-          :to="getSimilarImagesHref(image)">
-          get similar images
-        </router-link>
+  <div :class="{ media: true, active }">
+    <div class="media-body">
+      <article-item :item="item" class="p-3 clearfix"
+        show-excerpt
+        show-entities
+        show-size
+        show-pages
+        show-matches
+        show-type>
+        <template v-slot:title>
+          <h2 style="font-weight: bold;">
+            {{item.title}}
+          </h2>
+        </template>
+        <template v-slot:actions>
+          <slot name="actions"></slot>
+        </template>
+      </article-item>
+      <div v-bind:key="i" v-for="(image, i) in item.images">
+        <image-item
+          :height="200"
+          class="mx-3 mb-2"
+          :item="image"
+          :headers="headers"
+        />
+        <div class=" ml-3 mb-3">
+          <router-link class="btn btn-outline-secondary btn-sm "
+            :to="getSimilarImagesHref(image)">
+            get similar images
+          </router-link>
+        </div>
       </div>
     </div>
-  </b-media>
+  </div>
   </div>
 </template>
 
 <script>
-import ArticleItem from '@/components/modules/lists/ArticleItem'
-import ImageItem from '@/components/modules/lists/ImageItem'
+import ArticleItem from '@/components/modules/lists/ArticleItem.vue'
+import ImageItem from '@/components/modules/lists/ImageItem.vue'
 
 export default {
   props: {

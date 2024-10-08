@@ -8,13 +8,14 @@
           <h3 class="mb-1">
             <span v-if="isLoading"> ... (loading) </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
-            <small><InfoButton name="text-reuse" class="ml-1"/></small>
+            <small>
+              <InfoButton name="text-reuse" class="ml-1" />
+            </small>
           </h3>
-          <section class="text-serif  TextReuseExplorerPage_summary">
+          <section class="text-serif TextReuseExplorerPage_summary">
             <Ellipsis :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
-                class="textbox-fancy"
                 v-on:updated="summaryUpdatedHandler"
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
@@ -25,13 +26,13 @@
                 @create="handleAddToCollectionCreate"
                 :title="$t('addTrQueryResultsToCollection')"
               >
-                <template slot="empty">
+                <template v-slot:empty>
                   <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
                   <b-button
                     size="sm"
                     class="small-caps rounded shadow-sm mt-3"
                     variant="outline-secondary"
-                    v-b-modal.createCollectionFromFilters
+                    @click="showCreateCollectionModal()"
                   >
                     <span class="dripicons-archive pr-1"></span>
                     {{ $t('query_add_to_collection') }}
@@ -68,7 +69,7 @@
             <span
               v-html="
                 $tc('routeTextReuseClusters', totalClusters, {
-                  n: isLoadingClusters ? '...' : $n(totalClusters),
+                  n: isLoadingClusters ? '...' : $n(totalClusters)
                 })
               "
             />
@@ -81,13 +82,13 @@
             <span
               v-html="
                 $tc('routeTextReusePassages', totalPassages, {
-                  n: isLoadingPassages ? '...' : $n(totalPassages),
+                  n: isLoadingPassages ? '...' : $n(totalPassages)
                 })
               "
             />
           </b-nav-item>
 
-          <b-nav-text class="p-0 d-flex align-items-center ml-3"> </b-nav-text>
+          <li class="navbar-text p-0 d-flex align-items-center ml-3"></li>
         </template>
       </b-tabs>
     </template>
@@ -95,7 +96,8 @@
       v-if="$route.name === 'textReuseOverview'"
       :filters="supportedFilters"
       :loading="isLoading"
-    ></TextReuseOverview>
+    >
+    </TextReuseOverview>
     <TextReuseStatistics
       v-if="$route.name === 'textReuseStatistics'"
       :filters="supportedFilters"
@@ -112,24 +114,22 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="d-flex flex-row pt-1">
-          <b-nav-text class="ml-3 mr-2 text-muted">
-            <label>{{ $t('sortBy') }}</label></b-nav-text
-          >
-          <b-nav-text class="mr-1">
-            <i-dropdown
-              v-model="orderBy"
-              :options="
-                orderByOptions.map(value => ({
-                  value,
-                  text: $t(`sort_${value}`),
-                }))
-              "
-              class="mr-auto"
-              size="sm"
-              variant="outline-primary"
-            ></i-dropdown
-          ></b-nav-text>
+        <b-navbar-nav class="py-2 pl-3 ml-auto d-flex flex-row">
+          <b-nav-item class="navbar-text d-inline-block ml-3 mr-2 text-muted small-caps">
+            {{ $t('sortBy') }}
+          </b-nav-item>
+          <i-dropdown
+            v-model="orderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`sort_${value}`)
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-tertiary"
+          ></i-dropdown>
         </b-navbar-nav>
       </template>
       <template v-slot:default>
@@ -154,18 +154,22 @@
       "
     >
       <template v-slot:header>
-        <b-navbar-nav class="py-2 pl-3 ml-auto">
+        <b-navbar-nav class="py-2 pl-3 ml-auto d-flex flex-row">
+          <b-nav-item class="navbar-text ml-3 mr-2 text-muted small-caps">
+            {{ $t('sortBy') }}
+          </b-nav-item>
+
           <i-dropdown
             v-model="orderBy"
             :options="
               orderByOptions.map(value => ({
                 value,
-                text: $t(`sort_${value}`),
+                text: $t(`sort_${value}`)
               }))
             "
             class="mr-auto"
             size="sm"
-            variant="outline-primary"
+            variant="outline-tertiary"
           ></i-dropdown>
         </b-navbar-nav>
       </template>
@@ -176,13 +180,13 @@
             class="m-3 pb-4 border-bottom"
             v-for="item in passages"
             :key="item.id"
-            @click="handleTextReusePassageClick"
           />
         </div>
       </template>
     </List>
     <CreateCollection
       id="createCollectionFromFilters"
+      :show="isCreateCollectionModalVisible"
       :filters="supportedFilters"
       index="tr_passages"
       :title="$t('query_add_to_collection')"
@@ -190,15 +194,17 @@
       :name="newCollectionName"
       @create="handleCreateCollection"
       @collection:created="handleCollectionCreated"
+      @close="hideCreateCollectionModal"
     />
     <ConfirmModal
       id="confirmAddToCollectionFromFilters"
       :title="$t('confirmAddToCollectionFromFilters')"
       :okLabel="$t('saveToTheCollection')"
       @ok="saveArticlesInSelectedCollection"
+      :show="isConfirmAddToCollectionDialogVisible"
       @close="
         () => {
-          $bvModal.hide('confirmAddToCollectionFromFilters')
+          isConfirmAddToCollectionDialogVisible = false
         }
       "
     >
@@ -218,24 +224,29 @@
 </template>
 
 <script>
-import InfoButton from '@/components/base/InfoButton'
-import Ellipsis from '@/components/modules/Ellipsis'
-import List from '@/components/modules/lists/List'
-import ClusterItem from '@/components/modules/lists/ClusterItem'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem'
-import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics'
-import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview'
+import { mapActions } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import List from '@/components/modules/lists/List.vue'
+import ClusterItem from '@/components/modules/lists/ClusterItem.vue'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
+import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics.vue'
+import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview.vue'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
 import { textReusePassages, search as searchService, collections } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import CreateCollection from './modules/collections/CreateCollection'
-import AddToCollection from './modules/collections/AddToCollection'
+import CreateCollection from './modules/collections/CreateCollection.vue'
+import AddToCollection from './modules/collections/AddToCollection.vue'
 import ConfirmModal from './modules/collections/ConfirmModal.vue'
 import ItemLabel from './modules/lists/ItemLabel.vue'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -250,7 +261,7 @@ const OrderByOptions = [
   'lexicalOverlap',
   '-lexicalOverlap',
   'size',
-  '-size',
+  '-size'
 ]
 
 export default {
@@ -266,26 +277,26 @@ export default {
     CreateCollection,
     AddToCollection,
     ConfirmModal,
-    ItemLabel,
+    ItemLabel
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
     paginationPerPage: {
       type: Number,
-      default: 20,
+      default: 20
     },
     filtersWithItems: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     withClusters: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   data: () => ({
     summary: '',
@@ -301,8 +312,17 @@ export default {
     newCollectionName: '',
     // this is the collection being selected to contains the articles
     selectedCollection: null,
+    isCreateCollectionModalVisible: false,
+    isConfirmAddToCollectionDialogVisible: false
   }),
   methods: {
+    showCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = true
+    },
+    hideCreateCollectionModal() {
+      this.isCreateCollectionModalVisible = false
+    },
+    ...mapActions(useNotificationsStore, ['addNotification']),
     summaryUpdatedHandler(summary) {
       this.summary = summary
     },
@@ -313,8 +333,8 @@ export default {
           ...this.$route.query,
           ...route.query,
           // reset page n when switching route
-          [CommonQueryParameters.PageNumber]: 1,
-        },
+          [CommonQueryParameters.PageNumber]: 1
+        }
       }
     },
     async loadClusters({ query }) {
@@ -329,7 +349,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query, groupby: 'textReuseClusterId' } })
+          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
@@ -367,54 +387,63 @@ export default {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     },
-    handleTextReusePassageClick(passage) {
-      // eslint-disable-next-line
-      console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
-      // filter exists, update it
-      const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
-      const trcFilter = FilterFactory.create({
-        type: 'textReuseCluster',
-        q: passage.textReuseCluster.id,
-      })
-      if (filterExists) {
-        this.handleFiltersChanged(
-          this.filters.map(filter => {
-            if (filter.type === 'textReuseCluster') {
-              return trcFilter
-            }
-            return filter
-          }),
-        )
-        return
-      } else {
-        this.handleFiltersChanged([...this.filters, trcFilter])
-      }
-    },
+    // UNUSED CODE
+    // handleTextReusePassageClick(passage) {
+    //   // eslint-disable-next-line
+    //   console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
+    //   if (typeof passage.textReuseCluster?.id !== 'string') {
+    //     console.warn(
+    //       '[TextReuseExplorer] handleTextReusePassageClick \n - no textReuseCluster.id found in passage:',
+    //       passage
+    //     )
+    //     return
+    //   }
+    //   // filter exists, update it
+    //   const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
+    //   const trcFilter = FilterFactory.create({
+    //     type: 'textReuseCluster',
+    //     q: passage.textReuseCluster.id
+    //   })
+    //   if (filterExists) {
+    //     this.handleFiltersChanged(
+    //       this.filters.map(filter => {
+    //         if (filter.type === 'textReuseCluster') {
+    //           return trcFilter
+    //         }
+    //         return filter
+    //       })
+    //     )
+    //     return
+    //   } else {
+    //     this.handleFiltersChanged([...this.filters, trcFilter])
+    //   }
+    // },
     handleAddToCollectionClick(item) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
       this.selectedCollection = item
       // open up confimation modal...?
-      this.$bvModal.show('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = true
     },
     // opens up create Collection modal
     handleAddToCollectionCreate({ name = '' }) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionCreate name:', name)
       this.newCollectionName = name
-      this.$bvModal.show('createCollectionFromFilters')
+      this.showCreateCollectionModal()
     },
     handleCollectionCreated(collection) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
-      this.$bvModal.hide('createCollectionFromFilters')
-      this.$bvToast.toast('Collection created', {
+      this.hideCreateCollectionModal()
+
+      this.addNotification({
         title: 'Success',
-        variant: 'success',
-        solid: true,
+        message: 'Collection created',
+        type: 'success'
       })
       this.selectedCollection = collection
       this.saveArticlesInSelectedCollection()
@@ -422,7 +451,7 @@ export default {
     saveArticlesInSelectedCollection() {
       if (!this.selectedCollection) {
         console.warn(
-          '[TextReuseExplorer] saveArticlesInSelectedCollection() \n no collection selected... nothing to do.',
+          '[TextReuseExplorer] saveArticlesInSelectedCollection() \n no collection selected... nothing to do.'
         )
         return
       }
@@ -433,9 +462,9 @@ export default {
             group_by: 'articles',
             index: 'tr_passages',
             collection_uid: this.selectedCollection.uid,
-            filters: optimizeFilters(this.supportedFilters),
+            filters: optimizeFilters(this.supportedFilters)
           },
-          { ignoreErrors: true },
+          { ignoreErrors: true }
         )
         .then(() => {
           console.debug('[TextReuseExplorer]  success')
@@ -446,25 +475,23 @@ export default {
           if (err.code === 400) {
             // eslint-disable-next-line
             console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
-            this.$bvToast.toast('You cannot add to this collection', {
+            this.addNotification({
               title: 'Error',
-              variant: 'danger',
-              solid: true,
+              message: 'You cannot add to this collection',
+              type: 'error'
             })
             return
-          } else if ((err.code = 501)) {
+          } else if (err.code === 501) {
             // too many jobs...
-            this.$bvToast.toast(
-              'Please wait, you already have a job running. Check its completion in the running tabs.',
-              {
-                title: 'Please wait...',
-                variant: 'danger',
-                solid: true,
-              },
-            )
+            this.addNotification({
+              title: 'Please wait...',
+              message:
+                'Please wait, you already have a job running. Check its completion in the running tabs.',
+              type: 'error'
+            })
           }
         })
-      this.$bvModal.hide('confirmAddToCollectionFromFilters')
+      this.isConfirmAddToCollectionDialogVisible = false
     },
     async handleCreateCollection(name, description) {
       const collection = await collections.create({ name, description })
@@ -474,15 +501,19 @@ export default {
         name,
         '\n - description: ',
         description,
-        collection,
+        collection
       )
 
-      this.$bvModal.hide('createCollectionFromFilters')
-    },
+      this.hideCreateCollectionModal()
+    }
   },
   computed: {
+    ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     paginationCurrentPage: mapPagination(),
     supportedFilters() {
@@ -497,7 +528,7 @@ export default {
       return {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalClusters,
-        perPage: this.paginationPerPage,
+        perPage: this.paginationPerPage
       }
     },
     /** @returns {{ currentPage: number, totalRows: number, perPage: number }} */
@@ -505,51 +536,48 @@ export default {
       console.debug('[TextReuseExplorer] passagesPaginationList()', {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalPassages,
-        perPage: this.paginationPerPage,
+        perPage: this.paginationPerPage
       })
       return {
         currentPage: this.paginationCurrentPage,
         totalRows: this.totalPassages,
-        perPage: this.paginationPerPage,
+        perPage: this.paginationPerPage
       }
     },
     /** @returns {{ query: any, hash: string }} */
     searchApiQueryParameters() {
       const query = {
-        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+        offset: this.paginationPerPage * (this.paginationCurrentPage - 1),
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
-        orderBy: this.orderBy,
+        order_by: this.orderBy,
         filters: optimizeFilters(this.supportedFilters),
-        addons: { newspaper: 'text' },
+        addons: { newspaper: 'text' }
       }
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
     },
     incipit() {
       if (!this.withClusters) {
         return this.$t('textReuseSummaryIncipitWithoutClusters', {
           passages: this.$tc('routeTextReusePassages', this.totalPassages, {
-            n: this.$n(this.totalPassages),
-          }),
+            n: this.$n(this.totalPassages)
+          })
         })
       }
       const passagesLabel = this.$tc('routeTextReusePassages', this.totalPassages, {
-        n: this.$n(this.totalPassages),
+        n: this.$n(this.totalPassages)
       })
       const clustersLabel = this.$tc('routeTextReuseClusters', this.totalClusters, {
-        n: this.$n(this.totalClusters),
+        n: this.$n(this.totalClusters)
       })
       return this.$t('textReuseSummaryIncipit', {
         passages: passagesLabel,
-        clusters: clustersLabel,
+        clusters: clustersLabel
       })
-    },
+    }
   },
   watch: {
     searchApiQueryParameters: {
@@ -563,56 +591,58 @@ export default {
         await this.loadPassages({ query })
         await this.loadClusters({ query })
       },
-      immediate: true,
-    },
-  },
-}
-</script>
-<i18n>
-  {
-    "en": {
-      "textReuse": "Text Reuse",
-      "textReuseSummaryIncipit": "{passages} in {clusters}",
-      "textReuseSummaryIncipitWithoutClusters": "{passages}",
-      "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
-      "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
-      "routeTextReuseOverview": "overview",
-      "routeTextReuseStatistics": "statistics",
-      "query_add_to_collection": "Create new collection",
-      "no_collections_found": "No collections found",
-      "addTrQueryResultsToCollection": "Save articles to collection",
-      "sort_-date": "Date (newest first)",
-      "sort_date": "Date (oldest first)",
-      "sort_-clusterSize": "Cluster size (largest first)",
-      "sort_clusterSize": "Cluster size (smallest first)",
-      "sort_-timeDifferenceDay": "Time difference (largest first)",
-      "sort_timeDifferenceDay": "Time difference (smallest first)",
-      "sort_-size": "Passage size, number of tokens (largest first)",
-      "sort_size": "Passage size, number of tokens (smallest first)",
-      "sort_-lexicalOverlap": "Lexical overlap (largest first)",
-      "sort_lexicalOverlap": "Lexical overlap (smallest first)",
-      "routes": {
-        "textReuse": "Text Reuse",
-        "textReuseStatistics": "Statistics",
-        "textReuseOverview": "Overview of Text Reuse Distribution",
-        "textReusePassages": "List of Text Reuse Passages",
-        "textReuseClusters": "List of Text Reuse Clusters"
-      },
-      "confirmAddToCollectionFromFilters": "Add all filtered articles to a collection",
-      "saveToTheCollection": "Save to my collection"
+      immediate: true
     }
   }
-  </i18n>
+}
+</script>
+<i18n lang="json">
+{
+  "en": {
+    "textReuse": "Text Reuse",
+    "textReuseSummaryIncipit": "{passages} in {clusters}",
+    "textReuseSummaryIncipitWithoutClusters": "{passages}",
+    "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
+    "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
+    "routeTextReuseOverview": "overview",
+    "routeTextReuseStatistics": "statistics",
+    "query_add_to_collection": "Create new collection",
+    "no_collections_found": "No collections found",
+    "addTrQueryResultsToCollection": "Save articles to collection",
+    "sort_-date": "Date (newest first)",
+    "sort_date": "Date (oldest first)",
+    "sort_-clusterSize": "Cluster size (largest first)",
+    "sort_clusterSize": "Cluster size (smallest first)",
+    "sort_-timeDifferenceDay": "Time difference (largest first)",
+    "sort_timeDifferenceDay": "Time difference (smallest first)",
+    "sort_-size": "Passage size, number of tokens (largest first)",
+    "sort_size": "Passage size, number of tokens (smallest first)",
+    "sort_-lexicalOverlap": "Lexical overlap (largest first)",
+    "sort_lexicalOverlap": "Lexical overlap (smallest first)",
+    "routes": {
+      "textReuse": "Text Reuse",
+      "textReuseStatistics": "Statistics",
+      "textReuseOverview": "Overview of Text Reuse Distribution",
+      "textReusePassages": "List of Text Reuse Passages",
+      "textReuseClusters": "List of Text Reuse Clusters"
+    },
+    "confirmAddToCollectionFromFilters": "Add all filtered articles to a collection",
+    "saveToTheCollection": "Save to my collection"
+  }
+}
+</i18n>
 <style lang="css">
 .TextReuseExplorerPage_summary .number {
   font-weight: bold;
 }
+
 .TextReuseExplorerPage_summary {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 }
+
 .TextReuseExplorerPage_summary p {
   margin: 0;
   display: inline;

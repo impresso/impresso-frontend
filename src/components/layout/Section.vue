@@ -49,7 +49,7 @@ export default {
       this.$emit('scroll', { scrollTop: this.scrollTop });
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.$refs.body.removeEventListener('scroll', this.onScroll);
   },
   mounted() {

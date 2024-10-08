@@ -13,7 +13,7 @@
 
 <script>
 import DivergingBarsChart from '@/d3-modules/DivergingBarsChart'
-import Tooltip from '../tooltips/Tooltip'
+import Tooltip from '../tooltips/Tooltip.vue'
 
 /**
  * @typedef {{ left: number, right, number, intersection: number, label: string }} Item
@@ -67,7 +67,7 @@ export default {
         }
       return {
         ...tooltipData,
-        isActive: tooltipData.isActive && tooltipData.item != null && tooltipData.item !== {}
+        isActive: tooltipData.isActive && tooltipData.item != null && Object.keys(tooltipData.item).length > 0
       }
     }
   },
@@ -80,7 +80,7 @@ export default {
     // @ts-ignore
     window.addEventListener('resize', this.render.bind(this))
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.render.bind(this))
   },

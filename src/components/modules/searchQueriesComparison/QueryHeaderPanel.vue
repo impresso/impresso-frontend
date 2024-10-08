@@ -1,98 +1,141 @@
 <template>
   <div class="query-header-panel">
-  <div class="inner" :class="{
-    left,
-    right: !left && !containsComparison,
-    middle: containsComparison,
-  }">
-  <div class="p-2 container">
-    <b-tabs pills content-class="mt-3" :align="alignment"
-            v-if="comparable.type !== 'intersection'">
-      <!-- query -->
-      <b-tab v-if="left" disabled>
-        <template v-slot:title>
-          <div class="side left">A</div>
-        </template>
-      </b-tab>
+    <div
+      class="inner"
+      :class="{
+        left,
+        right: !left && !containsComparison,
+        middle: containsComparison
+      }"
+    >
+      <div class="p-2 container">
+        <b-tabs
+          pills
+          content-class="mt-3"
+          :class="`justify-content-${alignment}`"
+          v-if="comparable.type !== 'intersection'"
+        >
+          <template v-slot:tabs-end>
+            <!-- A -->
+            <li v-if="left" class="nav-item">
+              <div class="nav-link">
+                <div class="side left">A</div>
+              </div>
+            </li>
+            <li class="nav-item">
+              <div class="nav-link active">
+                <span>{{ getTabLabel('query') }}</span>
+              </div>
+            </li>
+            <!-- B -->
+            <li v-if="!left" class="nav-item">
+              <div class="nav-link">
+                <div class="side right">B</div>
+              </div>
+            </li>
+          </template>
 
-      <b-tab active
-             :title="getTabLabel('query')">
-        <div class="px-1 pb-2">
-          <search-pills :enable-add-filter="filters.length > 0"
-                        :includedFilterTypes="supportedFilterTypes"
-                        :filters="filters"
-                        @changed="handleFiltersChanged" />
-          <InfoIgnoredFilters :ignoredFilters="ignoredFilters"/>
-          <autocomplete v-on:submit="onSuggestion" />
-        </div>
-      </b-tab>
-      <b-tab v-if="!left" disabled>
-        <template v-slot:title>
-          <div class="side right">B</div>
-        </template>
-      </b-tab>
-    </b-tabs>
-
-    <!-- intersection -->
-    <div class="row justify-content-between" v-if="containsComparison">
-      <div class="col-auto w-100">
-        <b-tabs pills content-class="mt-3" align="center">
-          <b-tab v-for="(option, i) in modeOptions" :key="i"
-            :active="option === mode"
-            @click="$emit('mode-changed', option)">
-            <template v-slot:title>
-              <div v-html="$t(`comparison.labels.${option}`)"></div>
-            </template>
-          </b-tab>
-          <section class="px-1 text-center">
-            <h3>
-              <span class="textbox-fancy" v-if="!isNaN(this.total)" v-html="$tc(`comparison.titles.${comparable.type}`, this.total, {
-                n: $n(this.total),
-              })"/>
-              <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
-              <info-button class="ml-2" name="compare-and-inspect" />
-            </h3>
-            <div v-if="mode === 'inspect'" v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"/>
-            <div v-else-if="mode === 'compare'" v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"/>
-          </section>
+          <template v-slot:default>
+            <div class="px-1 pb-2">
+              <search-pills
+                :enable-add-filter="filters.length > 0"
+                :includedFilterTypes="supportedFilterTypes"
+                :filters="filters"
+                @changed="handleFiltersChanged"
+              />
+              <InfoIgnoredFilters :ignoredFilters="ignoredFilters" />
+              <autocomplete v-on:submit="onSuggestion" />
+            </div>
+          </template>
         </b-tabs>
+
+        <!-- intersection -->
+        <div class="row justify-content-between" v-if="containsComparison">
+          <div class="col-auto w-100">
+            <b-tabs pills content-class="mt-3" class="justify-content-center">
+              <template v-slot:tabs-end>
+                <li v-for="(option, i) in modeOptions" :key="i" class="nav-item">
+                  <a
+                    class="nav-link"
+                    :class="{ active: option === mode }"
+                    @click="$emit('mode-changed', option)"
+                  >
+                    <div v-html="$t(`comparison.labels.${option}`)"></div>
+                  </a>
+                </li>
+              </template>
+
+              <template v-slot:default>
+                <section class="px-1 text-center">
+                  <h3>
+                    <span
+                      class="textbox-fancy"
+                      v-if="!isNaN(total)"
+                      v-html="
+                        $tc(`comparison.titles.${comparable.type}`, this.total, {
+                          n: $n(total)
+                        })
+                      "
+                    />
+                    <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
+                    <info-button class="ml-2" name="compare-and-inspect" />
+                  </h3>
+                  <div
+                    v-if="mode === 'inspect'"
+                    v-html="$t(`comparison.descriptions.${comparable.type}.inspect`)"
+                  />
+                  <div
+                    v-else-if="mode === 'compare'"
+                    v-html="$t(`comparison.descriptions.${comparable.type}.compare`)"
+                  />
+                </section>
+              </template>
+            </b-tabs>
+          </div>
+        </div>
+      </div>
+      <div class="search-button-wrapper">
+        <router-link
+          v-if="comparable && searchPageLink(comparable) !== undefined"
+          class="btn btn-outline-primary btn-sm"
+          :to="searchPageLink(comparable)"
+        >
+          {{ $t('actions.searchMore') }}
+          {{
+            $tc('numbers.resultsParenthesis', total ?? 0, {
+              n: $n(total ?? 0)
+            })
+          }}
+        </router-link>
       </div>
     </div>
-
-  </div>
-  <div class="search-button-wrapper">
-    <router-link v-if="comparable && searchPageLink(comparable) !== undefined"
-                 class="btn btn-outline-primary btn-sm"
-                 :to="searchPageLink(comparable)">
-      {{
-        $t('actions.searchMore')
-      }}
-      {{
-        $tc('numbers.resultsParenthesis', total, {
-          n: $n(total),
-        })
-      }}
-    </router-link>
-  </div>
-  </div>
   </div>
 </template>
 
 <script>
 // import SearchQueryModel from '@/models/SearchQuery';
-import SearchPills from '../../SearchPills';
-import InfoButton from '@/components/base/InfoButton';
-import Autocomplete from '../../Autocomplete';
+import SearchPills from '../../SearchPills.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Autocomplete from '../../Autocomplete.vue'
 // import CollectionPicker from '../../base/CollectionPicker';
-import InfoIgnoredFilters from '../../base/InfoIgnoredFilters';
+import InfoIgnoredFilters from '../../base/InfoIgnoredFilters.vue'
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { serializeFilters } from '@/logic/filters'
 
 const SupportedFilterTypes = [
-  'string', 'title', 'accessRight', 'type',
-  'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'daterange',
-  'isFront',
+  'string',
+  'title',
+  'accessRight',
+  'type',
+  'location',
+  'country',
+  'person',
+  'language',
+  'topic',
+  'newspaper',
+  'collection',
+  'daterange',
+  'isFront'
 ]
 
 /**
@@ -111,13 +154,13 @@ export default {
       required: true
     },
     title: {
-      type: String,
+      type: String
     },
     left: {
-      type: Boolean,
+      type: Boolean
     },
     mode: {
-      type: String,
+      type: String
     },
     total: Number, // total items in selected collection.
     /**
@@ -126,7 +169,9 @@ export default {
      */
     collections: {
       type: Array,
-      default() { return []; },
+      default() {
+        return []
+      }
     },
     /**
      * @type {import('vue').PropOptions<string[]>}
@@ -134,8 +179,8 @@ export default {
     comparisonOptions: {
       type: Array,
       default() {
-        return ['intersection', 'diffA', 'diffB'];
-      },
+        return ['intersection', 'diffA', 'diffB']
+      }
     },
     /**
      * @type {import('vue').PropOptions<string[]>}
@@ -143,8 +188,8 @@ export default {
     modeOptions: {
       type: Array,
       default() {
-        return ['inspect', 'compare'];
-      },
+        return ['inspect', 'compare']
+      }
     }
   },
   components: {
@@ -152,7 +197,7 @@ export default {
     Autocomplete,
     // CollectionPicker,
     InfoButton,
-    InfoIgnoredFilters,
+    InfoIgnoredFilters
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -163,7 +208,7 @@ export default {
         type: ComparableTypes.Query,
         id: undefined
       }
-      this.$emit('comparable-changed', comparable);
+      this.$emit('comparable-changed', comparable)
     },
     /** @param {string} id */
     onCollectionSelected(id) {
@@ -173,16 +218,16 @@ export default {
         id,
         query: undefined
       }
-      this.$emit('comparable-changed', comparable);
+      this.$emit('comparable-changed', comparable)
     },
     /** @param {string} type */
     getTabLabel(type) {
       if (type === this.comparable.type) {
-        return this.$tc(`tabs.${type}.active`, this.total, {
-          count: this.$n(this.total),
-        });
+        return this.$tc(`tabs.${type}.active`, this.total ?? 0, {
+          count: this.$n(this.total ?? 0)
+        })
       }
-      return this.$t(`tabs.${type}.pick`);
+      return this.$t(`tabs.${type}.pick`)
     },
     /** @param {Filter} filter */
     onSuggestion(filter) {
@@ -193,7 +238,7 @@ export default {
         type: 'query',
         id: undefined
       }
-      this.$emit('comparable-changed', comparable);
+      this.$emit('comparable-changed', comparable)
     },
     /** @param {Comparable} c */
     searchPageLink(comparable) {
@@ -206,130 +251,130 @@ export default {
           sq: serializeFilters(searchQuery.filters)
         }
       }
-    },
+    }
   },
   computed: {
     /** @returns {string} */
     alignment() {
       if (this.comparable.type === 'intersection') {
-        return 'center';
+        return 'center'
       }
-      return this.left ? 'left' : 'right';
+      return this.left ? 'start' : 'end'
     },
     /** @returns {boolean} */
     containsComparison() {
-      return this.comparisonOptions.includes(this.comparable.type);
+      return this.comparisonOptions.includes(this.comparable.type)
     },
     /** @returns {Filter[]} */
     filters() {
-      return this.comparable?.query?.filters.filter(d => d.type !== 'hasTextContents') ?? []
+      return this.comparable?.query?.filters?.filter(d => d.type !== 'hasTextContents') ?? []
     },
     ignoredFilters() {
-      return this.filters.filter(d => !SupportedFilterTypes.includes(d.type));
+      return this.filters.filter(d => !SupportedFilterTypes.includes(d.type))
     }
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
-  @import "@/styles/variables.sass";
-   // multiply A + B
-  // $inspect-compare-middle-panel-color: #fdafdb;// dodge A B
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/styles/variables.sass';
+// multiply A + B
+// $inspect-compare-middle-panel-color: #fdafdb;// dodge A B
 
-  .query-header-panel{
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin-bottom: 2rem;
-    .type {
-      .small-caps {
-        height: 17px;
-        vertical-align: top;
-      }
-    }
-    .inner{
-      position: relative;
-      margin-bottom: 2rem;
-      height: 100%;
-    }
-    &>.left {
-      border-bottom: 1px solid $inspect-compare-left-panel-color;
-      ul.nav.nav-pills{
-        border-bottom-color: $inspect-compare-left-panel-color;
-        .nav-item .nav-link.active{
-          color: $inspect-compare-left-panel-color;
-          border-top-color: $inspect-compare-left-panel-color;
-          border-left-color: $inspect-compare-left-panel-color;
-          border-right-color: $inspect-compare-left-panel-color;
-        }
-      }
-      .viz-bar{
-        background-color: $inspect-compare-left-panel-color;
-      }
-    }
-
-    &>.right {
-      border-bottom: 1px solid $inspect-compare-right-panel-color;
-      ul.nav.nav-pills{
-        border-bottom-color: $inspect-compare-right-panel-color;
-        .nav-item .nav-link.active{
-          color: $inspect-compare-right-panel-color;
-          border-top-color: $inspect-compare-right-panel-color;
-          border-left-color: $inspect-compare-right-panel-color;
-          border-right-color: $inspect-compare-right-panel-color;
-        }
-      }
-    }
-
-    &>.middle {
-      border: 1px solid $inspect-compare-middle-panel-color;
-      border-top: 0px;
-      border-bottom-width: 2px;
-      ul.nav.nav-pills{
-        border-bottom-color: $inspect-compare-middle-panel-color;
-        .nav-item .nav-link.active{
-          color: $inspect-compare-middle-panel-color;
-          border-top-color: $inspect-compare-middle-panel-color;
-          border-left-color: $inspect-compare-middle-panel-color;
-          border-right-color: $inspect-compare-middle-panel-color;
-        }
-      }
-    }
-
-    span.number {
-      font-weight: bold;
-    }
-
-    div.side {
-      text-transform: lowercase;
-      font-variant: small-caps;
-      width: 1.25em;
-      height: 1.25em;
-      line-height: 1em;
-      text-align: center;
-      border-radius: 1.25em;
-      border: 1px solid;
-      display: inline-block;
-
-      &.left {
-        color: $inspect-compare-left-panel-color;
-      }
-
-      &.right {
-        color: $inspect-compare-right-panel-color;
-      }
-    }
-    div.search-button-wrapper{
-      position: absolute;
-      bottom: 0.5rem;
-      text-align: center;
-      width: 100%;
+.query-header-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 2rem;
+  .type {
+    .small-caps {
+      height: 17px;
+      vertical-align: top;
     }
   }
+  .inner {
+    position: relative;
+    margin-bottom: 2rem;
+    height: 100%;
+  }
+  & > .left {
+    border-bottom: 1px solid $inspect-compare-left-panel-color;
+    ul.nav.nav-pills {
+      border-bottom-color: $inspect-compare-left-panel-color;
+      .nav-item .nav-link.active {
+        color: $inspect-compare-left-panel-color;
+        border-top-color: $inspect-compare-left-panel-color;
+        border-left-color: $inspect-compare-left-panel-color;
+        border-right-color: $inspect-compare-left-panel-color;
+      }
+    }
+    .viz-bar {
+      background-color: $inspect-compare-left-panel-color;
+    }
+  }
+
+  & > .right {
+    border-bottom: 1px solid $inspect-compare-right-panel-color;
+    ul.nav.nav-pills {
+      border-bottom-color: $inspect-compare-right-panel-color;
+      .nav-item .nav-link.active {
+        color: $inspect-compare-right-panel-color;
+        border-top-color: $inspect-compare-right-panel-color;
+        border-left-color: $inspect-compare-right-panel-color;
+        border-right-color: $inspect-compare-right-panel-color;
+      }
+    }
+  }
+
+  & > .middle {
+    border: 1px solid $inspect-compare-middle-panel-color;
+    border-top: 0px;
+    border-bottom-width: 2px;
+    ul.nav.nav-pills {
+      border-bottom-color: $inspect-compare-middle-panel-color;
+      .nav-item .nav-link.active {
+        color: $inspect-compare-middle-panel-color;
+        border-top-color: $inspect-compare-middle-panel-color;
+        border-left-color: $inspect-compare-middle-panel-color;
+        border-right-color: $inspect-compare-middle-panel-color;
+      }
+    }
+  }
+
+  span.number {
+    font-weight: bold;
+  }
+
+  div.side {
+    text-transform: lowercase;
+    font-variant: small-caps;
+    width: 1.25em;
+    height: 1.25em;
+    line-height: 1em;
+    text-align: center;
+    border-radius: 1.25em;
+    border: 1px solid;
+    display: inline-block;
+
+    &.left {
+      color: $inspect-compare-left-panel-color;
+    }
+
+    &.right {
+      color: $inspect-compare-right-panel-color;
+    }
+  }
+  div.search-button-wrapper {
+    position: absolute;
+    bottom: 0.5rem;
+    text-align: center;
+    width: 100%;
+  }
+}
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "comparison": {

@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import autocomplete from '@/components/Autocomplete';
+import autocomplete from '@/components/Autocomplete.vue';
 import content from '@/assets/homepage.json';
 
 export default {
@@ -29,9 +29,6 @@ export default {
   methods: {
     onSuggestion(suggestion) {
       throw new Error(`This handler needs to be updated to add filters to current search query: ${suggestion}`)
-      // this.$store.commit('search/CLEAR');
-      // this.$store.commit('search/ADD_FILTER', suggestion);
-      // this.$store.dispatch('search/PUSH_SEARCH_PARAMS');
     },
   },
   components: {

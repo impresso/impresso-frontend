@@ -6,13 +6,13 @@
       class="text-center">
       <span class="small-caps font-weight-bold">{{ facet.id }} {{ $tc('numbers.options', facet.items.length, { n: facet.items.length }) }}</span>
       <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
-        <div slot-scope="tooltipScope">
+        <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.isActive">
             <b>{{tooltipScope.tooltip.item.label}}</b> &middot; {{roundValueFn(tooltipScope.tooltip.item.intersection)}}
             <div v-html="$t('tooltip.common.left', { value: getIntersection(tooltipScope.tooltip.item.intersection, tooltipScope.tooltip.item.left)})"/>
             <div v-html="$t('tooltip.common.right', { value: getIntersection(tooltipScope.tooltip.item.intersection, tooltipScope.tooltip.item.right)})"/>
           </div>
-        </div>
+        </template>
       </diverging-bars-chart>
 
       <b-button
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart'
+import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart.vue'
 
 /**
  * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
@@ -89,7 +89,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "tooltip": {

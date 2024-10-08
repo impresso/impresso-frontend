@@ -32,12 +32,12 @@ export default {
   },
   mounted() {
     if (this.handler) {
-      this.handler.$on('init', ({ tileSources=[], ...options} = {}) => {
+      this.handler.on('init', ({ tileSources=[], ...options} = {}) => {
         if (this.viewer) return
         // add authentication options only if striclty necessary;
-        // that is, if tileSources contains `process.env.VUE_APP_BASE_URL`
-        // e.g. VUE_APP_BASE_URL=https://impresso-project.ch/
-        const localAuthenticationOptions = tileSources.some(d => d.indexOf(process.env.VUE_APP_BASE_URL) === 0)
+        // that is, if tileSources contains `import.meta.env.VITE_BASE_URL`
+        // e.g. VITE_BASE_URL=https://impresso-project.ch/
+        const localAuthenticationOptions = tileSources.some(d => d.indexOf(import.meta.env.VITE_BASE_URL) === 0)
           ? this.authenticationOptions
           : null
 
@@ -53,21 +53,21 @@ export default {
         });
 
         this.viewer.addOnceHandler('tile-loaded', () => {
-          this.handler.$emit('tile-loaded', this.$el);
+          this.handler.emit('tile-loaded', this.$el);
         });
       });
 
-      this.handler.$on('dispatch', (cb) => {
+      this.handler.on('dispatch', (cb) => {
         if (cb && this.viewer) {
           cb.call(null, this.viewer);
         }
       });
 
-      this.handler.$on('destroy', () => {
+      this.handler.on('destroy', () => {
         this.destroy();
       });
 
-      this.handler.$on('fit-bounds', (options) => {
+      this.handler.on('fit-bounds', (options) => {
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
           options.y,
@@ -76,7 +76,7 @@ export default {
         this.viewer.viewport.fitBounds(rect, true);
       });
 
-      this.handler.$on('fit-bounds-to-overlays', () => {
+      this.handler.on('fit-bounds-to-overlays', () => {
         if (this.overlays.length) {
           let rect = this.overlays.pop();
 
@@ -88,7 +88,7 @@ export default {
         }
       });
 
-      this.handler.$on('add-overlay', (options = {}) => {
+      this.handler.on('add-overlay', (options = {}) => {
 
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
@@ -118,7 +118,7 @@ export default {
       }
     },
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.destroy();
   },
 };

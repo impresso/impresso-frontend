@@ -2,14 +2,14 @@
   <i-layout>
     <i-layout-section width="400px">
       <!--  header -->
-      <template slot="header">
+      <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="active" active-class="none">
+            <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
               <span
                 v-html="
                   $tc('searchTextReuseLabel', 10000, {
-                    n: $n(10000),
+                    n: $n(10000)
                   })
                 "
               />
@@ -24,7 +24,7 @@
               v-html="
                 $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
                   n: ignoredFilters.length,
-                  detail: ignoredFilters.map(f => f.type).join(', '),
+                  detail: ignoredFilters.map(f => f.type).join(', ')
                 })
               "
             />
@@ -60,7 +60,7 @@
       <FilterDynamicRange
         class="py-2 mx-3"
         index="tr_passages"
-        :facet="textReuseClusterSizeFacet"
+        :facetType="textReuseClusterSizeFacet?.type"
         :facet-filters="allowedFilters"
         :isFiltered="allowedFilters.some(f => f.type === textReuseClusterSizeFacet.type)"
         @changed="handleFiltersChanged"
@@ -82,7 +82,7 @@
         class="py-2 mx-3"
         index="tr_passages"
         :key="`rd-${i}`"
-        :facet="facet"
+        :facetType="facet?.type"
         :facet-filters="allowedFilters"
         :isFiltered="allowedFilters.some(f => f.type === facet.type)"
         @changed="handleFiltersChanged"
@@ -113,19 +113,21 @@
   </i-layout>
 </template>
 <script>
-import SearchPills from '@/components/SearchPills'
-import SearchInput from '@/components/modules/SearchInput'
-import { serializeFilters, optimizeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import SearchPills from '@/components/SearchPills.vue'
+import SearchInput from '@/components/modules/SearchInput.vue'
+import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
-import FilterFacet from '@/components/modules/FilterFacet'
-import FilterRange from '@/components/modules/FilterRange'
-import FilterDynamicRange from '@/components/modules/FilterDynamicRange'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import Facet from '@/models/Facet'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { facetToTimelineValues } from '@/logic/facets'
-import FilterTimeline from '@/components/modules/FilterTimeline'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -146,7 +148,7 @@ const FacetTypes = [
   'location',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta',
+  'textReuseClusterDayDelta'
 ]
 
 export default {
@@ -154,26 +156,29 @@ export default {
     SearchPills,
     SearchInput,
     FilterFacet,
-    FilterRange,
     FilterTimeline,
     FilterDynamicRange,
-    InfoButton,
+    InfoButton
   },
   data: () => ({
     isLoading: false,
-    facets: FacetTypes.map(type => new Facet({ type })),
+    facets: FacetTypes.map(type => new Facet({ type }))
   }),
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     filtersWithItems: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     allowedFilters() {
       return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
     },
@@ -185,7 +190,7 @@ export default {
       // we exclude also `hasTextContents` as it is useless for text reuse
       return this.filters.filter(
         ({ type }) =>
-          !SupportedFiltersByContext.textReusePassages.includes(type) && type !== 'hasTextContents',
+          !SupportedFiltersByContext.textReusePassages.includes(type) && type !== 'hasTextContents'
       )
     },
     standardFacets() {
@@ -199,8 +204,8 @@ export default {
           'country',
           'language',
           'person',
-          'location',
-        ].includes(type),
+          'location'
+        ].includes(type)
       )
     },
     timelineFacets() {
@@ -218,7 +223,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-01-01`)
       }
@@ -229,7 +234,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-12-31`)
       }
@@ -240,29 +245,25 @@ export default {
     },
     dynamicRangeFacets() {
       const rangeFacets = this.facets.filter(({ type }) =>
-        ['textReuseClusterDayDelta', 'textReuseClusterLexicalOverlap'].includes(type),
+        ['textReuseClusterDayDelta', 'textReuseClusterLexicalOverlap'].includes(type)
       )
       return rangeFacets
     },
     /** @returns {{ query: any, hash: string }} */
     searchFacetApiQueryParams() {
       const query = {
-        index: 'tr_passages',
         limit: 10,
         order_by: '-count',
         page: 1,
-        filters: this.allowedFilters,
+        filters: this.allowedFilters
       }
       // eslint-disable-next-line
       console.debug('[TextReuse] searchFacetApiQueryParams', query)
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   methods: {
     /** @param {Filter[]} filters */
@@ -270,7 +271,7 @@ export default {
       // eslint-disable-next-line
       console.debug('[TextReuse] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.SearchFilters]: serializeFilters(filters),
+        [CommonQueryParameters.SearchFilters]: serializeFilters(filters)
       })
     },
     handleFacetFiltersChanged(filters, type) {
@@ -288,7 +289,7 @@ export default {
           this.filters.map(filter => {
             const updatedFilter = filters.find(({ type }) => type === filter.type)
             return updatedFilter || filter
-          }),
+          })
         )
         return
       } else {
@@ -302,25 +303,25 @@ export default {
      */
     handleFacetFiltersClicked(filter) {
       if (filter.type === 'textReuseClusterLexicalOverlap') {
-        this.$store.dispatch('selectionMonitor/show', {
+        this.selectionMonitorStore.show({
           item: {
             ...filter,
-            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)],
+            q: [String(filter.q[0]), String(parseInt(filter.q[0], 10) + 0.999)]
           },
           searchIndex: 'tr_passages',
           type: filter.type,
           scope: 'closeUp',
-          applyCurrentSearchFilters: true,
+          applyCurrentSearchFilters: true
         })
         return
       }
       // open selection monitor
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         item: filter,
         searchIndex: 'tr_passages',
         type: filter.type,
         scope: 'closeUp',
-        applyCurrentSearchFilters: true,
+        applyCurrentSearchFilters: true
       })
     },
     handleSearchInputSubmit({ q, appendIfExisting = false }) {
@@ -334,7 +335,7 @@ export default {
         '[TextReuse] handleSearchInputSubmit \n - q:',
         q,
         '\n - appendIfExisting:',
-        appendIfExisting,
+        appendIfExisting
       )
 
       if (filterExists && appendIfExisting) {
@@ -344,7 +345,7 @@ export default {
               return stringFilter
             }
             return filter
-          }),
+          })
         )
       } else {
         this.handleFiltersChanged([...this.filters, stringFilter])
@@ -356,22 +357,22 @@ export default {
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
       console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
-      searchFacets
+      getSearchFacetsService('tr_passages')
         .get(type, {
           query: {
             ...this.searchFacetApiQueryParams.query,
-            ...opts,
-          },
+            ...opts
+          }
         })
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
           console.debug('[TextReuse] loadFacet', response)
           if (facet) {
-            facet.numBuckets = response[0].numBuckets
-            facet.setBuckets(response[0].buckets)
+            facet.numBuckets = response.numBuckets
+            facet.setBuckets(response.buckets)
           }
         })
-    },
+    }
   },
   mounted() {
     // eslint-disable-next-line
@@ -397,17 +398,17 @@ export default {
         await this.loadFacet('location')
       },
       immediate: true,
-      deep: false,
-    },
-  },
+      deep: false
+    }
+  }
 }
 </script>
 
-<i18n>
-  {
-    "en": {
-      "searchTextReuseLabel": "search text reuse passages",
-      "searchTextReusePlaceholder": "search text reuse passages"
-    }
+<i18n lang="json">
+{
+  "en": {
+    "searchTextReuseLabel": "search text reuse passages",
+    "searchTextReusePlaceholder": "search text reuse passages"
   }
-  </i18n>
+}
+</i18n>

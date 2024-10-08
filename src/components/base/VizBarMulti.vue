@@ -5,7 +5,7 @@
         v-for="(item, index) in items" :key="index" :variant="compact"
         :class="`${styleVariant} viz-bar-bar border-right small-caps pl-1`"
         :style="`width:${percent(item.count)}%; background:rgba(200, 200, 200, ${alpha(item.count)})`">
-        <div v-b-tooltip.hover.top :title="`${item.name} — ${item.count}`">
+        <div :title="`${item.name} — ${item.count}`">
           {{item.name}}
         </div>
       </div>
@@ -13,6 +13,9 @@
 </template>
 
 <script>
+/**
+ * @deprecated not used anywhere
+ */
 export default {
   props: [
     'title', // opt: label
@@ -45,7 +48,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .viz-bar-bar {
   line-height: 0.9;

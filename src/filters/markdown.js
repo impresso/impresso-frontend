@@ -1,13 +1,13 @@
-import MarkdownIt from 'markdown-it';
+import MarkdownIt from 'markdown-it'
 
-const markdownItDecorate = require('markdown-it-decorate');
+import markdownItDecorate from 'markdown-it-decorate'
 
 const md = new MarkdownIt({
-  html: true,
-});
+  html: true
+})
 
-md.use(markdownItDecorate);
+md.use(markdownItDecorate)
 
 export default function markdown(data) {
-  return md.render(data);
+  return md.render(data)
 }

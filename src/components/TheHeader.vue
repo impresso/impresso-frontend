@@ -1,12 +1,15 @@
 <template>
   <div>
-    <b-progress
-      v-if="processingStatus"
-      :value="100"
-      variant="info"
-      animated
-      height="4px"
-    ></b-progress>
+    <div class="progress" v-if="processingStatus" style="height: 4px">
+      <div
+        class="progress-bar bg-info progress-bar-animated progress-bar-striped"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="100"
+        :style="`width: ${100}%;`"
+      ></div>
+    </div>
     <b-navbar
       id="TheHeader"
       toggleable="md"
@@ -14,16 +17,21 @@
       variant="dark"
       class="py-0 pr-1 border-primary"
     >
-      <b-navbar-brand :to="getRouteWithSearchQuery({ name: 'home' })">
-        <!-- <img v-if="" src="./../assets/img/impresso-logo-h-i@2x.png" /> -->
+      <a
+        class="navbar-brand"
+        @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))"
+        target="_self"
+        title="Home"
+      >
         <Logo />
-      </b-navbar-brand>
+      </a>
 
-      <b-navbar-nav>
+      <b-navbar-nav class="align-items-center text-center">
         <b-nav-item
           :to="getRouteWithSearchQuery({ name: 'search' })"
           active-class="active"
           class="position-relative"
+          title="Search"
         >
           <span>{{ $tc('label_search', 0) }}</span>
           <!-- <transition name="bounce">
@@ -32,7 +40,11 @@
           </transition> -->
         </b-nav-item>
 
-        <b-nav-item :to="getRouteWithSearchQuery({ name: 'newspapers' })" active-class="active">
+        <b-nav-item
+          :to="getRouteWithSearchQuery({ name: 'newspapers' })"
+          active-class="active"
+          title="Newspapers"
+        >
           <span>{{ $t('label_newspapers') }}</span>
         </b-nav-item>
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
@@ -44,6 +56,7 @@
         <b-nav-item
           :to="{ name: 'compare', query: { left: searchQueryHash } }"
           active-class="active"
+          title="Inspect & Compare"
         >
           <span>{{ $t('label_compare') }}</span>
         </b-nav-item>
@@ -52,6 +65,7 @@
           v-if="textReuseEnabled"
           :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
           active-class="active"
+          title="Text reuse"
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
@@ -84,7 +98,7 @@
           ref="ddownJobs"
           v-on:hidden="updateLastNotificationDate"
         >
-          <template slot="button-content">
+          <template v-slot:button-content>
             <div
               class="d-inline-block dripicons-cloud-download position-relative"
               style="top: 0.25em"
@@ -108,15 +122,15 @@
                 :key="i"
               />
             </div>
-            <div class="pt-2 pb-1">
+            <div class="pt-2 pb-1 d-flex justify-content-center">
               <pagination
                 @click.prevent.stop
-                align="center"
-                v-model="jobsPaginationCurrentPage"
+                :current-page="jobsPaginationCurrentPage"
+                @change="$event => (jobsPaginationCurrentPage = $event)"
                 :total-rows="jobsPaginationTotalRows"
                 :per-page="jobsPaginationPerPage"
                 aria-controls="my-table"
-                class="small-caps"
+                class="small-caps d-inline-block"
                 :showDescription="false"
               />
             </div>
@@ -126,7 +140,7 @@
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
         <b-nav-item-dropdown class="px-0" right>
-          <template slot="button-content">
+          <template v-slot:button-content>
             <div class="d-flex px-2 py-1 align-items-center">
               <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
               <div class="user-label mr-4 me-4">
@@ -165,7 +179,7 @@
         <b-nav-item :to="loginRouteParams">
           <span class="small-caps">{{ $t('login') }}</span>
         </b-nav-item>
-        <BNavText class="mx-1">|</BNavText>
+        <li class="navbar-text mx-1">|</li>
         <b-nav-item :to="registerRouteParams">
           <span class="small-caps">{{ $t('register') }}</span>
         </b-nav-item>
@@ -190,6 +204,14 @@
             {{ $t(`errors.BadRequest`) }}
             <span v-if="error.message === 'Login incorrect'">{{ error.message }}</span>
           </span>
+          <span v-else-if="error.name === 'GeneralError'">
+            {{
+              $t(`errors.GeneralError`, { error: error.message ?? 'general error, unspecified' })
+            }}
+          </span>
+          <span v-else-if="error.name === 'Error'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
+          </span>
           <span v-else>{{ error }}</span>
         </span>
         <span v-if="error.route.length">&nbsp;{{ $t(['paths', ...error.route].join('.')) }}</span>
@@ -199,21 +221,16 @@
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon'
-import JobItem from '@/components/modules/lists/JobItem'
-import Pagination from '@/components/modules/Pagination'
-import Logo from '@/components/Logo'
+import Icon from '@/components/base/Icon.vue'
+import JobItem from '@/components/modules/lists/JobItem.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import Logo from '@/components/Logo.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { BNavText } from 'bootstrap-vue'
-
-Icon.register({
-  slack: {
-    width: 1664,
-    height: 1792,
-    d:
-      'M1519 776q62 0 103.5 40.5t41.5 101.5q0 97-93 130l-172 59 56 167q7 21 7 47 0 59-42 102t-101 43q-47 0-85.5-27t-53.5-72l-55-165-310 106 55 164q8 24 8 47 0 59-42 102t-102 43q-47 0-85-27t-53-72l-55-163-153 53q-29 9-50 9-61 0-101.5-40t-40.5-101q0-47 27.5-85t71.5-53l156-53-105-313-156 54q-26 8-48 8-60 0-101-40.5t-41-100.5q0-47 27.5-85t71.5-53l157-53-53-159q-8-24-8-47 0-60 42-102.5t102-42.5q47 0 85 27t53 72l54 160 310-105-54-160q-8-24-8-47 0-59 42.5-102t101.5-43q47 0 85.5 27.5t53.5 71.5l53 161 162-55q21-6 43-6 60 0 102.5 39.5t42.5 98.5q0 45-30 81.5t-74 51.5l-157 54 105 316 164-56q24-8 46-8zM725 1038l310-105-105-315-310 107z',
-  },
-})
+import { mapStores } from 'pinia'
+import { useJobsStore } from '@/stores/jobs'
+import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 
 export default {
   // props: {
@@ -224,56 +241,57 @@ export default {
       de: {
         code: 'de',
         name: 'Deutsch',
-        disabled: true,
+        disabled: true
       },
       en: {
         code: 'en',
-        name: 'English',
+        name: 'English'
       },
       fr: {
         code: 'fr',
         name: 'Français',
-        disabled: true,
+        disabled: true
       },
       it: {
         code: 'it',
         name: 'Italiano',
-        disabled: true,
+        disabled: true
       },
       nl: {
         code: 'nl',
         name: 'Nederlands',
-        disabled: true,
-      },
+        disabled: true
+      }
     },
     jobsPaginationPerPage: 4,
     jobsCurrentPage: 1,
-    jobsPaginationCurrentPage: 1,
+    jobsPaginationCurrentPage: 1
   }),
   // mounted() {
   //   if (this.user) {
-  //     this.$store.dispatch('jobs/LOAD_JOBS').then(() => {
+  //     this.jobsStore.loadJobs().then(() => {
   //       console.info('Jobs loaded.');
   //     });
   //   }
   // },
   computed: {
+    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
       return {
         name: 'login',
         query: {
-          redirect: this.$route.path,
-        },
+          redirect: this.$route.path
+        }
       }
     },
     registerRouteParams() {
       return {
         name: 'register',
         query: {
-          redirect: this.$route.path,
-        },
+          redirect: this.$route.path
+        }
       }
     },
     countActiveFilters() {
@@ -283,41 +301,32 @@ export default {
       return this.searchQuery.countActiveItems()
     },
     jobs() {
-      return this.$store.state.jobs.items
+      return this.jobsStore.items
     },
     jobsPaginationTotalRows() {
-      return this.$store.state.jobs.totalItems
+      return this.jobsStore.totalItems
     },
     runningJobs() {
       return this.jobs.filter(d => d.status === 'RUN')
     },
-    currentSearchResults() {
-      return this.$store.state.search.paginationTotalRows
-    },
     activeLanguageCode() {
-      return this.$store.state.settings.language_code
+      return this.settingsStore.language_code
     },
     showAlert() {
-      if (
-        this.$store.state.errorMessages.length &&
-        !this.user &&
-        this.$store.state.errorMessages[0].name === 'NotAuthenticated'
-      ) {
+      const messages = this.notificationsStore.errorMessages
+      if (messages.length && !this.user && messages[0].name === 'NotAuthenticated') {
         return false
       }
-      return this.$store.state.errorMessages.length > 0
+      return messages.length > 0
     },
     errorMessages() {
-      return this.$store.state.errorMessages
+      return this.notificationsStore.errorMessages
     },
     processingStatus() {
-      return this.$store.state.processingStatus
+      return this.notificationsStore.processingStatus
     },
     user() {
-      return this.$store.getters['user/user']
-    },
-    headerTitle() {
-      return this.$store.getters.headerTitle
+      return this.userStore.user
     },
     userFullName() {
       const name = `${this.user.firstname} ${this.user.lastname}`.trim()
@@ -331,7 +340,7 @@ export default {
     },
     userPicture() {
       const style = {
-        backgroundColor: 'black',
+        backgroundColor: 'black'
       }
 
       if (this.user.pattern) {
@@ -348,7 +357,7 @@ export default {
       return style
     },
     connectivityStatus() {
-      return this.$store.state.connectivityStatus
+      return this.notificationsStore.connectivityStatus
     },
     version() {
       return window.impressoFrontendVersion
@@ -356,20 +365,18 @@ export default {
     textReuseEnabled() {
       // @ts-ignore
       return !!window.impressoFeatures?.textReuse?.enabled
-    },
+    }
   },
   methods: {
     updateLastNotificationDate() {
-      this.$store.dispatch('settings/UPDATE_LAST_NOTIFICATION_DATE', new Date())
+      this.settingsStore.updateLastNotificationDate()
     },
     test() {
-      return this.$store.dispatch('jobs/TEST')
+      return this.jobsStore.createTestJob()
     },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode
-      this.$store.commit('settings/SET_LANGUAGE', {
-        language_code: languageCode,
-      })
+      this.settingsStore.setLanguageCode(languageCode)
     },
     getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
       return {
@@ -377,32 +384,32 @@ export default {
         query: {
           ...route.query,
           ...additionalQueryParameters,
-          sq: this.searchQueryHash,
-        },
+          sq: this.searchQueryHash
+        }
       }
-    },
+    }
   },
   watch: {
     jobsPaginationCurrentPage: {
       handler(page) {
         if (this.user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page,
-            limit: this.jobsPaginationPerPage,
+            limit: this.jobsPaginationPerPage
           })
         }
       },
-      immediate: true,
+      immediate: true
     },
     user: {
       handler(user) {
         if (user) {
-          this.$store.dispatch('jobs/LOAD_JOBS', {
+          this.jobsStore.loadJobs({
             page: 1,
-            limit: this.jobsPaginationPerPage,
+            limit: this.jobsPaginationPerPage
           })
         }
-      },
+      }
     },
     jobs: {
       handler(jobs) {
@@ -411,33 +418,34 @@ export default {
             .map(d => d.lastModifiedDate.getTime())
             .sort()
             .pop()
-          if (this.$store.getters['settings/lastNotificationDate'] - lastModifiedDate < 0) {
+          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
+
+          if (lastNotificationDate - lastModifiedDate < 0) {
             console.info(
-              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.',
+              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
             )
             this.$refs.ddownJobs.show()
           } else {
             console.info(
-              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.',
+              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
             )
           }
         }
-      },
-    },
+      }
+    }
   },
   components: {
     Icon,
     Logo,
     // Toast,
     JobItem,
-    Pagination,
-    BNavText,
-  },
+    Pagination
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 #TheHeader {
   height: 56px;
@@ -463,6 +471,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   max-width: 100px;
+  min-width: 50px;
 }
 
 #app-header .dropdown-toggle[aria-expanded='true'] {
@@ -559,6 +568,10 @@ export default {
 
   .navbar-dark .navbar-nav .nav-link {
     color: $clr-grey-800;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    min-width: 50px;
     > span {
       position: relative;
     }
@@ -584,10 +597,14 @@ export default {
       color: white;
     }
   }
+  .navbar-dark .dropdown.show .dropdown-toggle {
+    background-color: var(--clr-grey-100);
+    color: #fff;
+  }
   .navbar-dark .navbar-nav .nav-link:focus,
   .navbar-dark .navbar-nav .nav-link:hover {
     color: $clr-white;
-    background: transparent;
+    background: var(--clr-grey-100) !important;
   }
   &::before {
     position: absolute;
@@ -681,7 +698,7 @@ export default {
 .jobs-list > .list {
   width: 350px;
   height: 300px;
-  overflow: scroll;
+  overflow: auto;
   border-bottom: 1px solid #3d434a;
 }
 
@@ -703,7 +720,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "login": "login",
@@ -725,7 +742,7 @@ export default {
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "Help",
-    "label_jobs" : "Running tasks",
+    "label_jobs": "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",
     "researcher": "researcher",

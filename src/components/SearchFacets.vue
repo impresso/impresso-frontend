@@ -1,44 +1,20 @@
 <template>
   <div id="search-facets">
-    <filter-timeline
-      v-if="containsTimelineFacets"
-      class="border-top mx-3 py-2 mb-2"
-      :filters="daterangeFilters"
-      :values="timelineValues"
-      :min-date="minDate"
-      :max-date="maxDate"
-      :start-year="startYear"
-      :end-year="endYear"
-      :group-by="groupBy"
-      @reset-filters="resetFilters"
-      @changed="updateDaterangeFilters"
-    />
-    <filter-range
-      v-for="(facet, index) in rangeFacets"
-      class="border-top py-2 mx-3"
-      :key="`r-${index}`"
-      :facet="facet"
-      :facet-filters="getFacetFilters(facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)"
-    />
-    <filter-facet
-      class="border-top py-2 mx-3"
-      v-for="(facet, index) in standardFacets"
-      :key="index"
-      :facet="facet"
-      :context-filters="filters"
-      :facet-filters="getFacetFilters(facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)"
-      collapsible
-    />
+    <filter-timeline v-if="containsTimelineFacets" class="border-top mx-3 py-2 mb-2" :filters="daterangeFilters"
+      :values="timelineValues" :min-date="minDate" :max-date="maxDate" :start-year="startYear" :end-year="endYear"
+      :group-by="groupBy" @reset-filters="resetFilters" @changed="updateDaterangeFilters" />
+    <filter-range v-for="(facet, index) in rangeFacets" class="border-top py-2 mx-3" :key="`r-${index}`" :facet="facet"
+      :facet-filters="getFacetFilters(facet.type)" @changed="filters => facetFiltersUpdated(facet.type, filters)" />
+    <filter-facet class="border-top py-2 mx-3" v-for="(facet, index) in standardFacets" :key="index" :facet="facet"
+      :context-filters="filters" :facet-filters="getFacetFilters(facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)" collapsible />
   </div>
 </template>
 
 <script>
-import FilterFacet from '@/components/modules/FilterFacet'
-import FilterFacetDateRange from '@/components/modules/FilterFacetDateRange'
-import FilterTimeline from '@/components/modules/FilterTimeline'
-import FilterRange from '@/components/modules/FilterRange'
+import FilterFacet from '@/components/modules/FilterFacet.vue'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
+import FilterRange from '@/components/modules/FilterRange.vue'
 import { facetToTimelineValues } from '@/logic/facets'
 import FilterFactory from '@/models/FilterFactory'
 
@@ -194,7 +170,6 @@ export default {
     FilterTimeline,
     FilterFacet,
     FilterRange,
-    FilterFacetDateRange,
   },
 }
 </script>
@@ -204,13 +179,16 @@ export default {
   display: grid;
   grid-template-columns: auto min-content;
   grid-template-areas: 'left' 'right';
+
   .left {
     grid-area: 'left';
   }
+
   .right {
     opacity: 0;
     grid-area: 'right';
   }
+
   &:hover {
     .right {
       opacity: 1;
@@ -229,13 +207,11 @@ export default {
   box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 </style>
-<i18n>
-  {
-    "en": {
-      "groupBy": {
-        "articles": "articles",
-        "images": "images"
-      }
+<i18n lang="json">{
+  "en": {
+    "groupBy": {
+      "articles": "articles",
+      "images": "images"
     }
   }
-</i18n>
+}</i18n>

@@ -14,7 +14,7 @@
       <div class="search-query-explorer-result" v-for="(item, index) in results" :key="index" >
         <p class="mb-2">
           <span v-html="getCurrentIndex(index)" />
-          <b-button size="sm" class="ml-2" :to="getRouteWithSearchQuery({ name: 'search' })" variant="outline-primary">
+          <b-button size="sm" class="ml-2" @click="$router.push(getRouteWithSearchQuery({ name: 'search' }))" variant="outline-primary">
             {{ $t('actions.browseAll') }}
           </b-button>
         </p>
@@ -36,7 +36,7 @@
           size="sm"
           v-bind:showDescription="false"
           :dark-mode="darkMode"
-          align="center"
+          class="justify-content-center"
         />
       </div>
     </div>
@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary';
-import ArticleItem from '@/components/modules/lists/ArticleItem';
-import Pagination from '@/components/modules/Pagination';
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue';
+import ArticleItem from '@/components/modules/lists/ArticleItem.vue';
+import Pagination from '@/components/modules/Pagination.vue';
 import {
   toCanonicalFilter,
   joinFiltersWithItems,
@@ -241,7 +241,7 @@ export default {
 }
 
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "incipit": "{groupByLabel} found | {groupByLabel} found | {groupByLabel} found",

@@ -1,33 +1,44 @@
 <template>
   <div class="side-by-side-facets-panel container-fluid">
     <!-- This row is composed of threee columns! -->
-    <div class="row"
-      v-for="(facet, facetIndex) in facets"
-      :key="facetIndex">
-      <div class="one-third"
-           v-for="(comparableItem, comparableIndex) in facet.comparableItems"
-           :key="comparableIndex"
-           :class="{
-             'loading-bg': isComparableLoading(comparableIndex),
-             'border-right': comparableIndex === 1,
-             'border-left': comparableIndex === 1,
-            }">
-
+    <div class="row" v-for="(facet, facetIndex) in facets" :key="facetIndex">
+      <div
+        class="one-third"
+        v-for="(comparableItem, comparableIndex) in facet.comparableItems"
+        :key="comparableIndex"
+        :class="{
+          'loading-bg': isComparableLoading(comparableIndex),
+          'border-right': comparableIndex === 1,
+          'border-left': comparableIndex === 1
+        }"
+      >
         <!-- loading indicator -->
-        <div class="col" v-if="isComparableLoading(comparableIndex) && !disableHandlingLoadingAndEmpty">
-          <loading-indicator class="col py-3" v-if="facetIndex === 0"/>
+        <div
+          class="col"
+          v-if="isComparableLoading(comparableIndex) && !disableHandlingLoadingAndEmpty"
+        >
+          <loading-indicator class="col py-3" v-if="facetIndex === 0" />
         </div>
 
         <!-- empty -->
-        <div class="col empty-col" v-if="!isComparableLoading(comparableIndex) && !comparableItem.isLoaded  && !disableHandlingLoadingAndEmpty">
-          <div v-if="facetIndex === 0" style="text-align: center;">
+        <div
+          class="col empty-col"
+          v-if="
+            !isComparableLoading(comparableIndex) &&
+            !comparableItem.isLoaded &&
+            !disableHandlingLoadingAndEmpty
+          "
+        >
+          <div v-if="facetIndex === 0" style="text-align: center">
             <div v-if="comparableIndex === 1">
-              <i>{{$t('missingSearchQueries')}}</i>
+              <i>{{ $t('missingSearchQueries') }}</i>
             </div>
             <div v-if="comparableIndex !== 1">
-              <button class="btn mb-1 btn-outline-primary btn-sm"
-                      v-on:click="insertMostRecentSearchQuery(comparableIndex)">
-                {{$t('actions.useCurrentQuery')}}
+              <button
+                class="btn mb-1 btn-outline-primary btn-sm"
+                v-on:click="insertMostRecentSearchQuery(comparableIndex)"
+              >
+                {{ $t('actions.useCurrentQuery') }}
               </button>
             </div>
           </div>
@@ -38,9 +49,9 @@
           <facet-overview-panel
             class="px-2"
             :class="{
-              left : comparableIndex === 0,
+              left: comparableIndex === 0,
               right: comparableIndex === 2,
-              middle: comparableIndex === 1,
+              middle: comparableIndex === 1
             }"
             v-if="!isComparableLoading(comparableIndex) && comparableItem.isLoaded"
             :facet="facet.id"
@@ -56,7 +67,8 @@
             :timeline-highlight-value="getTimelineHighlight(facet.id).data"
             :timeline-highlight-enabled="getTimelineHighlight(facet.id).enabled"
             :timeline-domain="timelineDomain"
-            :search-query-id="`queryComparison/p-${comparableIndex}`"/>
+            :search-query-id="`queryComparison/p-${comparableIndex}`"
+          />
         </div>
       </div>
     </div>
@@ -64,9 +76,11 @@
 </template>
 
 <script>
-import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel';
-import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel.vue'
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
 import { ComparableTypes } from '@/logic/queryComparison'
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
 
 /**
  * @typedef {import('../../../models').Bucket} Bucket
@@ -85,12 +99,15 @@ function getYearsSpan(facets) {
   const yearFacet = facets.find(({ id }) => id === 'year')
   if (!yearFacet) return []
 
-  const years = [...new Set(yearFacet.comparableItems
-    .flatMap(({ buckets }) => buckets.map(({ val }) => parseInt(val, 10))))].sort()
+  const years = [
+    ...new Set(
+      yearFacet.comparableItems.flatMap(({ buckets }) =>
+        buckets.map(({ val }) => parseInt(val, 10))
+      )
+    )
+  ].sort()
 
-  return years.length > 0
-    ? [years[0], years[years.length - 1]]
-    : []
+  return years.length > 0 ? [years[0], years[years.length - 1]] : []
 }
 
 export default {
@@ -126,7 +143,9 @@ export default {
      * @param {number} comparableIndex
      * @returns {boolean}
      */
-    isComparableLoading(comparableIndex) { return !!this.comparableLoadingFlags[comparableIndex] },
+    isComparableLoading(comparableIndex) {
+      return !!this.comparableLoadingFlags[comparableIndex]
+    },
     /**
      * @param {number} comparableIndex
      */
@@ -137,27 +156,27 @@ export default {
      * @param {{ facetId: string, data: any }} param
      */
     onTimelineHighlight({ facetId, data }) {
-      this.$set(this.timelineHighlights, facetId, { enabled: true, data: data.datum });
+      this.timelineHighlights[facetId] = { enabled: true, data: data.datum }
     },
     /**
      * @param {{ facetId: string }} param
      */
     onTimelineHighlightOff({ facetId }) {
-      this.timelineHighlights[facetId] = { enabled: false };
-      this.$set(this.timelineHighlights, facetId, { enabled: false });
+      this.timelineHighlights[facetId] = { enabled: false }
+      this.timelineHighlights[facetId] = { enabled: false }
     },
     /**
      * @param {any} val
      */
     onHovered(val) {
-      this.hoverId = String(val);
+      this.hoverId = String(val)
     },
     /**
      * @param {string} facetId
      * @returns {any}
      */
     getTimelineHighlight(facetId) {
-      return this.timelineHighlights[facetId] || {};
+      return this.timelineHighlights[facetId] || {}
     },
     /**
      * @param {number} comparableIndex
@@ -175,7 +194,7 @@ export default {
       const comparable = this.comparables[comparableIndex]
       const filters = comparable?.filters ?? comparable?.query?.filters
 
-      this.$store.dispatch('monitor/ACTIVATE', {
+      this.monitorStore.activate({
         item,
         type,
         filters,
@@ -187,10 +206,7 @@ export default {
             ...this.comparables[comparableIndex],
             query: { filters }
           }
-          this.$emit(
-            'comparable-updated',
-            { comparableIndex, comparable: updatedComparable }
-          )
+          this.$emit('comparable-updated', { comparableIndex, comparable: updatedComparable })
         }
       })
     },
@@ -206,15 +222,14 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useMonitorStore),
     /**
      * The span of the domain to fit the widest result on timeline.
      * @returns {[number, number]}
      */
     timelineDomain() {
       const span = getYearsSpan(this.facets)
-      return span.length === 2
-        ? span
-        : [0, 0]
+      return span.length === 2 ? span : [0, 0]
     }
   },
   components: {
@@ -225,28 +240,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .one-third {
-    flex: 1 1 auto !important;
-    max-width: 33.33%;
-    max-width: calc(100% / 3);
-  }
+.one-third {
+  flex: 1 1 auto !important;
+  max-width: 33.33%;
+  max-width: calc(100% / 3);
+}
 
-  .empty-col {
-    align-items: center;
-    display: flex;
-    justify-items: center;
-    justify-content: center;
-    height: 100%;
-  }
+.empty-col {
+  align-items: center;
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+  height: 100%;
+}
 
-  .loading-bg {
-    background: #ececec87;
-  }
+.loading-bg {
+  background: #ececec87;
+}
 </style>
-<i18n>
-  {
-    "en": {
-      "missingSearchQueries": "Two queries are required to compute intersection"
-    }
+<i18n lang="json">
+{
+  "en": {
+    "missingSearchQueries": "Two queries are required to compute intersection"
   }
+}
 </i18n>

@@ -1,12 +1,11 @@
 import { action } from '@storybook/addon-actions'
 import PowerVisBase from '../PowerVisBase.vue'
 
-import 'impresso-theme/dist/css/bootpresso.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import '../../../../assets/legacy/bootstrap-impresso-theme.css'
 
 export default {
   title: 'Components/Modules/Vis/PowerVis',
-  component: PowerVisBase,
+  component: PowerVisBase
 }
 
 const Template = args => ({
@@ -15,7 +14,7 @@ const Template = args => ({
     return { args }
   },
   methods: {
-    itemClicked: action('item clicked'),
+    itemClicked: action('item clicked')
   },
   template: `
     <div style="height: 600px;">
@@ -28,7 +27,7 @@ const Template = args => ({
         </template>
       </PowerVisBase>
     </div>
-  `,
+  `
 })
 
 export const TRPassages = Template.bind({})
@@ -37,45 +36,45 @@ TRPassages.args = {
     items: [
       {
         domain: {
-          label: 'L\'Express',
-          value: 'EXP',
+          label: "L'Express",
+          value: 'EXP'
         },
         value: {
           count: 3186482,
           items: [
             {
               term: 'EXP',
-              count: 3186482,
-            },
-          ],
-        },
+              count: 3186482
+            }
+          ]
+        }
       },
       {
         domain: {
-          label: 'L\'Impartial',
-          value: 'IMP',
+          label: "L'Impartial",
+          value: 'IMP'
         },
         value: {
           count: 2973547,
           items: [
             {
               term: 'IMP',
-              count: 2973547,
-            },
-          ],
-        },
-      },
+              count: 2973547
+            }
+          ]
+        }
+      }
     ],
     itemsDictionary: {
-      EXP: 'L\'Express',
-      IMP: 'L\'Impartial',
+      EXP: "L'Express",
+      IMP: "L'Impartial"
     },
     meta: {
       facetType: 'term',
       domain: 'newspaper',
-      filters: [],
-    },
-  },
+      filters: []
+    }
+  }
 }
 
 export const LineChart = Template.bind({})
@@ -86,25 +85,23 @@ LineChart.args = {
       {
         domain: 20,
         value: {
-          count: 3186482,
-        },
+          count: 3186482
+        }
       },
       {
         domain: 100,
         value: {
-          count: 3186482,
-        },
-      },
+          count: 3186482
+        }
+      }
     ],
     meta: {
       facetType: 'numeric',
       domain: 'size',
-      filters: [],
-    },
-  },
+      filters: []
+    }
+  }
 }
-
-
 
 export const BarChart = Template.bind({})
 
@@ -113,7 +110,7 @@ BarChart.args = {
     items: [
       {
         domain: {
-          label: 'L\'Express',
+          label: "L'Express",
           value: 'EXP'
         },
         value: {
@@ -127,7 +124,7 @@ BarChart.args = {
       },
       {
         domain: {
-          label: 'L\'Impartial',
+          label: "L'Impartial",
           value: 'IMP'
         },
         value: {
@@ -175,7 +172,6 @@ BarChart.args = {
     }
   }
 }
-
 
 export const BarChartHorizontal = Template.bind({})
 

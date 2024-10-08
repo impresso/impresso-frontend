@@ -3,34 +3,36 @@
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
-      <div slot="options">
+      <template v-slot:options>
         <b-button
           v-show="filters.length"
           size="sm"
           variant="outline-primary"
           @click="resetFilters()"
+          data-testid="reset-filters-button"
         >
           {{ $t('actions.reset') }}
         </b-button>
-      </div>
-      <div slot="description">
+      </template>
+      <template v-slot:description>
         <span v-if="filters.length">
           {{ $t(`label.timelineDescription.${groupBy}.filtered.${displayStyle}`) }}
         </span>
         <span v-else>
           {{ $t(`label.timelineDescription.${groupBy}.description.${displayStyle}`) }}
         </span>
-        <b-nav-form v-if="!disableRelativeDisplayStyle">
-          <b-form-radio-group
-            v-model="displayStyle"
-            :options="displayStyleOptions"
-            button-variant="outline-primary"
-            size="sm"
-            buttons
-          />
-          <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-        </b-nav-form>
-      </div>
+        <li v-if="!disableRelativeDisplayStyle" class="form-inline">
+          <form class="form-inline">
+            <radio-group
+              :modelValue="displayStyle"
+              @update:modelValue="displayStyle = $event"
+              :options="displayStyleOptions"
+              type="button"
+            />
+            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+          </form>
+        </li>
+      </template>
     </base-title-bar>
 
     <!--  timeline vis -->
@@ -43,27 +45,34 @@
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
-      <div slot-scope="tooltipScope">
+      <template v-slot="tooltipScope">
         <div v-if="tooltipScope.tooltip.item">
-          {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-          <b>{{ $n(tooltipScope.tooltip.item.w) }}</b> {{ groupBy }}
+          {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }}
+          &middot;
+          <b>{{ tooltipScope?.tooltip?.item?.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
+          {{ groupBy }}
           <!-- <br />
           <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
           &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
           ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
           </span> -->
         </div>
-      </div>
+      </template>
     </timeline>
 
     <div v-if="!temporaryFilter && !filters.length">
-      <b-button size="sm" variant="outline-primary" @click="addTemporaryDaterangeFilter">
+      <b-button
+        size="sm"
+        variant="outline-primary"
+        @click="addTemporaryDaterangeFilter"
+        data-testid="add-new-date-filter-button"
+      >
         {{ $t('label.daterange.pick') }}
       </b-button>
     </div>
 
     <div
-      class=" p-2 bg-white border rounded"
+      class="p-2 bg-white border rounded"
       v-for="(filter, i) in filters"
       :key="i"
       style="box-shadow: var(--bs-box-shadow-sm)"
@@ -72,12 +81,16 @@
         :filter="filter"
         @daterange-changed="updateBrush($event)"
         @changed="updateDaterangeFilterAtIndex($event, i)"
-        @remove="removeFilter(i)"
+        @removed="removeFilter(i)"
       />
     </div>
     <!-- temporary filter -->
     <div class="border p-2" v-if="temporaryFilter">
-      <filter-monitor :filter="temporaryFilter" @daterange-changed="updateTemporaryFilter" />
+      <filter-monitor
+        :filter="temporaryFilter"
+        @daterange-changed="updateTemporaryFilter"
+        @removed="removeTemporaryDaterangeFilter"
+      />
 
       <b-row no-gutters>
         <b-col class="pr-1">
@@ -104,10 +117,11 @@
 import Daterange from '@/models/Daterange'
 import FilterDaterange from '@/models/FilterDaterange'
 
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import InfoButton from '@/components/base/InfoButton'
-import Timeline from '@/components/modules/Timeline'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import Timeline from '@/components/modules/Timeline.vue'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
 
 export default {
@@ -120,33 +134,34 @@ export default {
     maxDate: Date,
     groupBy: {
       type: String,
-      default: 'articles',
+      default: 'articles'
     },
     filters: {
       /** @type {import('vue').PropType<import('@/models').Filter[]>} */
       type: Array,
-      default: () => [],
+      default: () => []
     },
     values: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     disableRelativeDisplayStyle: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data: () => ({
     temporaryFilter: null,
     selectedFilterBrush: [],
     selectedFilterIndex: -1,
-    displayStyle: 'sum',
+    displayStyle: 'sum'
   }),
   components: {
     BaseTitleBar,
     InfoButton,
     Timeline,
     FilterMonitor,
+    RadioGroup
   },
   computed: {
     brush() {
@@ -184,13 +199,13 @@ export default {
     displayStyleOptions() {
       return ['percent', 'sum'].map(value => ({
         text: this.$t(`label.display.${value}`),
-        value,
+        value
       }))
     },
     // a string of min amd max date
     dateRangeString() {
       return `${this.startDaterange} - ${this.endDaterange}`
-    },
+    }
   },
   methods: {
     resetFilters() {
@@ -205,19 +220,19 @@ export default {
             return updatedFilter
           }
           return filter
-        }),
+        })
       )
     },
     updateTemporaryFilter(f) {
       console.info('updateTemporaryFilter', f)
       this.temporaryFilter = new FilterDaterange({
         type: 'daterange',
-        q: [f.q],
+        q: [f.q]
       })
     },
     updateBrush(filter) {
       const daterange = new Daterange({
-        daterange: filter.q,
+        daterange: filter.q
       })
       console.info('updateBrush', filter, daterange)
       this.selectedFilterBrush = [daterange.start, daterange.end]
@@ -227,9 +242,10 @@ export default {
       this.temporaryFilter = null
     },
     removeFilter(i) {
+      console.log('removeFilter')
       this.$emit(
         'changed',
-        this.filters.filter((_, j) => i !== j),
+        this.filters.filter((_, j) => i !== j)
       )
     },
     removeTemporaryDaterangeFilter() {
@@ -241,13 +257,13 @@ export default {
       }
       const daterange = new Daterange({
         start: start || this.minDate,
-        end: end || this.maxDate,
+        end: end || this.maxDate
       })
       console.info('addDaterangeFilter() q:', daterange.getValue())
       this.temporaryFilter = new FilterDaterange({
         type: 'daterange',
         q: [daterange.getValue()],
-        daterange: daterange.getValue(),
+        daterange: daterange.getValue()
       })
       this.temporaryFilter.hash = getFilterHash(this.temporaryFilter)
       // set selectedIndex as first item.
@@ -258,7 +274,7 @@ export default {
       if (!this.temporaryFilter && !this.filters.length) {
         this.addTemporaryDaterangeFilter({
           start: data.minDate,
-          end: data.maxDate,
+          end: data.maxDate
         })
       }
     },
@@ -277,29 +293,29 @@ export default {
       if (value !== this.temporaryFilter.q[0]) {
         const daterange = new Daterange({
           start: data.minDate,
-          end: data.maxDate,
+          end: data.maxDate
         })
         // console.log(daterange, data)
         this.temporaryFilter = new FilterDaterange({
           type: 'daterange',
           context: this.temporaryFilter.context,
           q: [daterange.getValue()],
-          daterange: daterange.getValue(),
+          daterange: daterange.getValue()
         })
         this.temporaryFilter.hasChanges = true
       }
-    },
+    }
   },
   watch: {
     dateRangeString() {
       console.debug('[FilterTimeline] changed minDate', this.minDate)
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="css" scoped></style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

@@ -10,12 +10,10 @@
         <LoadingIndicator/>
       </template>
     </img-authentified>
-    <b-img-lazy v-else-if="hasValidSrc"
-      :fluid="fluid"
-      :fluid-grow="fluidGrow"
+    <img v-else-if="hasValidSrc"
       :height="height"
-      :center="center"
       class="image"
+      :class="imageClass"
       :src="srcCORSFriendly"
     />
     <div v-else>{{ $t('iiif.missing') }}</div>
@@ -23,11 +21,11 @@
     <div v-if="showMeta">
       <p v-if="hasTitle" class="item-title p-2 m-0">{{ item.title }}</p>
       <div class="p-2 articles-meta">
-        <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item.newspaper.uid }}" class="article-newspaper">
-          {{ item.newspaper.name}}
+        <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid ?? 'na' }}" class="article-newspaper">
+          {{ item?.newspaper?.name}}
         </router-link>
-        <item-selector :uid="item.newspaper.uid" :item="item.newspaper" type="newspaper"/> &nbsp;
-        <span class="date">{{ $d(item.date, "long") }}</span>
+        <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper"/> &nbsp;
+        <span class="date">{{ $d(item?.date ?? 0, "long") }}</span>
         <span> – {{ pages }}</span>
       </div>
     </div>
@@ -36,9 +34,10 @@
 </template>
 
 <script>
-import ItemSelector from '@/components/modules/ItemSelector';
-import ImgAuthentified from '@/components/base/ImgAuthentified';
-import LoadingIndicator from '@/components/modules/LoadingIndicator';
+import ItemSelector from '@/components/modules/ItemSelector.vue';
+import ImgAuthentified from '@/components/base/ImgAuthentified.vue';
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
+import { image } from 'd3';
 
 export default {
   props: {
@@ -53,9 +52,17 @@ export default {
     headers: Object
   },
   computed: {
+    imageClass() {
+      return {
+        'img-fluid': this.fluidGrow,
+        'w-100': this.fluidGrow,
+        'mx-auto': this.center,
+        'd-block': this.center,
+      };
+    },
     pages() {
-      return this.$tc('pp', this.item.nbPages, {
-        pages: this.item.pages.map(d => d.num).join(','),
+      return this.$tc('pp', this.item?.nbPages ?? 0, {
+        pages: this.item?.pages?.map(d => d.num).join(',') ?? '',
       });
     },
     hasTitle() {
@@ -71,9 +78,9 @@ export default {
       return Array.isArray(this.item.regions) && this.item.regions.length > 0;
     },
     srcCORSFriendly() {
-      if (process.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0) {
-        return this.src.replace(process.env.VUE_APP_BASE_URL, window.location.origin)
-      } else if (process.env.NODE_ENV !== 'production') {
+      if (import.meta.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0) {
+        return this.src.replace(import.meta.env.VITE_BASE_URL, window.location.origin)
+      } else if (import.meta.env.NODE_ENV !== 'production') {
         console.debug('[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:', this.item.uid)
       }
       return this.src
@@ -85,7 +92,7 @@ export default {
     },
     shouldForwardAuthentication() {
       if (this.hasValidSrc) {
-        return this.item.regions[0].iiifFragment.indexOf(process.env.VUE_APP_BASE_URL) === 0
+        return this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
       }
       return false
     },

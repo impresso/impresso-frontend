@@ -1,14 +1,14 @@
-<template
-  ><b-modal
-    :id="id"
-    :title="title"
-    class="rounded"
-    no-fade
-    hide-backdrop
-    modal-class="CreateCollection"
-    dialog-class="drop-shadow rounded"
-    o
-    ><div class="mt-3">
+<template>
+    <Modal
+      :show="show"
+      :id="id"
+      :title="title"
+      class="rounded"
+      no-fade
+      hide-backdrop
+      modal-class="CreateCollection"
+      dialog-class="drop-shadow rounded">
+    <div class="mt-3">
       <p>
         {{ $t('describeCollectionLimits') }}
         <InfoButton :name="infoButtonId" />
@@ -38,7 +38,7 @@
       />
     </form>
 
-    <template slot="modal-footer">
+    <template v-slot:modal-footer>
       <b-button
         size="sm"
         class="shadow-sm rounded"
@@ -56,16 +56,21 @@
         {{ $t('actions.create') }}
       </b-button>
     </template>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
+import Modal from '@/components/base/Modal.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { collections } from '@/services'
 
 export default {
   name: 'CreateCollection',
   props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
     filters: {
       type: Array,
       required: true,
@@ -153,7 +158,7 @@ export default {
       immediate: true,
     },
   },
-  components: { InfoButton },
+  components: { InfoButton, Modal },
 }
 </script>
 <style lang="scss">
@@ -172,7 +177,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "Collection_Name": "Collection Name",

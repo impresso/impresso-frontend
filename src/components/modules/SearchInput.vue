@@ -1,18 +1,18 @@
 <template lang="html">
-  <b-input-group>
+  <div class="input-group">
     <b-form-input
     class="border-primary"
     :placeholder="placeholder"
     v-model.trim="q"
     @keyup.enter="submit"
-    @input.native="change"
-    @keyup.native="change" />
-    <b-input-group-append>
-      <b-btn variant="outline-primary" class="px-2" @click="submit">
+    @input="change"
+    @keyup="change" />
+    <div class="input-group-append">
+      <button type="button" class="btn btn-outline-primary px-2" @click="submit">
         <div class="search-submit dripicons-search"></div>
-      </b-btn>
-    </b-input-group-append>
-  </b-input-group>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>

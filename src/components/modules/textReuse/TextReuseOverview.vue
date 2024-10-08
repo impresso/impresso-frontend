@@ -18,13 +18,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue'
 import Facet from '@/models/Facet'
-import { searchFacets } from '@/services'
+import { getSearchFacetsService } from '@/services'
 
 export default {
   name: 'TextReuseOverview',
   components: {
-    StackedBarsPanel: () => import('@/components/modules/vis/StackedBarsPanel'),
+    StackedBarsPanel: defineAsyncComponent(() => import('@/components/modules/vis/StackedBarsPanel.vue')),
   },
   props: {
     filters: {
@@ -46,7 +47,6 @@ export default {
     /** @returns {{ query: any, hash: string }} */
     searchFacetApiQueryParams() {
       const query = {
-        index: this.searchIndex,
         limit: 10,
         order_by: '-count',
         page: 1,
@@ -64,23 +64,24 @@ export default {
     },
   },
   methods: {
-    loadFacet(type, opts = {}) {
+    loadFacets(types, opts = {}) {
       // eslint-disable-next-line
       console.debug(
-        '[TextReuseOverview] loadFacet',
-        type,
+        '[TextReuseOverview] loadFacets',
+        types,
         'query',
         this.searchFacetApiQueryParams.query,
       )
-      searchFacets
-        .get(type, {
+      getSearchFacetsService(this.searchIndex)
+        .find({
           query: {
+            facets: types,
             ...this.searchFacetApiQueryParams.query,
             ...opts,
           },
         })
-        .then(response => {
-          response.forEach(result => {
+        .then(result => {
+          result.data.forEach(result => {
             const facet = this.facets.find(facet => result.type === facet.type)
             if (facet) {
               facet.numBuckets = result.numBuckets
@@ -98,11 +99,15 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        await this.loadFacet('newspaper')
-        await this.loadFacet('type,country')
-        await this.loadFacet('language')
-        await this.loadFacet('person,location')
-        await this.loadFacet('topic')
+        await this.loadFacets([
+          'newspaper',
+          'type',
+          'country',
+          'language',
+          'person',
+          'location',
+          'topic'
+        ])
       },
       immediate: true,
       deep: false,

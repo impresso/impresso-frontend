@@ -1,9 +1,8 @@
-<template lang="html">
+<template>
   <div
-    class="tooltip"
-    :class="{ active: tooltip.isActive }"
+    :class="{ tooltip: true, active: isActive }"
     :style="{
-      transform: `translate(${x}px, ${y}px`,
+      transform: `translate(${x}px, ${y}px)`,
     }"
   >
     <div class="tooltip-wrapper" ref="wrapper">
@@ -16,7 +15,7 @@
 
 <script>
 /**
- * @typedef {{ x: number, y: number, isActive: boolean, item?: any }} TooltipProperties
+ * @typedef {{ x: number, y: number, isActive: boolean }} TooltipProperties
  */
 
 export default {
@@ -43,6 +42,7 @@ export default {
     },
   },
   computed: {
+    isActive() { return this.tooltip.isActive },
     /** @returns {number} */
     x() {
       const { width = null } =
@@ -50,7 +50,7 @@ export default {
 
       if (width == null) return this.tooltip.x
 
-      const { width: tooltipWidth = this.maxWidth } = this.$refs.wrapper.getBoundingClientRect()
+      const { width: tooltipWidth = this.maxWidth } = this.$refs.wrapper?.getBoundingClientRect?.() ?? {}
 
       const halfTooltipWidth = tooltipWidth / 2
 

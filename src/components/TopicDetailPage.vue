@@ -1,6 +1,6 @@
 <template lang="html">
   <i-layout-section main>
-    <div slot="header">
+    <template v-slot:header>
       <b-navbar>
         <section>
           <span class="label small-caps">
@@ -15,7 +15,7 @@
           <b-nav-item v-for="(tabItem, i) in tabs" :key="i" class="pl-2"
             :class="{ active: tabItem.name === tab.name }"
             active-class='none'
-            :to="{ name: 'topic', params: { topic_uid: topic.uid }, query: { tab: tabItem.name }}">
+            :to="{ name: 'topic', params: { topic_uid: ['', null, undefined].includes(topic?.uid) ? 'na' : topic?.uid }, query: { tab: tabItem.name }}">
             <span v-html="tabItem.label"/>
           </b-nav-item>
         </template>
@@ -23,20 +23,26 @@
 
       <b-navbar type="light" variant="light" class="px-3 py-0 border-bottom">
         <b-navbar-nav>
-          <b-nav-form class="p-2 border-right">
-            <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
-              {{ $t('actions.addToCurrentFilters') }}
-            </b-button>
-          </b-nav-form>
-          <b-nav-form class="p-2 border-right">
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </b-nav-form>
-          <b-nav-form v-if="tab.name === TAB_ARTICLES" class="p-2 border-right">
-            <label >{{ $t('order by') }}&nbsp;</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-nav-form>
+          <li class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <b-button size="sm" variant="outline-primary" v-on:click='applyFilter()'>
+                {{ $t('actions.addToCurrentFilters') }}
+              </b-button>
+            </form>
+          </li>
+          <li class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </form>
+          </li>
+          <li v-if="tab.name === TAB_ARTICLES" class="p-2 border-right form-inline">
+            <form class="form-inline">
+              <label >{{ $t('order by') }}&nbsp;</label>
+              <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+            </form>
+          </li>
           <!-- <b-nav-item>
             <b-form-group class="mx-3">
               <b-form-checkbox v-model="applyCurrentSearchFilters">
@@ -47,7 +53,7 @@
         </b-navbar-nav>
 
       </b-navbar>
-    </div>
+    </template>
 
     <div v-if="tab.name === TAB_ARTICLES" class="mb-5">
       <div v-for="(article, idx) in articles" :key="idx" class="p-3 mb-2 border-bottom">
@@ -93,12 +99,12 @@
             :domain="[startYear, endYear]"
             :contrast="false"
             :values="timevalues">
-        <div slot-scope="tooltipScope">
+        <template v-slot="tooltipScope">
           <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w }}</b>
+            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
+            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
           </div>
-        </div>
+        </template>
       </timeline>
       <b-container fluid class="my-3">
         <!-- <h2>Facets – top ten buckets</h2> -->
@@ -120,14 +126,20 @@
 import SearchQuery from '@/models/SearchQuery';
 import Topic from '@/models/Topic';
 import Facet from '@/models/Facet';
-import Pagination from './modules/Pagination';
-import ArticleItem from './modules/lists/ArticleItem';
-import Ellipsis from './modules/Ellipsis';
-import Timeline from './modules/Timeline';
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel';
+import Pagination from './modules/Pagination.vue';
+import ArticleItem from './modules/lists/ArticleItem.vue';
+import Article from '@/models/Article'
+import Ellipsis from './modules/Ellipsis.vue';
+import Timeline from './modules/Timeline.vue';
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue';
 import { searchQueryHashGetter, mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
-import { searchFacets as searchFacetsService } from '@/services'
+import {
+  searchFacets as searchFacetsService,
+  search as searchService,
+  topics as topicsService,
+} from '@/services'
+import Helpers from '@/plugins/Helpers';
 
 const TAB_ARTICLES = 'articles';
 const TAB_OVERVIEW = 'overview';
@@ -229,42 +241,52 @@ export default {
           type: 'topic',
           q: [ this.topicUid ],
         }],
-        group_by: 'articles',
+        // group_by: 'articles',
       };
       for (let facetType of this.facetTypes) {
-        const results = await searchFacetsService.get(facetType, {
+        const result = await searchFacetsService.get(facetType, {
           query,
-        }).then(([facetType]) => new Facet(facetType));
-        this.facets = this.facets.concat(results);
+        }).then((facetType) => new Facet(facetType));
+        this.facets = this.facets.concat(result);
       }
     },
     async loadTimeline() {
-      return this.$store.dispatch('search/LOAD_TIMELINE', {
-        filters: [
-          {
+      return searchFacetsService.get('year', {
+        query: {
+          filters: {
             q: this.$route.params.topic_uid,
             type: 'topic',
           },
-        ],
-      }).then((values) => {
+          limit: 500,
+        },
+      })
+      .then(res => Helpers.timeline.fromBuckets(res.buckets))
+      .then((values) => {
         this.timevalues = values;
-      });
+      })
     },
 
     async getArticles({
       page = 1,
     } = {}) {
       // console.info('getArticles page', page);
-      const response = await this.$store.dispatch('search/LOAD_ARTICLES', {
-        filters: [
-          {
-            type: 'topic',
-            q: this.$route.params.topic_uid,
-          },
-        ],
-        orderBy: this.orderBy,
-        page,
-      });
+      const response = await searchService.find({
+        query: {
+          page,
+          limit: 10,
+          filters: [
+            {
+              type: 'topic',
+              q: this.$route.params.topic_uid,
+            },
+          ],
+          order_by: this.orderBy,
+          group_by: 'articles',
+        },
+      }).then(res => ({
+        ...res,
+        data: res.data.map(d => new Article(d)),
+      }))
       // sres et articles
       this.articles = response.data;
       // set other data
@@ -289,7 +311,8 @@ export default {
       immediate: true,
       async handler({ params, query }) {
         // always reload entity
-        this.topic = await this.$store.dispatch('topics/LOAD_TOPIC', params.topic_uid);
+        this.topic = await topicsService.get(params.topic_uid, { fl: 'id' })
+          .then(result => new Topic(result))
         this.total = +this.topic.countItems;
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab);
@@ -329,7 +352,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "topic": {

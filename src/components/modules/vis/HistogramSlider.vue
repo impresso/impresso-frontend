@@ -4,17 +4,18 @@
       <b-row ref="chartContainer">
         <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
       </b-row>
-      <b-row>
-        <vue-slider
-          class="slider"
+      <b-row v-if="shouldEnableSlider">
+        <VueSlider
+          width="100%"
           v-model="sliderValue"
-          :min="sliderRange[0]"
-          :max="sliderRange[1]"
-          :marks="sliderMarks"
-          :silent="true"
-          :enable-cross="false"
+          v-bind="{
+            modelValue: [sliderValue[0], sliderValue[1]],
+            min: sliderRange[0],
+            max: sliderRange[1]
+          }"
           :tooltip-formatter="formatTooltip"
           :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
+          data-testid="slider-control"
         />
       </b-row>
     </b-col>
@@ -23,70 +24,75 @@
 
 <script>
 import * as d3 from 'd3'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
-
+import VueSlider from 'vue-3-slider-component'
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
  */
 export default {
   name: 'HistogramSlider',
-  model: {
-    prop: 'value',
-    event: 'change',
-  },
   props: {
     /** @type {import('vue').PropOptions<Number[]>} */
-    value: {
-      type: Array,
+    modelValue: {
+      type: Array
     },
     /** @type {import('vue').PropOptions<Number[]>} */
     range: {
-      type: Array,
+      type: Array
     },
     /** @type {import('vue').PropOptions<import('@/models').Bucket[]>} */
     buckets: {
-      type: Array,
+      type: Array
     },
     chartHeight: {
       type: Number,
-      default: 50,
+      default: 50
     },
     onlyRangeLabels: {
       type: Boolean,
-      default: false,
+      default: false
     },
     scaleType: {
       type: String,
-      default: 'linear',
-    },
+      default: 'linear'
+    }
   },
+  emits: ['update:modelValue', 'change', 'mousemove', 'click'],
   mounted() {
     // @ts-ignore
     window.addEventListener('resize', this.renderChart.bind(this))
     this.renderChart()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // @ts-ignore
     window.removeEventListener('resize', this.renderChart.bind(this))
   },
   computed: {
+    value() {
+      return this.modelValue
+    },
     sliderValue: {
       /** @returns {undefined|number[]} */
       get() {
-        return this.value?.length === 2 ? this.value : [0, 0]
+        return this.value?.length === 2 ? this.value : [this.sliderRange[0], this.sliderRange[1]]
       },
       /** @param {undefined|number[]} value */
       set(value) {
         this.$emit('change', value)
-      },
+        this.$emit('update:modelValue', value)
+      }
     },
     /** @returns {{[key:string]: string}|string[]|undefined} */
     sliderMarks() {
       if (this.onlyRangeLabels) {
         return this.sliderRange.reduce((acc, d) => {
-          acc[d] = { label: this.$n(d) }
+          let label = ''
+          try {
+            label = this.$n(d)
+          } catch {
+            /* noop */
+          }
+          acc[d] = { label }
           return acc
         }, {})
       }
@@ -94,13 +100,10 @@ export default {
       if (this.buckets && this.buckets.length > 0) {
         const step = Math.floor(this.buckets.length / marksCount)
         return this.buckets
-          .reduce(
-            (acc, { val }, index) => {
-              if (index % step === 0) acc.push(val)
-              return acc
-            },
-            /** @type {string[]} */ ([]),
-          )
+          .reduce((acc, { val }, index) => {
+            if (index % step === 0) acc.push(val)
+            return acc
+          }, /** @type {string[]} */ ([]))
           .concat([this.sliderRange[1].toString()])
       }
       const [min, max] = this.sliderRange
@@ -117,11 +120,24 @@ export default {
 
       return [min < this.range[0] ? min : this.range[0], max > this.range[1] ? max : this.range[1]]
     },
+    shouldEnableSlider() {
+      if (
+        !isNaN(this.sliderRange[0]) &&
+        isFinite(this.sliderRange[0]) &&
+        !isNaN(this.sliderRange[1]) &&
+        isFinite(this.sliderRange[1]) &&
+        !isNaN(this.sliderValue[0]) &&
+        !isNaN(this.sliderValue[1])
+      ) {
+        return true
+      }
+      return false
+    }
   },
   methods: {
     renderChart() {
       const topMargin = 14
-      const { width } = this.$refs.chartContainer.getBoundingClientRect()
+      const { width } = this.$refs.chartContainer.$el.getBoundingClientRect()
       const svg = d3.select(this.$refs.chart)
 
       svg.attr('width', width)
@@ -141,7 +157,7 @@ export default {
         {
           linear: d3.scaleLinear,
           sqrt: d3.scaleSqrt,
-          symlog: d3.scaleSymlog,
+          symlog: d3.scaleSymlog
         }[this.scaleType] ?? d3.scaleLinear
 
       const y = yScaler()
@@ -196,10 +212,7 @@ export default {
         .attr('y2', 0)
         .attr('stroke', 'black')
 
-      const hoveredBar = svg
-        .selectAll('g.hovered-bar')
-        .data([null])
-        .join('g')
+      const hoveredBar = svg.selectAll('g.hovered-bar').data([null]).join('g')
 
       const hoveredBackground = hoveredBar
         .append('rect')
@@ -221,7 +234,7 @@ export default {
         .on('mousemove', () => {
           const [xPos] = d3.mouse(this.$refs.chart)
           const bucket = this.buckets.find(
-            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )
           if (bucket) {
             const xBucket = x(bucket.val) ?? 0
@@ -229,10 +242,10 @@ export default {
             this.$emit('mousemove', {
               pointer: {
                 x: xBucket + x.bandwidth() / 2,
-                y: yBucket,
+                y: yBucket
               },
               hspace: this.chartWidth,
-              bucket,
+              bucket
             })
             // translate the hovered bar to the correct position using transform for x and y
             hoveredBar.attr('transform', `translate(${xBucket}, ${yBucket})`)
@@ -255,7 +268,7 @@ export default {
         .on('click', () => {
           const [xPos] = d3.mouse(this.$refs.chart)
           const bucket = this.buckets.find(
-            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth(),
+            ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )
           if (bucket) {
             this.$emit('click', { bucket })
@@ -282,7 +295,7 @@ export default {
           const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
           return this.$t(tlabel, {
             n: this.$n(Math.round(bucket.count)),
-            ...bucket,
+            ...bucket
           })
         })
         .attr('text-anchor', bucket => {
@@ -302,7 +315,7 @@ export default {
     },
     formatTooltip(d) {
       return this.$n(d)
-    },
+    }
   },
   watch: {
     buckets() {
@@ -310,21 +323,23 @@ export default {
       if (this.$refs.chart) {
         this.renderChart()
       }
-    },
+    }
   },
   components: {
-    VueSlider,
-  },
+    VueSlider
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
 .histogram-slider {
   .slider {
     width: 100% !important;
     margin-bottom: 1.4em; // slider ticks
   }
+
   .chart {
     .bars {
       .bar {
@@ -335,14 +350,18 @@ export default {
         fill: #999999;
       }
     }
+
     .hovered-value {
       fill: #999999;
     }
+
     .hovered-background {
       fill: #b65656;
     }
+
     .maxval {
       font-size: 12px;
+
       .point {
         fill: $clr-primary;
       }
@@ -350,7 +369,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "maxval": "{val} ({n} results)",

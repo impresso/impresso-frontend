@@ -1,5 +1,5 @@
 <template>
-  <div class="search-pills d-flex" :class="{ empty: isEmpty }">
+  <div class="search-pills d-flex" :class="{ empty: isEmpty }" data-testid="search-pills">
     <div
       v-if="isFrontFilterEnabled"
       class="search-pill front-filter mr-1 mb-1 d-flex align-items-center border-radius"
@@ -10,12 +10,18 @@
         @click="handleFrontpageFilterRemoved"
         size="sm"
         variant="transparent"
+        data-testid="remove-frontpage-filter-button"
       ></b-button>
     </div>
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
-      <b-dropdown size="sm" variant="outline-primary" class="mr-1 mb-1 search-pill">
+      <b-dropdown
+        size="sm"
+        variant="outline-primary"
+        class="mr-1 mb-1 search-pill"
+        :data-testid="`search-pill-${filter.type}`"
+      >
         <!--  button content -->
-        <template slot="button-content">
+        <template v-slot:button-content>
           <!-- badge: initial type instead of icons -->
           <span
             class="filter-icon"
@@ -25,6 +31,7 @@
               { 'dripicons-message': filter.type === 'topic' },
               { 'dripicons-user': filter.type === 'person' },
               { 'dripicons-location': filter.type === 'location' },
+              { 'dripicons-star': filter.type === 'entity' },
               { 'dripicons-pamphlet': filter.type === 'newspaper' },
               { 'dripicons-web': filter.type === 'language' },
               { 'dripicons-pulse': filter.type === 'daterange' },
@@ -35,7 +42,7 @@
               { 'dripicons-shopping-bag': filter.type === 'accessRight' },
               { 'dripicons-store': filter.type === 'partner' },
               { 'dripicons-conversation': filter.type === 'textReuseCluster' },
-              { 'dripicons-scale': numericTypes.includes(filter.type) },
+              { 'dripicons-scale': numericTypes.includes(filter.type) }
             ]"
             :title="$tc(`label.${filter.type}.title`, 0)"
           />
@@ -60,7 +67,7 @@
           <!--  type:person, type:location, type:newspaper -->
           <span
             class="label sp-labelled"
-            v-if="['person', 'location', 'newspaper'].indexOf(filter.type) !== -1"
+            v-if="['person', 'location', 'newspaper', 'entity'].indexOf(filter.type) !== -1"
             v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
             :class="filter.context"
           >
@@ -78,7 +85,7 @@
                 prop: 'uid',
                 translate: true,
                 type: filter.type,
-                op: filter.op,
+                op: filter.op
               })
             "
             :class="filter.context"
@@ -133,7 +140,7 @@
           <filter-monitor
             checkbox
             :filter="filter"
-            @changed="(updatedFilter) => handleFilterUpdated(filterIndex, updatedFilter)"
+            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
             :operators="['AND', 'OR']"
           />
         </div>
@@ -156,6 +163,7 @@
       variant="outline-primary"
       size="sm"
       v-on:click="showFilterExplorer"
+      data-testid="add-filter-button"
     >
       {{ $t('actions.addContextualFilter') }}
     </b-button>
@@ -166,6 +174,7 @@
       v-if="isResettable"
       :title="$t('actions.resetFilters')"
       @click="handleReset"
+      data-testid="reset-filters-button"
     >
       <div class="d-flex dripicons-cross"></div>
     </b-button>
@@ -182,8 +191,8 @@
 </template>
 
 <script>
-import FilterMonitor from '@/components/modules/FilterMonitor'
-import Explorer from '@/components/Explorer'
+import FilterMonitor from '@/components/modules/FilterMonitor.vue'
+import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 
@@ -191,49 +200,43 @@ import FilterFactory from '@/models/FilterFactory'
  * @typedef {import('@/models').Filter} Filter
  */
 
-/**
- * Use `v-model`.
- */
 export default {
-  model: {
-    prop: 'filters',
-    event: 'changed',
-  },
+  emits: ['changed'],
   data: () => ({
-    explorerVisible: false,
+    explorerVisible: false
   }),
   props: {
     /** @type {import('vue').PropOptions<string[]>} */
     excludedTypes: {
       type: Array,
-      default: () => ['hasTextContents', 'isFront'],
+      default: () => ['hasTextContents', 'isFront']
     },
     /** @type {import('vue').PropOptions<string[] | undefined>} */
     includedFilterTypes: {
       /* included filter types override excluded types */
       type: Array,
-      default: undefined,
+      default: undefined
     },
     /** @type {import('vue').PropOptions<boolean>} */
     enableAddFilter: {
       type: Boolean,
-      default: false,
+      default: false
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     /** @type {import('vue').PropOptions<string>} */
     index: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     /** @type {import('vue').PropOptions<boolean>} */
     disableReset: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   computed: {
     /** @returns {{filter: Filter, filterIndex: number}[]} */
@@ -263,7 +266,7 @@ export default {
       /** @param {Filter[]} filters */
       set(filters) {
         this.$emit('changed', filters)
-      },
+      }
     },
     /** @returns {string[]} */
     numericTypes() {
@@ -272,8 +275,8 @@ export default {
     /** @return {boolean} */
     isResettable() {
       if (this.disableReset) return false
-      return !!this.filters.filter((d) => d.type !== 'hasTextContents').length
-    },
+      return !!this.filters.filter(d => d.type !== 'hasTextContents').length
+    }
   },
   methods: {
     /**
@@ -298,7 +301,7 @@ export default {
       this.$emit('changed', newFilters)
     },
     handleFrontpageFilterRemoved() {
-      const newFilters = this.filters.filter((d) => d.type !== 'isFront')
+      const newFilters = this.filters.filter(d => d.type !== 'isFront')
       this.$emit('changed', newFilters)
     },
     handleReset() {
@@ -314,20 +317,24 @@ export default {
       max = 1,
       op = 'OR',
       translate = false,
-      type = 'label',
+      type = 'label'
     } = {}) {
       let labels = items
         .slice(0, max)
         .map((/** @type {object} */ d) => {
           if (translate) {
-            return this.$t(`buckets.${type}.${d[prop]}`)
+            const translation = this.$t(`buckets.${type}.${d[prop]}`)
+            if (translation.startsWith('buckets.')) {
+              return d[prop]
+            }
+            return translation
           }
           return d[prop] || '...'
         })
         .join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`)
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
-          count: items.slice(max).length,
+          count: items.slice(max).length
         })
       }
 
@@ -342,13 +349,13 @@ export default {
         .map((/** @type {object} */ d) =>
           this.$t('label.daterange.item', {
             start: this.$d(new Date(d.start), 'compactUtc'),
-            end: this.$d(new Date(d.end), 'compactUtc'),
-          }),
+            end: this.$d(new Date(d.end), 'compactUtc')
+          })
         )
         .join(`<span class="op or px-1">${this.$t('op.or')}</span>`)
       if (items.slice(max).length) {
         labels += this.$t('items.hidden', {
-          count: items.slice(max).length,
+          count: items.slice(max).length
         })
       }
       return labels
@@ -362,8 +369,8 @@ export default {
 
       return this.$t('label.range.item', {
         label,
-        start: this.$n(start),
-        end: this.$n(end),
+        start: this.$n(start ?? 0),
+        end: this.$n(end ?? 0)
       })
     },
     /** @returns {void} */
@@ -373,12 +380,12 @@ export default {
     /** @returns {void} */
     handleExplorerHide() {
       this.explorerVisible = false
-    },
+    }
   },
   components: {
     FilterMonitor,
-    Explorer,
-  },
+    Explorer
+  }
 }
 </script>
 
@@ -391,11 +398,13 @@ export default {
     border-color: #caccce;
     color: #caccce;
   }
+
   .search-pill button {
     border-color: #caccce;
     color: #caccce;
   }
 }
+
 .bg-dark button.dropdown-toggle {
   color: #caccce;
 }
@@ -403,6 +412,7 @@ export default {
 .search-box .search-pills {
   background: white;
   padding: 0.25rem;
+
   &.empty {
     padding: 0;
   }
@@ -417,6 +427,7 @@ export default {
     font-size: 14px;
     line-height: 25px;
     padding-left: 0.5rem;
+
     .btn {
       line-height: 10px;
       padding: 0;
@@ -428,6 +439,7 @@ export default {
       height: 20px;
     }
   }
+
   .search-pill {
     span.label {
       font-variant: normal;
@@ -440,6 +452,7 @@ export default {
       & > .sp-string {
         background-color: #ffeb78;
       }
+
       &.sp-string.exact::before,
       &.sp-string.exact::after,
       & > .sp-string.exact::before,
@@ -447,16 +460,19 @@ export default {
         content: '"';
         font-weight: bold;
       }
+
       &.sp-string.fuzzy::after,
       & > .sp-string.fuzzy::after {
         content: '~';
         font-weight: bold;
       }
+
       &.sp-string.soft::before,
       & > .sp-string.soft::before {
         content: '[';
         font-weight: bold;
       }
+
       &.sp-string.soft::after,
       & > .sp-string.soft::after {
         content: ']';
@@ -474,9 +490,11 @@ export default {
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
+
     button.dropdown-toggle {
       padding-left: 0.15em;
       border-radius: 3px;
+
       .filter-icon {
         font-size: 1em;
         float: left;
@@ -487,16 +505,19 @@ export default {
         opacity: 0.8;
         // background: red;
       }
+
       .filter-remove {
         float: right;
         padding-right: 0;
         margin-right: -0.5em;
+
         &:hover {
           color: rgba(200, 0, 0, 0.9);
         }
       }
     }
   }
+
   .sp-contents {
     width: 300px;
   }
@@ -505,89 +526,94 @@ export default {
     margin: 0;
     padding: 0;
   }
+
   .sp-contents ul > li {
     margin: 0;
     list-style: none;
     background: #f0f0f0;
   }
+
   .op.or {
     font-variant: small-caps;
     font-weight: bold;
   }
 }
 </style>
-<i18n>
-  {
-    "en": {
-      "label": {
-        "string": {
-          "title": "article text"
-        },
-        "isFront": "frontpage",
-        "title": {
-          "title": "title"
-        },
-        "country": {
-          "title": "Country of publication"
-        },
-        "topic": {
-          "title": "filter by topic"
-        },
-        "person": {
-          "title": "filter by person mentioned (experimental)"
-        },
-        "location": {
-          "title": "filter by location (experimental)"
-        },
-        "collection": {
-          "title": "filter by collection"
-        },
-        "newspaper": {
-          "title": "filter by newspaper"
-        },
-        "daterange": {
-          "title": "filter by date of publication",
-          "item": "From {start} to {end}"
-        },
-        "range": {
-          "title": "filter by {label}",
-          "item": "{label} between {start} and {end}"
-        },
-        "textReuseClusterSize": {
-          "title": "filter by text reuse cluster size",
-          "item": "Cluster size"
-        },
-        "textReuseClusterLexicalOverlap": {
-          "title": "filter by text reuse cluster lexical overlap",
-          "item": "Lexical overlap"
-        },
-        "textReuseClusterDayDelta": {
-          "title": "filter by text reuse time span in days",
-          "item": "Text reuse time span"
-        },
-        "textReuseCluster": {
-          "title": "filter by text reuse cluster",
-          "item": "Text reuse cluster id"
-        },
-        "contentLength": {
-          "title": "filter by content length",
-          "item": "Content length"
-        }
+<i18n lang="json">
+{
+  "en": {
+    "label": {
+      "string": {
+        "title": "article text"
       },
-      "items": {
-        "hidden": "({count} more)"
+      "isFront": "frontpage",
+      "title": {
+        "title": "title"
       },
-      "type": {
-        "string": "str",
-        "newspaper": "new",
-        "language": "lng",
-        "topic": "top"
+      "country": {
+        "title": "Country of publication"
       },
-      "language": {
-        "de": "German (DE)",
-        "fr": "French (FR)",
-        "en": "Unclassified"
+      "topic": {
+        "title": "filter by topic"
+      },
+      "person": {
+        "title": "filter by person mentioned (experimental)"
+      },
+      "location": {
+        "title": "filter by location (experimental)"
+      },
+      "entity": {
+        "title": "filter by entity mentioned (experimental)"
+      },
+      "collection": {
+        "title": "filter by collection"
+      },
+      "newspaper": {
+        "title": "filter by newspaper"
+      },
+      "daterange": {
+        "title": "filter by date of publication",
+        "item": "From {start} to {end}"
+      },
+      "range": {
+        "title": "filter by {label}",
+        "item": "{label} between {start} and {end}"
+      },
+      "textReuseClusterSize": {
+        "title": "filter by text reuse cluster size",
+        "item": "Cluster size"
+      },
+      "textReuseClusterLexicalOverlap": {
+        "title": "filter by text reuse cluster lexical overlap",
+        "item": "Lexical overlap"
+      },
+      "textReuseClusterDayDelta": {
+        "title": "filter by text reuse time span in days",
+        "item": "Text reuse time span"
+      },
+      "textReuseCluster": {
+        "title": "filter by text reuse cluster",
+        "item": "Text reuse cluster id"
+      },
+      "contentLength": {
+        "title": "filter by content length",
+        "item": "Content length"
       }
+    },
+    "items": {
+      "hidden": "({count} more)"
+    },
+    "type": {
+      "string": "str",
+      "newspaper": "new",
+      "language": "lng",
+      "topic": "top"
+    },
+    "language": {
+      "de": "German (DE)",
+      "fr": "French (FR)",
+      "en": "Unclassified"
     }
   }
+}
 </i18n>

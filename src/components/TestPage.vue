@@ -1,9 +1,9 @@
 <template lang="html">
   <i-layout id="SearchPage">
     <i-layout-section width="400px" class="border-right p-2">
-      <div slot="header">
+      <template v-slot:header>
         <autocomplete v-on:submit="submit" />
-      </div>
+      </template>
       <div class="p-4">
       </div>
     </i-layout-section>
@@ -29,10 +29,10 @@
 
 <script>
 import * as d3 from 'd3'
-import Autocomplete from './Autocomplete';
-// import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart';
-// import HistogramSlider from '@/components/modules/vis/HistogramSlider';
-import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
+import Autocomplete from './Autocomplete.vue';
+// import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue';
+// import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue';
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
 
 export default {
   data: () => ({

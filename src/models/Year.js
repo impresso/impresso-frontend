@@ -4,7 +4,7 @@ const NUMBER_OF_ARTICLES = 'a';
 // const NUMBER_OF_ISSUES = 'i';
 const NUMBER_OF_IMAGES = 'm';
 
-class Year {
+export default class Year {
   constructor({
     y,
     refs = null,
@@ -30,5 +30,3 @@ class Year {
 Year.NUMBER_OF_IMAGES = NUMBER_OF_IMAGES;
 Year.NUMBER_OF_CONTENTITEMS = NUMBER_OF_CONTENTITEMS;
 Year.NUMBER_OF_ARTICLES = NUMBER_OF_ARTICLES;
-
-module.exports = Year;

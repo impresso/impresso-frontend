@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <i-layout class="search-images">
     <search-sidebar width="400px"
       :filters="enrichedFilters"
@@ -7,11 +7,10 @@
       :excludedTypes="excludedTypes"
       contextTag="search-images"
       @changed="handleFiltersChanged">
-      <div slot="header">
+      <template v-slot:header>
         <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
           <div class="flex-shrink-1 mr-2" style="width: 100px">
-            <b-img v-if="similarToImage.regions.length"
-              fluid
+            <img v-if="similarToImage.regions.length"
               style="max-height: 100px"
               v-bind:src="similarToImage.regions[0].iiifFragment" />
           </div>
@@ -29,9 +28,9 @@
         <filter-image-upload
           v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
-      </div>
+      </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-checkbox v-model="isFront" switch :modelValue="true">
           {{$t('label.isFront')}}
         </b-form-checkbox>
       </b-form-group>
@@ -39,17 +38,19 @@
 
     <i-layout-section main>
       <!-- header -->
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="p-2 border-right">
-            <b-nav-form>
-              <!-- <b-form-group class="ml-2 mr-3">
-              <b-form-checkbox v-model="applyRandomPage" switch>
-                {{ $t('label_applyRandomPage') }}
-              </b-form-checkbox>
-              </b-form-group> -->
-              <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
-            </b-nav-form>
+            <li class="form-inline">
+              <form class="form-inline">
+                <!-- <b-form-group class="ml-2 mr-3">
+                <b-form-checkbox v-model="applyRandomPage" switch>
+                  {{ $t('label_applyRandomPage') }}
+                </b-form-checkbox>
+                </b-form-group> -->
+                <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
+              </form>
+            </li>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
@@ -71,11 +72,11 @@
             <b class="small-caps font-weight-bold">{{$t("sort_by_similarity")}}</b>
           </b-navbar-nav>
         </b-navbar>
-     </div>
+      </template>
 
      <!--  body -->
       <div class="p-1 my-2">
-        <b-card-group rows class="row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+        <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
           <div class="mb-3"
             v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
@@ -88,11 +89,12 @@
               @click:search="onClickSearch"
               :headers="headers" />
           </div>
-        </b-card-group>
+        </div>
         <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-bind:perPage="paginationPerPage"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => paginationCurrentPage = $event"
             v-bind:totalRows="paginationTotalRows"
             class="float-left small-caps"
             />
@@ -122,17 +124,20 @@ import {
   filtersItems as filtersItemsService,
   getAuthenticationBearer
 } from '@/services';
-import FilterImageUpload from '@/components/modules/FilterImageUpload';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem';
-import Pagination from '@/components/modules/Pagination';
-import SearchSidebar from '@/components/modules/SearchSidebar';
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary';
-import Ellipsis from '@/components/modules/Ellipsis';
-import SearchInput from '@/components/modules/SearchInput';
+import FilterImageUpload from '@/components/modules/FilterImageUpload.vue';
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
+import Pagination from '@/components/modules/Pagination.vue';
+import SearchSidebar from '@/components/modules/SearchSidebar.vue';
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue';
+import Ellipsis from '@/components/modules/Ellipsis.vue';
+import SearchInput from '@/components/modules/SearchInput.vue';
 import FilterFactory from '@/models/FilterFactory';
 import Image from '@/models/Image';
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
 import FacetModel from '@/models/Facet';
+import { useUserStore } from '@/stores/user'
+import { mapStores } from 'pinia'
+import { Navigation } from '@/plugins/Navigation';
 
 const AllowedFilterTypes = [
   'newspaper',
@@ -189,6 +194,10 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
@@ -248,11 +257,6 @@ export default {
         );
       },
     },
-    // searchResults: {
-    //   get() {
-    //     return this.$store.getters['searchImages/results'];
-    //   },
-    // },
     orderByOptions: {
       get() {
         return [
@@ -298,7 +302,7 @@ export default {
       },
     },
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
     serviceQuery: {
       get() {
@@ -389,20 +393,12 @@ export default {
     isChecked(item) {
       return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
     },
-    // onInputPagination(page = 1) {
-    //   this.$store.dispatch('searchImages/SET_RANDOM_PAGE', false);
-    //   this.search(page);
-    // },
     onClearSelection() {
       this.selectedItems = [];
     },
     onClickSearch(image) {
       console.info('.onClickSearch, image:', image);
       this.similarToImageUid = image.uid;
-    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO_UPLOADED', false);
-    //   this.similarToImage = image;
-    //   this.$store.commit('searchImages/UPDATE_SIMILAR_TO', image.uid);
-    //   this.search(1);
     },
     onRemoveSimilarTo() {
       console.info('onRemoveSimilarTo');
@@ -464,7 +460,7 @@ export default {
         }
         console.info('@serviceQuery query:', query);
         const [
-          res, // { skip, limit, total, data, info },
+          res, // { offset, limit, total, data, info },
           filtersWithItems,
         ] = await Promise.all([
           imagesService.find({
@@ -479,7 +475,7 @@ export default {
         this.paginationTotalRows = res.total;
         this.searchResults = res.data.map(d => new Image(d));
         this.filtersWithItems = filtersWithItems;
-        this.paginationCurrentPage = Math.round(res.skip / res.limit) + 1;
+        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1;
 
         const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res);
         this.facets = facets.map(f => new FacetModel(f));
@@ -537,7 +533,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label_order": "Order By",

@@ -1,99 +1,120 @@
-<template lang="html">
-  <b-modal v-on:hidden="$emit(events.Hide)"
-          :id="id"
-          ref="facet-explorer-modal"
-          :scrollable="false"
-          body-class="p-0">
-    <template v-slot:modal-header class="mt-2 mr-0">
-      <div>
-        <div class="tb-title small-caps font-weight-bold">{{ $t('explore') }}</div>
-        <b-button v-for="(availableType, i) in typeOptions" v-bind:key="i"
-                  class="mr-1 mt-1"
-                  variant="outline-primary" size="sm"
-                  v-on:click="handleTypeChange(availableType)"
-                  v-bind:class="{ 'active' : currentType === availableType }">
-          {{ $t(`labels.${availableType}`) }}
-        </b-button>
+<template>
+  <Modal :id="id" :show="isVisible" body-class="p-0" @close="$emit(events.Hide)">
+    <template v-slot:modal-header="{ titleId, close }">
+      <div data-testid="tabs">
+        <div class="tb-title small font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
+
+        <div class="mr-4 mt-2">
+          <b-button
+            v-for="(availableType, i) in typeOptions"
+            v-bind:key="i"
+            class="mr-1 mt-1"
+            variant="outline-primary"
+            size="sm"
+            v-on:click="handleTypeChange(availableType)"
+            v-bind:class="{ active: currentType === availableType }"
+          >
+            {{ $t(`labels.${availableType}`) }}
+          </b-button>
+        </div>
         <div class="small mt-2">
           <span v-if="isLoading">{{ $t('loading') }}</span>
-          <span v-else v-html="$tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-            searchQuery,
-          })"></span>
+          <span
+            v-else
+            v-html="
+              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
+                searchQuery
+              })
+            "
+          ></span>
         </div>
         <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
-          <b-input-group>
-            <b-form-input :placeholder="$tc('searchField.placeholder', totalResults)"
-                          v-model.trim="searchQueryModel"
-                          autofocus/>
-            <b-input-group-append>
-              <b-btn class="pt-2 pb-1 px-2"
-                      variant="outline-primary"
-                      v-on:click="search">
+          <div class="input-group">
+            <b-form-input
+              :placeholder="$tc('searchField.placeholder', totalResults)"
+              v-model.trim="searchQueryModel"
+              autofocus
+              data-testid="search-field"
+            />
+            <div class="input-group-append">
+              <button
+                type="button"
+                class="btn btn-outline-primary pt-2 pb-1 px-2"
+                v-on:click="search"
+              >
                 <div class="search-submit dripicons-search"></div>
-              </b-btn>
-            </b-input-group-append>
-          </b-input-group>
+              </button>
+            </div>
+          </div>
         </form>
-
       </div>
-      <div class="ml-auto">
-        <b-button pill class="dripicons-cross px-0" variant="outline-danger"
-          style="width:1.5em; height:1.5em"
-          size="sm" v-on:click.prevent="closeDialog">
-        </b-button>
+      <div class="position-absolute right-0 top-0">
+        <button class="btn btn-icon" v-on:click.prevent="close">
+          <Icon name="cross" />
+        </button>
       </div>
-
     </template>
     <!-- .modal-body -->
     <div class="bg-light">
-      <div v-if='isLoading'
-           class="position-absolute w-100 h-100"
-           style="z-index:1; left:-1px; background:rgba(255,255,255,0.8)">
+      <div
+        v-if="isLoading"
+        class="position-absolute w-100 h-100"
+        style="z-index: 1; left: -1px; background: rgba(255, 255, 255, 0.8)"
+      >
         <i-spinner class="text-center pt-4" />
       </div>
-      <facet-explorer v-if="!RangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      v-model="filter">
-          <template v-slot:pagination>
-            <pagination v-model="currentPageModel"
-                        v-bind:perPage="pageSize"
-                        v-bind:totalRows="totalResults"
-                        v-bind:showDescription="false"/>
-          </template>
-      </facet-Explorer>
-      <range-facet-explorer class="p-3" v-if="NumericRangeFacets.includes(currentType)"
-                      :filter-type="currentType"
-                      :buckets="buckets"
-                      :range="range"
-                      v-model="filter"
-                      />
-      <time-facet-explorer v-if="TimeRangeFacets.includes(currentType)"
+      <facet-explorer
+        v-if="!RangeFacets.includes(currentType)"
+        :filter-type="currentType"
+        :buckets="buckets"
+        v-model="filter"
+      >
+        <template v-slot:pagination>
+          <pagination
+            :current-page="currentPageModel"
+            @change="$event => (currentPageModel = $event)"
+            v-bind:perPage="pageSize"
+            v-bind:totalRows="totalResults"
+            v-bind:showDescription="false"
+          />
+        </template>
+      </facet-explorer>
+      <range-facet-explorer
+        class="p-3"
+        v-if="NumericRangeFacets.includes(currentType)"
+        :filter-type="currentType"
+        :buckets="buckets"
+        :range="range"
+        v-model="filter"
+      />
+      <time-facet-explorer
+        v-if="TimeRangeFacets.includes(currentType)"
         v-model="filter"
         :filter-type="currentType"
-        :buckets="buckets" />
-    </div><!-- .modal-body -->
+        :buckets="buckets"
+      />
+    </div>
+    <!-- .modal-body -->
     <!-- footer -->
     <template v-slot:modal-footer="{ close }">
-      <b-button @click="close()" size="sm" variant="outline-primary">{{ $t('actions.close') }}</b-button>
+      <b-button @click="close()" size="sm" variant="outline-primary">{{
+        $t('actions.close')
+      }}</b-button>
     </template>
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
-import {
-  entities,
-  topics,
-  newspapers,
-  collections,
-  searchFacets
-} from '@/services'
-import FacetExplorer from './modules/FacetExplorer';
-import TimeFacetExplorer from './modules/TimeFacetExplorer';
-import RangeFacetExplorer from './modules/RangeFacetExplorer';
-import Pagination from './modules/Pagination';
-import Bucket from '@/models/Bucket';
+import { entities, topics, newspapers, collections, getSearchFacetsService } from '@/services'
+import Modal from '@/components/base/Modal.vue'
+import FacetExplorer from './modules/FacetExplorer.vue'
+import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'
+import RangeFacetExplorer from './modules/RangeFacetExplorer.vue'
+import Pagination from './modules/Pagination.vue'
+import Bucket from '@/models/Bucket'
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
+import { v4 } from 'uuid'
+import Icon from '@/components/base/Icon.vue'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -116,15 +137,19 @@ function buildEntitySearchQuery(page, limit, type, q) {
   }
 
   if (type === 'person') {
-    query.filters = [{
-      type: 'type',
-      q: 'Person',
-    }];
+    query.filters = [
+      {
+        type: 'type',
+        q: 'Person'
+      }
+    ]
   } else if (type === 'location') {
-    query.filters = [{
-      type: 'type',
-      q: 'Location',
-    }];
+    query.filters = [
+      {
+        type: 'type',
+        q: 'Location'
+      }
+    ]
   }
   if (q != null && q.length > 0) {
     query.q = q
@@ -132,68 +157,86 @@ function buildEntitySearchQuery(page, limit, type, q) {
   return query
 }
 
-async function search({
-  searchingEnabled,
-  filters,
-  type,
-  searchQuery,
-  currentPage,
-  pageSize
-}, index) {
+async function search(
+  { searchingEnabled, filters, type, searchQuery, currentPage, pageSize },
+  index
+) {
   const service = TypeToServiceMap[type]
   if (searchingEnabled) {
     const query = buildEntitySearchQuery(currentPage, pageSize, type, searchQuery)
     const response = await service.find({ query })
     return {
       totalResults: response.total,
-      buckets: response.data.filter(d => d.uid.length).map(item => new Bucket({
-        val: item.uid,
-        item,
-        type,
-      }))
+      buckets: response.data
+        .filter(d => d.uid.length)
+        .map(
+          item =>
+            new Bucket({
+              val: item.uid,
+              item,
+              type
+            })
+        )
     }
   } else {
     const query = {
       filters: filters,
       page: currentPage,
       limit: pageSize,
-      order_by: '-count',
-      index
-    };
-    const response = await searchFacets.get(type, { query })
-    const result = response[0]
+      order_by: '-count'
+    }
+    const response = await getSearchFacetsService(index).get(type, { query })
+    const result = response
     return {
       totalResults: result.numBuckets,
-      buckets: result.buckets.map(d => new Bucket({
-        ...d,
-        type
-      })),
-      range: Number.isFinite(result.min) && Number.isFinite(result.max)
-        ? [result.min, result.max] : undefined
+      buckets: result.buckets.map(
+        d =>
+          new Bucket({
+            ...d,
+            type
+          })
+      ),
+      range:
+        Number.isFinite(result.min) && Number.isFinite(result.max)
+          ? [result.min, result.max]
+          : undefined
     }
   }
 }
 
 const AllSupportedFilterTypes = [
-  'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'year', 'month',
-  'textReuseClusterSize', 'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta', 'daterange'
+  'location',
+  'country',
+  'person',
+  'language',
+  'topic',
+  'newspaper',
+  'collection',
+  'year',
+  'month',
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'daterange'
 ]
 
 const DefaultFilterTypes = [
-  'location', 'country', 'person', 'language',
-  'topic', 'newspaper', 'collection', 'year', 'month'
+  'location',
+  'country',
+  'person',
+  'language',
+  'topic',
+  'newspaper',
+  'collection',
+  'year',
+  'month'
 ]
 
 export default {
-  model: {
-    prop: 'filters',
-    event: 'changed'
-  },
   data: () => ({
     /** @type {string | undefined} */
     id: undefined,
+    uid: undefined,
     events: Events,
     currentType: 'person',
     searchQuery: undefined,
@@ -210,7 +253,7 @@ export default {
   }),
   props: {
     /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
-    filters: {
+    modelValue: {
       type: Array,
       default: () => []
     },
@@ -231,10 +274,11 @@ export default {
       default: 'search'
     }
   },
+  emits: ['update:modelValue', 'hide'],
   methods: {
-    openDialog() { this.$bvModal.show(this.id) },
-    closeDialog() { this.$bvModal.hide(this.id) },
-    handleTypeChange(type) { this.currentType = type },
+    handleTypeChange(type) {
+      this.currentType = type
+    },
     async search() {
       if (!this.isVisible) return
       try {
@@ -250,6 +294,9 @@ export default {
     }
   },
   computed: {
+    filters() {
+      return this.modelValue
+    },
     filter: {
       get() {
         return this.filters.find(({ type }) => type === this.currentType)
@@ -261,26 +308,34 @@ export default {
         if (index >= 0) updatedFilters[index] = filter
         else updatedFilters.push(filter)
 
-        this.$emit('changed', updatedFilters)
-        this.closeDialog()
+        this.$emit('update:modelValue', updatedFilters)
+        this.$emit(this.events.Hide)
       }
     },
     currentPageModel: {
-      get() { return this.currentPage },
-      set(val) { this.currentPage = val }
+      get() {
+        return this.currentPage
+      },
+      set(val) {
+        this.currentPage = val
+      }
     },
     searchQueryModel: {
-      get() { return this.searchQuery },
-      set(q) { this.searchQuery = q }
+      get() {
+        return this.searchQuery
+      },
+      set(q) {
+        this.searchQuery = q
+      }
     },
     typeOptions() {
       if (this.includedTypes) {
         return this.includedTypes.filter(type => AllSupportedFilterTypes.includes(type))
       }
       if (this.searchingEnabled) {
-        return ['newspaper', 'person', 'location', 'topic', 'collection'];
+        return ['newspaper', 'person', 'location', 'topic', 'collection']
       }
-      return DefaultFilterTypes;
+      return DefaultFilterTypes
     },
     searchParameters() {
       const {
@@ -302,24 +357,27 @@ export default {
     }
   },
   mounted() {
-    this.id = `facet-explorer-modal-${this._uid}`
+    this.uid = v4()
+    this.id = `facet-explorer-modal-${this.uid}`
   },
   components: {
     FacetExplorer,
     Pagination,
     RangeFacetExplorer,
     TimeFacetExplorer,
+    Modal,
+    Icon
   },
   watch: {
     searchParameters: {
-      async handler() { return this.search() },
+      async handler() {
+        return this.search()
+      },
       immediate: true
     },
     isVisible: {
       async handler() {
-        if (!this.isVisible) return this.closeDialog()
-        this.openDialog()
-        return this.search()
+        if (this.isVisible) return this.search()
       },
       immediate: true
     },
@@ -329,7 +387,9 @@ export default {
       },
       immediate: true
     },
-    currentType() { this.currentPage = 1 },
+    currentType() {
+      this.currentPage = 1
+    },
     initialType: {
       handler() {
         if (this.initialType == null) {
@@ -340,41 +400,39 @@ export default {
       },
       immediate: true
     }
-  },
-};
+  }
+}
 </script>
 
-<style lang="scss">
+<style lang="scss"></style>
 
-</style>
-
-<i18n>
-  {
-    "en": {
-      "explore": "refine",
-      "description": {
-        "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option mathing for type:| Select among<b> {count}</b> options matching {q} for type:",
-        "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
-      },
-      "searchField": {
-        "placeholder": "...|There is only one choice...|Search one of {n} available choices",
-        "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
-      },
-      "labels": {
-        "daterange": "by date",
-        "location": "location",
-        "country": "country",
-        "person": "person",
-        "language": "language",
-        "topic": "topic",
-        "newspaper": "newspaper",
-        "collection": "collection",
-        "year": "year",
-        "month": "month",
-        "textReuseClusterSize": "cluster size",
-        "textReuseClusterLexicalOverlap": "cluster lexical overlap",
-        "textReuseClusterDayDelta": "cluster span in days"
-      }
+<i18n lang="json">
+{
+  "en": {
+    "explore": "Refine your search query",
+    "description": {
+      "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option matching for type:| Select among<b> {count}</b> options matching {q} for type:",
+      "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
+    },
+    "searchField": {
+      "placeholder": "...|There is only one choice...|Search one of {n} available choices",
+      "notAvailable": "...|There is only one choice:|Pick one of the <span class='number'>{n}</span> available choiches:"
+    },
+    "labels": {
+      "daterange": "by date",
+      "location": "location",
+      "country": "country",
+      "person": "person",
+      "language": "language",
+      "topic": "topic",
+      "newspaper": "newspaper",
+      "collection": "collection",
+      "year": "year",
+      "month": "month",
+      "textReuseClusterSize": "cluster size",
+      "textReuseClusterLexicalOverlap": "cluster lexical overlap",
+      "textReuseClusterDayDelta": "cluster span in days"
     }
   }
+}
 </i18n>

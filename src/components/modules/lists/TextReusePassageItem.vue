@@ -2,7 +2,7 @@
   <!-- on hover, show the buttons -->
   <div class="TextReusePassageItem">
     <div>
-      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2 small border-tertiary" />
+      <TextReusePassageItemLabel :item="item" class="border-left pl-2 my-2" />
     </div>
     <!-- {{ item.collections }} -->
     <div class="rounded border border-tertiary bg-white shadow-sm p-1">
@@ -17,9 +17,14 @@
         </p>
       </Ellipsis>
     </div>
-    <div class="small text-muted mb-2" v-html="textReuseClusterSummary"></div>
+    <div
+      class="small text-muted mb-2"
+      v-if="!hideCompareButton"
+      v-html="textReuseClusterSummary"
+    ></div>
 
     <b-button
+      v-if="!hideCompareButton"
       variant="outline-secondary"
       size="sm"
       class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
@@ -31,29 +36,32 @@
 </template>
 
 <script>
-import Ellipsis from '../Ellipsis'
-import TextReusePassageItemLabel from './TextReusePassageItemLabel'
+import Ellipsis from '../Ellipsis.vue'
+import TextReusePassageItemLabel from './TextReusePassageItemLabel.vue'
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 export default {
   components: {
     // ClusterDetailsPanel,
     TextReusePassageItemLabel,
-    Ellipsis,
+    Ellipsis
   },
   props: {
+    hideCompareButton: Boolean,
     selected: Boolean,
     isObservable: Boolean,
     active: Boolean,
     showLink: Boolean,
     item: {
-      type: Object,
+      type: Object
     },
     click: {
-      type: Function,
-    },
+      type: Function
+    }
   },
   methods: {
-    handleClusterClick() {
+    handleClusterClick(e) {
       // <ItemSelector
       //     :uid="item.textReuseCluster.id"
       //     :item="item.textReuseCluster"
@@ -62,7 +70,7 @@ export default {
       //   >
       //     {{ $t('seeTextReuseCluster') }}
       //   </ItemSelector>
-      this.$store.dispatch('selectionMonitor/show', {
+      this.selectionMonitorStore.show({
         type: 'textReusePassage',
         item: this.item,
         context: 'textReuse',
@@ -70,28 +78,30 @@ export default {
         applyCurrentSearchFilters: false,
         displayTimeline: false,
         displayActionButtons: false,
-        displayCurrentSearchFilters: false,
+        displayCurrentSearchFilters: false
       })
-    },
+      e.stopPropagation()
+    }
   },
   computed: {
+    ...mapStores(useSelectionMonitorStore),
     textReuseClusterSummary() {
       const clusterSizeLabel = this.$tc(
         'numbers.clusterSize',
         this.item.textReuseCluster.clusterSize,
         {
-          n: this.$n(this.item.textReuseCluster.clusterSize),
-        },
+          n: this.$n(this.item.textReuseCluster.clusterSize)
+        }
       )
       const lexicalOverlapLabel = this.$tc(
         'numbers.lexicalOverlap',
         this.item.textReuseCluster.lexicalOverlap,
         {
-          n: this.$n(Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100),
-        },
+          n: this.$n(Math.round(this.item.textReuseCluster.lexicalOverlap * 100) / 100)
+        }
       )
       const sizeLabel = this.$tc('numbers.resultsAbsolute', parseInt(this.item.size), {
-        n: this.$n(this.item.size),
+        n: this.$n(this.item.size)
       })
 
       return this.$t('textReuseClusterSummary', {
@@ -99,11 +109,11 @@ export default {
         lexicalOverlap: lexicalOverlapLabel,
         size: sizeLabel,
         timespan: this.$tc('numbers.days', this.item.textReuseCluster.timeDifferenceDay, {
-          n: this.item.textReuseCluster.timeDifferenceDay,
-        }),
+          n: this.item.textReuseCluster.timeDifferenceDay
+        })
       })
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -125,7 +135,7 @@ export default {
   font-weight: bold;
 }
 </style>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "numbers": {

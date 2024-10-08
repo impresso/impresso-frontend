@@ -7,15 +7,16 @@
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
+
 /* eslint no-console: ["error", { allow: ["warn", "error", "log"] }] */
 import * as d3 from 'd3';
 
 const uuid = require('uuid');
 
 export default {
-  model: {
-    prop: 'issue',
-  },
   props: {
     period: {
       default: 'day',

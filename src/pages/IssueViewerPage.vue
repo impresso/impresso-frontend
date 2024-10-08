@@ -5,65 +5,100 @@
       :hide-pagination="!displayOnlyMatchingArticles"
       :paginationList="paginationList"
       @change-page="handleMatchingArticlesChangePage"
-      width="350px">
+      width="350px"
+    >
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
-          <b-tab active>
-            <template v-slot:title>
-              <span v-html="$t('table_of_contents')"/>
-            </template>
+          <template v-slot:tabs-start>
+            <b-nav-item active-class="active" active>
+              <span v-html="$t('table_of_contents')" />
+            </b-nav-item>
+          </template>
+          <template v-slot:default>
             <div class="p-2 px-3 mb-1">
-              <p v-html="$t('stats', {
-                countArticles: issue.countArticles,
-                countPages: issue.countPages,
-                accessRights: $t(`buckets.accessRight.${issue.accessRights }`)
-              })" />
-              <b-form inline class="pb-1">
+              <p
+                v-html="
+                  $t('stats', {
+                    countArticles: issue.countArticles,
+                    countPages: issue.countPages,
+                    accessRights: $t(`buckets.accessRight.${issue.accessRights}`)
+                  })
+                "
+              />
+              <form class="pb-1 form-inline">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
                   v-model="applyCurrentSearchFilters"
-                  switch>
+                  switch
+                >
                   {{ $t('actions.addCurrentSearch') }}
                 </b-form-checkbox>
-              </b-form>
-              <b-alert variant="transparent" class="pb-1 small" show v-if="(countActiveFilters === 0 || ignoredFilters.length)">
+              </form>
+              <b-alert
+                variant="transparent"
+                class="pb-1 small"
+                show
+                v-if="countActiveFilters === 0 || ignoredFilters.length"
+              >
                 <div v-if="countActiveFilters === 0">
                   {{ $t('applyCurrentSearchFiltersDisabled') }}
                 </div>
-                <span v-if="ignoredFilters.length"
-                  v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)">
+                <span
+                  v-if="ignoredFilters.length"
+                  v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
+                >
                 </span>
               </b-alert>
-              <search-pills disable-reset
+              <search-pills
+                disable-reset
                 v-if="applyCurrentSearchFilters"
                 :filters="filters"
                 @changed="handleFiltersChanged"
                 class="pb-1"
               />
-              <b-input class="mb-2" v-model.trim="suggestionQuery"
-                debounce="500" :placeholder="$t('label_filter_articles')" />
-                <!-- <b-form-checkbox :disabled="!hasMatchingArticles"
+              <b-input
+                class="mb-2"
+                v-model.trim="suggestionQuery"
+                debounce="500"
+                :placeholder="$t('label_filter_articles')"
+              />
+              <!-- <b-form-checkbox :disabled="!hasMatchingArticles"
                   v-model="displayOnlyMatchingArticles"
                   switch>
                   <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
                 </b-form-checkbox> -->
               <div class="mb-2 IssueViewerPage_matchingArticles" v-if="hasMatchingArticles">
                 <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
-                <div v-else-if="applyCurrentSearchFilters && !suggestionQuery.length" v-html="$tc('numbers.articlesMatchingSearchFilters', matchingArticles.length, {
-                    n: $n(matchingArticles.length),
-                    q: suggestionQuery,
-                })"/>
-                <div v-else-if="applyCurrentSearchFilters" v-html="$tc('numbers.articlesMatchingWithinSearch', matchingArticles.length, {
-                    n: $n(matchingArticles.length),
-                    q: suggestionQuery,
-                })"/>
-                <div v-else v-html="$tc('numbers.articlesMatching', matchingArticles.length, {
-                    n: $n(matchingArticles.length),
-                    q: suggestionQuery,
-                })"/>
+                <div
+                  v-else-if="applyCurrentSearchFilters && !suggestionQuery.length"
+                  v-html="
+                    $tc('numbers.articlesMatchingSearchFilters', matchingArticles.length, {
+                      n: $n(matchingArticles.length),
+                      q: suggestionQuery
+                    })
+                  "
+                />
+                <div
+                  v-else-if="applyCurrentSearchFilters"
+                  v-html="
+                    $tc('numbers.articlesMatchingWithinSearch', matchingArticles.length, {
+                      n: $n(matchingArticles.length),
+                      q: suggestionQuery
+                    })
+                  "
+                />
+                <div
+                  v-else
+                  v-html="
+                    $tc('numbers.articlesMatching', matchingArticles.length, {
+                      n: $n(matchingArticles.length),
+                      q: suggestionQuery
+                    })
+                  "
+                />
               </div>
             </div>
-          </b-tab>
+          </template>
         </b-tabs>
       </template>
       <template v-slot:default>
@@ -79,51 +114,70 @@
     <!-- main section -->
     <i-layout-section main>
       <!-- header -->
-      <div slot="header" class="border-bottom" v-if="issue">
-        <b-navbar variant="light" class="px-0 py-0 border-bottom">
-          <b-navbar-nav class='p-2 pl-3'>
-            <section >
-              <h3 class="m-0">
-                <b>{{ issue.newspaper.name }}</b> &middot;
-                <span class="date">{{ $d(issue.date, 'long') }}</span>
-              </h3>
-            </section>
-          </b-navbar-nav>
-          <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
-            <div v-b-tooltip.ds500 :title="$t('label_previous_page')">
-              <b-button class="border-dark" variant="light" size="sm"
-                :disabled="currentPageIndex === 0"
-                @click="changeCurrentPageIndex(currentPageIndex - 1)">
-                <div class="dripicons dripicons-media-previous pt-1"></div>
-              </b-button>
-            </div>
-            <div class="px-2 pt-1 border-top border-bottom" v-html="$t('ppOf', {
-              num: page.num,
-              pages: issue.pages.length
-            })"></div>
-            <div v-b-tooltip.ds500 :title="$t('label_next_page')">
-              <b-button class="border-dark" variant="light" size="sm"
-                :disabled="(currentPageIndex + 1) === issue.pages.length"
-                @click="changeCurrentPageIndex(currentPageIndex + 1)">
-                <div class="dripicons dripicons-media-next pt-1"></div>
-              </b-button>
-            </div>
-          </b-navbar-nav>
-        </b-navbar>
-        <b-navbar variant="light" class="px-0 py-0">
-          <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-            <div v-b-tooltip.hover :title="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')">
-              <b-button
-                :variant="outlinesVisible ? 'primary' : 'outline-primary'" size="sm"
-                @click="outlinesVisible = !outlinesVisible">
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons dripicons-duplicate my-1" />
-                  <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
-                  <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
-                </div>
-              </b-button>
-            </div>
-            <div v-b-tooltip.hover :title="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
+      <template v-slot:header>
+        <div class="border-bottom" v-if="issue">
+          <b-navbar variant="light" class="px-0 py-0 border-bottom">
+            <b-navbar-nav class="p-2 pl-3">
+              <section>
+                <h3 class="m-0">
+                  <b>{{ issue.newspaper.name }}</b> &middot;
+                  <span class="date">{{ $d(issue.date, 'long') }}</span>
+                </h3>
+              </section>
+            </b-navbar-nav>
+            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
+              <WithTooltip :content="$t('label_previous_page')" delay>
+                <b-button
+                  class="border-dark"
+                  variant="light"
+                  size="sm"
+                  :disabled="currentPageIndex === 0"
+                  @click="changeCurrentPageIndex(currentPageIndex - 1)"
+                >
+                  <div class="dripicons dripicons-media-previous pt-1"></div>
+                </b-button>
+              </WithTooltip>
+              <div
+                class="px-2 pt-1 border-top border-bottom"
+                v-html="
+                  $t('ppOf', {
+                    num: page.num,
+                    pages: issue.pages.length
+                  })
+                "
+              ></div>
+              <WithTooltip :content="$t('label_next_page')" delay>
+                <b-button
+                  class="border-dark"
+                  variant="light"
+                  size="sm"
+                  :disabled="currentPageIndex + 1 === issue.pages.length"
+                  @click="changeCurrentPageIndex(currentPageIndex + 1)"
+                >
+                  <div class="dripicons dripicons-media-next pt-1"></div>
+                </b-button>
+              </WithTooltip>
+            </b-navbar-nav>
+          </b-navbar>
+          <b-navbar variant="light" class="px-0 py-0">
+            <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
+              <WithTooltip
+                placement="top"
+                :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')"
+              >
+                <b-button
+                  :variant="outlinesVisible ? 'primary' : 'outline-primary'"
+                  size="sm"
+                  @click="outlinesVisible = !outlinesVisible"
+                >
+                  <div class="d-flex flex-row align-items-center">
+                    <div class="d-flex dripicons dripicons-duplicate my-1" />
+                    <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
+                    <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
+                  </div>
+                </b-button>
+              </WithTooltip>
+              <!-- <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
               <b-button
                 :variant="isFullscreen ? 'primary' : 'outline-primary'"
                 size="sm"
@@ -133,65 +187,84 @@
                   <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
                 </div>
               </b-button>
-            </div>
-          </b-navbar-nav>
+            </WithTooltip> -->
+            </b-navbar-nav>
 
-          <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
+            <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
+              <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
 
-            <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
-
-            <b-button-group class="ml-2">
-              <b-button size="sm" :class="{ active: !isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = false">
-                <div class="d-flex align-items-center">
-                  {{ $t('facsimileView') }}
-                  <div class="d-flex dripicons dripicons-article ml-2" />
-                </div>
-              </b-button>
-              <b-button size="sm" :class="{ active: isArticleTextDisplayed }" variant="outline-primary" @click="isArticleTextDisplayed = true">
-                <div class="d-flex align-items-center">
-                  {{ $t('closeReadingView') }}
-                  <div class="d-flex dripicons dripicons-align-justify ml-2" />
-                </div>
-              </b-button>
-            </b-button-group>
-          </b-navbar-nav>
-        </b-navbar>
-      </div>
+              <b-button-group class="ml-2">
+                <b-button
+                  size="sm"
+                  :class="{ active: !isArticleTextDisplayed }"
+                  variant="outline-primary"
+                  @click="isArticleTextDisplayed = false"
+                >
+                  <div class="d-flex align-items-center">
+                    {{ $t('facsimileView') }}
+                    <div class="d-flex dripicons dripicons-article ml-2" />
+                  </div>
+                </b-button>
+                <b-button
+                  size="sm"
+                  :class="{ active: isArticleTextDisplayed }"
+                  variant="outline-primary"
+                  @click="isArticleTextDisplayed = true"
+                >
+                  <div class="d-flex align-items-center">
+                    {{ $t('closeReadingView') }}
+                    <div class="d-flex dripicons dripicons-align-justify ml-2" />
+                  </div>
+                </b-button>
+              </b-button-group>
+            </b-navbar-nav>
+          </b-navbar>
+        </div>
+      </template>
       <!-- content -->
-      <div class="d-flex h-100 justify-content-center position-relative"  v-if="issue">
+      <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
         <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable">
           <div class="align-self-center">
             <p>{{ $t('errors.loggedInOnly') }}</p>
-            <br/>
-            <b-button :to="{ name: 'login' }" block size="sm" variant="outline-primary">{{ $t('actions.login') }}</b-button>
+            <br />
+            <b-button @click="handleLoginClick()" block size="sm" variant="outline-primary">{{
+              $t('actions.login')
+            }}</b-button>
           </div>
         </div>
         <open-seadragon-article-viewer
           :class="{ 'show-outlines': outlinesVisible }"
-          :style="(isContentAvailable && !isArticleTextDisplayed) ? {} : { display: 'none' }"
+          :style="isContentAvailable && !isArticleTextDisplayed ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
           :article="{ uid: articleId }"
-          :marginaliaSections="marginaliaSections"
+          :marginaliaSections="
+            isContentAvailable && !isArticleTextDisplayed ? marginaliaSections : []
+          "
           @page-changed="changeCurrentPageIndex"
-          @article-selected="handleArticleIdSelectedInViewer"/>
+          @article-selected="handleArticleIdSelectedInViewer"
+        />
 
         <issue-viewer-text
           v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
-          :article_uid="articleId"/>
+          :article_uid="articleId"
+        />
 
         <issue-viewer-bookmarker
           @remove-selection="handleRemoveSelection"
           @click-full-text="showArticleText(selectedArticle.uid)"
           :article="selectedArticle"
-          :visible="!isArticleTextDisplayed"/>
+          :visible="!isArticleTextDisplayed"
+        />
 
-        <div class="position-absolute d-flex drop-shadow bg-dark border-radius" style="bottom: 1rem" v-if="!isArticleTextDisplayed">
+        <div
+          class="position-absolute d-flex drop-shadow bg-dark border-radius"
+          style="bottom: 1rem"
+          v-if="!isArticleTextDisplayed"
+        >
           <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
-            <page-item class="bg-dark p-2"
-            :active="pageId === item.uid"
-            :item="item" />
+            <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
           </div>
         </div>
       </div>
@@ -200,10 +273,10 @@
 </template>
 
 <script>
-import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer'
-import PageItem from '@/components/modules/lists/PageItem'
-import List from '@/components/modules/lists/List'
-import IssueViewerText from '@/components/modules/IssueViewerText'
+import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
+import PageItem from '@/components/modules/lists/PageItem.vue'
+import List from '@/components/modules/lists/List.vue'
+import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -214,15 +287,24 @@ import {
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
-import { searchQueryGetter, searchQuerySetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
-import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
+import {
+  searchQueryGetter,
+  searchQuerySetter,
+  mapApplyCurrentSearchFilters
+} from '@/logic/queryParams'
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Issue from '@/models/Issue'
 import Article from '@/models/Article'
 import TableOfContents from '@/models/TableOfContents'
-import SearchPills from '@/components/SearchPills'
-import IssueViewerBookmarker from '@/components/IssueViewerBookmarker'
-import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents'
-import CollectionAddTo from '@/components/modules/CollectionAddTo';
+import SearchPills from '@/components/SearchPills.vue'
+import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
+import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import WithTooltip from '@/components/base/WithTooltip.vue'
+import { mapStores } from 'pinia'
+import { useEntitiesStore } from '@/stores/entities'
+import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -235,7 +317,7 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
-const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person'];
+const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person']
 
 export default {
   data: () => ({
@@ -254,7 +336,7 @@ export default {
     isFullscreen: false,
     isLoadingServiceQuery: false,
     displayOnlyMatchingArticles: false,
-    headers: /** @type {{[key: string] : string }} */ ({}),
+    headers: /** @type {{[key: string] : string }} */ ({})
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -264,11 +346,12 @@ export default {
     SearchPills,
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
-    CollectionAddTo
+    CollectionAddTo,
+    WithTooltip
   },
   mounted() {
     if (this.suggestionQuery.length) {
-      this.displayOnlyMatchingArticles = true;
+      this.displayOnlyMatchingArticles = true
     }
     this.headers = {
       Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
@@ -277,46 +360,53 @@ export default {
   created() {
     // eslint-disable-next-line
     console.debug('[IssueViewerPage] created()')
-    window.addEventListener('fullscreenchange', this.fullscreenChange);
-    window.addEventListener('keydown', this.keyDown);
+    window.addEventListener('fullscreenchange', this.fullscreenChange)
+    window.addEventListener('keydown', this.keyDown)
   },
-  destroyed() {
+  unmounted() {
     // eslint-disable-next-line
-    console.debug('[IssueViewerPage] destroyed()')
-    window.removeEventListener('fullscreenchange', this.fullscreenChange);
-    window.removeEventListener('keydown', this.keyDown);
+    console.debug('[IssueViewerPage] unmounted()')
+    window.removeEventListener('fullscreenchange', this.fullscreenChange)
+    window.removeEventListener('keydown', this.keyDown)
   },
   computed: {
+    ...mapStores(useEntitiesStore, useUserStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: '1',
-        },
-      }),
+          p: '1'
+        }
+      })
+    },
+    $navigation() {
+      return new Navigation(this)
     },
     /** @returns {Filter[]} */
     filters() {
       // filter by type
-      return this.searchQuery.filters
-        .filter(({ type }) => AllowedFilterTypes.includes(type));
+      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters
-        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {number} */
     countActiveFilters() {
-      return this.filters.length;
+      return this.filters.length
     },
     /** @returns {boolean} */
     hasMatchingArticles() {
-      return this.suggestionQuery.length > 0 || (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
+      return (
+        this.suggestionQuery.length > 0 ||
+        (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
+      )
     },
     /** @returns {string} */
-    issueId() { return this.$route.params[Params.IssueId] },
+    issueId() {
+      return this.$route.params[Params.IssueId]
+    },
     /** @returns {string|undefined} */
     pageId: {
       /** @return {string|undefined} */
@@ -335,7 +425,7 @@ export default {
      */
     selectedArticle() {
       if (!this.tableOfContents) {
-        return undefined;
+        return undefined
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
@@ -348,9 +438,9 @@ export default {
       /** @param {string} q */
       set(q) {
         this.$navigation.updateQueryParametersWithHistory({
-          [QueryParams.TextMode]: q ? '1' : undefined,
-        });
-      },
+          [QueryParams.TextMode]: q ? '1' : undefined
+        })
+      }
     },
     /** @returns {import('@/models/Page').default|undefined} */
     page() {
@@ -367,25 +457,27 @@ export default {
       const articles = this.pagesArticles[this.currentPageIndex]
       if (articles == null) return []
 
-      return articles.flatMap(article => article.regions.map(region => ({
-        articleUid: article.uid,
-        pageUid: this.pageId,
-        coords: region.coords
-      })))
+      return articles.flatMap(article =>
+        article.regions.map(region => ({
+          articleUid: article.uid,
+          pageUid: this.pageId,
+          coords: region.coords
+        }))
+      )
     },
     /** @returns {import('@/models/ArticleBase').default[]} */
     tableOfContentsArticles() {
       let items = []
       if (this.hasMatchingArticles) {
-        items = this.matchingArticles;
+        items = this.matchingArticles
       } else if (this.tableOfContents) {
-        items = this.tableOfContents.articles;
+        items = this.tableOfContents.articles
       }
       // enrich with corresponding images
       if (!this.issueImages.length) {
-        return items;
+        return items
       }
-      return items.map((d) => {
+      return items.map(d => {
         if (this.issueImagesIndex[d.uid]) {
           d.setImages(this.issueImagesIndex[d.uid])
         }
@@ -399,11 +491,11 @@ export default {
       },
       /** @param {string} q */
       set(q) {
-        this.paginationCurrentPage = 1;
+        this.paginationCurrentPage = 1
         this.$navigation.updateQueryParametersWithHistory({
-          q,
-        });
-      },
+          q
+        })
+      }
     },
     /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
     serviceQuery() {
@@ -412,43 +504,44 @@ export default {
         limit: this.paginationPerPage,
         page: this.paginationCurrentPage,
         issueUid: this.issue?.uid,
-        filters: this.applyCurrentSearchFilters
-          ? this.filters.map(getFilterQuery)
-          : [],
+        filters: this.applyCurrentSearchFilters ? this.filters.map(getFilterQuery) : []
       }
       // eslint-disable-next-line
       console.debug('[IssueViewerPage] computed serviceQuery', sq)
-      return sq;
+      return sq
     },
     /** @returns {any} */
     paginationList() {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
-        totalRows: this.paginationTotalRows,
-      };
+        totalRows: this.paginationTotalRows
+      }
     },
     currentPageIndex: {
       /** @returns {number} */
       get() {
-        if (!this.issue) return -1;
-        const pageNumber = parseInt(/** @type {string} */ (getQueryParameter(this, QueryParams.PageNumber)), 10)
-        if (isNaN(pageNumber)) return 0;
+        if (!this.issue) return -1
+        const pageNumber = parseInt(
+          /** @type {string} */ (getQueryParameter(this, QueryParams.PageNumber)),
+          10
+        )
+        if (isNaN(pageNumber)) return 0
         // handle missing pages.
-        return this.issue.pages.findIndex(p => p.num === pageNumber);
+        return this.issue.pages.findIndex(p => p.num === pageNumber)
       },
       /** @param {number} index */
       set(index) {
         // set page num in query fro the page corresponding to the right currentPageIndex
-        const pageNumber = this.issue?.pages[index]?.num;
+        const pageNumber = this.issue?.pages[index]?.num
         this.$navigation.updateQueryParameters({
           [QueryParams.PageNumber]: pageNumber
         })
       }
     },
-    /** @returns {import('@/models/User').default} */
+    /** @returns {import('@/models/User')} */
     currentUser() {
-      return this.$store.getters['user/user'];
+      return this.userStore.user
     },
     /** @returns {boolean} */
     isContentAvailable() {
@@ -469,14 +562,16 @@ export default {
         this.issue = new Issue(await issuesService.get(id))
         this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
         // / load images
-        this.issueImages = await imagesService.find({
-          query: {
-            filters:[{ type:'issue', q:id }],
-            limit: 100
-          },
-        }).then(({ data }) => data)
+        this.issueImages = await imagesService
+          .find({
+            query: {
+              filters: [{ type: 'issue', q: id }],
+              limit: 100
+            }
+          })
+          .then(({ data }) => data)
         // remap images by article property
-        this.issueImagesIndex = this.issueImages.reduce((acc, d)=> {
+        this.issueImagesIndex = this.issueImages.reduce((acc, d) => {
           if (!d.article) {
             console.warn('Article property not found on image', d)
             return acc
@@ -494,10 +589,7 @@ export default {
     currentPageIndex: {
       /** @param {number} pageIndex */
       async handler(pageIndex) {
-        await Promise.all([
-          this.loadRegions(pageIndex),
-          this.loadMarginalia(pageIndex)
-        ])
+        await Promise.all([this.loadRegions(pageIndex), this.loadMarginalia(pageIndex)])
       },
       immediate: true
     },
@@ -513,87 +605,99 @@ export default {
         const oldParamsStr = JSON.stringify(oldParams)
         if (newParamsStr === oldParamsStr) {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
-          return;
+          return
         }
-        if (this.issue == null) return;
+        if (this.issue == null) return
         // eslint-disable-next-line
         console.debug('[IssueViewerPage] @serviceQuery changed, params:', params)
-        const { q, limit, page, issueUid, filters } = params;
-        this.matchingArticles = [];
+        const { q, limit, page, issueUid, filters } = params
+        this.matchingArticles = []
         if (q.length > 1 || filters.length) {
           const additionalFilters = [{ type: 'issue', q: issueUid }]
           if (q.length > 1) {
-            const regex = /\*+$/i;
-            additionalFilters.push({ type: 'string', q: (q + '*').replace(regex, '*') });
+            const regex = /\*+$/i
+            additionalFilters.push({ type: 'string', q: (q + '*').replace(regex, '*') })
           }
           this.isLoadingServiceQuery = true
-          searchService.find({
-            lock: false,
-            query: {
-              filters: filters.concat(additionalFilters),
-              page, limit, group_by: 'articles'
-            },
-          }).then(({ data, total }) => {
-            this.paginationTotalRows = total;
-            this.matchingArticles = data.map(article => new Article(article));
-            this.isLoadingServiceQuery = false;
-          }).catch((err) => {
-            console.warn('[IssueViewerPage] @serviceQuery Error', err)
-            this.isLoadingServiceQuery = false;
-          });
+          searchService
+            .find({
+              lock: false,
+              query: {
+                filters: filters.concat(additionalFilters),
+                page,
+                limit,
+                group_by: 'articles'
+              }
+            })
+            .then(({ data, total }) => {
+              this.paginationTotalRows = total
+              this.matchingArticles = data.map(article => new Article(article))
+              this.isLoadingServiceQuery = false
+            })
+            .catch(err => {
+              console.warn('[IssueViewerPage] @serviceQuery Error', err)
+              this.isLoadingServiceQuery = false
+            })
         }
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
+    handleLoginClick() {
+      this.$router.push({ name: 'login' })
+    },
     keyDown(e) {
       if (e.shiftKey) {
         switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          this.changeCurrentPageIndex(this.currentPageIndex - 1);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          this.changeCurrentPageIndex(this.currentPageIndex + 1);
-          break;
-        default:
-          break;
+          case 'ArrowLeft':
+            e.preventDefault()
+            this.changeCurrentPageIndex(this.currentPageIndex - 1)
+            break
+          case 'ArrowRight':
+            e.preventDefault()
+            this.changeCurrentPageIndex(this.currentPageIndex + 1)
+            break
+          default:
+            break
         }
       }
     },
     fullscreenChange() {
-      this.isFullscreen = !this.isFullscreen;
+      this.isFullscreen = !this.isFullscreen
     },
     toggleFullscreen() {
       if (!document.fullscreenElement) {
-        this.$refs.issuePageViewer.$el.requestFullscreen().then(() => {
-        }).catch((err) => {
-          console.info(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-        });
+        this.$refs.issuePageViewer.$el
+          .requestFullscreen()
+          .then(() => {})
+          .catch(err => {
+            console.info(
+              `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
+            )
+          })
       } else {
-        document.exitFullscreen();
+        document.exitFullscreen()
       }
     },
     handleFiltersChanged(filters) {
-      this.displayOnlyMatchingArticles = true;
+      this.displayOnlyMatchingArticles = true
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: filters.concat(this.ignoredFilters),
-      });
+        filters: filters.concat(this.ignoredFilters)
+      })
     },
     handleMatchingArticlesChangePage(page) {
-      this.paginationCurrentPage = page;
+      this.paginationCurrentPage = page
     },
     /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
-      this.currentPageIndex = pageIndex;
+      this.currentPageIndex = pageIndex
     },
     handleRemoveSelection() {
       this.$navigation.updateQueryParameters({
-        [QueryParams.ArticleId]: undefined,
-      });
+        [QueryParams.ArticleId]: undefined
+      })
     },
     handleArticleSelected(article) {
       this.$navigation.updateQueryParameters({
@@ -607,7 +711,7 @@ export default {
      */
     handleArticleIdSelectedInViewer(articleUid) {
       // display the whole table of contents
-      this.displayOnlyMatchingArticles = false;
+      this.displayOnlyMatchingArticles = false
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(articleUid)
       })
@@ -624,15 +728,15 @@ export default {
             }
           })
           .then(response => response.data.map(article => new Article(article)))
-        this.$set(this.pagesArticles, pageIndex, articles)
+        this.pagesArticles[pageIndex] = articles
       }
     },
     async loadMarginalia(pageIndex) {
       if (this.issue == null) return
       if (this.pagesMarginalia[pageIndex] == null) {
         const results = await Promise.all([
-          this.$store.dispatch('entities/LOAD_PAGE_TOPICS', this.pageId),
-          this.$store.dispatch('entities/LOAD_PAGE_ENTITIES', this.pageId)
+          this.entitiesStore.loadPageTopics(this.pageId),
+          this.entitiesStore.loadPageEntities(this.pageId)
         ])
 
         const topicsSection = {
@@ -648,7 +752,7 @@ export default {
           }
         })
 
-        this.$set(this.pagesMarginalia, pageIndex, entitySections.concat([topicsSection]))
+        this.pagesMarginalia[pageIndex] = entitySections.concat([topicsSection])
       }
     },
     /** @param {string} articleUid */
@@ -669,7 +773,7 @@ export default {
 }
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",
@@ -690,14 +794,14 @@ export default {
 </i18n>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
-  .IssueViewerPage_matchingArticles .number{
-    font-weight: bold
-  }
-  section.i-layout-section {
-    background-color: $clr-bg-secondary;
-  }
-  section.i-layout-section > div.header {
-    background-color: $clr-bg-primary;
-  }
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+.IssueViewerPage_matchingArticles .number {
+  font-weight: bold;
+}
+section.i-layout-section {
+  background-color: $clr-bg-secondary;
+}
+section.i-layout-section > div.header {
+  background-color: $clr-bg-primary;
+}
 </style>

@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <main id="UserDashboard">
     <b-container class="mb-5">
       <b-row>
@@ -26,85 +26,74 @@
       <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
-          <p v-html="$t('form_success')"/>
+          <p>
+            Thank you for completing the first step of the registration.
+            <br/><br/>
+            <b>Action required</b>
+            <br/><br/>
+            Next, please download this <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download>Non-Disclosure Agreement (NDA)</a>,
+            sign it and email it to <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>.
+            <br/><br/>
+            Once we have received the signed NDA, your account will be activated within two working days.
+          </p>
         </b-col>
-      </b-roW>
+      </b-row>
       <b-row v-else>
         <b-col md="6" offset-md="3">
-
-          <ValidationObserver v-slot="{ invalid }">
-
-            <b-form @submit.prevent="onSubmit">
-
-              <validation-provider name="username" rules="required|min:4|userRegex" v-slot="{ errors }">
+            <form @submit.prevent="onSubmit">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
                   label-for="username"
-                  :description="errors[0]">
+                  :description="v$.user.username.$errors[0]?.$message">
                   <b-form-input id="username" name="username" required
                     v-model.trim="user.username"
-                    :class="{'border-danger': errors[0] }"
+                    :class="{'border-danger': v$.user.username.$error }"
                     />
                 </b-form-group>
-              </validation-provider>
-
-              <validation-provider name="email" rules="required|email" v-slot="{ errors }">
                 <b-form-group
                   id="input-group-1"
                   label="Email address"
                   label-for="email"
-                  :description="errors[0]">
+                  :description="v$.user.email.$errors[0]?.$message">
                   <b-form-input
                     id="email" name="email" autocomplete="home email"
-                    :class="{'border-danger': errors[0] }"
+                    :class="{'border-danger': v$.user.email.$error }"
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
-              </validation-provider>
-
               <!-- password -->
-              <ValidationObserver>
                 <b-row>
                   <b-col>
-                    <ValidationProvider name="password"
-                    :rules="{ min: 8, regex: passwordRegex }"
-                    v-slot="{ errors }" vid="repeatPassword">
-
                     <b-form-group
                       id="input-group-changepwd-2"
                       :label="$t('form_password')"
                       label-for="password"
-                      :description="errors[0]">
+                      :description="v$.user.password.$errors[0]?.$message">
                       <b-form-input
                         id="password" name="password"
                         v-model.trim="user.password"
                         type="password"
                         maxlength="80"
-                        :class="{'border-danger': errors[0] }"
-                        :description="errors[0]"
+                        :class="{'border-danger': v$.user.password.$error }"
                       ></b-form-input>
                     </b-form-group>
-                    </ValidationProvider>
                   </b-col>
                   <b-col>
-                    <ValidationProvider rules="required|confirmed:repeatPassword" v-slot="{ errors }">
                       <b-form-group
                         id="input-group-changepwd-3"
                         :label="$t('form_password_repeat')"
                         label-for="repeat-password"
-                        :description="errors[0]">
+                        :description="v$.repeatPassword.$errors[0]?.$message">
                         <b-form-input
                           id="repeat-password" name="repeat-password"
                           v-model.trim="repeatPassword"
                           maxlength="80"
-                          :class="{'border-danger': errors[0] }"
+                          :class="{'border-danger': v$.repeatPassword.$error }"
                           type="password" />
                       </b-form-group>
-                    </ValidationProvider>
                   </b-col>
                 </b-row>
-              </ValidationObserver><!--  password -->
               <b-row>
                 <b-col>
                   <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
@@ -132,44 +121,43 @@
                   maxlength="20" />
               </b-form-group>
 
-              <b-input-group id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="mb-4">
+              <div id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="input-group mb-4">
                 <b-form-input
                   id="pattern"
                   v-model="patternAsText"
                   maxlength="70">
                 </b-form-input>
-                <b-input-group-append>
+                <div class="input-group-append">
                   <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="10"></b-form-input>
                   <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
                     {{$t('actions.generatePattern')}}
                   </b-button>
-                </b-input-group-append>
-              </b-input-group>
+                </div>
+              </div>
 
               <div class="d-flex w-100 mb-3">
                   <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
               </div>
 
-              <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }">
-                <b-form-group
+              <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
+                <!-- <b-form-group
                   id="nda"
                   label="Signed NDA"
                   label-for="nda"
                   :class="{'border-danger': errors[0] }"
                   :description="errors[0]">
-                  <b-form-file
-                    id="nda" :state="errors.length === 0" @input="validate" v-model="nda"
-                    placeholder="Choose a file or drop it here..." />
-                </b-form-group>
-              </ValidationProvider>
+                  <div class="custom-file b-form-file" id="nda" :state="errors.length === 0" @input="validate"
+                    placeholder="Choose a file or drop it here...">
+                    NOTE: This code is not used. Implement file upload when needed.
+                  </div>
+                </b-form-group> -->
+              <!-- </ValidationProvider> -->
 
-              <b-button size="sm" type='submit' class="mt-2" variant="outline-primary" :disabled="invalid">{{
+              <b-button size="sm" type='submit' class="mt-2" variant="outline-primary" :disabled="v$.$error || !v$.$anyDirty">{{
                 $t('actions.requestAccount')
               }}</b-button>
 
-            </b-form>
-
-          </ValidationObserver>
+            </form>
         </b-col>
       </b-row>
 
@@ -177,53 +165,63 @@
   </main>
 </template>
 
-<script>
-import {
-  ValidationProvider,
-  ValidationObserver,
-  extend
-} from 'vee-validate';
-import { required, email, confirmed, regex, ext } from 'vee-validate/dist/rules'
+<script lang="ts">
+import { defineComponent } from 'vue'
+import useVuelidate from '@vuelidate/core';
+import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
+import User from '@/models/User';
 
-extend('required', {
-  ...required,
-  message: 'This field is required'
-});
+// extend('required', {
+//   ...required,
+//   message: 'This field is required'
+// });
 
-extend('email', email);
+// extend('email', email);
 
-extend('confirmed', {
-  ...confirmed,
-  message: 'Passwords do not match'
-});
+// extend('confirmed', {
+//   ...confirmed,
+//   message: 'Passwords do not match'
+// });
 
-extend('min', {
-  validate(value, { length }) {
-    return value.length >= length;
+// extend('min', {
+//   validate(value, { length }) {
+//     return value.length >= length;
+//   },
+//   params: ['length'],
+//   message: 'The {_field_} must have at least {length} characters'
+// });
+
+// extend('regex', {
+//   ...regex,
+//   message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
+// });
+
+// extend('userRegex', {
+//   validate: value => value.match(UserRegex),
+//   message: 'Please use only lowercase alpha-numeric characters'
+// });
+
+// extend('ext', {
+//   ...ext,
+//   message: 'The file must be of type IMAGE or PDF'
+// });
+
+const userRegex = helpers.withMessage(
+  'Please use only lowercase alpha-numeric characters',
+  (value: string) => UserRegex.exec(value) !=  null
+)
+
+const complexPassword = helpers.withMessage(
+  'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
+  (value: string) => PasswordRegex.exec(value) !=  null
+)
+
+export default defineComponent({
+  setup() {
+    return { v$: useVuelidate() }
   },
-  params: ['length'],
-  message: 'The {_field_} must have at least {length} characters'
-});
-
-extend('regex', {
-  ...regex,
-  message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-});
-
-extend('userRegex', {
-  validate: value => value.match(UserRegex),
-  message: 'Please use only lowercase alpha-numeric characters'
-});
-
-extend('ext', {
-  ...ext,
-  message: 'The file must be of type IMAGE or PDF'
-});
-
-
-export default {
   props: {
     allowUploadOfNDA: Boolean,
   },
@@ -239,7 +237,7 @@ export default {
       displayName: 'Researcher',
       colors: Array(),
       pattern: Array(),
-    },
+    } as User & { password: string },
     isCreated: false,
     isLoading: false,
     nda: null,
@@ -255,10 +253,6 @@ export default {
     ],
     numColors: 5,
   }),
-  components: {
-    ValidationProvider,
-    ValidationObserver,
-  },
   computed: {
     userLabel() {
       if (this.user.firstname.length || this.user.lastname.length) {
@@ -273,7 +267,7 @@ export default {
         }
         return '';
       },
-      set(v) {
+      set(v: string) {
         this.user.setPattern(v);
       }
     },
@@ -310,7 +304,7 @@ export default {
       }
       this.user.pattern = this.user.colors;
     },
-    getColorBandStyle(color) {
+    getColorBandStyle(color: string) {
       const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
       return {
         'background-color': color,
@@ -321,7 +315,17 @@ export default {
   created() {
     this.onGeneratePattern();
   },
-};
+  validations() {
+    return {
+      user: {
+        username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
+        email: { required, email, $autoDirty: true }, // required|email
+        password: { minLength: minLength(8), complexPassword, $autoDirty: true }, // min: 8, regex: passwordRegex
+      },
+      repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true }, // required|confirmed:repeatPassword
+    }
+  }
+})
 </script>
 
 <style scoped lang="scss">
@@ -351,7 +355,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "form_firstname": "First name",
@@ -362,8 +366,7 @@ export default {
     "form_oldpassword": "Current Password",
     "form_password": "Password",
     "form_password_repeat": "Password (again)",
-    "signUp": "(sign up)",
-    "form_success": "Thank you for completing the first step of the registration.<br/><br/><b>Action required</b><br/><br/>Next, please download this <a href='https://impresso-project.ch/assets/documents/impresso_NDA.pdf' download>Non-Disclosure Agreement (NDA)</a>, sign it and email it to <a href='mailto:info@impresso-project.ch'>info@impresso-project.ch</a>.<br/><br/>Once we have received the signed NDA, your account will be activated within two working days."
+    "signUp": "(sign up)"
   }
 }
 </i18n>

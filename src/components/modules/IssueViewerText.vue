@@ -20,26 +20,22 @@
         <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
       </b-badge>
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
-        <p>{{ $t('wrongLayout') }} <icon name="image" /></p>
+        <p>{{ $t('wrongLayout') }}</p>
       </div>
       <div v-if="hasValidRegions === false">
         <p>{{ article.excerpt }}</p>
       </div>
       <b-container fluid v-else class="region-row mt-3 mb-3 position-relative">
-        <label class="text-right d-flex align-items-center">
+        <div class="small d-flex align-items-center m-0">
           <div
-            class="ml-auto"
-            style="line-height:1.25"
-            v-if="textReusePassages.length"
             v-html="
               $tc('textReuseLabel', textReusePassages.length, {
-                n: textReusePassages.length,
+                n: textReusePassages.length
               })
             "
           />
-          <div v-else class="ml-auto" style="line-height:1.25" v-html="$tc('textReuseLabel', 0)" />
           <info-button class="ml-2" name="text-reuse" />
-        </label>
+        </div>
         <!-- computed regions -->
         <b-row
           class="IssueViewerText__regions mt-1"
@@ -55,14 +51,17 @@
               />
             </div>
           </div>
-          <div class="col" :class="{ 'col-sm-7': article.isCC, 'col-sm-12': !article.isCC }">
+          <div class="col col-sm-7">
             <div class="region py-3">
-              <annotated-text
+              <AnnotatedText
                 v-if="regionsAnnotationTree[i]"
                 :children="regionsAnnotationTree[i].children"
                 :cluster-colours="clusterColourMap"
                 :selected-cluster-id="selectedClusterId"
-                @onClusterSelected="clusterSelectedHandler"
+                @clusterSelected="clusterSelectedHandler"
+                @passageClicked="passageSelectedHandler"
+                @passageMouseenter="mouseenterPassageHandler"
+                @passageMouseleave="mouseleavePassageHandler"
               />
             </div>
           </div>
@@ -103,20 +102,30 @@
   </div>
 </template>
 
-<script>
-import Icon from 'vue-awesome/components/Icon'
-import { articlesSuggestions, articleTextReusePassages } from '@/services'
-import CollectionAddTo from './CollectionAddTo'
-import SearchResultsSimilarItem from './SearchResultsSimilarItem'
-import ArticleItem from './lists/ArticleItem'
-import AnnotatedText from './AnnotatedText'
-import InfoButton from '@/components/base/InfoButton'
+<script lang="ts">
+import { mapStores } from 'pinia'
+import {
+  articlesSuggestions,
+  articleTextReusePassages,
+  textReusePassages as textReusePassagesService,
+  articles as articlesService
+} from '@/services'
+import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
+import ArticleItem from './lists/ArticleItem.vue'
+import AnnotatedText from './AnnotatedText.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+
+import Article from '@/models/Article'
+import { useCollectionsStore } from '@/stores/collections'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 import {
   getNamedEntitiesFromArticleResponse,
   getAnnotateTextTree,
-  passageToPassageEntity,
+  passageToPassageEntity
 } from '@/logic/articleAnnotations'
+import TextReuseCluster from '@/models/TextReuseCluster'
+import TextReusePassage from '@/models/TextReusePassage'
 
 const colourScheme = [
   '#8dd3c7',
@@ -129,7 +138,7 @@ const colourScheme = [
   '#d9d9d9',
   '#bc80bd',
   '#ccebc5',
-  '#ffed6f',
+  '#ffed6f'
 ]
 
 export default {
@@ -140,21 +149,16 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0,
+      viewerTopOffset: 0
     }
   },
   updated() {
     const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
     this.viewerTopOffset = height
-
-    document.querySelectorAll('.tr-passage').forEach(element => {
-      element.removeEventListener('mouseenter', this.mouseenterPassageHandler)
-      element.addEventListener('mouseenter', this.mouseenterPassageHandler)
-      element.removeEventListener('mouseleave', this.mouseleavePassageHandler)
-      element.addEventListener('mouseleave', this.mouseleavePassageHandler)
-    })
   },
   computed: {
+    ...mapStores(useCollectionsStore),
+    ...mapStores(useSelectionMonitorStore),
     articlePages() {
       if (!this.article.pages || !this.article.pages.length) {
         return this.$t('no_page_info')
@@ -189,7 +193,7 @@ export default {
       return regions.map(r => ({
         ...r,
         // nrmalised width
-        nw: Math.min(1, r.coords.w / maxRegionWidth),
+        nw: Math.min(1, r.coords.w / maxRegionWidth)
       }))
     },
     clusterColourMap() {
@@ -212,7 +216,7 @@ export default {
         this.article.content,
         entities.concat(passageEntities),
         lineBreaks,
-        regionBreaks,
+        regionBreaks
       ).children
     },
     selectedPassage() {
@@ -222,21 +226,19 @@ export default {
       return undefined
     },
     selectedClusterId() {
-      return this.$route.query.trClusterId
+      return this.$route.query.trClusterId as string
     },
     textReuseEnabled() {
       // @ts-ignore
       return !!window.impressoFeatures?.textReuse?.enabled
-    },
+    }
   },
   props: ['article_uid'],
   components: {
     ArticleItem,
-    CollectionAddTo,
     SearchResultsSimilarItem,
-    Icon,
     AnnotatedText,
-    InfoButton,
+    InfoButton
   },
   methods: {
     commonTopics(suggestionTopics) {
@@ -247,10 +249,10 @@ export default {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore
+          .removeCollectionItem({
             collection,
-            item,
+            item
           })
           .then(() => {
             item.collections.splice(idx, 1)
@@ -258,47 +260,58 @@ export default {
           })
       }
     },
-    mouseenterPassageHandler(e) {
-      const { id } = e.target.dataset
-      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
-      const siblingElements = [...document.querySelectorAll(`.tr-passage`)]
+    mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {
+      this.selectedPassageId = passageId
 
-      siblingElements.map(element => {
-        element.classList.remove('active')
-        element.removeEventListener('click', this.passageClickHandler)
-      })
-      peerElements.map(element => element.classList.add('active'))
-
-      e.target.addEventListener('click', this.passageClickHandler)
-
-      this.selectedPassageId = id
-      this.hoverPassageLineTopOffset = e.pageY
+      const el = e.currentTarget as HTMLElement
+      this.hoverPassageLineTopOffset = el.getBoundingClientRect().y
     },
-    mouseleavePassageHandler(e) {
-      const { id } = e.target.dataset
-      const peerElements = [...document.querySelectorAll(`.tr-passage[data-id="${id}"]`)]
-
-      peerElements.map(element => element.classList.remove('active'))
-
-      e.target.removeEventListener('click', this.passageClickHandler)
-
+    mouseleavePassageHandler(clusterId, passageId, e) {
       this.selectedPassageId = null
     },
     passageClickHandler() {
+      // create a filter for the selected cluster
+
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
-          q: `#${this.selectedClusterId}`,
-        },
+          q: `#${this.selectedClusterId}`
+        }
       })
     },
-    clusterSelectedHandler(trClusterId) {
-      const { query } = this.$route
-      const updatedQuery = Object.assign({}, query, {
-        trClusterId: query.trClusterId === trClusterId ? undefined : trClusterId,
+    passageSelectedHandler(trClusterId: string, trPassageId: string) {
+      const trPassage = this.textReusePassages.find(p => p.id === trPassageId)
+      if (!trPassage) {
+        console.error(
+          '[issueViewerText] @passageSelectedHandler Passage not found with id:',
+          trPassageId
+        )
+        return
+      }
+      const item = new TextReuseCluster({
+        id: trClusterId,
+        maxDate: new Date(trPassage.timeCoverage.to),
+        minDate: new Date(trPassage.timeCoverage.from),
+        clusterSize: trPassage.clusterSize,
+        lexicalOverlap: trPassage.lexicalOverlap
       })
-      this.$router.replace({ query: updatedQuery }).catch(() => {})
+      console.info('[issueViewerText] @passageSelectedHandler', item)
+      this.selectionMonitorStore.show({
+        type: 'textReuseCluster',
+        item,
+        scope: 'comparePassages',
+        applyCurrentSearchFilters: false,
+        displayCurrentSearchFilters: false
+      })
     },
+    clusterSelectedHandler(trClusterId: string) {
+      this.$router.replace({
+        query: {
+          ...this.$route.query,
+          trClusterId
+        }
+      })
+    }
   },
   watch: {
     article_uid: {
@@ -313,8 +326,8 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          this.$store.dispatch('articles/LOAD_ARTICLE', articleUid),
-          trPromise,
+          articlesService.get(articleUid).then(d => new Article(d)),
+          trPromise
         ])
         this.article = article
         this.textReusePassages = textReusePassages
@@ -322,14 +335,14 @@ export default {
         articlesSuggestions.get(articleUid).then(res => {
           this.articlesSuggestions = res.data
         })
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 #IssueViewerText {
   overflow: none;
@@ -366,24 +379,16 @@ export default {
   }
 
   .passage-control {
-    position: absolute;
+    position: fixed;
     right: 0;
     max-width: 100%;
     pointer-events: none;
-  }
-  .tr-passage {
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-    cursor: pointer;
-
-    &.active {
-      opacity: 1;
-    }
   }
 
   span.location::before {
     content: '\e012';
   }
+
   span.location.continuation::before {
     content: '';
   }
@@ -391,6 +396,7 @@ export default {
   span.person::before {
     content: '\e056';
   }
+
   span.person.continuation::before {
     content: '';
   }
@@ -411,7 +417,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
@@ -419,7 +425,7 @@ export default {
     "pages": "pp. {nums}",
     "add_to_collection": "Add to Collection ...",
     "cluster_tooltip": "View all {size} articles containing this passage",
-    "textReuseLabel": "No text reuse<br/> passages available| <b>1</b> text reuse <br/>passage available | <b>{n}</b> text reuse <br/>passages available"
+    "textReuseLabel": "No text reuse passages available| <b>1</b> text reuse passage available | <b>{n}</b> text reuse passages available"
   }
 }
 </i18n>

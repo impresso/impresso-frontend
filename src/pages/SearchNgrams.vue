@@ -1,47 +1,51 @@
 <template>
   <i-layout id="SearchNgramsPage">
     <!-- sidebar (contains i-layout-section) -->
-    <search-sidebar
+    <SearchSidebar
       :filters="enrichedFilters"
       :ignored-filters="ignoredFilters"
       :facets="facets"
       contextTag="search-ngrams"
       @changed="handleFiltersChanged"
     >
-      <div slot="header">
+      <template v-slot:header>
+        <div
+          v-if="ignoredFilters.length > 0 && ignoredFilters.some(d => d.type === 'string')"
+          class="mx-1 small"
+        >
+          {{ $t('label_ignored_string_filters') }}
+        </div>
         <!-- tehre is a hidden filter in allowed filter :) -->
-        <div v-if="allowedFilters.length < 2" class=" mx-1 small">
+        <div v-if="allowedFilters.length < 2" class="mx-1 small">
           Filter your search with the options below.
         </div>
-      </div>
+      </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-checkbox v-model="isFront" switch :modelValue="true">
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
-    </search-sidebar>
+    </SearchSidebar>
     <!-- main section -->
     <i-layout-section main>
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar class="d-flex p-0 border-bottom align-items-center">
-          <b-navbar-nav class="border-right flex-grow-1 px-2 pl-3 py-2 ">
-            <section class="search-results-summary text-serif textbox-fancy border-tertiary">
-              <label>ngrams viewer</label>
+          <b-navbar-nav class="border-right flex-grow-1 px-2 pl-3 py-2">
+            <PageHeading :label="$t('search_ngrams_label')" :title="$t('search_ngrams_title')">
               <ellipsis v-bind:initialHeight="60">
-                <span v-html="unigramsSummary" />
-                &nbsp;
+                <span v-html="unigramsSummary"></span>
                 <span
+                  class="ml-1"
                   v-html="
                     $tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })
                   "
                 />
-                &nbsp;
                 <search-query-summary
-                  class="d-inline"
+                  class="d-inline ml-0"
                   :search-query="{ filters: enrichedFilters }"
                 />
               </ellipsis>
-            </section>
+            </PageHeading>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto px-2">
             <router-link
@@ -54,19 +58,23 @@
           </b-navbar-nav>
         </b-navbar>
         <b-navbar class="border-bottom">
-          <span style="white-space:nowrap" class="mr-3"
+          <span style="white-space: nowrap" class="mr-3"
             >Enter unigram
             <info-button name="what-are-ngram" />
           </span>
-          <b-input-group>
-            <b-form-tags
-              v-model="unigrams"
+          <div class="input-group">
+            <TagsInput
+              :value="unigrams"
               :disabled="isLoading"
-              separator=" ,;"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
               class="mb-2"
-            >
-            </b-form-tags>
+              @input="
+                items => {
+                  console.debug('[SearchNgrams] input', e)
+                  unigrams = items
+                }
+              "
+            />
             <b-dropdown
               ref="embeddings"
               class="mb-2"
@@ -85,9 +93,9 @@
                 />
               </div>
             </b-dropdown>
-          </b-input-group>
+          </div>
         </b-navbar>
-      </div>
+      </template>
       <div
         class="m-3"
         v-if="unigrams.length > 0"
@@ -95,20 +103,20 @@
       >
         <base-title-bar class="my-3">
           <span v-html="$t('label.timeline.unigramTitle')" />
-          <div slot="description">
+          <template v-slot:description>
             {{ $t('label.timeline.unigramDescription') }}
-          </div>
+          </template>
         </base-title-bar>
         <multi-line-plot
           :items-sets="plotItems"
           :round-value-fn="roundValueForDisplay"
           :height="300"
         >
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div>
-              <div>
-                {{ $d(getTooltipScopeTime(tooltipScope), timelineResolution, 'en') }} &middot;
-              </div>
+              <h4>
+                {{ $d(getTooltipScopeTime(tooltipScope) ?? new Date(), timelineResolution, 'en') }}
+              </h4>
               <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
                 <div
                   :style="{ 'background-color': tooltipScope.tooltip.item.colors[index] }"
@@ -121,7 +129,7 @@
                 }})
               </div>
             </div>
-          </div>
+          </template>
         </multi-line-plot>
         <div class="loading-overlay" v-if="isLoading">
           <em>{{ $t('loading') }}</em>
@@ -152,27 +160,32 @@
 
 <script>
 import { serializeFilters, optimizeFilters, toCanonicalFilter } from '@/logic/filters'
+import { useUserStore } from '@/stores/user'
+import { mapStores } from 'pinia'
 
 import FacetModel from '@/models/Facet'
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import BaseTitleBar from '@/components/base/BaseTitleBar'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
-import MultiLinePlot from '@/components/modules/vis/MultiLinePlot'
-import Ellipsis from '@/components/modules/Ellipsis'
-import InfoButton from '@/components/base/InfoButton'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import MultiLinePlot from '@/components/modules/vis/MultiLinePlot.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
+import TagsInput from '@/components/base/TagsInput.vue'
+import PageHeading from '@/components/base/PageHeading.vue'
 
 import {
   search as searchService,
   ngramTrends as ngramTrendsService,
-  searchFacets as searchFacetsService,
+  searchFacets as searchFacetsService
 } from '@/services'
 import {
   DefaultFacetTypesForIndex,
   searchResponseToFacetsExtractor,
-  buildEmptyFacets,
+  buildEmptyFacets
 } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
+import { Navigation } from '@/plugins/Navigation'
 
 /**
  * @typedef {import('../models').Filter} Filter
@@ -188,7 +201,7 @@ const isFrontFilter = ({ type }) => type === 'isFront'
 
 const QueryParameters = Object.freeze({
   SearchFilters: CommonQueryParameters.SearchFilters,
-  Unigrams: 'unigrams',
+  Unigrams: 'unigrams'
 })
 
 const AllowedFilterTypes = [
@@ -208,7 +221,7 @@ const AllowedFilterTypes = [
   'type',
   'year',
   'daterange',
-  'hasTextContents',
+  'hasTextContents'
 ]
 
 /**
@@ -230,7 +243,7 @@ function getTotalNumberOfResults(facets) {
  */
 function getArticlesCountForYear(facets, fullYear) {
   const yearFacetsWithBuckets = facets.filter(
-    ({ buckets, type }) => buckets != null && buckets.length > 0 && type === 'year',
+    ({ buckets, type }) => buckets != null && buckets.length > 0 && type === 'year'
   )
   if (yearFacetsWithBuckets.length === 0) return 0
   const { buckets } = yearFacetsWithBuckets[0]
@@ -242,7 +255,7 @@ function getArticlesCountForYear(facets, fullYear) {
 const EmptyNgramResult = Object.freeze({
   trends: [],
   domainValues: [],
-  timeInterval: 'year',
+  timeInterval: 'year'
 })
 
 const SupportedFacetTypes = DefaultFacetTypesForIndex.search
@@ -257,6 +270,8 @@ export default {
     SearchSidebar,
     InfoButton,
     EmbeddingsSearch,
+    TagsInput,
+    PageHeading
   },
   data: () => ({
     /** @type {Facet[]} */
@@ -266,7 +281,7 @@ export default {
     /** @type {any} */
     ngramResult: EmptyNgramResult,
     isLoading: false,
-    isEmbeddingSearchDisplayed: false,
+    isEmbeddingSearchDisplayed: false
   }),
   mounted() {
     this.facets = buildEmptyFacets(SupportedFacetTypes)
@@ -274,12 +289,12 @@ export default {
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     filtersWithItems: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   watch: {
     fullFilters: {
@@ -288,8 +303,8 @@ export default {
         const query = {
           filters: filters.map(toCanonicalFilter),
           limit: 0,
-          facets: SupportedFacetTypes.filter(f => f !== 'collection'),
-          group_by: 'articles',
+          facets: SupportedFacetTypes,
+          group_by: 'articles'
         }
         const facets = await searchService
           .find({ query })
@@ -297,17 +312,17 @@ export default {
 
         this.facets = facets.map(f => new FacetModel(f))
         if (this.isLoggedIn) {
-          const collectionsFacets = await searchFacetsService.get('collection', {
+          const collectionsFacet = await searchFacetsService.get('collection', {
             query: {
-              filters,
-              group_by: 'articles',
-            },
+              filters
+              // group_by: 'articles',
+            }
           })
-          this.facets = facets.concat(collectionsFacets).map(f => new FacetModel(f))
+          this.facets = facets.concat(collectionsFacet).map(f => new FacetModel(f))
         }
       },
       immediate: true,
-      deep: true,
+      deep: true
     },
     unigramsQueryParameters: {
       /** @param {{ ngrams: string[], filters: Filter[] }} query */
@@ -324,10 +339,14 @@ export default {
         }
       },
       immediate: true,
-      deep: true,
-    },
+      deep: true
+    }
   },
   computed: {
+    ...mapStores(useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     /** @type {import('vue').ComputedOptions<string[]>} */
     unigrams: {
       /** @returns {string[]} */
@@ -341,9 +360,9 @@ export default {
       /** @param {string[]} unigrams */
       set(unigrams) {
         this.$navigation.updateQueryParameters({
-          [QueryParameters.Unigrams]: unigrams.join(','),
+          [QueryParameters.Unigrams]: unigrams.join(',')
         })
-      },
+      }
     },
     /** @returns {string} */
     unigramsSummary() {
@@ -354,8 +373,8 @@ export default {
         .map(trend =>
           this.$tc('numbers.unigramMentions', trend.total || 0, {
             unigram: trend.ngram,
-            n: this.$n(trend.total),
-          }),
+            n: this.$n(trend.total)
+          })
         )
         .join('; ')
       return this.$t('label.withTrends', { trends }).toString()
@@ -389,7 +408,7 @@ export default {
       const stringFilter = {
         type: 'string',
         op: 'OR',
-        q: this.unigrams,
+        q: this.unigrams
       }
       return this.allowedFilters.concat(this.unigrams.length > 0 ? [stringFilter] : [])
     },
@@ -404,10 +423,10 @@ export default {
           ? this.filters.filter(f => !isFrontFilter(f)).concat([{ type: 'isFront' }])
           : this.filters.filter(f => !isFrontFilter(f))
         this.handleFiltersChanged(newFilters)
-      },
+      }
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     /** @returns {{ ngram: string, values: number[], total: number }[]} */
     trends() {
@@ -423,7 +442,7 @@ export default {
         type: 'string',
         precision: 'exact',
         op: 'OR',
-        q: this.trends.map(({ ngram }) => ngram),
+        q: this.trends.map(({ ngram }) => ngram)
       }
       const filters = this.filters.concat([stringFilter])
       // const query = { f: JSON.stringify(filters) }
@@ -434,7 +453,7 @@ export default {
     unigramsQueryParameters() {
       return {
         ngrams: this.unigrams,
-        filters: optimizeFilters(this.allowedFilters),
+        filters: optimizeFilters(this.allowedFilters)
       }
     },
     /**
@@ -451,8 +470,8 @@ export default {
           label: ngram,
           items: values.map((value, index) => ({
             value: (value / totals[index]) * 1000000,
-            time: dates[index],
-          })),
+            time: dates[index]
+          }))
         }
       })
     },
@@ -465,20 +484,21 @@ export default {
           value,
           total: totals[index],
           ppm: (value / totals[index]) * 1000000,
-          date: domainValues[index],
-        })),
+          date: domainValues[index]
+        }))
       }))
       const jsonStr = JSON.stringify({
         // @ts-ignore
         url: window.location.href,
         filters: this.filters,
         exportDate: new Date(),
-        data,
+        data
       })
       return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`
     },
     /** @returns {string} */
     timelineResolution() {
+      // the time-interval needs to be one i18n datetimeFormats, e.g `year`,
       return this.ngramResult.timeInterval
     },
     /** @returns {string[]} */
@@ -491,28 +511,30 @@ export default {
       const lastUnigram = this.unigrams[this.unigrams.length - 1]
       if (lastUnigram == null) return undefined
       return {
-        q: [lastUnigram],
+        q: [lastUnigram]
       }
-    },
+    }
   },
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
       const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters))
       const query = {
-        sq,
+        sq
       }
       if (this.unigrams.length > 0) query[QueryParameters.Unigrams] = this.unigrams.join(',')
       this.$router.push({
         name: 'searchNgrams',
-        query,
+        query
       })
     },
     /** @returns {Date} */
     getTooltipScopeTime(scope) {
       const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
+
       if (times.length > 1)
         console.warn(`More than one time found in tooltip data. Using first time`, times)
+
       return times[0]
     },
     /**
@@ -528,7 +550,8 @@ export default {
      * @param {boolean} withSuffix display ppm suffix
      */
     roundValueForDisplay(value, withSuffix = true) {
-      const v = this.$n(value, { notation: 'short' })
+      // max 2 decimals
+      const v = this.$n(value, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
       return withSuffix ? `${v} ppm` : v
     },
     /**
@@ -547,44 +570,45 @@ export default {
     },
     /** @param {string} term */
     handleSuggestedTermSelected(term) {
-      this.$set(this, 'unigrams', this.unigrams.concat([term]))
+      this['unigrams'] = this.unigrams.concat([term])
       this.$refs.embeddings.hide(true)
-    },
-  },
+    }
+  }
 }
 </script>
 
-<i18n>
-  {
-    "en": {
-      "tabs": {
-        "text": "search articles",
-        "images": "search images",
-        "ngrams": "ngrams"
+<i18n lang="json">
+{
+  "en": {
+    "tabs": {
+      "text": "search articles",
+      "images": "search images",
+      "ngrams": "ngrams"
+    },
+    "search_ngrams_title": "Search for Unigrams",
+    "search_ngrams_label": "Ngram viewer",
+    "missingUnigram": " ... (no unigram has been selected)",
+    "label": {
+      "timeline": {
+        "unigramTitle": "Yearly unigram mentions (per million)",
+        "unigramDescription": " "
       },
-      "missingUnigram": " ... (no unigram has been selected)",
-      "label": {
-        "timeline": {
-          "unigramTitle": "Yearly unigram mentions (per million)",
-          "unigramDescription": " "
-        },
-        "seeArticles": "See articles",
-        "noUnigram": "... look for a specific <em>unigram</em> in",
-        "withTrends": "{trends} in",
-        "availableFacets": "Available filters for ngram analysis",
-        "addSimilar": "add similar words"
-      },
-      "loading": "Loading ...",
-      "tooltipValueUnit": "per 1 million",
-      "downloadVisualisationData": "download data in JSON",
-      "tooltipAbsoluteValue": "{count} tokens"
-    }
+      "seeArticles": "See articles",
+      "noUnigram": "... look for a specific <em>unigram</em> in",
+      "withTrends": "{trends} in",
+      "availableFacets": "Available filters for ngram analysis",
+      "addSimilar": "add similar"
+    },
+    "loading": "Loading ...",
+    "tooltipValueUnit": "per 1 million",
+    "downloadVisualisationData": "download data in JSON",
+    "tooltipAbsoluteValue": "{count} tokens",
+    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts."
   }
+}
 </i18n>
 
-<style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
-
+<style scoped lang="css">
 .legend-dot {
   width: 0.5em;
   height: 0.5em;
@@ -605,5 +629,9 @@ export default {
   justify-content: center;
   background-color: #d4d4d412;
   backdrop-filter: blur(0.8px);
+}
+
+.tooltip h4 {
+  color: var(--white);
 }
 </style>

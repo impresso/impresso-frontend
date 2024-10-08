@@ -1,12 +1,15 @@
 <template>
-  <span v-on:click.prevent.stop="selectItem">
+  <div class="ItemSelector d-inline" v-on:click.prevent.stop="selectItem" title="See details">
     <slot></slot>
     <span v-if="label" class="ItemSelector_label underline">{{ label }}</span>
-    <span v-else class="dripicons-enter icon-link"></span>
-  </span>
+    <span v-else-if="!hideIcon" class="dripicons-enter icon-link"></span>
+  </div>
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+
 /**
  * Item selector component: given a specific item, display it on the Monitor component
  * <item-selector :uid="your-item.uid" :type="person" :search-index="search" >
@@ -16,52 +19,61 @@ export default {
   props: {
     uid: {
       type: String,
-      required: true,
+      required: true
     },
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     type: {
       type: String,
-      required: true,
+      required: true
     },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false,
+      default: false
     },
     label: {
-      type: String,
+      type: String
     },
     searchIndex: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
+    hideIcon: {
+      type: Boolean,
+      default: false
+    }
   },
+  emits: ['click'],
   methods: {
     selectItem() {
       const params = {
         item: {
           ...this.item,
-          uid: this.uid,
+          uid: this.uid
         },
-        type: this.type,
+        type: this.type
       }
       if (!this.defaultClickActionDisabled) {
-        this.$store.dispatch('selectionMonitor/show', {
+        this.selectionMonitorStore.show({
           item: this.item,
           searchIndex: this.searchIndex,
           type: this.type,
           applyCurrentSearchFilters: true,
+          displayCurrentSearchFilters: true
         })
       }
 
       this.$emit('click', {
         params,
-        defaultActionExecuted: !this.defaultClickActionDisabled,
+        defaultActionExecuted: !this.defaultClickActionDisabled
       })
-    },
+    }
   },
+  computed: {
+    ...mapStores(useSelectionMonitorStore)
+  }
 }
 </script>
 

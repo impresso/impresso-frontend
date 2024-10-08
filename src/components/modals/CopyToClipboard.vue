@@ -1,10 +1,10 @@
 <template>
-  <b-modal
+  <Modal
+    :show="isModalVisible"
     dialog-class="CopyToClipboard"
     content-class="CopyToClipboard__content drop-shadow rounded"
-    scrollable
     @shown="delayIframePreview"
-    visible
+    @close="handleModalClosed"
   >
     <template #modal-header="{ close }">
       <!-- Emulate built in modal header close button action -->
@@ -35,13 +35,13 @@
           <hr />
           <label class="font-weight-bold mt-2">{{ $t('iframe_code') }}</label>
 
-          <b-form-textarea
+          <textarea
             id="inputLink"
             ref="inputLink"
             readonly
             :value="[iframeCode, iframeCaptionCode].join('\n')"
-            class="mb-2"
-          />
+            class="mb-2 form-control"
+          ></textarea>
 
           <b-button variant="outline-primary" size="sm" v-on:click="copyArticleUrlToClipboard()"
             >{{ $t('copy_to_clipboard') }}
@@ -51,37 +51,37 @@
       <b-col>
         <div class="ml-2" v-if="isShown">
           <label for="form-input-title">{{ $t('article_title') }}</label>
-          <b-input-group size="sm">
+          <div class="input-group input-group-sm">
             <b-input
               id="form-input-title"
-              :value="title"
-              @input="debounceInput($event, 'title')"
+              :modelValue="title"
+              @update:modelValue="debounceInput($event, 'title')"
             ></b-input>
-          </b-input-group>
+          </div>
           <hr class="my-2" />
           <b-row>
             <b-col>
               <label for="form-input-bgcolor">{{ $t('options_bgcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
                       backgroundColor: `#${backgroundColor}`,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
-                  :value="backgroundColor"
-                  @input="debounceInput($event, 'backgroundColor')"
+                  :modelValue="backgroundColor"
+                  @update:modelValue="debounceInput($event, 'backgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small id="form-input-bgcolor-help" class="form-text text-muted">{{
                 $t('options_bgcolor_help')
@@ -89,8 +89,8 @@
             </b-col>
             <b-col>
               <label for="form-input-text-color">{{ $t('options_text_color') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
@@ -98,18 +98,18 @@
                       color: textColor,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     css
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-bgcolor"
-                  :value="textColor"
-                  @input="debounceInput($event, 'textColor')"
+                  :modelValue="textColor"
+                  @update:modelValue="debounceInput($event, 'textColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
 
               <small
                 id="form-input-bgcolor-help"
@@ -121,26 +121,26 @@
           <b-row>
             <b-col>
               <label for="form-input-ovcolor">{{ $t('options_ovcolor') }}</label>
-              <b-input-group size="sm">
-                <b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend">
                   <div
                     class="border border-dark text-center"
                     :style="{
                       backgroundColor: `#${overlayBackgroundColor}`,
                       height: '100%',
                       zIndex: 1,
-                      width: '30px',
+                      width: '30px'
                     }"
                   >
                     #
                   </div>
-                </b-input-group-prepend>
+                </div>
                 <b-input
                   id="form-input-ovcolor"
-                  :value="overlayBackgroundColor"
-                  @input="debounceInput($event, 'overlayBackgroundColor')"
+                  :modelValue="overlayBackgroundColor"
+                  @update:modelValue="debounceInput($event, 'overlayBackgroundColor')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-ovcolor-help" class="form-text text-muted">{{
                 $t('options_ovcolor_help')
               }}</small>
@@ -150,51 +150,51 @@
           <!-- printout coords in inut elements -->
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>x</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">x</div></div>
                 <b-input
                   id="form-input-coords-x"
                   type="number"
-                  :value="cx"
-                  @input="debounceInput($event, 'cx')"
+                  :modelValue="cx"
+                  @update:modelValue="debounceInput($event, 'cx')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>y</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">y</div></div>
                 <b-input
                   id="form-input-coords-y"
                   type="number"
-                  :value="cy"
-                  @input="debounceInput($event, 'cy')"
+                  :modelValue="cy"
+                  @update:modelValue="debounceInput($event, 'cy')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
           <b-row>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>w</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">w</div></div>
                 <b-input
                   id="form-input-coords-w"
                   type="number"
-                  :value="cw"
-                  @input="debounceInput($event, 'cw')"
+                  :modelValue="cw"
+                  @update:modelValue="debounceInput($event, 'cw')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
             <b-col>
-              <b-input-group size="sm" class="mt-1">
-                <b-input-group-prepend is-text>h</b-input-group-prepend>
+              <div class="input-group input-group-sm mt-1">
+                <div class="input-group-prepend"><div class="input-group-text">h</div></div>
                 <b-input
                   id="form-input-coords-h"
                   type="number"
-                  :value="ch"
-                  @input="debounceInput($event, 'ch')"
+                  :modelValue="ch"
+                  @update:modelValue="debounceInput($event, 'ch')"
                 >
                 </b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
 
@@ -203,43 +203,41 @@
           <label for="form-input-ratio" class="mt-2">{{ $t('options_customise_viewport') }}</label>
           <!-- adapt to article region by default -->
 
-          <b-form-radio-group v-model="fitCoords" v-slot="{ ariaDescribedby }">
-            <b-form-radio :value="true" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_ratio') }}
-            </b-form-radio>
-            <b-form-radio :value="false" :aria-describedby="ariaDescribedby" name="some-radios">
-              {{ $t('fixed_height') }}
-            </b-form-radio>
-          </b-form-radio-group>
+          <radio-group
+            :modelValue="String(fitCoords)"
+            :options="fitCoordsOptions"
+            @update:modelValue="fitCoords = $event == 'true'"
+            type="radio"
+          />
 
           <label for="form-input-max-height" class="mt-2">{{
             $t('options_customise_viewport_max_height')
           }}</label>
 
-          <b-input-group size="sm">
-            <b-input-group-prepend is-text>px</b-input-group-prepend>
+          <div class="input-group input-group-sm">
+            <div class="input-group-prepend"><div class="input-group-text">px</div></div>
             <b-input
               id="form-input-max-height"
               type="number"
-              :value="maxHeight"
-              @input="debounceInput($event, 'maxHeight')"
+              :modelValue="maxHeight"
+              @update:modelValue="debounceInput($event, 'maxHeight')"
             ></b-input>
-          </b-input-group>
+          </div>
           <b-row class="mt-2">
             <b-col>
               <label for="form-input-caption-padding">{{
                 $t('options_customise_caption_padding')
               }}</label>
 
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-caption-padding"
                   type="number"
-                  :value="captionPadding"
-                  @input="debounceInput($event, 'captionPadding')"
+                  :modelValue="captionPadding"
+                  @update:modelValue="debounceInput($event, 'captionPadding')"
                 ></b-input>
-              </b-input-group>
+              </div>
               <small id="form-input-caption-padding-help" class="form-text text-muted">{{
                 $t('options_customise_caption_padding_help')
               }}</small>
@@ -248,32 +246,30 @@
               <label for="form-input-viewport-coords-margin">
                 {{ $t('options_customise_viewport_coords_margin') }}
               </label>
-              <b-input-group size="sm">
-                <b-input-group-prepend is-text>px</b-input-group-prepend>
+              <div class="input-group input-group-sm">
+                <div class="input-group-prepend"><div class="input-group-text">px</div></div>
                 <b-input
                   id="form-input-viewport-coords-margin"
                   type="number"
-                  :value="coordsMargin"
-                  @input="debounceInput($event, 'coordsMargin')"
+                  :modelValue="coordsMargin"
+                  @update:modelValue="debounceInput($event, 'coordsMargin')"
                 ></b-input>
-              </b-input-group>
+              </div>
             </b-col>
           </b-row>
         </div>
       </b-col>
     </b-row>
-    <!-- {{ widgetLink }}
-    <b-input-group prepend="URL">
-      <template v-slot:append>
-
-      </template>
-    </b-input-group> -->
-  </b-modal>
+  </Modal>
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+import { useNotificationsStore } from '@/stores/notifications'
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
+import RadioGroup from '@/components/layout/RadioGroup.vue'
+import Modal from '@/components/base/Modal.vue'
 
 export default {
   data: () => ({
@@ -293,19 +289,23 @@ export default {
     title: '',
     newspaper: null,
     partner: null,
+    isModalVisible: false
   }),
-  model: {
-    prop: 'article',
-  },
   props: {
-    article: Object,
+    article: Object
   },
   computed: {
+    fitCoordsOptions() {
+      return [
+        { value: 'true', text: this.$t('fixed_ratio') },
+        { value: 'false', text: this.$t('fixed_height') }
+      ]
+    },
     customisation() {
       const params = [
         `backgroundColor=${this.backgroundColor}`,
         `overlayBackgroundColor=${this.overlayBackgroundColor}`,
-        `coordsMargin=${this.coordsMargin}`,
+        `coordsMargin=${this.coordsMargin}`
       ]
       if (this.fitCoords) {
         params.push(`coords=${this.cx},${this.cy},${this.cw},${this.ch}`)
@@ -314,13 +314,13 @@ export default {
     },
     iframeCaptionCode() {
       const date = this.$d(this.article.date, 'long')
-      const url = `${process.env.VUE_APP_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
+      const url = `${import.meta.env.VITE_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
       return [
         `<div style="color: ${this.textColor}">`,
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
         `<p style="padding: 0 ${this.captionPadding}px;  margin: 0; font-size: .8em"><b>${this.article.newspaper.name}</b> ${this.computedPartner}</p>`,
         `<p style="padding: 0 ${this.captionPadding}px ${this.captionPadding}px; margin: 0; font-size: .8em">${date}</p>`,
-        '</div>',
+        '</div>'
       ].join('')
     },
     iframeCode() {
@@ -331,7 +331,7 @@ export default {
         `<iframe src="${this.widgetLink}" style="position:absolute;top:0;left:0;width:100%;height:100%;"
             frameborder="0" allow="autoplay; fullscreen"
             allowfullscreen><p>Your browser does not support iframes.</p></iframe>`,
-        '</div>',
+        '</div>'
       ].join('')
     },
     computedCoords() {
@@ -351,18 +351,19 @@ export default {
     getIframeWrapperStyle() {
       return {
         // minHeight: '200px',
-        backgroundColor: `#${this.backgroundColor}`,
+        backgroundColor: `#${this.backgroundColor}`
       }
     },
     widgetLink() {
-      const { base: urlPrefix } = this.$router.options
-      return `${window.location.origin}${urlPrefix}widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
-    },
+      const { base: urlPrefix } = this.$router.options.history
+      const formattedUrlPrefix = urlPrefix.startsWith('/') ? urlPrefix : `/${urlPrefix}`
+      return `${window.location.origin}${formattedUrlPrefix}/widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
+    }
   },
   mounted() {
-    this.$root.$on('bv::modal::hidden', () => {
-      this.$emit('closed')
-    })
+    setTimeout(() => {
+      this.isModalVisible = true
+    }, 0)
     // set initial coord value from article
     if (this.article?.regions?.length) {
       this.setCoordsFromArticleRegions()
@@ -390,6 +391,11 @@ export default {
     })
   },
   methods: {
+    handleModalClosed() {
+      this.isModalVisible = false
+      this.$emit('closed')
+    },
+    ...mapActions(useNotificationsStore, ['addNotification']),
     debounceInput(value, prop) {
       clearTimeout(this.delayTimer)
       this.delayTimer = setTimeout(() => {
@@ -410,12 +416,7 @@ export default {
       const title = this.$t('url_copied_title')
       const message = this.$tc('url_copied_message')
 
-      this.$bvToast.toast(message + 'sticazzi', {
-        title: title,
-        variant: 'success',
-        toaster: 'b-toaster-bottom-center',
-        solid: true,
-      })
+      this.addNotification({ title, message, type: 'success' })
     },
     setCoordsFromArticleRegions() {
       let x0 = Infinity
@@ -446,10 +447,14 @@ export default {
         this.cx,
         this.cy,
         this.cw,
-        this.ch,
+        this.ch
       )
-    },
+    }
   },
+  components: {
+    RadioGroup,
+    Modal
+  }
 }
 </script>
 
@@ -497,17 +502,17 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "title": "title",
     "article_title": "Article title",
-    "copy_to_clipboard" : "Copy to clipboard",
+    "copy_to_clipboard": "Copy to clipboard",
     "iframe_preview": "iframe preview",
-    "iframe_code" : "copy & paste html code",
-    "url_copied_title" : "URL copied to clipboard",
-    "url_copied_message" : "{n} copied to clipboard",
-    "modal_title_share_article" : "share newspaper article",
+    "iframe_code": "copy & paste html code",
+    "url_copied_title": "URL copied to clipboard",
+    "url_copied_message": "{n} copied to clipboard",
+    "modal_title_share_article": "share newspaper article",
     "options_bgcolor": "background color",
     "options_bgcolor_help": "format hex RGB",
     "options_text_color": "text color",

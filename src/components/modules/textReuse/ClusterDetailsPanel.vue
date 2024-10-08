@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="cluster-details-panel">
     <!-- header -->
     <div class="d-flex">
@@ -6,9 +6,9 @@
         <span>#{{ clusterId }}</span>
       </h2>
 
-      <div class="lexical-overlap" v-b-tooltip.hover :title="$t('lexicalOverlap')">
+      <WithTooltip class="lexical-overlap" :content="$t('lexicalOverlap')">
         {{$n(cluster.lexicalOverlap / 100, { style: 'percent', maximumFractionDigits: 0 })}}
-      </div>
+      </WithTooltip>
 
       <span class="px-1">–</span>
 
@@ -30,24 +30,25 @@
       </div>
 
       <!-- time span -->
-      <timeline-with-span
-        v-b-tooltip.hover.bottom.html
-        :title="$t('filters.daterange.item', {
-          start: $d(new Date(cluster.timeCoverage.from), 'short'),
-          end: $d(new Date(cluster.timeCoverage.to), 'short')
-        })"
-        :height="30"
-        :startDate="impressoCollectionStartDate"
-        :endDate="impressoCollectionEndDate"
-        :spanStartDate="new Date(cluster.timeCoverage.from)"
-        :spanEndDate="new Date(cluster.timeCoverage.to)" />
+      <WithTooltip placement="bottom" is-html :content="$t('filters.daterange.item', {
+        start: $d(new Date(cluster.timeCoverage.from), 'short'),
+        end: $d(new Date(cluster.timeCoverage.to), 'short')
+      })">
+        <timeline-with-span
+          :height="30"
+          :startDate="impressoCollectionStartDate"
+          :endDate="impressoCollectionEndDate"
+          :spanStartDate="new Date(cluster.timeCoverage.from)"
+          :spanEndDate="new Date(cluster.timeCoverage.to)" />
+      </WithTooltip>
     </div>
   </div>
 </template>
 
 <script>
-import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan';
-import Ellipsis from '@/components/modules/Ellipsis';
+import TimelineWithSpan from '@/components/modules/textReuse/TimelineWithSpan.vue';
+import Ellipsis from '@/components/modules/Ellipsis.vue';
+import WithTooltip from '@/components/base/WithTooltip.vue'
 
 export default {
   props: {
@@ -62,6 +63,7 @@ export default {
   components: {
     TimelineWithSpan,
     Ellipsis,
+    WithTooltip,
   },
   computed: {
     impressoCollectionStartDate() {
@@ -82,7 +84,7 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
+  @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
   .cluster-details-panel {
     h2{
@@ -114,7 +116,7 @@ export default {
 
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "clusterLabel": "cluster",

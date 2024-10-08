@@ -1,7 +1,6 @@
-<template lang="html">
+<template>
   <p class="search-query-summary">
     <span v-html="reducedSummary" />
-    <!-- <span v-else v-html="$t('extendedSummary', summaryProps)"/> -->
   </p>
 </template>
 
@@ -19,7 +18,7 @@ export default {
     searchQuery: Object,
     limitNumberOfFilterItems: {
       type: Number,
-      default: -1,
+      default: -1
     },
     enumerables: {
       type: Array,
@@ -32,12 +31,12 @@ export default {
         'language',
         'country',
         'year',
-        'accessRight',
-      ],
-    },
+        'accessRight'
+      ]
+    }
   },
   data: () => ({
-    newspaperLabels: undefined,
+    newspaperLabels: undefined
   }),
   computed: {
     reducedSummary() {
@@ -71,7 +70,7 @@ export default {
         translationTable.newspaper = this.getTranslation({
           filters: filtersIndex.newspaper,
           type: 'newspaper',
-          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.'
         })
       }
 
@@ -79,19 +78,19 @@ export default {
         translationTable.textReuseCluster = this.getTranslation({
           filters: filtersIndex.textReuseCluster,
           type: 'textReuseCluster',
-          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.',
+          prefix: isOnFront || hasDaterange ? 'pubof.' : 'pub.'
         })
       }
 
       ;[
         'textReuseClusterSize',
         'textReuseClusterLexicalOverlap',
-        'textReuseClusterDayDelta',
+        'textReuseClusterDayDelta'
       ].forEach(type => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
             filters: filtersIndex[type],
-            type,
+            type
           })
         }
       })
@@ -102,13 +101,13 @@ export default {
             enumerables.push(
               this.getTranslation({
                 filters: filtersIndex[type],
-                type,
-              }),
+                type
+              })
             )
           } else {
             translationTable[type] = this.getTranslation({
               filters: filtersIndex[type],
-              type,
+              type
             })
           }
         }
@@ -126,7 +125,7 @@ export default {
     },
     summaryProps() {
       return ''
-    },
+    }
   },
   watch: {
     searchQuery: {
@@ -138,8 +137,8 @@ export default {
         }
         this.newspaperLabels = newspaperLabels
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
     isEnumerable(type) {
@@ -153,7 +152,7 @@ export default {
             const [start, end] = getStarAndEndDates(item)
             t = `from <span class="date">${this.$d(
               start,
-              'compactUtc',
+              'compactUtc'
             )}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`
           }
           break
@@ -175,8 +174,9 @@ export default {
           break
         case 'title':
         case 'string':
-          t = `<span class="highlight precision-${item.precision}">${item.uid ||
-            item.q}</span>${item.distance || ''}`
+          t = `<span class="highlight precision-${item.precision}">${
+            item.uid || item.q
+          }</span>${item.distance || ''}`
           break
         case 'topic':
           if (item.htmlExcerpt) {
@@ -217,14 +217,15 @@ export default {
                   this.getLabel({
                     item,
                     type: filter.type,
-                    filter,
+                    filter
                   }),
-                  '</span>',
-                ].join(''),
+                  '</span>'
+                ].join('')
               )
               .join(` <span class="operator">${operator}</span> `) +
-            ` [... ${filter.items.length -
-              this.limitNumberOfFilterItems} additional options]</span>`
+            ` [... ${
+              filter.items.length - this.limitNumberOfFilterItems
+            } additional options]</span>`
           )
         }
         return filter.items
@@ -234,17 +235,17 @@ export default {
               this.getLabel({
                 item,
                 type: filter.type,
-                filter,
+                filter
               }),
-              '</span>',
-            ].join(''),
+              '</span>'
+            ].join('')
           )
           .join(` <span class="operator">${operator}</span> `)
       } else if (filter.type === 'string') {
         return this.getLabel({
           item: filter,
           type: filter.type,
-          filter,
+          filter
         })
       }
       console.warn('filter not valid:', filter)
@@ -267,14 +268,12 @@ export default {
           acc.push(
             this.$t(`${context}.${type}`, {
               min: sections[context][0].q[0],
-              max: sections[context][0].q[1],
-            }),
+              max: sections[context][0].q[1]
+            })
           )
           return acc
         }, [])
         .join('; ')
-
-      return type
     },
     getTranslation({ filters, type, prefix = '' }) {
       const sections = this.getContextSections(filters)
@@ -312,8 +311,8 @@ export default {
               this.$tc(
                 `${context}.${type}.reduced`,
                 // number of items in total, as it is reduced
-                sections[context].reduce((sum, d) => sum + d.items.length, 0),
-              ),
+                sections[context].reduce((sum, d) => sum + d.items.length, 0)
+              )
             )
           } else {
             const parts = []
@@ -322,8 +321,8 @@ export default {
         }
       })
       return results.join('; ')
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss">
@@ -332,14 +331,20 @@ export default {
   span.item.topic,
   span.item.location,
   span.item.daterange > span.date {
+    text-transform: uppercase;
     font-family: var(--bs-font-sans-serif);
-    font-variant: small-caps;
-    text-transform: lowercase;
+    font-size: var(--impresso-font-size-smallcaps);
+    font-variant: normal;
+    letter-spacing: var(--impresso-letter-spacing-smallcaps);
+    font-weight: var(--impresso-wght-smallcaps);
+    font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
   }
+
   span.item.collection {
     font-family: var(--bs-font-sans-serif);
     color: #049dae;
   }
+
   span.item.newspaper,
   span.item.country {
     color: black;
@@ -348,85 +353,89 @@ export default {
     font-weight: var(--impresso-wght-bold);
     font-variation-settings: 'wght' var(--impresso-wght-bold);
   }
+
   .precision-exact::before,
   .precision-exact::after {
     content: '"';
     font-weight: bold;
   }
+
   .precision-fuzzy::after {
     content: '~';
     font-weight: bold;
   }
+
   .precision-soft::before {
     content: '[';
     font-weight: bold;
   }
+
   .precision-soft::after {
     content: ']';
     font-weight: bold;
   }
 }
 </style>
-<i18n>
-  {
-    "en": {
-      "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
-      "isFront": "appearing on the <em>front page</em>",
-      "include": {
-        "accessRight": "available as",
-        "topic": "with topic",
-        "pub": {
-          "newspaper": "published in",
-          "textReuseCluster": "in clusters"
-        },
-        "pubof": {
-          "newspaper": "in",
-          "textReuseCluster" : "clustered in"
-        },
+<i18n lang="json">
+{
+  "en": {
+    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
+    "isFront": "appearing on the <em>front page</em>",
+    "include": {
+      "accessRight": "available as",
+      "topic": "with topic",
+      "pub": {
         "newspaper": "published in",
-        "person": "mentioning",
-        "location": "mentioning",
-        "string": "containing",
-        "title": "where title includes",
-        "daterange": "published",
-        "year": "published in",
-        "collection": "saved in",
-        "language": "written in",
-        "country": "printed in",
-        "type": "- tagged as",
-        "year": "in year",
-        "textReuseCluster": "in clusters",
-        "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-        "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+        "textReuseCluster": "appearing in clusters"
       },
-      "exclude": {
-        "accessRight": "not available as",
-        "topic": "without topic",
-        "pub": {
-          "newspaper": "not published in",
-          "textReuseCluster": "not in clusters"
-        },
-        "pubof": {
-          "newspaper": "not published in"
-        },
+      "pubof": {
+        "newspaper": "in",
+        "textReuseCluster": "clustered in"
+      },
+      "newspaper": "published in",
+      "person": "mentioning",
+      "location": "mentioning",
+      "string": "containing",
+      "title": "where title includes",
+      "daterange": "published",
+      "year": "published in",
+      "collection": "saved in",
+      "language": "written in",
+      "country": "printed in",
+      "type": "- tagged as",
+      "year": "in year",
+      "textReuseCluster": "showing up in clusters",
+      "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
+      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+    },
+    "exclude": {
+      "accessRight": "not available as",
+      "topic": "without topic",
+      "pub": {
         "newspaper": "not published in",
-        "person": "not mentioning",
-        "location": "not mentioning",
-        "string": "not containing",
-        "title": "where title does not include",
-        "daterange": "not published",
-        "year": "not published in",
-        "collection": "not saved in",
-        "language": "not written in",
-        "country": "not printed in",
-        "type": "- not tagged as",
-        "year": "not in year",
-        "textReuseCluster": "not in clusters",
-        "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-        "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
-      }
+        "textReuseCluster": "not in clusters"
+      },
+      "pubof": {
+        "newspaper": "not published in"
+      },
+      "newspaper": "not published in",
+      "person": "not mentioning",
+      "location": "not mentioning",
+      "string": "not containing",
+      "title": "where title does not include",
+      "daterange": "not published",
+      "year": "not published in",
+      "collection": "not saved in",
+      "language": "not written in",
+      "country": "not printed in",
+      "type": "- not tagged as",
+      "year": "not in year",
+      "textReuseCluster": "not in clusters",
+      "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
+      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
     }
   }
+}
 </i18n>

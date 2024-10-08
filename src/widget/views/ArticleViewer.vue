@@ -7,18 +7,18 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import mitt from 'mitt'
 import { articles } from '@/services'
 import Article from '@/models/Article'
 import { validateOrIgnore } from '../logic/props'
-import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer'
+import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue'
 
 export default {
   data: () => ({
     imageURL: null,
     article: null,
-    handler: new Vue(),
-    isOSVieverLoaded: false,
+    handler: mitt(),
+    isOSVieverLoaded: false
   }),
   props: {
     backgroundSize: String,
@@ -26,10 +26,10 @@ export default {
     cssFilter: String,
     overlayBackgroundColor: String,
     coordsMargin: String,
-    coords: String,
+    coords: String
   },
   components: {
-    OpenSeadragonViewer,
+    OpenSeadragonViewer
   },
   mounted() {
     console.info('[ArticleViewer] mounted:', this.$route.params, this.$route.query)
@@ -65,14 +65,14 @@ export default {
     },
     getBackgroundStyle() {
       return {
-        backgroundColor: validateOrIgnore('backgroundColor', this.backgroundColor),
+        backgroundColor: validateOrIgnore('backgroundColor', this.backgroundColor)
       }
     },
     getOverlayStyle() {
       return {
-        '--overlay-color': validateOrIgnore('overlayBackgroundColor', this.overlayBackgroundColor),
+        '--overlay-color': validateOrIgnore('overlayBackgroundColor', this.overlayBackgroundColor)
       }
-    },
+    }
   },
   methods: {
     hasValidCoords() {
@@ -90,15 +90,15 @@ export default {
     fitBounds(viewer, coords) {
       const margin = isNaN(this.coordsMargin) ? 10 : parseInt(this.coordsMargin, 10)
       const rect = viewer.viewport.imageToViewportRectangle(
-        ...[coords[0] - margin, coords[1] - margin, coords[2] + margin * 2, coords[3] + margin * 2],
+        ...[coords[0] - margin, coords[1] - margin, coords[2] + margin * 2, coords[3] + margin * 2]
       )
       viewer.viewport.fitBoundsWithConstraints(rect)
     },
     initViewer() {
       const self = this
       this.isOSVieverLoaded = false
-      this.handler.$emit('destroy')
-      this.handler.$emit('init', {
+      this.handler.emit('destroy')
+      this.handler.emit('init', {
         sequenceMode: true,
         showSequenceControl: false,
         initialPage: 0,
@@ -108,12 +108,12 @@ export default {
         minZoomImageRatio: 0.5,
         gestureSettingsMouse: {
           clickToZoom: false,
-          dblClickToZoom: true,
+          dblClickToZoom: true
         },
-        visibilityRatio: 0.5,
+        visibilityRatio: 0.5
       })
 
-      this.handler.$emit('dispatch', viewer => {
+      this.handler.emit('dispatch', viewer => {
         viewer.addHandler('tile-loaded', () => {
           if (self.isOSVieverLoaded) {
             return
@@ -123,7 +123,7 @@ export default {
             self.article.regions.length,
             'style:',
             self.getOverlayStyle,
-            self.coords,
+            self.coords
           )
           self.isOSVieverLoaded = true
 
@@ -147,19 +147,19 @@ export default {
               region.coords.x,
               region.coords.y,
               region.coords.w,
-              region.coords.h,
+              region.coords.h
             )
             viewer.addOverlay(overlay, rect)
             console.info('overlay-region', region.coords)
           })
         })
       })
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 div.overlay-region {
   // background-color: $clr-accent-secondary;

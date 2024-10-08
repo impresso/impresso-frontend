@@ -7,16 +7,20 @@
       contextTag="search"
       @changed="handleFiltersChanged"
     >
-      <div slot="header" slot-scope="{ focusHandler }">
+      <template v-slot:header="{ focusHandler }">
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
-      </div>
+      </template>
       <div>
-        <b-button v-b-modal.embeddings class="float-right mx-3 btn-sm"
-          >{{ $t('label_embeddings') }}
+        <b-button
+          class="float-right mx-3 btn-sm"
+          @click="showModal('embeddings')"
+          data-testid="add-similar-words-button"
+        >
+          {{ $t('label_embeddings') }}
           <info-button class="ml-1" name="how-are-word-embeddings-generated" />
         </b-button>
-        <b-form-group class="mx-3">
-          <b-form-checkbox v-model="isFront" switch v-bind:value="true">
+        <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
+          <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
           </b-form-checkbox>
         </b-form-group>
@@ -24,7 +28,7 @@
     </search-sidebar>
 
     <i-layout-section main>
-      <div slot="header">
+      <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
           <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
             <label class="mr-1">{{ $t('label_group') }}</label>
@@ -33,6 +37,7 @@
               v-bind:options="groupByOptions"
               size="sm"
               variant="outline-primary"
+              data-testid="group-by-dropdown"
             ></i-dropdown>
           </b-navbar-nav>
           <b-navbar-nav class="px-3 py-3 border-right">
@@ -42,22 +47,10 @@
               v-bind:options="orderByOptions"
               size="sm"
               variant="outline-primary"
+              right
+              data-testid="order-by-dropdown"
             ></i-dropdown>
           </b-navbar-nav>
-          <!-- <b-navbar-nav class="px-3 py-3">
-            <label class="mr-1">{{ $t('label_display') }}</label>
-            <b-nav-form>
-              <b-form-radio-group
-                v-model="displayStyle"
-                button-variant="outline-primary"
-                size="sm"
-                buttons
-              >
-                <b-form-radio value="list">{{ $t('display_button_list') }}</b-form-radio>
-                <b-form-radio value="tiles">{{ $t('display_button_tiles') }}</b-form-radio>
-              </b-form-radio-group>
-            </b-nav-form>
-          </b-navbar-nav> -->
         </b-navbar>
 
         <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
@@ -80,6 +73,7 @@
           <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
             <ellipsis v-bind:initialHeight="60">
               <search-results-summary
+                :isLoading="isLoadingResults"
                 @onSummary="onSummary"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
@@ -95,8 +89,8 @@
               :to="{
                 name: 'compare',
                 query: {
-                  left: searchQueryHash,
-                },
+                  left: searchQueryHash
+                }
               }"
             >
               {{ $t('actions.compare') }}
@@ -112,7 +106,7 @@
               <b-dropdown-item
                 v-if="selectedItems.length > 0"
                 class="p-2 small-caps"
-                v-b-modal.nameSelectionCollection
+                @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
                 {{ $tc('add_n_to_collection', selectedItems.length) }}
@@ -125,7 +119,7 @@
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('selected_export_csv') }}
               </b-dropdown-item>
-              <b-dropdown-item class="p-2 small-caps" v-b-modal.nameCollection>
+              <b-dropdown-item class="p-2 small-caps" @click="showModal('nameCollection')">
                 <span class="dripicons-archive pr-1"></span>
                 {{ $t('query_add_to_collection') }}
               </b-dropdown-item>
@@ -138,41 +132,40 @@
             <!-- <b-form-checkbox
               v-if="isLoggedIn"
               class="mx-1"
-              v-b-tooltip.hover.topleft.html.o100.d500
               v-bind:title="$t('select_all')"
               v-bind:indeterminate="this.allIndeterminate"
-              v-bind:checked="this.allSelected"
-              v-on:change="toggleSelectAll"
+              v-bind:modelValue="this.allSelected"
+              @update:modelValue="toggleSelectAll"
             >
             </b-form-checkbox> -->
           </b-navbar-nav>
         </b-navbar>
-      </div>
+      </template>
 
-      <b-modal
-        hide-footer
-        scrollable
-        body-class="m-0 p-0"
+      <Modal
         id="nameSelectionCollection"
-        ref="nameSelectionCollection"
-        v-on:shown="nameSelectedCollectionOnShown()"
-        v-bind:title="$tc('add_n_to_collection', selectedItems.length)"
+        hide-footer
+        body-class="m-0 p-0"
+        :title="$tc('add_n_to_collection', selectedItems.length)"
+        :show="isModalVisible('nameSelectionCollection')"
+        @shown="nameSelectedCollectionOnShown()"
       >
         <collection-add-to-list :items="selectedItems" />
-      </b-modal>
+      </Modal>
 
-      <b-modal
+      <Modal
         id="nameCollection"
-        ref="nameCollection"
-        v-bind:title="$t('query_add_to_collection')"
-        v-on:shown="nameCollectionOnShown()"
-        v-bind:ok-disabled="nameCollectionOkDisabled"
-        v-on:ok="createQueryCollection()"
+        :title="$t('query_add_to_collection')"
+        :show="isModalVisible('nameCollection')"
+        :okDisabled="nameCollectionOkDisabled"
+        @close="hideModal('nameCollection')"
+        @ok="createQueryCollection()"
+        @shown="nameCollectionOnShown()"
       >
         <form v-on:submit.stop.prevent="createQueryCollection()">
           <label for="inputName">Name</label>
           <b-form-input
-            v-on:input="nameCollectionOnInput"
+            @update:modelValue="nameCollectionOnInput"
             type="text"
             v-bind:placeholder="$t('Collection_Name')"
             name="inputName"
@@ -194,15 +187,22 @@
             stored.
           </p>
         </div>
-      </b-modal>
+      </Modal>
 
-      <b-modal hide-footer id="embeddings" ref="embeddings" v-bind:title="$t('label_embeddings')">
+      <Modal
+        hide-footer
+        id="embeddings"
+        :title="$t('label_embeddings')"
+        :show="isModalVisible('embeddings')"
+        @close="hideModal('embeddings')"
+      >
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
-      </b-modal>
+      </Modal>
 
       <div class="p-1">
         <b-container fluid>
-          <b-row v-if="displayStyle === 'list'">
+          <div ref="searchResultsFirstElement" />
+          <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
@@ -212,7 +212,6 @@
                 v-bind:checkbox="false"
                 v-on:toggleSelected="toggleSelected(searchResult)"
                 v-bind:checked="isChecked(searchResult)"
-                v-on:click="onClickResult(searchResult)"
                 v-model="searchResults[index]"
               />
             </b-col>
@@ -237,10 +236,11 @@
           </b-row>
         </b-container>
         <div class="my-5" />
-        <div class="fixed-pagination-footer p-1 m-0" slot="footer">
+        <div class="fixed-pagination-footer p-1 m-0">
           <pagination
             v-if="searchResults.length"
-            v-model="paginationCurrentPage"
+            :current-page="paginationCurrentPage"
+            @change="$event => (paginationCurrentPage = $event)"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps"
@@ -252,21 +252,23 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/Autocomplete'
-import Pagination from '@/components/modules/Pagination'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem'
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary'
-import CollectionAddTo from '@/components/modules/CollectionAddTo'
-import CollectionAddToList from '@/components/modules/CollectionAddToList'
-import Ellipsis from '@/components/modules/Ellipsis'
-import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch'
-import SearchSidebar from '@/components/modules/SearchSidebar'
-import InfoButton from '@/components/base/InfoButton'
+import { mapStores } from 'pinia'
+import Autocomplete from '@/components/Autocomplete.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
+import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import CollectionAddToList from '@/components/modules/CollectionAddToList.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
+import Modal from '@/components/base/Modal.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -275,8 +277,11 @@ import {
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
-  collectionsItems as collectionsItemsService,
+  collectionsItems as collectionsItemsService
 } from '@/services'
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
+import { Navigation } from '@/plugins/Navigation'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -290,7 +295,7 @@ const FACET_TYPES_S = [
   'accessRight',
   'partner',
   'year',
-  'contentLength',
+  'contentLength'
 ]
 
 const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS)
@@ -309,22 +314,34 @@ export default {
     /** @type {Facet[]} */
     facets: [],
     /** @type {Filter[]} */
-    filtersWithItems: [],
+    // filtersWithItems: [],
+    visibleModal: null,
+    isLoadingResults: false
   }),
+  props: {
+    filtersWithItems: {
+      type: Array,
+      default: () => []
+    }
+  },
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
+    $navigation() {
+      return new Navigation(this)
+    },
     searchQuery: {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: '1',
-        },
-      }),
+          p: '1'
+        }
+      })
     },
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map(value => ({
         value,
         text: this.$t(`order_${value}`),
-        disabled: value !== 'articles',
+        disabled: value !== 'articles'
       }))
     },
     orderByOptions() {
@@ -333,7 +350,7 @@ export default {
         const direction = value.indexOf('-') === 0 ? 'desc' : 'asc'
         return {
           value,
-          text: this.$t(`sort.${label}.${direction}`),
+          text: this.$t(`sort.${label}.${direction}`)
         }
       })
     },
@@ -345,12 +362,12 @@ export default {
         this.handleFiltersChanged(
           this.filters
             .filter(d => d.type !== 'isFront')
-            .concat(val ? [FilterFactory.create({ type: 'isFront' })] : []),
+            .concat(val ? [FilterFactory.create({ type: 'isFront' })] : [])
         )
-      },
+      }
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     orderBy: {
       get() {
@@ -358,9 +375,9 @@ export default {
       },
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          orderBy,
+          orderBy
         })
-      },
+      }
     },
     groupBy: {
       get() {
@@ -368,9 +385,9 @@ export default {
       },
       set(groupBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          groupBy,
+          groupBy
         })
-      },
+      }
     },
     displayStyle: {
       get() {
@@ -378,19 +395,20 @@ export default {
       },
       set(displayStyle) {
         this.$navigation.updateQueryParametersWithHistory({
-          displayStyle,
+          displayStyle
         })
-      },
+      }
     },
     paginationCurrentPage: {
       get() {
         return parseInt(this.$route.query.p ?? 1, 10)
       },
       set(p) {
+        console.log('ooo', p)
         this.$navigation.updateQueryParametersWithHistory({
-          p,
+          p
         })
-      },
+      }
     },
     paginationPerPage: {
       get() {
@@ -398,9 +416,9 @@ export default {
       },
       set(limit) {
         this.$navigation.updateQueryParametersWithHistory({
-          limit,
+          limit
         })
-      },
+      }
     },
     /** @returns {Filter[]} */
     enrichedFilters() {
@@ -423,7 +441,7 @@ export default {
     filtersIndex: {
       get() {
         return this.searchQuery.filtersIndex
-      },
+      }
     },
     searchServiceQuery: {
       get() {
@@ -432,36 +450,45 @@ export default {
           groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
-          page: this.paginationCurrentPage,
+          page: this.paginationCurrentPage
         }
         return query
-      },
+      }
     },
     paginationData() {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
-        total: this.paginationTotalRows,
+        total: this.paginationTotalRows
       }
     },
     searchQueryHash() {
       return new SearchQuery({
-        filters: this.filters,
+        filters: this.filters
       }).getSerialized({ serializer: 'protobuf' })
-    },
+    }
   },
   mounted() {
     this.facets = buildEmptyFacets(FACET_TYPES)
   },
   methods: {
+    isModalVisible(name) {
+      return this.visibleModal === name
+    },
+    showModal(name) {
+      this.visibleModal = name
+    },
+    hideModal() {
+      this.visibleModal = null
+    },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: filters.concat(this.ignoredFilters),
+        filters: filters.concat(this.ignoredFilters)
       })
     },
     nameSelectedCollectionOnShown() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS')
+      return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
       this.inputDescription = msg
@@ -517,39 +544,39 @@ export default {
           issue_uid: searchResult.issue.uid,
           page_number: searchResult.pages[0]?.num,
           page_uid: searchResult.pages[0]?.uid,
-          article_uid: searchResult.uid,
-        },
+          article_uid: searchResult.uid
+        }
       })
     },
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
-        this.$refs.nameCollection.hide()
-        this.$store
-          .dispatch('collections/ADD_COLLECTION', {
+        this.hideModal('nameCollection')
+        return this.collectionsStore
+          .addCollection({
             name: this.inputName,
-            description: this.inputDescription,
+            description: this.inputDescription
           })
           .then(collection => {
-            const payload = {
+            return searchService.create({
+              group_by: 'articles',
               filters: this.filters.map(getFilterQuery),
-              collectionUid: collection.uid,
-            }
-            this.$store.dispatch('search/CREATE_COLLECTION_FROM_QUERY', payload)
+              collection_uid: collection.uid
+            })
           })
       }
     },
     exportQueryCsv() {
       exporterService.create(
         {
-          description: this.inputDescription,
+          description: this.inputDescription
         },
         {
           query: {
             group_by: 'articles',
             filters: this.filters.map(getFilterQuery),
-            format: 'csv',
-          },
-        },
+            format: 'csv'
+          }
+        }
       )
     },
     exportSelectedCsv() {
@@ -562,17 +589,17 @@ export default {
             filters: [
               {
                 type: 'uid',
-                q: uids,
-              },
+                q: uids
+              }
             ],
-            format: 'csv',
-          },
-        },
+            format: 'csv'
+          }
+        }
       )
     },
     nameCollectionOnShown() {
       this.inputName = ''
-      this.$refs.inputName.focus()
+      this.$refs.inputName.$el.focus()
     },
     nameCollectionOnInput() {
       this.inputName.trim()
@@ -580,7 +607,7 @@ export default {
     },
     reset() {
       this.searchQuery = new SearchQuery({
-        filters: this.ignoredFilters,
+        filters: this.ignoredFilters
       })
     },
     updateselectAll() {
@@ -606,11 +633,11 @@ export default {
         this.filters.concat([
           FilterFactory.create({
             q: [embedding],
-            type: 'string',
-          }),
-        ]),
+            type: 'string'
+          })
+        ])
       )
-    },
+    }
   },
   watch: {
     searchResults() {
@@ -621,6 +648,7 @@ export default {
     },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
+        this.isLoadingResults = true
         const { total, data, info } = await searchService.find({
           query: {
             page,
@@ -628,65 +656,57 @@ export default {
             filters,
             facets: FACET_TYPES_S,
             order_by: orderBy,
-            group_by: groupBy,
-          },
+            group_by: groupBy
+          }
         })
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
+        this.isLoadingResults = false
+
+        this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
+
         let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
+
         // get remaining facets and enriched filters.
-        const [
-          namedEntityFacets,
-          topicFacets,
-          filtersWithItems,
-          collectionFacets,
-          collectionsItemsIndex,
-        ] = await Promise.all([
-          searchFacetsService.get('person,location', {
-            query: {
-              filters,
-              group_by: groupBy,
-            },
-          }),
-          searchFacetsService.get('topic', {
-            query: {
-              filters,
-              group_by: groupBy,
-            },
-          }),
-          filtersItemsService
+        const facetTypes = [
+          ...['person', 'location', 'topic'],
+          ...(this.isLoggedIn ? ['collection'] : [])
+        ]
+
+        const [extraFacets, collectionsItemsIndex] = await Promise.all([
+          searchFacetsService
             .find({
               query: {
-                filters: this.searchQueryHash,
-              },
+                facets: facetTypes,
+                filters
+                // group_by: groupBy,
+              }
             })
-            .then(joinFiltersWithItems),
-          this.isLoggedIn
-            ? searchFacetsService.get('collection', {
-                query: {
-                  filters,
-                  group_by: groupBy,
-                },
-              })
-            : [],
+            .then(response => response.data),
+          // filtersItemsService
+          //   .find({
+          //     query: {
+          //       filters: this.searchQueryHash,
+          //     },
+          //   })
+          //   .then(joinFiltersWithItems),
           this.isLoggedIn
             ? collectionsItemsService
                 .find({
                   query: {
                     item_uids: this.searchResults.map(d => d.uid),
-                    limit: 100,
-                  },
+                    limit: 100
+                  }
                 })
                 .then(({ data }) =>
                   data.reduce((acc, d) => {
                     acc[d.itemId] = d
                     return acc
-                  }, {}),
+                  }, {})
                 )
-            : {},
+            : {}
         ])
-        facets = facets.concat(collectionFacets, namedEntityFacets, topicFacets)
-        this.filtersWithItems = filtersWithItems
+        facets = facets.concat(extraFacets)
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f))
         if (this.isLoggedIn) {
@@ -699,14 +719,14 @@ export default {
           })
         }
       },
-      immediate: true,
+      immediate: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return
       if (perPage * currentPage > total) {
         this.paginationCurrentPage = Math.ceil(total / perPage)
       }
-    },
+    }
   },
   components: {
     Autocomplete,
@@ -720,20 +740,23 @@ export default {
     EmbeddingsSearch,
     SearchSidebar,
     InfoButton,
-  },
+    Modal
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .navbar-nav {
   flex-direction: row;
   align-items: center;
+
   label {
     margin-bottom: 0;
     line-height: 1.5;
   }
+
   .custom-control-label,
   .custom-control-label::before {
     position: inherit;
@@ -760,7 +783,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_display": "Display As",
@@ -781,8 +804,8 @@ export default {
     "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
-    "Collection_Name" : "Collection Name",
-    "Collection_Description" : "Collection Description",
+    "Collection_Name": "Collection Name",
+    "Collection_Description": "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",

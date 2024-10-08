@@ -1,62 +1,49 @@
 <template lang="html">
-  <filter-wrapper
-    v-bind:id="filter.key"
-    v-bind:title="filter.query"
-    icon="rocket"
-    v-on:remove="remove">
-    <b-input
-      type="text"
-      v-model="filter.query"
-      v-on:input.native="updateFilter"
-      v-on:keyup.enter.native="submitFilter"
-      v-bind:disabled="disabled"
-      size="sm"
-    />
-    <div slot="settings">
+  <filter-wrapper v-bind:id="filter.key" v-bind:title="filter.query" icon="rocket" v-on:remove="remove">
+    <b-input type="text" :modelValue="filter.query" v-on:input="updateFilter" v-on:keyup.enter="submitFilter"
+      v-bind:disabled="disabled" size="sm" />
+    <template v-slot:settings>
       <p><em>ToDo:</em> RegEx filter Settings</p>
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 
 <script>
-import FilterFactory from '@/models/FilterFactory';
+/**
+ * @deprecated Not used anywhere.
+ */
 
-import 'vue-awesome/icons/edit';
-import 'vue-awesome/icons/check';
+import FilterFactory from '@/models/FilterFactory'
 
-import FilterWrapper from './FilterWrapper';
+import FilterWrapper from '@/components/modules/FilterWrapper.vue'
 
 export default {
   data: () => ({
     disabled: true,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.$emit('input', FilterFactory.create(this.filter));
+      this.$emit('input', FilterFactory.create(this.filter))
     },
     submitFilter() {
-      this.$emit('submit');
-      this.disabled = true;
+      this.$emit('submit')
+      this.disabled = true
     },
     remove() {
-      this.$emit('remove');
+      this.$emit('remove')
     },
     editFilter() {
-      this.disabled = false;
+      this.disabled = false
     },
   },
   components: {
     FilterWrapper,
   },
-};
+}
 </script>
 
-<i18n>
-{
+<i18n lang="json">{
   "en": {
     "query": "Regex",
     "edit": "Edit",
@@ -70,5 +57,4 @@ export default {
     "edit": "Bewerken",
     "save": "Opslaan"
   }
-}
-</i18n>
+}</i18n>

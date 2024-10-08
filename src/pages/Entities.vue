@@ -1,29 +1,34 @@
-<template lang="html">
+<template>
   <i-layout id="EntitiesPage">
     <list :pagination-list="paginationList" v-on:change-page="changePage">
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
-          <b-tab :active="tab === TabBrowseList" @click="switchTab(TabBrowseList)">
-            <template v-slot:title>
+          <template v-slot:tabs-start>
+            <b-nav-item
+              @click="switchTab(TabBrowseList)"
+              :active="tab === TabBrowseList"
+              active-class="active">
               <span v-html="$t('tabs.entities.browseList', {
                 n: $n(paginationTotalRows)
-              })"/>
-            </template>
+              })" />
+            </b-nav-item>
+          </template>
+          <template v-slot:default>
             <div class="p-2 px-3">
               <b-input placeholder="filter entities" v-model.trim="suggestionQuery"/>
               <div class="mt-2">
                 <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
               </div>
             </div>
-          </b-tab>
-          <!-- <b-tab :active="tab === TabObservingList" @click="switchTab(TabObservingList)">
+          </template>
+          <!-- <b-nav-item :active="tab === TabObservingList" @click="switchTab(TabObservingList)">
             <template v-slot:title >
               <span v-html="$t('tabs.entities.observingList', { n: observedItemIds.length })"/>
             </template>
             <div class="p-3" v-if="!observedItemIds.length">
               <p class="text-center"><em>{{$t('label_observing_list_empty')}}</em></p>
             </div>
-          </b-tab> -->
+          </b-nav-item> -->
         </b-tabs>
         <div class="px-3 pb-3 pt-2" v-if="observedItemIds.length">
           <b-button size="sm" class="ml-2" variant="outline-primary" @click="resetObservedItems">
@@ -56,9 +61,10 @@
 
 <script>
 import Entity from '@/models/Entity';
-import List from '@/components/modules/lists/List';
-import EntityItem from '@/components/modules/lists/EntityItem';
+import List from '@/components/modules/lists/List.vue';
+import EntityItem from '@/components/modules/lists/EntityItem.vue';
 import { entities as entitiesService } from '@/services';
+import { Navigation } from '@/plugins/Navigation';
 
 const QueryParameters = Object.freeze({
   SelectedEntitiesIds: 'items',
@@ -85,6 +91,9 @@ export default {
     isLoading: false,
   }),
   computed: {
+    $navigation() {
+      return new Navigation(this)
+    },
     paginationList() {
       return {
         perPage: this.paginationPerPage,
@@ -260,7 +269,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 a.d-block:hover {
   text-decoration: none;
@@ -270,7 +279,7 @@ a.d-block.active {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_order": "Order By",

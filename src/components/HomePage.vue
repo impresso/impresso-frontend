@@ -9,12 +9,13 @@
 </template>
 
 <script>
-import HomePageSplash from './HomePageSplash';
-import HomePageMessages from './HomePageMessages';
-import HomePageFaq from './HomePageFaq';
-import HomePageRecipes from './HomePageRecipes';
-import HomePageFooter from './HomePageFooter';
+import HomePageSplash from './HomePageSplash.vue';
+import HomePageMessages from './HomePageMessages.vue';
+import HomePageFaq from './HomePageFaq.vue';
+import HomePageRecipes from './HomePageRecipes.vue';
+import HomePageFooter from './HomePageFooter.vue';
 
+/** @deprecated See HomePage2020 */
 export default {
   name: 'HomePage',
   data: () => ({
@@ -34,7 +35,7 @@ export default {
 <style lang="scss">
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "welcome": {

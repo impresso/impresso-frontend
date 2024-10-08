@@ -1,4 +1,4 @@
-import uuid from 'uuid'
+import { v4 } from 'uuid'
 import FilterBoolean from '@/models/FilterBoolean'
 import FilterEntity from '@/models/FilterEntity'
 import FilterString from '@/models/FilterString'
@@ -20,8 +20,8 @@ export default {
     if (filterData.type === 'mention') {
       filter = new FilterString({
         ...filterData,
-        type: 'string', // we force EXACT string filter
-        precision: 'EXACT',
+        type: 'mention', // we force EXACT string filter
+        precision: 'EXACT'
       })
     }
 
@@ -32,7 +32,7 @@ export default {
     if (filterData.type === 'title') {
       filter = new FilterString({
         ...filterData,
-        type: 'title',
+        type: 'title'
       })
     }
 
@@ -57,7 +57,7 @@ export default {
         'year',
         'accessRight',
         'partner',
-        'textReuseClusterId',
+        'textReuseClusterId'
       ].includes(filterData.type)
     ) {
       filter = new FilterItem(filterData)
@@ -80,8 +80,8 @@ export default {
     }
 
     if (filter.getHash != null) {
-      filter.key = filterData.key || uuid.v4()
+      filter.key = filterData.key || v4()
     }
     return filter
-  },
+  }
 }

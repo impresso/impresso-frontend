@@ -1,18 +1,19 @@
-<template lang="html">
-  <b-form-group v-bind:label="$t('title')">
-    <b-form-radio-group
-      stacked
-      v-model="filter.context"
-      v-bind:options="options">
-    </b-form-radio-group>
-  </b-form-group>
+<template>
+  <label>{{ $t('title') }}</label>
+  <radio-group
+    :modelValue="filter.context"
+    :options="options"
+    @update:modelValue="filter.context = $event"
+    type="radio" />
 </template>
 
 <script>
 import * as contexts from '@/models/Contexts';
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 export default {
   computed: {
+    filter() { return this.modelValue },
     options() {
       return Object.keys(contexts).map(key => ({
         value: contexts[key],
@@ -20,14 +21,16 @@ export default {
       }));
     },
   },
-  model: {
-    prop: 'filter',
+  props: {
+    modelValue: Object
   },
-  props: ['filter'],
+  components: {
+    RadioGroup,
+  }
 };
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "title": "Context",

@@ -9,20 +9,20 @@
         <item-label :item="item" :type="type"/>
       </div>
     </div>
-    <b-pagination v-if="paginationTotalRows > paginationPerPage"
-      v-model="paginationCurrentPage"
+    <pagination v-if="paginationTotalRows > paginationPerPage"
+      :current-page="paginationCurrentPage"
+      @change="$event => paginationCurrentPage = $event"
       :total-rows="paginationTotalRows"
       :per-page="paginationPerPage"
       size="sm"
-      align="center"
-      class="mt-1"
-    ></b-pagination>
+      class="mt-1 justify-content-center"
+    ></pagination>
   </div>
 </template>
 
 <script>
 import Entity from '@/models/Entity'
-import ItemLabel from '@/components/modules/lists/ItemLabel'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import { entities as entitiesService } from '@/services'
 
 export default {

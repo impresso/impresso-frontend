@@ -5,13 +5,15 @@
       :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
     >
       <!--  header -->
-      <div slot="header" :class="{ 'border-bottom border-secondary': showLines }">
-        <search-tabs focusOnSearch />
-        <div class="py-3 px-3">
-          <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
-          <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+      <template v-slot:header>
+        <div :class="{ 'border-bottom border-secondary': showLines }">
+          <search-tabs focusOnSearch />
+          <div class="py-3 px-3">
+            <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
+            <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+          </div>
         </div>
-      </div>
+      </template>
 
       <!--  body -->
       <div class="text-tertiary p-3 stats">
@@ -19,22 +21,19 @@
         <p class="small-caps mt-3">Impresso data rundown</p>
         <p>
           <span class="number">76</span>
-          newspapers collected,<br />
+          newspapers, 2 countries<br />
           <span class="number"> 600,919</span>
           issues,<br />
           <span class="number">5,429,656</span>
-          pages scanned,<br />
+          pages,<br />
           <span class="number">47,798,468</span>
-          content items identified,<br />
+          content items,<br />
           <span class="number"> 3,462,799</span>
           images,<br />
           <span class="number">12,493,358,703</span>
-          words.<br />
+          tokens.<br />
         </p>
-        <p>
-          <span class="number">2</span> countries of publication<br />
-          <span class="number">530,086</span> named entities disambiguated
-        </p>
+
         <p>
           More? Check on our
           <a
@@ -74,13 +73,13 @@
           <p>
             version:
             <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
-              {{ impressoInfo.frontend.version }}</a
-            >
+              {{ impressoInfo.frontend.version }}
+            </a>
             <br />
             middle layer:
             <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
-              {{ impressoInfo.middleLayer.version }}</a
-            >
+              {{ impressoInfo.middleLayer.version }}
+            </a>
           </p>
         </div>
 
@@ -93,7 +92,7 @@
           <h1 class="HomePage__hugeHeading">
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
-          <h2 style="font-style: italic;">
+          <h2 style="font-style: italic">
             Mining 200 years <br />of historical newspapers, and radio.
           </h2>
         </section>
@@ -134,16 +133,14 @@
           </b-button>
           <p class="mb-0 mt-3">
             ... and return the signed form to
-            <a class="text-white" href="mailto:info@impresso-project.ch" target="_self"
-              >info@impresso-project.ch</a
-            >
+            <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">
+              info@impresso-project.ch
+            </a>
           </p>
         </section>
 
         <div class="HomePage__card">
-          <h3>
-            Learn Impresso with the Impresso Challenges
-          </h3>
+          <h3>Learn Impresso with the Impresso Challenges</h3>
           <p>
             How to explore the newspapers with persons or locations? <br />What are topics good for?
             <br />What elements can be compared?
@@ -174,7 +171,7 @@
             </b-col>
             <b-col lg="6" md="12">
               <div class="py-3 pr-3">
-                
+
                 <p>
                   <b
                     >How to explore the newspapers with persons or locations? <br />What are topics
@@ -206,17 +203,13 @@
           </b-row> -->
         </div>
         <section class="HomePage__card">
-          <h3>
-            How can newspapers help understand the past? How to explore them?
-          </h3>
+          <h3>How can newspapers help understand the past? How to explore them?</h3>
 
-          <p>
-            Just a few examples to get you started!
-          </p>
+          <p>Just a few examples to get you started!</p>
         </section>
         <Recipe
           v-for="recipe in computedRecipesWithQuery"
-          class="HomePage__card "
+          class="HomePage__card"
           :key="recipe.caption"
           :query="recipe.query"
           :caption="recipe.caption"
@@ -231,7 +224,7 @@
         </h3>
         <Recipe
           v-for="recipe in computedRecipesWithoutQuery"
-          class=" HomePage__card  "
+          class="HomePage__card"
           :key="recipe.caption"
           :caption="recipe.caption"
           :text="recipe.text"
@@ -245,16 +238,16 @@
 </template>
 
 <script>
-import Autocomplete from './Autocomplete'
-import SearchTabs from './modules/SearchTabs'
-import SearchPills from '@/components/SearchPills'
-import Recipes from './modules/homepage/Recipes'
-import HomePageFooter from './HomePageFooter'
-import InfoButton from './base/InfoButton'
-import Recipe from './Recipe'
+import Autocomplete from './Autocomplete.vue'
+import SearchTabs from './modules/SearchTabs.vue'
+import SearchPills from '@/components/SearchPills.vue'
+import HomePageFooter from './HomePageFooter.vue'
+import Recipe from './Recipe.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -273,33 +266,34 @@ const AllowedFilterTypes = [
   'topic',
   'type',
   'year',
-  'daterange',
+  'daterange'
 ]
 
 export default {
   data: () => ({
     impressoInfo: window.impressoInfo,
-    recipes: content.recipes,
+    recipes: content.recipes
   }),
   props: {
     showLines: {
       type: Boolean,
-      default: false,
+      default: false
     },
     darkMode: {
       type: Boolean,
-      default: true,
+      default: true
     },
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     filtersWithItems: {
       type: Array,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   computed: {
+    ...mapStores(useUserStore),
     /** @returns {Filter[]} */
     enrichedFilters() {
       return this.filtersWithItems.length
@@ -317,14 +311,14 @@ export default {
     },
 
     user() {
-      return this.$store.getters['user/user']
+      return this.userStore.user
     },
     computedRecipesWithQuery() {
       return this.recipes.filter(recipe => recipe.query)
     },
     computedRecipesWithoutQuery() {
       return this.recipes.filter(recipe => !recipe.query)
-    },
+    }
   },
   methods: {
     handleFiltersChanged(filters) {
@@ -332,8 +326,8 @@ export default {
       this.$router.push({
         name: 'search',
         query: {
-          sq,
-        },
+          sq
+        }
       })
     },
     onSuggestion(filter) {
@@ -342,22 +336,21 @@ export default {
     },
     onSubmitEmpty() {
       this.handleFiltersChanged(this.filters)
-    },
+    }
   },
   components: {
     Autocomplete,
     SearchTabs,
-    Recipes,
     HomePageFooter,
-    InfoButton,
     SearchPills,
-    Recipe,
-  },
+    Recipe
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
 .HomePage__card {
   max-width: 420px;
   margin: var(--spacing-3);
@@ -367,6 +360,7 @@ export default {
 .HomePage__sidebar {
   min-width: 400px;
 }
+
 .HomePage.bg-dark {
   color: var(--clr-grey-500);
 }
@@ -375,6 +369,7 @@ export default {
   font-family: var(--bs-font-sans-serif);
   color: var(--clr-grey-700);
 }
+
 #HomePage2020.bg-dark {
   ul.nav.nav-pills .nav-item.active .nav-link {
     color: var(--clr-white);
@@ -389,17 +384,21 @@ export default {
     color: var(--clr-white);
     background-color: #343a40;
     border-color: var(--clr-white) !important;
+
     &::placeholder {
       color: var(--clr-white);
     }
+
     &:hover {
       background-color: var(--clr-dark);
     }
   }
+
   .btn-outline-primary {
     border-color: var(--clr-grey-500);
     color: var(--clr-grey-500);
     text-decoration: none;
+
     &:hover {
       color: var(--clr-white);
     }
@@ -420,6 +419,7 @@ export default {
 
   .stats a {
     color: var(--clr-white);
+
     &:hover {
       color: var(--impresso-color-yellow);
     }
@@ -434,6 +434,7 @@ h1.HomePage__hugeHeading {
   font-size: 8vh;
   line-height: 0.9;
 }
+
 .stats span.number {
   color: #343a40;
 }
@@ -442,10 +443,12 @@ h1.HomePage__hugeHeading {
   h1.HomePage__hugeHeading {
     text-shadow: 1px 1px 1px #17191c;
   }
+
   h1.HomePage__hugeHeading,
   h2 {
     color: var(--clr-white);
   }
+
   .stats span.number {
     color: var(--clr-white);
   }
@@ -454,6 +457,7 @@ h1.HomePage__hugeHeading {
   .border-tertiary {
     border-color: #ffffff47 !important;
   }
+
   .enhance-contents {
     background-color: #3e454c;
     font-size: 1em;
@@ -479,6 +483,7 @@ h1.HomePage__hugeHeading {
   transform: rotate(-45deg);
   transition: background-color 0.5s ease-in-out;
 }
+
 .starburst,
 .starburst span {
   display: flex;
@@ -515,6 +520,7 @@ h1.HomePage__hugeHeading {
 .starburst span:after {
   transform: rotate(30deg);
 }
+
 .starburst span:before {
   transform: rotate(-30deg);
 }
@@ -552,19 +558,23 @@ h1.HomePage__hugeHeading {
     border-radius: 50%;
     padding-top: 1.15rem;
   }
+
   &:hover {
     .starburst-wrapper {
       transform: translateY(-5rem);
     }
+
     .starburst {
       background-color: #f4d062;
     }
   }
 }
+
 .enhance-contents:hover {
   .starburst-wrapper {
     transform: translateY(-5rem);
   }
+
   .starburst {
     background-color: #f4d062;
   }
@@ -575,24 +585,28 @@ h1.HomePage__hugeHeading {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 @keyframes rotating {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
+
 .rotating {
   animation: rotating 15s linear infinite;
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "toggle_lines_off": "lines: off",

@@ -4,18 +4,18 @@
       <span
         >{{
           $t(`jobs.type.${item.type}`, {
-            total: item.extra.total > -1 ? $n(item.extra.total) : '',
+            total: item.extra.total > -1 ? $n(item.extra.total) : ''
           })
-        }}
-      </span>
+        }}&nbsp;</span
+      >
       <router-link
-        class="text-white"
+        class="text-white text-decoration-underline"
         v-if="item.extra.collection.name && item.extra.collection.status !== 'DEL'"
         :to="{
           name: 'collection',
           params: {
-            collection_uid: item.extra.collection.id,
-          },
+            collection_uid: item.extra.collection.id
+          }
         }"
         >{{ item.extra.collection.name }}</router-link
       >
@@ -26,7 +26,7 @@
         <search-query-summary class="m-0" :search-query="{ filters: jobSearchFilters }" />
       </blockquote>
       <blockquote v-else-if="item.extra.collection" class="pl-2 my-1 border-left">
-        <span style="line-height:0.8" v-html="item.extra.collection.description" />
+        <span style="line-height: 0.8" v-html="item.extra.collection.description" />
       </blockquote>
       <blockquote v-else v-html="item.description" class="pl-2 my-1 border-left small"></blockquote>
 
@@ -34,10 +34,19 @@
         <span class="small-caps" :class="[item.status]">{{
           $t(`jobs.status.${item.status}`)
         }}</span>
-        <span class="text-white" v-if="item.isActive()"> {{ percentage }} %</span>
+        <span class="text-white" v-if="item.isActive()">&nbsp;{{ percentage }} %</span>
       </div>
       <div class="p-2 position-relative" v-if="item.isRunning()">
-        <b-progress :value="percentage" variant="info" animated height="4px" />
+        <div class="progress">
+          <div
+            class="progress-bar bg-info progress-bar-animated"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuenow="percentage"
+            :style="`width: ${percentage}%; height: 4px;`"
+          ></div>
+        </div>
       </div>
     </div>
     <b-button-group v-if="isExportable || hasSearchQuery">
@@ -80,14 +89,14 @@
 import Job from '@/models/Job'
 import SearchQuery from '@/models/SearchQuery'
 import { CommonQueryParameters } from '@/router/util'
-import SearchQuerySummary from '@/components/modules/SearchQuerySummary'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
 import { MIDDLELAYER_MEDIA_URL, getAuthenticationBearer, jobs as jobsService } from '@/services'
 
 export default {
   props: {
     item: {
-      type: Job,
-    },
+      type: Job
+    }
   },
   computed: {
     jobMediaUrl() {
@@ -115,20 +124,17 @@ export default {
       return {
         name: 'search',
         query: {
-          [CommonQueryParameters.SearchFilters]: this.item.getSearchQueryHash(),
-        },
+          [CommonQueryParameters.SearchFilters]: this.item.getSearchQueryHash()
+        }
       }
     },
     percentage() {
       return this.item.getProgressAsPercentage()
-    },
+    }
   },
   methods: {
     onExport() {
-      const today = new Date()
-        .toISOString()
-        .split('T')
-        .shift()
+      const today = new Date().toISOString().split('T').shift()
       const anchor = document.createElement('a')
       document.body.appendChild(anchor)
       const headers = new Headers()
@@ -147,11 +153,11 @@ export default {
       console.debug('stopJob', this.item.id)
       const result = await jobsService.patch(this.item.id, { status: 'stop' })
       console.debug('stopJob result', result)
-    },
+    }
   },
   components: {
-    SearchQuerySummary,
-  },
+    SearchQuerySummary
+  }
 }
 </script>
 
@@ -176,34 +182,33 @@ span.DON {
   border-radius: 2px;
 }
 </style>
-<i18n>
-  {
-    "en": {
-      "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",
-      "jobs": {
-        "type": {
-          "ITR": "sync collection to related text reuse passages",
-          "EXP": "export search results as csv",
-          "DCO": "Deleting a collection",
-          "IDX": "Indexing {total} collection items",
-          "store_collectable_items": "Indexing collection items",
-          "TES": "Echo (TEST)",
-          "test": "Echo (TEST)",
-          "RDX": "Remove {total} item(s) from your collection",
-          "BCQ": "Saving {total} item(s) in your collection",
-          "RDX": "Remove {total} item(s) from your collection",
-          "execute_solr_query": "Saving items in your collection",
-          "BCT": "Add {total} item(s) to your collection from Text Reuse"
-
-        },
-        "status": {
-          "DON": "done",
-          "RUN": "progress",
-          "ERR": "error",
-          "STO": "stopped",
-          "RIP": "removed"
-        }
+<i18n lang="json">
+{
+  "en": {
+    "no-jobs-yet": "Here you will find notifications about your newly created collections and recent downloads.",
+    "jobs": {
+      "type": {
+        "ITR": "sync collection to related text reuse passages",
+        "EXP": "export search results as csv",
+        "DCO": "Deleting a collection",
+        "IDX": "Indexing {total} collection items",
+        "store_collectable_items": "Indexing collection items",
+        "TES": "Echo (TEST)",
+        "test": "Echo (TEST)",
+        "RDX": "Remove {total} item(s) from your collection",
+        "BCQ": "Saving {total} item(s) in your collection",
+        "RDX": "Remove {total} item(s) from your collection",
+        "execute_solr_query": "Saving items in your collection",
+        "BCT": "Add {total} item(s) to your collection from Text Reuse"
+      },
+      "status": {
+        "DON": "done",
+        "RUN": "progress",
+        "ERR": "error",
+        "STO": "stopped",
+        "RIP": "removed"
       }
     }
   }
+}
 </i18n>

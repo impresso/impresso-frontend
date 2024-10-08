@@ -4,47 +4,31 @@ Welcome to the _impresso_ app frontend website to search, explore and create per
 
 ## Install for development
 
-This is a website that uses vue2 framework build in **node v17** and **is not compatible with node v18**. We provide a dockerfile-dev which points to the right node version to use. Alternatively, you can use `nvm install 17` and then install all dependencies
-
-with `--openssl-legacy-provider` option
-
-```
-NODE_OPTIONS=--openssl-legacy-provider npm install
-```
-
-If required, cnfigure Vue proxy to `api` and `socket.io` in `.env.development.local` if needed, do not put any slash at the end of the env variables:
+This is a website that uses vue3. To install the dependencies, run:
 
 ```sh
-VUE_APP_MIDDLELAYER_API="https://...."
-VUE_APP_MIDDLELAYER_API_PATH="/api"
-VUE_APP_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
+npm install
+```
+
+If required, cnfigure Vue proxy to `api` and `socket.io` in `.env.development`. Do not put any slash at the end of the env variables:
+
+```sh
+VITE_MIDDLELAYER_API="https://...."
+VITE_MIDDLELAYER_API_PATH="/api"
+VITE_MIDDLELAYER_API_SOCKET_PATH="/api/socket.io"
 ```
 
 To use vue proxy while developing, add this env variable to your `.env.development.local` file:
 
 ```sh
-VUE_APP_USE_PROXY_MIDDLEWARE=true
+VITE_USE_PROXY_MIDDLEWARE=true
 ```
 
 Finally run with:
 
 ```
-NODE_OPTIONS=--openssl-legacy-provider npm start
+npm run dev
 ```
-
-### Use docker stack for development (node v12)
-
-We provide a Dockerfile-dev to streamline node 12 installation with now unsupported modules.
-
-Build the docker image with python3 support, then start the vue app using `npm start`:
-
-```
-docker-compose -f docker-compose-dev.yml up
-```
-
-or if make is available, `make run-dev`
-
-> A Vue.js project
 
 ## Build Setup
 

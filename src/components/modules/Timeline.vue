@@ -1,9 +1,9 @@
-<template lang="html">
-  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`">
+<template>
+  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`" :data-testid="dataTestid">
     <tooltip :tooltip="tooltip">
-      <slot :tooltip="tooltip">
-        <div v-if="tooltip.item">
-          {{ tooltip.item }}
+      <slot :tooltip="{ ...tooltip, item }">
+        <div v-if="item">
+          {{ item }}
         </div>
       </slot>
     </tooltip>
@@ -18,18 +18,18 @@
    :brush="[startDaterange, endDaterange]"
    :domain="[startYear, endYear]"
    @brushed="afterBrush()">
-   <div slot-scope="tooltipScope">
+   <template v-slot="tooltipScope">
      <div v-if="tooltipScope.tooltip.item">
        {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
        <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
      </div>
-   </div>
+   </template>
  </timeline>
 */
 
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
-import Tooltip from './tooltips/Tooltip'
+import Tooltip from './tooltips/Tooltip.vue'
 
 const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
@@ -59,14 +59,18 @@ export default {
         return [undefined, 'year', 'month', 'day'].includes(value)
       },
     },
+    dataTestid: {
+      type: String,
+      default: 'timeline'
+    }
   },
   data: () => ({
     tooltip: {
       x: 0,
       y: 0,
-      isActive: false,
-      item: {},
+      isActive: false
     },
+    item: {},
   }),
   computed: {
     heightVal() {
@@ -77,12 +81,11 @@ export default {
   methods: {
     moveTooltip(data) {
       this.tooltip = {
-        item: data.datum,
         isActive: true,
         x: data.pointer.x + 50,
         y: data.pointer.y - 50,
-        hspace: this.timeline.width,
       }
+      this.item = data.datum
     },
     onResize() {
       this.timeline.resize()
@@ -168,7 +171,7 @@ export default {
     }
     window.addEventListener('resize', this.onResize)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.onResize)
   },
   watch: {
@@ -242,7 +245,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .d3-timeline {
   width: 100%;
@@ -257,36 +260,44 @@ export default {
 
   g.context path.area {
     fill: lighten($clr-primary, 78);
+
     &.contrast {
       fill: coral;
       stroke: red;
     }
   }
+
   g.context rect {
     fill: transparent;
   }
+
   g.context circle.pointer {
     opacity: 0;
+
     &.active {
       opacity: 1;
     }
+
     &.contrast {
       fill: red;
     }
   }
+
   g.context .peak text {
     font-size: 11px;
   }
+
   g.brush {
     rect.selection {
       fill: $clr-accent;
       stroke: $clr-accent;
     }
+
     rect.handle {
       // fill: $clr-accent;
     }
-    rect.handle--e {
-    }
+
+    rect.handle--e {}
   }
 }
 </style>

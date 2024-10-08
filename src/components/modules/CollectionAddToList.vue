@@ -1,10 +1,10 @@
-<template lang="html">
-  <div class="collection-add-to CollectionAddTo">
+<template>
+  <div class="CollectionAddToList">
     <div class="header bg-light p-2 border-bottom">
       <div class="input-group">
         <input
           type="text"
-          class="form-control"
+          class="form-control form-control-sm"
           v-bind:placeholder="$t('placeholder')"
           v-on:input="onInput"
           v-on:keyup.enter="addCollection(inputString.trim())"
@@ -32,63 +32,64 @@
         {{ newCollectionError }}
       </div>
     </div>
-    <b-container fluid class="inputList p-0">
-      <ul>
-        <li v-if="!Object.keys(this.collections).length">
-          <i-spinner class="text-center p-5" />
-        </li>
-        <li
-          v-for="(collection, index) in filteredCollections"
-          v-bind:key="index"
-          class="form-check"
+    <ul class="p-0">
+      <li v-if="!Object.keys(this.collections).length">
+        <i-spinner class="text-center p-5" />
+      </li>
+      <li
+        v-for="(collection, index) in filteredCollections"
+        v-bind:key="index"
+        class="py-1"
+        :class="{
+          active: isActive(collection)
+        }"
+      >
+        <input
+          class="form-check-input"
+          type="checkbox"
+          v-bind:id="collection.uid"
+          v-bind:checked="isActive(collection)"
+          v-bind:class="isIndeterminate(collection)"
+        />
+        <span class="checkmark checkmark-checked dripicons-checkmark" />
+        <span class="checkmark checkmark-indeterminate dripicons-minus" />
+        <label
+          class="form-check-label"
+          v-on:click="toggleActive(collection, $event)"
+          for="collection.uid"
         >
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-bind:id="collection.uid"
-            v-bind:checked="isActive(collection)"
-            v-bind:class="isIndeterminate(collection)"
-          />
-          <span class="checkmark checkmark-checked dripicons-checkmark" />
-          <span class="checkmark checkmark-indeterminate dripicons-minus" />
-          <label
-            class="form-check-label py-2 pr-2"
-            v-on:click="toggleActive(collection, $event)"
-            for="collection.uid"
+          <b>{{ collection.name }}</b>
+          <br />
+          <span class="description text-muted small" :title="$t('last_edited')">
+            {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
           >
-            <span>{{ collection.name }}</span>
-
-            <!-- <span class="description text-muted small-caps">
-                &mdash;
-                {{collection.countEntities}} {{$t('items')}}
-              </span> -->
-            &middot;
-            <span class="description text-muted small-caps" :title="$t('last_edited')">
-              {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
-            >
-          </label>
-        </li>
-      </ul>
-    </b-container>
+        </label>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
+
 export default {
   data: () => ({
     show: false,
     isDisabled: true,
     inputString: '',
-    newCollectionError: '',
+    newCollectionError: ''
   }),
   props: {
     item: Object,
-    items: Array,
+    items: Array
   },
   updated() {
     this.focusInput()
   },
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
     filteredCollections() {
       return this.collections.filter(collection => {
         const searchRegex = new RegExp(this.inputString, 'i')
@@ -97,13 +98,13 @@ export default {
     },
     collections: {
       get() {
-        return this.$store.getters['collections/collections']
-      },
-    },
+        return this.collectionsStore.collections
+      }
+    }
   },
   methods: {
     fetch() {
-      return this.$store.dispatch('collections/LOAD_COLLECTIONS')
+      return this.collectionsStore.loadCollections()
     },
     focusInput() {
       this.$refs.inputString.focus()
@@ -146,11 +147,11 @@ export default {
 
       if (!checked) {
         // add items to collection
-        this.$store
-          .dispatch('collections/ADD_COLLECTION_ITEMS', {
+        this.collectionsStore
+          .addCollectionItems({
             items: itemsFiltered,
             collection,
-            contentType: 'article',
+            contentType: 'article'
           })
           .then(() => {
             itemsFiltered.forEach(item => {
@@ -159,11 +160,11 @@ export default {
           })
       } else {
         // remove items from collection
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEMS', {
+        this.collectionsStore
+          .removeCollectionItems({
             items: itemsFiltered,
             collection,
-            contentType: 'article',
+            contentType: 'article'
           })
           .then(() => {
             itemsFiltered.forEach(item => {
@@ -177,10 +178,8 @@ export default {
       if (this.isDisabled) {
         return
       }
-      this.$store
-        .dispatch('collections/ADD_COLLECTION', {
-          name: collectionName,
-        })
+      this.collectionsStore
+        .addCollection({ name: collectionName })
         .then(collection => {
           this.toggleActive(collection)
           this.inputString = ''
@@ -197,77 +196,67 @@ export default {
         })
     },
     isLoggedIn() {
-      return this.$store.state.user.userData
-    },
-  },
+      return this.userStore.userData
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
-.CollectionAddTo {
-  min-width: 265px;
+.CollectionAddToList {
+  min-width: 250px;
+  max-width: 350px;
+  --checkmark-width: 40px;
+}
 
-  .inputList {
-    max-height: 50vh;
-    overflow: scroll;
-    ul {
-      overflow-y: auto;
-      height: 100%;
-      list-style: none;
-      padding: 0;
-      margin-bottom: -1px;
-      li {
-        padding: 0;
-        input {
-          display: none;
-        }
-        .checkmark {
-          display: none;
-          position: absolute;
-          pointer-events: none;
-          height: 1em;
-          margin: auto;
-          top: 0;
-          bottom: 0;
-          left: 0.75em;
-        }
-        input.checked ~ .checkmark-checked {
-          display: block;
-        }
-        input.indeterminate ~ .checkmark-indeterminate {
-          display: block;
-        }
-        input.checked ~ label {
-          background: rgba($clr-accent-secondary, 0.5);
-        }
-        input.indeterminate ~ label {
-          background: rgba($clr-accent-secondary, 0.25);
-        }
-        label {
-          display: block;
-          cursor: pointer;
-          border-bottom: 1px solid $clr-bg-secondary;
-          padding-left: 3em;
-          &.loading {
-            background: $clr-accent-secondary;
-          }
-          &:hover {
-            background: $clr-accent-secondary;
-          }
-          div,
-          span {
-            pointer-events: none;
-          }
-        }
-      }
-    }
-  }
+.CollectionAddToList ul {
+  max-height: 40vh;
+  overflow: scroll;
+  list-style: none;
+}
+.CollectionAddToList ul li {
+  position: relative;
+  padding-inline-start: var(--checkmark-width);
+  border-radius: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--clr-grey-200-rgba-20);
+}
+.CollectionAddToList ul li label {
+  font-variant: normal !important;
+  font-size: inherit;
+}
+.CollectionAddToList ul li input,
+.CollectionAddToList ul li .checkmark {
+  display: none;
+}
+.CollectionAddToList ul li .checkmark {
+  position: absolute;
+  pointer-events: none;
+  height: 1em;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--checkmark-width);
+  text-align: center;
+}
+.CollectionAddToList ul li.active {
+  // box-shadow: var(--bs-box-shadow-sm);
+  background-color: var(--clr-grey-200-rgba-20);
+  padding-inline-start: var(--checkmark-width);
+}
+.CollectionAddToList ul li label .description {
+  font-size: var(--impresso-font-size-smaller);
+}
+
+.CollectionAddToList ul li input.checked ~ .checkmark-checked {
+  display: block;
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "placeholder": "... type or pick a collection name",

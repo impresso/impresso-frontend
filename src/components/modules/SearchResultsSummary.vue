@@ -1,45 +1,57 @@
 <template lang="html">
-  <section class="search-results-summary text-serif textbox-fancy border-tertiary">
+  <section
+    class="SearchResultsSummary search-results-summary text-serif textbox-fancy border-tertiary"
+    :class="{ loading: isLoading }"
+  >
     <span v-html="incipit" />
-    <search-query-summary class="d-inline" :search-query='searchQuery' v-on:updated='onSummaryUpdated' />
+    <search-query-summary
+      class="d-inline"
+      :search-query="searchQuery"
+      v-on:updated="onSummaryUpdated"
+    />
   </section>
 </template>
 
 <script>
-import SearchQuerySummary from './SearchQuerySummary';
+import SearchQuerySummary from './SearchQuerySummary.vue'
 
 export default {
   props: {
     totalRows: Number,
     groupBy: String,
     searchQuery: Object,
+    isLoading: Boolean
   },
   computed: {
     incipit() {
-      const n = this.$n(this.totalRows);
+      if (this.isLoading) {
+        return this.$t(`loading.${this.groupBy}`)
+      }
+      const n = this.$n(this.totalRows)
       return this.$tc('incipit', this.totalRows, {
         n,
-        groupByLabel: this.$tc(`numbers.${this.groupBy}`, this.totalRows, { n }),
-      });
-    },
+        groupByLabel: this.$tc(`numbers.${this.groupBy}`, this.totalRows, { n })
+      })
+    }
   },
   methods: {
     onSummaryUpdated(summary) {
-      this.$emit('onSummary', summary);
-    },
+      this.$emit('onSummary', summary)
+    }
   },
   components: {
-    SearchQuerySummary,
-  },
-};
+    SearchQuerySummary
+  }
+}
 </script>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
-    "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found"
+    "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found",
+    "loading": { "articles": "... loading articles" }
   },
-  "fr":{
+  "fr": {
     "summary": "summary",
     "include": {
       "topic": "with topic",
@@ -80,10 +92,8 @@ export default {
     "message": "Found <span class='number'>{count}</span> {groupByLabel} {type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
     "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
   },
-  "fr": {
-  },
-  "it": {
-  },
+  "fr": {},
+  "it": {},
   "nl": {
     "summary": "SAMENVATTING",
     "include": "inclusief",
@@ -92,3 +102,12 @@ export default {
   }
 }
 </i18n>
+
+<style lang="css">
+.SearchResultsSummary {
+  transition: opacity 0.5s;
+}
+.SearchResultsSummary.loading {
+  opacity: 0.5;
+}
+</style>

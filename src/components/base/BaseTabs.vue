@@ -1,5 +1,5 @@
 <template lang="html">
-  <b-nav tabs class="tabbed-nav pl-2 pt-1 align-items-end">
+  <ul class="nav-tabs tabbed-nav pl-2 pt-1 align-items-end">
     <b-nav-item v-for="(t, i) in tabs"
       v-bind:key="i"
       class="small-caps"
@@ -8,10 +8,14 @@
       v-bind:disabled="t.disabled">
       {{t.label}}
     </b-nav-item>
-  </b-nav>
+  </ul>
 </template>
 
 <script>
+/**
+ * @deprecated Not used anywhere
+ */
+
 /*
 <template lang="html">
   <div class="container">
@@ -49,17 +53,18 @@ export default {
 
 */
 export default {
-  props: ['tabs', 'tab'],
-  model: {
-    prop: 'tab',
-  },
+  props: ['tabs', 'modelValue'],
+  emits: ['modelValue:updated'],
   methods: {
     toggle(tab) {
-      this.$emit('input', tab);
+      this.$emit('modelValue:updated', tab);
     },
   },
   mounted() {
     this.toggle(this.tabs.find(d => d.active) || this.tabs[0]);
   },
+  computed: {
+    tab() { return this.modelValue }
+  }
 };
 </script>

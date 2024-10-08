@@ -1,25 +1,25 @@
-import { protobuf } from 'impresso-jscommons';
-import FilterFactory from '@/models/FilterFactory';
+import { protobuf } from 'impresso-jscommons'
+import FilterFactory from '@/models/FilterFactory'
 import { toCanonicalFilter } from '@/logic/filters'
-
+import { v4 } from 'uuid'
 
 /**
  * @class SearchQuery is an object representing Search Query we can send to the api
  */
 
-const uuid = require('uuid');
-
-const filterize = (filter) => {
+const filterize = filter => {
   if (typeof filter.getHash !== 'function') {
-    return FilterFactory.create(filter);
+    return FilterFactory.create(filter)
   }
-  return filter;
-};
+  return filter
+}
 
-export const getFilterQuery = filter => filter.getQuery != null ? filter.getQuery() : toCanonicalFilter(filter)
+export const getFilterQuery = filter =>
+  filter.getQuery != null ? filter.getQuery() : toCanonicalFilter(filter)
 
 export const getFilterHash = filter => {
-  return btoa(JSON.stringify(getFilterQuery(filter)));
+  const item = unescape(encodeURIComponent(JSON.stringify(getFilterQuery(filter))))
+  return btoa(item)
 }
 
 export default class SearchQuery {
@@ -27,73 +27,77 @@ export default class SearchQuery {
     filters = [
       // { type: 'isFront' },
       // { type: 'hasTextContents' },
-    ],
+    ]
   } = {}) {
-    this.uuid = uuid.v4();
-    this.filtersIds = [];
-    this.filters = [];
-    this.filtersIndex = {}; // grouped by type
+    this.uuid = v4()
+    this.filtersIds = []
+    this.filters = []
+    this.filtersIndex = {} // grouped by type
     // forEach with hash to avoid dupes
-    filters.forEach(d => this.addFilter(d));
+    filters.forEach(d => this.addFilter(d))
   }
 
   static deserialize(pq = '') {
-    return new SearchQuery(protobuf.searchQuery.deserialize(pq));
+    return new SearchQuery(protobuf.searchQuery.deserialize(pq))
   }
 
-  static serialize({ filters = [], page = 0, groupBy = 'articles', orderBy = undefined } = {}, serializer = 'json') {
+  static serialize(
+    { filters = [], page = 0, groupBy = 'articles', orderBy = undefined } = {},
+    serializer = 'json'
+  ) {
     if (serializer === 'protobuf') {
-      return protobuf.searchQuery.serialize({ filters: filters.map(getFilterQuery) });
+      return protobuf.searchQuery.serialize({ filters: filters.map(getFilterQuery) })
     }
 
     const query = {
       f: JSON.stringify(filters),
-      g: groupBy,
-    };
+      g: groupBy
+    }
 
     if (page) {
-      query.p = page;
+      query.p = page
     }
 
     if (orderBy) {
-      query.o = orderBy;
+      query.o = orderBy
     }
-    return query;
+    return query
   }
 
-  getSerialized({
-    serializer = 'json',
-  } = {}) {
-    return SearchQuery.serialize({
-      filters: this.getFilters(),
-    }, serializer);
+  getSerialized({ serializer = 'json' } = {}) {
+    return SearchQuery.serialize(
+      {
+        filters: this.getFilters()
+      },
+      serializer
+    )
   }
 
   getFilter(filter) {
-    const filterized = filterize(filter);
+    const filterized = filterize(filter)
     if (!filterized.hash) {
       filterized.hash = getFilterHash(filterized)
     }
-    const idx = this.filtersIds.indexOf(filterized.hash);
+    const idx = this.filtersIds.indexOf(filterized.hash)
     if (idx !== -1) {
-      return filterized;
+      return filterized
     }
-    return null;
+    return null
   }
 
   addFilter(filter) {
-    const filterized = filterize(filter);
+    const filterized = filterize(filter)
     const hash = getFilterHash(filterized)
     // check if the filter do not exists.
     if (this.filtersIds.indexOf(hash) === -1) {
-      this.filtersIds.push(hash);
-      this.filters.push(filterized);
+      this.filtersIds.push(hash)
+      this.filters.push(filterized)
       // add to filter index dictionary (by filter type), create the index
       // if it does not exist
       if (!Array.isArray(this.filtersIndex[filterized.type])) {
-        this.filtersIndex[filterized.type] = [];
+        this.filtersIndex[filterized.type] = []
       }
-      this.filtersIndex[filterized.type].push(filterized);
+      this.filtersIndex[filterized.type].push(filterized)
     }
   }
 
@@ -113,104 +117,104 @@ export default class SearchQuery {
     const mergeableItems = (filter.items || []).filter(item => filter.q.includes(item.uid))
 
     if (mergeableItems.length > 0) {
-      const uids = [];
-      const items = [];
+      const uids = []
+      const items = []
       // combine the two lists of items;
-      originalFilter.items.concat(mergeableItems).forEach((d) => {
+      originalFilter.items.concat(mergeableItems).forEach(d => {
         if (!uids.includes(d.uid)) {
-          uids.push(d.uid);
-          items.push(d);
+          uids.push(d.uid)
+          items.push(d)
         }
-      });
+      })
 
-      originalFilter.setItems(items);
-      originalFilter.q = uids;
+      originalFilter.setItems(items)
+      originalFilter.q = uids
     }
     // recalculate hash and reset at filtersIds index:
     this.filtersIds[idx] = getFilterHash(originalFilter)
   }
 
   enrichFilters(filters) {
-    filters.forEach((d) => {
+    filters.forEach(d => {
       if ((d.items && d.items.length) || (d.item && d.item.uid)) {
-        const filterized = filterize(d);
+        const filterized = filterize(d)
         const idx = this.filtersIds.indexOf(getFilterHash(filterized))
         if (idx !== -1) {
           if (filterized.item) {
-            this.filters[idx].item = filterized.item;
+            this.filters[idx].item = filterized.item
           } else if (filterized.items) {
-            this.filters[idx].setItems(filterized.items);
+            this.filters[idx].setItems(filterized.items)
           }
         }
       }
-    });
+    })
   }
 
   updateFilters(filters) {
-    this.filtersIds = [];
-    this.filters = [];
-    this.filtersIndex = {};
-    filters.forEach(d => this.addFilter(d));
+    this.filtersIds = []
+    this.filters = []
+    this.filtersIndex = {}
+    filters.forEach(d => this.addFilter(d))
   }
 
   updateFilter({ filter, q, op, items, context, precision, distance }) {
-    const fil = this.getFilter(filter);
+    const fil = this.getFilter(filter)
     if (!fil) {
-      return;
+      return
     }
     if (q) {
-      fil.q = q;
+      fil.q = q
     }
     if (op) {
-      fil.op = op;
+      fil.op = op
     }
     if (precision) {
-      fil.precision = precision;
+      fil.precision = precision
     }
     if (distance) {
-      fil.distance = distance;
+      fil.distance = distance
     }
     if (context) {
-      fil.context = context;
+      fil.context = context
     }
     if (items) {
-      fil.items = items;
+      fil.items = items
     }
-    fil.touched = getFilterHash(fil) !== fil.hash;
+    fil.touched = getFilterHash(fil) !== fil.hash
   }
 
   updateFilterItem({ filter, item, uid }) {
-    const fil = this.getFilter(filter);
+    const fil = this.getFilter(filter)
     if (!fil) {
-      return;
+      return
     }
-    fil.items = fil.items.map((d) => {
+    fil.items = fil.items.map(d => {
       if (uid && d.uid === uid) {
-        return item;
+        return item
       } else if (d.uid === item.uid) {
-        return item;
+        return item
       }
-      return d;
-    });
-    fil.q = fil.items.filter(d => d.checked).map(d => d.uid);
-    fil.touched = getFilterHash(fil) !== fil.hash;
+      return d
+    })
+    fil.q = fil.items.filter(d => d.checked).map(d => d.uid)
+    fil.touched = getFilterHash(fil) !== fil.hash
   }
 
   resetFilter(type) {
-    this.filters.filter(d => d.type === type).forEach(d => this.removeFilter(d));
+    this.filters.filter(d => d.type === type).forEach(d => this.removeFilter(d))
   }
 
   removeFilter(filter) {
-    const fil = this.getFilter(filter);
+    const fil = this.getFilter(filter)
     if (!fil) {
-      return;
+      return
     }
-    const idx = this.filtersIds.indexOf(fil.hash);
+    const idx = this.filtersIds.indexOf(fil.hash)
 
     if (idx !== -1) {
-      this.filtersIds.splice(idx, 1);
-      this.filters.splice(idx, 1);
-      this.filtersIndex[fil.type].splice(idx, 1);
+      this.filtersIds.splice(idx, 1)
+      this.filters.splice(idx, 1)
+      this.filtersIndex[fil.type].splice(idx, 1)
     }
   }
 
@@ -221,13 +225,11 @@ export default class SearchQuery {
    * @return {[type]}              [description]
    */
   getFilters(exclude = []) {
-    let filters = this.filters
-      .map(getFilterQuery)
-      .filter(i => i);
+    let filters = this.filters.map(getFilterQuery).filter(i => i)
     if (exclude.length) {
-      filters = filters.filter(i => exclude.includes(i.type) === false);
+      filters = filters.filter(i => exclude.includes(i.type) === false)
     }
-    return filters;
+    return filters
   }
   /**
    * Similar to getFilters, without mapping. Return the number of active filters
@@ -235,16 +237,18 @@ export default class SearchQuery {
    * @return {number}
    */
   countActiveFilters({ ignoreTypes = ['hasTextContents'] } = {}) {
-    return this.filters.filter(d => !ignoreTypes.includes(d.type)).length;
+    return this.filters.filter(d => !ignoreTypes.includes(d.type)).length
   }
 
   countActiveItems({ ignoreTypes = ['hasTextContents'] } = {}) {
-    return this.filters.filter(d => !ignoreTypes.includes(d.type)).reduce((acc, d) => {
-      if (d.items) {
-        return acc + d.items.length;
-      }
-      return acc + 1;
-    }, 0);
+    return this.filters
+      .filter(d => !ignoreTypes.includes(d.type))
+      .reduce((acc, d) => {
+        if (d.items) {
+          return acc + d.items.length
+        }
+        return acc + 1
+      }, 0)
   }
   /**
    * get list of current types, minus default ones
@@ -252,6 +256,6 @@ export default class SearchQuery {
    * @return {Array}  list of active filter types
    */
   getTypes({ ignoreTypes = ['hasTextContents'] } = {}) {
-    return Object.keys(this.filtersIndex).filter(d => !ignoreTypes.includes(d));
+    return Object.keys(this.filtersIndex).filter(d => !ignoreTypes.includes(d))
   }
 }

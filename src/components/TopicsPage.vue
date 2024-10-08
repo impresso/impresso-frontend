@@ -16,7 +16,7 @@
           </template>
         </b-tabs>
         <div class='pb-2 px-3' v-if="tab === 'list'">
-          <b-form-input placeholder="filter topics ..." :value="q" v-on:change="changeQ" class="my-3"></b-form-input>
+          <b-form-input placeholder="filter topics ..." :modelValue="q" @update:modelValue="changeQ" class="my-3"></b-form-input>
           <b-form-checkbox v-if="countActiveFilters"
             v-model="applyCurrentSearchFilters"
           ><span v-html="$t('label_applyCurrentSearchFilters', { countActiveFilters })" /></b-form-checkbox>
@@ -38,7 +38,7 @@
 
         </div>
         <div class="pb-2 px-3">
-          <b-button size="sm" variant="outline-primary" block :disabled="!visualizedTopics.length" :to="searchPageLink">
+          <b-button size="sm" variant="outline-primary" block :disabled="!visualizedTopics.length" @click="$router.push(searchPageLink)">
             <span v-html="$tc('actions.addToCurrentItemsDetailed', visualizedTopics.length)" />
           </b-button>
         </div>
@@ -74,12 +74,14 @@
 
 <script>
 // import { protobuf } from 'impresso-jscommons';
-import List from './modules/lists/List';
+import List from './modules/lists/List.vue';
 // import InfoButton from './base/InfoButton';
-import TopicItem from './modules/lists/TopicItem';
+import TopicItem from './modules/lists/TopicItem.vue';
 import SearchQuery from '@/models/SearchQuery';
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams';
 import { SupportedFiltersByContext } from '@/logic/filters';
+import { mapStores } from 'pinia'
+import { useTopicsStore } from '@/stores/topics'
 
 /**
  * @param {import('@/models').Filter} filter
@@ -95,15 +97,16 @@ export default {
     tab: 'list',
   }),
   computed: {
+    ...mapStores(useTopicsStore),
     isLoading() {
-      return this.$store.state.topics.isLoading;
+      return this.topicsStore.isLoading
     },
     applyCurrentSearchFilters: {
       get() {
-        return this.$store.state.topics.applyCurrentSearchFilters;
+        return this.topicsStore.applyCurrentSearchFilters === true;
       },
       set(value) {
-        this.$store.dispatch('topics/UPDATE_APPLY_CURRENT_SEARCH_FILTERS', value);
+        this.topicsStore.updateApplyCurrentSearchFilters(value);
         this.loadTopics();
       },
     },
@@ -134,23 +137,23 @@ export default {
     },
     visualizedTopics() {
       // list of visualized topics;
-      return this.$store.state.topics.visualizedItems;
+      return this.topicsStore.visualizedItems;
     },
     topics() {
-      return this.$store.state.topics.items;
+      return this.topicsStore.items;
     },
     limit: {
       get() {
-        return this.$store.state.topics.pagination.perPage;
+        return this.topicsStore.pagination.perPage;
       },
       set(v) {
-        this.$store.dispatch('topics/LOAD_TOPICS', {
+        this.topicsStore.loadTopics({
           limit: v,
-        });
+        })
       },
     },
     paginationList() {
-      return this.$store.state.topics.pagination;
+      return this.topicsStore.pagination;
     },
     topicModelOptions() {
       return [{
@@ -162,7 +165,7 @@ export default {
       })));
     },
     limitOptions() {
-      const total = Math.max(this.$store.state.topics.pagination.totalRows, 50);
+      const total = Math.max(this.topicsStore.pagination.totalRows, 50);
       return [
         50, 100, 150, 200, 250, 300, 350, 400,
       ].filter(d => d <= total).map(d => ({
@@ -193,26 +196,26 @@ export default {
 
     topicModel: {
       get() {
-        return this.$store.state.topics.topicModel;
+        return this.topicsStore.topicModel;
       },
       set(val) {
-        this.$store.commit('topics/UPDATE_TOPIC_MODEL', val);
+        this.topicsStore.updateTopicModel(val);
       },
     },
 
     orderBy: {
       get() {
-        return this.$store.state.topics.orderBy;
+        return this.topicsStore.orderBy;
       },
       set(val) {
-        this.$store.commit('topics/UPDATE_ORDER_BY', val);
+        this.topicsStore.updateOrderBy(val);
       },
     },
 
   },
   methods: {
     resetVisualisedItems() {
-      this.$store.dispatch('topics/RESET_VISUALIZED_ITEM');
+      this.topicsStore.resetVisualizedItem();
     },
     changeQ(value) {
       if (value.trim().length > 1) {
@@ -260,7 +263,7 @@ export default {
       if (this.q && this.q.length > 1) {
         params.q = this.q;
       }
-      this.$store.dispatch('topics/LOAD_TOPICS', params).then((response) => {
+      this.topicsStore.loadTopics(params).then((response) => {
         if (response.info.facets && response.info.facets.topicmodel) {
           this.topicModels = response.info.facets.topicmodel.buckets || [];
         } else {
@@ -277,9 +280,9 @@ export default {
     },
     toggleVisualized(item, checked) {
       if (checked) {
-        this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', item)
+        this.topicsStore.addVisualizedItem(item);
       } else {
-        this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', item)
+        this.topicsStore.removeVisualizedItem(item);
       }
     },
     initQ(q) {
@@ -344,7 +347,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_list": "browse {total} topics",

@@ -1,23 +1,25 @@
-<template lang="html">
+<template>
   <div class="toc" ref="TableOfContents">
     <div v-if="flatten">
-      <b-media
+      <div
         :ref="`article-${art.uid}`"
-        class="article flatten"
+        class="media article flatten"
         v-for="(art, idx) in articles"
         v-bind:key="idx"
         v-bind:class="{active: art.uid === selectedArticleUid}"
         v-on:click.stop.prevent="onClick(art, art.pages[0])">
-        <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3" :headers="headers"/>
-        <article-item :item="art" class="mx-3 py-3 border-bottom clearfix"
-          show-excerpt
-          show-entities
-          show-size
-          show-pages
-          show-matches
-          show-type
-        />
-      </b-media>
+        <div class="media-body">
+          <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3" :headers="headers"/>
+          <article-item :item="art" class="mx-3 py-3 border-bottom clearfix"
+            show-excerpt
+            show-entities
+            show-size
+            show-pages
+            show-matches
+            show-type
+          />
+        </div>
+      </div>
     </div>
 
     <div v-else>
@@ -28,44 +30,46 @@
         <div class="d-block text-bold pagenumber"
         :ref="`page-${pag.uid}`" :data-id='pag.uid'>
           <div class="p-1 text-white rounded ml-3 border-bottom TableOfContents_page"><b>{{$t('page')}} {{pag.num}}</b></div>
-          <b-media
+          <div
             :ref="`article-${art.uid}`"
-            class="article border-bottom"
+            class="media article border-bottom"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
             v-on:click.stop.prevent="onClick(art, pag)">
-            <image-item
-              :height="200"
-              :item="article"
-              v-if="art.type === 'image'"
-              class="my-2 ml-3"
-              :headers="headers"
-              />
-            <article-item :item="art"
-              show-excerpt
-              show-entities
-              show-size
-              show-pages
-              show-type
-              class="mx-3 py-3"
-            />
-            <div v-if="isLoggedIn">
-              <div v-bind:key="i" v-for="(image, i) in art.images">
-                <image-item
-                  class="mx-3 mb-2"
-                  :item="image"
-                  :headers="headers"
+            <div class="media-body">
+              <image-item
+                :height="200"
+                :item="article"
+                v-if="art.type === 'image'"
+                class="my-2 ml-3"
+                :headers="headers"
                 />
-                <div class="text-right mr-3 mb-2">
-                <router-link class="btn btn-outline-secondary btn-sm "
-                  :to="getSimilarImagesHref(image)">
-                  get similar images
-                </router-link>
-              </div>
+              <article-item :item="art"
+                show-excerpt
+                show-entities
+                show-size
+                show-pages
+                show-type
+                class="mx-3 py-3"
+              />
+              <div v-if="isLoggedIn">
+                <div v-bind:key="i" v-for="(image, i) in art.images">
+                  <image-item
+                    class="mx-3 mb-2"
+                    :item="image"
+                    :headers="headers"
+                  />
+                  <div class="text-right mr-3 mb-2">
+                  <router-link class="btn btn-outline-secondary btn-sm "
+                    :to="getSimilarImagesHref(image)">
+                    get similar images
+                  </router-link>
+                </div>
+                </div>
               </div>
             </div>
-          </b-media>
+          </div>
         </div>
       </div>
     </div>
@@ -74,12 +78,14 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import ArticleItem from './lists/ArticleItem.vue';
+import ImageItem from './lists/ImageItem.vue';
 
-import ArticleItem from './lists/ArticleItem';
-import ImageItem from './lists/ImageItem';
-
-import CopyToClipboard from '../modals/CopyToClipboard';
+import CopyToClipboard from '../modals/CopyToClipboard.vue';
 import { getAuthenticationBearer } from '@/services';
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data: () => ({
@@ -114,8 +120,9 @@ export default {
     CopyToClipboard,
   },
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
     isLoggedIn() {
-      return this.$store.state.user.userData;
+      return this.userStore.userData
     },
   },
   methods: {
@@ -176,7 +183,7 @@ export default {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => (c.uid === collection.uid));
       if (idx !== -1) {
-        this.$store.dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore.removeCollectionItem({
           collection,
           item,
         }).then(() => {
@@ -215,14 +222,14 @@ export default {
       Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearTimeout(this.retryTimer);
   },
 };
 </script>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 .toc{
   margin-left: 1px;
   .article{
@@ -256,7 +263,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "page": "Page",

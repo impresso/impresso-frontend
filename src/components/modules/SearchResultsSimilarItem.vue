@@ -37,14 +37,11 @@
 </template>
 
 <script>
-import ArticleItem from './lists/ArticleItem';
-import VizBar from '../base/VizBar';
-import InfoButton from '../base/InfoButton';
+import ArticleItem from './lists/ArticleItem.vue';
+import VizBar from '../base/VizBar.vue';
+import InfoButton from '../base/InfoButton.vue';
 
 export default {
-  model: {
-    prop: 'article',
-  },
   props: ['searchResult', 'topics'],
   components: {
     ArticleItem,
@@ -68,7 +65,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "impresso-theme/src/scss/variables.sass";
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 h2 {
   font-size: 1rem !important;
@@ -89,7 +86,7 @@ h2 {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "add_to_collection": "Add to Collection ...",

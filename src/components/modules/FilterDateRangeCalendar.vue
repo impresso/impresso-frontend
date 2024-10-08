@@ -1,7 +1,7 @@
 <template>
   <div class="FilterDateRange d-flex">
     <div class="flex-grow-1">
-      <b-input-group class="mb-1">
+      <div class="input-group mb-1">
         <b-form-input
           size="sm"
           id="start-date-datepicker"
@@ -10,26 +10,23 @@
           placeholder="..."
           autocomplete="off"
         ></b-form-input>
-        <b-input-group-append v-if="showCalendar">
-          <b-form-datepicker
-            button-only
-            right
+        <div class="input-group-append" v-if="showCalendar">
+          <DatepickerButton
             size="sm"
             locale="en-US"
-            aria-controls="start-date-datepicker"
             :min="minDate"
             :max="maxDate"
             v-model="startValueCalendar"
-            button-variant="outline-secondary"
-          ></b-form-datepicker>
-        </b-input-group-append>
-      </b-input-group>
+            required
+            button-variant="outline-secondary"/>
+        </div>
+      </div>
     </div>
     <div class="flex-shrink-1 mx-2">
       to
     </div>
     <div class="flex-grow-1">
-      <b-input-group class="mb-1">
+      <div class="input-group mb-1">
         <b-form-input
           size="sm"
           id="end-date-datepicker"
@@ -38,34 +35,29 @@
           placeholder="..."
           autocomplete="off"
         ></b-form-input>
-        <b-input-group-append v-if="showCalendar">
-          <b-form-datepicker
-            button-only
-            right
+        <div class="input-group-append" v-if="showCalendar">
+          <DatepickerButton
             size="sm"
-            button-variant="outline-secondary"
             locale="en-US"
-            aria-controls="end-date-datepicker"
             :min="minDate"
             :max="maxDate"
             v-model="endValueCalendar"
-          ></b-form-datepicker>
-        </b-input-group-append>
-      </b-input-group>
+            required
+            button-variant="outline-secondary"/>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import BaseTitleBar from '@/components/base/BaseTitleBar'
 import Daterange from '@/models/Daterange'
-import FilterDaterange from '@/models/FilterDaterange'
-import FilterMonitor from '@/components/modules/FilterMonitor'
+import DatepickerButton from '@/components/base/DatepickerButton.vue'
+
 export default {
   name: 'FilterDateRangeCalendar',
   components: {
-    BaseTitleBar,
-    FilterMonitor,
+    DatepickerButton,
   },
   props: {
     filters: {
@@ -172,7 +164,7 @@ export default {
   },
 }
 </script>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "label": {

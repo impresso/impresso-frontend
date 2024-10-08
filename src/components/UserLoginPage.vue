@@ -65,6 +65,9 @@
 </template>
 
 <script>
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
+
 export default {
   data: () => ({
     email: '',
@@ -79,15 +82,15 @@ export default {
       this.error = false
       const path = this.$route.query.redirect || window.redirect || '/'
 
-      this.$store
-        .dispatch('user/LOGIN', {
+      this.userStore
+        .login({
           email: this.email,
           password: this.password,
         })
         .then(() => {
           this.$router.push({
             path,
-            ...this.$store.getters.redirectionParams,
+            ...this.userStore.redirectionParams,
           })
         })
         .catch(err => {
@@ -99,14 +102,13 @@ export default {
     },
   },
   computed: {
+    ...mapStores(useUserStore),
     rememberCredentials: {
       get() {
-        return this.$store.state.user.rememberCredentials
+        return this.userStore.rememberCredentials
       },
       set(val) {
-        this.$store.commit('user/SET_REMEMBER_CREDENTIALS', {
-          remember: val,
-        })
+        this.userStore.setRememberCredentials(val)
       },
     },
   },
@@ -115,7 +117,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 #UserLoginPage a {
   text-decoration: underline;
@@ -172,7 +174,7 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "Invalid login": "Invalid login",

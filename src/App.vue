@@ -25,22 +25,29 @@
     </div>
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
+    <Toaster />
   </div>
 </template>
 
 <script>
 import WebFontLoader from 'webfontloader'
-import TheHeader from './components/TheHeader'
-import Monitor from './components/Monitor'
-import SelectionMonitor from './components/SelectionMonitor'
-import DisclaimerNotice from './components/modals/DisclaimerNotice'
-import StatusIndicator from './components/modals/StatusIndicator'
-import CookieDisclaimer from './components/modals/CookieDisclaimer'
-import TroublesAhead from './components/modals/TroublesAhead'
+import TheHeader from '@/components/TheHeader.vue'
+import Monitor from '@/components/Monitor.vue'
+import SelectionMonitor from '@/components/SelectionMonitor.vue'
+import DisclaimerNotice from '@/components/modals/DisclaimerNotice.vue'
+import StatusIndicator from '@/components/modals/StatusIndicator.vue'
+import CookieDisclaimer from '@/components/modals/CookieDisclaimer.vue'
+import TroublesAhead from '@/components/modals/TroublesAhead.vue'
+import Toaster from '@/components/base/Toaster.vue'
 import { CommonQueryParameters } from './router/util'
 import { joinFiltersWithItems, optimizeFilters, serializeFilters } from './logic/filters'
 import { searchQueryGetter } from './logic/queryParams'
 import { filtersItems } from './services'
+import { mapStores } from 'pinia'
+import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
+import { Navigation } from './plugins/Navigation'
 
 export default {
   name: 'app',
@@ -52,24 +59,26 @@ export default {
     StatusIndicator,
     CookieDisclaimer,
     TroublesAhead,
+    Toaster
   },
   data: () => ({
     filtersWithItems: [],
-    enableTroublesAhead: process.env.VUE_APP_MAINTENANCE.length > 0,
+    enableTroublesAhead: import.meta.env.VITE_MAINTENANCE.length > 0
   }),
   props: {
     startYear: {
       type: Number,
-      default: 1700,
+      default: 1700
     },
     endYear: {
       type: Number,
-      default: new Date().getFullYear(),
-    },
+      default: new Date().getFullYear()
+    }
   },
   computed: {
+    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore),
     searchQuery: {
-      ...searchQueryGetter(),
+      ...searchQueryGetter()
     },
     /** @returns {Filter[]} */
     filters() {
@@ -77,22 +86,25 @@ export default {
       return this.searchQuery.filters
     },
     termsAgreed() {
-      console.info('Terms agreement:', this.$store.state.settings.termsAgreed)
-      if (this.$store.state.user.userData) {
+      console.info('Terms agreement:', this.settingsStore.termsAgreed)
+      if (this.userStore.userData) {
         return true
       }
-      return this.$store.state.settings.termsAgreed
+      return this.settingsStore.termsAgreed
     },
     is_locked() {
-      return this.$store.state.processingLocked
+      return this.notificationsStore.processingLocked
     },
+    $navigation() {
+      return new Navigation(this)
+    }
   },
   methods: {
     handleChangeFilters(filters) {
       // eslint-disable-next-line no-console
       console.debug('[App] handleChangeFilters', serializeFilters(optimizeFilters(filters)))
       this.$navigation.updateQueryParameters({
-        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters)),
+        [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     },
     async loadFilterItems() {
@@ -102,72 +114,33 @@ export default {
       this.filtersWithItems = filtersWithItems
       // eslint-disable-next-line
       console.debug('[App] loadFilterItems', filtersWithItems)
-    },
+    }
   },
   mounted() {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover')
     })
+    this.loadFilterItems()
   },
   created() {
     // load typekit
     WebFontLoader.load({
       typekit: {
-        id: process.env.VUE_APP_TYPEKIT_ID,
-      },
+        id: import.meta.env.VITE_TYPEKIT_ID
+      }
     })
-    console.info('enable MAINTENANCE:', process.env.VUE_APP_MAINTENANCE.length)
+    console.info('enable MAINTENANCE:', import.meta.env.VITE_MAINTENANCE.length)
   },
   watch: {
     filters() {
       this.loadFilterItems()
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'impresso-theme/src/scss/variables.sass';
-
-@font-face {
-  font-family: 'Satoshi-Variable';
-  src: url('/assets/fonts/Satoshi-Variable.woff2') format('woff2'),
-    url('/assets/fonts/Satoshi-Variable.woff') format('woff'),
-    url('/assets/fonts/Satoshi-Variable.ttf') format('truetype');
-  font-weight: 300 900;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Satoshi-VariableItalic';
-  src: url('/assets/fonts/Satoshi-VariableItalic.woff2') format('woff2'),
-    url('/assets/fonts/Satoshi-VariableItalic.woff') format('woff'),
-    url('/assets/fonts/Satoshi-VariableItalic.ttf') format('truetype');
-  font-weight: 300 900;
-  font-display: swap;
-  font-style: italic;
-}
-
-// @font-face {
-//   font-family: 'Sentient-Variable';
-//   src: url('/assets/fonts/Sentient-Variable.woff2') format('woff2'),
-//     url('/assets/fonts/Sentient-Variable.woff') format('woff'),
-//     url('/assets/fonts/Sentient-Variable.ttf') format('truetype');
-//   font-weight: 300 900;
-//   font-display: swap;
-//   font-style: normal;
-// }
-
-// @font-face {
-//   font-family: 'Sentient-VariableItalic';
-//   src: url('/assets/fonts/Sentient-VariableItalic.woff2') format('woff2'),
-//     url('/assets/fonts/Sentient-VariableItalic.woff') format('woff'),
-//     url('/assets/fonts/Sentient-VariableItalic.ttf') format('truetype');
-//   font-weight: 300 900;
-//   font-display: swap;
-//   font-style: normal;
-// }
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 $clr-white: #ffffff;
 // $clr-dark: #212529;
@@ -177,263 +150,7 @@ $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 $clr-grey-900: #ddd;
 
-:root {
-  --impresso-color-paper: #fafbf2;
-
-  --impresso-color-yellow-code: 255, 235, 120;
-  --impresso-color-yellow: #ffeb78;
-  --impresso-color-yellow-alpha-20: rgba(255, 235, 120, 0.2);
-  --impresso-color-yellow-alpha-30: rgba(255, 235, 120, 0.3);
-  --impresso-color-yellow-alpha-50: rgba(255, 235, 120, 0.5);
-  --impresso-color-yellow-alpha-80: rgba(255, 235, 120, 0.8);
-
-  --impresso-color-black: #343a40;
-  --impresso-color-black-rgb: 52, 58, 64;
-
-  --impresso-color-pastel-blue: rgba(86, 204, 242);
-  --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
-
-  --impresso-border-radius-xs: 5px;
-  --impresso-border-radius-sm: 10px;
-  --impresso-border-radius-md: 15px;
-  --impresso-border-radius-lg: 20px;
-  --impresso-border-radius-xl: 30px;
-  --impresso-font-size-smallcaps: 0.72em;
-  --impresso-letter-spacing-smallcaps: 0.08em;
-  --impresso-font-size-smaller: 0.85em;
-  --impresso-wght: 450;
-  --impresso-wght-bold: 700;
-  --impresso-wght-smallcaps: 580;
-  --impresso-wght-smallcaps-bold: 800;
-  --clr-white: #f8f8ff;
-  --clr-white-rgba-20: #ffffff33;
-  --clr-dark: var(--impresso-color-black);
-
-  --clr-grey-100: #3d4146;
-  --clr-grey-200: #5b5e65;
-  --clr-grey-300: #84868e;
-  --clr-grey-400: #a9aab4;
-  --clr-grey-500: #c2c3cb;
-  --clr-grey-600: #d4d5e1;
-  --clr-grey-700: #e1e1ee;
-  --clr-grey-800: #ececfb;
-  --clr-grey-900: #f8f8ff;
-  --clr-grey-100-rgba-20: #464d5333;
-  --clr-grey-200-rgba-20: #585d6633;
-  --clr-grey-300-rgba-20: #7c7f8c33;
-  --clr-grey-400-rgba-20: #a0a1a333;
-  --clr-grey-500-rgba-20: #b1b2c633;
-  --clr-grey-600-rgba-20: #c3c4d933;
-  --clr-grey-700-rgba-20: #d5d5ec33;
-  --clr-grey-800-rgba-20: #e7e7ff33;
-  --clr-grey-900-rgba-20: #f8f8ff33;
-
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 1rem;
-  --spacing-4: 1.5rem;
-  --spacing-5: 3rem;
-  --negative-spacing-1: -0.25rem;
-  --negative-spacing-2: -0.5rem;
-  --negative-spacing-3: -1rem;
-  --negative-spacing-4: -1.5rem;
-  --negative-spacing-5: -3rem;
-
-  --accent: #28a745;
-  --impresso-yellow: #ffeb78;
-  --border-radius-sm: 3px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-
-  /* Bootstrap overrides */
-  --bs-font-sans-serif: 'Satoshi-Variable', sans-serif;
-  --bs-font-sans-serif-italic: 'Satoshi-VariableItalic', sans-serif;
-  --bs-font-serif-italic: 'questa', serif;
-  --bs-font-serif: 'questa', serif;
-  --bs-border-radius-lg: var(--impresso-border-radius-lg);
-  --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.125);
-  --bs-box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-  --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
-
-  --bs-font-size-base: 1rem;
-  --impresso-font-size-3: 1.75rem;
-  --impresso-font-size-4: 1.5rem;
-}
-
-body {
-  font-family: var(--bs-font-sans-serif);
-  font-weight: 450;
-  font-variation-settings: 'wght' 450;
-  text-rendering: optimizeLegibility;
-}
-body,
-html {
-  height: 100%;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6 {
-  font-family: var(--bs-font-serif);
-  font-weight: 375;
-  font-variation-settings: 'wght' 375;
-
-  i,
-  em {
-    font-family: var(--bs-font-serif-italic);
-    font-weight: 375;
-    font-variation-settings: 'wght' 375;
-  }
-}
-i,
-em {
-  font-style: normal;
-}
-.text-sans,
-.sans,
-legend,
-.small-caps,
-.textbox-fancy .label,
-.heading-top,
-.btn-sm,
-.btn-group-sm > .btn,
-h6.dropdown-header {
-  font-family: var(--bs-font-sans-serif);
-  font-weight: 450;
-  font-variation-settings: 'wght' 450;
-}
-
-label {
-  font-family: var(--bs-font-sans-serif);
-  font-weight: 450;
-  font-variation-settings: 'wght' 450;
-}
-
-.checkbox label,
-.small-caps {
-  text-transform: uppercase;
-  font-size: var(--impresso-font-size-smallcaps);
-  font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  font-weight: var(--impresso-wght-smallcaps);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-}
-.font-weight-bold {
-  font-weight: 700;
-  font-variation-settings: 'wght' 700;
-}
-.btn-sm,
-.btn-group-sm > .btn {
-  font-size: var(--impresso-font-size-smallcaps);
-  text-transform: uppercase;
-  font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  line-height: 2em;
-  font-weight: var(--impresso-wght-smallcaps);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-  padding: 0.3em 0.95em 0.25em 0.95em;
-  border-radius: var(--border-radius-sm);
-  white-space: nowrap;
-}
-.input-group .btn,
-.btn-group-sm > .btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.input-group .btn:first-of-type,
-.btn-group-sm > .btn:first-of-type {
-  border-top-left-radius: var(--border-radius-sm);
-  border-bottom-left-radius: var(--border-radius-sm);
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.input-group .btn:last-of-type,
-.btn-group-sm > .btn:last-of-type {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: var(--border-radius-sm);
-  border-bottom-right-radius: var(--border-radius-sm);
-}
-.btn-outline-primary,
-.btn-outline-secondary,
-.btn-primary,
-.btn-outline-success {
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--bs-box-shadow-sm);
-}
-.btn.disabled,
-.btn:disabled {
-  opacity: 0.45 !important;
-}
-.btn-outline-primary.disabled,
-.btn-outline-primary:disabled {
-  background-color: $clr-tertiary !important;
-}
-
-.btn-outline-icon {
-  border-radius: 50%;
-  position: relative;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  margin: 0;
-  font-size: 1rem;
-  border-color: var(--clr-grey-600);
-  color: var(--clr-grey-600);
-  box-shadow: var(--bs-box-shadow-sm);
-  > span {
-    color: inherit;
-  }
-  &:hover {
-    border-color: #17191c;
-    color: #17191c;
-  }
-}
-
-.btn-outline-icon > span {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-}
-.btn-md {
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--bs-box-shadow-sm);
-  border-width: 0;
-
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-}
-.shadow-sm {
-  box-shadow: var(--bs-box-shadow-sm);
-}
-.drop-shadow {
-  box-shadow: var(--bs-box-shadow-md);
-}
-
-.navbar-nav label {
-  text-transform: uppercase;
-  font-size: var(--impresso-font-size-smallcaps);
-  font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  font-weight: var(--impresso-wght-smallcaps);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-}
-// .btn-primary {
-//   border-radius: 2px;
-//   box-shadow: rgba(50, 50, 105, 0.15) 0px 2px 3px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px,
-//     inset rgba(255, 255, 255, 0.18) 0px 1px 1px 0px;
-// }
+@import './styles/style.css';
 
 #app {
   display: grid;
@@ -483,55 +200,6 @@ label {
     z-index: 1043;
   }
 }
-select {
-  appearance: inherit;
-}
-span.number {
-  // font-family: 'questa-sans', sans-serif;
-}
-svg {
-  text {
-    font-family: 'questa-sans', sans-serif;
-  }
-  // axis
-  g.tick > line {
-    stroke: $clr-tertiary;
-  }
-  path.domain {
-    stroke: $clr-quaternary;
-  }
-}
-
-ul.nav.nav-pills {
-  border-bottom: 1px solid var(--clr-grey-200);
-}
-ul.nav.nav-pills .nav-item .nav-link {
-  background-color: transparent;
-  font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  text-transform: uppercase;
-  font-size: var(--impresso-font-size-smallcaps);
-  font-weight: var(--impresso-wght-smallcaps);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-  border-bottom: 1px solid transparent;
-}
-ul.nav.nav-pills .nav-item.active .nav-link,
-ul.nav.nav-pills .nav-item .nav-link.active {
-  color: var(--impresso-color-black);
-
-  font-weight: var(--impresso-wght-smallcaps-bold);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
-  box-shadow: var(--clr-grey-200) 0px 2px 0px 0px, var(--clr-grey-200) 0px 2px 0px 0px;
-  border-bottom: 1px solid var(--clr-grey-200);
-}
-ul.nav.nav-pills .nav-item {
-  // hover
-  &:hover .nav-link {
-    color: var(--impresso-color-black);
-    /** box shadow that looks like a border bottom solid  */
-    box-shadow: var(--impresso-color-black) 0px 2px 0px 0px;
-  }
-}
 
 .bg-dark ul.nav.nav-pills {
   border-bottom: 1px solid $clr-grey-400;
@@ -572,44 +240,6 @@ ul.nav.nav-pills .nav-item {
 //     background-color: transparent;
 //   }
 // }
-
-.rounded {
-  border-radius: var(--border-radius-md) !important;
-}
-.rounded-lg {
-  border-radius: var(--border-radius-lg) !important;
-}
-.bg-medium {
-  background: $clr-grey-900;
-}
-.pt-1px {
-  padding-top: 1px;
-}
-.pb-1px {
-  padding-bottom: 1px;
-}
-.mt-1px {
-  margin-top: 1px;
-}
-.mt-2px {
-  margin-top: 2px;
-}
-.mb-1px {
-  margin-bottom: 1px;
-}
-.mr-1px {
-  margin-right: 1px;
-}
-.ml-1px {
-  margin-left: 1px;
-}
-.opacity-50 {
-  opacity: 0.5;
-}
-
-.border-primary {
-  border-color: var(--impresso-color-black) !important;
-}
 
 .border-tertiary {
   border-color: $clr-tertiary !important;
@@ -818,10 +448,6 @@ input[type='range']:active::-ms-thumb {
   }
 }
 
-.list-item-details .dropdown {
-  position: inherit;
-}
-
 // fix size change on hover
 .dropdown-toggle::after {
   height: 1rem;
@@ -833,6 +459,7 @@ input[type='range']:active::-ms-thumb {
   padding: 0;
   // top: -0.5px !important;
   margin-top: -1px;
+  width: fit-content;
 }
 
 // change button color when bg-dark
@@ -841,6 +468,7 @@ input[type='range']:active::-ms-thumb {
   &:not(.disabled):focus,
   &:hover {
     background-color: transparent;
+    color: var(--impresso-color-black);
   }
 }
 
@@ -854,21 +482,7 @@ input[type='range']:active::-ms-thumb {
     font-weight: bold;
   }
 }
-.fixed-pagination-footer {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 100%;
 
-  .pagination {
-    li.page-item > a,
-    li.page-item > .page-link {
-      border-color: $clr-secondary;
-      padding: 0.15em 0.6em;
-    }
-  }
-}
 .dark-mode,
 .navbar-dark {
   .fixed-pagination-footer {

@@ -5,7 +5,7 @@
 </template>
 
 <style lang="scss">
-@import "impresso-theme/src/scss/variables.sass";
+@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .spinner > span,
 .spinner:after,

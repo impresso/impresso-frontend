@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="entity-item d-flex align-items-center" :class="{ active }">
     <div
       class="mb-2 mr-3"
@@ -18,12 +18,8 @@
       <div class="type badge ml-1  bg-medium badge-light">{{ $t(`types.${item.type}`) }}</div>
       <div v-if="description" v-html="description"/>
       <div class="small-caps" v-if="item.countItems > -1">
-        <span v-html="$tc('countItems', item.countItems, {
-          count: $n(item.countItems),
-        })"/>,
-        <span v-html="$tc('countMentions', item.countMentions, {
-          count: $n(item.countMentions),
-        })"/>
+        <span v-html="countItems"></span>,
+        <span v-html="countMentions"></span>
       </div>
     </div>
     <div v-if="isObservable" class="px-2" @click="$emit('toggle-observed', item)">
@@ -68,6 +64,16 @@ export default {
       }
       return this.item.wikidata.images || [];
     },
+    countItems() {
+      return this.$tc('countItems', this.item.countItems, {
+        count: `<span class="number">${this.$n(this.item.countItems)}</span>`,
+      })
+    },
+    countMentions() {
+      return this.$tc('countMentions', this.item.countMentions, {
+        count: `<span class="number">${this.$n(this.item.countMentions)}</span>`,
+      })
+    },
   },
   methods: {
     getWikidataImageURL(image, { width = 60 } = {}) {
@@ -98,11 +104,11 @@ export default {
   background-color: #f2f2f2;
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
-      "countItems": "no articles | <span class='number'>{count}</span> article | <span class='number'>{count}</span> articles",
-      "countMentions": "no mentions | <span class='number'>{count}</span> mention | <span class='number'>{count}</span> mentions"
+      "countItems": "no articles | {count} article | {count} articles",
+      "countMentions": "no mentions | {count} mention | {count} mentions"
     }
   }
 </i18n>

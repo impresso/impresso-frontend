@@ -16,10 +16,16 @@
           </span>
         </div>
         <div class="col p-0 align-self-end">
-          <b-nav-form class="display-style">
-            <b-form-radio-group v-model="displayStyle" :options="displayStyleOptions" button-variant="outline-primary" size="sm" buttons/>
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </b-nav-form>
+          <li class="form-inline display-style">
+            <form class="form-inline">
+              <radio-group
+                :modelValue="displayStyle"
+                @update:modelValue="displayStyle = $event"
+                :options="displayStyleOptions"
+                type="button" />
+              <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
+            </form>
+          </li>
         </div>
       </div>
       <div class="row mb-3">
@@ -31,14 +37,14 @@
               :highlight="timelineHighlightValue"
               :highlight-enabled-state="timelineHighlightEnabled"
               :brushable="false">
-          <div slot-scope="tooltipScope">
+          <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item.t, 'year', 'en') }} &middot;
-              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w, {
-                n: $n(tooltipScope.tooltip.item.w),
+              {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year', 'en') }} &middot;
+              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w ?? 0, {
+                n: $n(tooltipScope.tooltip.item.w ?? 0),
               })"/>
             </div>
-          </div>
+          </template>
         </timeline>
       </div>
     </div>
@@ -74,11 +80,12 @@
 </template>
 
 <script>
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel'
-import Timeline from '@/components/modules/Timeline'
-import InfoButton from '@/components/base/InfoButton'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Timeline from '@/components/modules/Timeline.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'
+import RadioGroup from '@/components/layout/RadioGroup.vue';
 
 const DisplayStyles = ['percent', 'sum']
 
@@ -153,7 +160,8 @@ export default {
   components: {
     StackedBarsPanel,
     Timeline,
-    InfoButton
+    InfoButton,
+    RadioGroup,
   },
   computed: {
     /** @returns {string} */
@@ -233,7 +241,7 @@ export default {
 </script>
 
 <style lang="scss">
-  @import "impresso-theme/src/scss/variables.sass";
+  @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
   @import "@/styles/variables.sass";
 
   .facet-overview-panel{
@@ -268,7 +276,7 @@ export default {
   }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label": {

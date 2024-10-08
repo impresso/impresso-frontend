@@ -1,50 +1,59 @@
-<template lang="html">
-  <div class="bucket">
-    <b-form-checkbox v-model="isChecked">
-      <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-      <span v-else>{{ item }}</span>
-      <span v-if="bucket.count > -1">
-        (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
-      </span>
-      <item-selector
-        :uid="bucket.val"
-        :item="bucket.item"
-        :type="type"
-        :searchIndex="searchIndex"
-      />
+<template>
+  <div class="FilterFacetBucket d-flex text-small">
+    <b-form-checkbox v-model="isChecked" data-testid="filter-facet-bucket-checkbox">
     </b-form-checkbox>
+
+    <item-selector
+      hide-icon
+      :uid="bucket.val"
+      :item="bucket.item"
+      :type="type"
+      :searchIndex="searchIndex"
+    >
+      <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
+      <span class="FilterFacetBucket__label" v-else>{{ item }}</span>
+      <span v-if="bucket.count > -1">
+        (<span
+          v-html="
+            $tc(
+              type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results',
+              bucket.count,
+              { n: $n(bucket.count) }
+            )
+          "
+        />
+        {{ type }})
+      </span>
+    </item-selector>
   </div>
 </template>
 
 <script>
-import ItemSelector from './ItemSelector'
-import ItemLabel from './lists/ItemLabel'
+import ItemSelector from './ItemSelector.vue'
+import ItemLabel from './lists/ItemLabel.vue'
 
 export default {
   name: 'FilterFacetBucket',
   data: () => ({
     operators: ['or', 'and', 'not'],
     operator: 'or',
-    checked: false,
+    checked: false
   }),
-  model: {
-    prop: 'bucket',
-  },
   props: {
     bucket: {
-      type: Object,
+      type: Object
     },
     type: {
-      type: String,
+      type: String
     },
     isLoadingResults: {
       type: Boolean,
-      default: true,
+      default: true
     },
     searchIndex: {
       type: String,
-      default: 'search',
-    },
+      default: 'search'
+    }
   },
   computed: {
     isChecked: {
@@ -53,40 +62,46 @@ export default {
       },
       set(checked) {
         this.checked = checked
-        this.bucket.checked = checked
-        this.bucket.operator = this.operator
+        this.bucket.checked = checked // eslint-disable-line
+        this.bucket.operator = this.operator // eslint-disable-line
         this.$emit('toggle-bucket', this.bucket)
-      },
+      }
     },
     selectedOperator() {
       return this.$t(`operator.${this.operator}`)
-    },
+    }
   },
   methods: {
     selectOperator(operator) {
       this.operator = operator
-    },
+    }
   },
   components: {
     ItemSelector,
-    ItemLabel,
+    ItemLabel
   },
   mounted() {
     this.checked = !!this.bucket.checked
-  },
+  }
 }
 </script>
 
-<style lang="scss">
-.bucket span {
+<style>
+.FilterFacetBucket span,
+.FilterFacetBucket label {
   font-variant: normal;
 }
-.bucket label {
-  font-variant: normal;
+
+.FilterFacetBucket .ItemSelector {
+  cursor: pointer;
+}
+
+.FilterFacetBucket .ItemSelector:hover {
+  text-decoration: underline;
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "dates": {

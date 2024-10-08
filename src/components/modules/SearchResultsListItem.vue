@@ -1,113 +1,124 @@
 <template>
-  <b-media class="py-3 border-bottom  search-result-list-item SearchResultListItem">
-    <div v-if="isAvailable()" class="thumbnail" slot="aside">
-      <IIIFFragment
-        @click="goToArticle"
-        v-if="article.pages.length"
-        :iiif="article.pages[0].iiif"
-        size="!496,480"
-        :scale="0.5"
-        fit-to-regions
-        :regions="computedRegionsInArticleFirstPage"
-      />
-    </div>
-    <div v-else class="error bg-light border" slot="aside">
-      <p class="message">{{ $t('login_message') }}</p>
-    </div>
-    <div class="d-flex">
-      <div class="list-item-details me-3 mr-3">
-        <!-- if article -->
-        <article-item
-          :item="article"
-          show-meta
-          show-excerpt
-          show-entities
-          show-matches
-          show-link
-          class="mb-2"
-        />
-        <b-badge
-          class="mb-2"
-          pill
-          v-for="tag in article.tags"
-          variant="secondary"
-          v-bind:key="tag.uid"
-          >{{ tag.name }}</b-badge
-        >
-        <div
-          v-if="article.collections && article.collections.length > 0"
-          class="article-collections mb-2"
-        >
-          <b-badge
-            v-for="(collection, i) in article.collections"
-            v-bind:key="i"
-            variant="info"
-            class="mr-1"
-          >
-            <router-link
-              class="text-white"
-              v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
-            >
-              {{ collection.name }}
-            </router-link>
-            <a
-              class="dripicons dripicons-cross"
-              v-on:click="onRemoveCollection(collection, article)"
-            />
-          </b-badge>
-        </div>
-
-        <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
-          {{ $t('view') }}
-        </router-link>
-
-        <slot name="secondary-action">
-          <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
-        </slot>
-
-        <div v-if="article.accessRight === 'OpenPublic'" class="shareArticleControl d-inline ml-1">
-          <b-button
-            variant="outline-success"
-            size="sm"
-            v-on:click="showModalShareArticle()"
-            :title="$t('share_article')"
-          >
-            <div class="d-flex flex-row align-items-center">
-              <div class="d-flex dripicons dripicons-web mr-1" />
-              <div>
-                {{ $t('actions.share') }}
-              </div>
-            </div>
-          </b-button>
-        </div>
-      </div>
-      <div v-if="showContext && computedRegionsInArticleFirstPage">
+  <div
+    class="media py-3 border-bottom search-result-list-item SearchResultListItem"
+    data-testid="search-results-list-item"
+  >
+    <div class="media-aside align-self-start">
+      <div v-if="isAvailable()" class="thumbnail">
         <IIIFFragment
-          @click="goToArticle"
+          @selected="goToArticle"
+          v-if="article?.pages?.length"
           :iiif="article.pages[0].iiif"
-          size="!248,240"
+          size="!496,480"
+          :scale="0.5"
+          fit-to-regions
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
-      <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
-        <b-checkbox
-          class="mr-0 select-item"
-          v-bind:checked="checked"
-          v-on:change="toggleSelected"
-        />
+      <div v-else class="error bg-light border">
+        <p class="message">{{ $t('login_message') }}</p>
       </div>
     </div>
+    <div class="media-body">
+      <div class="d-flex">
+        <div class="list-item-details me-3 mr-3">
+          <!-- if article -->
+          <article-item
+            :item="article"
+            show-meta
+            show-excerpt
+            show-entities
+            show-matches
+            show-link
+            class="mb-2"
+          />
+          <b-badge
+            class="mb-2"
+            pill
+            v-for="tag in article.tags"
+            variant="secondary"
+            v-bind:key="tag.uid"
+            >{{ tag.name }}</b-badge
+          >
+          <div
+            v-if="article.collections && article.collections.length > 0"
+            class="article-collections mb-2"
+          >
+            <b-badge
+              v-for="(collection, i) in article.collections"
+              v-bind:key="i"
+              variant="info"
+              class="mr-1"
+            >
+              <router-link
+                class="text-white"
+                v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+              >
+                {{ collection.name }}
+              </router-link>
+              <a
+                class="dripicons dripicons-cross"
+                v-on:click="onRemoveCollection(collection, article)"
+              />
+            </b-badge>
+          </div>
 
-    <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
-  </b-media>
+          <!-- <router-link :to="computedArticleRouterLink" class="btn btn-sm btn-outline-primary mr-1">
+            {{ $t('view') }}
+          </router-link> -->
+
+          <slot name="secondary-action">
+            <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
+          </slot>
+
+          <div
+            v-if="article.accessRight === 'OpenPublic'"
+            class="shareArticleControl d-inline ml-1"
+          >
+            <b-button
+              variant="outline-success"
+              size="sm"
+              v-on:click="showModalShareArticle()"
+              :title="$t('share_article')"
+            >
+              <div class="d-flex flex-row align-items-center">
+                <div class="d-flex dripicons dripicons-web mr-1" />
+                <div>
+                  {{ $t('actions.share') }}
+                </div>
+              </div>
+            </b-button>
+          </div>
+        </div>
+        <div v-if="showContext && computedRegionsInArticleFirstPage">
+          <IIIFFragment
+            @click="goToArticle"
+            :iiif="article.pages[0].iiif"
+            size="!248,240"
+            :regions="computedRegionsInArticleFirstPage"
+          />
+        </div>
+        <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
+          <b-checkbox
+            class="mr-0 select-item"
+            v-bind:checked="checked"
+            v-on:change="toggleSelected"
+          />
+        </div>
+      </div>
+      <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
+    </div>
+  </div>
 </template>
 
 <script>
-import CollectionAddTo from './CollectionAddTo'
-import ArticleItem from './lists/ArticleItem'
-import LazyOpenSeadragonArticlePageViewer from './vis/LazyOpenSeadragonArticlePageViewer'
-import CopyToClipboard from '../modals/CopyToClipboard'
+import { mapStores } from 'pinia'
+import CollectionAddTo from './CollectionAddTo.vue'
+import ArticleItem from './lists/ArticleItem.vue'
+import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
+import { useCollectionsStore } from '@/stores/collections'
+import { useUserStore } from '@/stores/user'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -115,31 +126,32 @@ const MatchOverlayClass = 'overlay-match'
 export default {
   data: () => ({
     showModalShare: false,
-    coordsFromArticleRegion: null,
+    coordsFromArticleRegion: null
   }),
-  model: {
-    prop: 'article',
-  },
   props: {
-    article: {
+    modelValue: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     checkbox: {
       type: Boolean,
 
-      default: false,
+      default: false
     },
     checked: {
       type: Boolean,
-      default: false,
+      default: false
     },
     showContext: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   computed: {
+    ...mapStores(useCollectionsStore, useUserStore),
+    article() {
+      return this.modelValue
+    },
     pageViewerOptions() {
       return {
         tileSources: [this.article.pages[0]?.iiif],
@@ -151,7 +163,7 @@ export default {
         navigatorSizeRatio: 0.25,
         navigatorDisplayRegionColor: 'black',
         navigatorBorderColor: '#dee2e6',
-        navigatorOpacity: 1,
+        navigatorOpacity: 1
       }
     },
     pageViewerOverlays() {
@@ -186,8 +198,8 @@ export default {
         return {
           name: 'issue',
           params: {
-            issue_uid: this.article.issue.uid,
-          },
+            issue_uid: this.article.issue.uid
+          }
         }
       }
       return {
@@ -195,19 +207,19 @@ export default {
         params: {
           issue_uid: this.article.issue.uid,
           page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
-          article_uid: this.article.uid,
-        },
+          article_uid: this.article.uid
+        }
       }
-    },
+    }
   },
   methods: {
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.$store
-          .dispatch('collections/REMOVE_COLLECTION_ITEM', {
+        this.collectionsStore
+          .removeCollectionItem({
             collection,
-            item,
+            item
           })
           .then(() => {
             item.collections.splice(idx, 1)
@@ -225,7 +237,7 @@ export default {
       if (this.article.accessRight === 'OpenPublic') {
         return true
       }
-      return this.$store.state.user.userData
+      return this.userStore.userData
     },
     showModalShareArticle() {
       this.showModalShare = true
@@ -260,22 +272,21 @@ export default {
         x: x0,
         y: y0,
         w: x1 - x0,
-        h: y1 - y0,
+        h: y1 - y0
       }
-    },
+    }
   },
   mounted() {
-    if (this.article.pages.length > 0 && this.article.regions.length > 0) {
+    if (this.article?.pages?.length > 0 && this.article?.regions?.length > 0) {
       this.coordsFromArticleRegion = this.getCoordsFromArticleRegions()
     }
   },
   components: {
-    LazyOpenSeadragonArticlePageViewer,
     CollectionAddTo,
     ArticleItem,
     CopyToClipboard,
-    IIIFFragment,
-  },
+    IIIFFragment
+  }
 }
 </script>
 
@@ -283,6 +294,7 @@ export default {
 .SearchResultListItem .list-item-details {
   max-width: 800px;
 }
+
 .SearchResultListItem {
   .thumbnail {
     width: 250px;
@@ -290,20 +302,25 @@ export default {
     position: relative;
     cursor: move;
   }
+
   .error {
     width: 250px;
     height: 240px;
     position: relative;
     text-align: center;
+
     .message {
       margin-top: 114px;
     }
   }
+
   h2 {
     font-size: 1.2em;
     font-weight: 500;
+
     a {
       text-decoration: underline;
+
       // text-decoration-color:#ccc;
       &:hover {
         text-decoration-color: transparent;
@@ -317,11 +334,11 @@ export default {
 }
 </style>
 
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "view": "View",
-    "add_to_collection": "Add to Collection ...",
+    "add_to_collection": "Save to Collection ...",
     "login_message": "Login to view image",
     "share_article": "Share ..."
   }

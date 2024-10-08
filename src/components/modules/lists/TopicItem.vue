@@ -16,13 +16,16 @@
 </template>
 
 <script>
-import ItemSelector from '../ItemSelector';
+import ItemSelector from '../ItemSelector.vue';
+import { mapStores } from 'pinia'
+import { useTopicsStore } from '@/stores/topics'
 
 export default {
   props: {
     item: Object,
   },
   computed: {
+    ...mapStores(useTopicsStore),
     label() {
       const countlabel = this.$tc('numbers.articles', this.item.countItems, {
         n: this.$n(this.item.countItems),
@@ -34,15 +37,15 @@ export default {
       // return this.item.matches.map(m => m.join(' · ')).join('<br>');
     },
     visualized() {
-      return typeof this.$store.state.topics.visualizedItemsIndex[this.item.uid] != 'undefined';
+      return this.topicsStore.visualizedItemsIndex[this.item.uid] != null
     },
   },
   methods: {
     toggleVisualized() {
       if (!this.visualized) {
-        this.$store.dispatch('topics/ADD_VISUALIZED_ITEM', this.item);
+        this.topicsStore.addVisualizedItem(this.item);
       } else {
-        this.$store.dispatch('topics/REMOVE_VISUALIZED_ITEM', this.item);
+        this.topicsStore.removeVisualizedItem(this.item);
       }
     },
   },

@@ -15,10 +15,10 @@
         <span  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
       </div>
       <b-button-group class="my-2 w-100">
-        <b-button class="mr-1" :to="{name: 'topic', params: { topic_uid: tooltip.item.uid }}" variant="outline-success"  size="sm">
+        <b-button class="mr-1" @click="$router.push({name: 'topic', params: { topic_uid: tooltip.item.uid }})" variant="outline-success"  size="sm">
             {{ $t('actions.viewTopic') }}
         </b-button>
-        <b-button class="ml-1" :to="searchRouteLink" variant="outline-success"  size="sm">
+        <b-button class="ml-1" @click="$router.push(searchRouteLink)" variant="outline-success"  size="sm">
             {{ $t('actions.searchMore') }}
         </b-button>
       </b-button-group>
@@ -43,27 +43,31 @@
 import Topic from '@/models/Topic';
 import { serializeFilters } from '@/logic/filters';
 import { CommonQueryParameters } from '@/router/util';
+import { mapStores } from 'pinia'
+import { useMonitorStore } from '@/stores/monitor'
+import { topics as topicsService } from '@/services'
 
 export default {
-  model: {
-    prop: 'tooltip',
-    default: {
-      x: 0,
-      y: 0,
-      count: 0,
-      isActive: false,
-      isHighlighted: false,
-      item: new Topic(),
-    },
-  },
   props: {
-    tooltip: Object,
+    modelValue: {
+      type: Object,
+      default: () => ({
+        x: 0,
+        y: 0,
+        count: 0,
+        isActive: false,
+        isHighlighted: false,
+        item: new Topic(),
+      })
+    },
     isActive: Boolean,
   },
   data: () => ({
     isLoading: false,
   }),
   computed: {
+    tooltip() { return this.modelValue },
+    ...mapStores(useMonitorStore),
     searchRouteLink() {
       return {
         name: 'search',
@@ -94,17 +98,19 @@ export default {
         return;
       }
       this.isLoading = true;
-      this.$store.dispatch('topics/LOAD_TOPIC', this.tooltip.item.uid).then((item) => {
-        this.isLoading = false;
-        this.tooltip.isActive = false;
-        this.$store.dispatch('monitor/ACTIVATE', {
-          item,
-          type: 'topic',
-          disableFilterModification: true
+      topicsService.get(this.tooltip.item.uid, { fl: 'id' })
+        .then(result => new Topic(result))
+        .then((item) => {
+          this.isLoading = false;
+          this.tooltip.isActive = false;
+          this.monitorStore.activate({
+            item,
+            type: 'topic',
+            disableFilterModification: true
+          });
+        }).catch(() => {
+          this.isLoading = true;
         });
-      }).catch(() => {
-        this.isLoading = true;
-      });
     },
   },
 };

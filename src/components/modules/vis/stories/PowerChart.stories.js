@@ -1,8 +1,7 @@
 import { action } from '@storybook/addon-actions'
 import PowerChart from '../PowerChart.vue'
 
-import 'impresso-theme/dist/css/bootpresso.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import './assets/legacy/bootstrap-impresso-theme.css';
 
 export default {
   title: 'Components/Modules/Vis/PowerChart',

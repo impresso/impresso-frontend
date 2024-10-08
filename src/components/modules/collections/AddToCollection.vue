@@ -8,7 +8,7 @@
     :text="title"
   >
     <div v-if="!isLoggedIn" class="p-2 bg-light">
-      <b-button size="sm" class="w-100" variant="outline-primary" v-bind:to="{ name: 'login' }">
+      <b-button size="sm" class="w-100" variant="outline-primary" @click="$router.push({ name: 'login' })">
         {{ $t('login') }}
       </b-button>
     </div>
@@ -34,17 +34,18 @@
           or
         </slot> -->
         <!-- Using components -->
-        <b-input-group size="sm" class="p-3">
+        <div class="input-group input-group-sm p-3">
+
           <b-form-input v-model="q" placeholder="search collections ..."></b-form-input>
-          <b-input-group-append>
+          <div class="input-group-append">
             <b-button
               variant="outline-secondary"
               @click="() => $emit('create', { name: q })"
               size="sm"
               >{{ $t('actions.create') }}</b-button
             >
-          </b-input-group-append>
-        </b-input-group>
+          </div>
+        </div>
       </template>
       <template v-slot:default>
         <div
@@ -77,6 +78,8 @@ import List from '../lists/List.vue'
 import { collections as collectionService } from '@/services'
 import Collection from '@/models/Collection'
 import ItemLabel from '../lists/ItemLabel.vue'
+import { mapStores } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'AddToCollection',
@@ -105,8 +108,9 @@ export default {
     }
   },
   computed: {
+    ...mapStores(useUserStore),
     isLoggedIn() {
-      return !!this.$store.state.user.userData
+      return !!this.userStore.userData
     },
     paginationList() {
       return {
@@ -123,7 +127,7 @@ export default {
         }
       }
       const query = {
-        skip: this.paginationPerPage * (this.paginationCurrentPage - 1),
+        offset: this.paginationPerPage * (this.paginationCurrentPage - 1),
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         orderBy: this.orderBy,
@@ -218,7 +222,7 @@ export default {
   }
 }
 </style>
-<i18n>
+<i18n lang="json">
   {
     "en": {
       "no_collections_found": "No collections found",

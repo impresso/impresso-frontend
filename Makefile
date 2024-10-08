@@ -12,15 +12,15 @@ build-netlify:
 	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \
 	PUBLIC_PATH=/ \
-	NODE_OPTIONS=--openssl-legacy-provider npm run build && \
+	npm run build && \
 	netlify deploy --prod --dir=dist
 
 run-dev:
-	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
-	GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
-	GIT_REVISION=$(shell git rev-parse --short HEAD) \
+	VITE_GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
+	VITE_GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD) \
+	VITE_GIT_REVISION=$(shell git rev-parse --short HEAD) \
 	PUBLIC_PATH=/app/ \
-	NODE_OPTIONS=--openssl-legacy-provider npm start
+	npm run dev
 
 run-docker-dev:
 	GIT_TAG=$(shell git describe --tags --abbrev=0 HEAD) \
@@ -35,3 +35,4 @@ run-docker-dev-build:
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \
 	PUBLIC_PATH=/app/ \
 	docker-compose -f docker-compose-dev.yml up --build
+

@@ -1,62 +1,58 @@
-<template lang="html">
+<template>
   <filter-wrapper v-on:remove="remove" v-bind:title="filter.query" :id="filter.key">
-    <div slot="settings">
-      <b-input-group class="mb-3">
-        <b-input
-          type="text"
-          v-model="filter.query"
-          v-on:input.native="updateFilter"
-          v-on:keyup.enter.native="submitFilter"
-          v-bind:disabled="disabled"
-          size="sm"
-        />
-        <b-button v-on:click="editFilter" v-show="disabled" size="sm"><icon name="edit" /></b-button>
-        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm"><icon name="check" /></b-button>
-      </b-input-group>
+    <template v-slot:settings>
+      <div class="input-group mb-3">
+        <b-input type="text" :modelValue="filter.query" v-on:input="updateFilter" v-on:keyup.enter="submitFilter"
+          v-bind:disabled="disabled" size="sm" />
+        <b-button v-on:click="editFilter" v-show="disabled" size="sm">
+          <icon name="edit" />
+        </b-button>
+        <b-button v-on:click="submitFilter" v-show="!disabled" size="sm">
+          <icon name="check" />
+        </b-button>
+      </div>
       <i-layout>
         <i-layout-section width="50%">
-          <filter-setting-context v-model="filter" />
+          <filter-setting-context :modelValue="filter" />
         </i-layout-section>
         <i-layout-section>
-          <filter-setting-precision v-model="filter" />
+          <filter-setting-precision :modelValue="filter" />
         </i-layout-section>
       </i-layout>
-    </div>
+    </template>
   </filter-wrapper>
 </template>
 
 <script>
-import Icon from 'vue-awesome/components/Icon';
-import FilterFactory from '@/models/FilterFactory';
+/**
+ * @deprecated Not used anywhere.
+ */
 
-import 'vue-awesome/icons/edit';
-import 'vue-awesome/icons/check';
+import Icon from '@/components/base/Icon.vue'
+import FilterFactory from '@/models/FilterFactory'
 
-import FilterSettingContext from './FilterSettingContext';
-import FilterSettingPrecision from './FilterSettingPrecision';
-import FilterWrapper from './FilterWrapper';
+import FilterSettingContext from '@/components/modules/FilterSettingContext.vue'
+import FilterSettingPrecision from '@/components/modules/FilterSettingPrecision.vue'
+import FilterWrapper from '@/components/modules/FilterWrapper.vue'
 
 export default {
   data: () => ({
     disabled: true,
   }),
-  model: {
-    prop: 'filter',
-  },
   props: ['filter'],
   methods: {
     updateFilter() {
-      this.$emit('input', FilterFactory.create(this.filter));
+      this.$emit('input', FilterFactory.create(this.filter))
     },
     submitFilter() {
-      this.$emit('submit');
-      this.disabled = true;
+      this.$emit('submit')
+      this.disabled = true
     },
     remove() {
-      this.$emit('remove');
+      this.$emit('remove')
     },
     editFilter() {
-      this.disabled = false;
+      this.disabled = false
     },
   },
   components: {
@@ -65,11 +61,10 @@ export default {
     FilterSettingPrecision,
     Icon,
   },
-};
+}
 </script>
 
-<i18n>
-{
+<i18n lang="json">{
   "en": {
     "query": "Text",
     "edit": "Edit",
@@ -83,5 +78,4 @@ export default {
     "edit": "Bewerken",
     "save": "Opslaan"
   }
-}
-</i18n>
+}</i18n>
