@@ -119,10 +119,8 @@
             <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
             and sign our Non-Disclosure-Agreement.
           </p>
-          <b-button
-            :variant="darkMode ? 'primary' : 'outline-primary'"
-            size="lg"
-            class="border-primary rounded shadow-sm"
+          <a
+            class="btn btn-lg btn-primary border-primary rounded shadow-sm"
             href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
             target="_self"
           >
@@ -130,7 +128,7 @@
               <div class="d-flex dripicons dripicons-download mr-2" />
               <div>{{ $t('download_nda') }}</div>
             </div>
-          </b-button>
+          </a>
           <p class="mb-0 mt-3">
             ... and return the signed form to
             <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">
