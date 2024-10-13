@@ -241,6 +241,14 @@
             "title": "Filter the list of results by article length",
             "summary": "Article length is measured in number of tokens. The histogram shows the number of articles grouped by similar length intervals",
             "description": []
+          },
+          {
+            "id": "error-id",
+            "title": "What is an error ID?",
+            "summary": "The error ID is a unique identifier for each error in the impresso corpus.",
+            "description": [
+              "The error ID is a unique identifier for each error in the impresso corpus. It is used to track the error and to provide feedback to the Impresso team. If you encounter an error, please report it to us quoting the error ID or taking a screenshot of the page where the error occurred."
+            ]
           }
         ]
       },
