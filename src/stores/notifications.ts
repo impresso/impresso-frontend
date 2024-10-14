@@ -10,18 +10,18 @@ interface HookErrorMixin {
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
 const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated', 'BadRequest'] // error to avoid loopholes
 
-
 interface Notification {
-  title: string;
-  message: string;
-  type: 'success' | 'error';
+  title: string
+  message: string
+  type: 'success' | 'error'
 }
 
 export interface StoredNotification extends Notification {
-  id: string;
+  id: string
 }
 
 interface ErrorMessage {
+  id: string
   route: string[]
   message: string
   code: number
@@ -49,6 +49,23 @@ interface State {
   processingStatus: boolean
 }
 
+interface DisplayErrorPayload {
+  error: Error
+  origin?: string
+}
+
+const isHookMixinError = (error: any): error is HookErrorMixin => {
+  return (
+    (error as HookErrorMixin).hook !== undefined &&
+    (error as HookErrorMixin).hook.path !== undefined &&
+    (error as HookErrorMixin).hook.method !== undefined
+  )
+}
+const isFeathersError = (error: any): error is FeathersError => {
+  return (
+    (error as FeathersError).code !== undefined && (error as FeathersError).className !== undefined
+  )
+}
 
 export const useNotificationsStore = defineStore('notifications', {
   state: (): State => ({
@@ -59,39 +76,39 @@ export const useNotificationsStore = defineStore('notifications', {
     processingLocked: false,
     processingActivities: [],
     processingActivitiesIndex: [],
-    processingStatus: false,
+    processingStatus: false
   }),
   getters: {},
   actions: {
     addNotification(notification: Notification) {
-      const id = v4();
+      const id = v4()
       this.notifications = [...this.notifications, { ...notification, id }]
       setTimeout(() => {
-        this.notifications = this.notifications.filter(n => n.id !== id);
+        this.notifications = this.notifications.filter(n => n.id !== id)
       }, 5000)
-      console.log('notification', this.notifications);
+      console.log('notification', this.notifications)
     },
     removeNotification(id: string) {
-      this.notifications = this.notifications.filter(n => n.id !== id);
+      this.notifications = this.notifications.filter(n => n.id !== id)
     },
-    async displayError({ error, origin = '' }: { error: FeathersError; origin?: string }) {
+    async displayError({ error, origin = '' }: DisplayErrorPayload) {
+      const errorId = v4()
       const errorRoute: string[] = []
+
       // get error route if possible
-      if ((error as any as HookErrorMixin).hook) {
-        const hookError = error as any as HookErrorMixin
-        try {
-          errorRoute.push(hookError.hook.path)
-          errorRoute.push(hookError.hook.method)
-        } catch (e) {
-          console.warn(e)
-        }
+      if (isHookMixinError(error)) {
+        errorRoute.push(error.hook.path)
+        errorRoute.push(error.hook.method)
       }
+
+      const errorCode = isFeathersError(error) ? error.code : 0
+
       console.error(
         `[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
-        error.code,
+        errorCode,
         error.name,
         error.message,
-        error,
+        error
       )
       if (errorRoute.length && errorRoute[0] === 'errors-collector') {
         console.info(
@@ -99,31 +116,44 @@ export const useNotificationsStore = defineStore('notifications', {
           error.name,
           'at',
           errorRoute,
-          'has not been dispatched. Source: errors-collector. Risk of loopholes',
+          'has not been dispatched. Source: errors-collector. Risk of loopholes'
         )
       } else {
         if (!ERRORS_DO_NOT_DISPLAY.includes(error.name)) {
-          const hash = JSON.stringify([...errorRoute, error.code, error.name])
+          const hash = JSON.stringify([...errorRoute, errorCode, error.name])
           if (!this.errorMessagesIndex.includes(hash)) {
             this.errorMessagesIndex.push(hash)
-            this.errorMessages.push({ route: errorRoute, message: error.message, code: error.code, name: error.name })
+            this.errorMessages.push({
+              id: errorId,
+              route: errorRoute,
+              message: error.message,
+              code: errorCode,
+              name: error.name
+            })
           }
         }
 
         // do not force if BadGateway or polling error (risk of having endless and useless loops)
-        if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === (error as any).type).length) {
+        const errorType = isFeathersError(error) ? error.type : undefined
+        const className = isFeathersError(error) ? error.className : undefined
+        if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === errorType).length) {
           console.info(
             'Error',
             error.name,
             'at',
             errorRoute,
-            'has not been dispatched, risk of loopholes',
+            'has not been dispatched, risk of loopholes'
           )
         } else {
           await errorCollector
             .create({
-              uri: errorRoute.length ? errorRoute.join('.') : 'N/A',
-              ...error,
+              id: errorId,
+              url: window.location.href,
+              errorMessage: error.message,
+              stackTrace: error.stack,
+              origin,
+              className,
+              type: errorType
             })
             .catch(err => {
               console.error('[Unexpected error in sending the error]', err)
@@ -141,7 +171,13 @@ export const useNotificationsStore = defineStore('notifications', {
     lockScreen(status: boolean) {
       this.processingLocked = status
     },
-    updateProcessingActivity({ route, status }: { route: string, status: 'LOADING' | 'LONG' | 'DONE' }) {
+    updateProcessingActivity({
+      route,
+      status
+    }: {
+      route: string
+      status: 'LOADING' | 'LONG' | 'DONE'
+    }) {
       if (['LOADING', 'LONG'].includes(status)) {
         // add
         const idx = this.processingActivitiesIndex.indexOf(route)
@@ -172,9 +208,9 @@ export const useNotificationsStore = defineStore('notifications', {
           this.processingStatus = false
         }, 500)
       }
-    },
+    }
   },
   persist: {
-    paths: [],
-  },
+    paths: []
+  }
 })

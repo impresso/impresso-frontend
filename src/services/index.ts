@@ -9,8 +9,9 @@ import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
 import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
+import type { Services } from './types'
 
-export const app = feathers()
+export const app = feathers<Services>()
 
 const transport: 'socketio' | 'rest' = import.meta.env.VITE_API_TRANSPORT ?? 'socketio'
 

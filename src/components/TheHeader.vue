@@ -187,7 +187,7 @@
     </b-navbar>
     <b-alert :show="showAlert" dismissible variant="warning" class="m-0 px-3">
       <div v-for="(error, idx) in errorMessages" v-bind:key="idx">
-        <span>
+        <span class="error-alert">
           <span v-if="error.name === 'NotAuthenticated' && user">{{
             $t('errors.Notauthenticated')
           }}</span>
@@ -213,6 +213,10 @@
             {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
           </span>
           <span v-else>{{ error }}</span>
+          <span v-if="error.id" class="error-id">
+            <info-button name="error-id" placement="bottom" class="ml-2" />
+            [ {{ error.id }} ]
+          </span>
         </span>
         <span v-if="error.route.length">&nbsp;{{ $t(['paths', ...error.route].join('.')) }}</span>
       </div>
@@ -220,11 +224,13 @@
   </div>
 </template>
 
-<script>
+<script lang="js">
+import { defineComponent } from 'vue'
 import Icon from '@/components/base/Icon.vue'
 import JobItem from '@/components/modules/lists/JobItem.vue'
 import Pagination from '@/components/modules/Pagination.vue'
 import Logo from '@/components/Logo.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
@@ -232,7 +238,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 
-export default {
+export default defineComponent({
   // props: {
   //   searchQuery: Object,
   // },
@@ -439,9 +445,10 @@ export default {
     Logo,
     // Toast,
     JobItem,
-    Pagination
+    Pagination,
+    InfoButton
   }
-}
+})
 </script>
 
 <style lang="scss">
@@ -716,6 +723,16 @@ export default {
 @media (min-width: 1200px) {
   #app-header .navbar-nav .nav-link {
     max-width: 220px;
+  }
+}
+
+.error-alert {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 2rem;
+
+  .error-id {
+    margin-left: 1rem;
   }
 }
 </style>
