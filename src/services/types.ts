@@ -12,7 +12,7 @@ interface ErrorsCollectorPayload {
 export interface ErrorsCollectorService
   extends Pick<ServiceMethods<{}, ErrorsCollectorPayload>, 'create'> {}
 
-type UntypedService = Partial<ServiceMethods<{}, any>>
+type UntypedService = Partial<ServiceMethods<any, any>>
 
 interface UntypedServices {
   [key: string]: UntypedService

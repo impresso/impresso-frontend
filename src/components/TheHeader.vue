@@ -224,7 +224,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="js">
 import { defineComponent } from 'vue'
 import Icon from '@/components/base/Icon.vue'
 import JobItem from '@/components/modules/lists/JobItem.vue'
