@@ -1,16 +1,18 @@
 <template lang="html">
   <div class="image-item" @click="gotoPage">
-    <img-authentified v-if="shouldForwardAuthentication"
+    <img-authentified
+      v-if="shouldForwardAuthentication"
       :height="height"
       class="image"
       :src="srcCORSFriendly"
       :headers="headers"
     >
       <template v-slot:loading>
-        <LoadingIndicator/>
+        <LoadingIndicator />
       </template>
     </img-authentified>
-    <img v-else-if="hasValidSrc"
+    <img
+      v-else-if="hasValidSrc"
       :height="height"
       class="image"
       :class="imageClass"
@@ -21,11 +23,15 @@
     <div v-if="showMeta">
       <p v-if="hasTitle" class="item-title p-2 m-0">{{ item.title }}</p>
       <div class="p-2 articles-meta">
-        <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid ?? 'na' }}" class="article-newspaper">
-          {{ item?.newspaper?.name}}
+        <router-link
+          :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid ?? 'na' } }"
+          class="article-newspaper"
+        >
+          {{ item?.newspaper?.name }}
         </router-link>
-        <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper"/> &nbsp;
-        <span class="date">{{ $d(item?.date ?? 0, "long") }}</span>
+        <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" />
+        &nbsp;
+        <span class="date">{{ $d(item?.date ?? 0, 'long') }}</span>
         <span> – {{ pages }}</span>
       </div>
     </div>
@@ -34,10 +40,10 @@
 </template>
 
 <script>
-import ItemSelector from '@/components/modules/ItemSelector.vue';
-import ImgAuthentified from '@/components/base/ImgAuthentified.vue';
-import LoadingIndicator from '@/components/modules/LoadingIndicator.vue';
-import { image } from 'd3';
+import ItemSelector from '@/components/modules/ItemSelector.vue'
+import ImgAuthentified from '@/components/base/ImgAuthentified.vue'
+import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
+import { image } from 'd3'
 
 export default {
   props: {
@@ -57,75 +63,84 @@ export default {
         'img-fluid': this.fluidGrow,
         'w-100': this.fluidGrow,
         'mx-auto': this.center,
-        'd-block': this.center,
-      };
+        'd-block': this.center
+      }
     },
     pages() {
       return this.$tc('pp', this.item?.nbPages ?? 0, {
-        pages: this.item?.pages?.map(d => d.num).join(',') ?? '',
-      });
+        pages: this.item?.pages?.map(d => d.num).join(',') ?? ''
+      })
     },
     hasTitle() {
-      if(!this.item) {
-        return false;
+      if (!this.item) {
+        return false
       }
-      return typeof this.item.title === 'string' && this.item.title.length > 0;
+      return typeof this.item.title === 'string' && this.item.title.length > 0
     },
     hasValidSrc() {
-      if(!this.item) {
-        return false;
+      if (!this.item) {
+        return false
       }
-      return Array.isArray(this.item.regions) && this.item.regions.length > 0;
+      return Array.isArray(this.item.regions) && this.item.regions.length > 0
     },
     srcCORSFriendly() {
-      if (import.meta.env.NODE_ENV === 'production' && this.hasValidSrc && this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0) {
+      if (
+        import.meta.env.NODE_ENV === 'production' &&
+        this.hasValidSrc &&
+        this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
+      ) {
         return this.src.replace(import.meta.env.VITE_BASE_URL, window.location.origin)
       } else if (import.meta.env.NODE_ENV !== 'production') {
-        console.debug('[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:', this.item.uid)
+        console.debug(
+          '[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:',
+          this.item.uid
+        )
       }
       return this.src
     },
     src() {
-      return this.hasValidSrc
-        ? this.item.regions[0].iiifFragment
-        : null;
+      return this.hasValidSrc ? this.item.regions[0].iiifFragment : null
     },
     shouldForwardAuthentication() {
       if (this.hasValidSrc) {
         return this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
       }
       return false
-    },
+    }
   },
   methods: {
     gotoPage() {
+      if (this.item == null) {
+        console.error('No item to go to page')
+        return
+      }
       const params = {
         issue_uid: this.item.issue?.uid || this.item.uid.match(/(^.+)-i/)[1],
-        page_uid: this.item.pages[0]?.uid,
-      };
-      console.info('gotoPage', params, this.item.article);
+        page_uid: this.item.pages[0]?.uid
+      }
+      console.info('gotoPage', params, this.item.article)
       if (this.item.article) {
         this.$router.push({
           name: 'article',
           params: {
             ...params,
-            article_uid: this.item.article.uid,
-          },
-        });
+            article_uid: this.item.article.uid
+          }
+        })
       } else {
         this.$router.push({
           name: 'page',
-          params,
-        });
+          params
+        })
       }
-    },
+    }
   },
   components: {
     ItemSelector,
     ImgAuthentified,
-    LoadingIndicator,
-  },
-};
+    LoadingIndicator
+  }
+}
 </script>
 
 <style lang="scss">
@@ -138,10 +153,10 @@ export default {
     text-transform: lowercase;
     font-variant: small-caps;
   }
-  .articles-meta{
+  .articles-meta {
     font-size: 14px;
   }
-  .item-title{
+  .item-title {
     background: #eff0f0;
   }
   figcaption {
