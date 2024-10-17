@@ -190,7 +190,8 @@ export default {
      * @param {number} comparableIndex
      * @param {{ params: { item: Entity, type: string }, defaultActionExecuted: boolean }} facetItem
      */
-    handleFacetItemClicked(comparableIndex, { params: { item, type } }) {
+    handleFacetItemClicked(comparableIndex, { params: { item, type } = {} }) {
+      if (item == null || type == null) return
       const comparable = this.comparables[comparableIndex]
       const filters = comparable?.filters ?? comparable?.query?.filters
 
