@@ -231,8 +231,8 @@ export default {
       // emit mouse events based on mouse position
 
       svg
-        .on('mousemove', () => {
-          const [xPos] = d3.mouse(this.$refs.chart)
+        .on('mousemove', event => {
+          const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
             ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )
@@ -265,8 +265,8 @@ export default {
           hoveredValue.attr('height', 0)
           hoveredBackground.attr('height', 0)
         })
-        .on('click', () => {
-          const [xPos] = d3.mouse(this.$refs.chart)
+        .on('click', event => {
+          const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
             ({ val }) => x(val) <= xPos && xPos <= x(val) + x.bandwidth()
           )

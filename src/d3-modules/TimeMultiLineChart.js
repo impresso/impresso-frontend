@@ -39,14 +39,14 @@ export default class TimeMultiLineChart {
 
     // interaction
     this.svg
-      .on('mousemove', () => this._renderInteractionLayer())
-      .on('mouseover', () => {
+      .on('mousemove', e => this._renderInteractionLayer(e))
+      .on('mouseover', e => {
         this._interactionActive = true
-        this._renderInteractionLayer()
+        this._renderInteractionLayer(e)
       })
-      .on('mouseout', () => {
+      .on('mouseout', e => {
         this._interactionActive = false
-        this._renderInteractionLayer()
+        this._renderInteractionLayer(e)
       })
   }
 
@@ -193,13 +193,13 @@ export default class TimeMultiLineChart {
     this._renderInteractionLayer()
   }
 
-  _renderInteractionLayer() {
-    if (!d3.event) return
+  _renderInteractionLayer(event) {
+    if (!event) return
 
-    let [mouseX, mouseY] = d3.mouse(this.element)
+    let [mouseX, mouseY] = d3.pointer(event)
 
     const { width: linesContainerWidth } = this.lines.node().getBoundingClientRect()
-
+    console.debug('_renderInteractionLayer', mouseX, mouseY)
     if (mouseX > linesContainerWidth + this.margin.left) {
       mouseX = linesContainerWidth + this.margin.left
     } else if (mouseX < this.margin.left) {

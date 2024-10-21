@@ -49,7 +49,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
     return {
       closestValueKey,
       closestPoint,
-      closestIndex: band.domainIndex,
+      closestIndex: band.domainIndex
     }
   }
   /**
@@ -71,19 +71,19 @@ export default class CategoricalMultiValueBarChartHorizontal {
       margin = {},
       transformLabels = 'rotate(-45)',
       truncateLabelsAtLength,
-      floatingPointPrecision = 2,
+      floatingPointPrecision = 2
     } = options
     this.margin = { ...this.margin, ...margin }
 
     const xDomain = Array.isArray(options.xDomain)
       ? options.xDomain
       : [
-          /** @type {number} */ (d3.min(data, d =>
-            d3.min(lineMetrics.map(({ extractor }) => extractor(d.value))),
-          )),
-          /** @type {number} */ (d3.max(data, d =>
-            d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))),
-          )),
+          /** @type {number} */ (
+            d3.min(data, d => d3.min(lineMetrics.map(({ extractor }) => extractor(d.value))))
+          ),
+          /** @type {number} */ (
+            d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))))
+          )
         ]
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
@@ -101,17 +101,12 @@ export default class CategoricalMultiValueBarChartHorizontal {
           d3
             .axisBottom(x)
             .ticks(width / 80)
-            .tickSizeOuter(0),
+            .tickSizeOuter(0)
         )
         .selectAll('text')
         .style('text-anchor', 'end')
 
-    this.axes
-      .selectAll('g.x')
-      .data([null])
-      .join('g')
-      .attr('class', 'x')
-      .call(xAxis)
+    this.axes.selectAll('g.x').data([null]).join('g').attr('class', 'x').call(xAxis)
 
     // Y
     const y = d3
@@ -131,7 +126,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
             .clone()
             .attr('x', 3)
             .attr('text-anchor', 'start')
-            .attr('font-weight', 'bold'),
+            .attr('font-weight', 'bold')
         )
 
         .selectAll('text')
@@ -149,12 +144,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
             : label
         })
 
-    this.axes
-      .selectAll('g.y')
-      .data([null])
-      .join('g')
-      .attr('class', 'y')
-      .call(yAxis)
+    this.axes.selectAll('g.y').data([null]).join('g').attr('class', 'y').call(yAxis)
 
     const bar = this.bars
       .selectAll('g.bar')
@@ -175,7 +165,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
             .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value) }))
             .filter(({ value }) => !isNaN(value))
         },
-        ({ id }) => id,
+        ({ id }) => id
       )
       .join('rect')
       .attr('class', ({ id }) => id)
@@ -197,7 +187,7 @@ export default class CategoricalMultiValueBarChartHorizontal {
             .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value) }))
             .filter(({ value: [valueA, valueB] }) => !isNaN(valueA) && !isNaN(valueB))
         },
-        ({ id }) => id,
+        ({ id }) => id
       )
       .join('rect')
       .attr('class', ({ id }) => id)
@@ -225,11 +215,11 @@ export default class CategoricalMultiValueBarChartHorizontal {
       .attr('font-size', 12)
     // mousemove
     // if (typeof options.onMouseMove === 'function') {
-    this.svg.on('mousemove', () => {
-      const [xMouse, yMouse] = d3.mouse(this.svg.node())
+    this.svg.on('mousemove', event => {
+      const [xMouse, yMouse] = d3.pointer(event)
       this.pointer.attr(
         'transform',
-        `translate(${Math.max(Math.min(width - this.margin.right, xMouse), this.margin.left)}, 0)`,
+        `translate(${Math.max(Math.min(width - this.margin.right, xMouse), this.margin.left)}, 0)`
       )
       const xValue = x.invert(xMouse, yMouse)
       pointerValue.text(Number(xValue).toFixed(floatingPointPrecision))
@@ -237,8 +227,8 @@ export default class CategoricalMultiValueBarChartHorizontal {
         point: {
           ...this.getClosestPoint(xMouse, yMouse, data, y, xValue),
           x: xMouse,
-          y: yMouse - this.element.scrollTop,
-        },
+          y: yMouse - this.element.scrollTop
+        }
       })
     })
     // }

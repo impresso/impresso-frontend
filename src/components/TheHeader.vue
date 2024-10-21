@@ -139,39 +139,7 @@
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
-        <b-nav-item-dropdown class="px-0" right>
-          <template v-slot:button-content>
-            <div class="d-flex px-2 py-1 align-items-center">
-              <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
-              <div class="user-label mr-4 me-4">
-                <div class="user-fullname">{{ userFullName }}</div>
-                <div class="user-role mt-1 small-caps">{{ userRole }}</div>
-              </div>
-            </div>
-          </template>
-          <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
-            {{ $t('label_terms_of_use') }}
-          </b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'collections' }" active-class="active">{{
-            $t('collections')
-          }}</b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'logout' }">{{ $t('logout') }}</b-dropdown-item>
-          <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()"
-            >send test job</b-dropdown-item
-          >
-          <b-dropdown-item
-            target="_blank"
-            href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ"
-          >
-            <icon name="slack" />
-            <span v-html="$t('join_slack_channel')"></span>
-          </b-dropdown-item>
-
-          <b-dropdown-item>
-            <span v-html="$t('current_version', { version })"></span>
-          </b-dropdown-item>
-        </b-nav-item-dropdown>
+        <UserArea :user="user" />
       </b-navbar-nav>
       <!-- end of user area -->
       <!-- login area -->
@@ -237,6 +205,7 @@ import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import UserArea from './UserArea.vue'
 
 export default defineComponent({
   // props: {
@@ -446,7 +415,8 @@ export default defineComponent({
     // Toast,
     JobItem,
     Pagination,
-    InfoButton
+    InfoButton,
+    UserArea
   }
 })
 </script>
@@ -458,31 +428,12 @@ export default defineComponent({
   height: 56px;
 }
 
-.TheHeader__userArea {
-  background-color: transparent;
-}
-.TheHeader__userArea .nav-item .nav-link.dropdown-toggle {
-  // padding: 0;
-  border-radius: var(--border-radius-sm);
-}
-.TheHeader__userArea .nav-item.show {
-  border-radius: var(--border-radius-sm);
-}
-.TheHeader__userArea .nav-item.show .nav-link.dropdown-toggle {
-  border-bottom-left-radius: 0px;
-  border-bottom-right-radius: 0px;
-}
-
 .TheHeader .navbar-nav .nav-link {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   max-width: 100px;
   min-width: 50px;
-}
-
-#app-header .dropdown-toggle[aria-expanded='true'] {
-  border-bottom: 0px solid transparent !important;
 }
 
 #app-header {
@@ -679,27 +630,6 @@ export default defineComponent({
     line-height: 2.25rem;
     margin-top: -1rem;
   }
-
-  .user-picture {
-    background: $clr-primary;
-    width: 2em;
-    height: 2em;
-    border-radius: 2em;
-    border: 1px solid $clr-accent-light;
-  }
-
-  .user-fullname {
-    padding-bottom: 0.125rem;
-
-    line-height: 1em;
-    font-weight: bold;
-    color: white;
-  }
-
-  .user-role {
-    line-height: 1;
-    // font-size: 0.8em;
-  }
 }
 
 .jobs-list > .list {
@@ -742,7 +672,7 @@ export default defineComponent({
   "en": {
     "login": "login",
     "register": "register",
-    "logout": "logout",
+    "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
     "profile": "Profile",

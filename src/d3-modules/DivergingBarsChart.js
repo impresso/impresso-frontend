@@ -30,17 +30,16 @@ export default class DivergingBarsChart {
 
     this.roundValueFn = roundValueFn
 
-    this.svg = d3.select(element)
+    this.svg = d3
+      .select(element)
       .append('svg')
       .attr('fill', 'none')
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
 
-    this.yAxis = this.svg
-      .append('line')
-      .attr('class', 'y-axis')
+    this.yAxis = this.svg.append('line').attr('class', 'y-axis')
 
-    const defs = this.svg.append('defs');
+    const defs = this.svg.append('defs')
 
     const pattern = defs
       .append('pattern')
@@ -49,13 +48,9 @@ export default class DivergingBarsChart {
       .attr('height', 4)
       .attr('width', 4)
 
-    pattern.append('path')
-      .attr('class', 'path-a')
-      .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+    pattern.append('path').attr('class', 'path-a').attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
 
-    pattern.append('path')
-      .attr('class', 'path-b')
-      .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
+    pattern.append('path').attr('class', 'path-b').attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
 
     const patternFlipped = defs
       .append('pattern')
@@ -64,12 +59,14 @@ export default class DivergingBarsChart {
       .attr('height', 4)
       .attr('width', 4)
 
-    patternFlipped.append('path')
+    patternFlipped
+      .append('path')
       .attr('class', 'path-a')
       .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
       .attr('transform', 'rotate(90, 2, 2)')
 
-    patternFlipped.append('path')
+    patternFlipped
+      .append('path')
       .attr('class', 'path-b')
       .attr('d', 'M-1,3 L3,-1 M1,5 L5,1')
       .attr('transform', 'rotate(90, 2, 2)')
@@ -91,8 +88,14 @@ export default class DivergingBarsChart {
     // interaction
     this.svg
       .on('mousemove', () => this._handleInteraction())
-      .on('mouseover',  () => { this._interactionActive = true; this._handleInteraction() })
-      .on('mouseout',  () => { this._interactionActive = false; this._handleInteraction() })
+      .on('mouseover', () => {
+        this._interactionActive = true
+        this._handleInteraction()
+      })
+      .on('mouseout', () => {
+        this._interactionActive = false
+        this._handleInteraction()
+      })
   }
 
   /**
@@ -103,28 +106,27 @@ export default class DivergingBarsChart {
   render(data, { scale = 'linear' } = {}) {
     const { width } = this.element.getBoundingClientRect()
 
-    const height = data.length * (this.sizes.barHeight + this.sizes.barSpacing)
-      + this.margin.top
-      + this.margin.bottom
+    const height =
+      data.length * (this.sizes.barHeight + this.sizes.barSpacing) +
+      this.margin.top +
+      this.margin.bottom
 
     this._lastHeight = height
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
-    const maxValues = data.map(({ left, right, intersection }) => d3.max([left, right, intersection]))
+    const maxValues = data.map(({ left, right, intersection }) =>
+      d3.max([left, right, intersection])
+    )
     const maxValue = d3.max(maxValues)
 
-    this.y
-      .domain([0, data.length])
-      .range([this.margin.top, height - this.margin.bottom])
+    this.y.domain([0, data.length]).range([this.margin.top, height - this.margin.bottom])
 
     const midWidth = this.margin.right + (width - this.margin.left - this.margin.right) / 2
 
     const barX = scale === 'sqrt' ? d3.scaleSqrt() : d3.scaleLinear()
 
-    barX
-      .domain([0, maxValue])
-      .range([0, (width - this.margin.left - this.margin.right) / 2])
+    barX.domain([0, maxValue]).range([0, (width - this.margin.left - this.margin.right) / 2])
 
     // // NOTE: Borders for development
     // this.borderRect
@@ -144,15 +146,15 @@ export default class DivergingBarsChart {
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
       .selectAll('g.side')
       .data([
-        data.map(({ left }) => ({ value: left})),
-        data.map(({ right }) => ({ value: right}))
+        data.map(({ left }) => ({ value: left })),
+        data.map(({ right }) => ({ value: right }))
       ])
       .join('g')
       .attr('class', (d, index) => {
         const sideClass = index === 0 ? 'left' : 'right'
         return `side ${sideClass}`
       })
-      .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
+      .attr('transform', (d, index) => `scale(${index === 0 ? -1 : 1}, 1)`)
       .call(g => this._renderBars(g, barX))
 
     // labels
@@ -167,31 +169,35 @@ export default class DivergingBarsChart {
       .attr('alignment-baseline', 'middle')
 
     // intersections
-    const intersectionX = value => value > 0 && barX(value) < 1 ? 1 : barX(value)
+    const intersectionX = value => (value > 0 && barX(value) < 1 ? 1 : barX(value))
     const intersectionSides = this.intersection
       .attr('transform', `translate(${midWidth}, ${this.sizes.barSpacing})`)
       .selectAll('g')
       .data([data, data])
       .join('g')
-      .attr('transform', (d, index) => `scale(${ index === 0 ? -1 : 1}, 1)`)
+      .attr('transform', (d, index) => `scale(${index === 0 ? -1 : 1}, 1)`)
 
     intersectionSides
       .selectAll('rect')
-      .data((d, index) => d.map(({ intersection }) => ({ value: intersection, flipped: index === 0 })))
+      .data((d, index) =>
+        d.map(({ intersection }) => ({ value: intersection, flipped: index === 0 }))
+      )
       .join('rect')
       .attr('transform', (d, idx) => `translate(0, ${this.y(idx)})`)
       .attr('height', this.sizes.barHeight)
       .attr('width', ({ value }) => intersectionX(value))
-      .attr('fill', ({ flipped }) => `url("#${flipped ? IntersectionPatternIdFlipped : IntersectionPatternId}")`)
+      .attr(
+        'fill',
+        ({ flipped }) => `url("#${flipped ? IntersectionPatternIdFlipped : IntersectionPatternId}")`
+      )
 
     this._handleInteraction()
   }
 
   _renderBars(sidesContainer, barX) {
-
     const barContainer = sidesContainer
       .selectAll('g.bar')
-      .data((d, index) => d.map(d => ({ ...d, flipped: index === 0})))
+      .data((d, index) => d.map(d => ({ ...d, flipped: index === 0 })))
       .join('g')
       .attr('class', 'bar')
       .attr('transform', (d, index) => `translate(0, ${this.y(index)})`)
@@ -207,22 +213,27 @@ export default class DivergingBarsChart {
       .selectAll('text')
       .data(d => [d])
       .join('text')
-      .attr('transform', ({ value, flipped }) => `translate(${barX(value)}, 0), scale(${flipped ? -1 : 1},1)`)
+      .attr(
+        'transform',
+        ({ value, flipped }) => `translate(${barX(value)}, 0), scale(${flipped ? -1 : 1},1)`
+      )
       .attr('dy', this.sizes.barHeight / 2)
-      .attr('dx', ({ flipped }) => `${flipped ? '-' : '+' }${this.offsets.barValue}`)
-      .attr('text-anchor', ({ flipped }) => flipped ? 'end' : 'start')
+      .attr('dx', ({ flipped }) => `${flipped ? '-' : '+'}${this.offsets.barValue}`)
+      .attr('text-anchor', ({ flipped }) => (flipped ? 'end' : 'start'))
       .text(({ value }) => this.roundValueFn(value))
       .attr('alignment-baseline', 'middle')
 
     return sidesContainer
   }
 
-  getLastHeight() { return this._lastHeight; }
+  getLastHeight() {
+    return this._lastHeight
+  }
 
-  _handleInteraction() {
+  _handleInteraction(event) {
     if (!d3.event) return
 
-    let [mouseX, mouseY] = d3.mouse(this.element)
+    let [mouseX, mouseY] = d3.pointer(event)
 
     this._lastMousePosition = [mouseX, mouseY]
 
