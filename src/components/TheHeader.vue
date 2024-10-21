@@ -153,9 +153,7 @@
           <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
             {{ $t('label_terms_of_use') }}
           </b-dropdown-item>
-          <b-dropdown-item :to="{ name: 'collections' }" active-class="active">{{
-            $t('collections')
-          }}</b-dropdown-item>
+
           <b-dropdown-item :to="{ name: 'logout' }">{{ $t('logout') }}</b-dropdown-item>
           <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()"
             >send test job</b-dropdown-item
@@ -742,7 +740,7 @@ export default defineComponent({
   "en": {
     "login": "login",
     "register": "register",
-    "logout": "logout",
+    "logout": "Logout",
     "dashboard": "Dashboard",
     "collections": "Collections",
     "profile": "Profile",
