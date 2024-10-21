@@ -19,7 +19,7 @@
     </button>
     <ul
       tabindex="-1"
-      class="dropdown-menu position-absolute"
+      class="dropdown-menu position-absolute py-2"
       :class="{ show: isOpen, 'dropdown-menu-right': right }"
       ref="dropdownRef"
     >
