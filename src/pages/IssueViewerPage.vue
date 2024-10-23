@@ -450,7 +450,14 @@ export default {
     /** @returns {string[]|undefined} */
     pagesIIIFUrls() {
       if (this.issue == null) return undefined
-      return this.issue.pages.map(page => page.iiif)
+      return this.issue.pages.map(page => {
+        const indexOfImpressoProxyPath = page.iiif.indexOf('/proxy/iiif')
+        // if this is a proxy, remove the host part
+        if (indexOfImpressoProxyPath > -1) {
+          return page.iiif.substr(indexOfImpressoProxyPath)
+        }
+        return page.iiif
+      })
     },
     /** @returns {any[]} */
     regions() {
