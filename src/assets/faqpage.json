@@ -7,378 +7,313 @@
         "faq": [
           {
             "id": "who-is-behind-impresso",
-            "title": "Who is behind impresso?",
-            "summary": "The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians in a newly designed user interface.",
+            "title": "Who is behind Impresso?",
+            "summary": "The Impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and radio archives and the development of new workflows for (digital) historians in a newly designed user interface.",
             "description": [
-              "The objective of the impresso project is to enable critical text mining of newspaper archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media archives.",
-              "The core team consists of computational linguists, designers/developers as well as historians based at the <a href='http://dhlab.epfl.ch'>DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a  href='https://www.cl.uzh.ch/de.html'>Institute of Computational Linguistics at the University of Zurich</a> and the <a href='http://c2dh.uni.lu'>Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href='http://www.snf.ch'>Swiss National Science foundation</a> (Grant CR- SII5_173719). ",
-              "We built our newspaper corpus with the help of content providing partners, these are the Swiss National Library, the National Library of Luxembourg, State Archives of Valais, Swiss Economic Archives, Le Temps and Neue Zürcher Zeitung.",
-              "We are further supported by a team of academic partners: <ul><li>François Vallotton (Full Professor at the University of Lausanne),</li><li>Raphaëlle Ruppen Coutaz (Lecturer at the University of Lausanne),</li><li>Frédéric Clavert (Assistant Professor at C2DH) and </li><li>Enrico Natale (Managing Director infoclio.ch).</li></ul>",
-              "Finally, a group of associated researchers have committed to using <i>impresso</i> for their research and provide valuable feedback to us.",
-              "Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details."
+              "<p>The <a href='https://impresso-project.ch/project/objectives/'>objective</a> of the Impresso project is to enable critical text mining of media archives with an interdisciplinary consortium implementing a technological framework to extract, process, link, and explore data from print media and radio archives.</p><p>The core team consists of computational linguists, designers/developers as well as historians based at the <a href='http://dhlab.epfl.ch'>DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a href='https://www.cl.uzh.ch/de.html'>Institute of Computational Linguistics at the University of Zurich</a>, the <a href='http://c2dh.uni.lu'>Luxembourg Centre for Contemporary and Digital History (C2DH)</a> and the <a href='https://www.unil.ch/hist/fr/home.html'>History Department of the University of Lausanne</a>. The project is funded by the <a href='http://www.snf.ch'>Swiss National Science foundation</a> (Grants CR-SII5_173719 and 213585) and the <a href='https://www.fnr.lu/'>Luxembourg National Research Fund</a> (Grant No. 17498891).</p><p>Our project is supported by associated partners who have agreed to contribute their media collections as well as their expertise and know-how in cultural heritage data curation, management and research. These include the National Library of Switzerland, the National Library of Luxembourg, the Austrian National Library, the Berlin State Library, the British Library, the French National Library, the Hamburg State and University Library, the Royal Library of Belgium, the Royal Library of the Netherlands, the Cantonal and University Library of Lausanne, the Radio Television Suisse, the Austrian Broadcasting Corporation, the British Broadcasting Corporation, DeutschlandRadio, the French National Audiovisual Institute, the Netherlands Institute for Sounds and Vision, Le Temps, Neue Zürcher Zeitung, the Entangled Media Histories Research Network for European Media Historians, Memoriav (the Swiss network for audiovisual cultural heritage preservation), and infoclio.</p><p>Take a look at our <a href='https://impresso-project.ch/'>project homepage</a> for more details.</p>"
             ]
           },
           {
             "id": "which-newspapers",
-            "title": "Which newspapers do you have in your corpus?",
-            "summary": "All titles are listed on the Newspaper page.",
+            "title": "What data do you have in your corpus?",
+            "summary": "The Impresso corpus includes titles from several historical newspaper collections and radio sources from our associated partners. ",
             "description": [
-              "In a nutshell, the impresso corpus contains titles from the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Media Center and the Valais State Archives, and the Swiss Economic Archives. The archives of the journals Le Temps and of the Neue Zürcher Zeitung are also in impresso.",
-              "We recommend that you take a closer look at the <a href='/app/newspapers'>Newspapers page</a>."
+              "<p>The list of all our associated partners can be found <a href='https://impresso-project.ch/consortium/associated-partners/'>here</a>. To explore the complete list of newspaper titles available within the Impresso corpus, please visit the <a href='https://impresso-project.ch/app/newspapers/?sq='>Newspapers page</a>. This page offers a comprehensive overview of all the titles accessible through the platform. In the near future we will also be able to give access to a variety of radio sources.</p><p><b>Further reading</b> For additional insights into the composition of the corpus, refer to the following resources:</p><ul><li>Ehrmann, Maud. “State of Impresso Newspaper Collection - April 2018.” Blogpost. Impresso, April 17, 2018. <a>https://Impresso-project.ch/documentation/2018/04/17/state-collection-april18.html</a></li></ul> "
+            ]
+          },
+          {
+            "id": "what-impresso-datalab",
+            "title": "What is the Impresso Datalab?",
+            "summary": "An Impresso Datalab is currently under development. ",
+            "description": [
+              "If you’re interested in the Impresso Datalab and would like to keep updated on our latest releases, make sure to subscribe to our <a href='https://mailchi.mp/1a05f946a602/w826p8gjtz'>mailing list</a>. "
             ]
           }
         ]
       },
       {
-        "title": "Use of the impresso corpus",
+        "title": "Access to and Use of the Impresso Corpus",
         "faq": [
           {
             "id": "how-can-i-get-access",
-            "title": "Why can’t I see everything? How do I get access to the full corpus?",
-            "summary": "Unrestricted access is only possible for the subset of newspapers which are in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).",
+            "title": "Why can’t I access the entire corpus?",
+            "summary": "To gain access to the entire collection you need to register an account and comply with our terms of use by signing a Non-Disclosure-Agreement (NDA).",
             "description": [
-              "From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why <b>unrestricted access is only possible for the subset of newspapers which are in the public domain</b>. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA). We will provide you with a user account <b>upon reception of your signed NDA</b>.",
-              "Please see the <a href='/app/terms-of-use'>Terms of Use</a> to learn more about the usage rights for the impresso corpus."
-            ]
-          },
-          {
-            "id": "i-would-like-to-give-feedback",
-            "title": "I would like to give feedback",
-            "summary": "To leave us feedback, please click on the black envelope on the lower right of the interface or email us at info@impresso-project.ch. We will get back to you soon after.",
-            "description": [
-              "The impresso interface remains under active development and we will add new features to the interface in the common months. We always look forward to hearing from you and to learn how you made use of impresso’s tools. To leave us feedback, please click on the black envelope on the lower right of the interface or email us at info@impresso-project.ch. We will get back to you soon after."
+              "<p>From a legal perspective, there is a risk that content creators could make claims to their rights to texts and images which were published in a newspaper. This is why unrestricted access is only possible for the subset of newspapers which are in the public domain. To gain access to the whole collection, you need to sign a Non Disclosure Agreement (NDA).</p><p>The <a href='https://impresso-project.ch/assets/documents/impresso_NDA.pdf'>NDA</a> can be found on the <a href='https://impresso-project.ch/app/'>Impresso-app homepage</a>. We will provide you with a user account upon reception of your signed NDA.</p><p>Please see the <a href='/app/terms-of-use'>Terms of Use</a> to learn more about the usage rights for the Impresso corpus.</p>"
             ]
           },
           {
             "id": "can-i-use-impresso-interface-in-the-classroom",
-            "title": "Can I use impresso interface in the classroom?",
-            "summary": "Yes, with the same restrictions as for other uses and we would be very happy to hear about your experience!",
+            "title": "Can I use Impresso in the classroom?",
+            "summary": "Of course! With the same restrictions as for other uses. Impresso is already being used in a variety of educational settings, we would be very happy to hear about your experience!",
             "description": [
-              "All material restrictions apply equally in a teaching context, please see the <a href='/app/terms-of-use'>Terms of Use</a> page. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students."
+              "<p>All material restrictions apply equally in a teaching context, please see the <a href='https://impresso-project.ch/app/terms-of-use'>Terms of Use page</a>. It could be a good opportunity to introduce legal matters related to primary sources and research data to the students.</p><p><b>Further reading</b> For more insight into educational material related to Impresso you can refer to the following sources:</p><ul><li>Ranke.2 lesson “The digitisation of newspapers: how to turn a page”: Bunout, Estelle, and Marten Düring. “The Digitisation of Newspapers: How to Turn a Page.” In From the Archival to the Digital Turn · Ranke.2. Accessed October 15, 2024. <a>https://ranke2.uni.lu/u/archival-digital-turn/</a>.</li><li>Düring, Marten, Estelle Bunout, and Daniele Guido. “Transparent Generosity. Introducing the Impresso Interface for the Exploration of Semantically Enriched Historical Newspapers.” Historical Methods: A Journal of Quantitative and Interdisciplinary History, June 14, 2024, 35–55. <a>https://doi.org/10.1080/01615440.2024.2344004</a>.</li><li>Learn Impresso with the Impresso Challenges: <a>https://impresso-project.ch/assets/impresso-challenges-1.2.3.pdf</a></li><li>Impresso Project Youtube channel: <a>https://www.youtube.com/@impressoproject978</a></li></ul>"
             ]
           },
           {
             "id": "what-are-the-copyrights",
-            "title": "What are the copyrights of the newspapers accessible through the impresso interface?",
-            "summary": "Newspapers accessible through the impresso interface are under different copyrights.",
+            "title": "What about copyrights?",
+            "summary": "Newspapers accessible through the Impresso interface are governed by varying copyright conditions, which are determined at the issue level for each newspaper.",
             "description": [
-              "Conditions of use are set at the issue level of each newspaper. You can find this information a) on the individual newspaper page, b) upon download, for each item of the CSV file. To select articles belonging to a particular category of license, choose the relevant category in \"filter by access rights\".",
-              "The majority of them are free of use for personal and academic use (see the ‘Personal and Academic use’ section in the <a href='/app/terms-of-use'>Terms of Use</a>). Others are in the public domain and are not subject to any restrictions (‘Public’). Newspapers from the National Library of Luxembourg can be used without restriction up to 1877, only for personal and academic use onwards."
+              "<p>These conditions specify how users may access and utilize the content, and they are essential to understand for responsible usage of the platform.</p><p>Most newspapers in the Impresso collection are available for free personal and academic use, as outlined in the ‘Personal and Academic Use’ section of the <a href='https://impresso-project.ch/app/terms-of-use'>Terms of Use</a>. Additionally, some newspapers are in the public domain, meaning they are not subject to any restrictions. Specifically, newspapers from the National Library of Luxembourg can be used without restriction up to 1877, but from 1878 onwards, they are available only for personal and academic use.</p><p>The specific copyright information for each newspaper can be found in two places on the Impresso platform:</p><ul><li><b>On the individual newspaper page</b>: This page provides details about the copyright status and conditions of use for the entire newspaper.</li><li><b>In exported collections:</b> The CSV file includes the copyright information for each article.</li><li><b>In the search results snippets.</b></li></ul><p>To filter articles based on their copyright status, you can use the 'filter by access rights' option within the platform. This allows you to select articles that fall under specific categories of licenses.</p><p><img src='src/assets/img/access-rights-screen.png'></img></p>"
             ]
           },
           {
             "id": "what-do-you-mean-by-impresso-material",
-            "title": "What do you mean by ‘impresso material’?",
+            "title": "What do you mean by ‘Impresso material’?",
             "summary": "This includes all images, text, metadata, the semantic annotations and the interface.",
             "description": [
-              "We distinguish between the following assets: <ul><li>newspaper images and text, subject to copyrights (see the rights statements pages)</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>newspaper metadata, free for use under a CC BY 4.0 license</li><li>semantic annotations, free for use under a CC BY SA 4.0 license (will be released at the end of the project)</li><li>impresso interface, including front end design and back end database and system architecture, under a GNU AGPLv3 license (will be released at the end of the project)</li></ul>"
+              "<p>We distinguish between the following assets:</p><ul><li>newspaper images and text, subject to copyrights (see the rights statements pages).</li><li>newspaper metadata, free for use under a <a href='https://creativecommons.org/licenses/by/4.0/deed.en'>CC BY 4.0 license</a>.</li><li>newspaper metadata, free for use under a <a href='https://creativecommons.org/licenses/by/4.0/deed.en'>CC BY 4.0 license</a>.</li><li>semantic annotations, free for use under a <a href='https://creativecommons.org/licenses/by-sa/4.0/deed.en'>CC BY SA 4.0 license</a> (will be released at the end of the project).</li><li>Impresso interface, including front end design and back end database and system architecture, under a <a href='https://www.gnu.org/licenses/agpl-3.0.en.html'>GNU AGPLv3 license</a> (will be released at the end of the project).</li></ul>"
             ]
           },
           {
             "id": "how-can-i-cite-impresso",
-            "title": "How can I cite impresso?",
-            "summary": "When quoting individual articles, mention the online version with the URL and the date of access. Click on more for some example.",
+            "title": "How shall I cite documents and the project?",
+            "summary": "You can cite all Impresso material, in accordance with good scientific practices. Read more below.",
             "description": [
-              "In the context of digitised materials, it is important to quote the portal in which you found a particular source. Applied to newspapers, it means that one has to add to the traditional information on the author, article and newspaper title, the URL and the date of accessing the digitised source. For instance, to quote an article intitled 'Un mythe toujours intact?', written by Corinne Chuard, published in the newspaper l'Impartial on the 3.08.1987, retrieved on the 3.08.2018, one might use the following model to refer to it: Chuard, Corinne. ‘Un mythe toujours intact?’, L’Impartial, 03-Aug-1987, p. 2. Available: https://impresso-project.ch/app/issue/IMP-1987-08-03-a/page/IMP-1987-08-03-a-p0002/article/IMP-1987-08-03-a-i0019. Accessed: 03-Aug-2018.",
-              "To refer to the project, please use the following quote: <blockquote>impresso. Media Monitoring of the Past. Supported by the Swiss National Science Foundation under grant CR- SII5_173719, 2019. https://impresso-project.ch.</blockquote>"
-            ]
-          },
-          {
-            "id": "can-i-cite",
-            "title": "Can I cite and/or display impresso newspaper articles on my blog or website? Can I cite impresso material in my thesis or in a scientific publication?",
-            "summary": "Yes, you can cite all impresso material, in accordance with customary scholarly and scientific practices. One exception: images",
-            "description": [
-              "when re-using an illustration or photograph printed in a newspaper provided by the National Library of Luxembourg, you must obtain their permission beforehand and email them at licensing@uni.lu"
-            ]
-          },
-          {
-            "id": "do-you-have-an-api",
-            "title": "Do you have an API?",
-            "summary": "For advanced users we provide access via an API.",
-            "description": [
-              "If this is of interest to you, please contact us at info@impresso-project.ch."
+              "<b>Citing newspaper articles from Impresso</b><p>When citing individual newspaper articles found on Impresso, please include both the traditional citation information (author, title, newspaper, and publication date) along with the URL and the date of access to the digitized version. This ensures that readers know you are referencing a digitized source and allows them to locate the same material.</p><p><b>Example:</b> To cite the article <i>'Sous le joug de l’Office suisse de compensation'</i>, written by Emile Duperrex on November 7, 1950, in the <i>Journal de Genève</i>, accessed via Impresso on September 20, 2024, using the Chicago Manual of Style, the citation would look like:</p><ul><li>Duperrex, Emile. 'Sous le joug de l’Office suisse de compensation.' <i>Journal de Genève</i>, November 7, 1950, p. 7. Available on Impresso: <a>https://Impresso-project.ch/app/issue/JDG-1950-11-07-a/view?p=7&articleId=i0087</a>. Accessed: 20 September 2024.</li></ul><p>Ensure you adjust the citation style based on the standards required by your institution or discipline.</p><b>Citing the Impresso Project</b><p>When referencing the Impresso project itself, please use the following citation format. This is especially relevant when citing the platform in introductions or methodologies in research papers.</p><ul><li>“Impresso - Media Monitoring of the Past II. Beyond Borders: Connecting Historical Newspapers and Radio” (“Impresso”) funded by the Swiss National Science Foundation (SNSF 213585) and the Luxembourg National Research Fund (17498891), <a>https://impresso-project.ch</a></li></ul><p>Additionally, publications on the web app, system architecture, and data publications can be found on the <a href='https://impresso-project.ch/outputs/'>project website</a>.</p>"
             ]
           },
           {
             "id": "am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts",
-            "title": "Am I allowed to automatically mass-download newspaper images and texts?",
-            "summary": "No, downloading large numbers of newspaper items that are (possibly) protected by copyright is not permitted.",
+            "title": "Can I download metadata, text and images?",
+            "summary": "While users can download a limited number of items from the Impresso platform, automatic mass-downloads of newspaper images and texts, particularly those that may be protected by copyright, are not allowed.",
             "description": [
-              "Subject to conditions, bulk use of digital documents is possible for scientific research purposes. For more information, please contact us at info@impresso-project.ch."
-            ]
-          },
-          {
-            "id": "can-i-download-part-of-the-data",
-            "title": "Can I download part of the data?",
-            "summary": "Yes, subject to our terms of use, up to 10,000 items can be downloaded (metadata, text, and annotations) and used for academic or personal purposes.",
-            "description": [
-              "Should you need a larger, custom export, please email us at info@impresso-project.ch."
+              "<p>However, you are allowed to download up to 10,000 items, including metadata, text, and annotations, for academic or personal use in accordance with our <a href='https://impresso-project.ch/app/terms-of-use'>Terms of Use</a>. For larger or customized data exports, particularly for scientific research purposes, bulk use may be possible under specific conditions. In such cases, please contact the Impresso team at <a>info@impresso-project.ch</a> to discuss your needs and request permission."
             ]
           },
           {
             "id": "why-are-some-pages-or-issues-not-searchable",
             "title": "Why are some pages or issues not searchable?",
-            "summary": "We use state-of-the-art tools to improve the quality of the OCR and to identify persons and locations. Inevitably, they sometimes fail and make mistakes which we need to remain aware of.",
+            "summary": "In most cases, we rely on the data provided by our partners who used  Optical Character Recognition (OCR) and Optical Layout Recognition (OLR) to process their collections. However, these tools are not flawless, and errors sometimes occur during processing.",
             "description": [
-              "There is no such thing as a perfect corpus and ours is no exception. To give you a better sense of what you can expect to find in our corpus, we display the total count of pages and issues per year in the Newspaper overview. If you do date-specific queries, we recommend that you check how much content is missing. In a future release we will also display missing content per individual newspaper.",
-              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/topic_modeling.png'></img>'",
-              "There are multiple reasons which cause missing content: <ul><li>Digitisation: Not all issues were available for digitisation by the libraries due to incomplete collections; in other cases single pages or complete issues were missed during the digitisation. In this case, the folder structure on the hard disks we received suggests that there should be an issue but there are no corresponding files. In other cases, newspaper pages were digitized successfully but not subjected to text recognition (OCR). You can find these pages in the interface by browsing an issue, but not through a search. </li><li>Transfer: The journey of digitized materials is quite fragmented in both space and time, with various transfers at different times among several partners (e.g. the library, the OCR company, the hosting company, and finally, us). When discovering non readable .zip files in the sources we received on hard drives, it was not possible to recover them nor to know where the corruption came from. Full traceability is still a challenge.</li></ul>"
+              "<p>This can result in certain pages or issues being unsearchable, either due to limitations in text recognition or technical issues with our search engine.If a page is present but not searchable, it may be due to the failure of the OCR to recognize the text accurately, meaning that the page may still be visible for browsing but cannot be retrieved through a keyword search. While we make an effort to minimize these issues, some errors are inevitable when dealing with large-scale historical digitized collections.</p>"
+            ]
+          },
+          {
+            "id": "why-are-some-documents-or-issues-incomplete",
+            "title": "Why are some documents and newspaper issues incomplete?",
+            "summary": "The corpus we build is a product of collaboration with multiple partners, and there are various reasons why some content may be missing or incomplete.",
+            "description": [
+              "<p>Here are a few key factors:<ul><li><b>Digitization gaps:</b> Not all issues were available for digitization from our partner libraries due to incomplete collections. Additionally, in some cases, single pages or entire issues may have been missed during the digitization process. This means the newspaper overview may show that an issue exists, but the corresponding files may be missing. There are also cases where pages were digitized but were not processed by OCR, making them available for browsing but not searchable.</li><li><b>Data transfer issues:</b> The digitization process involves multiple partners and transfers across different stages, such as between libraries, OCR providers, hosting services, and finally, Impresso. During these transfers, issues such as file corruption or missing files can occur. For instance, unreadable .zip files found during data transfer from hard drives could not be recovered, and full traceability of these errors remains a challenge.</li></ul></p><p>To help users understand what’s available, we display the total count of pages and issues per year in the <a href='https://impresso-project.ch/app/newspapers/'>Newspaper Overview</a>. If you’re conducting date-specific queries, we recommend checking how much content is missing in those periods. In future updates, we plan to offer more detailed views of missing content for individual newspapers.</p>"
+            ]
+          },
+          {
+            "id": "do-you-have-an-api",
+            "title": "Do you have an API?",
+            "summary": "Yes, we provide access to the Impresso platform via an API for advanced users who wish to integrate our data into their own applications or workflows.",
+            "description": [
+              "If you are interested in utilizing the API, please reach out to us at <a>info@impresso-project.ch</a> for more information and access details. "
+            ]
+          },
+          {
+            "id": "i-would-like-to-give-feedback",
+            "title": "I would like to give feedback",
+            "summary": "If you would like to share your feedback or suggestions, please email us at <a>info@Impresso-project.ch.</a>",
+            "description": [
+              "<p>We will respond to your inquiry as soon as possible. We are always eager to hear from users about their experiences with the Impresso platform. We’re particularly interested in hearing how you’ve used Impresso’s tools and how we can further enhance your experience. Your feedback helps us improve the interface and add new features. The Impresso interface is under active development, and your insights are valuable in shaping its future.</p>"
             ]
           }
         ]
       },
       {
-        "title": "Use of the impresso interface",
+        "title": "Data Processing and Text Analysis",
         "faq": [
           {
-            "id": "compare-and-inspect",
-            "title": "Where can I analyse the metadata of my collections or queries?",
-            "summary": "The Inspect and Compare page enables to take a bird’s eye view of a list of articles from their metadata and NLP annotation perspective: how many hits per newspaper title, locations, persons.",
+            "id": "What-OCR",
+            "title": "What are OCR, OLR, METS/ALTO and ASR?",
+            "summary": "OCR and OLR describe the automated recognition of text and article layouts. METS and ALTO are xml standards used to store this information together with other metadata. ASR is the process and related technology for converting spoken language into text.",
             "description": [
-              "As all items of the impresso collection have been extracted with the same processing and based on the same type of metadata, one can extract these information and use them to inspect from a distance a list of articles and compare them. All metadata, (date of publication, language or newspaper title…) and all NLP annotations (persons, locations and topics) are data that link and cluster the articles. We can group or differentiate the articles based on these information (compare) and have a first impression of what a list of articles contains (inspect).",
-              "In the inspect view, you can focus on the information each column contains. The information about a collection of articles or search results are presented in the form of lists, in three columns. Start with selecting in column ‘A’, a query or an existing collection, to be contrasted with a query or another existing collection.",
-              "To compare collections, select the ‘collection’ tab and then select from the list, the collection you want to inspect and compare. Go then to the column ‘B’ and select another collection in the same way. In the middle column, you will see the overlapping metadata: the number of articles present in both collections, distributed by newspaper titles, named entities, topics, etc. Scroll down the lists to inspect individual filters. You can also inspect queries: in column ‘A’ and ‘B’, type a keyword in the search box and limit the scope of this query by adding filters.",
-              "Keep in mind that the display of categories like Persons, Topics or Locations, is limited to 10 options by default. However, you can browse to the next 10 most relevant results by using the pagination at the bottom of these segments. In the central column, we display the overlap of the two chosen queries or collections, which is practically another query, adding all the filters from the two other columns. You can open this overlapping query in the search environment to read the articles beneath.",
-              "In the compare view, you can focus on how both columns overlap. This view follows similar principles as the inspect view, but focuses on the overlapping items per each category. You can choose to display the scale of comparison as linear or square root, which allows for an easier comparison of heterogeneous sizes. You can also change the measure of the comparison from absolute to percentage. It means that you can see either how many individual articles are present in both queries and how many overlap or show what is the proportion of both queries that overlap. Changing this will change the order of elements being displayed: in absolute numbers, you will see first for instance the newspapers with the most articles while in the percentage view, you will see first the newspapers with the highest proportion of overlapping articles in both columns. Switching scales and sorting may help you keep track of the context of your queries or collections."
-            ]
-          },
-          {
-            "id": "limited-search-filters",
-            "title": "Limited search filters for this query",
-            "summary": "",
-            "description": [""]
-          },
-          {
-            "id": "how-does-the-image-search-work",
-            "title": "How does the image search work?",
-            "summary": "We retrieve images which are similar to each other.",
-            "description": [
-              "This feature is the result of a collaboration with our colleague <a href='https://profile.benoitseguin.net'>Benoit Seguin</a>, who developed novel deep learning techniques for searching large-scale image collections and successfully applied them to the collection of images in our corpus. This yielded visual signatures for each recognized picture in our corpus. We use these signatures to retrieve images which are similar to each other.",
-              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/image_search.png'></img>",
-              "Use the image search tab to search within captions of detected images/pictures. Once you select an image, all similar images will be displayed. Alternatively, you can upload your own images to identify identical or similar ones in our corpus.",
-              "Further reading: B. L. A. Seguin, “Making large art historical photo archives searchable,” 2018, https://infoscience.epfl.ch/record/261212."
-            ]
-          },
-          {
-            "id": "how-search-images-work-with-search-filters",
-            "title": "The search image page has limited search filters",
-            "summary": "Available filters: by publication date, by newspaper titles and whether retrieved images are on the front page",
-            "description": [""]
-          },
-          {
-            "id": "how-to-make-and-and-or-queries",
-            "title": "How to make AND and OR queries?",
-            "summary": "Calibrate your query of exact matches of several keywords (OR), expand it with other keywords (AND) or with similar words (generated by word embeddings).",
-            "description": [
-              "By default, the keywords you type in the search box will yield articles in which this keyword has been detected by the automatic text recognition. Beyond that, you have several options to narrow down or expand your query.",
-              "First, you can choose where to look for the word: in the article content or title. Then, you can add several keywords, one after the other (press ‘Enter’ after each one or select in the autofill) and choose how the results of each keyword will overlap: <ul><li>To narrow down your result list, you can choose to include ‘all of the following’, which will return articles containing all of the listed keywords (AND)</li><li>To expand your result list, you can choose to include ‘at least one of the following, which will return articles containing at least one of the listed keywords. To do so, you need to add the keywords you want to link with OR in the same search pill.</li><li>To exclude a keyword from your results, simply add your keyword in the search box and select ‘NOT contains’. You also need to group the words you want to exclude in the same search pill.</li></ul>",
-              "Since the default behaviour is performing an exact match, you can find alternative spellings, frequent OCR mistakes or synonyms with the button ‘find similar’. This panel displays suggestions produced by the word embeddings, of the last added keyword.",
-              "For instance, if you search for ‘virus’ in French, it will suggest ‘virale’, a variation on the same word or ‘bactérie’, a related word.",
-              "Keep in mind that the exact match setting does not allow to truncate keywords (e.g. search for ‘europ*’ to retrieve ‘europe’, ‘european’, ‘europeans’, etc.). To collect the variations of a keyword, use the option ‘find similar’.",
-              "Each time you add or remove a keyword, your choices are summarised in the ‘apply changes’ button, that you need to click, to validate your changes. You can search for several words at once, or short sentences, but the probability of matches, due to OCR issues will be reduced. These features are also available for topics, named entities, or the metadata filters (newspaper titles etc.)."
-            ]
-          },
-          {
-            "id": "what-are-ngram",
-            "title": "What do ngrams show?",
-            "summary": "Display the number of times a given keyword is mentioned in impresso collection at a specific date, that is, the “raw” hit of a given keyword not grouped by article, calculated for each year.",
-            "description": [
-              "The ngram viewer displays n consecutive tokens, e.g. unique keywords. Currently the ngram viewer displays unigrams, e.g. single words but will be expanded to display bigrams, e.g. two consecutive keywords, for instance ‘Spanish flu’.",
-              "Many processing steps are required to display the total count of a given word in the impresso collection. In order to count the mentions of a given word, first all items (articles, advertisements, obituaries, etc.) have to be tokenized, that means finding all unique words in the whole collection.",
-              "After this step, only the potentially relevant keywords are selected, all stop words or contentless words such as prepositions, definite articles (le, la, les, der, die, das) are removed. This is particularly important to keep in mind when searching for bigrams: e.g. to finding the bigram of ‘l’Europe des Lumières’ becomes possible, since only ‘Europe’ and ‘Lumières’ has been retained.",
-              "Then, the tokens are lemmatised, that is, we group together the inflected forms of each word). Finally, the token count can be filtered by all usual filters: date, language, newspaper title, topic, person etc."
-            ]
-          },
-          {
-            "id": "how-search-ngrams-work-with-search-filters",
-            "title": "This ngram trends page has limited search filters",
-            "summary": "At the moment we are not allowing to filter by full text search queries while getting ngram frequencies.",
-            "description": [""]
-          },
-          {
-            "id": "relative-vs-absolute-year-graph",
-            "title": "How is it plotted?",
-            "summary": "SUM displays the absolute frequencies of result hits, whereas % shows the relative number of hits, compared to all articles from the impresso corpus.",
-            "description": [
-              "The highest result per year is displayed in number. The impresso interface groups the results per article, so the displayed frequency is the count of all articles containing at least one occurrence of the keyword. In other words, it is not the raw number of hits for the searched key-word, but the number of hits grouped by articles, as shown in the search summary. For instance, a query for Einstein’ returns 8 967 articles. These 8 967 articles contain 13 535 individual hits of ‘Einstein’. An item is included in the search when it contains at least one character, this means that the search is conducted also within advertisements and tables when they contain text."
+              "<ol><li><b>OCR (Optical Character Recognition):</b> OCR is the automated process of identifying and converting printed text from scanned images into machine-readable text. In addition to recognizing letters and characters, OCR tools can detect elements like images, tables, and preserve the coordinates of each character within the scanned image. These coordinates allow features such as keyword highlighting in facsimile views of articles (highlighted in yellow in the Impresso app), making it easier to locate text within the original layout.</li><li><b>OLR (Optical Layout Recognition):</b> OLR identifies the structure of a scanned newspaper page by recognizing article boundaries. This is displayed in blue within the Impresso app and helps distinguish between different types of content, such as news articles, advertisements, or obituaries. OLR enhances the search and classification experience by allowing for more structured and accurate text searches.</li><li><b>METS/ALTO:</b> METS and ALTO are XML standards used to store the output of OCR and OLR processes. These standards, developed by the Library of Congress, ensure that the data from scanned images is well-organized and accessible.<ul><li><b>METS (Metadata Encoding and Transmission Schema):</b> Stores metadata such as article titles, publication dates, and structural information about the newspaper issue.</li><li><b>ALTO (Analyzed Layout and Text Object):</b> Stores the layout data, including the position of text, images, and article boundaries on the page.</li></ul><li><b>ASR (Automated Speech Recognition):</b> ASR is the technology used to convert spoken language into machine-readable text. It processes audio content by recognizing speech patterns and transcribing them into written form. ASR is commonly employed in applications such as voice assistants, transcription services, and multimedia processing. In the context of historical research, ASR can be used to transcribe digitized broadcasts, interviews, and oral histories, making audio-based sources accessible for textual analysis, similar to the way OCR enables the processing of printed materials.</li></ol><p><b>Impact on Impresso:</b> The quality of Impresso's text processing (including features like topic modeling and named entity recognition) depends heavily on the quality of OCR, OLR and ASR outputs. For printed materials, the effectiveness of OCR and OLR can vary significantly based on the resolution of the source material. For example, high-resolution paper scans generally yield better results than lower-resolution microfilm scans. Similarly, the clarity of ASR outputs for audio sources depends on the quality of the original recordings, with factors like background noise and speaker clarity affecting accuracy. However, tools for OCR, OLR, and ASR are continuously evolving. Many libraries regularly update their collections with improved OCR/OLR technologies, and the quality of ASR models continues to improve, particularly with advancements in machine learning. For lower-quality scans, the Impresso team from Zurich <a href='https://www.zora.uzh.ch/id/eprint/177164/'>demonstrated</a> that techniques used for Handwritten Text Recognition (HTR) can outperform standard OCR tools.</p><p><b>Further reading</b><ul><li>Wikipedia “Optical Character Recognition.” <a>https://en.wikipedia.org/w/index.php?title=Optical_character_recognition&oldid=920815843</a></li><li>Library of Congress. “METS Specifications.” <a>http://www.loc.gov/standards/mets</a></li><li>ScienceDirect “Automatic Speech Recognition - an overview. <a>https://www.sciencedirect.com/topics/engineering/automatic-speech-recognition</a></li><li>Ranke.2 lesson “The digitisation of newspapers: how to turn a page”: Bunout, Estelle, and Marten Düring. “The Digitisation of Newspapers: How to Turn a Page.” In <i>From the Archival to the Digital Turn · Ranke.2.</i> Accessed October 15, 2024. <a>https://ranke2.uni.lu/u/archival-digital-turn/.</a></li><li>Ströbel, Phillip Benjamin, and Simon Clematide. “Improving OCR of Black Letter in Historical Newspapers: The Unreasonable Effectiveness of HTR Models on Low-Resolution Images.” <a>https://www.zora.uzh.ch/id/eprint/177164/</a></li></ul>"
             ]
           },
           {
             "id": "metadata-category-article-type",
-            "title": "How is the article type identified?",
-            "summary": "After the scanning of the newspapers, during the Optical Layout Recognition, some particular object types have been identified and tagged as such: articles, obituaries etc.",
+            "title": "How did you identify content types?",
+            "summary": "The identification of article types happens during the Optical Layout Recognition (OLR) phase of the newspaper digitization process.",
             "description": [
-              "The digitisation of the newspapers has been supervised by the partners of impresso and carried out by external service providers for most cases. Each partner defined the categories of newspapers article that the external service provider should tag. We inherited these categories, that are dependent on each newspaper title and each partner. For instance, the National Library of Luxembourg provided newspapers with articles tagged as obituaries, advertisements for most newspapers and for some newspapers, the weather section could be identified. The identification is based on visual features that change rapidly over time and between the newspaper titles: the visual presentation of obituaries is not constant over decades and relies therefore on intensive manual annotation. This makes the segmentation of the newspapers into different article types very costly and difficult to reuse from one newspaper title to another."
-            ]
-          },
-          {
-            "id": "missing-pages-newspapers",
-            "title": "What does the missing pages or issues indicate?",
-            "summary": "Errors may occur in the process of digitisation: some files may be corrupted and therefore cannot be used for full text search.",
-            "description": [
-              "The newspaper digitisation has been carried out by external service providers; the files created in this process for each page and each newspaper issue may suffer from their transfer from one server to another. When copying these files anew, one can count the number of files that cannot be read anymore or that are simply empty. In the newspaper titles’ overview, we display the proportion of unavailable files per year (when applicable), measured in number of pages or issues. You may notice a difference of temporal distribution of the missing files. This is simply because the pages are contained in a folder that constitutes a newspaper issue. A missing issue corresponds to a corrupted archive, while missing pages correspond to empty files within an issue folder. These numbers are not indicative of the missing physical issues in the providers’ collection (e.g. a newspaper issue that was printed, but was not preserved in the physical archive). They do not indicate the number of issues that could not be printed for material reasons (strike, shortage of paper, censorship etc.) nor they are an indication of the proportion of newspapers that have been digitised, compared to all historical newspapers."
-            ]
-          },
-          {
-            "id": "topic-graph",
-            "title": "How to navigate the topic graph?",
-            "summary": "Explore the topics, how they related to one another, for the whole impresso collection or for your query.",
-            "description": [
-              "There are two main uses of the visualisation of topics: one where you explore the topics as such and another where you filter out the topics based on a query. We will describe both now.",
-              "Exploring the topics",
-              "On the left side, all topics are displayed and searchable: when you type a word here, you are looking for words contained in each topic. From that list, you can click on the eye icon to highlight the topic in the graph (in blue). You can also click on a given topic and go to the topic page, where you will see the distribution of that topic over time, the most relevant articles for that topic. From that page, you can add the topic to a query: this means that when you return to the search page, this topic will be activated as a filter.",
-              "Back to the topic page: on the right side, you can see a graph displaying how topics related to one another. You can choose to color the topics by language (this means all the topics from one language will share the same color) or by community (this means that the one color describes one computed topic model.",
-              "The nodes’ sizes can then be adjusted according to various measures: you can choose to highlight the quantity of articles each topic ‘contains’ with ‘countItem’ or highlight the connectivity of topics with their ‘degree’.",
-              "Interact with the graph",
-              "<ul><li>Hover with your cursor over a topic node to see its description. </li><li>Zoom in the graph with your scroller.</li><li>Click and drag nodes to reshape their position on the graph.</li><li>Reset all to return to the original version of the graph, and start again.</li></ul>",
-              "Exploring the topics of your query",
-              "If you have started a query on the search page, you can choose to use this as a filter for the topic graph. This means that all the elements described earlier are still valid but what is displayed does not anymore reflect the whole impresso collection but is tailored to your query.",
-              "For instance, if you search for ‘vaccination’ on the topic page, you will have two topics containing this word. Whereas if you search for ‘vaccination’ on the search page and use this search as a filter for the topic graph, you will have 212 topics related to the articles containing the word ‘vaccination’."
-            ]
-          },
-          {
-            "id": "filter-range",
-            "title": "Filter the list of results by article length",
-            "summary": "Article length is measured in number of tokens. The histogram shows the number of articles grouped by similar length intervals",
-            "description": []
-          }
-        ]
-      },
-      {
-        "title": "Computational processing of historical newspapers",
-        "faq": [
-          {
-            "id": "What-OCR",
-            "title": "What are OCR, OLR and METS/ALTO??",
-            "summary": "OCR and OLR describe the automated recognition of text and article layouts. METS and ALTO are xml standards used to store this information together with other metadata.",
-            "description": [
-              "Optical Character Recognition (OCR) describes the automated identification of letters in scanned images. As a byproduct, most OCR tools also detect other elements in a scanned image, for example images or tables. The OCR software typically preserves the coordinates for each letter on the scanned image. These coordinates are the basis for the yellow highlighting for keywords in the facsimile view of an article. Optical Layout Recognition (OLR) identifies article boundaries on a page which we highlight in blue in impresso.",
-              "All this information is stored in standardized forms. A frequently used format is METS/ALTO XML developed by the Library of Congress, where METS (Metadata Encoding and Transmission Schema) stores information such as article titles and the publication date of the issue and ALTO (Analyzed Layout and Text Object) contains the information on the position of letters, images and article boundaries. To summarise, digitisation produces three layers of new information that shape its later use: <ul><li>OCR creates keyword-searchable text</li><li>OLR identifies the organisation of articles on a page. Search within articles becomes possible as well as the classification of article types, e.g. advertisements or obituaries</li><li>METS/ALTO stores the location of characters on the scanned image and additional metadata.</li></ul>",
-              "The quality of text and layout recognition can vary significantly between newspapers. Most critical are the materials on which they are applied: Paper scans in high resolution are for example better suited than scans from microfilm in lower resolutions. At the same time, tools for OCR and OLR continue to improve and some libraries regularly re-OCR and re-OLR their collections.",
-              "Digitized text organized in article boundaries is the foundation of the text processing we undertake as part of the impresso project. Variations in the quality of the underlying text also negatively affects the quality of topic modeling, named entity recognition, text reuse and word embeddings.",
-              "Finally, the impresso team from Zurich also <a href='https://dev.clariah.nl/files/dh2019/boa/0694.html'>demonstrated</a> that for lower quality scans, techniques used for Handwritten Text Recognition (HTR) can outperform standard OCR tools.",
-              "Further reading: <ul><li>'Optical Character Recognition.' In Wikipedia, October 12, 2019. https://en.wikipedia.org/w/index.php?title=Optical_character_recognition&oldid=920815843.</li><li>ALTO specifications, https://www.loc.gov/standards/alto/description.html</li><li>METS specifications, http://www.loc.gov/standards/mets</li><li>Ströbel, Phillip Benjamin; Clematide, Simon: Improving OCR of Black Letter in Historical Newspapers: The Unreasonable Effectiveness of HTR Models on Low-Resolution Images</li></ul>"
+              "<p>Specific object types such as articles, obituaries, and advertisements are tagged based on visual features present in the scanned newspapers. This process was supervised by the partners of Impresso and executed by external service providers for most cases. Each partner defined the categories of newspapers articles that the external service provider should tag. As a result, Impresso inherits these predefined categories, which vary from one partner and newspaper title to another.</p><p><b>For example,</b> the National Library of Luxembourg tagged obituaries, advertisements, and in some cases, weather sections in their digitized newspapers. Because article identification relies on visual features, which can change significantly over time and across different newspaper titles, this process can require intensive manual annotation. This makes the segmentation of the newspapers into different article types very costly and difficult to reuse from one newspaper title to another.</p><p><img src='src/assets/img/obituary1-screen.png'></img><i>Example of an obituary from the Luxembourgish newspapers L’Union, published February 28, 1867.</i></p><p><img src='src/assets/img/obituary2-screen.png'></img><i>Example of an obituary from the Luxembourgish newspapers d'Letzeburger Land, published June 12, 1959.</i></p>"
             ]
           },
           {
             "id": "what-is-nep",
-            "title": "What is Named Entity Processing?",
+            "title": "What is named entity processing?",
             "summary": "Named entities correspond to elements of interest that appear in texts, usually of type Person, Location or Organisation.",
             "description": [
-              "They are referential units which underlie the meaning of texts. Their definition is quite vague, but as a rule of thumb, they correspond more or less to proper names. The important criteria is here the name, which acts as a ‘rigid designator’: to differentiate for instance a common definite description  such as ‘the pope’ referring to any pope, from the mention of a particular named entity such as ‘Pope Francis’.",
-              "In a first step, Named Entity Recognition and Classification (NERC) automatically detects  and categorize mentions of e.g. a person in a text. For now we make use of a rule-based system, and will also apply machine learning techniques at a later stage. A rule-based system tries to recognize patterns based on morphological and lexical clues. For example, the pattern  [uppercase token + uppercase letter + punctuation + known surname] could recognize ‘George W. Bush’. A machine learning-based system requires, for its part, a large number of annotated entities in texts (examples of persons, institutions and locations), from which it will “learn” what they look like and how to identify them. In a second step we try to link entity mentions to a knowledge base containing entities (with their unique identifiers). We use AIDA Light for the linking and Wikidata as the reference knowledge base. This allows us to link one mention of a person named ‘Winston Churchill’ to the former British prime minister across the corpus (when it works). Finally, in the near future we will be looking for relations between entities, for example  a born_in relation between a person and a location entity, colleague_of between two persons, alma_mater between a person and an organisation (in this case could be of subtype ‘Educational’).",
-              "These are baselines, and the improvement of automated recognition and linking of named entities in historical texts is one of impresso’s research objectives.",
-              "Further reading: <ul><li>Impresso blog post: Named entity processing in a nutshell,  https://impresso-project.ch/news/2018/06/12/tradingzone-ner.html</li><li>If you wish a lightweight introduction to Named Entity Processing for Digital Humanities, have a look at the tutorial we provided during the DH 2019 conference in Utrecht: https://github.com/impresso/named-entity-tutorial-dh2019</li><li>An old reference, but which gives a nice overview: Nadeau, David, and Satoshi Sekine. 'A survey of named entity recognition and classification'. Lingvisticae Investigationes 30.1 (2007): 3-26.</li><li>For those who are curious about the concept of named entities, a longer document (in French): Les Entitées Nommées, de la linguistique au TAL : Statut théorique et méthodes de désambiguïsation</li><li>A small book on the topic: Damien Nouvel, Maud Ehrmann, Sophie Rosset, Named entities for computational linguistics, 2016, Focus, Wiley.</li><li>Some information about the AIDA  system:  https://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/ambiverse-nlu/aida</li></ul"
+              "<p>They are referential units which underlie the meaning of texts. Their definition is quite vague, but as a rule of thumb, they correspond more or less to proper names. The important criteria is here the name, which acts as a ‘rigid designator’: to differentiate for instance a common definite description  such as ‘the pope’ referring to any pope, from the mention of a particular named entity such as ‘Pope Francis’.</p><p>In a first step, Named Entity Recognition and Classification (NERC) automatically detects  and categorize mentions of e.g. a person in a text. For now we make use of a rule-based system, and will also apply machine learning techniques at a later stage. A rule-based system tries to recognize patterns based on morphological and lexical clues. For example, the pattern  [uppercase token + uppercase letter + punctuation + known surname] could recognize ‘George W. Bush’. A machine learning-based system requires, for its part, a large number of annotated entities in texts (examples of persons, institutions and locations), from which it will “learn” what they look like and how to identify them. In a second step we try to link entity mentions to a knowledge base containing entities (with their unique identifiers). We use AIDA Light for the linking and Wikidata as the reference knowledge base. This allows us to link one mention of a person named ‘Winston Churchill’ to the former British prime minister across the corpus (when it works). Finally, in the near future we will be looking for relations between entities, for example  a born_in relation between a person and a location entity, colleague_of between two persons, alma_mater between a person and an organisation (in this case could be of subtype ‘Educational’).</p><p>These are baselines, and the improvement of automated recognition and linking of named entities in historical texts is one of impresso’s <a href='https://impresso-project.ch/project/objectives/'>research objectives</a>.</p><p><b>Further reading </b></p><ul><li>Impresso blog post: Named entity processing in a nutshell. <a>https://impresso-project.ch/news/nlp/documentation/2018/06/12/tradingzone-ner.html</a></li><li>Impresso. Named Entity Tutorial for Digital Humanities 2019. <a>https://github.com/Impresso/named-entity-tutorial-dh2019</a></li><li>Nadeau, David, and Satoshi Sekine. A survey of named entity recognition and classification. Lingvisticae Investigationes, 2007. <a>https://doi.org/10.1075/li.30.1.03nad</a></li><li>Nouvel, Damien, Maud Ehrmann, and Sophie Rosset. Named Entities for Computational Linguistics. Wiley, 2016. <a>https://hal.science/hal-01359440</a></li><li>Ehrmann, Maud. Les Entités Nommées, de la linguistique au TAL : Statut théorique et méthodes de désambiguïsation. Informatique et langage [cs.CL], Paris Diderot University, 2008. <a>https://tel.archives-ouvertes.fr/tel-01639190</a></li><li>AIDA System Overview – Max Planck Institute for Informatics. <a>https://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/ambiverse-nlu/aida</a></li></ul>"
             ]
           },
           {
             "id": "i-have-noticed-mistakes",
-            "title": "I have noticed mistakes in the text and among the named entities. Where do they come from?",
-            "summary": "We use state-of-the-art tools to improve the quality of the OCR and to identify persons and locations. Inevitably, they sometimes fail and make mistakes which we need to remain aware of.",
+            "title": "Why are there errors in the text and entities?",
+            "summary": "We use advanced tools to improve Optical Character Recognition (OCR) and identify named entities like persons and locations. However, errors can still occur due to various factors, including the quality of the original source material and limitations of the technology.",
             "description": [
-              "Generally, poor OCR also lowers the quality of the output of subsequent processes and this can often explain varying quality across different newspapers and over time."
+              "Poor OCR results can affect the accuracy of subsequent processes like named entity recognition (NER), leading to inconsistencies across different newspapers or time periods, especially when dealing with lower-quality scans. While OCR and NER tools are improving, some errors are inevitable due to variations in source material."
             ]
           },
           {
             "id": "what-is-topic-modeling",
-            "title": "What is Topic Modeling?",
-            "summary": "Put simply, topic modeling is based on the double assumption that themes are covered by similar words in various texts and that one text can contain several themes. Inverting that assumption, we find that themes can be identified by the words that usually express them.",
+            "title": "What is topic modeling ?",
+            "summary": "Topic modeling is a purely data-driven technique that helps identify underlying themes within a collection of texts. It operates under the assumption that each document cover multiple themes, and those themes can be detected through patterns of word usage. In other words, topic modeling uncovers the 'word distributions' that define a particular topic within a collection.",
             "description": [
-              "The words a text contains constitute therefore a clue to identify the themes of a text, and are given. Topic modeling helps to discover the word constellation for each document that defines a theme, or a topic, independently of the author or the point of view taken on that topic.",
-              "Doing so allows us to have an overview on the themes contained in the documents of a collection, here press articles and how many articles contain a particular theme. Topic modeling creates therefore an unsupervised, data-driven indexing of the articles, helping to navigate the whole collection. As one article can contain several topics, it is a soft clustering indexation, meaning that one article can belong to several topics and that we detect the proportion of relevant topics for a given article.",
-              "Further reading: <ul><li>'Ted Underwood. 'Topic Modeling Made Just Simple Enough.' The Stone and the Shell (blog), April 7, 2012. https://tedunderwood.com/2012/04/07/topic-modeling-made-just-simple-enough/.</li><li>MALLET homepage, http://mallet.cs.umass.edu</li><li>Griffiths, Thomas L., Mark Steyvers, and Joshua B. Tenenbaum. 'Topics in Semantic Representation.' Psychological Review 114, no. 2 (2007): 211–44. https://doi.org/10.1037/0033-295X.114.2.211.</li><li>D. M. Blei, 'Probabilistic topic models,' Commun. ACM, vol. 55, no. 4, p. 77, Apr. 2012, https://m-cacm.acm.org/magazines/2012/4/147361-probabilistic-topic-models/fulltext?mobile=true.</li></ul>"
-            ]
-          },
-          {
-            "id": "how-to-read-the-topics",
-            "title": "How to read the topics?",
-            "summary": "The topics created by the topic modeling applied on the whole impresso collection help gather insights into the distribution of themes across the corpus.",
-            "description": [
-              "As it is data-driven and not following a predefined list of topics, it helps to understand what are the themes present in the press articles over time.  Moreover, what makes the topics informative, is the combination of words they put forward. For instance, when searching for “butter” in the topic list, we have two results, indicating each a different use of that word.",
-              "A first use seems to derive from an agricultural context (in association with agriculture, wheat, milk, harvest), whereas the second, more from a cooking context (in association with sugar, meat, apples). Therefore topic modeling takes into account the polysemy of words and helps differentiate their uses.",
-              "On the topic page, you can explore the most relevant articles connected to a topic and get a better understanding of what articles are behind a given topic."
-            ]
-          },
-          {
-            "id": "why-topic",
-            "title": "Why did you apply topic modeling to this collection?",
-            "summary": "For the impresso interface, we use topic modeling first and foremost as a technique to help make sense of the mass of results they encounter when facing digitized sources.",
-            "description": [
-              "Rather than as results ready for interpretation, we use topic models for a better understanding of the composition of the impresso corpus and to allow its navigation.  In practice that means that we use topics as facets in the Search interface so as to make a large number of search results more manageable. You can do this by either explicitly including topics of interest or by excluding topics which are not of interest (of course together with the other filters available to you).",
-              "When trying to find horoscopes, for example, one might start with searching for the keyword “horoscope”. It turns out however, that this word is still relatively polysemic and the first hits contain both actual horoscopes and other types of articles, such as advertisements, fiction etc.",
-              "Looking at the topics, the most prominent one seems to be “fear, risk, attention, partner”, which echoes potentially typical horoscope contents. Selecting this topic does indeed show a more targeted result, containing mostly actual horoscopes. For more collection-specific topic models, impresso users can export their search results and collections as .csv files, for an example see also the blog post below.",
-              "Further reading: Nibbling at text: identifying discourses on Europe in a large collection of historical newspapers using topic modelling, <a target='_blank' href='https://www.c2dh.uni.lu/thinkering/nibbling-text-identifying-discourses-europe-large-collection-historical-newspapers-using'>https://www.c2dh.uni.lu/thinkering/nibbling-text-identifying-discourses-europe-large-collection-historical-newspapers-using</a>"
+              "<p>Each document in the Impresso corpus may elaborate on multiple topics, and topic modeling helps in identifying and assigning proportions of these topics to individual articles. This results in a soft clustering of the collection, meaning a single article can belong to several topics with varying degrees of relevance. As a data-driven, unsupervised technique, topic modeling provides a way to navigate the vast number of Impresso articles, offering insights into the themes represented in the newspaper corpus. Each article is described by several relevant topics.</p><p>To recommend related articles, we choose articles with the most similar topic distribution.The topics are computed monolingually for German, French and Luxembourgish over the whole Impresso period. The suggested articles may come from different time periods, linked by the shared topics. This is a means to expand your readings and make you aware of related articles that may not have appeared in the results of your initial keyword search. The topic distribution may not be the identical for the suggested similar articles than from article currently displayed, nonetheless main topics must have similar relevance.</p><p><b>Further reading</b> The following resources provide more in-depth explanations of topic modeling.<ul><li>Underwood, Ted. Topic Modeling Made Just Simple Enough. The Stone and the Shell (blog), April 7, 2012. <a>https://tedunderwood.com/2012/04/07/topic-modeling-made-just-simple-enough/</a></li><li>Griffiths, Thomas L., Mark Steyvers, and Joshua B. Tenenbaum. Topics in Semantic Representation. Psychological Review, 2007. <a>https://doi.org/10.1037/0033-295X.114.2.211</a></li><li>Blei, D. M. Probabilistic Topic Models. Communications of the ACM, 2012. <a>https://doi.org/10.1145/2133806.2133826</a></li><li>Nibbling at Text: Identifying Discourses on Europe in Historical Newspapers Using Topic Modeling. <a>https://www.c2dh.uni.lu/thinkering/nibbling-text-identifying-discourses-europe-large-collection-historical-newspapers-using</a></li></ul> "
             ]
           },
           {
             "id": "how-topic",
             "title": "How was topic modeling applied to this collection?",
-            "summary": "We generated topic models for both French and German language newspapers with the goal to optimize them for content exploration. These are the topics you see on display in the interface. Given the large size of our corpus, we can not easily re-run topic modeling on the fly for user collections. We recognize that this can be of interest to many users, if this is of interest to you, we advise you to export your collection and use your preferred topic modeling tool of choice.",
+            "summary": "We generated topic models for French and German language newspapers with the goal of supporting content exploration. These are the topics you see on display in the interface. If you want to do topic modeling on your specific subcollection, we advise you to export your collection and use your preferred topic modeling tool of choice.",
             "description": [
-              "For the global topic modeling, we used MALLET and used the following steps to prepare the data: ",
-              "<ul><li>Language identification</li><li>Linguistic processing (Lemmatization; note that historical spellings cannot currently be lemmatized correctly; terms like “Bundesrath” can therefore not be found in topic models)</li><li>Reduction to nouns and proper nouns in order to improve the interpretability of topics.</li></ul>",
-              "Topic models have been trained on articles which contain a minimum of 10 nouns. For articles with less than 10 nouns we infer topics. In this context, training means the following: Given a set of documents and a fixed number of topics, we compute topic-word and topic-document distributions that make our documents probable. Inference: Given a topic model and an unseen document, we determine a topic distribution for the document that explains its observed words best.",
-              "Large datasets like ours can not be easily processed with MALLET, instead we subsample the articles in order to be able to process them. For the sample we randomly select about 30% of the articles for French (as we did not have that much of German articles, we did not sample for this language so far).",
-              "MALLET requires us to pre-determine the number of topics it should generate. We set this number to 100. This number is arbitrary but represents our attempt to capture the complexity of the newspaper content without overburdening users by offering too many topics to inspect.",
-              "In the interface, a topic is linked to an article if its proportion is at least 2% for French and 0.5% for German (this may change to 2% in the near future). This is to ensure that topics remain distinctive and can indeed serve as search facets.",
-              "Further reading: <a href='http://mallet.cs.umass.edu/' target='_blank'>MALLET homepage</a>"
+              "<p>For the global topic modeling, we used MALLET and applied the following steps to prepare the data and ease the interpretation of the topics:<ul><li>Language identification</li><li>Part-of-speech tagging to be able to select only nouns and proper nouns for the topic modeling. As nouns are more meaningful in isolation than adjectives or verbs, we do this to improve interpretability of the data-driven topics.</li><li>Lemmatization of inflected word forms into their singular base form. Note that historical spellings ('Bundesraths') in German are not lemmatized unless they are very frequent.</li></ul></p><p>Topic models have been trained on articles which contain a minimum of 10 nouns. In this context, training means the following: Given a set of documents and a predefined number of topics, in our case 100 topics per language, we compute topic-word (the topics) and topic-document (the soft clustering of documents) distributions that give our existing documents a high probability of being sampled. Topic inference: Given a precomputed topic model and a new document, we determine a topic distribution for the document that assigns its observed words a high probability of being sampled by the topic-word distribution.</p><p>Large datasets like ours cannot be easily processed with MALLET, instead we subsample the articles to be able to process them. For the sample, we randomly select about 30% of the articles for French (as we did not have that much of German articles, we did not sample for this language so far).</p><p>MALLET requires us to pre-determine the number of topics it should generate. We set this number to 100. This number is arbitrary but represents our attempt to capture the complexity of the newspaper content without overburdening users by offering too many topics to inspect.</p><p>In the interface, a topic is linked to an article if its proportion is at least 2%. This is to ensure that topics remain distinctive and can indeed serve as search facets.</p><p><b>Further reading</b><ul><li>MALLET Homepage <a>https://mimno.github.io/Mallet/index</a></li><li>About Topic Modeling on historical newspapers https://impresso-project.ch/documentation/nlp/2018/09/07/tradingzone-tm.html</li></ul></p>"
+            ]
+          },
+          {
+            "id": "how-to-read-the-topics",
+            "title": "Why did we apply topic modeling to Impresso? How can I interpret and read the topics?",
+            "summary": "We applied topic modeling to the Impresso interface to help users navigate the vast amounts of digitized newspaper articles. Instead of offering definitive interpretations or classifications, topic models provide a way for users to explore the composition of the corpus and refine their searches. ",
+            "description": [
+              "<p>Integrated as facets in the search interface, topics enable users to filter results by selecting relevant themes or excluding unrelated ones, making the search and exploration process more efficient. The topics generated from the entire Impresso collection offer valuable insights into the distribution of themes across the corpus. Since this process is purely data-driven, without relying on predefined categories, it helps uncover the themes present in press articles over time, enhancing the understanding of historical content.</p><p>What makes these topics particularly informative is the specific combination of nouns associated with each theme. For example, if you search for the word “école” (school) you might see in the topic list two different topics that reveal distinct uses of the word:<ol><li>One usage is linked to an educational context, where “école” appears alongside terms like “cours · enseignement · professeur · année” (lessons - teaching - teacher - year). This can reveal discussions about classroom activities, instruction, and the role of teachers within the academic year.</li><li>The second usage reflects an administrative and infrastructural context, where “école” is associated with words such as “conseil · commune · construction · crédit · ville” (council - municipality - construction - loan - city). This can reveal discussions on the development, funding, and management of school infrastructure by local governments and communities.</li></ol></p><p><img src='src/assets/img/topics-example-screen.png'></im></p><p>This ability to account for the polysemy (multiple meanings) of words is one of the strengths of topic modeling. It helps distinguish between different contexts in which a word might be used, allowing you to better understand how themes evolve and differ within the corpus.</p><p>For more collection-specific topic modeling, you can export your search results and collections as .csv files for further analysis done by yourself.</p>"
             ]
           },
           {
             "id": "how-are-word-embeddings-generated",
-            "title": "What are 'word embeddings'?",
-            "summary": "Word embeddings are dense vector representations of words, basically a list of real numbers.",
+            "title": "What are 'word embeddings,' and how do they enhance searches?",
+            "summary": "Word embeddings are a data-driven technique used to represent words as dense vectors—essentially sequences of real numbers—generated by neural networks trained on large text corpora, such as the Impresso collection. The core principle behind word embeddings is distributionalism, which posits that “you shall know a word by the company it keeps” (Firth, 1957). In other words, words that frequently appear in similar contexts will have similar meanings.",
             "description": [
-              "These representations, often called ‘word embeddings’, are empirically learned on our corpus data by neural networks. These techniques are based on the assumption of distributionalism, which says ‘you shall know a word by the company it keeps’ (Firth, J. R. 1957:11). Words that occur in similar contexts will have similar meanings. In our case, similar words are either semantically related (armistice - hostilités - capitulation - co-belligérance), or they are inflection variants (gedenken - angedenken - gedenk), or simply OCR errors (Eidgenoffenschast - Eidgenossenschaft - Eidgenofsenschaft).",
-              "<img src='https://raw.githubusercontent.com/impresso/impresso.github.io/master/assets/screenshots/interface_homepage/word-embeddings.png'></img>",
-              "You can use them to add additional search terms to your query, for example you can discover synonyms or frequent OCR mistakes you should consider to get additional search results. In a future release we will add a dedicated view for the more advanced exploration of word frequencies within the corpus and over time.",
-              "Further reading:<ul><li>Firth, John Rupert. 1957. A synopsis of linguistic theory 1930-1955. In Special Volume of the Philological Society. Oxford: Oxford University Press.</li><li>'FastText - Word Representations' Accessed October 12, 2019. https://fasttext.cc/index.html.</li><li>Ben Schmidt. 'Vector Space Models for the Digital Humanities.' Accessed October 12, 2019. http://bookworm.benschmidt.org/posts/2015-10-25-Word-Embeddings.html.</li></ul>"
-            ]
-          },
-          {
-            "id": "topics-in-common",
-            "title": "What are Topics in Common?",
-            "summary": "Each article is described by several relevant topics. In order to  recommend related articles, we choose articles with the most similar topic distribution.",
-            "description": [
-              "The topics are computed per language over the whole impresso collection period, so the suggested articles may come from very different time periods, linked by the inclusionary topics. This is a means to expand your readings and make you aware of related articles that may not have appeared in the results of your initial keyword search. The topic distribution may not be exactly the same for the suggested similar articles than from article currently displayed, nonetheless main topics must have similar values."
+              "<p>In practice, word embeddings connect words based on semantic, syntactic and morphological patterns. It also deals with common OCR (Optical Character Recognition) errors. For instance:</p><ul><li><b>Semantically related words:</b> armistice, hostilités, capitulation, co-belligérance.</li><li><b>Syntactic and morphological variants:</b> gedenken, gedacht and angedenken, which are variations of the same root word.</li><li><b>OCR errors:</b> “Eidgenoffenschast” might be a misrecognition of “Eidgenossenschaft”, a common issue in historical text digitization.</li></ul><p>Using word embeddings, you can improve your search queries by discovering synonyms or semantic related words, word variants, and frequent OCR errors that might affect your search results. By incorporating these into your query, you can capture a broader range of relevant documents. For example, if you notice OCR errors—such as the word “Eidgenoffenschast” appearing frequently instead of “Eidgenossenschaft”—word embeddings can help you identify these variations. You can then modify your search to include both the correct term and its common OCR variants, ensuring a more comprehensive retrieval of relevant documents.</p><p><b>Usage example</b> Let’s say you’re researching World War I and searching for documents related to “armistice”. Word embeddings can suggest related terms like “capitulation” or “hostilités”, allowing you to expand your query to include documents discussing similar concepts, even if the exact word “armistice” is not mentioned.To do this, there are two ways, as shown in the screenshots below:</p><p><img src='src/assets/img/embeddings-screen.png'></img>  <img src='src/assets/img/embeddings2-screen.png'></img></p><p><b>Further reading</b> For more in-depth resources on word embeddings and their application in text analysis, you can explore the following materials:<ul><li>Firth, John Rupert. 1957. A synopsis of linguistic theory 1930-1955. In Special Volume of the Philological Society. Oxford: Oxford University Press.</li><li>'FastText - Word Representations' Accessed October 15, 2024. <a>https://fasttext.cc/index.html</a>.</li><li>Ben Schmidt. 'Vector Space Models for the Digital Humanities.' Accessed October 15, 2024. <a>http://bookworm.benschmidt.org/posts/2015-10-25-Word-Embeddings.html</a>.</li></ul></p>"
             ]
           },
           {
             "id": "text-reuse",
-            "title": "What does text reuse mean?",
-            "summary": "Text reuse detection aims at finding automatically repeated text passages in a corpus, such as multiple copies of the same article published in different newspapers.",
+            "title": "What is text reuse and what can I do with it?",
+            "summary": "Text reuse detection refers to the automated identification of repeated text passages within a corpus, such as copies of the same article published across different newspapers.",
             "description": [
-              "A newspaper corpus contains multiple copies of the same article, identical or with slight differences from one another, as well as repetitions of smaller portions of a newspaper page (e.g. advertisement, event listings, etc.). Text reuse detection aims at identifying these copies and repetitions automatically, and yields clusters of passages that were deemed to be related with one another. What a cluster contains can vary a lot: it can group together copies of the same article that differ only with respect to OCR errors; but it can also contain portions of text that share the same ‘journalistic template’, such as ‘oroscopes’, ‘avertisements’.",
-              "Why did you apply text reuse to this collection?",
-              "Detecting text reuse in a large-scale newspaper corpus is useful in many respects: <ul><li>1) to identify (and possibly filter out) duplicate documents before performing further processing steps (e.g. topic modelling); </li><li>2) to study the virality and spread of news; </li><li>3) to study information flows, both within and across national borders; </li><li>4) to allow users discover which contents, within in their own collections, generated text reuse (e.g. famous political speeches, portions of national constitutions, etc.).</li></ul>",
-              "How was text reuse applied to this collection?",
-              "We used the open source software <a href='https://github.com/dasmiq/passim'>passim</a> to automatically detect text reuse. Passim was applied in two steps: <ul><li>As a pre-processing step, we ran passim in boilerplate detection mode; this allowed us to find boilerplate content within our corpus. We define boilerplate as portions of text that get repeated within the same newspaper in a time window of a month. All content items where boilerplate text was detected are filtered out from passim’s input. This allows us to reduce the final number of detected text reuse clusters by removing some noise (i.e. boilerplate) in the input data.</li><li> After having removed boilerplate text, we ran the content of our corpus (76 newspapers) through passim, resulting into approx. 6 million text reuse clusters. </li><li>We then post-processed passim’s output to enrich the detected text reuse clusters. For each cluster, we add the following information:</li><li>Size: the number of passages contained in a cluster;</li><li>Lexical overlap: the percentage of unique tokens that all passages in a cluster have in common (all text is lowercased and punctuation is stripped).</li><li>Time span: time window covered by documents in the cluster, measured in number of days. It’s the difference (in days) between the publication date of the oldest and of the most recent content item in the cluster.</li></ul>",
-              "These pieces of information can be used as filters when browsing text reuse clusters in the page https://impresso-project.ch/app/text-reuse-clusters/."
+              "<p>Newspaper collections often contain multiple instances of the same article, either identical or slightly modified (e.g., advertisements, event listings, news articles). Text reuse detection helps identify these duplicates and organize them into clusters of related text passages. These clusters can vary in nature:<ul><li>They may group together articles which contain identical or very similar text segments. Differences can be caused by OCR errors or slight variations, such as edits by journalists.</li><li>They may include portions of text following similar templates, such as horoscopes, advertisements, or syndicated columns.</li></ul></p><p><b>Why did we apply text reuse to the Impresso collection?</b> Applying text reuse detection to the Impresso collection provides several benefits:<ol><li>Identifying and filtering out duplicate documents before further analysis (e.g., topic modeling).</li><li>Studying the virality and spread of news across different regions.</li><li>Understanding the flow of information, both nationally and internationally.</li><li>Allowing users to discover which parts of their collections are subject to text reuse (e.g., famous speeches or national constitutions).</li></ol></p><p><b>Text reuse view:</b> The <a href='https://impresso-project.ch/app/text-reuse'>text reuse interface</a> consists of a search and filter pane on the left and three main tabs in the center. Here's an overview of the different tabs:<ol><li><b>Overview tab:</b> This tab provides a high-level view of the search or filtering results. It displays the distribution of semantic enrichments (such as topics, languages, and named entities) and metadata.</li><p><img src='src/assets/img/TR-overview-screen.png'></img></p><li><b>Statistics tab:</b> The Statistics tab visualizes various text reuse metrics, such as passage counts over time, cluster sizes, and lexical overlap between newspapers. This distant reading tool provides line charts and matrix views, allowing users to explore trends across different time periods, newspapers, or other dimensions.</li><p><img src='src/assets/img/TR-statistics-screen.png'></img></p><li><b>Passages tab:</b> The Passages tab supports close reading by listing all text reuse clusters related to the query. You can sort passages by criteria such as date, lexical overlap, cluster size, or time span. You can also compare different passages side by side, with differences highlighted, to analyze how they have been modified over time (e.g., editorial changes or OCR errors). This tab is ideal if you want to explore individual examples of text reuse in detail.<p><img src='src/assets/img/TR-passages-screen.png'></img></p></li></ol><p><b>Further reading</b> For more details on the Impresso’s text reuse interface, please refer to the following paper:<ul><li>Düring, Marten, et al. Impresso text reuse at Scale. An Interface for the Exploration of text reuse Data in Semantically Enriched Historical Newspapers. Frontiers in Big Data 6 (2023). <a>https://www.frontiersin.org/articles/10.3389/fdata.2023.1249469</a>.</li></ul> "
             ]
           },
           {
-            "id": "text-reuse-cluster-metadata",
-            "title": "What is lexical overlap?",
-            "summary": "Percentage of...",
+            "id": "how-text-reuse-applied",
+            "title": "How did you detect text reuse?",
+            "summary": "For text reuse detection in the Impresso collection, we used the open-source software <a href='https://github.com/dasmiq/passim'>passim</a> to detect and analyze repeated content across the corpus.",
+            "description": [
+              "<p>This was done in two main steps:</p><ol><li>Boilerplate Detection: First, passim was used to detect boilerplate content, which refers to repetitive text within the same newspaper (e.g., repeated phrases or template sections over a month). Boilerplate content was filtered out to reduce noise and ensure a more accurate identification of actual text reuse across different newspapers.</li><li>Text reuse Detection: After removing the boilerplate text, the entire corpus—comprising 134 newspapers—was processed, resulting in approximately 8 million text reuse clusters and 22 million passages. Each cluster represents instances of text reuse across different publications.</li></ol><p>Once passim detected the text reuse clusters, we further enriched the data by adding the following key information for each cluster:<ul><li><b>Size:</b> The number of passages included in a cluster.</li><li><b>Lexical overlap:</b> The percentage of unique tokens (words) shared between the passages, with the text normalized (lowercased and punctuation removed).</li><li><b>Time span:</b> The time window covered by the documents in the cluster, measured in days. This is the difference between the publication date of the oldest and the most recent content in the cluster.</li></ul></p><p>These enriched details can be used as filters when exploring the text reuse clusters on the Impresso platform, providing users with additional insights into the scope and characteristics of reused content. You can browse the clusters at <a href='https://impresso-project.ch/app/text-reuse/clusters?p=1&sq='>text reuse clusters page</a>.</p><p><b>Further reading</b> For more information on text reuse and the tools used in its detection, explore the following resources.<ul><li>Düring, Marten, et al. Impresso text reuse at Scale. An Interface for the Exploration of text reuse Data in Semantically Enriched Historical Newspapers. Frontiers in Big Data 6 (2023). <a>https://www.frontiersin.org/articles/10.3389/fdata.2023.1249469</a>.</li><li>Romanello, Matteo, and Simon Hengchen. Detecting text reuse with passim. The Programming Historian, 2020. <a>https://doi.org/10.46430/phen0092</a>.</li><li>Passim GitHub Repository. Accessed October 15, 2024.  <a>https://github.com/dasmiq/passim</a>.</li></ul></p>"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Search Features",
+        "faq": [
+          {
+            "id": "how-to-make-and-and-or-queries",
+            "title": "How do I make AND, OR and NOT queries?",
+            "summary": "When searching within the Impresso platform, you can refine or expand your search results by using AND, OR and NOT queries to control how multiple keywords interact within your search.",
+            "description": [
+              "<p>By default, the keywords you enter will yield articles where those exact keywords have been detected. However, several options are available to tailor your query further:<ul><li><b>AND Queries (narrowing down results):</b> To find articles that contain all of the keywords you’re interested in, you can select the option to include “all of the following”. This will return results where every listed keyword appears together in the articles.</li><li><b>OR Queries (expanding results):</b> To find articles that contain at least one of several keywords, you can group those keywords using the “at least one of the following” option. This approach broadens your search to include any articles that mention any of the listed keywords.</li><li><b>NOT Queries (excluding keywords):</b> To exclude certain keywords from your search results, enter the keyword in the search box and select “NOT contains”. Group all keywords you want to exclude within the same search pill to refine your search further.</li></ul></p><p>Additionally, you can enhance your search by using the “find similar” feature, which suggests alternative spellings, synonyms, or frequent OCR (Optical Character Recognition) mistakes, powered by word embeddings.</p><p><b>Usage example</b> Let’s say you’re researching articles on the influenza pandemic and want to find articles that discuss the virus, vaccines, or quarantine measures.<ol><li><b>AND Query (narrowing down results)</b>: You want to find articles that mention both “grippe” (influenza) and “vaccin” (vaccine) in the same text. To do this, you would use an AND query by selecting “all of the following” and entering both “grippe” and “vaccin”. This will return articles where both keywords appear together, narrowing down your results to articles focused on both influenza and vaccines.</li><p><img src='src/assets/img/and-query-screen.png'></img></p><li><b>OR Query (expanding results):</b> If you want to broaden your search to find articles that mention either “quarantaine” (quarantine) or “isolement” (isolation), you can use an OR query by selecting “at least one of the following”. This will return articles that mention either of these terms, expanding your results to include any relevant content.</li><p><img src='src/assets/img/or-query-screen.png'></img></p><li><b>NOT Query (excluding keywords):</b> If you are interested in articles about “virus” but want to exclude content related to “épidémie” (epidemic), you can use a NOT query. This will return articles that mention “virus” but exclude any articles that also mention “épidémie”.</li><p><img src='src/assets/img/not-query-screen.png'></img></p><li><b>Find Similar (enhancing results):</b> Let’s say you are searching for the term “virus” and want to find related terms or frequent OCR errors. Using the “find similar” feature, the system might suggest words like “virale” (viral) or “pathogène” (pathogenic), helping you expand your search to include relevant synonyms or alternative spellings.</li><p><img src='src/assets/img/similar-query-screen.png'></img></p></ol><p>By applying these queries, you can refine your search results to better match your research focus on topics like the influenza pandemic, ensuring you capture the most relevant articles from the Impresso platform.</p><p><b>Further reading</b><ul><li>Düring, Marten, Estelle Bunout, and Daniele Guido. “Transparent Generosity. Introducing the Impresso Interface for the Exploration of Semantically Enriched Historical Newspapers.” Historical Methods: A Journal of Quantitative and Interdisciplinary History, June 14, 2024, 35–55. <a>https://doi.org/10.1080/01615440.2024.2344004</a></li></ul></p>"
+            ]
+          },
+          {
+            "id": "what-are-ngram",
+            "title": "What do ngrams show?",
+            "summary": "Ngrams in the Impresso web app display the frequencies of keywords' occurrences within the Impresso collection over a timeline. This count is calculated for each year and reflects the number of times a keyword appears, without grouping these occurrences by article.",
+            "description": [
+              "<p>The ngram viewer visualizes n consecutive tokens (e.g., unique keywords). Currently, the platform supports unigrams, which represent single words, but it will soon expand to include bigrams, representing two consecutive keywords (e.g., 'Spanish flu').</p><p>The process of generating ngrams involves several steps:<ol><li><b>Tokenization:</b> All items in the collection, such as articles, advertisements, and obituaries, are broken down into unique words (tokens).</li><li><b>Stop words removal:</b>Non-essential words like prepositions and articles (e.g., le, la, les, der, die, das) are removed to focus on meaningful keywords.</li><li><b>Normalization:</b> Our SOLR IR engine applies language-specific spelling normalizations to the words (e.g. removing diacritics “Zürich” and “Zurich” are considered the same).</li><li><b>Filtering:</b> The token count can be refined using standard search filters, such as date, language, newspaper title, topic, and person.</li></ol></p><p>Limitations: Currently, it is not possible to search for multi-word expressions such as “Spanish flu”.</p><p><b>Usage example</b> To visualize how frequently the term “Europe” appeared in historical newspapers, you can use the <a href='https://impresso-project.ch/app/search/ngrams?sq='>ngram viewer</a> to see its occurrences year by year.</p><p><img src='src/assets/img/ngram-viewer-screen.png'></img></p><p>The graph shows a timeline of yearly unigram mentions per million tokens (ppm), which helps to track the frequency of a term over time. For instance, a spike in the graph indicates periods when the word was mentioned more frequently.</p>Since the number of tokens in the corpus varies for every year, a relative measure like mentions per million tokens (ppm) allows for meaningful comparisons across different time periods. The formula is:</p><blockquote><b>ppm=Sum_search_token / Total_sum_tokens * 1.000.000</b></blockquote><p>For example, the graph shows a notable spike where the term “Europe” reached 316.488 ppm, meaning it was mentioned 316.488 times per million tokens in that specific year. This suggests a period of increased discussion or references to Europe, likely driven by significant events or heightened public interest.</p><p>However, it’s important to note that in years where the total number of tokens in the corpus is relatively low (less than 1 million), this measure can be skewed. For instance, between January 1, 1738, and December 31, 1740, “Europe” was mentioned 2 times in 2 articles, with a total of 2,811 tokens during this period. Because the corpus size was relatively small, the proportion of mentions led to a high frequency calculation of 711.74 ppm. This spike in the graph doesn’t necessarily indicate a widespread discussion about Europe but rather reflects the lower volume of content, where a few mentions can disproportionately influence the results.</p><p><img src='src/assets/img/ngrams-spike-screen.png'></img></p><p>It’s helpful to keep in mind that for the majority of years covered, the Impresso corpus contains millions of tokens, making smaller numbers like 2,811 very unusual. In these rare cases, the smaller dataset for certain years can lead to exaggerated spikes in frequency, which may not accurately represent the term’s prominence compared to years with more substantial content.</p><p><b>Further reading</b> For more detailed information on the processing and analysis of word unigrams, you can refer to these resource:<ul><li>The online book Schneider, G. & Lauber, M. (n.d.). Statistics for Linguists: A Patient, Slow-Paced Introduction to Statistics and the Programming Language R. An interactive e-book with 50 instructional videos and extensive exercises. <a>https://dlf.uzh.ch/openbooks/statisticsforlinguists/chapter/50/</a></li></ul></p>"
+            ]
+          },
+          {
+            "id": "how-search-ngrams-work-with-search-filters",
+            "title": "Why are search filters limited on ngram trends?",
+            "summary": "Currently, the ngram trends page on the Impresso platform has limited search filtering options.",
+            "description": [
+              "<p>You can use any of the filter facets e.g. for newspapers, collections, or topics. But you cannot directly narrow down results by applying additional keyword queries to filter ngram frequencies.</p> "
+            ]
+          },
+          {
+            "id": "relative-vs-absolute-year-graph",
+            "title": "What is the difference between SUM and %?",
+            "summary": "<b>SUM</b> shows the total number of articles that mention your keyword for each year (absolute frequency). <b>%</b> displays the relative number of articles that mention your keyword, compared to all articles in the Impresso corpus for that year.",
+            "description": [
+              "<p>The graph represents the number of articles, not the raw number of times the keyword appears within those articles. For example, if you search for “Einstein”, and the results show 12,681 articles, those articles may contain 18,637 individual mentions of “Einstein”, but the graph only counts the articles themselves. The highest result per year will be shown as a number above the graph.</p> "
+            ]
+          },
+          {
+            "id": "filter-range",
+            "title": "How can I filter results by article length?",
+            "summary": "Article length is measured by the number of tokens, which are essentially individual words or symbols in the article. The content length filter uses a histogram to display the distribution of articles according to their length, grouping them into intervals of similar length.",
+            "description": [
+              "<p>The x-axis represents the number of tokens (words) in the article, while the y-axis indicates the number of articles that fall within each length range. For example, if an interval shows 700 tokens with 35 results, it means there are 35 articles of approximately 700 words in length.</p><p><img src='src/assets/img/content-length-screen.png'></img></p><p>By adjusting the sliders on either side of the histogram, you can set a desired length range to filter your search results. Once you've selected the desired range, click “Apply” to narrow down your results based on article length. This is particularly useful when you're looking for more detailed or longer pieces, such as feature articles, or shorter pieces like news briefs.</p>"
+            ]
+          },
+          {
+            "id": "how-does-the-image-search-work",
+            "title": "How does image search work?",
+            "summary": "The image search feature on the Impresso platform allows users to search for images by querying their captions. This means you can find images by searching the text associated with them, such as descriptions or titles, within the collection.",
+            "description": [
+              "<p>Note that these captions were identified during the OCR process. Again, OCR quality variabilities determine the reliability of their detection and transcription.</p><p>Additionally, the platform offers a secondary feature that enables users to search for images based on visual similarity. This capability is made possible through advanced deep learning techniques developed in collaboration with our colleague <a href='https://profile.benoitseguin.net/'>Benoit Seguin</a>. By applying these techniques to the large-scale image collection in our corpus, we generated unique visual signatures for each recognized image. These visual signatures are then used to search and retrieve similar images across the entire collection.</p><p><b>Usage example</b> To use the image search feature, navigate to the Image Search tab. You can search within the captions of detected images or pictures. When you select an image from the results, all visually similar images in the corpus will be displayed.</p><p><img src='src/assets/img/image-search-screen.png'></img></p><p>Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.</p><p><b>Further reading</b> For a deeper understanding of the technology behind the image search feature, you can refer to the following resource:<ul><li>Seguin, Benoit L. A. “Making Large Art Historical Photo Archives Searchable.” 2018. <a>https://infoscience.epfl.ch/record/261212</a>.</li></ul></p>"
+            ]
+          },
+          {
+            "id": "Why does the image search have limited filters?",
+            "title": "Why does the image search have limited filters?",
+            "summary": "Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.",
             "description": []
           }
         ]
       },
       {
-        "title": "Personal Collections",
+        "title": "Managing Personal Collections",
         "faq": [
           {
             "id": "what-is-a-personal-collection",
-            "title": "What is a personal collection?",
-            "summary": "A personal collection is a set of articles that you can save on Impresso. A collection becomes part of each article, so that you can use it as you would use any other filter, like, country of publication, publication date, language, etc.",
-            "description": []
+            "title": "What is a personal collection and what can I do with it?",
+            "summary": "A personal collection is a custom set of articles that you can save on Impresso for easier access and organization. Once you create a collection, it functions as a filter in the same way you would filter by country of publication, language, or date. This feature allows you to organize and group articles based on your specific research needs, making it easier to retrieve and analyze them later.",
+            "description": [
+              "<p>Personal collections can be especially useful for projects focused on particular themes, events, or time periods.</p><p><b>Usage example</b> Suppose you're conducting research on the 1920 election coverage. You can search for relevant articles across various newspapers and save them to a personal collection titled “Election Coverage 1920”. To create a collection from your search results, simply click on the Save/Export button and select Create Collection from Search Results as shown below:</p><p><img src='src/assets/img/save-collection-screen.png'></img></p><p>This will prompt you to name your collection and add a description. The description field includes an auto-summary of your query, to which you can also add your own notes.</p><p><img src='src/assets/img/collection-description-screen.png'></img></p><p>Once created, you can access your collection through the “Collections” tab, where you’ll see an overview of your saved articles, including details such as newspaper titles, countries, languages, and types of articles.</p><p><img src='src/assets/img/collection-overview-screen.png'></img></p><p>You also have multiple options for managing and analyzing your collection, including adding it as a search filter (helpful for selecting it as a filter to an active query), opening the collection in the search page, exporting your collection as CSV or using your collection in the Inspect & Compare interface by selecting the “Compare” button.</p><p>In the Settings, you can update the name and description of your collection, or choose to delete it entirely if no longer needed.</p><p><img src='src/assets/img/collection-settings-screen.png'></img></p>"
+            ]
+          },
+          {
+            "id": "set-collection-as-filter",
+            "title": "Can I set a collection as a filter?",
+            "summary": "Yes, you can set your collections as filters in the search, Inspect & Compare and Text reuse features.",
+            "description": [
+              "<p>Once you've saved a collection of articles, you can apply it as a filter, similar to how you would filter by publication date or language. Additionally, you can combine your personal collection with other filters, such as topics, newspaper title, or content length, to explore trends and patterns within your curated set of articles.</p><p><img src='src/assets/img/collection-search-filter-screen.png'></img></p><p>You can also explore your collections using the Inspect & Compare feature. This allows you to inspect or compare two collections, or a collection and a query. For instance, if you want to inspect your collection of election coverage from 1920 in Switzerland with coverage in France, you can:</p><ol><li>Select your collection as a filter in both the A and B areas.</li><li>Refine the filters—set A for election coverage in Switzerland and B for France.</li></ol><p><img src='src/assets/img/IC-collection-screen.png'></img></p><p>Similarly, you can use collections as filters in the Text Reuse feature, as shown in the screenshot below.</p><p><img src='src/assets/img/TR-collection-screen.png'></img></p>"
+            ]
+          },
+          {
+            "id": "how-merge-collections",
+            "title": "How can I merge collections?",
+            "summary": "To merge collections, you can select them as search filters in the search page, and create a new collection from the results.",
+            "description": [
+              "<p>For example, if you have two collections on the coverage of the First Moroccan Crisis (1905-06) and the Second Moroccan Crisis (1911), and want to merge them, simply select both collections as search filters. Once the combined results are displayed, you can export them as a new collection.</p><p><img src='src/assets/img/collection-merge-screen.png'></img></p>"
+            ]
           },
           {
             "id": "why-collections-are-limited",
-            "title": "Why are personal collections limited to 10 000 articles?",
-            "summary": "We have set a limit of 10 000 articles per collection to avoid performance issues.",
+            "title": "Why are personal collections limited to 10,000 articles?",
+            "summary": "To ensure optimal performance of the Impresso platform, personal collections are limited to a maximum of 10,000 articles.",
             "description": [
-              "If your search returned more results, only the 10.000 most relevant items will be stored. If you need to create a collection with more items, please contact us."
+              "<p>This limit helps maintain system stability and ensures that searches, filtering, and analysis functions run efficiently.</p><p>If your search yields more than 10,000 results, only the 10,000 most relevant articles will be stored in the collection.  If you need to create a collection with more items, please contact us at <a>info@impresso-project.ch</a>.</p>"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Inspect & Compare",
+        "faq": [
+          {
+            "id": "what-compare-and-inspect",
+        "title": "What is Inspect & Compare?",
+        "summary": "The Inspect & Compare page allows you to examine large sets of articles based on metadata (such as publication date, language, and newspaper title) and Natural Language Processing (NLP) annotations (like named entities, locations, and topics).",
+        "description": [
+          "<p>This feature provides a side-by-side comparison of articles, helping you identify patterns, similarities, and differences within the Impresso corpus. Each article is processed uniformly, allowing for the extraction and comparison of metadata and annotations.</p><p>The “Inspect” view allows you to analyze the metadata and NLP annotations of two collections or queries separately, giving you a snapshot of what is contained within each article set. The “Compare” view highlights the commonalities and differences between two sets of articles, showing the overlap in terms of named entities, topics, and newspaper titles, helping you see where they intersect or diverge.</p><p><b>Further reading</b> For more details on the Inspect & Compare feature, please refer to this article:<ul><li>Düring, Marten, Roman Kalyakin, Estelle Bunout, and Daniele Guido. “Impresso Inspect and Compare. Visual Comparison of Semantically Enriched Historical Newspaper Articles.” Information 12, no. 9 (September 2021): 348. <a>https://doi.org/10.3390/info12090348</a>.</li></ul></p>"
+            ]
+          },
+          {
+            "id": "how-inspect-compare",
+            "title": "How to use the Inspect view and the Compare view?",
+            "summary": "The Inspect & Compare feature allows you to analyze and contrast two collections or query results, offering a detailed view of the similarities and differences between them.",
+            "description": [
+              "<p>Whether you're trying to understand shared themes, overlapping content, or distinct elements, this tool helps provide clarity on how two datasets relate to each other.</p><ul><li><b>Inspect view:</b> This view enables you to analyze the metadata and NLP annotations for two separate collections or queries. It shows how many articles are related to specific newspaper titles, persons, or locations. The middle column highlights items that appear in both collections or queries, providing an overview of shared results. This view helps you gain insights into the composition of a collection or a set of query results.</li><li><b>Compare view:</b> This view focuses on comparing two collections or queries, highlighting overlapping content. It displays shared metadata elements like newspaper titles, named entities, and topics. The comparison can be made in absolute numbers or percentages. You can switch between linear and square root scales for easier comparison of differently sized datasets. This allows you to evaluate how much content is common between two sets, both in raw numbers and proportions.</li></ul><p>Additionally, you can further refine your query using search and filter operations based on topics, named entities, newspaper titles, countries of origin, dates, languages and user-curated collections.</p><p><b>Usage example</b> Suppose you are studying how two historical figures, “Martin Luther” and “Huldrych Zwingli”, were covered in historical newspapers. You can use the Inspect & Compare tool to compare two collections of articles: one related to “Martin Luther” and the other to “Huldrych Zwingli”.</p><p>With the “Inspect” view, you can analyze each collection separately, seeing which newspapers prominently featured each figure and identifying key locations and entities mentioned alongside them. The middle column highlights items that appear in both collections, providing an overview of shared articles or themes. The results across all three columns are ranked by frequency, with yellow highlights revealing the position of corresponding hits, making it easier to spot overlaps at a glance.</p><p><img src='src/assets/img/IC-inspect-screen.png'></img></p><p>The “Compare” view, on the other hand, allows you to assess the differences between the two collections. Diverging bar charts display discrepancies, highlighting where one figure received more coverage than the other. You can switch between a linear and square root scale to make highly divergent values more legible. Bars can be sorted by the largest overlap in percentage terms or by the absolute number of articles, helping you evaluate how much content is shared or distinct between the two collections.</p><p><img src='src/assets/img/IC-compare-screen.png'></img></p><p>Both views complement each other: while “Inspect” gives an overview of how enrichments and metadata are distributed across (A), (B), and their intersection, “Compare” focuses on the relative proportions, allowing for a detailed comparison of value distributions.</p><p>By default, only the top 10 results are shown for categories like Persons, Topics, or Locations, but you can explore additional results using pagination. To further analyze the results shared between both collections, you can open the combined view in a search page. Simply click the “Open in Search Page” button, which will display the articles that appear in both collections. This enables you to explore overlapping content in more detail and apply additional filters if needed.</p><p><img src='src/assets/img/IC-results-screen.png'></img></p><p><b>Further reading</b> For more details on the Inspect & Compare feature, please refer to this article: <ul><li>Düring, Marten, Roman Kalyakin, Estelle Bunout, and Daniele Guido. “Impresso Inspect and Compare. Visual Comparison of Semantically Enriched Historical Newspaper Articles.” Information 12, no. 9 (September 2021): 348. <a>https://doi.org/10.3390/info12090348</a>.</li></ul></p>"
             ]
           }
         ]
@@ -387,54 +322,51 @@
         "title": "Text reuse filters",
         "faq": [
           {
-            "id": "text-reuse-filter-year",
-            "title": "Number of passages per year",
-            "summary": "Displays the total count of passages per year for a given query or filter operation.",
+            "id": "how-to-read-histograms",
+            "title": "How to read histograms?",
+            "summary": "Each histogram is divided into 100 slots and results are evenly distributed across them. For more details, please refer below to each specific text reuse filter.",
             "description": [
-              "This gives a first indication, during which years text reuse occurred more commonly. Time sliders and precise date entry allow users to filter for exact date ranges to inspect."
+              "<p>To explore a specific slot in a histogram, you can click on it and explore the passages in the range in a modal dialogue window. There you can modify the ranges and set them as an additional search criteria.</p><p><img src='src/assets/img/TR-histogram-screen.png'></img></p>"
             ]
           },
           {
-            "id": "how-to-read-histograms",
-            "title": "How to read histograms",
-            "summary": "Each histogram is divided into 100 slots and results are evenly distributed across them. In the case of lexical overlap we are dealing with percentages and 1 slot corresponds to 1%. The histogram mouseover shows the number of results for each percentage value, e.g. “value: 61%  12434 results”.",
+            "id": "text-reuse-filter-year",
+            "title": "What is the number of passages per year?",
+            "summary": "This filter displays the total count of text reuse passages per year for a given query.",
             "description": [
-              "For the cluster size and time span filters these slots are filled and distributed depending on the total number of passages a query yields. For example, a query which yields 2000 passages is divided by the number of slots available, in this case 2000 / 100 = 20. Each slot then covers a range of 20 passages. The mouseover for the first slot then reads “range:  0-20   12434 results and for the second slot it reads “range 20-30 …” and so on.",
-              "Another example: A time span of 72700 days then corresponds to a range size of 72700 / 100 = 727. The second slot then covers the range 727 – 1454 and so on. (edited)"
+              "<p> It provides a first indication of the years during which text reuse occurred most frequently. <p><b>Usage example</b></p> You can use time sliders or enter precise date ranges to inspect how text reuse was distributed over time.<p><img src='src/assets/img/TR-number-years-screen.png'></img></p>"
             ]
           },
           {
             "id": "text-reuse-filter-textReuseClusterSize",
-            "title": "Cluster size",
-            "summary": "Distribution of text reuse cluster sizes, i.e. the number of passages they contain.",
+            "title": "What is cluster size?",
+            "summary": "The cluster size filter shows the distribution of text reuse cluster sizes, meaning how many passages each cluster contains.",
             "description": [
-              "This filter displays the distribution of text reuse cluster sizesand indication the highest score. The histogram groups clusters of size n and displays their sum. This gives a first indication of averages as well as outliers.",
-              "Sliders can be used to specify a cluster size range of interest. Filtering by cluster size allows to exclude or explicitly focus on outliers but different cluster sizes may also correspond to different types of content."
+              "<p>The histogram provides a visual overview of this distribution, highlighting the highest cluster size count. It groups clusters by size and displays their total number.</p><p>To determine the range each slot in the histogram represents, we take the largest cluster size from the query results and divide it by 100. For example, if the largest cluster has 400 passages, we calculate 400 / 100 = 4. This means that each slot in the histogram covers a range of 4 passages. The first slot represents clusters with 2 to 5 passages (with 2 being the minimum possible size), the next slot represents clusters with 6 to 10 passages, and so on.</p><p><img src='src/assets/img/TR-cluster-size1-screen.png'></img></p><p>It's important to note that the data may include very large clusters with zero or very low lexical overlap. For example, there is a cluster with over 45,000 passages but 0% lexical overlap. To make the results more meaningful, we recommend setting a lexical overlap filter to at least 1% to exclude these large, less relevant clusters and obtain more intelligible insights.</p><p><b>Usage example</b> You can use the sliders to specify a range of interest for cluster sizes. For example, you can filter out smaller clusters or focus on larger ones, depending on the type of content you're interested in analyzing. Filtering by cluster size allows you to exclude or focus on outliers, but keep in mind that different cluster sizes can correspond to different types of content.</p><p><img src='src/assets/img/TR-cluster-size2-screen.png'></img></p>"
             ]
           },
           {
             "id": "text-reuse-filter-textReuseClusterLexicalOverlap",
-            "title": "Lexical overlap",
-            "summary": "Reveals the distribution of lexical overlap in percent.",
+            "title": "What is lexical overlap?",
+            "summary": "This filter reveals the distribution of lexical overlap in percentages. Lexical overlap measures how much text is shared between different passages in a cluster.",
             "description": [
-              "Reveals the distribution of lexical overlap in percent and indicates the largest number of clusters for a given score. Extremely low lexical overlap decreases the chance to discover meaningful text reuse whilst extremely high overlap will only reveal near-copies of content and may be too restrictive for some purposes."
+              "<p>If two passages use a lot of the same words, their lexical overlap will be high. If they share fewer words, the overlap will be low.<ul><li>High overlap means the passages are very similar, almost like copies of each other.</li><li>Low overlap means the passages are different, with fewer shared words.</li></ul></p><p>The lexical overlap helps you decide how closely related the passages are to one another when searching through large collections of text.</p><p>The lexical overlap histogram is divided into 100 slots, each representing a 1% range. The results are evenly distributed across these slots. When you hover over a specific slot, the histogram displays the number of results for that percentage value. For example, if the mouseover shows “value: 72% 368 results”, it means there are 368 passages with a lexical overlap score of 72%.</p><p><img src='src/assets/img/LO-histo-screen.png'></img></p><p><b>Usage example</b> If you want to identify near-duplicates, you can focus on clusters with high lexical overlap. On the other hand, to find passages that are related but not identical, look for clusters with lower lexical overlap.</p><p><img src='src/assets/img/LO-histo2-screen.png'></img></p>"
             ]
           },
           {
             "id": "text-reuse-filter-textReuseClusterDayDelta",
-            "title": "Time span in days",
-            "summary": "Reveals the number of days between the earliest and latest publication date of articles article in text reuse clusters.",
+            "title": "What is time span in days?",
+            "summary": "The time span in days filter helps you analyse the temporal distribution of text reuse within clusters of articles.",
             "description": [
-              "Reveals the number of days between the earliest and latest publication date of articles article in text reuse clusters and indicates the largest number of passages for a given score. This is an efficient approach to discover or filter for instances of slow, mid-range and rapid text reuse. The histogram groups clusters by the number of days in between publication dates and displays their sum. (edited)"
+              "<p>It calculates the number of days between the earliest and latest publication dates of articles that share reused text passages. This is particularly useful for identifying the speed and pattern of text reuse over time, whether it happens quickly or slowly.</p><p>The histogram divides the maximum time span from your query results by 100, with each slot representing a specific range of days. For example, if a query returns clusters with a maximum time span of 6,000 days, each slot in the histogram would cover 60 days. The first slot represents the range 1-59 days, the second covers 60-119 days, and so on.</p><p><b>Usage example</b> Suppose you're researching the spread of articles related to the Watergate scandal across various newspapers. By using the “time span in days” filter, you can analyze how quickly news of the scandal was picked up and republished by different media outlets.</p><p><img src='src/assets/img/TS-histo-screen.png'></img></p><p>You can either set the time span through the slider, or by adding a custom span through the search bar as shown below:</p><p><img src='src/assets/img/TR-timespan-filter-screen.png'></img></p>"
             ]
           },
           {
             "id": "text-reuse-filter-textReuseCluster",
-            "title": "Filter by text reuse clusters",
-            "summary": "Allows to filter for specific text reuse clusters, sorted by number of passages.",
+            "title": "How to filter by text reuse clusters?",
+            "summary": "This filter allows you to sort and filter for specific text reuse clusters, organized by the number of passages they contain. ",
             "description": [
-              "List of text reuse clusters which match a given query, sorted by number of passages.",
-              "Each cluster is characterised with basic information (passages count, lexical overlap, time periods and years covered) as well as a snippet preview of the passage. Clusters can be selected manually for further inspection in the Text reuse app or in other impresso components such as Search."
+              "<p>The list of clusters is generated based on a query, with each cluster providing key details for analysis.</p><p><b>Usage example</b> For each cluster, you’ll find the following information:<ul><li>Passage count: The number of passages in the cluster.</li><li>Lexical overlap: The percentage of shared words between passages in the cluster.</li><li>Time period: The time span between the earliest and latest publication dates.</li><li>Years covered: The specific years spanned by the cluster.</li></ul></p><p><img src='src/assets/img/CS-filter-screen.png'></img></p><p>A snippet preview of each passage is also provided. You can manually select clusters for closer inspection within the text reuse feature or analyze them further in other Impresso components, such as the search function.</p>"
             ]
           }
         ]
