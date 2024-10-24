@@ -32,7 +32,7 @@
           v-bind:active="currentContext === option"
           v-bind:key="option"
           v-on:click="currentContext = option"
-          ><span class="small" v-html="$t(`label.${type}.context.${option}`)"></span
+          ><span v-html="$t(`label.${type}.context.${option}`)"></span
         ></b-dropdown-item>
       </b-dropdown>
       <!--  operator -->
@@ -45,7 +45,7 @@
           v-bind:active="editedFilter.op === option"
           v-bind:key="option"
           v-on:click="editedFilter.op = option"
-          ><span class="small" v-html="$t(`op.${option}.${currentContext}`)"></span
+          ><span v-html="$t(`op.${option}.${currentContext}`)"></span
         ></b-dropdown-item>
       </b-dropdown>
       <b-button

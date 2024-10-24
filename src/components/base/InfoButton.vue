@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { arrow, useFloating } from '@floating-ui/vue'
+import { arrow, offset, useFloating } from '@floating-ui/vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'
 import faqContent from '@/assets/faqpage.json'
@@ -69,12 +69,16 @@ const props = defineProps({
   placement: {
     type: String,
     default: 'right'
+  },
+  offsetOptions: {
+    type: Object,
+    default: () => {}
   }
 })
 
 const { floatingStyles, middlewareData } = useFloating(reference, floating, {
   placement: props.placement as any,
-  middleware: [arrow({ element: floatingArrow })]
+  middleware: [offset(props.offsetOptions), arrow({ element: floatingArrow })]
 })
 
 // const floatingStyles = computed(() => ({

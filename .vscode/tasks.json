@@ -18,7 +18,7 @@
       "script": "dev-staging",
       "problemMatcher": ["$vite"],
       "group": {
-        "isDefault": true
+        "isDefault": false
       }
     }
   ]

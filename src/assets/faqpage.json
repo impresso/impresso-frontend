@@ -198,6 +198,14 @@
             "description": [
               "<p>This was done in two main steps:</p><ol><li>Boilerplate Detection: First, passim was used to detect boilerplate content, which refers to repetitive text within the same newspaper (e.g., repeated phrases or template sections over a month). Boilerplate content was filtered out to reduce noise and ensure a more accurate identification of actual text reuse across different newspapers.</li><li>Text reuse Detection: After removing the boilerplate text, the entire corpus—comprising 134 newspapers—was processed, resulting in approximately 8 million text reuse clusters and 22 million passages. Each cluster represents instances of text reuse across different publications.</li></ol><p>Once passim detected the text reuse clusters, we further enriched the data by adding the following key information for each cluster:<ul><li><b>Size:</b> The number of passages included in a cluster.</li><li><b>Lexical overlap:</b> The percentage of unique tokens (words) shared between the passages, with the text normalized (lowercased and punctuation removed).</li><li><b>Time span:</b> The time window covered by the documents in the cluster, measured in days. This is the difference between the publication date of the oldest and the most recent content in the cluster.</li></ul></p><p>These enriched details can be used as filters when exploring the text reuse clusters on the Impresso platform, providing users with additional insights into the scope and characteristics of reused content. You can browse the clusters at <a href='https://impresso-project.ch/app/text-reuse/clusters?p=1&sq='>text reuse clusters page</a>.</p><p><b>Further reading</b> For more information on text reuse and the tools used in its detection, explore the following resources.<ul><li>Düring, Marten, et al. Impresso text reuse at Scale. An Interface for the Exploration of text reuse Data in Semantically Enriched Historical Newspapers. Frontiers in Big Data 6 (2023). <a>https://www.frontiersin.org/articles/10.3389/fdata.2023.1249469</a>.</li><li>Romanello, Matteo, and Simon Hengchen. Detecting text reuse with passim. The Programming Historian, 2020. <a>https://doi.org/10.46430/phen0092</a>.</li><li>Passim GitHub Repository. Accessed October 15, 2024.  <a>https://github.com/dasmiq/passim</a>.</li></ul></p>"
             ]
+          },
+          {
+            "id": "error-id",
+            "title": "What is an error ID?",
+            "summary": "The error ID is a unique identifier for each error in the impresso corpus.",
+            "description": [
+              "The error ID is a unique identifier for each error in the impresso corpus. It is used to track the error and to provide feedback to the Impresso team. If you encounter an error, please report it to us quoting the error ID or taking a screenshot of the page where the error occurred."
+            ]
           }
         ]
       },

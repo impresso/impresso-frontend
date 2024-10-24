@@ -105,28 +105,32 @@
             >
               <b-dropdown-item
                 v-if="selectedItems.length > 0"
-                class="p-2 small-caps"
                 @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
                 {{ $tc('add_n_to_collection', selectedItems.length) }}
               </b-dropdown-item>
-              <b-dropdown-item
-                v-on:click="exportSelectedCsv"
-                v-if="selectedItems.length > 0"
-                class="p-2 small-caps"
-              >
+              <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('selected_export_csv') }}
               </b-dropdown-item>
-              <b-dropdown-item class="p-2 small-caps" @click="showModal('nameCollection')">
+              <b-dropdown-item @click="showModal('nameCollection')">
                 <span class="dripicons-archive pr-1"></span>
                 {{ $t('query_add_to_collection') }}
               </b-dropdown-item>
-              <b-dropdown-item v-on:click="exportQueryCsv" class="p-2 small-caps">
+              <b-dropdown-item v-on:click="exportQueryCsv">
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('query_export_csv') }}
-                <info-button name="can-i-download-part-of-the-data" class="float-right" />
+                <info-button
+                  placement="left"
+                  name="can-i-download-part-of-the-data"
+                  right
+                  class="float-right"
+                  :offset-options="{
+                    crossAxis: 100,
+                    mainAxis: 20
+                  }"
+                />
               </b-dropdown-item>
             </b-dropdown>
             <!-- <b-form-checkbox

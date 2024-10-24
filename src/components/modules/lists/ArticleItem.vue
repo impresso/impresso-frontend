@@ -13,28 +13,37 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <router-link :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid } }"
-        class="article-newspaper">
+      <router-link
+        :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid } }"
+        class="article-newspaper"
+      >
         {{ item.newspaper.name }}
       </router-link>
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
-      <div data-testid="article-access-rights">
+      <div data-testid="article-access-rights" v-if="item.dataProvider != null">
         {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
-        <ItemSelector :uid="item.dataProvider" :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
-          :item="{ uid: item.dataProvider }" type="partner" />
+        <ItemSelector
+          :uid="item.dataProvider"
+          :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
+          :item="{ uid: item.dataProvider }"
+          type="partner"
+        />
       </div>
     </div>
 
-    <div v-if="showExcerpt && !item?.matches?.length && item.type !== 'image'" class="article-excerpt mt-2">
+    <div
+      v-if="showExcerpt && !item?.matches?.length && item.type !== 'image'"
+      class="article-excerpt mt-2"
+    >
       <span class="article-excerpt">{{ item.excerpt }}</span>
       <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
         <span v-if="showType && item.type">{{ $t(`buckets.type.${item.type}`) }} | </span>
         <span v-if="showSize">
           <span v-if="item.size > 1200">{{
             $t('readingTime', { min: parseInt(item.size / 1200) })
-            }}</span>
+          }}</span>
           <span v-else>{{ $t('reducedReadingTime') }}</span>
         </span>
       </b-badge>
@@ -47,7 +56,12 @@
       <div v-if="item.locations?.length" data-testid="article-locations">
         <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
         <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
-          <item-selector :uid="location.uid" :label="location.name" :item="location" type="location" />
+          <item-selector
+            :uid="location.uid"
+            :label="location.name"
+            :item="location"
+            type="location"
+          />
           <span v-if="idx !== item.locations.length - 1">, </span>
         </span>
       </div>
@@ -59,19 +73,34 @@
         </span>
       </div>
     </div>
-    <div v-if="showTopics" class="small article-extras article-topics my-2" data-testid="article-topics">
+    <div
+      v-if="showTopics"
+      class="small article-extras article-topics my-2"
+      data-testid="article-topics"
+    >
       <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
       <b-row v-if="item.topics.length">
         <b-col lg="6" xl="4" class="my-1" v-for="(rel, idx) in item.topics" v-bind:key="idx">
-          <viz-bar show-border show-percent :percent="rel.relevance * 100" :uid="rel.topic.uid" :item="rel.topic"
-            type="topic" />
+          <viz-bar
+            show-border
+            show-percent
+            :percent="rel.relevance * 100"
+            :uid="rel.topic.uid"
+            :item="rel.topic"
+            type="topic"
+          />
         </b-col>
       </b-row>
     </div>
     <div v-if="showMatches">
       <ul v-if="item.matches.length" class="article-matches d-flex flex-wrap mt-1 p-0">
-        <li class="p-1 mb-2 mr-2 me-2 rounded" v-for="(match, i) in item.matches" v-bind:key="i" v-html="match.fragment"
-          v-show="match.fragment.trim().length > 0" />
+        <li
+          class="p-1 mb-2 mr-2 me-2 rounded"
+          v-for="(match, i) in item.matches"
+          v-bind:key="i"
+          v-html="match.fragment"
+          v-show="match.fragment.trim().length > 0"
+        />
       </ul>
     </div>
     <slot name="footer"></slot>
@@ -87,7 +116,7 @@ export default {
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     showExcerpt: Boolean,
     showMatches: Boolean,
@@ -99,30 +128,32 @@ export default {
     showType: Boolean,
     showEntities: Boolean,
     showTopics: Boolean,
-    asReference: Boolean,
+    asReference: Boolean
   },
   computed: {
     pages() {
-      return this.$tc('pp', this.item.nbPages, { pages: this.item.pages?.map(d => d.num)?.join(',') })
+      return this.$tc('pp', this.item.nbPages, {
+        pages: this.item.pages?.map(d => d.num)?.join(',')
+      })
     },
     routerLinkUrl() {
       const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]
       return {
         name: 'issue-viewer',
         params: {
-          issue_uid: issueUid,
+          issue_uid: issueUid
         },
         query: {
           ...this.$route.query,
           articleId: this.item.uid ? getShortArticleId(this.item.uid) : undefined,
-          p: this.item.pages?.[0]?.num,
-        },
+          p: this.item.pages?.[0]?.num
+        }
       }
     },
     routerLinkParams() {
       const params = {
         article_uid: this.item.uid,
-        page_uid: this.item.pages[0]?.uid,
+        page_uid: this.item.pages[0]?.uid
       }
       if (this.item.issue) {
         params.issue_uid = this.item.issue.uid
@@ -130,20 +161,20 @@ export default {
         params.issue_uid = this.item.uid.match(/(^.+)-i/)[1]
       }
       return params
-    },
+    }
   },
   methods: {
     onClick() {
       this.$emit('click:title', {
         name: 'article',
-        params: this.routerLinkParams,
+        params: this.routerLinkParams
       })
-    },
+    }
   },
   components: {
     ItemSelector,
-    VizBar,
-  },
+    VizBar
+  }
 }
 </script>
 
@@ -164,7 +195,6 @@ export default {
 }
 
 .ArticleItem.reference {
-
   h2,
   .article-meta {
     font-size: inherit;
@@ -190,7 +220,7 @@ export default {
   }
 }
 
-.ArticleItem .article-topics>div {
+.ArticleItem .article-topics > div {
   columns: 4 270px;
 
   div {
