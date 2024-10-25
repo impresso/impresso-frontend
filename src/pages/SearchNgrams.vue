@@ -355,12 +355,16 @@ export default {
         let serializedUnigrams = ''
         if (typeof value === 'string') serializedUnigrams = value
         if (Array.isArray(value)) serializedUnigrams = value.join(',')
-        return serializedUnigrams.split(',').filter(v => v !== '')
+        return serializedUnigrams
+          .split(',')
+          .filter(v => v !== '')
+          .map(v => v.trim().replace(' ', ''))
       },
       /** @param {string[]} unigrams */
       set(unigrams) {
+        const sanitisedUnigrams = unigrams.map(v => v.trim().replace(' ', ''))
         this.$navigation.updateQueryParameters({
-          [QueryParameters.Unigrams]: unigrams.join(',')
+          [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
         })
       }
     },
