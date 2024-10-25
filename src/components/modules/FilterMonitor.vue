@@ -517,7 +517,9 @@ export default {
         if (this.itemsToAdd) {
           this.editedFilter = {
             ...this.editedFilter,
-            q: this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+            q: Array.isArray(this.editedFilter.q)
+              ? this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
+              : this.editedFilter.q
           }
         }
         this.excludedItemsIds = []
