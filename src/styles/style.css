@@ -170,7 +170,11 @@ h6.dropdown-header {
   font-weight: 450;
   font-variation-settings: 'wght' 450;
 }
-
+.btn-group-sm > .btn,
+.input-group-sm > .input-group-append > .btn {
+  font-size: var(--impresso-font-size-smallcaps);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);

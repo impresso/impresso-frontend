@@ -25,6 +25,7 @@
                 @item:click="handleAddToCollectionClick"
                 @create="handleAddToCollectionCreate"
                 :title="$t('addTrQueryResultsToCollection')"
+                right
               >
                 <template v-slot:empty>
                   <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
