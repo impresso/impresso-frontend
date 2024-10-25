@@ -170,7 +170,7 @@
           >
           <span v-else-if="error.name === 'BadRequest'">
             {{ $t(`errors.BadRequest`) }}
-            <span v-if="error.message === 'Login incorrect'">{{ error.message }}</span>
+            <span>{{ error.message }}</span>
           </span>
           <span v-else-if="error.name === 'GeneralError'">
             {{
@@ -288,14 +288,15 @@ export default defineComponent({
       return this.settingsStore.language_code
     },
     showAlert() {
-      const messages = this.notificationsStore.errorMessages
-      if (messages.length && !this.user && messages[0].name === 'NotAuthenticated') {
-        return false
-      }
-      return messages.length > 0
+      return this.errorMessages.length > 0
     },
     errorMessages() {
-      return this.notificationsStore.errorMessages
+      return this.notificationsStore.errorMessages.filter(m => {
+        if (m.name === 'NotAuthenticated' && !this.user) {
+          return false
+        }
+        return true
+      })
     },
     processingStatus() {
       return this.notificationsStore.processingStatus
@@ -663,6 +664,7 @@ export default defineComponent({
 
   .error-id {
     margin-left: 1rem;
+    white-space: nowrap;
   }
 }
 </style>
