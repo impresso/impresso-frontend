@@ -314,6 +314,12 @@ label {
   background-color: transparent !important;
   border-bottom-color: var(--clr-grey-400) !important;
 }
+
+.btn-outline-white {
+  border-color: var(--clr-white) !important;
+  color: var(--clr-white) !important;
+}
+
 .btn-md {
   border-radius: var(--border-radius-md);
   box-shadow: var(--bs-box-shadow-sm);

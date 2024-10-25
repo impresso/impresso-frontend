@@ -347,7 +347,6 @@ export default {
 
   span.item.newspaper,
   span.item.country {
-    color: black;
     font-family: var(--bs-font-serif);
     font-weight: bold;
     font-weight: var(--impresso-wght-bold);
