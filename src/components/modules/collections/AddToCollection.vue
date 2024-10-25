@@ -59,7 +59,7 @@
           :key="item.uid"
           @click="() => $emit('item:click', item)"
         >
-          <span class="mr-1 text-muted">{{ i + 1 }} of {{ total }}</span>
+          <span class="mr-1 text-muted sans">{{ i + 1 }} of {{ total }}</span>
           <ItemLabel type="collection" :item="item" />
         </div>
         <div v-if="isLoading" class="text-center p-3">
@@ -195,37 +195,27 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-.AddToCollection {
-  .dropdown-menu {
-    min-width: 300px;
-  }
-  h2 {
-    font-size: inherit;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    font-family: var(--font-family-heading);
-  }
-
-  .items {
-    height: 200px;
-
-    overflow: scroll;
-  }
+<style lang="css">
+.AddToCollection .dropdown-menu {
+  min-width: 300px;
+}
+.AddToCollection .items {
+  max-height: 50vh;
+  overflow: scroll;
 }
 .AddToCollection_item {
   display: block;
   padding: var(--spacing-2) var(--spacing-3);
-
   border-bottom: 1px solid;
-  &:hover {
-    background-color: var(--primary);
-    color: var(--white);
-  }
+  cursor: pointer;
+}
+.AddToCollection_item:hover {
+  background-color: var(--clr-grey-100);
+  color: var(--white);
+}
 
-  &:hover .text-muted {
-    color: var(--white);
-  }
+.AddToCollection_item:hover .text-muted {
+  color: var(--clr-grey-700) !important;
 }
 </style>
 <i18n lang="json">
