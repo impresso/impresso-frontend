@@ -257,7 +257,7 @@ export default defineComponent({
       return {
         name: 'login',
         query: {
-          redirect: this.$route.path
+          redirect: this.$route.fullPath
         }
       }
     },
@@ -265,7 +265,7 @@ export default defineComponent({
       return {
         name: 'register',
         query: {
-          redirect: this.$route.path
+          redirect: this.$route.fullPath
         }
       }
     },
