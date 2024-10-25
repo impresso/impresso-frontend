@@ -85,6 +85,7 @@
     "@vue/test-utils": "^2.4.5",
     "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "10.4.19",
+    "buffer": "^6.0.3",
     "eslint": "^8.57.0",
     "eslint-plugin-storybook": "^0.8.0",
     "eslint-plugin-vue": "^9.23.0",
