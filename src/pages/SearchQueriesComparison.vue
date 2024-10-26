@@ -394,7 +394,10 @@ export default {
   async mounted() {
     // @todo: remove collections prefecth
     // get collections on created.
-    const { data } = await collections.find()
+    const { data } = await collections.find().catch(err => {
+      if (err.name === 'NotAuthenticated') return { data: [] }
+      throw err
+    })
     this.collections = data.map(d => new Collection(d))
   },
   computed: {
