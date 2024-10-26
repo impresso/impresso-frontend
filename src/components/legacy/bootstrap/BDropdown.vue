@@ -26,9 +26,7 @@
       :class="{ show: isOpen, 'dropdown-menu-right': right }"
       ref="dropdownRef"
     >
-      <li role="presentation">
-        <slot></slot>
-      </li>
+      <slot></slot>
     </ul>
   </div>
 </template>

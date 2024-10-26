@@ -76,7 +76,13 @@
           </b-dropdown>
         </section>
 
-        <Modal id="confirmDelete" :show="isConfirmDeleteModalVisible" @ok="remove(collection)">
+        <Modal
+          id="confirmDelete"
+          :title="$t('delete_collection_no_option')"
+          centered
+          :show="isConfirmDeleteModalVisible"
+          @ok="remove(collection)"
+        >
           {{ this.$t('confirm_delete', [collection.name]) }}
         </Modal>
       </b-navbar>
@@ -113,26 +119,15 @@
         "
       >
         <b-navbar-nav v-if="$route.params.collection_uid">
-          <li class="p-2 ml-3 form-inline">
-            <form class="form-inline">
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-sm"
-                v-on:click="applyFilter()"
-              >
-                {{ $t('actions.addToCurrentFilters') }}
-              </button>
-            </form>
-          </li>
-          <li class="p-2 form-inline">
+          <b-navbar-item class="p-2 ml-3 form-inline">
             <form class="form-inline">
               <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
                 {{ $t('actions.searchMore') }}
               </router-link>
             </form>
-          </li>
+          </b-navbar-item>
         </b-navbar-nav>
-        <b-navbar-nav class="ml-3">
+        <b-navbar-nav>
           <b-button
             @click="handleExportCollection"
             size="sm"
@@ -675,6 +670,7 @@ export default {
     "edit_collection": "Settings",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
+    "delete_collection_no_option": "Delete Collection",
     "compare_collection": "Compare with ...",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?",
     "no_articles_in_collection": "No items in collection yet.",

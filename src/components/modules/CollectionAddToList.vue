@@ -53,7 +53,7 @@
         />
         <span class="checkmark checkmark-checked dripicons-checkmark" />
         <span class="checkmark checkmark-indeterminate dripicons-minus" />
-        <label
+        <span
           class="form-check-label"
           v-on:click="toggleActive(collection, $event)"
           for="collection.uid"
@@ -63,7 +63,7 @@
           <span class="description text-muted small" :title="$t('last_edited')">
             {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
           >
-        </label>
+        </span>
       </li>
     </ul>
   </div>

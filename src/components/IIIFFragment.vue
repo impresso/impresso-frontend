@@ -190,8 +190,8 @@ export default defineComponent({
           return 'success'
         })
         .catch(error => {
-          if (error.response.status !== 404) {
-            this.errorMessage = error.message + iiif
+          if (error?.response?.status !== 404) {
+            this.errorMessage = `${error.message}: ${iiif}`
             return 'error'
           }
           console.warn(

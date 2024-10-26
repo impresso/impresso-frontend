@@ -62,6 +62,7 @@ export default ({ mode }: { mode: string }) => {
             if (id.includes('openseadragon')) return 'openseadragon'
             if (id.includes('d3')) return 'd3'
             if (id.includes('protobuf')) return 'protobuf'
+            if (id.includes('buffer')) return 'buffer'
           }
         },
         input: entryPoints('index.html', 'widget/index.html')

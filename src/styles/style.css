@@ -46,7 +46,7 @@
   --impresso-letter-spacing-smallcaps-md: 0.12em;
   --impresso-font-size-smaller: 0.85em;
   --impresso-wght: 450;
-  --impresso-wght-medium: 550;
+  --impresso-wght-medium: 600;
   --impresso-wght-bold: 700;
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
@@ -203,12 +203,23 @@ label {
   font-weight: var(--impresso-wght-smallcaps-bold);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
 }
+
+.small {
+  font-size: 0.875em;
+  font-weight: inherit;
+  font-weight: var(--impresso-wght);
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .text-decoration-underline {
   text-decoration: underline;
 }
 .font-weight-bold {
-  font-weight: 700;
-  font-variation-settings: 'wght' 700;
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
+}
+.font-weight-medium {
+  font-weight: var(--impresso-wght-medium);
+  font-variation-settings: 'wght' var(--impresso-wght-medium);
 }
 .font-size-inherit {
   font-size: inherit;
@@ -381,6 +392,12 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 
 /* Dropdown */
+.dropdown ul.dropdown-menu > li:first-child {
+  padding-top: var(--spacing-2);
+}
+.dropdown ul.dropdown-menu > li:last-child {
+  padding-bottom: var(--spacing-2);
+}
 .dropdown.show .dropdown-toggle.btn-outline-tertiary {
   border: 1px solid var(--impresso-color-black) !important;
   border-bottom-color: transparent !important;
@@ -388,6 +405,9 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .dropdown.show .dropdown-toggle.btn-outline-tertiary:hover {
   background-color: white !important;
+}
+.dropdown .dropdown-item {
+  padding: var(--spacing-1) var(--spacing-3);
 }
 .bg-dark .dropdown .Icon path {
   stroke: var(--clr-white) !important;
