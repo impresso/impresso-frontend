@@ -92,7 +92,6 @@
           <span>{{ $t('collections') }}</span>
         </b-nav-item>
         <b-dropdown
-          class="bg-dark"
           v-if="user && jobs.length"
           right
           no-caret
@@ -111,10 +110,13 @@
               </b-badge>
             </transition>
           </template>
+          <template v-slot:button-icon>
+            <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
+          </template>
           <div v-if="!jobs.length" class="bg-dark text-center text-white p-4">
             {{ $t('no-jobs-yet') }}
           </div>
-          <div v-else class="jobs-list bg-dark">
+          <div v-else class="jobs-list">
             <div class="list">
               <job-item
                 :item="job"
@@ -668,6 +670,37 @@ export default defineComponent({
     margin-left: 1rem;
     white-space: nowrap;
   }
+}
+
+.bg-dark .dropdown .dropdown-menu {
+  border-color: transparent;
+  background-color: var(--clr-grey-100);
+  color: var(--impresso-color-paper);
+  border-top-left-radius: var(--impresso-border-radius-sm);
+}
+.bg-dark .dropdown .btn.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--impresso-color-paper);
+  border-color: transparent;
+  padding: 0;
+}
+.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+  background-color: var(--clr-grey-100);
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: none;
+}
+.bg-dark .dropdown.show .btn.dropdown-toggle {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+.bg-dark .dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid var(--clr-grey-100) !important;
 }
 </style>
 
