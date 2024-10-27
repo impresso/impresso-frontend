@@ -672,34 +672,34 @@ export default defineComponent({
   }
 }
 
-.bg-dark .dropdown .dropdown-menu {
+#TheHeader.bg-dark .dropdown .dropdown-menu {
   border-color: transparent;
   background-color: var(--clr-grey-100);
   color: var(--impresso-color-paper);
   border-top-left-radius: var(--impresso-border-radius-sm);
 }
-.bg-dark .dropdown .btn.dropdown-toggle {
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle {
   display: flex;
   align-items: center;
   color: var(--impresso-color-paper);
   border-color: transparent;
-  padding: 0;
+  padding: 0 var(--spacing-2);
 }
-.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
   outline: none;
   box-shadow: none;
 }
-.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
-.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
   background-color: var(--clr-grey-100);
   border-radius: var(--impresso-border-radius-sm);
   box-shadow: none;
 }
-.bg-dark .dropdown.show .btn.dropdown-toggle {
+#TheHeader.bg-dark .dropdown.show .btn.dropdown-toggle {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
-.bg-dark .dropdown-toggle[aria-expanded='true'] {
+#TheHeader.bg-dark .dropdown-toggle[aria-expanded='true'] {
   border-bottom: 1px solid var(--clr-grey-100) !important;
 }
 </style>

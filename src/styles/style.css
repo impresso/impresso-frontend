@@ -428,6 +428,11 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 .bg-dark .dropdown-toggle:hover {
   color: var(--white) !important;
 }
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+  background-color: var(--clr-grey-100);
+  box-shadow: none;
+}
 /* Bootstrap Modals */
 .modal {
   z-index: 1041;

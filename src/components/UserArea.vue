@@ -133,9 +133,9 @@ const userPicture = computed(() => {
 }
 .UserArea.bg-dark.dropdown .btn.dropdown-toggle:not(.disabled):hover,
 .UserArea.bg-dark.dropdown .btn.dropdown-toggle:not(.disabled):focus {
-  background-color: var(--clr-grey-100);
+  /* background-color: var(--clr-grey-100); */
   border-radius: var(--impresso-border-radius-sm);
-  box-shadow: none;
+  /* box-shadow: none; */
 }
 .UserArea.bg-dark.dropdown.show .btn.dropdown-toggle {
   border-bottom-left-radius: 0 !important;
