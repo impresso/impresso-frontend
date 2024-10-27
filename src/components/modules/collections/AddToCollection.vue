@@ -6,9 +6,15 @@
     v-on:shown="() => (show = true)"
     v-on:hidden="() => (show = false)"
     :text="title"
+    :right="right"
   >
     <div v-if="!isLoggedIn" class="p-2 bg-light">
-      <b-button size="sm" class="w-100" variant="outline-primary" @click="$router.push({ name: 'login' })">
+      <b-button
+        size="sm"
+        class="w-100"
+        variant="outline-primary"
+        @click="$router.push({ name: 'login' })"
+      >
         {{ $t('login') }}
       </b-button>
     </div>
@@ -34,16 +40,15 @@
           or
         </slot> -->
         <!-- Using components -->
-        <div class="input-group input-group-sm p-3">
-
+        <div class="input-group input-group-sm sans p-3">
           <b-form-input v-model="q" placeholder="search collections ..."></b-form-input>
           <div class="input-group-append">
-            <b-button
-              variant="outline-secondary"
+            <button
+              class="btn btn-outline-secondary small btn-sm"
               @click="() => $emit('create', { name: q })"
-              size="sm"
-              >{{ $t('actions.create') }}</b-button
             >
+              {{ $t('actions.create') }}
+            </button>
           </div>
         </div>
       </template>
@@ -54,7 +59,7 @@
           :key="item.uid"
           @click="() => $emit('item:click', item)"
         >
-          <span class="mr-1 text-muted">{{ i + 1 }} of {{ total }}</span>
+          <span class="mr-1 text-muted sans">{{ i + 1 }} of {{ total }}</span>
           <ItemLabel type="collection" :item="item" />
         </div>
         <div v-if="isLoading" class="text-center p-3">
@@ -85,13 +90,17 @@ export default {
   name: 'AddToCollection',
   components: {
     List,
-    ItemLabel,
+    ItemLabel
   },
   props: {
     title: {
       type: String,
-      required: true,
+      required: true
     },
+    right: {
+      type: Boolean,
+      default: false
+    }
   },
   emits: ['item:click', 'create'],
   data() {
@@ -104,7 +113,7 @@ export default {
       q: '',
       total: -1,
       collections: [],
-      isLoading: false,
+      isLoading: false
     }
   },
   computed: {
@@ -116,14 +125,14 @@ export default {
       return {
         currentPage: this.paginationCurrentPage,
         perPage: this.paginationPerPage,
-        totalRows: this.total,
+        totalRows: this.total
       }
     },
     searchApiQueryParameters() {
       if (!this.show) {
         return {
           query: {},
-          hash: '',
+          hash: ''
         }
       }
       const query = {
@@ -131,19 +140,16 @@ export default {
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         orderBy: this.orderBy,
-        q: this.q,
+        q: this.q
       }
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   methods: {
-    loadCollections() {},
+    loadCollections() {}
   },
   watch: {
     searchApiQueryParameters: {
@@ -152,7 +158,7 @@ export default {
         if (!this.show || !this.isLoggedIn) {
           // eslint-disable-next-line
           console.debug(
-            '[AddToCollection] @searchApiQueryParameters \n cannot be loaded now.... not loggedin or dialog not shown',
+            '[AddToCollection] @searchApiQueryParameters \n cannot be loaded now.... not loggedin or dialog not shown'
           )
           return
         }
@@ -178,57 +184,47 @@ export default {
               creationDate: d.creation_date,
               lastModifiedDate: d.last_modified_date,
               countArticles: d.count_articles,
-              ...d,
-            }),
+              ...d
+            })
         )
         this.total = total
         this.isPristine = false
       },
-      immediate: false,
-    },
-  },
+      immediate: false
+    }
+  }
 }
 </script>
-<style lang="scss">
-.AddToCollection {
-  .dropdown-menu {
-    min-width: 300px;
-  }
-  h2 {
-    font-size: inherit;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    font-family: var(--font-family-heading);
-  }
-
-  .items {
-    height: 200px;
-
-    overflow: scroll;
-  }
+<style lang="css">
+.AddToCollection .dropdown-menu {
+  min-width: 300px;
+}
+.AddToCollection .items {
+  max-height: 50vh;
+  overflow: scroll;
 }
 .AddToCollection_item {
   display: block;
   padding: var(--spacing-2) var(--spacing-3);
-
   border-bottom: 1px solid;
-  &:hover {
-    background-color: var(--primary);
-    color: var(--white);
-  }
+  cursor: pointer;
+}
+.AddToCollection_item:hover {
+  background-color: var(--clr-grey-100);
+  color: var(--white);
+}
 
-  &:hover .text-muted {
-    color: var(--white);
-  }
+.AddToCollection_item:hover .text-muted {
+  color: var(--clr-grey-700) !important;
 }
 </style>
 <i18n lang="json">
-  {
-    "en": {
-      "no_collections_found": "No collections found",
-      "actions": {
-        "create": "new..."
-      }
+{
+  "en": {
+    "no_collections_found": "No collections found",
+    "actions": {
+      "create": "new..."
     }
   }
+}
 </i18n>

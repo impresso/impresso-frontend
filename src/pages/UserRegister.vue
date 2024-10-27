@@ -6,11 +6,16 @@
           <div class="d-flex align-items-center my-5">
             <div class="colors-wrapper flex-shrink-1">
               <div>
-                <div class="color" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+                <div
+                  class="color"
+                  v-for="(color, k) in user.pattern"
+                  v-bind:key="k"
+                  :style="getColorBandStyle(color)"
+                ></div>
               </div>
             </div>
             <div class="ml-4">
-              <h1 class="user-fullname  m-0 sans font-weight-bold">
+              <h1 class="user-fullname m-0 sans font-weight-bold">
                 {{ userLabel }}
               </h1>
               <div class="user-displayname small-caps">
@@ -23,124 +28,169 @@
           <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
         </b-col>
       </b-row>
-      <b-alert v-if="featherError" show dismissible fade variant="danger">{{ featherError }}</b-alert>
+      <b-alert v-if="featherError" show dismissible fade variant="danger">{{
+        featherError
+      }}</b-alert>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p>
             Thank you for completing the first step of the registration.
-            <br/><br/>
+            <br /><br />
             <b>Action required</b>
-            <br/><br/>
-            Next, please download this <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download>Non-Disclosure Agreement (NDA)</a>,
-            sign it and email it to <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>.
-            <br/><br/>
-            Once we have received the signed NDA, your account will be activated within two working days.
+            <br /><br />
+            Next, please download this
+            <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download
+              >Non-Disclosure Agreement (NDA)</a
+            >, sign it and email it to
+            <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br /><br />
+            Once we have received the signed NDA, your account will be activated within two working
+            days.
           </p>
         </b-col>
       </b-row>
       <b-row v-else>
         <b-col md="6" offset-md="3">
-            <form @submit.prevent="onSubmit">
+          <form @submit.prevent="onSubmit">
+            <b-form-group
+              id="input-group-0"
+              label="User Name"
+              label-for="username"
+              :description="v$.user.username.$errors[0]?.$message"
+            >
+              <b-form-input
+                id="username"
+                name="username"
+                required
+                v-model.trim="user.username"
+                :class="{ 'border-danger': v$.user.username.$error }"
+              />
+            </b-form-group>
+            <b-form-group
+              id="input-group-1"
+              label="Email address"
+              label-for="email"
+              :description="v$.user.email.$errors[0]?.$message"
+            >
+              <b-form-input
+                id="email"
+                name="email"
+                autocomplete="home email"
+                :class="{ 'border-danger': v$.user.email.$error }"
+                v-model.trim="user.email"
+              ></b-form-input>
+            </b-form-group>
+            <!-- password -->
+            <b-row>
+              <b-col>
                 <b-form-group
-                  id="input-group-0"
-                  label="User Name"
-                  label-for="username"
-                  :description="v$.user.username.$errors[0]?.$message">
-                  <b-form-input id="username" name="username" required
-                    v-model.trim="user.username"
-                    :class="{'border-danger': v$.user.username.$error }"
-                    />
-                </b-form-group>
-                <b-form-group
-                  id="input-group-1"
-                  label="Email address"
-                  label-for="email"
-                  :description="v$.user.email.$errors[0]?.$message">
+                  id="input-group-changepwd-2"
+                  :label="$t('form_password')"
+                  label-for="password"
+                  :description="v$.user.password.$errors[0]?.$message"
+                >
                   <b-form-input
-                    id="email" name="email" autocomplete="home email"
-                    :class="{'border-danger': v$.user.email.$error }"
-                    v-model.trim="user.email"
+                    id="password"
+                    name="password"
+                    v-model.trim="user.password"
+                    type="password"
+                    maxlength="80"
+                    :class="{ 'border-danger': v$.user.password.$error }"
                   ></b-form-input>
                 </b-form-group>
-              <!-- password -->
-                <b-row>
-                  <b-col>
-                    <b-form-group
-                      id="input-group-changepwd-2"
-                      :label="$t('form_password')"
-                      label-for="password"
-                      :description="v$.user.password.$errors[0]?.$message">
-                      <b-form-input
-                        id="password" name="password"
-                        v-model.trim="user.password"
-                        type="password"
-                        maxlength="80"
-                        :class="{'border-danger': v$.user.password.$error }"
-                      ></b-form-input>
-                    </b-form-group>
-                  </b-col>
-                  <b-col>
-                      <b-form-group
-                        id="input-group-changepwd-3"
-                        :label="$t('form_password_repeat')"
-                        label-for="repeat-password"
-                        :description="v$.repeatPassword.$errors[0]?.$message">
-                        <b-form-input
-                          id="repeat-password" name="repeat-password"
-                          v-model.trim="repeatPassword"
-                          maxlength="80"
-                          :class="{'border-danger': v$.repeatPassword.$error }"
-                          type="password" />
-                      </b-form-group>
-                  </b-col>
-                </b-row>
-              <b-row>
-                <b-col>
-                  <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
-                    <b-form-input
-                      id="firstname" name="firstname" autocomplete="firstname"
-                      v-model.trim="user.firstname"
-                      maxlength="20"></b-form-input>
-                  </b-form-group>
-                </b-col>
-                <b-col>
-                  <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
-                    <b-form-input
-                      id="lastname" name="lastname" autocomplete="lastname"
-                      v-model.trim="user.lastname"
-                      maxlength="20"
-                    ></b-form-input>
-                  </b-form-group>
-                </b-col>
-              </b-row>
+              </b-col>
+              <b-col>
+                <b-form-group
+                  id="input-group-changepwd-3"
+                  :label="$t('form_password_repeat')"
+                  label-for="repeat-password"
+                  :description="v$.repeatPassword.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="repeat-password"
+                    name="repeat-password"
+                    v-model.trim="repeatPassword"
+                    maxlength="80"
+                    :class="{ 'border-danger': v$.repeatPassword.$error }"
+                    type="password"
+                  />
+                </b-form-group>
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <b-form-group
+                  id="input-group-2"
+                  :label="$t('form_firstname')"
+                  label-for="firstname"
+                >
+                  <b-form-input
+                    id="firstname"
+                    name="firstname"
+                    autocomplete="firstname"
+                    v-model.trim="user.firstname"
+                    maxlength="20"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col>
+                <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
+                  <b-form-input
+                    id="lastname"
+                    name="lastname"
+                    autocomplete="lastname"
+                    v-model.trim="user.lastname"
+                    maxlength="20"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
 
-              <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="displayname">
+            <b-form-group
+              id="input-group-5"
+              :label="$t('form_displayname')"
+              label-for="displayname"
+            >
+              <b-form-input id="displayname" v-model.trim="user.displayName" maxlength="20" />
+            </b-form-group>
+
+            <div
+              id="input-group-4"
+              :label="$t('form_pattern')"
+              label-for="pattern"
+              class="input-group mb-4"
+            >
+              <b-form-input id="pattern" v-model="patternAsText" maxlength="70"> </b-form-input>
+              <div class="input-group-append">
                 <b-form-input
-                  id="displayname"
-                  v-model.trim="user.displayName"
-                  maxlength="20" />
-              </b-form-group>
-
-              <div id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="input-group mb-4">
-                <b-form-input
-                  id="pattern"
-                  v-model="patternAsText"
-                  maxlength="70">
-                </b-form-input>
-                <div class="input-group-append">
-                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="10"></b-form-input>
-                  <b-button size="sm" class="text-nowrap" variant="outline-primary" @click="onGeneratePattern">
-                    {{$t('actions.generatePattern')}}
-                  </b-button>
-                </div>
+                  id="numcolors"
+                  type="number"
+                  v-model="numColors"
+                  min="2"
+                  max="10"
+                ></b-form-input>
+                <b-button
+                  size="sm"
+                  class="text-nowrap"
+                  variant="outline-primary"
+                  @click="onGeneratePattern"
+                >
+                  {{ $t('actions.generatePattern') }}
+                </b-button>
               </div>
+            </div>
 
-              <div class="d-flex w-100 mb-3">
-                  <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
-              </div>
+            <div class="d-flex w-100 mb-3">
+              <div
+                class="color py-3"
+                v-for="(color, k) in user.pattern"
+                v-bind:key="k"
+                :style="getColorBandStyle(color)"
+              ></div>
+            </div>
+            {{ user.pattern }}
 
-              <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
-                <!-- <b-form-group
+            <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
+            <!-- <b-form-group
                   id="nda"
                   label="Signed NDA"
                   label-for="nda"
@@ -151,27 +201,30 @@
                     NOTE: This code is not used. Implement file upload when needed.
                   </div>
                 </b-form-group> -->
-              <!-- </ValidationProvider> -->
+            <!-- </ValidationProvider> -->
 
-              <b-button size="sm" type='submit' class="mt-2" variant="outline-primary" :disabled="v$.$error || !v$.$anyDirty">{{
-                $t('actions.requestAccount')
-              }}</b-button>
-
-            </form>
+            <b-button
+              size="sm"
+              type="submit"
+              class="mt-2"
+              variant="outline-primary"
+              :disabled="v$.$error || !v$.$anyDirty"
+              >{{ $t('actions.requestAccount') }}</b-button
+            >
+          </form>
         </b-col>
       </b-row>
-
     </b-container>
   </main>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import useVuelidate from '@vuelidate/core';
-import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core'
+import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
-import User from '@/models/User';
+import User from '@/models/User'
 
 // extend('required', {
 //   ...required,
@@ -210,12 +263,12 @@ import User from '@/models/User';
 
 const userRegex = helpers.withMessage(
   'Please use only lowercase alpha-numeric characters',
-  (value: string) => UserRegex.exec(value) !=  null
+  (value: string) => UserRegex.exec(value) != null
 )
 
 const complexPassword = helpers.withMessage(
   'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
-  (value: string) => PasswordRegex.exec(value) !=  null
+  (value: string) => PasswordRegex.exec(value) != null
 )
 
 export default defineComponent({
@@ -223,7 +276,7 @@ export default defineComponent({
     return { v$: useVuelidate() }
   },
   props: {
-    allowUploadOfNDA: Boolean,
+    allowUploadOfNDA: Boolean
   },
   data: () => ({
     passwordRegex: PasswordRegex,
@@ -235,8 +288,7 @@ export default defineComponent({
       firstname: '',
       lastname: '',
       displayName: 'Researcher',
-      colors: Array(),
-      pattern: Array(),
+      pattern: Array()
     } as User & { password: string },
     isCreated: false,
     isLoading: false,
@@ -244,85 +296,110 @@ export default defineComponent({
     repeatPassword: '',
     errors: [],
     featherError: '',
-    palettes:
-    [
-      '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
-      '#a9bdc8', '#677e96', '#4a9bb1', '#ccd6e6', '#4f615b', '#3d95a6', '#d3deec', '#3c4b54',
-      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d',
-      '#EF476F', '#06D6A0', '#EE6123', '#21295C', '#FA003F', '#00916E'
+    palettes: [
+      '#96ceb4',
+      '#ffeead',
+      '#ffcc5c',
+      '#ff6f69',
+      '#588c7e',
+      '#f2e394',
+      '#f2ae72',
+      '#d96459',
+      '#a9bdc8',
+      '#677e96',
+      '#4a9bb1',
+      '#ccd6e6',
+      '#4f615b',
+      '#3d95a6',
+      '#d3deec',
+      '#3c4b54',
+      '#3e8696',
+      '#dce5f4',
+      '#45535f',
+      '#4a818a',
+      '#b2bdcc',
+      '#2e4051',
+      '#62797d',
+      '#EF476F',
+      '#06D6A0',
+      '#EE6123',
+      '#21295C',
+      '#FA003F',
+      '#00916E'
     ],
-    numColors: 5,
+    numColors: 5
   }),
   computed: {
     userLabel() {
       if (this.user.firstname.length || this.user.lastname.length) {
-        return `${this.user.firstname} ${this.user.lastname}`;
+        return `${this.user.firstname} ${this.user.lastname}`
       }
-      return this.$t('signUp');
+      return this.$t('signUp')
     },
     patternAsText: {
       get() {
         if (this.user) {
-          return this.user.pattern.join(', ');
+          return this.user.pattern.join(', ')
         }
-        return '';
+        return ''
       },
       set(v: string) {
-        this.user.setPattern(v);
+        this.user.pattern = v.split(',').map(v => v.trim())
       }
-    },
+    }
   },
   methods: {
     onSubmit() {
       // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
-      this.featherError = '';
-      this.isLoading = true;
-      usersService.create(this.user)
-        .then((res) => {
-          console.info('UserRegister#onSubmit() success, received:', res);
-          this.isCreated = true;
+      this.featherError = ''
+      this.isLoading = true
+      usersService
+        .create(this.user)
+        .then(res => {
+          console.info('UserRegister#onSubmit() success, received:', res)
+          this.isCreated = true
         })
-        .catch((err) => {
-          console.warn(err);
+        .catch(err => {
+          console.warn(err)
           if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
             this.featherError = this.$t('errors.Conflict.UsernameExistError')
           } else {
-            this.featherError = err.message;
+            this.featherError = err.message
           }
         })
         .finally(() => {
-          this.isLoading = false;
-        });
+          this.isLoading = false
+        })
     },
     onGeneratePattern() {
-      this.user.colors = [];
+      const colors = []
       // let palette = Math.floor(Math.random()*this.palettes.length);
-      for (let i = 0; i < this.numColors; i ++) {
-        const mycolor = this.palettes[Math.floor(Math.random()*this.palettes.length)];
-        this.user.colors.push(mycolor);
+      for (let i = 0; i < this.numColors; i++) {
+        const mycolor = this.palettes[Math.floor(Math.random() * this.palettes.length)]
+        colors.push(mycolor)
       }
-      this.user.pattern = this.user.colors;
+      this.user.pattern = colors
     },
     getColorBandStyle(color: string) {
-      const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
+      const width = this.user.pattern.length ? `${100 / this.user.pattern.length}%` : '0%'
       return {
         'background-color': color,
-        width,
-      };
-    },
+        width
+      }
+    }
   },
   created() {
-    this.onGeneratePattern();
+    this.onGeneratePattern()
   },
   validations() {
     return {
       user: {
         username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
         email: { required, email, $autoDirty: true }, // required|email
-        password: { minLength: minLength(8), complexPassword, $autoDirty: true }, // min: 8, regex: passwordRegex
+        password: { minLength: minLength(8), complexPassword, $autoDirty: true } // min: 8, regex: passwordRegex
       },
-      repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true }, // required|confirmed:repeatPassword
+      repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true } // required|confirmed:repeatPassword
     }
   }
 })
@@ -347,11 +424,11 @@ export default defineComponent({
   }
 }
 
-.user-fullname{
-  font-size:1.5rem;
+.user-fullname {
+  font-size: 1.5rem;
 }
-.user-displayname{
-  font-size:1.25rem;
+.user-displayname {
+  font-size: 1.25rem;
 }
 </style>
 

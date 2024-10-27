@@ -91,7 +91,7 @@
         >
           <span>{{ $t('collections') }}</span>
         </b-nav-item>
-        <b-nav-item-dropdown
+        <b-dropdown
           v-if="user && jobs.length"
           right
           no-caret
@@ -110,16 +110,20 @@
               </b-badge>
             </transition>
           </template>
-          <div v-if="!jobs.length" class="text-center text-white p-4">
+          <template v-slot:button-icon>
+            <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
+          </template>
+          <div v-if="!jobs.length" class="bg-dark text-center text-white p-4">
             {{ $t('no-jobs-yet') }}
           </div>
           <div v-else class="jobs-list">
             <div class="list">
               <job-item
                 :item="job"
-                class="job px-3 pb-2 mt-2 border-bottom border-dark"
+                class="job px-3 py-2 border-bottom"
                 v-for="(job, i) in jobs"
                 :key="i"
+                style="border-color: var(--clr-grey-200) !important"
               />
             </div>
             <div class="pt-2 pb-1 d-flex justify-content-center">
@@ -135,7 +139,7 @@
               />
             </div>
           </div>
-        </b-nav-item-dropdown>
+        </b-dropdown>
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
@@ -667,6 +671,37 @@ export default defineComponent({
     white-space: nowrap;
   }
 }
+
+#TheHeader.bg-dark .dropdown .dropdown-menu {
+  border-color: transparent;
+  background-color: var(--clr-grey-100);
+  color: var(--impresso-color-paper);
+  border-top-left-radius: var(--impresso-border-radius-sm);
+}
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--impresso-color-paper);
+  border-color: transparent;
+  padding: 0 var(--spacing-2);
+}
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+  background-color: var(--clr-grey-100);
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: none;
+}
+#TheHeader.bg-dark .dropdown.show .btn.dropdown-toggle {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+#TheHeader.bg-dark .dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid var(--clr-grey-100) !important;
+}
 </style>
 
 <i18n lang="json">
@@ -682,7 +717,6 @@ export default defineComponent({
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
-    "label_entities": "Entities",
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_entities": "Entities",
