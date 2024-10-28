@@ -133,12 +133,15 @@ const userPicture = computed(() => {
 }
 .UserArea.bg-dark.dropdown .btn.dropdown-toggle:not(.disabled):hover,
 .UserArea.bg-dark.dropdown .btn.dropdown-toggle:not(.disabled):focus {
-  background-color: var(--clr-grey-100);
+  /* background-color: var(--clr-grey-100); */
+  border-radius: var(--impresso-border-radius-sm);
+  /* box-shadow: none; */
+}
+.UserArea.bg-dark.dropdown.show .btn.dropdown-toggle {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
-.UserArea.bg-dark .dropdown-toggle[aria-expanded='true'] {
-  border-bottom: 1px solid var(--clr-grey-100) !important;
-}
 .UserArea__userLabel,
 .UserArea__userLabel .user-fullname,
 .UserArea__userLabel .user-role {

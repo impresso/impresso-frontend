@@ -1,6 +1,6 @@
 <template>
   <div class="job-item">
-    <h2 class="sans p-0 m-0" style="font-size: 1rem">
+    <h2 class="sans mt-3 mb-1 font-weight-medium font-size-inherit">
       <span
         >{{
           $t(`jobs.type.${item.type}`, {
@@ -17,10 +17,13 @@
             collection_uid: item.extra.collection.id
           }
         }"
-        >{{ item.extra.collection.name }}</router-link
       >
+        {{ item.extra.collection.name }} </router-link
+      ><span class="small-caps ml-2" :class="[item.status]">{{
+        $t(`jobs.status.${item.status}`)
+      }}</span>
     </h2>
-    <div class="date small-caps">{{ $d(item.creationDate, 'precise') }} (#{{ item.id }})</div>
+    <div class="date">{{ $d(item.creationDate, 'precise') }} (#{{ item.id }})</div>
     <div>
       <blockquote v-if="hasSearchQuery" class="pl-2 my-1 border-left">
         <search-query-summary class="m-0" :search-query="{ filters: jobSearchFilters }" />
@@ -30,12 +33,7 @@
       </blockquote>
       <blockquote v-else v-html="item.description" class="pl-2 my-1 border-left small"></blockquote>
 
-      <div>
-        <span class="small-caps" :class="[item.status]">{{
-          $t(`jobs.status.${item.status}`)
-        }}</span>
-        <span class="text-white" v-if="item.isActive()">&nbsp;{{ percentage }} %</span>
-      </div>
+      <div class="text-white number" v-if="item.isRunning()">&nbsp;{{ percentage }} %</div>
       <div class="p-2 position-relative" v-if="item.isRunning()">
         <div class="progress">
           <div
@@ -49,14 +47,8 @@
         </div>
       </div>
     </div>
-    <b-button-group v-if="isExportable || hasSearchQuery">
-      <b-button
-        v-if="isExportable"
-        variant="outline-success"
-        class="mt-2"
-        size="sm"
-        v-on:click="onExport()"
-      >
+    <div class="d-flex justify-content-between" v-if="isExportable || hasSearchQuery">
+      <b-button v-if="isExportable" variant="outline-success" size="sm" v-on:click="onExport()">
         <div class="d-flex align-items-center">
           <div>
             {{ $t('actions.downloadCsv') }}
@@ -67,8 +59,8 @@
       <b-button
         :to="searchPageLink"
         v-if="hasSearchQuery"
-        variant="outline-primary"
-        class="mt-2"
+        variant="transparent"
+        class="text-white"
         size="sm"
       >
         <div class="d-flex align-items-center">
@@ -78,10 +70,10 @@
           <div class="d-flex dripicons dripicons-search ml-2" />
         </div>
       </b-button>
-    </b-button-group>
-    <b-button v-if="item.status === 'RUN'" size="sm" variant="outline-tertiary" @click="stopJob">
-      Stop</b-button
-    >
+      <b-button v-if="item.status === 'RUN'" size="sm" variant="outline-white" @click="stopJob">
+        Stop</b-button
+      >
+    </div>
   </div>
 </template>
 
@@ -162,19 +154,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.progress {
+  background-color: var(--clr-grey-200);
+  border-radius: 0;
+  height: 4px;
+}
 .job {
   color: #c6ccd2;
 }
 blockquote,
 h3,
 h3 a {
-  font-size: 0.9rem;
   color: white;
+}
+blockquote,
+.date {
+  font-size: var(--impresso-font-size-smaller);
+  opacity: 0.65;
 }
 .bg-dark h2 {
   color: inherit;
 }
 
+span.RUN {
+  background-color: var(--clr-grey-200);
+  color: white;
+  padding: 0 4px;
+  border-radius: 2px;
+}
 span.DON {
   background-color: var(--success);
   color: white;
@@ -195,7 +202,6 @@ span.DON {
         "store_collectable_items": "Indexing collection items",
         "TES": "Echo (TEST)",
         "test": "Echo (TEST)",
-        "RDX": "Remove {total} item(s) from your collection",
         "BCQ": "Saving {total} item(s) in your collection",
         "RDX": "Remove {total} item(s) from your collection",
         "execute_solr_query": "Saving items in your collection",
@@ -203,7 +209,7 @@ span.DON {
       },
       "status": {
         "DON": "done",
-        "RUN": "progress",
+        "RUN": "in progress",
         "ERR": "error",
         "STO": "stopped",
         "RIP": "removed"

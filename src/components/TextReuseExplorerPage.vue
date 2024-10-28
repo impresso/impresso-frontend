@@ -12,8 +12,8 @@
               <InfoButton name="text-reuse" class="ml-1" />
             </small>
           </h3>
-          <section class="text-serif TextReuseExplorerPage_summary">
-            <Ellipsis :initialHeight="60" :maxHeight="0">
+          <section class="TextReuseExplorerPage_summary">
+            <Ellipsis class="textbox-fancy text-serif" :initialHeight="60" :maxHeight="0">
               <span v-html="incipit" />
               <SearchQuerySummary
                 v-on:updated="summaryUpdatedHandler"
@@ -25,6 +25,7 @@
                 @item:click="handleAddToCollectionClick"
                 @create="handleAddToCollectionCreate"
                 :title="$t('addTrQueryResultsToCollection')"
+                right
               >
                 <template v-slot:empty>
                   <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>

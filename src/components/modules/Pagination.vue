@@ -227,18 +227,19 @@ const goToLast = () => {
   background-color: var(--impresso-color-black);
 }
 .bg-dark .Pagination .pagination {
-  border: 1px solid var(--clr-white);
+  border: 1px solid var(--clr-grey-200);
   border-radius: var(--impresso-border-radius-xs);
   overflow: hidden;
 }
 .bg-dark .Pagination .pagination li.page-item > a,
 .bg-dark .Pagination .pagination li.page-item > .page-link {
   background-color: var(--impresso-color-black);
-  color: var(--clr-white);
-  border-color: var(--clr-white-rgba-20);
+  color: var(--clr-grey-400);
+  border-color: var(--clr-grey-400);
 }
 .bg-dark .Pagination .pagination li.page-item.active > .page-link {
-  background-color: var(--clr-white);
+  background-color: var(--clr-grey-400);
   color: var(--impresso-color-black);
+  border-color: var(--clr-grey-400) !important;
 }
 </style>

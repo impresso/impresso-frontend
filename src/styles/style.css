@@ -170,7 +170,11 @@ h6.dropdown-header {
   font-weight: 450;
   font-variation-settings: 'wght' 450;
 }
-
+.btn-group-sm > .btn,
+.input-group-sm > .input-group-append > .btn {
+  font-size: var(--impresso-font-size-smallcaps);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);
@@ -310,6 +314,12 @@ label {
   background-color: transparent !important;
   border-bottom-color: var(--clr-grey-400) !important;
 }
+
+.btn-outline-white {
+  border-color: var(--clr-white) !important;
+  color: var(--clr-white) !important;
+}
+
 .btn-md {
   border-radius: var(--border-radius-md);
   box-shadow: var(--bs-box-shadow-sm);
@@ -417,6 +427,11 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .bg-dark .dropdown-toggle:hover {
   color: var(--white) !important;
+}
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+  background-color: var(--clr-grey-100);
+  box-shadow: none;
 }
 /* Bootstrap Modals */
 .modal {
