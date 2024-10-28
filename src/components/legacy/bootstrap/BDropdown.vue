@@ -72,7 +72,10 @@ watch(
 )
 
 defineExpose({
-  hide: () => (isOpen.value = false)
+  hide: () => (isOpen.value = false),
+  show: () => {
+    isOpen.value = true
+  }
 })
 </script>
 <style>
