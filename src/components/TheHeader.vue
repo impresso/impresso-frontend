@@ -184,6 +184,9 @@
           <span v-else-if="error.name === 'Error'">
             {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
           </span>
+          <span v-else-if="error.name === 'NotImplemented'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
+          </span>
           <span v-else>{{ error }}</span>
           <span v-if="error.id" class="error-id">
             <info-button name="error-id" placement="bottom" class="ml-2" />
