@@ -222,6 +222,7 @@ export default {
       loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
+      NotFound: 'The resource requested was not found.',
       formError: 'Please correct the form below. <b>{error}</b>',
       BadRequest: 'Bad request.',
       NotImplemented: 'Not implemented.',

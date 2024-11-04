@@ -201,6 +201,7 @@ span.DON {
         "IDX": "Indexing {total} collection items",
         "store_collectable_items": "Indexing collection items",
         "TES": "Echo (TEST)",
+        "RTR": "Remove text reuse passages from your collection",
         "test": "Echo (TEST)",
         "BCQ": "Saving {total} item(s) in your collection",
         "RDX": "Remove {total} item(s) from your collection",

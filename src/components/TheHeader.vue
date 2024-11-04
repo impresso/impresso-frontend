@@ -173,8 +173,11 @@
             >{{ $t(`errors.Timeout`) }} {{ error.message }}</span
           >
           <span v-else-if="error.name === 'BadRequest'">
-            {{ $t(`errors.BadRequest`) }}
+            {{ $t('errors.BadRequest') }}
             <span>{{ error.message }}</span>
+          </span>
+          <span v-else-if="error.name === 'NotFound'">
+            {{ $t(`errors.NotFound`) }}
           </span>
           <span v-else-if="error.name === 'GeneralError'">
             {{
