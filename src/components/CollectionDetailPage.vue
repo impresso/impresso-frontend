@@ -27,7 +27,6 @@
               {{ $t('compare_collection') }}
             </button>
           </router-link>
-          {{ isConfirmDeleteModalVisible ? 'visible' : 'no' }}
           <b-dropdown
             class="m-1"
             size="sm"
