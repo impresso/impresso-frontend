@@ -173,8 +173,11 @@
             >{{ $t(`errors.Timeout`) }} {{ error.message }}</span
           >
           <span v-else-if="error.name === 'BadRequest'">
-            {{ $t(`errors.BadRequest`) }}
+            {{ $t('errors.BadRequest') }}
             <span>{{ error.message }}</span>
+          </span>
+          <span v-else-if="error.name === 'NotFound'">
+            {{ $t(`errors.NotFound`) }}
           </span>
           <span v-else-if="error.name === 'GeneralError'">
             {{
@@ -182,6 +185,9 @@
             }}
           </span>
           <span v-else-if="error.name === 'Error'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
+          </span>
+          <span v-else-if="error.name === 'NotImplemented'">
             {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
           </span>
           <span v-else>{{ error }}</span>
@@ -470,8 +476,8 @@ export default defineComponent({
   .badge-pill {
     position: absolute;
     line-height: 0.9;
-    top: 0;
-    right: 0;
+    top: -5px;
+    right: -15px;
     border-radius: 10px;
     min-width: 20px;
     height: 20px;

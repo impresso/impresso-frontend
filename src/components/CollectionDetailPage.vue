@@ -23,15 +23,11 @@
             "
             class="m-1"
           >
-            <button
-              type="button"
-              class="btn btn-outline-info btn-sm"
-              @click="showConfirmDeleteModal()"
-            >
+            <button type="button" class="btn btn-outline-info btn-sm">
               {{ $t('compare_collection') }}
             </button>
           </router-link>
-
+          {{ isConfirmDeleteModalVisible ? 'visible' : 'no' }}
           <b-dropdown
             class="m-1"
             size="sm"
@@ -68,7 +64,7 @@
                 type="button"
                 class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
-                v-on:click.exact="showConfirmDeleteModal()"
+                v-on:click.exact="showConfirmDeleteModal"
               >
                 {{ $t('delete_collection') }}
               </button>
@@ -81,7 +77,14 @@
           :title="$t('delete_collection_no_option')"
           centered
           :show="isConfirmDeleteModalVisible"
-          @ok="remove(collection)"
+          @ok="
+            () => {
+              console.info('[CollectionDetailPage] remove: ', collection)
+              hideConfirmDeleteModal()
+              remove(collection)
+            }
+          "
+          @close="hideConfirmDeleteModal"
         >
           {{ this.$t('confirm_delete', [collection.name]) }}
         </Modal>
@@ -667,7 +670,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Settings",
+    "edit_collection": "Edit collection",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "delete_collection_no_option": "Delete Collection",

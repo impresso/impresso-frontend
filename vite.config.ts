@@ -10,14 +10,19 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 export default ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd())
-
+  if (mode === 'development') {
+    console.log(env)
+  }
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
   const ApiIiifProxyPath = [
     '^',
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
     '/proxy/'
   ].join('')
-
+  if (mode === 'development') {
+    console.log('SocketIoProxyPath', SocketIoProxyPath)
+    console.log('ApiIiifProxyPath', ApiIiifProxyPath)
+  }
   // https://vitejs.dev/config/
   return defineConfig({
     plugins: [
