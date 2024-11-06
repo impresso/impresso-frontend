@@ -37,7 +37,7 @@
       <div class="p-2 position-relative" v-if="item.isRunning()">
         <div class="progress">
           <div
-            class="progress-bar bg-info progress-bar-animated"
+            class="progress-bar bg-success progress-bar-animated"
             role="progressbar"
             aria-valuemin="0"
             aria-valuemax="100"

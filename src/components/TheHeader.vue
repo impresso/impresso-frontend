@@ -476,8 +476,8 @@ export default defineComponent({
   .badge-pill {
     position: absolute;
     line-height: 0.9;
-    top: 0;
-    right: 0;
+    top: -5px;
+    right: -15px;
     border-radius: 10px;
     min-width: 20px;
     height: 20px;
