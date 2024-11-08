@@ -89,7 +89,7 @@
         </Modal>
       </b-navbar>
 
-      <b-navbar v-else type="light" variant="light">
+      <b-navbar v-else>
         <section class="pt-2 pb-1">
           <span class="label small-caps">{{ $t('collections') }}</span>
           <h3 class="mb-1">{{ $t('all_collections_title') }}</h3>
@@ -112,24 +112,20 @@
       </b-tabs>
 
       <b-navbar
-        type="light"
-        variant="light"
         class="px-0 py-0 border-bottom"
         v-if="
           tab.name !== TAB_RECOMMENDATIONS &&
           (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)
         "
       >
-        <b-navbar-nav v-if="$route.params.collection_uid">
-          <b-navbar-item class="p-2 ml-3 form-inline">
-            <form class="form-inline">
-              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-                {{ $t('actions.searchMore') }}
-              </router-link>
-            </form>
-          </b-navbar-item>
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
+          <form class="form-inline">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </form>
         </b-navbar-nav>
-        <b-navbar-nav>
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
           <b-button
             @click="handleExportCollection"
             size="sm"
@@ -139,7 +135,10 @@
             <div>{{ $t('label_export_csv') }}</div>
             <div class="dripicons-export ml-1"></div>
           </b-button>
-          <info-button name="can-i-download-part-of-the-data" class="float-right ml-2" />
+          <info-button
+            name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
+            class="float-right ml-2"
+          />
         </b-navbar-nav>
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
@@ -390,7 +389,12 @@ export default {
     filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
-        return { name: 'search' }
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: [{ type: 'collection', q: 'local-dg-*' }]
+          })
+        }
       }
       return {
         name: 'search',
