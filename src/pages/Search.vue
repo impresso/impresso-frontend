@@ -11,14 +11,21 @@
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
       </template>
       <div>
-        <b-button
-          class="float-right mx-3 btn-sm"
+        <button
+          class="float-right mx-3 btn btn-sm btn-outline-secondary"
           @click="showModal('embeddings')"
           data-testid="add-similar-words-button"
         >
           {{ $t('label_embeddings') }}
-          <info-button class="ml-1" name="how-are-word-embeddings-generated" />
-        </b-button>
+          <info-button
+            class="ml-1"
+            :offset-options="{
+              crossAxis: 100,
+              mainAxis: 20
+            }"
+            name="how-are-word-embeddings-generated"
+          />
+        </button>
         <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
           <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
@@ -123,7 +130,7 @@
                 {{ $t('query_export_csv') }}
                 <info-button
                   placement="left"
-                  name="can-i-download-part-of-the-data"
+                  name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
                   right
                   class="float-right"
                   :offset-options="{
