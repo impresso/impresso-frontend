@@ -143,12 +143,10 @@
             How to explore the newspapers with persons or locations? <br />What are topics good for?
             <br />What elements can be compared?
           </p>
-          <b-button
-            variant="primary"
-            size="lg"
+          <a
             href="./../assets/impresso-challenges-1.2.3.pdf"
             target="_blank"
-            class="rounded border"
+            class="btn btn-primary btn-lg rounded border"
           >
             <div class="d-flex flex-row w-100 align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
@@ -157,7 +155,7 @@
                 <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
               </div>
             </div>
-          </b-button>
+          </a>
           <!-- <b-row class="p-0 rounded" style="overflow: hidden">
             <b-col lg="6" md="12" class="bg-white">
               <img
