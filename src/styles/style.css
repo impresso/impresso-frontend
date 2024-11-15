@@ -175,6 +175,16 @@ h6.dropdown-header {
   font-size: var(--impresso-font-size-smallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
+
+.btn-xs {
+  padding: 2px var(--spacing-2);
+  border-radius: var(--impresso-border-radius-xs);
+  line-height: inherit;
+  font-size: var(--impresso-font-size-smallcaps);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
+  letter-spacing: var(--impresso-letter-spacing-smallcaps);
+  text-transform: uppercase;
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);
