@@ -67,7 +67,7 @@ export default class Job {
     task = '',
     extra = {}
   } = {}) {
-    this.id = parseInt(id, 10)
+    this.id = id
     this.type = String(type)
     this.status = String(status)
     this.task = String(task)
