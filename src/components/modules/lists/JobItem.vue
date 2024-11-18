@@ -41,6 +41,19 @@
         {{ $t('actions.searchMore') }}<Icon name="search" :scale="0.5" :stroke-width="2" />
       </button>
     </blockquote>
+    <div class="text-white number" v-if="item.isRunning()">&nbsp;{{ percentage }} %</div>
+    <div class="p-2 position-relative" v-if="item.isRunning()">
+      <div class="progress">
+        <div
+          class="progress-bar bg-success progress-bar-animated"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-valuenow="percentage"
+          :style="`width: ${percentage}%; height: 4px;`"
+        ></div>
+      </div>
+    </div>
     <b-button
       v-if="props.item.isExportable()"
       variant="outline-success"
@@ -81,7 +94,9 @@ const props = defineProps({
     default: ''
   }
 })
-
+const percentage = computed(() => {
+  return Math.round((props.item.progress || 0) * 100)
+})
 const hasSearchQuery = computed(() => {
   return !!props.item.extra.query
 })
@@ -133,6 +148,9 @@ span.DON {
   color: white;
   padding: 0 4px;
   border-radius: 2px;
+}
+.progress {
+  height: 4px;
 }
 </style>
 <i18n lang="json">
