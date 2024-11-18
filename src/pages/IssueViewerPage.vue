@@ -11,7 +11,9 @@
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-start>
             <b-nav-item active-class="active" active>
-              <span v-html="$t('table_of_contents')" />
+              <a aria-current="page" class="none router-link-exact-active nav-link active">
+                <span v-html="$t('table_of_contents')" />
+              </a>
             </b-nav-item>
           </template>
           <template v-slot:default>
@@ -720,14 +722,17 @@ export default {
     async loadRegions(pageIndex) {
       if (this.issue == null) return
       if (this.pagesArticles[pageIndex] == null) {
-        const articles = await articlesService
+        const pageId = getPageId(this.issueId, pageIndex)
+        console.debug('[IssueViewerPage] loadRegions', pageId)
+        const articles = await searchService
           .find({
             query: {
-              filters: [{ type: 'page', q: getPageId(this.issueId, pageIndex) }],
-              limit: 500
+              filters: [{ type: 'page', q: pageId }]
             }
           })
-          .then(response => response.data.map(article => new Article(article)))
+          .then(response => {
+            return response.data.map(d => new Article(d))
+          })
         this.pagesArticles[pageIndex] = articles
       }
     },
