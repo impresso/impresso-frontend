@@ -10,7 +10,7 @@ interface State {
 export const useJobsStore = defineStore('jobs', {
   state: (): State => ({
     items: [],
-    totalItems: 0,
+    totalItems: 0
   }),
   getters: {},
   actions: {
@@ -35,26 +35,28 @@ export const useJobsStore = defineStore('jobs', {
         return this.loadJobs()
       }
     },
-    loadJobs({ page = 1, limit = 4 }: { page?: number, limit?: number } = {}) {
+    loadJobs({ page = 1, limit = 4 }: { page?: number; limit?: number } = {}) {
       return jobsService
         .find({
           query: {
             page,
-            limit,
-          },
+            limit
+          }
         })
         .then(({ data, total }) => {
+          console.info('loadJobs', data)
           this.items = data.map(
-            d => new Job({
-              ...d,
-              progress: d.extra ? d.extra.progress : 0,
-            }),
+            d =>
+              new Job({
+                ...d,
+                progress: d.extra ? d.extra.progress : 0
+              })
           )
           this.totalItems = total
         })
-    },
+    }
   },
   persist: {
-    paths: [],
-  },
+    paths: []
+  }
 })

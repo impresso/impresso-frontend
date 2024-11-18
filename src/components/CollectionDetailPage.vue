@@ -112,7 +112,7 @@
       </b-tabs>
 
       <b-navbar
-        class="px-0 py-0 border-bottom"
+        class="px-0 py-2 border-bottom"
         v-if="
           tab.name !== TAB_RECOMMENDATIONS &&
           (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)
