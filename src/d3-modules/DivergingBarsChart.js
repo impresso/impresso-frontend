@@ -87,14 +87,14 @@ export default class DivergingBarsChart {
 
     // interaction
     this.svg
-      .on('mousemove', () => this._handleInteraction())
-      .on('mouseover', () => {
+      .on('mousemove', () => this._handleInteraction(event))
+      .on('mouseover', event => {
         this._interactionActive = true
-        this._handleInteraction()
+        this._handleInteraction(event)
       })
-      .on('mouseout', () => {
+      .on('mouseout', event => {
         this._interactionActive = false
-        this._handleInteraction()
+        this._handleInteraction(event)
       })
   }
 
@@ -231,7 +231,7 @@ export default class DivergingBarsChart {
   }
 
   _handleInteraction(event) {
-    if (!d3.event) return
+    if (event == null) return
 
     let [mouseX, mouseY] = d3.pointer(event)
 
@@ -241,6 +241,8 @@ export default class DivergingBarsChart {
 
     const item = this.labels.selectAll('text').data()[Math.floor(currentBarIndex)]
     this._lastItem = item
+
+    this.element.dispatchEvent(new CustomEvent('interaction'))
   }
 
   tooltipData() {

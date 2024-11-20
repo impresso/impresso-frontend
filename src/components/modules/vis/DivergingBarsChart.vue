@@ -3,11 +3,16 @@
     <tooltip :tooltip="tooltip" :calculate-y="true">
       <slot :tooltip="tooltip">
         <div v-if="tooltip.isActive">
-          {{tooltip.item}}
+          {{ tooltip.item }}
         </div>
       </slot>
     </tooltip>
-    <div ref="chart" class="diverging-bars-chart" :style="{ height: `${height}px` }"/>
+    <div
+      ref="chart"
+      class="diverging-bars-chart"
+      :style="{ height: `${height}px` }"
+      v-on:interaction="updateTooltipData"
+    />
   </div>
 </template>
 
@@ -22,7 +27,8 @@ import Tooltip from '../tooltips/Tooltip.vue'
 export default {
   data: () => ({
     /** @type {DivergingBarsChart | undefined} */
-    chart: undefined
+    chart: undefined,
+    tooltipData: undefined
   }),
   props: {
     /** @type {import('vue').PropOptions<Item[]>} */
@@ -57,17 +63,12 @@ export default {
     },
     /** @returns {any} */
     tooltip() {
-      const tooltipData = this.chart
-        ? this.chart.tooltipData()
-        : {
-          x: 0,
-          y: 0,
-          isActive: false,
-          item: undefined
-        }
       return {
-        ...tooltipData,
-        isActive: tooltipData.isActive && tooltipData.item != null && Object.keys(tooltipData.item).length > 0
+        ...(this.tooltipData ?? {}),
+        isActive:
+          this.tooltipData?.isActive &&
+          this.tooltipData?.item != null &&
+          Object.keys(this.tooltipData?.item).length > 0
       }
     }
   },
@@ -86,84 +87,105 @@ export default {
   },
   watch: {
     items: {
-      handler() { this.render() },
+      handler() {
+        this.render()
+      },
       deep: true
     },
-    scale() { this.render() },
+    scale() {
+      this.render()
+    },
+    tooltipData: {
+      handler() {
+        console.log(this.tooltipData)
+        this.render()
+      },
+      deep: true
+    }
   },
   methods: {
     render() {
-      if (this.chart != null) this.chart.render(this.items, {
-        scale: /** @type {'linear' | 'sqrt'} */ (this.scale)
-      })
+      if (this.chart != null)
+        this.chart.render(this.items, {
+          scale: /** @type {'linear' | 'sqrt'} */ (this.scale)
+        })
+    },
+    updateTooltipData() {
+      this.tooltipData = this.chart
+        ? this.chart.tooltipData()
+        : {
+            x: 0,
+            y: 0,
+            isActive: false,
+            item: undefined
+          }
+      console.log('boom', this.tooltipData)
     }
   }
 }
 </script>
 
 <style lang="scss">
-  @import "@/styles/variables.sass";
+@import '@/styles/variables.sass';
 
-  .pointer {
-    cursor: pointer;
+.pointer {
+  cursor: pointer;
+}
+
+$color-a: $inspect-compare-left-panel-color;
+$color-b: $inspect-compare-right-panel-color;
+$color-text: #333;
+$font-size: 0.6em;
+
+.diverging-bars-chart {
+  .y-axis {
+    stroke: #ddd;
   }
 
-  $color-a: $inspect-compare-left-panel-color;
-  $color-b: $inspect-compare-right-panel-color;
-  $color-text: #333;
-  $font-size: 0.6em;
-
-  .diverging-bars-chart {
-    .y-axis {
-      stroke: #ddd;
+  #diverging-bars-intersection-pattern,
+  #diverging-bars-intersection-pattern-flipped {
+    .path-a {
+      stroke-width: 1.5;
+      stroke: $color-a;
     }
-
-    #diverging-bars-intersection-pattern,
-    #diverging-bars-intersection-pattern-flipped {
-      .path-a {
-        stroke-width: 1.5;
-        stroke: $color-a;
-      }
-      .path-b {
-        stroke-width: 1.5;
-        stroke: $color-b;
-      }
+    .path-b {
+      stroke-width: 1.5;
+      stroke: $color-b;
     }
+  }
 
-    .labels {
-      text {
-        fill: $color-text;
-        font-size: $font-size;
-      }
+  .labels {
+    text {
+      fill: $color-text;
+      font-size: $font-size;
     }
+  }
 
-    .bars {
-      .side {
+  .bars {
+    .side {
+      .bar {
+        text {
+          fill: $color-text;
+          font-size: $font-size;
+        }
+      }
 
+      &.left {
         .bar {
-          text {
-            fill: $color-text;
-            font-size: $font-size;
+          rect {
+            fill: $color-a;
           }
         }
+      }
 
-        &.left {
-          .bar {
-            rect {
-              fill: $color-a;
-            }
-          }
-        }
-
-        &.right {
-          .bar {
-            rect {
-              fill: $color-b;
-            }
+      &.right {
+        .bar {
+          rect {
+            fill: $color-b;
           }
         }
       }
     }
   }
-
+}
 </style>
