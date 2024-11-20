@@ -14,7 +14,8 @@
         <div class="modal-content" :class="contentClass">
           <div class="modal-header">
             <slot
-              name="modal-header d-flex align-items-center"
+              name="modal-header"
+              class="d-flex align-items-center"
               v-bind:title-id="`${id}-title`"
               v-bind:close="() => close()"
             >
@@ -26,7 +27,7 @@
                 aria-label="Close"
                 @click="close"
               >
-                <Icon name="cross" />
+                <span class="dripicons-cross" />
               </button>
             </slot>
           </div>
@@ -57,7 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import Icon from './Icon.vue'
 import { ref, computed, watch } from 'vue'
 import { v4 } from 'uuid'
 
