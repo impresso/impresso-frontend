@@ -1,6 +1,6 @@
 <template>
   <div class="JobItem" :class="className">
-    <h2 class="sans mt-3 mb-1 font-weight-medium font-size-inherit">
+    <h2 class="sans mt-2 mb-1 font-weight-medium font-size-inherit">
       <span
         v-html="
           $t(`jobs_type_${item.type}`, {
@@ -8,7 +8,7 @@
           })
         "
       />
-      <span v-if="item.extra.collection">: {{ item.extra.collection.name }} </span>&nbsp;
+      <span v-if="item.extra.collection?.name">: {{ item.extra.collection.name }} </span>&nbsp;
       <span class="small-caps ml-2" :class="[item.status]">{{
         $t(`jobs_status_${item.status}`)
       }}</span>
@@ -17,7 +17,7 @@
       {{ $d(item.creationDate, 'precise') }}
       (#{{ item.id }})
     </div>
-    <blockquote v-if="item.extra.collection" class="pl-2 my-1 border-left">
+    <blockquote v-if="item.extra.collection?.name" class="pl-2 my-1 border-left">
       <span>
         <router-link
           class="text-white text-decoration-underline"
@@ -29,12 +29,11 @@
       </span>
       <span v-html="item.extra.collection.description" class="small" />
     </blockquote>
-    <blockquote v-else class="pl-2 my-1 border-left">
+    <blockquote v-else-if="hasSearchQuery" class="pl-2 mt-1 mb-2 border-left">
       <span v-html="item.description" class="small" />
 
       &nbsp;
       <button
-        v-if="hasSearchQuery"
         class="btn btn-xs text-white btn-outline-white d-inline-flex align-items-center"
         @click="gotoSearchPage"
       >
@@ -168,7 +167,7 @@ span.DON {
     "jobs_type_BCQ": "Saving {total} item(s) in your collection",
     "jobs_type_RDX": "Remove {total} item(s) from your collection",
     "jobs_type_BCT": "Add {total} item(s) to your collection from Text Reuse",
-
+    "jobs_type_UUB": "Update permissions",
     "jobs_status_DON": "done",
     "jobs_status_RUN": "in progress",
     "jobs_status_ERR": "error",
