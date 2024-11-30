@@ -49,6 +49,10 @@ export const useJobsStore = defineStore('jobs', {
             d =>
               new Job({
                 ...d,
+                extra: {
+                  ...d.extra,
+                  sq: d.extra?.query_hash ?? ''
+                },
                 progress: d.extra ? d.extra.progress : 0
               })
           )
