@@ -21,6 +21,9 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
+    <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
+      $t('send_update_bitmap')
+    }}</b-dropdown-item>
     <b-dropdown-item
       target="_blank"
       href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ"
@@ -38,7 +41,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Icon from './base/Icon.vue'
-import { jobs as jobsService } from '@/services'
+import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 
 const props = defineProps({
   user: {
@@ -66,6 +69,10 @@ const userRole = computed(() => {
 const test = () => {
   return jobsService.create({})
 }
+const send_update_bitmap = () => {
+  return termsOfUseService.patch(0, {})
+}
+
 const userPicture = computed(() => {
   const style: {
     backgroundImage?: string
@@ -96,7 +103,10 @@ const userPicture = computed(() => {
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",
-    "send_test_job": "[staff only] Send test job"
+    "send_test_job": "[staff only] Send test job",
+    "send_update_bitmap":
+      "[staff only] Test update bitmap"
+    
   }
 }
 </i18n>
