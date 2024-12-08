@@ -105,7 +105,7 @@ export default {
       generatePattern: 'Generate Pattern',
       getSimilarImages: 'view similar images ...',
       previewFilter: 'Preview filter',
-      requestNewPassword: 'Request New Password',
+      requestNewPassword: 'Apply changes',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
