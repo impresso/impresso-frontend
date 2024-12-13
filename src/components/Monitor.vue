@@ -78,7 +78,7 @@
           <div class="text-center m-2" v-if="filterModificationsEnabled">
             <b-button
               size="sm"
-              class="mr-1"
+              class="mr-1 mb-1"
               variant="outline-primary"
               @click="applyFilter('include')"
               >{{ $t('actions.addToCurrentFilters') }}</b-button
@@ -96,7 +96,7 @@
           <div class="mx-3">
             <div v-if="['person', 'location'].indexOf(type) !== -1">
               <wikidata-block :item="item" v-if="item.wikidataId" class="p-2" />
-              <div class="m-2" v-else>{{ item }}</div>
+              <!-- <div class="m-2" v-else>{{ item }}</div> -->
             </div>
             <div v-else class="m-2" style="max-height: 150px; overflow: scroll">
               <item-label :item="item" :type="type" detailed />
@@ -116,9 +116,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from 'vue'
 import { mapState, mapActions, mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
+
 import Ellipsis from './modules/Ellipsis.vue'
 import Timeline from './modules/Timeline.vue'
 import WikidataBlock from './modules/WikidataBlock.vue'
@@ -126,10 +128,7 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import SearchQuery from '../models/SearchQuery'
 import { containsFilter } from '@/logic/filters'
-
-/**
- * @typedef {import('@/models').Filter} Filter
- */
+import type { Filter } from '@/models'
 
 /**
  * Display info about the current selected item.
@@ -147,57 +146,46 @@ import { containsFilter } from '@/logic/filters'
   * Cfr src/components/modules/ItemSelector.vue
   */
 
-export default {
+export default defineComponent({
   data: () => ({
     isDragging: false,
-    position: {},
+    position: {} as { x: number; y: number },
     transformStyle: {},
     tabs: ['selectedItem'], // 'currentSearch'],
     tab: 'selectedItem'
   }),
   methods: {
-    /**
-     * @param {{ x: number, y: number }} param
-     */
-    dragstart({ x, y }) {
+    dragstart({ x, y }: { x: number; y: number }) {
       this.isDragging = true
       if (isNaN(this.position.x)) {
         this.position = { x, y }
       }
     },
-    /**
-     * @param {{ x: number, y: number }} param
-     */
-    dragend({ x, y }) {
+    dragend({ x, y }: { x: number; y: number }) {
       this.isDragging = false
       this.transformStyle = {
         transform: `translate(${x - this.position.x}px,${y - this.position.y}px)`
       }
     },
-    /**
-     * @param {string} tab
-     */
-    switchTab(tab) {
+    switchTab(tab: string) {
       this.tab = tab
     },
     ...mapActions(useMonitorStore, {
       fadeOut: 'hide'
     }),
-    /**
-     * @param {string} context
-     */
-    async applyFilter(context = 'include') {
-      const newFilter = {
+    async applyFilter(context: string = 'include') {
+      const currentFilters = this.searchQueryFilters as Filter[]
+      const newFilter: Filter = {
         type: this.type,
         q: this.item.uid,
         items: [this.item],
         context
       }
 
-      const isAlreadyIncluded = this.searchQueryFilters.find(containsFilter(newFilter)) != null
+      const isAlreadyIncluded = currentFilters.find(containsFilter(newFilter)) != null
 
       if (!isAlreadyIncluded) {
-        const updatedFilters = [...this.searchQueryFilters].concat(newFilter)
+        const updatedFilters: Filter[] = [...currentFilters].concat(newFilter)
         await this.monitorStore.updateFilters(updatedFilters)
       }
       this.fadeOut()
@@ -226,23 +214,19 @@ export default {
     ...mapState(useMonitorStore, {
       filterModificationsEnabled: state => !state.disableFilterModification
     }),
-    /** @returns {[number, number] | []} */
-    itemTimelineDomain() {
+    itemTimelineDomain(): [number, number] | [] {
       const { itemTimeline } = this
       if (!itemTimeline.length) {
         return []
       }
-      return [itemTimeline[0].t, itemTimeline[itemTimeline.length - 1].t]
+      return [(itemTimeline[0] as any).t, (itemTimeline[itemTimeline.length - 1] as any).t]
     },
-    /** @returns {number} */
-    countActiveFilters() {
+    countActiveFilters(): number {
       return this.searchQuery.countActiveFilters()
     },
-    /** @returns {SearchQuery} */
     searchQuery() {
       return new SearchQuery({ filters: this.searchQueryFilters })
     },
-    /** @returns {string} */
     searchQueryFiltersLabel() {
       if (this.itemTimelineDomain.length !== 2) {
         return this.$t('actions.loading').toString()
@@ -254,11 +238,9 @@ export default {
         to
       }).toString()
     },
-    /** @returns {boolean} */
     isItemSelected() {
       return !!this.item
     },
-    /** @returns {object} */
     detailsUrl() {
       if (this.type === 'newspaper') {
         return {
@@ -274,8 +256,7 @@ export default {
             topic_uid: this.item.uid
           }
         }
-        // @ts-ignore
-      } else if (['person', 'location'].indexOf(type) !== this.type) {
+      } else if (['person', 'location'].includes(this.type)) {
         return {
           name: 'entity',
           params: {
@@ -292,17 +273,14 @@ export default {
       }
       return null
     },
-    /** @returns {string | undefined} */
     path() {
       return this.$route.name
     },
-    /** @returns {string} */
     statsLabel() {
       if (this.isPendingTimeline) {
         return this.$t('actions.loading').toString()
       }
       let key = 'itemStats'
-
       if (!this.itemTimelineDomain.length) {
         key = 'itemStatsEmpty'
       } else if (this.applyCurrentSearchFilters && this.countActiveFilters) {
@@ -333,12 +311,13 @@ export default {
     SearchQuerySummary,
     Ellipsis
   }
+
   // - removed: added "x" close button in component
   // mounted() {
   //   document.addEventListener('click', this.fadeOut);
   //   document.addEventListener('touchstart', this.fadeOut);
   // },
-}
+})
 </script>
 
 <style lang="scss">
