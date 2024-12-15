@@ -770,11 +770,20 @@ export default {
      * @param {number} queryIdx
      */
     handleInsertRecentSearchQuery(queryIdx) {
+      const filtersLeft = serializeFilters(this.leftComparable.query?.filters ?? [])
+      const filtersRight = serializeFilters(this.rightComparable.query?.filters ?? [])
+
       const filters = getLatestFilters().filter(supportedSearchIndexFilters)
       const recentQuery = serializeFilters(filters)
       const query = { ...this.$router.currentRoute.query }
-      if (queryIdx === 0) query.left = recentQuery
-      if (queryIdx === 2) query.right = recentQuery
+      if (queryIdx === 0) {
+        query.left = recentQuery
+        query.right = filtersRight
+      }
+      if (queryIdx === 2) {
+        query.left = filtersLeft
+        query.right = recentQuery
+      }
       if (JSON.stringify(this.$route.query) !== JSON.stringify(query)) {
         this.$router.push({
           name: 'compare',
