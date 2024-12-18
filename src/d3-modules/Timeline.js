@@ -10,7 +10,7 @@ export default class Timeline extends Line {
     format = '%Y',
     domain = [],
     brushable = false,
-    brushFormat = '%Y-%m-%d',
+    brushFormat = '%Y-%m-%d'
   } = {}) {
     super({
       element,
@@ -20,25 +20,25 @@ export default class Timeline extends Line {
         bottom: 20,
         left: 10,
         right: 10,
-        ...margin,
+        ...margin
       },
       ticks: {
-        offset: 9,
+        offset: 9
       },
       dimensions: {
         x: new Dimension({
           name: 'x',
           property: 't',
           type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scaleTime,
+          scaleFn: d3.scaleTime
         }),
         y: new Dimension({
           name: 'y',
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scaleLinear,
-        }),
-      },
+          scaleFn: d3.scaleLinear
+        })
+      }
     })
 
     this.timeFormat = d3.timeFormat(format)
@@ -46,14 +46,11 @@ export default class Timeline extends Line {
     this.contextAxisX = this.context.append('g').attr('class', 'axis axis--x')
     if (domain.length) {
       this.dimensions.x.setDomain({
-        domain: domain.map(d => this.timeParse(d)),
+        domain: domain.map(d => this.timeParse(d))
       })
     }
     this.contextPeak = this.context.append('g').attr('class', 'peak')
-    this.contextPeak
-      .append('circle')
-      .attr('r', 2)
-      .attr('class', 'peak-pointer')
+    this.contextPeak.append('circle').attr('r', 2).attr('class', 'peak-pointer')
     this.contextPeakText = this.contextPeak
       .append('text')
       .attr('text-anchor', 'middle')
@@ -65,28 +62,25 @@ export default class Timeline extends Line {
       this.brushTimeFormat = d3.timeFormat(brushFormat)
       this.brushTimeParse = d3.timeParse(brushFormat)
       this.brush = d3.brushX().on('brush end', this.brushed.bind(this))
-      this.contextBrush = this.context
-        .append('g')
-        .attr('class', 'brush')
-        .call(this.brush)
+      this.contextBrush = this.context.append('g').attr('class', 'brush').call(this.brush)
 
       this.on('svg.resized', () => {
         this.brush.extent([
           [0, 0],
           [
             this.width - this.margin.right - this.margin.left,
-            this.height - this.margin.bottom - this.ticks.offset,
-          ],
+            this.height - this.margin.bottom - this.ticks.offset
+          ]
         ])
         this.contextBrush.call(this.brush)
       })
     }
   }
 
-  brushed() {
-    if (d3.event.sourceEvent) {
-      const ordered = d3.event.selection
-      const { type } = d3.event
+  brushed(event) {
+    if (event.sourceEvent) {
+      const ordered = event.selection
+      const { type } = event
 
       if (!ordered) {
         this.emit('clear-selection')
@@ -101,12 +95,12 @@ export default class Timeline extends Line {
       const eventPayload = {
         brush: {
           min: ordered[0],
-          max: ordered[1],
+          max: ordered[1]
         },
         minDate: this.brushedMinDate,
         maxDate: this.brushedMaxDate,
         minValue: this.brushedMinValue,
-        maxValue: this.brushedMaxValue,
+        maxValue: this.brushedMaxValue
       }
 
       this.emit('brushed', eventPayload)
@@ -133,12 +127,12 @@ export default class Timeline extends Line {
       }
       const to = [
         min instanceof Date ? min : this.brushTimeParse(min),
-        max instanceof Date ? max : this.brushTimeParse(max),
+        max instanceof Date ? max : this.brushTimeParse(max)
       ]
       if (this.contextBrush) {
         this.contextBrush.call(this.brush.move, [
           this.dimensions.x.scale(to[0]),
-          this.dimensions.x.scale(to[1]),
+          this.dimensions.x.scale(to[1])
         ])
       }
     }, 150)
@@ -150,7 +144,7 @@ export default class Timeline extends Line {
     this.contextAxisX.call(this.xAxis2)
     this.contextAxisX.attr(
       'transform',
-      `translate(0,${this.height - this.margin.bottom - this.margin.top})`,
+      `translate(0,${this.height - this.margin.bottom - this.margin.top})`
     )
     // where is the first maximum peak?
     if (this.maxDatum) {
@@ -172,12 +166,12 @@ export default class Timeline extends Line {
     super.update({
       data: data.map(d => ({
         ...d,
-        t: d.t instanceof Date ? d.t : this.timeParse(d.t),
-      })),
+        t: d.t instanceof Date ? d.t : this.timeParse(d.t)
+      }))
     })
     // idx of this data where the y value is at its maximum
     const ymaxIdx = this.data.findIndex(
-      d => d[this.dimensions.y.property] >= this.dimensions.y.domain[1],
+      d => d[this.dimensions.y.property] >= this.dimensions.y.domain[1]
     )
     if (ymaxIdx > -1) {
       this.maxDatum = this.data[ymaxIdx]
@@ -198,7 +192,7 @@ export default class Timeline extends Line {
     if (datum) {
       super.highlight({
         ...datum,
-        t: datum.t instanceof Date ? datum.t : this.timeParse(datum.t),
+        t: datum.t instanceof Date ? datum.t : this.timeParse(datum.t)
       })
     }
   }

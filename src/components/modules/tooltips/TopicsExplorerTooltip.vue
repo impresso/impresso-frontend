@@ -1,48 +1,65 @@
 <template lang="html">
-  <div class="tooltip" v-bind:class='{active: tooltip.isActive}' v-bind:style="style">
-    <div v-if='tooltip.item' class="tooltip-inner p-3 m-2">
-      <label>{{ $t('topic')}} &mdash; {{tooltip.item.model}}</label>
+  <div class="tooltip" v-bind:class="{ active: tooltip.isActive }" v-bind:style="style">
+    <div v-if="tooltip.item" class="tooltip-inner p-3 m-2">
+      <label>{{ $t('topic') }} &mdash; {{ tooltip.item.model }}</label>
       <!-- excerpt -->
       <div>
-        <span class='badge'> {{tooltip.item.language}}</span>
-        <b class='sans-serif'>{{excerpt}} ...</b>
+        <span class="badge"> {{ tooltip.item.language }}</span>
+        <b class="sans-serif">{{ excerpt }} ...</b>
       </div>
       <!--  number of related -->
       <div>
-        <span v-html="$tc('numbers.articles', tooltip.item.countItems, {
-          n: $n(tooltip.item.countItems),
-        })"/> &middot;
-        <span  v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
+        <span
+          v-html="
+            $tc('numbers.articles', tooltip.item.countItems, {
+              n: $n(tooltip.item.countItems)
+            })
+          "
+        />
+        &middot;
+        <span v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
       </div>
       <b-button-group class="my-2 w-100">
-        <b-button class="mr-1" @click="$router.push({name: 'topic', params: { topic_uid: tooltip.item.uid }})" variant="outline-success"  size="sm">
-            {{ $t('actions.viewTopic') }}
+        <b-button
+          class="mr-1"
+          @click="$router.push({ name: 'topic', params: { topic_uid: tooltip.item.uid } })"
+          variant="outline-success"
+          size="sm"
+        >
+          {{ $t('actions.viewTopic') }}
         </b-button>
-        <b-button class="ml-1" @click="$router.push(searchRouteLink)" variant="outline-success"  size="sm">
-            {{ $t('actions.searchMore') }}
+        <b-button
+          class="ml-1"
+          @click="$router.push(searchRouteLink)"
+          variant="outline-success"
+          size="sm"
+        >
+          {{ $t('actions.searchMore') }}
         </b-button>
       </b-button-group>
-        <b-button block variant="outline-primary"  size="sm"
-          @click.prevent.stop="highlightItem">
-          <div class="d-flex align-items-center justify-content-between">
-            <div>
-              <span v-if="tooltip.isHighlighted">{{ $t('actions.highlightItemOff') }}</span>
-              <span v-else>{{ $t('actions.highlightItemOn') }}</span>
-            </div>
-            <div class="d-flex dripicons ml-2" :class="{
-              'dripicons-preview': !tooltip.isHighlighted,
-              'dripicons-minus': tooltip.isHighlighted,
-            }" />
+      <b-button block variant="outline-primary" size="sm" @click.prevent.stop="highlightItem">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span v-if="tooltip.isHighlighted">{{ $t('actions.highlightItemOff') }}</span>
+            <span v-else>{{ $t('actions.highlightItemOn') }}</span>
           </div>
-        </b-button>
+          <div
+            class="d-flex dripicons ml-2"
+            :class="{
+              'dripicons-preview': !tooltip.isHighlighted,
+              'dripicons-minus': tooltip.isHighlighted
+            }"
+          />
+        </div>
+      </b-button>
     </div>
   </div>
 </template>
 
 <script>
-import Topic from '@/models/Topic';
-import { serializeFilters } from '@/logic/filters';
-import { CommonQueryParameters } from '@/router/util';
+import Topic from '@/models/Topic'
+import { serializeFilters } from '@/logic/filters'
+import { CommonQueryParameters } from '@/router/util'
 import { mapStores } from 'pinia'
 import { useMonitorStore } from '@/stores/monitor'
 import { topics as topicsService } from '@/services'
@@ -57,91 +74,97 @@ export default {
         count: 0,
         isActive: false,
         isHighlighted: false,
-        item: new Topic(),
+        item: new Topic()
       })
     },
-    isActive: Boolean,
+    isActive: Boolean
   },
   data: () => ({
-    isLoading: false,
+    isLoading: false
   }),
   computed: {
-    tooltip() { return this.modelValue },
+    tooltip() {
+      return this.modelValue
+    },
     ...mapStores(useMonitorStore),
     searchRouteLink() {
       return {
         name: 'search',
         query: {
-          [ CommonQueryParameters.SearchFilters ]: serializeFilters([{
-            type: 'topic',
-            q: this.tooltip.item.uid,
-          }]),
-        },
-      };
+          [CommonQueryParameters.SearchFilters]: serializeFilters([
+            {
+              type: 'topic',
+              q: this.tooltip.item.uid
+            }
+          ])
+        }
+      }
     },
     style() {
       return {
-        transform: `translate(${this.tooltip.x}px,${this.tooltip.y}px`,
-      };
+        transform: `translate(${this.tooltip.x}px,${this.tooltip.y}px`
+      }
     },
     excerpt() {
-      return this.tooltip.item ? this.tooltip.item.excerpt.map(d => d.w).join(' · ') : '';
-    },
+      return this.tooltip.item ? this.tooltip.item?.excerpt?.map?.(d => d.w)?.join?.(' · ') : ''
+    }
   },
   methods: {
     highlightItem() {
-      this.$emit('toggle-highlighted', this.tooltip.item);
+      this.$emit('toggle-highlighted', this.tooltip.item)
     },
     selectItem() {
       if (this.isLoading) {
-        console.warn('Topic tooltip still loading Topic item...');
-        return;
+        console.warn('Topic tooltip still loading Topic item...')
+        return
       }
-      this.isLoading = true;
-      topicsService.get(this.tooltip.item.uid, { fl: 'id' })
+      this.isLoading = true
+      topicsService
+        .get(this.tooltip.item.uid, { fl: 'id' })
         .then(result => new Topic(result))
-        .then((item) => {
-          this.isLoading = false;
-          this.tooltip.isActive = false;
+        .then(item => {
+          this.isLoading = false
+          this.tooltip.isActive = false
           this.monitorStore.activate({
             item,
             type: 'topic',
             disableFilterModification: true
-          });
-        }).catch(() => {
-          this.isLoading = true;
-        });
-    },
-  },
-};
+          })
+        })
+        .catch(() => {
+          this.isLoading = true
+        })
+    }
+  }
+}
 </script>
 
 <style scoped lang="less">
-.tooltip{
+.tooltip {
   position: absolute;
   top: -50px;
   pointer-events: none;
-  .btn{
+  .btn {
     pointer-events: auto;
   }
   // width: 300px;
-  .btn.btn-outline-primary{
+  .btn.btn-outline-primary {
     border-color: white;
     pointer-events: auto;
     color: white;
 
-    &:hover{
+    &:hover {
       background-color: white;
       color: black;
     }
   }
-  .tooltip-inner{
+  .tooltip-inner {
     background: black;
     color: white;
     text-align: left;
     max-width: 300px;
   }
-  &.active{
+  &.active {
     opacity: 1;
   }
 }

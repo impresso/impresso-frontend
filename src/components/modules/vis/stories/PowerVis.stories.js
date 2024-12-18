@@ -17,7 +17,7 @@ const Template = args => ({
     itemClicked: action('item clicked')
   },
   template: `
-    <div style="height: 600px;">
+    <div style="height: 400px;">
       <PowerVisBase v-bind="args" @item:click="itemClicked">
         <template v-slot:header>
           <span>Header rendered here. For example, dropdown box(es)</span>
