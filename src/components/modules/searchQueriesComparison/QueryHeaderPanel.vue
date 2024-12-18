@@ -18,7 +18,7 @@
           <template v-slot:tabs-end>
             <!-- A -->
             <li v-if="left" class="nav-item">
-              <div class="nav-link">
+              <div class="nav-link no-hover">
                 <div class="side left">A</div>
               </div>
             </li>
@@ -29,7 +29,7 @@
             </li>
             <!-- B -->
             <li v-if="!left" class="nav-item">
-              <div class="nav-link">
+              <div class="nav-link no-hover">
                 <div class="side right">B</div>
               </div>
             </li>
@@ -78,7 +78,7 @@
                       "
                     />
                     <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
-                    <info-button class="ml-2" name="compare-and-inspect" />
+                    <info-button class="ml-2" name="what-compare-and-inspect" />
                   </h3>
                   <div
                     v-if="mode === 'inspect'"
@@ -308,6 +308,9 @@ export default {
         border-left-color: $inspect-compare-left-panel-color;
         border-right-color: $inspect-compare-left-panel-color;
       }
+      .nav-item:hover .nav-link.no-hover {
+        box-shadow: none;
+      }
     }
     .viz-bar {
       background-color: $inspect-compare-left-panel-color;
@@ -323,6 +326,9 @@ export default {
         border-top-color: $inspect-compare-right-panel-color;
         border-left-color: $inspect-compare-right-panel-color;
         border-right-color: $inspect-compare-right-panel-color;
+      }
+      .nav-item:hover .nav-link.no-hover {
+        box-shadow: none;
       }
     }
   }
