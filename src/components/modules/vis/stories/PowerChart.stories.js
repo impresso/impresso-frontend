@@ -1,7 +1,7 @@
 import { action } from '@storybook/addon-actions'
 import PowerChart from '../PowerChart.vue'
 
-import './assets/legacy/bootstrap-impresso-theme.css';
+import '../../../../assets/legacy/bootstrap-impresso-theme.css'
 
 export default {
   title: 'Components/Modules/Vis/PowerChart',
@@ -23,10 +23,12 @@ const Template = args => ({
   `
 })
 
+const randomInt = max => Math.floor(Math.random() * max)
 
-const randomInt = (max) => Math.floor(Math.random() * max)
-
-const sampleDomains = [...new Array(20)].map((_, i) => ({ label: `Domain ${i}`, value: randomInt(100)}))
+const sampleDomains = [...new Array(20)].map((_, i) => ({
+  label: `Domain ${i}`,
+  value: randomInt(100)
+}))
 
 const sampleData = [...new Array(50)].map(() => {
   const domainIdx = randomInt(19)
@@ -44,11 +46,11 @@ CircleChart.args = {
   lineMetrics: [
     {
       id: 'a',
-      extractor: v => v <= 0.5 ? Math.random() * 100 : v
+      extractor: v => (v <= 0.5 ? Math.random() * 100 : v)
     },
     {
       id: 'b',
-      extractor: v => v > 0.5 ? Math.random() * 100 : v
+      extractor: v => (v > 0.5 ? Math.random() * 100 : v)
     }
   ],
   itemsDictionary: {

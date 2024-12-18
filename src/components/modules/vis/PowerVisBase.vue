@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container d-flex flex-column">
+  <div class="chart-container d-flex flex-column full-height">
     <!-- slot:header -->
     <div class="flex-shrink-1">
       <slot name="header"> </slot>
@@ -25,7 +25,7 @@
     />
     <!-- slot:footer -->
     <div class="flex-shrink-1 border-top">
-      <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px;overflow:scroll">
+      <slot name="footer" class="border-top p-2 pb-3" style="max-height: 180px; overflow: scroll">
       </slot>
     </div>
   </div>
@@ -59,7 +59,7 @@ interface AreaMetricExtractor {
 
 const lineMetricExtractorFactory = (metric: string): LineMetricExtractor => ({
   id: metric,
-  extractor: value => (value || {})[metric],
+  extractor: value => (value || {})[metric]
 })
 
 const stdAreaMetricExtractorFactory = (metric: string): AreaMetricExtractor => ({
@@ -67,7 +67,7 @@ const stdAreaMetricExtractorFactory = (metric: string): AreaMetricExtractor => (
   extractor: value => {
     const { mean, stddev } = value || {}
     return [mean - stddev, mean + stddev]
-  },
+  }
 })
 
 const itemCountLineMetricExtractorFactory = (metric: string): LineMetricExtractor => ({
@@ -76,7 +76,7 @@ const itemCountLineMetricExtractorFactory = (metric: string): LineMetricExtracto
     const { items = [] } = value
     const item = items.find(({ term }: { term: any }) => term === metric)
     return item ? item.count : undefined
-  },
+  }
 })
 
 const getChartType = (domain?: string, facetType?: string): string => {
@@ -91,13 +91,13 @@ export const MetricsByFacetType = {
       lineMetricExtractorFactory('min'),
       lineMetricExtractorFactory('max'),
       lineMetricExtractorFactory('mean'),
-      lineMetricExtractorFactory('p99_7'),
+      lineMetricExtractorFactory('p99_7')
     ],
-    area: () => [stdAreaMetricExtractorFactory('onesigma')],
+    area: () => [stdAreaMetricExtractorFactory('onesigma')]
   },
   term: {
     line: (response: any) => {
-      const { domain, facetType }  = response.meta ?? {}
+      const { domain, facetType } = response.meta ?? {}
 
       let itemsIds: string[] | undefined = Object.keys(response.itemsDictionary)
       if (domain === 'newspaper' && facetType == 'term') {
@@ -105,8 +105,8 @@ export const MetricsByFacetType = {
       }
       return itemsIds?.map(itemCountLineMetricExtractorFactory) ?? []
     },
-    area: () => [],
-  },
+    area: () => []
+  }
 }
 
 interface Data {
@@ -120,22 +120,22 @@ export default defineComponent({
   props: {
     loading: {
       type: Boolean,
-      default: false,
+      default: false
     },
     data: {
       type: Object, // as PropType<Data>,
-      default: () => {},
+      default: () => {}
     },
     idFilters: {
       type: Object, // as PropType<Record<string, boolean>>,
       required: false,
-      default: null,
+      default: null
     },
     options: {
       type: Object,
       required: false,
-      default: null,
-    },
+      default: null
+    }
   },
   emits: ['item:click', 'mousemove', 'mouseleave'],
   setup(props) {
@@ -145,9 +145,9 @@ export default defineComponent({
 
       const items =
         meta.domain === 'time'
-          ? statsItems.map(({ domain, value }: { domain: any, value: any }) => ({
+          ? statsItems.map(({ domain, value }: { domain: any; value: any }) => ({
               domain: new Date(domain),
-              value,
+              value
             }))
           : statsItems
 
@@ -157,7 +157,7 @@ export default defineComponent({
               items,
               meta.resolution,
               (item: any) => item.domain,
-              (date: any) => ({ domain: date, value: {} }),
+              (date: any) => ({ domain: date, value: {} })
             )
           : items
 
@@ -165,18 +165,22 @@ export default defineComponent({
         return {
           items: entrichedItems,
           lineMetrics: [],
-          areaMetrics: [],
+          areaMetrics: []
         }
 
-      const metrics = MetricsByFacetType[meta.facetType as keyof typeof MetricsByFacetType] || MetricsByFacetType['numeric']
+      const metrics =
+        MetricsByFacetType[meta.facetType as keyof typeof MetricsByFacetType] ||
+        MetricsByFacetType['numeric']
       const lineMetrics = metrics.line(props.data)
       const areaMetrics = (metrics.area as any)(props.data as any)
 
       const getId = ({ id }: { id: any }) => id
-      const paletteReducer = (fn: (any: any) => any, base = 0) => (acc: Record<string, any>, id: string, index: number) => ({
-        ...acc,
-        [id]: fn(base + index),
-      })
+      const paletteReducer =
+        (fn: (any: any) => any, base = 0) =>
+        (acc: Record<string, any>, id: string, index: number) => ({
+          ...acc,
+          [id]: fn(base + index)
+        })
 
       const linePalette = lineMetrics.map(getId).reduce(paletteReducer(colorForLineMetric), {})
       const areaPalette = areaMetrics
@@ -189,7 +193,9 @@ export default defineComponent({
       const hasFilters = props.idFilters != null
 
       const filteredLineMetrics = lineMetrics.filter(metric => !hasFilters || idFilters[metric.id])
-      const filteredAreaMetrics = areaMetrics.filter((metric: any) => !hasFilters || idFilters[metric.id])
+      const filteredAreaMetrics = areaMetrics.filter(
+        (metric: any) => !hasFilters || idFilters[metric.id]
+      )
 
       return {
         items: entrichedItems,
@@ -197,7 +203,7 @@ export default defineComponent({
         areaMetrics: filteredAreaMetrics,
         itemsDictionary,
         colorPalette,
-        horizontal: meta.horizontal,
+        horizontal: meta.horizontal
       }
     })
 
@@ -207,6 +213,17 @@ export default defineComponent({
     })
 
     return { chartData, chartType }
-  },
+  }
 })
 </script>
+
+<style scoped>
+.chart {
+  display: block;
+  flex-grow: 1;
+  height: 100%;
+}
+.full-height {
+  height: 100%;
+}
+</style>
