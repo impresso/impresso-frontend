@@ -2,10 +2,14 @@
   <div class="diverging-bars-chart-panel">
     <div class="w-100">
       <div v-for="facet in facets" v-bind:key="`dbc-${facet.id}`" class="text-center">
-        <span class="small-caps font-weight-bold"
-          >{{ facet.id }}
-          {{ $tc('numbers.options', facet.items.length, { n: facet.items.length }) }}</span
-        >
+        <span class="small-caps font-weight-bold">
+          {{ facet.id }}
+          <span v-if="facet?.items?.length > 0">
+            {{
+              $tc('numbers.options', facet?.items?.length ?? 0, { n: facet?.items?.length ?? 0 })
+            }}
+          </span>
+        </span>
         <diverging-bars-chart :items="facet.items" :round-value-fn="roundValueFn" :scale="scale">
           <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.isActive">

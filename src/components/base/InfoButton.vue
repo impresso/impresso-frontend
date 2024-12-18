@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { arrow, offset, useFloating } from '@floating-ui/vue'
+import { computed, PropType, ref } from 'vue'
+import { arrow, offset, useFloating, autoPlacement, Side } from '@floating-ui/vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'
 import { FaqContentsMap } from '../../data/faq'
@@ -57,8 +57,8 @@ const props = defineProps({
     required: true
   },
   placement: {
-    type: String,
-    default: 'right'
+    type: String as PropType<Side>,
+    required: false
   },
   offsetOptions: {
     type: Object,
@@ -66,16 +66,20 @@ const props = defineProps({
   }
 })
 
-const { floatingStyles, middlewareData } = useFloating(reference, floating, {
-  placement: props.placement as any,
-  middleware: [offset(props.offsetOptions), arrow({ element: floatingArrow })]
+const middleware = computed(() => {
+  return [
+    ...(props.placement == null ? [autoPlacement()] : []),
+    offset(props.offsetOptions),
+    arrow({ element: floatingArrow })
+  ]
 })
 
-// const floatingStyles = computed(() => ({
-//   top: `${y.value}px`,
-//   left: `${x.value}px`,
-//   position: strategy.value
-// }))
+const placement = computed(() => props.placement)
+
+const { floatingStyles, middlewareData } = useFloating(reference, floating, {
+  placement,
+  middleware
+})
 
 const floatingArrowStyles = computed(() => {
   const m = middlewareData as unknown as MiddlewareData
