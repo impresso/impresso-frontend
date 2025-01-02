@@ -26,6 +26,7 @@
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
     <Toaster />
+    <Modals />
   </div>
 </template>
 
@@ -48,6 +49,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { Navigation } from './plugins/Navigation'
+import Modals from './components/Modals.vue'
 
 export default {
   name: 'app',
@@ -59,7 +61,8 @@ export default {
     StatusIndicator,
     CookieDisclaimer,
     TroublesAhead,
-    Toaster
+    Toaster,
+    Modals
   },
   data: () => ({
     filtersWithItems: [],
