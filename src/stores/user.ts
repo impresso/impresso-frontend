@@ -12,12 +12,12 @@ export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
     rememberCredentials: false,
-    redirectionParams: {},
+    redirectionParams: {}
   }),
   getters: {
     user(state) {
       return state.userData
-    },
+    }
   },
   actions: {
     logout() {
@@ -30,15 +30,24 @@ export const useUserStore = defineStore('user', {
         .finally(() => {
           const expiredDate = new Date(-1)
           document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/'
+          // remove from localstorage
+          localStorage.removeItem('feathers-jwt')
           this.userData = false
         })
+    },
+    async refreshUser() {
+      return meService.find().then(d => {
+        const user = new User(d)
+        this.userData = user
+        return user
+      })
     },
     async login({ email, password }: { email: string; password: string }) {
       return (app as any)
         .authenticate({
           strategy: 'local',
           email,
-          password,
+          password
         })
         .then(res => {
           console.info('Authentication response:', res)
@@ -53,7 +62,7 @@ export const useUserStore = defineStore('user', {
           this.userData = new User({
             ...user,
             picture: user.profile.picture,
-            pattern: user.profile.pattern,
+            pattern: user.profile.pattern
           })
           return user
         })
@@ -67,7 +76,7 @@ export const useUserStore = defineStore('user', {
     changePassword({
       uid,
       previousPassword,
-      newPassword,
+      newPassword
     }: {
       uid: string
       previousPassword: string
@@ -84,9 +93,9 @@ export const useUserStore = defineStore('user', {
     },
     setRedirectionRoute(params) {
       this.redirectionParams = params
-    },
+    }
   },
   persist: {
-    paths: ['rememberCredentials', 'userData'],
-  },
+    paths: ['rememberCredentials', 'userData']
+  }
 })
