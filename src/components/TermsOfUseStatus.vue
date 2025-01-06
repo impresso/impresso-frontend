@@ -4,7 +4,7 @@
   </div>
   <div v-else-if="withCallToAction">
     You have not accepted the new terms of use yet. Please read and accept the
-    <a href="/terms-of-use" @click="handleClick">terms of use</a>.
+    <TermsOfUseModalLink>terms of use</TermsOfUseModalLink>.
   </div>
   <div v-else>
     You have not accepted the new terms of use yet. Please read the entire terms of use document
@@ -13,18 +13,14 @@
 </template>
 
 <script setup lang="ts">
+import TermsOfUseModalLink from '@/components/TermsOfUseModalLink.vue'
 import { useUserStore } from '@/stores/user'
-import { useViewsStore, ViewTermsOfUse } from '@/stores/views'
 import { ref } from 'vue'
 
 defineProps<{
   withCallToAction?: boolean
 }>()
 
-const handleClick = (event: MouseEvent) => {
-  event.preventDefault()
-  useViewsStore().view = ViewTermsOfUse
-}
 const acceptTermsDate = ref(useUserStore().acceptTermsDate)
 // watch changes on pinia store
 useUserStore().$subscribe((mutation, state) => {
