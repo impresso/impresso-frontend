@@ -115,6 +115,7 @@
   --impresso-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   --z-index-pagination: 1001;
+  --z-index-modals: 1041;
 }
 
 body {

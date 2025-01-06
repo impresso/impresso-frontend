@@ -17,9 +17,6 @@
         :endYear="endYear"
       />
     </div>
-    <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
-      <disclaimer-notice />
-    </div>
     <div id="app-loading" class="fullscreen locked" v-if="is_locked">
       <status-indicator />
     </div>
@@ -35,7 +32,6 @@ import WebFontLoader from 'webfontloader'
 import TheHeader from '@/components/TheHeader.vue'
 import Monitor from '@/components/Monitor.vue'
 import SelectionMonitor from '@/components/SelectionMonitor.vue'
-import DisclaimerNotice from '@/components/modals/DisclaimerNotice.vue'
 import StatusIndicator from '@/components/modals/StatusIndicator.vue'
 import CookieDisclaimer from '@/components/modals/CookieDisclaimer.vue'
 import TroublesAhead from '@/components/modals/TroublesAhead.vue'
@@ -48,6 +44,7 @@ import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import { ViewTermsOfUse, useViewsStore } from '@/stores/views'
 import { Navigation } from './plugins/Navigation'
 import Modals from './components/Modals.vue'
 
@@ -57,7 +54,6 @@ export default {
     TheHeader,
     Monitor,
     SelectionMonitor,
-    DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
     TroublesAhead,
@@ -79,7 +75,7 @@ export default {
     }
   },
   computed: {
-    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore),
+    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore, useViewsStore),
     searchQuery: {
       ...searchQueryGetter()
     },
@@ -88,13 +84,7 @@ export default {
       // filter by type
       return this.searchQuery.filters
     },
-    termsAgreed() {
-      console.info('Terms agreement:', this.settingsStore.termsAgreed)
-      if (this.userStore.userData) {
-        return true
-      }
-      return this.settingsStore.termsAgreed
-    },
+
     is_locked() {
       return this.notificationsStore.processingLocked
     },
@@ -123,6 +113,12 @@ export default {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover')
     })
+
+    // check agreement
+    if (!this.userStore.acceptTermsDate) {
+      this.viewsStore.view = ViewTermsOfUse
+    }
+
     this.loadFilterItems()
   },
   created() {

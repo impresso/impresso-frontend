@@ -156,6 +156,24 @@ const Icons: Record<string, IconData> = {
         d: 'M6 18L18 6'
       }
     ]
+  },
+  info: {
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 11.5V16.5'
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 7.51L12.01 7.49889'
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
+      }
+    ]
   }
 }
 

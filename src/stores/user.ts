@@ -4,15 +4,18 @@ import User from '@/models/User'
 
 export interface State {
   userData: User | false
+
   rememberCredentials: boolean
   redirectionParams: any
+  acceptTermsDate: string | null
 }
 
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
     rememberCredentials: false,
-    redirectionParams: {}
+    redirectionParams: {},
+    acceptTermsDate: null
   }),
   getters: {
     user(state) {
@@ -96,6 +99,6 @@ export const useUserStore = defineStore('user', {
     }
   },
   persist: {
-    paths: ['rememberCredentials', 'userData']
+    paths: ['rememberCredentials', 'userData', 'acceptTermsDate']
   }
 })

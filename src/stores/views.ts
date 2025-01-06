@@ -11,6 +11,6 @@ export interface State {
 
 export const useViewsStore = defineStore('views', {
   state: (): State => ({
-    view: ViewTermsOfUse
+    view: null
   })
 })

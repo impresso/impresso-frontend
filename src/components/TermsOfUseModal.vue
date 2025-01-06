@@ -3,13 +3,20 @@
     :show="isVisible"
     title="Terms Of Use"
     modalClasses="TermsOfUseModal"
-    dialogClass="modal-dialog-scrollable modal-xl"
+    :dialogClass="props.dialogClass"
     @close="cancel"
-    @ok="confirm"
   >
-    >
-    <p>{{ props.message }}</p>
-    <div v-html="content" />
+    <h1>{{ title }}</h1>
+    <Alert type="warning" class="bg-info" style="position: sticky; top: 0">
+      <TermsOfUseStatus />
+    </Alert>
+    <div class="my-2" v-html="content" />
+    <AcceptTermsOfUse />
+    <template v-slot:modal-footer>
+      <button type="button" class="btn btn-sm btn-outline-secondary" @click="cancel">
+        hide for this session
+      </button>
+    </template>
   </Modal>
 </template>
 
@@ -20,19 +27,19 @@ import { useViewsStore, ViewTermsOfUse } from '@/stores/views'
 import Modal from './base/Modal.vue'
 import { watch } from 'vue'
 import markdown from '@/filters/markdown'
+import Alert from './Alert.vue'
+import TermsOfUseStatus from './TermsOfUseStatus.vue'
+import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 
 const store = useViewsStore()
 const isVisible = ref(store.view === ViewTermsOfUse)
-const content = ref('')
 
+const content = ref('')
+const title = ref('Title')
 const props = defineProps({
-  title: {
+  dialogClass: {
     type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true
+    default: 'modal-dialog-scrollable modal-lg'
   }
 })
 
@@ -59,8 +66,14 @@ onMounted(async () => {
   console.info('[TermsOfUseModal] loading content from GitHub...')
   try {
     const response = await axios.get(import.meta.env.VITE_TERMS_OF_USE_MD_URL)
-    console.info('[TermsOfuseModal] response:', response)
-    content.value = markdown(response.data)
+    console.info('[TermsOfUseModal] response:', response)
+    let data = response.data
+    const frontMatterRegex = /^---[\s\S]*?---\n/
+
+    data = data.replace(frontMatterRegex, '')
+    // get title value from frontMatter
+    title.value = response.data.match(/---\ntitle:\s?(.*)/)?.[1] || 'Terms oooOf Use'
+    content.value = markdown(data)
   } catch (error) {
     console.error('Failed to load content from GitHub:', error)
   }
@@ -68,6 +81,9 @@ onMounted(async () => {
 </script>
 
 <style>
+.TermsOfUseModal {
+  z-index: 1002;
+}
 .TermsOfUseModal h2,
 .TermsOfUseModal h3 {
   font-size: inherit;
