@@ -44,7 +44,6 @@ import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
-import { ViewTermsOfUse, useViewsStore } from '@/stores/views'
 import { Navigation } from './plugins/Navigation'
 import Modals from './components/Modals.vue'
 
@@ -75,7 +74,7 @@ export default {
     }
   },
   computed: {
-    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore, useViewsStore),
+    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore),
     searchQuery: {
       ...searchQueryGetter()
     },
@@ -113,12 +112,6 @@ export default {
     window.addEventListener('click', () => {
       this.$root.$emit('bv::hide::popover')
     })
-
-    // check agreement
-    if (!this.userStore.acceptTermsDate) {
-      this.viewsStore.view = ViewTermsOfUse
-    }
-
     this.loadFilterItems()
   },
   created() {
