@@ -13,9 +13,16 @@
       <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-    <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
+    <!-- <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
       {{ $t('label_terms_of_use') }}
-    </b-dropdown-item>
+    </b-dropdown-item> -->
+
+    <LinkToModal class="dropdown-item" :view="ViewChangePlanRequest">
+      {{ $t('label_change_plan_request') }}
+    </LinkToModal>
+    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
+      {{ $t('label_terms_of_use') }}
+    </LinkToModal>
 
     <b-dropdown-item :to="{ name: 'logout' }">{{ $t('logout') }}</b-dropdown-item>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
@@ -40,6 +47,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import LinkToModal from './LinkToModal.vue'
+import { ViewTermsOfUse, ViewChangePlanRequest } from '@/stores/views'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 
@@ -49,7 +58,6 @@ const props = defineProps({
     required: true
   }
 })
-console.log('PROPS', props)
 const version = computed(() => {
   return (window as any).impressoFrontendVersion
 })
@@ -69,8 +77,10 @@ const userRole = computed(() => {
 const test = () => {
   return jobsService.create({})
 }
-const send_update_bitmap = () => {
-  return termsOfUseService.patch(0, {})
+const send_update_bitmap = async () => {
+  return termsOfUseService.patch(0, {}).then(res => {
+    console.debug('[UserArea] bitmap updated', res)
+  })
 }
 
 const userPicture = computed(() => {
@@ -100,6 +110,7 @@ const userPicture = computed(() => {
   "en": {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
+    "label_change_plan_request": "Change Plan Request",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",
