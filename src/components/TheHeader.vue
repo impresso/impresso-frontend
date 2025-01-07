@@ -84,11 +84,6 @@
         <b-nav-item :to="{ name: 'faq' }" active-class="active">
           <span>{{ $t('label_faq') }}</span>
         </b-nav-item>
-        <b-nav-item>
-          <TermsOfUseModalLink class="nav-link">
-            <span>{{ $t('label_terms') }}</span>
-          </TermsOfUseModalLink>
-        </b-nav-item>
         <b-nav-item
           v-if="user"
           :to="getRouteWithSearchQuery({ name: 'collections' })"
@@ -214,7 +209,6 @@ import JobItem from '@/components/modules/lists/JobItem.vue'
 import Pagination from '@/components/modules/Pagination.vue'
 import Logo from '@/components/Logo.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import TermsOfUseModalLink from '@/components/TermsOfUseModalLink.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
 import { useJobsStore } from '@/stores/jobs'
@@ -360,9 +354,6 @@ export default defineComponent({
     }
   },
   methods: {
-    showTermsOfUseModal() {
-      this.$modal.show('terms-of-use')
-    },
     updateLastNotificationDate() {
       this.settingsStore.updateLastNotificationDate()
     },
@@ -436,8 +427,7 @@ export default defineComponent({
     JobItem,
     Pagination,
     InfoButton,
-    UserArea,
-    TermsOfUseModalLink
+    UserArea
   }
 })
 </script>
