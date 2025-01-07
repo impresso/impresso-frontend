@@ -99,6 +99,6 @@ export const useUserStore = defineStore('user', {
     }
   },
   persist: {
-    paths: ['rememberCredentials', 'userData', 'acceptTermsDate']
+    paths: ['rememberCredentials', 'userData']
   }
 })
