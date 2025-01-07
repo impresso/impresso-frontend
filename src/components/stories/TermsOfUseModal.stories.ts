@@ -24,6 +24,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    dialogClass: 'modal-dialog-scrollable modal-lg'
+    dialogClass: 'modal-dialog-scrollable modal-lg',
+    isVisible: true
   }
 }
