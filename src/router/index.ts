@@ -292,6 +292,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/terms-of-use',
+      name: 'termsOfUse',
+      component: () => import('@/pages/TermsOfUse.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/topics',
       component: TopicsPage,
       children: [
