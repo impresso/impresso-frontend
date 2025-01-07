@@ -264,6 +264,9 @@ export default {
     pages: {
       powervis: {
         title: 'XY visualisation'
+      },
+      termsOfUse: {
+        title: 'Terms of Use'
       }
     },
     label: {
