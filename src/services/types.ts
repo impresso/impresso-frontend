@@ -21,3 +21,9 @@ interface UntypedServices {
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
 }
+
+export type UserChangePlanRequest = {
+  plan: string
+  status: string
+  dateLastModified: string
+}
