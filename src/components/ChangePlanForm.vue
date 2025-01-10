@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import Icon from './base/Icon.vue'

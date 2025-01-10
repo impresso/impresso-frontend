@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import ChangePlanForm from './ChangePlanForm.vue'
-import { defineProps, defineEmits, ref } from 'vue'
+import { ref } from 'vue'
 import Modal from './base/Modal.vue'
 import Alert from './Alert.vue'
 import type { UserChangePlanRequest } from '@/services/types'
@@ -65,7 +65,7 @@ const confirm = () => {
   console.debug('[ChangePlanModal] confirm', selectedPlan.value)
   emit('confirm')
 }
-const submit = ({ plan }) => {
+const submit = ({ plan }: { plan: string }) => {
   console.debug('[ChangePlanModal] submit', plan)
   if (typeof props.onSubmit === 'function') {
     props.onSubmit({ plan })

@@ -25,7 +25,7 @@
 </template>
 <script setup lang="ts">
 import BDropdown from './legacy/bootstrap/BDropdown.vue'
-import { defineProps, withDefaults, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 import SearchPills from './SearchPills.vue'
 import SearchQuery from '@/models/SearchQuery'
 import FilterFactory from '@/models/FilterFactory'

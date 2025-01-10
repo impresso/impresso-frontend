@@ -50,7 +50,7 @@
 </template>
 <script setup lang="ts">
 import type { Filter, FilterInterface, TextReuseCluster } from '@/models'
-import { computed, defineProps, onMounted, ref, watch, withDefaults } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { textReusePassages as textReusePassageService } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
 import List from './modules/lists/List.vue'
