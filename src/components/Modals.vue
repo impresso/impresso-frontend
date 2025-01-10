@@ -1,7 +1,11 @@
 <template>
   <div class="Modals position-fixed top-0 end-0" style="z-index: var(--z-index-modals)">
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()" />
+    {{ userPlan }}
     <ChangePlanModal
+      :available-plans="AvailablePlans"
+      :available-plans-labels="PlanLabels"
+      :userPlan="userPlan"
       :isVisible="view === ViewChangePlanRequest"
       :title="$t('Change Plan')"
       @dismiss="() => resetView()"
@@ -13,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import type { UserChangePlanRequest } from '@/services/types.ts'
@@ -26,8 +30,12 @@ import {
 } from '@/stores/views'
 import { userChangePlanRequest as userChangePlanRequestService } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
+import { useUserStore } from '@/stores/user'
+import { AvailablePlans, PlanLabels } from '@/constants'
 
 const store = useViewsStore()
+const userStore = useUserStore()
+const userPlan = computed(() => userStore.userPlan)
 const view = ref<(typeof Views)[number] | null>(store.view)
 
 const userChangePlanRequestResponse = ref<{
@@ -80,11 +88,11 @@ const fetchUserPlanChangeRequest = async () => {
     })
 }
 
-const patchCurrentPlanChangeRequest = async (plan: string) => {
+const patchCurrentPlanChangeRequest = async ({ plan }) => {
   console.debug('[ChangePlanModal] @patchCurrentPlanChangeRequest', plan)
   await userChangePlanRequestService
     .create({
-      plan: 'plan-researcher'
+      plan
     })
     .then(data => {
       console.info('[ChangePlanModal] Password changed successfully. data:', data)

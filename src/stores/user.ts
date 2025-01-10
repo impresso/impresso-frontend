@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { app, me as meService } from '@/services'
 import User from '@/models/User'
+import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
 
 export interface State {
   userData: User | false
-
   rememberCredentials: boolean
   redirectionParams: any
   acceptTermsDate: string | null
+  acceptTermsDateOnLocalStorage: boolean
 }
 
 export const useUserStore = defineStore('user', {
@@ -15,11 +16,26 @@ export const useUserStore = defineStore('user', {
     userData: false,
     rememberCredentials: false,
     redirectionParams: {},
-    acceptTermsDate: null
+    // this is not stored on localStorage, and if it is not null is a ISO date string
+    acceptTermsDate: null,
+    // this is stored on localStorage
+    acceptTermsDateOnLocalStorage: false
   }),
   getters: {
     user(state) {
       return state.userData
+    },
+    userPlan(state) {
+      let userPlan = state.userData !== null && state.acceptTermsDate ? PlanImpressoUser : PlanGuest
+      if (state.userData && Array.isArray(state.userData?.groups)) {
+        for (const group of state.userData.groups) {
+          if (group.name === PlanEducational || group.name === PlanResearcher) {
+            userPlan = group.name
+            break
+          }
+        }
+      }
+      return userPlan
     }
   },
   actions: {

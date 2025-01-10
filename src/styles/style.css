@@ -475,8 +475,13 @@ svg path.domain {
 }
 
 /* other utilities */
-
+.gap-2 {
+  gap: var(--spacing-2);
+}
 .rounded {
+  border-radius: var(--border-radius-md) !important;
+}
+.rounded-md {
   border-radius: var(--border-radius-md) !important;
 }
 .rounded-lg {

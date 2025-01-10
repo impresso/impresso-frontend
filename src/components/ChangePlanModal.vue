@@ -8,47 +8,34 @@
     @confirm="confirm"
   >
     <h1>{{ title }}</h1>
-    <p>You can request to change your plan. Please select the plan you want to change to.</p>
+    <p>
+      You can request to change your plan. Your current plan is
+      <b> {{ availablePlansLabels[userPlan] }} </b>. <br />
+      Please select the plan you want to change to:
+    </p>
     <div v-if="!isLoading && userChangePlanRequest">
       <Alert class="bg-info" style="position: sticky; top: 0">
         ehi {{ userChangePlanRequest }}
       </Alert>
     </div>
-    <form @submit.prevent="submit">
-      <div class="form-check">
-        <input
-          v-model="plan"
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault1"
-          value="basic"
-        />
-        <label class="form-check-label" for="flexRadioDefault1"> Default radio </label>
-      </div>
-      <div class="form-check">
-        <input
-          v-model="plan"
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault2"
-          value="educational"
-        />
-        <label class="form-check-label" for="flexRadioDefault2"> Default checked radio </label>
-      </div>
-      <button type="submit" class="btn btn-sm btn-outline-secondary">Submit</button>
-    </form>
+    <ChangePlanForm
+      :availablePlanLabels="availablePlansLabels"
+      :availablePlans="availablePlans"
+      :error="null"
+      :plan="props.userPlan"
+      @submit="submit"
+    />
   </Modal>
 </template>
 
 <script setup lang="ts">
+import ChangePlanForm from './ChangePlanForm.vue'
 import { defineProps, defineEmits, ref } from 'vue'
 import Modal from './base/Modal.vue'
 import Alert from './Alert.vue'
 import type { UserChangePlanRequest } from '@/services/types'
 
-const plan = ref<string>('')
+const selectedPlan = ref<string>('')
 
 const props = withDefaults(
   defineProps<{
@@ -57,10 +44,13 @@ const props = withDefaults(
     isVisible?: boolean
     userChangePlanRequest: UserChangePlanRequest | null
     isLoading?: boolean
+    userPlan: string
+    availablePlans: string[]
+    availablePlansLabels: Record<string, string>
     onSubmit?: (plan: string) => void
   }>(),
   {
-    dialogClass: 'modal-dialog-scrollable modal-lg',
+    dialogClass: 'modal-dialog-scrollable modal-md',
     isLoading: false
   }
 )
@@ -72,13 +62,13 @@ const dismiss = () => {
   emit('dismiss')
 }
 const confirm = () => {
-  console.debug('[ChangePlanModal] confirm', plan.value)
+  console.debug('[ChangePlanModal] confirm', selectedPlan.value)
   emit('confirm')
 }
-const submit = () => {
-  console.debug('[ChangePlanModal] submit', plan.value)
+const submit = ({ plan }) => {
+  console.debug('[ChangePlanModal] submit', plan)
   if (typeof props.onSubmit === 'function') {
-    props.onSubmit(plan.value)
+    props.onSubmit({ plan })
   }
 }
 </script>
