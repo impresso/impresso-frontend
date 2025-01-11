@@ -24,7 +24,10 @@
       :title="$t('Change Plan')"
       @dismiss="() => resetView()"
       :userChangePlanRequest="userChangePlanRequestResponse.data"
-      :isLoading="userChangePlanRequestResponse.status === 'loading'"
+      :isLoading="
+        userChangePlanRequestResponse.status === 'loading' ||
+        userChangePlanRequestResponse.status === 'idle'
+      "
       @submit="patchCurrentPlanChangeRequest"
     />
   </div>
