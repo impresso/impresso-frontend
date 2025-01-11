@@ -6,6 +6,7 @@
     :dialogClass="props.dialogClass"
     @close="dismiss"
     @confirm="confirm"
+    hideBackdrop
   >
     <h1>{{ title }}</h1>
     <p>
@@ -19,7 +20,8 @@
     </p>
     <div v-if="!isLoading && userChangePlanRequest">
       <Alert
-        class="bg-info mb-3"
+        class="mb-3"
+        :type="alertType"
         :class="userChangePlanRequest.status"
         style="position: sticky; top: 0"
       >
@@ -29,7 +31,9 @@
         />
       </Alert>
     </div>
+    <LoadingBlock :height="200" v-if="isLoading" label="please wait ...."> </LoadingBlock>
     <ChangePlanForm
+      v-if="!isLoading"
       :availablePlansLabels="availablePlansLabels"
       :availablePlans="availablePlans"
       :error="null"
@@ -40,16 +44,22 @@
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>
+
+    <p class="mt-2 mb-0">
+      Any Questions? <br />
+      Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
+    </p>
   </Modal>
 </template>
 
 <script setup lang="ts">
 import ChangePlanForm from './ChangePlanForm.vue'
 import UserChangePlanRequestLabel from './UserChangePlanRequestLabel.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Modal from './base/Modal.vue'
 import Alert from './Alert.vue'
 import type { UserChangePlanRequest } from '@/services/types'
+import LoadingBlock from './LoadingBlock.vue'
 
 const selectedPlan = ref<string>('')
 
@@ -71,6 +81,16 @@ const props = withDefaults(
   }
 )
 
+const alertType = computed(() => {
+  if (!props.userChangePlanRequest) {
+    return 'info'
+  }
+  if (props.userChangePlanRequest.status === 'pending') {
+    return 'info'
+  }
+  return props.userChangePlanRequest.status === 'rejected' ? 'warning' : 'success'
+})
+
 const emit = defineEmits(['dismiss', 'confirm'])
 
 const dismiss = () => {
@@ -90,9 +110,6 @@ const submit = ({ plan }: { plan: string }) => {
 </script>
 
 <style>
-.ChangePlanModal {
-  z-index: 1003;
-}
 .ChangePlanModal h2,
 .ChangePlanModal h3 {
   font-size: inherit;

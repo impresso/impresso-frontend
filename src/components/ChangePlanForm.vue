@@ -19,7 +19,10 @@
           :id="`ChangePlanRequestForm.${availablePlan}`"
           :checked="selectedPlan === availablePlan"
           @change="selectedPlan = availablePlan"
-          :disabled="props.currentPlan === availablePlan || pendingPlan === availablePlan"
+          :disabled="
+            props.currentPlan === availablePlan ||
+            availablePlan === userChangePlanRequest?.plan.name
+          "
         />
         <div class="ml-2">
           {{ props.availablePlansLabels[availablePlan] }}
@@ -28,6 +31,9 @@
           </div>
           <div v-if="pendingPlan === availablePlan">
             <span class="badge bg-info text-dark small-caps">Pending change</span>
+          </div>
+          <div v-if="rejectedPlan === availablePlan">
+            <span class="badge bg-warning text-dark small-caps">rejected change</span>
           </div>
         </div>
       </label>
@@ -42,11 +48,6 @@
       <span class="ml-2">Confirm Plan Change Request</span>
     </button>
   </form>
-
-  <p class="mt-2">
-    Any Questions? <br />
-    Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
-  </p>
 </template>
 
 <script setup lang="ts">
@@ -93,6 +94,12 @@ const pendingPlan = computed(() =>
     : undefined
 )
 
+const rejectedPlan = computed(() =>
+  props.userChangePlanRequest?.status === 'rejected'
+    ? props.userChangePlanRequest?.plan.name
+    : undefined
+)
+
 /**
  * Watches for changes in the plan prop and updates selectedPlan
  */
@@ -129,8 +136,8 @@ const handleOnSubmit = (event: Event) => {
   border-color: var(--impresso-color-black) !important;
 }
 .ChangePlanRequestForm .pending {
-  border-color: #17a2b8 !important;
+  border-color: var(--info-darker) !important;
   /* add semi transparent shadow, solid */
-  box-shadow: 0 0 0 4px rgba(23, 162, 184, 0.25) !important;
+  box-shadow: 0 0 0 4px rgba(var(--info-rgb), 0.7) !important;
 }
 </style>
