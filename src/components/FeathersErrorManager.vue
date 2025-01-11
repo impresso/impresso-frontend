@@ -17,22 +17,26 @@ import { BadRequest, NotAuthenticated, type FeathersError } from '@feathersjs/er
  */
 export type BadRequestData = { key?: string; message: string; label?: string }
 
+interface BadRequestWithData extends BadRequest {
+  data: any
+}
+
 /**
  * Props definition for ErrorManager component
  */
 const props = defineProps<{
-  error?: FeathersError | BadRequest | Error | null
+  error?: FeathersError | BadRequest | BadRequestWithData | Error | null
 }>()
 
 /**
  * Computed property to process error messages
  */
 const errorMessages = computed<BadRequestData[]>(() => {
-  if (props.error instanceof BadRequest) {
-    return Object.keys(props.error.data).map(key => ({
+  if ((props.error as BadRequestWithData).data) {
+    return Object.keys((props.error as BadRequestWithData).data).map(key => ({
       key,
-      message: props.error.data[key].message,
-      label: props.error.data[key].label
+      message: (props.error as BadRequestWithData).data[key].message,
+      label: (props.error as BadRequestWithData).data[key].label
     }))
   } else if (props.error instanceof NotAuthenticated) {
     return [{ key: 'Error', message: props.error.message }]
