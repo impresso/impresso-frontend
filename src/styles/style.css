@@ -31,6 +31,8 @@
   --impresso-color-yellow-alpha-80: rgba(255, 235, 120, 0.8);
 
   --impresso-color-black: #343a40;
+  --impresso-color-black-alpha-20: rgba(52, 58, 64, 0.2);
+  --impresso-color-black-alpha-30: rgba(52, 58, 64, 0.3);
   --impresso-color-black-rgb: 52, 58, 64;
 
   --impresso-color-pastel-blue: rgba(86, 204, 242);
@@ -239,6 +241,7 @@ label {
 .font-size-inherit {
   font-size: inherit;
 }
+
 .btn-sm,
 .btn-group-sm > .btn {
   font-size: var(--impresso-font-size-smallcaps);

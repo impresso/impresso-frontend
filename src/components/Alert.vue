@@ -1,5 +1,5 @@
 <template>
-  <div :class="`Alert ${type}`">
+  <div class="Alert" :class="type">
     <Icon :name="'info'" class="mr-2" />
     <slot></slot>
   </div>
@@ -14,14 +14,16 @@ interface AlertProps {
   type?: 'info' | 'warning' | 'error'
 }
 
-defineProps<AlertProps>()
+withDefaults(defineProps<AlertProps>(), {
+  type: 'info'
+})
 </script>
 
 <style>
 .Alert {
   display: flex;
   align-items: center;
-  padding: 1.5rem;
+  padding: var(--spacing-3);
   background-color: rgba(var(--secondary-rgb), 0.2);
   border-radius: var(--impresso-border-radius-sm);
 }
