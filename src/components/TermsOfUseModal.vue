@@ -7,25 +7,19 @@
     @close="dismiss"
   >
     <h1>{{ title }}</h1>
-    <Alert type="warning" class="bg-info" style="position: sticky; top: 0">
-      <TermsOfUseStatus />
-    </Alert>
+    <slot name="terms-of-use-status"></slot>
+
     <MarkdownContent :url="isVisible ? url : undefined" style="min-height: 90vh" />
-    <AcceptTermsOfUse />
+    <slot name="accept-terms-of-use"></slot>
     <template v-slot:modal-footer>
-      <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">
-        hide for this session
-      </button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>
   </Modal>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue'
+import { defineProps, defineEmits } from 'vue'
 import Modal from './base/Modal.vue'
-import Alert from './Alert.vue'
-import TermsOfUseStatus from './TermsOfUseStatus.vue'
-import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import MarkdownContent from './MarkdownContent.vue'
 
 const props = withDefaults(
