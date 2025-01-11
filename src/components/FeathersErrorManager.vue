@@ -32,7 +32,7 @@ const props = defineProps<{
  * Computed property to process error messages
  */
 const errorMessages = computed<BadRequestData[]>(() => {
-  if ((props.error as BadRequestWithData).data) {
+  if ((props.error as BadRequestWithData)?.data) {
     return Object.keys((props.error as BadRequestWithData).data).map(key => ({
       key,
       message: (props.error as BadRequestWithData).data[key].message,
