@@ -3,7 +3,7 @@
     <div
       v-if="isRendered"
       class="modal"
-      :class="modalClasses"
+      :class="modalClass"
       tabindex="-1"
       :aria-labelledby="`${id}-title`"
       aria-modal="true"
