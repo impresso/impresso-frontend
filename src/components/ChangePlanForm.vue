@@ -20,6 +20,7 @@
           :checked="selectedPlan === availablePlan"
           @change="selectedPlan = availablePlan"
           :disabled="
+            userChangePlanRequest?.status !== 'pending' ||
             props.currentPlan === availablePlan ||
             availablePlan === userChangePlanRequest?.plan.name
           "
@@ -40,6 +41,7 @@
     </section>
 
     <button
+      v-if="userChangePlanRequest?.status !== 'pending'"
       type="submit"
       :disabled="props.currentPlan === selectedPlan"
       class="btn btn-outline-secondary btn-md px-4 border border-dark btn-block"
