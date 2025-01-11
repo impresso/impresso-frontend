@@ -22,8 +22,26 @@ export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
 }
 
-export type UserChangePlanRequest = {
+export interface Group {
+  id: number
+  name: string
+}
+
+export interface ChangelogEntry {
+  date: string
   plan: string
+  notes: string
   status: string
+}
+
+export interface UserChangePlanRequest {
+  id: number
+  dateCreated: string
   dateLastModified: string
+  status: string
+  changelog: ChangelogEntry[]
+  notes: string | null
+  planId: number
+  userId: number
+  plan: Group
 }
