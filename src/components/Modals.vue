@@ -1,7 +1,21 @@
 <template>
   <div class="Modals position-fixed top-0 end-0" style="z-index: var(--z-index-modals)">
-    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()" />
-    {{ userPlan }}
+    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()">
+      <template v-slot:accept-terms-of-use>
+        <AcceptTermsOfUse v-if="isAuthenticated" />
+      </template>
+      <template v-slot:terms-of-use-status>
+        <Alert
+          type="warning"
+          v-if="isAuthenticated"
+          class="bg-info mb-3"
+          style="position: sticky; top: 0"
+        >
+          <TermsOfUseStatus />
+        </Alert>
+      </template>
+    </TermsOfUseModal>
+
     <ChangePlanModal
       :available-plans="AvailablePlans"
       :available-plans-labels="PlanLabels"
@@ -32,12 +46,14 @@ import { userChangePlanRequest as userChangePlanRequestService } from '@/service
 import type { FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
 import { AvailablePlans, PlanLabels } from '@/constants'
-
+import TermsOfUseStatus from './TermsOfUseStatus.vue'
+import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
+import Alert from './Alert.vue'
 const store = useViewsStore()
 const userStore = useUserStore()
 const userPlan = computed(() => userStore.userPlan)
 const view = ref<(typeof Views)[number] | null>(store.view)
-
+const isAuthenticated = computed(() => !!userStore.userData)
 const userChangePlanRequestResponse = ref<{
   data: UserChangePlanRequest | null
   status: 'idle' | 'loading' | 'success' | 'error'
