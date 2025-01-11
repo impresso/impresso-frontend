@@ -38,7 +38,7 @@ export interface UserChangePlanRequest {
   id: number
   dateCreated: string
   dateLastModified: string
-  status: string
+  status: 'pending' | 'approved' | 'rejected'
   changelog: ChangelogEntry[]
   notes: string | null
   planId: number
