@@ -6,7 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
 import Icon from './base/Icon.vue'
 
 interface AlertProps {

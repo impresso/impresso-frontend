@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import Modal from './base/Modal.vue'
 import MarkdownContent from './MarkdownContent.vue'
 
