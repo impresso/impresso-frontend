@@ -2,34 +2,50 @@
   <Modal
     :show="isVisible"
     :title="title"
-    modalClasses="ChangePlanModal"
+    modalClass="ChangePlanModal"
     :dialogClass="props.dialogClass"
     @close="dismiss"
     @confirm="confirm"
   >
     <h1>{{ title }}</h1>
     <p>
-      You can request to change your plan. Your current plan is
+      You can request to change your plan any time if your situation changed. More information about
+      the plans can be found in the <a href="/plans">Plans page</a>.
+    </p>
+    <p v-if="!isLoading && !userChangePlanRequest">
+      Your current plan is
       <b> {{ availablePlansLabels[userPlan] }} </b>. <br />
       Please select the plan you want to change to:
     </p>
     <div v-if="!isLoading && userChangePlanRequest">
-      <Alert class="bg-info" style="position: sticky; top: 0">
-        ehi {{ userChangePlanRequest }}
+      <Alert
+        class="bg-info mb-3"
+        :class="userChangePlanRequest.status"
+        style="position: sticky; top: 0"
+      >
+        <UserChangePlanRequestLabel
+          :item="userChangePlanRequest"
+          :plansLabels="availablePlansLabels"
+        />
       </Alert>
     </div>
     <ChangePlanForm
-      :availablePlanLabels="availablePlansLabels"
+      :availablePlansLabels="availablePlansLabels"
       :availablePlans="availablePlans"
       :error="null"
-      :plan="props.userPlan"
+      :current-plan="props.userPlan"
+      :userChangePlanRequest="userChangePlanRequest"
       @submit="submit"
     />
+    <template v-slot:modal-footer>
+      <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
+    </template>
   </Modal>
 </template>
 
 <script setup lang="ts">
 import ChangePlanForm from './ChangePlanForm.vue'
+import UserChangePlanRequestLabel from './UserChangePlanRequestLabel.vue'
 import { defineProps, defineEmits, ref } from 'vue'
 import Modal from './base/Modal.vue'
 import Alert from './Alert.vue'
@@ -47,7 +63,7 @@ const props = withDefaults(
     userPlan: string
     availablePlans: string[]
     availablePlansLabels: Record<string, string>
-    onSubmit?: (plan: string) => void
+    onSubmit?: ({ plan }: { plan: string }) => void
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-md',
