@@ -52,6 +52,22 @@
   --impresso-wght-bold: 700;
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
+
+  --info: #c3fcf1;
+  --info-rgb: 195, 252, 241;
+
+  --info-darker: #00b0a3;
+  --info-darker-rgb: 0, 176, 163;
+
+  --warning: #fa8d74;
+  --warning-rgb: 250, 141, 116;
+
+  --error: #ff6d48;
+  --error-rgb: 255, 109, 72;
+
+  --success: #a6d47c;
+  --success-rgb: 166, 212, 124;
+
   --clr-white: #f8f8ff;
   --clr-white-rgba-20: #ffffff33;
   --clr-white-rgba-50: #f8f8ff80;
@@ -446,6 +462,12 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 .bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
   background-color: var(--clr-grey-100);
   box-shadow: none;
+}
+.bg-info {
+  background-color: var(--info) !important;
+}
+.bg-warning {
+  background-color: rgba(var(--warning-rgb), 0.5) !important;
 }
 /* Bootstrap Modals */
 .modal {
