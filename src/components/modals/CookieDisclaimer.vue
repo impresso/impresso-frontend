@@ -10,31 +10,27 @@
   </div>
 </template>
 
-<script>
-import { mapStores } from 'pinia'
+<script setup lang="ts">
 import { useSettingsStore } from '@/stores/settings'
+import { computed } from 'vue'
 
-export default {
-  methods: {
-    accept() {
-      this.settingsStore.setCookiesAccepted(true)
-      if (window._paq) {
-        console.info('[CookieDisclaimer] Matomo: Remembering cookie consent was given')
-        // accept matomo cookies
-        _paq.push(['rememberConsentGiven'])
-        // OR remember cookie consent was given for all subsequent page views and visits
-        _paq.push(['rememberCookieConsentGiven'])
-      } else {
-        console.warn('[CookieDisclaimer] Matomo: _paq not found')
-      }
-    },
-  },
-  computed: {
-    ...mapStores(useSettingsStore),
-    cookiesAccepted() {
-      return this.settingsStore.cookiesAccepted
-    },
-  },
+const settingsStore = useSettingsStore()
+const cookiesAccepted = computed(() => settingsStore.cookiesAccepted)
+
+console.debug('[CookieDisclaimer] cookiesAccepted:', cookiesAccepted.value)
+
+const accept = () => {
+  settingsStore.setCookiesAccepted(true)
+  const glob: any = window
+  if (glob._paq) {
+    console.info('[CookieDisclaimer] Matomo: Remembering cookie consent was given')
+    // accept matomo cookies
+    glob._paq.push(['rememberConsentGiven'])
+    // OR remember cookie consent was given for all subsequent page views and visits
+    glob._paq.push(['rememberCookieConsentGiven'])
+  } else {
+    console.warn('[CookieDisclaimer] Matomo: _paq not found in Window')
+  }
 }
 </script>
 

@@ -177,6 +177,7 @@ export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 export const passwordReset = app.service('password-reset')
 export const termsOfUse = app.service('terms-of-use')
+export const userChangePlanRequest = app.service('user-change-plan-request')
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH

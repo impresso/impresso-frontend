@@ -84,6 +84,7 @@
         </div>
 
         <br />
+        <TermsOfUseStatus withCallToAction />
       </div>
     </i-layout-section>
     <i-layout-section>
@@ -237,6 +238,7 @@
 import Autocomplete from './Autocomplete.vue'
 import SearchTabs from './modules/SearchTabs.vue'
 import SearchPills from '@/components/SearchPills.vue'
+import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
@@ -339,7 +341,8 @@ export default {
     SearchTabs,
     HomePageFooter,
     SearchPills,
-    Recipe
+    Recipe,
+    TermsOfUseStatus
   }
 }
 </script>

@@ -156,6 +156,66 @@ const Icons: Record<string, IconData> = {
         d: 'M6 18L18 6'
       }
     ]
+  },
+  warningTriangle: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="30px" height="30px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M20.0429 21H3.95705C2.41902 21 1.45658 19.3364 2.22324 18.0031L10.2662 4.01533C11.0352 2.67792 12.9648 2.67791 13.7338 4.01532L21.7768 18.0031C22.5434 19.3364 21.581 21 20.0429 21Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 9V13" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 17.01L12.01 16.9989" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        d: 'M20.0429 21H3.95705C2.41902 21 1.45658 19.3364 2.22324 18.0031L10.2662 4.01533C11.0352 2.67792 12.9648 2.67791 13.7338 4.01532L21.7768 18.0031C22.5434 19.3364 21.581 21 20.0429 21Z'
+      },
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        d: 'M12 9V13'
+      },
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 17.01L12.01 16.9989'
+      }
+    ]
+  },
+  sendMail: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="30px" height="30px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M9 9L13.5 12L18 9" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 13.5H5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 10.5H5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 7.5V7C5 5.89543 5.89543 5 7 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H7C5.89543 19 5 18.1046 5 17V16.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path></svg>
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M9 9L13.5 12L18 9'
+      },
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M3 13.5H5'
+      },
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M1 10.5H5'
+      },
+      {
+        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        d: 'M5 7.5V7C5 5.89543 5.89543 5 7 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H7C5.89543 19 5 18.1046 5 17V16.5'
+      }
+    ]
+  },
+  info: {
+    width: 24,
+    height: 24,
+    paths: [
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 11.5V16.5'
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 7.51L12.01 7.49889'
+      },
+      {
+        style: 'stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;fill:transparent',
+        d: 'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
+      }
+    ]
   }
 }
 

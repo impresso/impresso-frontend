@@ -17,15 +17,13 @@
         :endYear="endYear"
       />
     </div>
-    <div id="app-disclaimer-notice" class="fullscreen" v-if="!termsAgreed">
-      <disclaimer-notice />
-    </div>
     <div id="app-loading" class="fullscreen locked" v-if="is_locked">
       <status-indicator />
     </div>
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
     <Toaster />
+    <Modals />
   </div>
 </template>
 
@@ -34,7 +32,6 @@ import WebFontLoader from 'webfontloader'
 import TheHeader from '@/components/TheHeader.vue'
 import Monitor from '@/components/Monitor.vue'
 import SelectionMonitor from '@/components/SelectionMonitor.vue'
-import DisclaimerNotice from '@/components/modals/DisclaimerNotice.vue'
 import StatusIndicator from '@/components/modals/StatusIndicator.vue'
 import CookieDisclaimer from '@/components/modals/CookieDisclaimer.vue'
 import TroublesAhead from '@/components/modals/TroublesAhead.vue'
@@ -48,6 +45,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { Navigation } from './plugins/Navigation'
+import Modals from './components/Modals.vue'
 
 export default {
   name: 'app',
@@ -55,11 +53,11 @@ export default {
     TheHeader,
     Monitor,
     SelectionMonitor,
-    DisclaimerNotice,
     StatusIndicator,
     CookieDisclaimer,
     TroublesAhead,
-    Toaster
+    Toaster,
+    Modals
   },
   data: () => ({
     filtersWithItems: [],
@@ -85,13 +83,7 @@ export default {
       // filter by type
       return this.searchQuery.filters
     },
-    termsAgreed() {
-      console.info('Terms agreement:', this.settingsStore.termsAgreed)
-      if (this.userStore.userData) {
-        return true
-      }
-      return this.settingsStore.termsAgreed
-    },
+
     is_locked() {
       return this.notificationsStore.processingLocked
     },

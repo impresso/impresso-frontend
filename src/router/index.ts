@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import * as services from '@/services'
 import HomePage2020 from '@/components/HomePage2020.vue'
 import FaqPage from '@/pages/FaqPage.vue'
-import TermsOfUsePage from '@/components/TermsOfUsePage.vue'
 import IssuePage from '@/components/IssuePage.vue'
 import UserLoginPage from '@/components/UserLoginPage.vue'
 import TestPage from '@/components/TestPage.vue'
@@ -69,14 +68,7 @@ const router = createRouter({
         requiresAuth: false
       }
     },
-    {
-      path: '/terms-of-use',
-      name: 'termsOfUse',
-      component: TermsOfUsePage,
-      meta: {
-        requiresAuth: false
-      }
-    },
+
     {
       path: '/search',
       name: 'search',
@@ -297,6 +289,14 @@ const router = createRouter({
       component: TestPage,
       meta: {
         requiresAuth: true
+      }
+    },
+    {
+      path: '/terms-of-use',
+      name: 'termsOfUse',
+      component: () => import('@/pages/TermsOfUse.vue'),
+      meta: {
+        requiresAuth: false
       }
     },
     {
