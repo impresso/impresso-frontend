@@ -24,7 +24,7 @@
       {{ $t('label_terms_of_use') }}
     </LinkToModal>
 
-    <b-dropdown-item :to="{ name: 'logout' }">{{ $t('logout') }}</b-dropdown-item>
+    <b-dropdown-item v-on:click="logout">{{ $t('logout') }}</b-dropdown-item>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
@@ -51,7 +51,9 @@ import LinkToModal from './LinkToModal.vue'
 import { ViewTermsOfUse, ViewChangePlanRequest } from '@/stores/views'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const props = defineProps({
   user: {
     type: Object,
@@ -62,6 +64,10 @@ const version = computed(() => {
   return (window as any).impressoFrontendVersion
 })
 
+const logout = () => {
+  console.info('logging out..')
+  userStore.logout()
+}
 const userFullName = computed(() => {
   const name = `${props.user.firstname} ${props.user.lastname}`.trim()
   if (name === '') {
