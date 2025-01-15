@@ -43,6 +43,7 @@ const handleChange = (event: Event) => {
   userStore.acceptTermsDate = (event.target as HTMLInputElement).checked
     ? new Date().toISOString()
     : null
+  userStore.acceptTermsDateOnLocalStorage = userStore.acceptTermsDate
 
   if (typeof props.onChange === 'function') {
     props.onChange(event)
