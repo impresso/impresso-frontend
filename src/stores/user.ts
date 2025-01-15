@@ -8,7 +8,7 @@ export interface State {
   rememberCredentials: boolean
   redirectionParams: any
   acceptTermsDate: string | null
-  acceptTermsDateOnLocalStorage: boolean
+  acceptTermsDateOnLocalStorage: string | null
 }
 
 export const useUserStore = defineStore('user', {
@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', {
     // this is not stored on localStorage, and if it is not null is a ISO date string
     acceptTermsDate: null,
     // this is stored on localStorage
-    acceptTermsDateOnLocalStorage: false
+    acceptTermsDateOnLocalStorage: null
   }),
   getters: {
     user(state) {
@@ -115,6 +115,6 @@ export const useUserStore = defineStore('user', {
     }
   },
   persist: {
-    paths: ['rememberCredentials', 'userData']
+    paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage']
   }
 })

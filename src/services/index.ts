@@ -35,7 +35,7 @@ app.configure(
 
 const needsLockScreen = (p: string) => ['search.find', 'ngram-trends.create'].includes(p)
 
-const silentErrorCodes = [404, 409]
+const silentErrorCodes = [404, 409, 400]
 
 app.hooks({
   before: {
