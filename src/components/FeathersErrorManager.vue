@@ -42,6 +42,8 @@ const errorMessages = computed<BadRequestData[]>(() => {
     return [{ key: 'Error', message: props.error.message }]
   } else if (props.error instanceof Error) {
     return [{ key: 'Error', message: props.error.message }]
+  } else {
+    console.warn('FeathersErrorManager@errorMessages: No error data found', props.error)
   }
   return []
 })
@@ -50,5 +52,6 @@ const errorMessages = computed<BadRequestData[]>(() => {
 <style scoped>
 .alert {
   padding: 1rem;
+  border-radius: var(--border-radius-md);
 }
 </style>
