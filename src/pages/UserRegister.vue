@@ -28,9 +28,11 @@
           <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
         </b-col>
       </b-row>
-      <b-alert v-if="featherError" show dismissible fade variant="danger">{{
-        featherError
-      }}</b-alert>
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <FeathersErrorManager :error="featherError" />
+        </b-col>
+      </b-row>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p>
@@ -52,20 +54,6 @@
         <b-col md="6" offset-md="3">
           <form @submit.prevent="onSubmit">
             <b-form-group
-              id="input-group-0"
-              label="User Name"
-              label-for="username"
-              :description="v$.user.username.$errors[0]?.$message"
-            >
-              <b-form-input
-                id="username"
-                name="username"
-                required
-                v-model.trim="user.username"
-                :class="{ 'border-danger': v$.user.username.$error }"
-              />
-            </b-form-group>
-            <b-form-group
               id="input-group-1"
               label="Email address"
               label-for="email"
@@ -74,6 +62,7 @@
               <b-form-input
                 id="email"
                 name="email"
+                type="email"
                 autocomplete="home email"
                 :class="{ 'border-danger': v$.user.email.$error }"
                 v-model.trim="user.email"
@@ -94,6 +83,7 @@
                     v-model.trim="user.password"
                     type="password"
                     maxlength="80"
+                    required
                     :class="{ 'border-danger': v$.user.password.$error }"
                   ></b-form-input>
                 </b-form-group>
@@ -110,6 +100,7 @@
                     name="repeat-password"
                     v-model.trim="repeatPassword"
                     maxlength="80"
+                    required
                     :class="{ 'border-danger': v$.repeatPassword.$error }"
                     type="password"
                   />
@@ -129,6 +120,7 @@
                     autocomplete="firstname"
                     v-model.trim="user.firstname"
                     maxlength="20"
+                    required
                   ></b-form-input>
                 </b-form-group>
               </b-col>
@@ -140,19 +132,25 @@
                     autocomplete="lastname"
                     v-model.trim="user.lastname"
                     maxlength="20"
+                    required
                   ></b-form-input>
                 </b-form-group>
               </b-col>
             </b-row>
-
             <b-form-group
-              id="input-group-5"
-              :label="$t('form_displayname')"
-              label-for="displayname"
+              id="input-group-0"
+              label="User Name"
+              label-for="username"
+              :description="v$.user.username.$errors[0]?.$message"
             >
-              <b-form-input id="displayname" v-model.trim="user.displayName" maxlength="20" />
+              <b-form-input
+                id="username"
+                name="username"
+                required
+                v-model.trim="user.username"
+                :class="{ 'border-danger': v$.user.username.$error }"
+              />
             </b-form-group>
-
             <div
               id="input-group-4"
               :label="$t('form_pattern')"
@@ -187,8 +185,7 @@
                 :style="getColorBandStyle(color)"
               ></div>
             </div>
-            {{ user.pattern }}
-
+            <AcceptTermsOfUse localStorageOnly />
             <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
             <!-- <b-form-group
                   id="nda"
@@ -202,15 +199,16 @@
                   </div>
                 </b-form-group> -->
             <!-- </ValidationProvider> -->
-
-            <b-button
-              size="sm"
-              type="submit"
-              class="mt-2"
-              variant="outline-primary"
-              :disabled="v$.$error || !v$.$anyDirty"
-              >{{ $t('actions.requestAccount') }}</b-button
-            >
+            <div class="text-center">
+              <b-button
+                size="lg"
+                type="submit"
+                class="mt-2"
+                variant="outline-primary"
+                :disabled="v$.$error || !v$.$anyDirty"
+                >{{ $t('actions.requestAccount') }}</b-button
+              >
+            </div>
           </form>
         </b-col>
       </b-row>
@@ -225,7 +223,11 @@ import { email, helpers, minLength, required, sameAs } from '@vuelidate/validato
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
 import User from '@/models/User'
+import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
+import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 // extend('required', {
 //   ...required,
 //   message: 'This field is required'
@@ -278,6 +280,10 @@ export default defineComponent({
   props: {
     allowUploadOfNDA: Boolean
   },
+  components: {
+    FeathersErrorManager,
+    AcceptTermsOfUse
+  },
   data: () => ({
     passwordRegex: PasswordRegex,
     userRegex: UserRegex,
@@ -295,7 +301,7 @@ export default defineComponent({
     nda: null,
     repeatPassword: '',
     errors: [],
-    featherError: '',
+    featherError: null,
     palettes: [
       '#96ceb4',
       '#ffeead',
@@ -346,13 +352,20 @@ export default defineComponent({
       set(v: string) {
         this.user.pattern = v.split(',').map(v => v.trim())
       }
+    },
+    isTermsOfUseAccepted() {
+      return userStore.acceptTermsDateOnLocalStorage !== null
     }
   },
   methods: {
     onSubmit() {
       // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
-      this.featherError = ''
+      if (!this.isTermsOfUseAccepted) {
+        this.featherError = new Error('Please accept the Terms of Use')
+        return
+      }
+      this.featherError = null
       this.isLoading = true
       usersService
         .create(this.user)
@@ -363,9 +376,9 @@ export default defineComponent({
         .catch(err => {
           console.warn(err)
           if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
-            this.featherError = this.$t('errors.Conflict.UsernameExistError')
+            this.featherError = new Error(this.$t('errors.Conflict.UsernameExistError'))
           } else {
-            this.featherError = err.message
+            this.featherError = err
           }
         })
         .finally(() => {
@@ -381,13 +394,15 @@ export default defineComponent({
       }
       this.user.pattern = colors
     },
+
     getColorBandStyle(color: string) {
       const width = this.user.pattern.length ? `${100 / this.user.pattern.length}%` : '0%'
       return {
         'background-color': color,
         width
       }
-    }
+    },
+    checkForm() {}
   },
   created() {
     this.onGeneratePattern()
