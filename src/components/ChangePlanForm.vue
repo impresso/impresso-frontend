@@ -20,9 +20,11 @@
           :checked="selectedPlan === availablePlan"
           @change="selectedPlan = availablePlan"
           :disabled="
-            userChangePlanRequest?.status !== 'pending' ||
-            props.currentPlan === availablePlan ||
-            availablePlan === userChangePlanRequest?.plan.name
+            allowAllPlans
+              ? false
+              : userChangePlanRequest?.status !== 'pending' ||
+                props.currentPlan === availablePlan ||
+                availablePlan === userChangePlanRequest?.plan.name
           "
         />
         <div class="ml-2">
@@ -41,7 +43,7 @@
     </section>
 
     <button
-      v-if="userChangePlanRequest?.status !== 'pending'"
+      v-if="!allowAllPlans && userChangePlanRequest?.status !== 'pending'"
       type="submit"
       :disabled="props.currentPlan === selectedPlan"
       class="btn btn-outline-secondary btn-md px-4 border border-dark btn-block"
@@ -68,12 +70,12 @@ export type ChangePlanRequestFormPayload = {
 
 export interface ChangePlanRequestFormProps {
   className?: string
-  onSubmit: (payload: ChangePlanRequestFormPayload) => void
   error?: FeathersError | null
   currentPlan?: string
-  userChangePlanRequest: UserChangePlanRequest | null
+  userChangePlanRequest?: UserChangePlanRequest | null
   availablePlans?: string[]
   availablePlansLabels?: Record<string, string>
+  allowAllPlans?: boolean
 }
 
 /**
@@ -84,7 +86,7 @@ const props = withDefaults(defineProps<ChangePlanRequestFormProps>(), {
   availablePlansLabels: () => ({})
 })
 
-const emits = defineEmits(['submit'])
+const emits = defineEmits(['submit', 'change'])
 
 /**
  * Reactive state for selected plan
@@ -109,6 +111,14 @@ watch(
   () => props.currentPlan,
   newPlan => {
     selectedPlan.value = newPlan
+  }
+)
+
+// if selectedPlan change,  emits('change', { plan: newPlan })
+watch(
+  () => selectedPlan.value,
+  newPlan => {
+    emits('change', { plan: newPlan })
   }
 )
 
