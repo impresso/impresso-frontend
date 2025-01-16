@@ -49,26 +49,36 @@
             <br />
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
-          <br />
-          <img
-            src="@/assets/img/GitHub-Mark-Light-32px.png"
-            alt="GitHub icon"
-            class="mr-2"
-            style="max-height: 1em"
-          />
-          github:
-          <a :href="impressoInfo.project.repoUrl" target="_blank">
-            {{ impressoInfo.project.repoUrlLabel }}</a
-          >
-          <p>
+          <p class="mb-0">
             <img
-              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+              src="@/assets/img/GitHub-Mark-Light-32px.png"
+              alt="GitHub icon"
               class="mr-2"
-              style="max-height: 1em"
+              style="max-height: 16px"
+            />
+            github:
+            <a :href="impressoInfo.project.repoUrl" target="_blank">
+              {{ impressoInfo.project.repoUrlLabel }}</a
+            >
+          </p>
+          <p class="mb-0">
+            <img
+              src="@/assets/img/X-logo-white.svg"
+              class="mr-2"
+              style="max-height: 15px"
               alt="X (former Twitter) icon"
             />
             X (former Twitter):
             <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          </p>
+          <p>
+            <img
+              src="@/assets/img/Mastodon-logo-white.svg"
+              class="mr-2"
+              style="max-height: 16px"
+              alt="Mastodon"
+            />
+            Mastodon: <a href="https://fedihum.org/@impresso" target="_blank">@impresso</a>
           </p>
           <p>
             version:

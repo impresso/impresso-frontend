@@ -9,8 +9,7 @@
         @change="handleChange"
         :disabled="isLoading"
       />
-      <label v-if="localStorageOnly"> I HAVE READ and I AGREE to the Impresso Terms of Use. </label>
-      <label v-else class="form-check-label font-weight-bold" for="terms-of-use">
+      <label class="form-check-label font-weight-bold" for="terms-of-use">
         I HAVE READ and I AGREE to the Impresso
         <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
           >Terms of Use.</LinkToModal
