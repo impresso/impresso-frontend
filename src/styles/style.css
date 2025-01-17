@@ -104,7 +104,7 @@
   --negative-spacing-4: -1.5rem;
   --negative-spacing-5: -3rem;
 
-  --accent: #28a745;
+  --accent: var(--impresso-color-yellow);
   --impresso-yellow: #ffeb78;
   --border-radius-sm: 3px;
   --border-radius-md: 8px;
@@ -161,16 +161,37 @@ h6,
 .h4,
 .h5,
 .h6 {
-  font-family: var(--bs-font-serif);
+  font-family: var(--bs-font-sans-serif);
   font-weight: 375;
   font-variation-settings: 'wght' 375;
-
-  i,
-  em {
-    font-family: var(--bs-font-serif-italic);
-    font-weight: 375;
-    font-variation-settings: 'wght' 375;
-  }
+}
+h1 i,
+h1 em,
+.h1 i,
+.h1 em,
+h2 i,
+h2 em,
+.h2 i,
+.h2 em,
+h3 i,
+h3 em,
+.h3 i,
+.h3 em,
+h4 i,
+h4 em,
+.h4 i,
+.h4 em,
+h5 i,
+h5 em,
+.h5 i,
+.h5 em,
+h6 i,
+h6 em,
+.h6 i,
+.h6 em {
+  font-family: var(--bs-font-sans-serif-italic);
+  font-weight: 375;
+  font-variation-settings: 'wght' 375;
 }
 i,
 em {
@@ -242,6 +263,9 @@ label {
   font-weight: inherit;
   font-weight: var(--impresso-wght);
   font-variation-settings: 'wght' var(--impresso-wght);
+}
+.text-accent {
+  color: var(--accent);
 }
 .text-decoration-underline {
   text-decoration: underline;
