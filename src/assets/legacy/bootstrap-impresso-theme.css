@@ -9393,7 +9393,7 @@ h6.dropdown-header {
 .article-matches em,
 .highlight {
   background: rgba(244, 208, 98, 0.7);
-  outline: 1px solid #f4d062;
+  outline: 1px solid var(--accent);
   padding: 0 0.2em;
 }
 
@@ -9406,7 +9406,7 @@ h6.dropdown-header {
 }
 
 .text-accent {
-  color: #f4d062;
+  color: var(--accent);
 }
 
 .text-accent-secondary {
@@ -9422,7 +9422,7 @@ h6.dropdown-header {
 }
 
 .bg-accent {
-  background-color: #f4d062;
+  background-color: var(--accent);
 }
 
 .bg-accent-secondary {
