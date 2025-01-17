@@ -100,11 +100,11 @@
     <i-layout-section>
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
-          <h1 class="HomePage__hugeHeading">
+          <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
-          <h2 style="font-style: italic">
-            Mining 200 years <br />of historical newspapers, and radio.
+          <h2>
+            <em> Mining 200 years <br />of historical newspapers, and radio.</em>
           </h2>
         </section>
         <section
@@ -440,8 +440,11 @@ export default {
 }
 
 h1.HomePage__hugeHeading {
-  font-size: 8vh;
-  line-height: 0.9;
+  line-height: 1.06em !important;
+  text-decoration: underline;
+  text-decoration-color: currentcolor;
+  text-decoration-color: var(--impresso-color-yellow);
+  font-size: calc(1.525rem + 3.3vw);
 }
 
 .stats span.number {
@@ -449,9 +452,9 @@ h1.HomePage__hugeHeading {
 }
 
 .bg-dark {
-  h1.HomePage__hugeHeading {
-    text-shadow: 1px 1px 1px #17191c;
-  }
+  // h1.HomePage__hugeHeading {
+  //   text-shadow: 1px 1px 1px #17191c;
+  // }
 
   h1.HomePage__hugeHeading,
   h2 {
