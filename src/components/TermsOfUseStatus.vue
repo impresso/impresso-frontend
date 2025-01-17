@@ -40,6 +40,11 @@
         >Terms of Use</LinkToModal
       >
     </div>
+    <div v-else>
+      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
+        >Terms of Use</LinkToModal
+      >
+    </div>
   </div>
   <div v-else-if="isAuthenticated && !withCallToAction">
     <div v-if="acceptTermsDate">
@@ -49,6 +54,10 @@
     <div v-else-if="acceptTermsDateOnLocalStorage && !acceptTermsDate">
       You have accepted the terms of use <em>on this device</em>, but we need to record your
       acceptance on our servers once you log in. Please read the entire terms of use document
+      carefully and accept it at the bottom to continue.
+    </div>
+    <div v-else>
+      You have not accepted the terms of use yet. Please read the entire terms of use document
       carefully and accept it at the bottom to continue.
     </div>
   </div>
