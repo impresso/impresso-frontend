@@ -49,26 +49,36 @@
             <br />
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
-          <br />
-          <img
-            src="@/assets/img/GitHub-Mark-Light-32px.png"
-            alt="GitHub icon"
-            class="mr-2"
-            style="max-height: 1em"
-          />
-          github:
-          <a :href="impressoInfo.project.repoUrl" target="_blank">
-            {{ impressoInfo.project.repoUrlLabel }}</a
-          >
-          <p>
+          <p class="mb-0">
             <img
-              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+              src="@/assets/img/GitHub-Mark-Light-32px.png"
+              alt="GitHub icon"
               class="mr-2"
-              style="max-height: 1em"
+              style="max-height: 16px"
+            />
+            github:
+            <a :href="impressoInfo.project.repoUrl" target="_blank">
+              {{ impressoInfo.project.repoUrlLabel }}</a
+            >
+          </p>
+          <p class="mb-0">
+            <img
+              src="@/assets/img/X-logo-white.svg"
+              class="mr-2"
+              style="max-height: 15px"
               alt="X (former Twitter) icon"
             />
             X (former Twitter):
             <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          </p>
+          <p>
+            <img
+              src="@/assets/img/Mastodon-logo-white.svg"
+              class="mr-2"
+              style="max-height: 16px"
+              alt="Mastodon"
+            />
+            Mastodon: <a href="https://fedihum.org/@impresso" target="_blank">@impresso</a>
           </p>
           <p>
             version:
@@ -90,11 +100,11 @@
     <i-layout-section>
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
-          <h1 class="HomePage__hugeHeading">
+          <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
-          <h2 style="font-style: italic">
-            Mining 200 years <br />of historical newspapers, and radio.
+          <h2>
+            <em> Mining 200 years <br />of historical newspapers, and radio.</em>
           </h2>
         </section>
         <section
@@ -430,8 +440,11 @@ export default {
 }
 
 h1.HomePage__hugeHeading {
-  font-size: 8vh;
-  line-height: 0.9;
+  line-height: 1.06em !important;
+  text-decoration: underline;
+  text-decoration-color: currentcolor;
+  text-decoration-color: var(--impresso-color-yellow);
+  font-size: calc(1.525rem + 3.3vw);
 }
 
 .stats span.number {
@@ -439,9 +452,9 @@ h1.HomePage__hugeHeading {
 }
 
 .bg-dark {
-  h1.HomePage__hugeHeading {
-    text-shadow: 1px 1px 1px #17191c;
-  }
+  // h1.HomePage__hugeHeading {
+  //   text-shadow: 1px 1px 1px #17191c;
+  // }
 
   h1.HomePage__hugeHeading,
   h2 {

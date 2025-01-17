@@ -23,7 +23,7 @@ const loadContent = async () => {
   try {
     status.value = 'pending'
     const response = await axios.get(props.url)
-    console.info('[MarkdownContent] response:', response)
+    console.info('[MarkdownContent]loading content from URL:', props.url, 'success')
     let data = response.data
     // remove front matter
     const frontMatterRegex = /^---[\s\S]*?---\n/

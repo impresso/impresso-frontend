@@ -45,3 +45,8 @@ export interface UserChangePlanRequest {
   userId: number
   plan: Group
 }
+
+export interface TermsOfUse {
+  id: number
+  dateAcceptedTerms: string | null
+}

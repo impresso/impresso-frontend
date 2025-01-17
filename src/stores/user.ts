@@ -25,6 +25,7 @@ export const useUserStore = defineStore('user', {
     user(state) {
       return state.userData
     },
+
     userPlan(state) {
       let userPlan = state.userData !== null && state.acceptTermsDate ? PlanImpressoUser : PlanGuest
       if (state.userData && Array.isArray(state.userData?.groups)) {
@@ -39,6 +40,10 @@ export const useUserStore = defineStore('user', {
     }
   },
   actions: {
+    setAcceptTermsDate(date: string) {
+      this.acceptTermsDate = date
+      this.acceptTermsDateOnLocalStorage = date
+    },
     logout() {
       return (app as any)
         .logout()
