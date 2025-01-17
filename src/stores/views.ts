@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const ViewTermsOfUse = 'terms-of-use'
 export const ViewChangePlanRequest = 'change-plan-request'
 export const ViewConfirmChangePlanRequest = 'confirm-change-plan-request'
+export const ViewInfoModal = 'info-modal'
 export const Views: string[] = [ViewTermsOfUse, ViewChangePlanRequest, ViewConfirmChangePlanRequest]
 
 export interface State {
