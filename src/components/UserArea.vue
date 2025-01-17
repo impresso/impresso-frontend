@@ -28,6 +28,10 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
+
+    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewInfoModal">
+      {{ $t('label_verbose_info') }}
+    </LinkToModal>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
       $t('send_update_bitmap')
     }}</b-dropdown-item>
@@ -48,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewTermsOfUse, ViewChangePlanRequest } from '@/stores/views'
+import { ViewTermsOfUse, ViewChangePlanRequest, ViewInfoModal } from '@/stores/views'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
@@ -117,6 +121,7 @@ const userPicture = computed(() => {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
     "label_change_plan_request": "Change Plan Request",
+    "label_verbose_info": "[staff only] Verbose Info",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",
