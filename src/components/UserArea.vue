@@ -88,8 +88,8 @@ const test = () => {
   return jobsService.create({})
 }
 const send_update_bitmap = async () => {
-  return termsOfUseService.patch(0, {}).then(res => {
-    console.debug('[UserArea] bitmap updated', res)
+  return termsOfUseService.patch(0, {}).then(() => {
+    console.debug('[UserArea] request to update bitmap...')
   })
 }
 
