@@ -48,5 +48,6 @@ export interface UserChangePlanRequest {
 
 export interface TermsOfUse {
   id: number
+  bitmap: string
   dateAcceptedTerms: string | null
 }
