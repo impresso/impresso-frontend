@@ -104,7 +104,14 @@ app.hooks({
 })
 
 app.service('logs').on('created', payload => {
-  console.info('@logs->created', payload)
+  console.info('[@logs->created]', payload)
+  // if tasktype: "UUB",
+  if (payload.tasktype === 'UUB') {
+    // force reauthentication
+    app.reAuthenticate().then(res => {
+      console.info('[@logs->created] Reauthenticated after UUB', res)
+    })
+  }
   if (payload.job) {
     const extra: { collection?: any } = {}
     if (payload.collection) {
