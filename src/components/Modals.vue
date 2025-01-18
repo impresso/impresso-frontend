@@ -2,7 +2,7 @@
   <div class="Modals position-fixed top-0 end-0" style="z-index: var(--z-index-modals)">
     <!--  -->
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()">
-      <template v-slot:terms-of-use-status v-if="termsOfUseResponse.status === 'success'">
+      <template v-slot:terms-of-use-status>
         <Alert
           :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
           class="bg-info mb-3"
@@ -21,7 +21,7 @@
           @change="
             (event: Event) => {
               const isChecked = (event.target as HTMLInputElement).checked
-              console.debug('[Models] AcceptTermsOfUse@onChange', isChecked)
+              console.debug('[Modals] AcceptTermsOfUse@onChange', isChecked)
               if (isChecked) {
                 patchAcceptTermsDate()
               }
@@ -32,23 +32,46 @@
     </TermsOfUseModal>
     <InfoModal
       :isVisible="view === ViewInfoModal"
-      :title="$t('Verbose Info')"
+      :title="$t('User settings')"
       @dismiss="() => resetView()"
     >
-      <div class="row">
-        <div class="col-6">
-          <h3>{{ $t('User Plan') }}</h3>
-          <pre>{{ userPlan }}</pre>
+      <div class="d-flex justify-content-between border-bottom p-2">
+        <div>
+          {{ $t('user_plan_label') }}
+        </div>
+        <div>
+          <b>{{ PlanLabels[userPlan] }}</b>
+          ({{ userPlan }})
         </div>
       </div>
-      <div class="row">
-        <div class="col">
-          <h2>{{ $t('User Accept Terms Date Local') }}</h2>
-          <pre>{{ acceptTermsDateOnLocalStorage }}</pre>
+      <div class="d-flex justify-content-between border-bottom p-2">
+        <div>
+          {{ $t('user_bitmap_label') }}
         </div>
-        <div class="col">
-          <h2>{{ $t('User Accept Terms Date') }}</h2>
-          <pre>{{ acceptTermsDate }}</pre>
+        <div>
+          {{ bitmap }}
+        </div>
+      </div>
+      <div class="d-flex justify-content-between border-bottom p-2">
+        <div>
+          {{ $t('user_accept_terms_date_local_label') }}
+        </div>
+        <div v-if="acceptTermsDateOnLocalStorage">
+          {{ $d(new Date(acceptTermsDateOnLocalStorage), 'precise') }}
+        </div>
+        <div v-else>
+          {{ $t('not_accepted_local_label') }}
+        </div>
+      </div>
+      <div class="d-flex justify-content-between border-bottom p-2">
+        <div>
+          {{ $t('user_accept_terms_date_on_db_label') }}
+        </div>
+        <div v-if="acceptTermsDate">
+          {{ $d(new Date(acceptTermsDate), 'precise') }}
+        </div>
+        <div v-else>
+          {{ $t('not_accepted_on_db_label') }}
         </div>
       </div>
     </InfoModal>
@@ -98,9 +121,13 @@ import InfoModal from './InfoModal.vue'
 const store = useViewsStore()
 const userStore = useUserStore()
 const userPlan = computed(() => userStore.userPlan)
+const bitmap = computed(() => {
+  const b = userStore.bitmap
+  return b ? parseInt(b, 16).toString(2).padStart(4, '0') : ''
+})
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
-const isAuthenticated = computed(() => !!userStore.userData)
+const user = computed(() => !!userStore.userData)
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
@@ -138,6 +165,7 @@ watch(
 )
 
 const fetchAcceptTermsDate = async () => {
+  console.debug('[Modals:fetchAcceptTermsDate] is user:', user.value)
   /**
    * Fetches the date when the user accepted the terms of use.
    *
@@ -146,7 +174,9 @@ const fetchAcceptTermsDate = async () => {
    *
    * @returns {Promise<void>}
    */
-
+  if (!user.value) {
+    return
+  }
   return termsOfUseService
     .find()
     .then((data: TermsOfUse) => {
@@ -155,6 +185,7 @@ const fetchAcceptTermsDate = async () => {
       userStore.setAcceptTermsDate(
         data.dateAcceptedTerms ? new Date(data.dateAcceptedTerms).toISOString() : null
       )
+      userStore.setBitmap(data.bitmap)
     })
     .catch((err: FeathersError) => {
       console.error(
@@ -168,6 +199,11 @@ const fetchAcceptTermsDate = async () => {
 }
 
 const patchAcceptTermsDate = async () => {
+  if (!user.value) {
+    console.debug('[Modals] patchAcceptTermsDate not authenticated')
+    userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
+    return
+  }
   termsOfUseService
     .patch(null, {})
     .then(data => {
@@ -194,6 +230,9 @@ const fetchUserPlanChangeRequest = async () => {
    * @returns {Promise<void>}
    */
   // load current status
+  if (!user.value) {
+    return
+  }
   userChangePlanRequestResponse.value = { data: null, status: 'loading' }
   await userChangePlanRequestService
     .find()
@@ -231,3 +270,16 @@ onMounted(() => {
   fetchAcceptTermsDate()
 })
 </script>
+<i18n>
+  {
+    "en": {
+      "user_plan_label": "User Plan",
+      "user_bitmap_label": "User Bitmap",
+      "user_accept_terms_date_local_label": "User Accept Terms Date Local",
+      "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
+      "verbose_info_label": "[staff only] Verbose Info",
+      "not_accepted_local_label": "Not accepted on this device",
+      "not_accepted_on_db_label": "Not accepted on the server",
+    }
+  }
+</i18n>
