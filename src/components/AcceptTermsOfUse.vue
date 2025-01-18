@@ -7,7 +7,7 @@
         id="terms-of-use"
         :checked="checked"
         @change="handleChange"
-        :disabled="isLoading || disabled"
+        :disabled="disabled"
       />
       <label class="form-check-label font-weight-bold" for="terms-of-use">
         I HAVE READ and I AGREE to the Impresso Terms of Use
