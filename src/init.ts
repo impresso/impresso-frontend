@@ -2,18 +2,11 @@ import type { App } from 'vue'
 import { version as versionService, app as appService, me as meService } from '@/services'
 import { useUserStore } from './stores/user'
 import { useNotificationsStore } from './stores/notifications'
+import { reducedTimeoutPromise } from './services/utils'
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true }
 }
-
-const reducedTimeoutPromise = ({ ms = 500, service }) =>
-  new Promise((resolve, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id)
-      reject(new Error(`Timed out in ${ms} ms for service: ${service}`))
-    }, ms)
-  })
 
 type ApiVersion = {
   version: string
@@ -41,27 +34,29 @@ type VersionResponse = {
 export const loadVersion = async () => {
   const res: VersionResponse = await Promise.race([
     reducedTimeoutPromise({
+      ms: 450,
       service: 'version'
     }),
-    versionService.find().then(res => ({
+    versionService.find().then(res => {
+      console.info('[init:loadVersion] Version data loaded:', res)
+      return res
+    })
+  ])
+    .then(res => ({
       version: res.version,
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
       newspapers: res.newspapers,
       features: res.features
     }))
-  ])
     .catch(err => {
       console.warn(err)
       return {
+        apiVersion: { version: 'n/a', branch: 'n/a', revision: 'n/a' },
         version: 'n/a',
         documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
-        apiVersion: {},
         newspapers: {}
-      }
-    })
-    .then(res => {
-      return res as VersionResponse
+      } as VersionResponse
     })
 
   console.info(
@@ -153,7 +148,7 @@ export const initSequence = async () => {
         return
       }
       // eslint-disable-next-line
-      console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
+      console.debug('[init:initSequence] Loading app & data version:', Object.keys(res), res)
       console.debug(
         '[init:initSequence] username:',
         userStore.user ? userStore.user.username : 'n/a'
@@ -164,4 +159,5 @@ export const initSequence = async () => {
         console.debug('[init:initSequence] User data loaded:', user?.username)
       }
     })
+  return
 }
