@@ -72,7 +72,7 @@ export const useNotificationsStore = defineStore('notifications', {
     notifications: [],
     errorMessages: [],
     errorMessagesIndex: [],
-    connectivityStatus: true,
+    connectivityStatus: false,
     processingLocked: false,
     processingActivities: [],
     processingActivitiesIndex: [],
