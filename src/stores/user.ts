@@ -5,6 +5,7 @@ import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/
 
 export interface State {
   userData: User | false
+  bitmap: string
   rememberCredentials: boolean
   redirectionParams: any
   acceptTermsDate: string | null
@@ -14,6 +15,7 @@ export interface State {
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
+    bitmap: '1',
     rememberCredentials: false,
     redirectionParams: {},
     // this is not stored on localStorage, and if it is not null is a ISO date string
@@ -44,6 +46,9 @@ export const useUserStore = defineStore('user', {
       this.acceptTermsDate = date
       this.acceptTermsDateOnLocalStorage = date
     },
+    setBitmap(bitmap: string) {
+      this.bitmap = bitmap
+    },
     logout() {
       return (app as any)
         .logout()
@@ -56,11 +61,14 @@ export const useUserStore = defineStore('user', {
           document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/'
           // remove from localstorage
           localStorage.removeItem('feathers-jwt')
+          // clean terms date and bitmap
           this.userData = false
+          this.acceptTermsDate = null
         })
     },
     async refreshUser() {
       return meService.find().then(d => {
+        console.info('[store/user]', d)
         const user = new User(d)
         this.userData = user
         return user
@@ -73,8 +81,12 @@ export const useUserStore = defineStore('user', {
           email,
           password
         })
-        .then(res => {
-          console.info('Authentication response:', res)
+        .then((res: any) => {
+          console.info('[store/user] Authentication response:', Object.keys(res))
+          if (res.user && res.user.bitmap) {
+            console.info(' - bitmap:', res.user.bitmap)
+            this.bitmap = res.user.bitmap
+          }
           return res
         })
         .then(({ user }) => {

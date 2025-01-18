@@ -18,8 +18,8 @@
   </div>
   <div v-else-if="!isAuthenticated && !withCallToAction">
     <div v-if="!acceptTermsDateOnLocalStorage">
-      You have not accepted the terms of use yet. Please read the entire terms of use document
-      carefully and accept it at the bottom to continue.
+      You have not accepted the terms of use yet <em>on this device</em>. Please read the entire
+      terms of use document carefully and accept it at the bottom to continue.
     </div>
     <div v-else>
       You have accepted the terms of use <em>on this device</em>:
