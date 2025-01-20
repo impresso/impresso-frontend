@@ -24,3 +24,15 @@ export const Plans: string[] = [
 ]
 
 export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher]
+
+export const ViewTermsOfUse = 'terms-of-use'
+export const ViewChangePlanRequest = 'change-plan-request'
+export const ViewConfirmChangePlanRequest = 'confirm-change-plan-request'
+export const ViewInfoModal = 'info-modal'
+export const ViewUserRequests = 'user-requests'
+export const Views: string[] = [
+  ViewTermsOfUse,
+  ViewChangePlanRequest,
+  ViewConfirmChangePlanRequest,
+  ViewUserRequests
+]
