@@ -4,7 +4,8 @@
   </a>
 </template>
 <script setup lang="ts">
-import { useViewsStore, Views } from '@/stores/views'
+import { Views } from '@/constants'
+import { useViewsStore } from '@/stores/views'
 
 const props = defineProps<{
   withCallToAction?: boolean
