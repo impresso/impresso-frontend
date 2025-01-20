@@ -54,7 +54,9 @@
         <b-col md="6" offset-md="3">
           <p>
             Create your Impresso account to explore the full potential of our Web App and Datalab.
-            Select the User Plan which fits your profile and be ready to provide evidence for
+            Be careful to select the User Plan which best describes your current status and be
+            prepared to provide evidence for Student user and Academic User registrations. Select
+            the User Plan which fits your profile and be ready to <b>provide evidence</b> for
             Student User and Academic User registrations.
           </p>
         </b-col>
