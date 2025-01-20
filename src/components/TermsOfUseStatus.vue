@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import LinkToModal from '@/components/LinkToModal.vue'
-import { ViewTermsOfUse } from '@/stores/views'
+import { ViewTermsOfUse } from '@/constants'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 
