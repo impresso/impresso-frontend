@@ -89,10 +89,8 @@
             </ellipsis>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-3">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              class="mr-1"
+            <RouterLink
+              class="mr-1 btn btn-sm btn-outline-primary"
               :to="{
                 name: 'compare',
                 query: {
@@ -101,7 +99,7 @@
               }"
             >
               {{ $t('actions.compare') }}
-            </b-button>
+            </RouterLink>
             <b-dropdown
               v-if="isLoggedIn"
               v-bind:text="$t('query_actions')"
@@ -293,6 +291,7 @@ import {
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
+import { RouterLink } from 'vue-router'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
