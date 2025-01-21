@@ -77,3 +77,14 @@ export interface UserRequest {
   status: 'pending' | 'approved' | 'rejected'
   changelog: UserRequestChangelogEntry[]
 }
+
+// new type from media endpoint
+
+export interface MediaOutlet {
+  id: string
+  type: 'newspaper' | 'radio'
+  name: string
+  acronym: string
+  startYear: number
+  endYear: number
+}

@@ -660,16 +660,21 @@ export default {
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
         this.isLoadingResults = true
-        const { total, data, info } = await searchService.find({
-          query: {
-            page,
-            limit,
-            filters,
-            facets: FACET_TYPES_S,
-            order_by: orderBy,
-            group_by: groupBy
-          }
-        })
+        const { total, data, info } = await searchService
+          .find({
+            query: {
+              page,
+              limit,
+              filters,
+              facets: FACET_TYPES_S,
+              order_by: orderBy,
+              group_by: groupBy
+            }
+          })
+          .then(response => {
+            console.log('[Search] data:', response.data)
+            return response
+          })
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false

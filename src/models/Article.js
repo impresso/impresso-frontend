@@ -47,6 +47,7 @@ export default class Article extends ArticleBase {
     nbPages = 0,
     dataProvider = '',
     newspaper = new Newspaper(),
+    mediaOutlet = null,
     pages = [],
     regions = [],
     size = 0,
@@ -63,7 +64,7 @@ export default class Article extends ArticleBase {
     contentLineBreaks = [],
     regionBreaks = [],
     mentions = [],
-    content = '',
+    content = ''
   } = {}) {
     super({
       uid,
@@ -84,7 +85,7 @@ export default class Article extends ArticleBase {
       contentLineBreaks,
       regionBreaks,
       mentions,
-      content,
+      content
     })
     // missing data from ArticleBase
     this.country = String(country)
@@ -114,7 +115,14 @@ export default class Article extends ArticleBase {
     } else {
       this.newspaper = new Newspaper(newspaper)
     }
-
+    // temporary hack
+    if (!this.mediaOutlet && this.newspaper) {
+      this.mediaOutlet = {
+        name: this.newspaper.acronym,
+        type: 'newspaper',
+        id: this.newspaper.uid
+      }
+    }
     this.pages = pages.map(page => {
       if (page instanceof Page) {
         return page
