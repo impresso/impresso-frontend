@@ -484,6 +484,7 @@ export default {
         if (this.issueImagesIndex[d.uid]) {
           d.setImages(this.issueImagesIndex[d.uid])
         }
+
         return d
       })
     },
@@ -575,14 +576,12 @@ export default {
           .then(({ data }) => data)
         // remap images by article property
         this.issueImagesIndex = this.issueImages.reduce((acc, d) => {
-          if (!d.article) {
-            console.warn('Article property not found on image', d)
-            return acc
-          }
-          if (!Array.isArray(acc[d.article])) {
-            acc[d.article] = [d]
-          } else {
-            acc[d.article].push(d)
+          if (d.contentItemUid != null) {
+            if (!Array.isArray(acc[d.contentItemUid])) {
+              acc[d.contentItemUid] = [d]
+            } else {
+              acc[d.contentItemUid].push(d)
+            }
           }
           return acc
         }, {})

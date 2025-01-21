@@ -2,10 +2,12 @@
   <div class="card search-results-image-item mx-1">
     <div class="card-body">
       <p class="card-text">
-        <b-checkbox v-if="enableCheckbox"
+        <b-checkbox
+          v-if="enableCheckbox"
           class="m-0 select-item"
           v-bind:checked="isChecked"
-          v-on:change="$emit('toggleSelected', item)" />
+          v-on:change="$emit('toggleSelected', item)"
+        />
         <image-item
           :headers="headers"
           fluid-grow
@@ -16,45 +18,52 @@
       </p>
     </div>
     <div v-if="enableSimilarTo" class="card-footer">
-      <b-button variant="outline-primary" v-on:click="$emit('click:search', item)" class="buttonFindSimilar" size="sm">
+      <b-button
+        variant="outline-primary"
+        v-on:click="$emit('click:search', item)"
+        class="buttonFindSimilar"
+        size="sm"
+      >
         {{ $t('actions.getSimilarImages') }}
       </b-button>
     </div>
   </div>
 </template>
 
-<script>
-import ImageItem from '@/components/modules/lists/ImageItem.vue';
+<script lang="ts">
+import ImageItem from '@/components/modules/lists/ImageItem.vue'
+import { IImage } from '@/models'
+import { defineComponent, PropType } from 'vue'
 
-export default {
+export default defineComponent({
   components: {
-    ImageItem,
+    ImageItem
   },
   props: {
-    item: Object,
+    item: Object as PropType<IImage>,
     enableCheckbox: Boolean,
     enableSimilarTo: Boolean,
     isChecked: Boolean,
     headers: Object
-  },
-};
+  }
+})
 </script>
 
 <style lang="scss">
 @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
-.search-results-image-item{
+.search-results-image-item {
   cursor: pointer;
-  .card-body{
+  .card-body {
     padding: 0.25rem;
   }
-  &:hover{
+  &:hover {
     border: 1px solid black;
   }
 }
 
 .tile {
-  div.overlay-region{
+  div.overlay-region {
     background: $clr-accent-secondary;
     opacity: 0.25;
   }
@@ -63,27 +72,27 @@ export default {
     border-color: black !important;
   }
   .titleblock {
-    display:block;
+    display: block;
     &:hover {
       text-decoration: none;
       border-color: black !important;
     }
   }
   .thumbnail {
-      background-position: center;
-      background-size: contain;
-      background-repeat: no-repeat;
-      height: 20em;
-      height: 30vh;
-      position: relative;
-      input[type="checkbox"] {
-          width: 0;
-      }
-      .buttonFindSimilar{
-        position: absolute;
-        bottom:0;
-        right:0;
-      }
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 20em;
+    height: 30vh;
+    position: relative;
+    input[type='checkbox'] {
+      width: 0;
+    }
+    .buttonFindSimilar {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
   }
   h2 {
     font-size: 1em;
@@ -91,5 +100,4 @@ export default {
   }
   overflow: hidden;
 }
-
 </style>

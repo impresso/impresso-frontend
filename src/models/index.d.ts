@@ -65,3 +65,20 @@ export interface TextReuseCluster {
   lexicalOverlap: number
   connectedClustersCount: number
 }
+
+export interface IMediaSourceRef {
+  uid: string
+  name: string
+  type: 'newspaper'
+}
+
+export interface IImage {
+  uid: string
+  caption?: string
+  issueUid: string
+  contentItemUid?: string
+  previewUrl: string
+  pageNumbers: number[]
+  mediaSourceRef?: IMediaSourceRef
+  date?: Date
+}

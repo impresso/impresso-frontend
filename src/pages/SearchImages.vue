@@ -1,37 +1,69 @@
 <template>
   <i-layout class="search-images">
-    <search-sidebar width="400px"
+    <search-sidebar
+      width="400px"
       :filters="enrichedFilters"
       :ignored-filters="ignoredFilters"
       :facets="facets"
       :excludedTypes="excludedTypes"
       contextTag="search-images"
-      @changed="handleFiltersChanged">
+      @changed="handleFiltersChanged"
+    >
       <template v-slot:header>
-        <div v-if="similarToImage" class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex">
+        <div
+          v-if="similarToImage"
+          class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex"
+        >
           <div class="flex-shrink-1 mr-2" style="width: 100px">
-            <img v-if="similarToImage.regions.length"
+            <!-- <img
+              v-if="similarToImage.regions.length"
               style="max-height: 100px"
-              v-bind:src="similarToImage.regions[0].iiifFragment" />
+              v-bind:src="similarToImage.regions[0].iiifFragment"
+            /> -->
+            <img
+              v-if="similarToImage.previewUrl"
+              style="max-height: 100px"
+              v-bind:src="similarToImage.previewUrl"
+            />
           </div>
           <div class="align-self-center">
-            <router-link block :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid }}" class="article-newspaper">
-              {{ similarToImage.newspaper.name}}
+            <!-- <router-link
+              block
+              :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid } }"
+              class="article-newspaper"
+            >
+              {{ similarToImage.newspaper.name }}
+            </router-link> -->
+            <router-link
+              v-if="similarToImage?.mediaSourceRef"
+              block
+              :to="{
+                name: 'newspaper',
+                params: { newspaper_uid: similarToImage?.mediaSourceRef?.uid }
+              }"
+              class="article-newspaper"
+            >
+              {{ similarToImage.mediaSourceRef.name }}
             </router-link>
-            <p class="date m-0">{{ $d(similarToImage.date, "long") }}</p>
+            <p class="date m-0">{{ $d(similarToImage.date, 'long') }}</p>
           </div>
           <div class="flex-shrink-1 ml-auto">
-            <b-button pill class="ml-2 dripicons-cross" variant="outline-danger" size="sm" v-on:click.prevent="onRemoveSimilarTo">
+            <b-button
+              pill
+              class="ml-2 dripicons-cross"
+              variant="outline-danger"
+              size="sm"
+              v-on:click.prevent="onRemoveSimilarTo"
+            >
             </b-button>
           </div>
         </div>
-        <filter-image-upload
-          v-if="enableUpload" />
+        <filter-image-upload v-if="enableUpload" />
         <search-input @submit="onSearchQuery"></search-input>
       </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch :modelValue="true">
-          {{$t('label.isFront')}}
+        <b-form-checkbox v-model="isFront" switch>
+          {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
     </search-sidebar>
@@ -48,37 +80,45 @@
                   {{ $t('label_applyRandomPage') }}
                 </b-form-checkbox>
                 </b-form-group> -->
-                <b-button size="sm" variant="outline-primary" v-on:click='loadRandomPage'>{{ $t('actions.loadRandomPage') }}</b-button>
+                <b-button size="sm" variant="outline-primary" v-on:click="loadRandomPage">{{
+                  $t('actions.loadRandomPage')
+                }}</b-button>
               </form>
             </li>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
-          <b-navbar-nav class="border-right flex-grow-1  py-2 ">
+          <b-navbar-nav class="border-right flex-grow-1 py-2">
             <ellipsis v-if="!isLoading" v-bind:initialHeight="60">
               <search-results-summary
                 group-by="images"
                 :searchQuery="{ filters: enrichedFilters }"
-                :totalRows="paginationTotalRows" />
+                :totalRows="paginationTotalRows"
+              />
             </ellipsis>
             <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2" v-if="!similarToImage">
-            <label class="mr-1">{{$t("label_order")}}</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary" class="pl-1"></i-dropdown>
+            <label class="mr-1">{{ $t('label_order') }}</label>
+            <i-dropdown
+              v-model="orderBy"
+              v-bind:options="orderByOptions"
+              size="sm"
+              variant="outline-primary"
+              class="pl-1"
+            ></i-dropdown>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2" v-else>
-            <label class="mr-1">{{$t("label_order")}}</label>
-            <b class="small-caps font-weight-bold">{{$t("sort_by_similarity")}}</b>
+            <label class="mr-1">{{ $t('label_order') }}</label>
+            <b class="small-caps font-weight-bold">{{ $t('sort_by_similarity') }}</b>
           </b-navbar-nav>
         </b-navbar>
       </template>
 
-     <!--  body -->
+      <!--  body -->
       <div class="p-1 my-2">
         <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-          <div class="mb-3"
-            v-for="searchResult in searchResults" :key="searchResult.uid">
+          <div class="mb-3" v-for="searchResult in searchResults" :key="searchResult.uid">
             <search-results-image-item
               class="mx-1"
               :item="searchResult"
@@ -87,76 +127,78 @@
               @toggleSelected="toggleSelected"
               :isChecked="isChecked(searchResult)"
               @click:search="onClickSearch"
-              :headers="headers" />
+              :headers="headers"
+            />
           </div>
         </div>
-        <div v-if="paginationTotalRows && paginationCurrentPage > 0" class="fixed-pagination-footer p-1 m-0">
+        <div
+          v-if="paginationTotalRows && paginationCurrentPage > 0"
+          class="fixed-pagination-footer p-1 m-0"
+        >
           <pagination
             v-bind:perPage="paginationPerPage"
             :current-page="paginationCurrentPage"
-            @change="$event => paginationCurrentPage = $event"
+            @change="$event => (paginationCurrentPage = $event)"
             v-bind:totalRows="paginationTotalRows"
             class="float-left small-caps"
-            />
-
+          />
         </div>
       </div>
-
     </i-layout-section>
   </i-layout>
 </template>
 
-<script>
-import {
-  searchQueryGetter,
-  searchQuerySetter,
-} from '@/logic/queryParams';
-import {
-  serializeFilters,
-  joinFiltersWithItems,
-} from '@/logic/filters';
-import {
-  searchResponseToFacetsExtractor,
-  buildEmptyFacets,
-} from '@/logic/facets';
+<script lang="ts">
+import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
+import { serializeFilters, joinFiltersWithItems } from '@/logic/filters'
+import { buildEmptyFacets } from '@/logic/facets'
 import {
   images as imagesService,
+  searchFacetsImages as searchFacetsImagesService,
   filtersItems as filtersItemsService,
   getAuthenticationBearer
-} from '@/services';
-import FilterImageUpload from '@/components/modules/FilterImageUpload.vue';
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue';
-import Pagination from '@/components/modules/Pagination.vue';
-import SearchSidebar from '@/components/modules/SearchSidebar.vue';
-import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue';
-import Ellipsis from '@/components/modules/Ellipsis.vue';
-import SearchInput from '@/components/modules/SearchInput.vue';
-import FilterFactory from '@/models/FilterFactory';
-import Image from '@/models/Image';
-import SearchQuery, { getFilterQuery } from '@/models/SearchQuery';
-import FacetModel from '@/models/Facet';
+} from '@/services'
+import FilterImageUpload from '@/components/modules/FilterImageUpload.vue'
+import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
+import Pagination from '@/components/modules/Pagination.vue'
+import SearchSidebar from '@/components/modules/SearchSidebar.vue'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import Ellipsis from '@/components/modules/Ellipsis.vue'
+import SearchInput from '@/components/modules/SearchInput.vue'
+import FilterFactory from '@/models/FilterFactory'
+import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
+import FacetModel from '@/models/Facet'
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
-import { Navigation } from '@/plugins/Navigation';
+import { Navigation } from '@/plugins/Navigation'
+import { defineComponent } from 'vue'
+import { Filter, IImage } from '@/models'
 
-const AllowedFilterTypes = [
-  'newspaper',
-  'isFront',
-  'daterange',
-  'title'
-];
+const AllowedFilterTypes = ['newspaper', 'isFront', 'daterange', 'title']
 
-const AllowedFacetTypes = [
-  'newspaper', 'year'
-];
+const AllowedFacetTypes = ['newspaper', 'year']
 
-export default {
+interface IData {
+  q: string
+  isLoading: boolean
+  selectedItems: IImage[]
+  allIndeterminate: boolean
+  allSelected: boolean
+  similarToImage: IImage | null
+  searchResults: IImage[]
+  paginationTotalRows: number
+  facets: FacetModel[]
+  filtersWithItems: Filter[]
+  headers: Record<string, string> | null
+}
+
+export default defineComponent({
   props: {
     enableUpload: Boolean,
     enableSimilarTo: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   components: {
     SearchResultsImageItem,
@@ -165,25 +207,27 @@ export default {
     SearchResultsSummary,
     Ellipsis,
     FilterImageUpload,
-    SearchSidebar,
+    SearchSidebar
   },
-  data: () => ({
-    q: '',
-    isLoading: false,
-    selectedItems: [],
-    allIndeterminate: false,
-    allSelected: false,
-    similarToImage: null,
-    searchResults: [],
-    paginationTotalRows: 0,
-    /** @type {Facet[]} */
-    facets: [],
-    /** @type {Filter[]} */
-    filtersWithItems: [],
-    headers: null,
-  }),
+  data(): IData {
+    return {
+      q: '',
+      isLoading: false,
+      selectedItems: [],
+      allIndeterminate: false,
+      allSelected: false,
+      similarToImage: null,
+      searchResults: [],
+      paginationTotalRows: 0,
+      /** @type {Facet[]} */
+      facets: [],
+      /** @type {Filter[]} */
+      filtersWithItems: [],
+      headers: null
+    }
+  },
   mounted() {
-    this.facets = buildEmptyFacets(AllowedFacetTypes);
+    this.facets = buildEmptyFacets(AllowedFacetTypes) as FacetModel[]
     const token = getAuthenticationBearer()
     if (token) {
       this.headers = {
@@ -202,104 +246,101 @@ export default {
       ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
-          p: 1,
-        },
-      }),
+          p: 1 as any as string
+        }
+      })
     },
     seed() {
-      return this.$route.query.seed || 0;
+      return this.$route.query.seed || 0
     },
     /** @returns {Filter[]} */
     enrichedFilters() {
-      return this.filtersWithItems.length
-        ? this.filtersWithItems
-        : this.filters
+      return this.filtersWithItems.length ? this.filtersWithItems : this.filters
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters
-        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     filters() {
       // filter by type
-      return this.searchQuery.filters
-        .filter(({ type }) => AllowedFilterTypes.includes(type));
+      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {string[]} */
     excludedTypes() {
-      return this.filters
-        .map(d => d.type);
+      return this.filters.map(d => d.type)
     },
     similarToImageUid: {
       get() {
-        return this.$route.query.similarTo;
+        return this.$route.query.similarTo
       },
       set(similarTo) {
-        const qp = { p: 1, similarTo: null };
+        const qp = { p: 1, similarTo: null }
         if (similarTo && similarTo.length) {
-          qp.similarTo = similarTo;
+          qp.similarTo = similarTo
         }
-        this.$navigation.updateQueryParametersWithHistory(qp);
-      },
+        this.$navigation.updateQueryParametersWithHistory(qp)
+      }
     },
     isFront: {
       get() {
-        return this.filters.some(({type}) => type === 'isFront');
+        return this.filters.some(({ type }) => type === 'isFront')
       },
       set(val) {
-        this.handleFiltersChanged(this.filters
-          .filter((d) => d.type !== 'isFront' )
-          .concat(val
-            ? [ FilterFactory.create({ type: 'isFront' }) ]
-            : []
-          )
-        );
-      },
+        this.handleFiltersChanged(
+          this.filters
+            .filter(d => d.type !== 'isFront')
+            .concat(val ? [FilterFactory.create({ type: 'isFront' })] : [])
+        )
+      }
     },
     orderByOptions: {
       get() {
         return [
           {
             value: '-date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`,
+            text: `${this.$t('sort_date')} ${this.$t('sort_desc')}`
           },
           {
             value: 'date',
-            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`,
-          },
-        ];
+            text: `${this.$t('sort_date')} ${this.$t('sort_asc')}`
+          }
+        ]
       },
+      set(val) {}
     },
     orderBy: {
       get() {
-        return this.$route.query.orderBy ?? '-date';
+        return this.$route.query.orderBy ?? '-date'
       },
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          orderBy,
-        });
-      },
+          orderBy
+        })
+      }
     },
     paginationCurrentPage: {
       get() {
-        return parseInt(this.$route.query.p ?? 0, 10);
+        return parseInt(new String(this.$route.query.p ?? 0).valueOf(), 10)
       },
       set(p) {
         this.$navigation.updateQueryParametersWithHistory({
-          p,
-        });
-      },
+          p: isNaN(p) ? 1 : p
+        })
+      }
     },
     paginationPerPage: {
       get() {
-        return Math.min(12, Math.max(this.$route.query.limit ?? 1, 50));
+        return Math.min(
+          12,
+          Math.max(parseInt(new String(this.$route.query.limit ?? 1).valueOf()), 50)
+        )
       },
       set(limit) {
         this.$navigation.updateQueryParametersWithHistory({
-          limit,
-        });
-      },
+          limit
+        })
+      }
     },
     isLoggedIn() {
       return this.userStore.userData
@@ -310,188 +351,202 @@ export default {
           seed: this.seed,
           similarTo: this.similarToImageUid,
           filters: this.filters.map(getFilterQuery),
-          groupBy: this.groupBy,
+          // groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
-          page: this.paginationCurrentPage,
-        };
+          page: this.paginationCurrentPage
+        }
       },
-    },
+      set(val) {}
+    }
   },
   methods: {
     handleFiltersChanged(filters) {
-      console.info('@handleFiltersChanged', filters);
+      console.info('@handleFiltersChanged', filters)
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
-        filters: filters.concat(this.ignoredFilters),
-      });
+        filters: filters.concat(this.ignoredFilters)
+      })
     },
     reset() {
       this.searchQuery = new SearchQuery({
-        filters: this.ignoredFilters,
-      });
+        filters: this.ignoredFilters
+      })
     },
     onSummary(msg) {
-      this.inputDescription = msg
-        .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
-        .replace('Found', this.$t('Based on search query with'));
+      // this.inputDescription = msg
+      //   .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
+      //   .replace('Found', this.$t('Based on search query with'))
     },
     onSuggestion(filter) {
-      this.handleFiltersChanged(this.filters.concat([ filter ]));
+      this.handleFiltersChanged(this.filters.concat([filter]))
     },
     updateselectAll() {
-      let count = 0;
-      this.searchResults.forEach((item) => {
+      let count = 0
+      this.searchResults.forEach(item => {
         if (this.itemSelected(item)) {
-          count += 1;
+          count += 1
         }
-      });
+      })
       if (count === 0) {
-        this.allSelected = false;
-        this.allIndeterminate = false;
+        this.allSelected = false
+        this.allIndeterminate = false
       } else if (count < this.searchResults.length) {
-        this.allSelected = false;
-        this.allIndeterminate = true;
+        this.allSelected = false
+        this.allIndeterminate = true
       } else {
-        this.allSelected = true;
-        this.allIndeterminate = false;
+        this.allSelected = true
+        this.allIndeterminate = false
       }
     },
     itemSelected(item) {
-      return this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1;
+      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
     },
     addSelectedItem(item) {
       if (!this.itemSelected(item)) {
-        this.selectedItems.push(item);
+        this.selectedItems.push(item)
       }
     },
     removeSelectedItem(item) {
       if (this.itemSelected(item)) {
-        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
-        this.selectedItems.splice(idx, 1);
+        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        this.selectedItems.splice(idx, 1)
       }
     },
     toggleSelected(item) {
       if (!this.itemSelected(item)) {
-        this.selectedItems.push(item);
+        this.selectedItems.push(item)
       } else {
-        const idx = this.selectedItems.findIndex(c => (c.uid === item.uid));
-        this.selectedItems.splice(idx, 1);
+        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        this.selectedItems.splice(idx, 1)
       }
     },
     toggleSelectAll(checked) {
       if (checked) {
-        this.searchResults.forEach((item) => {
-          this.addSelectedItem(item);
-        });
+        this.searchResults.forEach(item => {
+          this.addSelectedItem(item)
+        })
       } else {
-        this.searchResults.forEach((item) => {
-          this.removeSelectedItem(item);
-        });
+        this.searchResults.forEach(item => {
+          this.removeSelectedItem(item)
+        })
       }
     },
     isChecked(item) {
-      return (this.selectedItems.findIndex(c => (c.uid === item.uid)) !== -1);
+      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
     },
     onClearSelection() {
-      this.selectedItems = [];
+      this.selectedItems = []
     },
     onClickSearch(image) {
-      console.info('.onClickSearch, image:', image);
-      this.similarToImageUid = image.uid;
+      console.info('.onClickSearch, image:', image)
+      this.similarToImageUid = image.uid
     },
     onRemoveSimilarTo() {
-      console.info('onRemoveSimilarTo');
-      this.similarToImageUid = '';
+      console.info('onRemoveSimilarTo')
+      this.similarToImageUid = ''
     },
     onSearchQuery({ q = '' }) {
-      console.info('onSearchQuery:', q);
-      this.handleFiltersChanged(this.filters.concat(q.trim().length
-        ? [ FilterFactory.create({ type: 'title', q }) ]
-        : []
-      ));
+      console.info('onSearchQuery:', q)
+      this.handleFiltersChanged(
+        this.filters.concat(q.trim().length ? [FilterFactory.create({ type: 'title', q })] : [])
+      )
     },
     loadRandomPage() {
       this.$navigation.updateQueryParametersWithHistory({
-        p: 0,
-      });
-    },
+        p: 0
+      })
+    }
   },
   watch: {
     searchResults() {
-      this.updateselectAll();
+      this.updateselectAll()
     },
     selectedItems() {
-      this.updateselectAll();
+      this.updateselectAll()
     },
     similarToImageUid: {
       handler(uid) {
-        console.info('similarToImage', uid);
+        console.info('similarToImage', uid)
         if (uid) {
-          imagesService.get(uid).then((res) => {
-            this.similarToImage = new Image(res);
-          });
+          imagesService.get(uid).then(res => {
+            // this.similarToImage = new Image(res)
+            this.similarToImage = res as IImage
+          })
         } else {
-          this.similarToImage = null;
+          this.similarToImage = null
         }
       },
-      immediate: true,
+      immediate: true
     },
     serviceQuery: {
       async handler({ page, limit, filters, orderBy, similarTo }) {
         if (this.isLoading) {
-          console.warn('loading already... please try again later on');
-          return;
+          console.warn('loading already... please try again later on')
+          return
         }
-        this.isLoading = true;
-        const query = {
-          filters,
+        this.isLoading = true
+
+        const serializedFilters = serializeFilters(filters)
+        const query: Record<string, any> = {
+          filters: serializedFilters,
           order_by: orderBy,
-          facets: AllowedFacetTypes,
-          limit,
-        };
+          limit
+        }
         if (page > 0) {
-          query.page = page;
+          // query.page = page
+          query.offset = (page - 1) * limit
         } else {
-          query.randomPage = 'true';
+          // query.randomPage = 'true'
         }
         if (similarTo) {
-          query.similarTo = similarTo;
+          // query.similarTo = similarTo
+          query.similar_to_image_id = similarTo
         }
-        console.info('@serviceQuery query:', query);
+        console.info('@serviceQuery query:', query)
         const [
           res, // { offset, limit, total, data, info },
-          filtersWithItems,
+          facets,
+          filtersWithItems
         ] = await Promise.all([
           imagesService.find({
-            query,
+            query
           }),
-          filtersItemsService.find({
+          searchFacetsImagesService.find({
             query: {
-              filters: serializeFilters(filters),
-            },
-          }).then(joinFiltersWithItems),
-        ]);
-        this.paginationTotalRows = res.total;
-        this.searchResults = res.data.map(d => new Image(d));
-        this.filtersWithItems = filtersWithItems;
-        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1;
+              filters: serializedFilters,
+              facets: AllowedFacetTypes
+            }
+          }),
+          filtersItemsService
+            .find({
+              query: {
+                filters: serializedFilters
+              }
+            })
+            .then(joinFiltersWithItems)
+        ])
+        this.paginationTotalRows = res.pagination.total
+        this.searchResults = res.data //.map(d => new Image(d))
+        this.filtersWithItems = filtersWithItems
+        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1
 
-        const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res);
-        this.facets = facets.map(f => new FacetModel(f));
+        // const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res)
+        this.facets = facets.data.map(f => new FacetModel(f))
+        // this.facets = []
 
         setTimeout(() => {
-          this.isLoading = false;
-        }, 1000);
+          this.isLoading = false
+        }, 1000)
       },
-      immediate: true,
-    },
-  },
-};
+      immediate: true
+    }
+  }
+})
 </script>
 
 <style lang="scss" scoped>
-.image-item-similar{
+.image-item-similar {
   font-size: 14px;
   .article-newspaper {
     font-weight: bold;
@@ -501,7 +556,7 @@ export default {
     font-variant: small-caps;
   }
 }
-.btn.rounded-pill{
+.btn.rounded-pill {
   height: 1.5rem;
   width: 1.5rem;
   text-align: center;
@@ -534,20 +589,20 @@ export default {
 </style>
 
 <i18n lang="json">
-  {
-    "en": {
-      "label_order": "Order By",
-      "label_isFront": "Frontpage",
-      "label_applyRandomPage": "start with random results page",
-      "sort_asc": "Ascending",
-      "sort_desc": "Descending",
-      "sort_date": "Date",
-      "sort_by_similarity": "similarity",
-      "sort_relevance": "Relevance",
-      "items_selected": "One item selected | {count} items selected",
-      "clear_selection": "Clear Selection",
-      "add_n_to_collection": "Add item to collection | Add {count} items to collection",
-      "select_all": "Select all items on this page"
-    }
+{
+  "en": {
+    "label_order": "Order By",
+    "label_isFront": "Frontpage",
+    "label_applyRandomPage": "start with random results page",
+    "sort_asc": "Ascending",
+    "sort_desc": "Descending",
+    "sort_date": "Date",
+    "sort_by_similarity": "similarity",
+    "sort_relevance": "Relevance",
+    "items_selected": "One item selected | {count} items selected",
+    "clear_selection": "Clear Selection",
+    "add_n_to_collection": "Add item to collection | Add {count} items to collection",
+    "select_all": "Select all items on this page"
   }
+}
 </i18n>
