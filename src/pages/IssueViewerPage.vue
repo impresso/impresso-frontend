@@ -195,9 +195,10 @@
             <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
               <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
 
-              <b-button-group class="ml-2">
+              <b-button-group class="ml-2 p-1 border rounded">
                 <b-button
                   size="sm"
+                  class="mr-1"
                   :class="{ active: !isArticleTextDisplayed }"
                   variant="outline-primary"
                   @click="isArticleTextDisplayed = false"

@@ -3,7 +3,7 @@
     <div
       v-if="isRendered"
       class="modal"
-      :class="modalClass"
+      :class="[modalClasses, { show: props.show }]"
       tabindex="-1"
       :aria-labelledby="`${id}-title`"
       aria-modal="true"
@@ -83,6 +83,10 @@ const props = defineProps({
   modalClass: String,
   dialogClass: String,
   contentClass: String,
+  showDelay: {
+    type: Number,
+    default: 500
+  },
   hideHeaderClose: {
     type: Boolean,
     default: false
@@ -115,7 +119,7 @@ watch(isVisible, visible => {
   if (!visible) {
     setTimeout(() => {
       isRendered.value = false
-    }, 500)
+    }, props.showDelay)
   } else {
     emit('shown')
   }

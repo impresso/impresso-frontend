@@ -23,9 +23,9 @@ const props = defineProps<{
   dialogClass?: string
 }>()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['dismiss'])
 
 function dismiss() {
-  emit('close')
+  emit('dismiss')
 }
 </script>

@@ -34,6 +34,13 @@ export interface ChangelogEntry {
   status: string
 }
 
+export interface UserRequestChangelogEntry {
+  subscription: string
+  date: string
+  reviewer: string
+  status: string
+}
+
 export interface UserChangePlanRequest {
   id: number
   dateCreated: string
@@ -50,4 +57,34 @@ export interface TermsOfUse {
   id: number
   bitmap: string
   dateAcceptedTerms: string | null
+}
+
+export interface SubscriptionDataset {
+  id: number
+  reviewerId?: number | null
+  name: string
+  bitmapPosition: number
+  metadata?: object
+}
+
+export interface UserRequest {
+  id: number
+  reviewerId: number | null
+  subscriberId: number
+  subscription: SubscriptionDataset | null
+  dateCreated: Date
+  dateLastModified: Date
+  status: 'pending' | 'approved' | 'rejected'
+  changelog: UserRequestChangelogEntry[]
+}
+
+// new type from media endpoint
+
+export interface MediaOutlet {
+  id: string
+  type: 'newspaper' | 'radio'
+  name: string
+  acronym: string
+  startYear: number
+  endYear: number
 }

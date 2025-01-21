@@ -20,6 +20,7 @@
     <LinkToModal class="dropdown-item" :view="ViewChangePlanRequest">
       {{ $t('label_change_plan_request') }}
     </LinkToModal>
+
     <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
       {{ $t('label_terms_of_use') }}
     </LinkToModal>
@@ -28,7 +29,9 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
-
+    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
+      {{ $t('label_user_requests') }}
+    </LinkToModal>
     <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewInfoModal">
       {{ $t('label_verbose_info') }}
     </LinkToModal>
@@ -52,7 +55,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewTermsOfUse, ViewChangePlanRequest, ViewInfoModal } from '@/stores/views'
+import { ViewTermsOfUse, ViewChangePlanRequest, ViewInfoModal, ViewUserRequests } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
@@ -121,6 +124,7 @@ const userPicture = computed(() => {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
     "label_change_plan_request": "Change Plan Request",
+    "label_user_requests": "Your requests for data domains",
     "label_verbose_info": "[staff only] Verbose Info",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",

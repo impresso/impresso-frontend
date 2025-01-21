@@ -90,6 +90,18 @@
       "
       @submit="patchCurrentPlanChangeRequest"
     />
+    <UserRequestsModal
+      :title="$t('User Requests')"
+      :isVisible="view === ViewUserRequests"
+      @dismiss="() => resetView()"
+      :userRequests="userRequestResponse.data"
+      :isLoadingUserRequests="userRequestResponse.status === 'loading'"
+      :subscriptionDatasets="subscriptionDatasetResponse.data"
+      :isLoadingSubscriptionDatasets="
+        subscriptionDatasetResponse.status === 'loading' ||
+        subscriptionDatasetResponse.status === 'idle'
+      "
+    ></UserRequestsModal>
   </div>
 </template>
 
@@ -97,18 +109,26 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
-import type { TermsOfUse, UserChangePlanRequest } from '@/services/types.ts'
+import type {
+  SubscriptionDataset,
+  TermsOfUse,
+  UserChangePlanRequest,
+  UserRequest
+} from '@/services/types.ts'
 import {
   Views,
-  useViewsStore,
   ViewTermsOfUse,
   ViewChangePlanRequest,
+  ViewUserRequests,
   ViewConfirmChangePlanRequest,
   ViewInfoModal
-} from '@/stores/views'
+} from '@/constants'
+import { useViewsStore } from '@/stores/views'
 import {
   userChangePlanRequest as userChangePlanRequestService,
-  termsOfUse as termsOfUseService
+  termsOfUse as termsOfUseService,
+  userRequests as userRequestsService,
+  subscriptionDatasets as subscriptionDatasetsService
 } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
@@ -117,13 +137,18 @@ import TermsOfUseStatus from './TermsOfUseStatus.vue'
 import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
-
+import UserRequestsModal from './UserRequestsModal.vue'
 const store = useViewsStore()
 const userStore = useUserStore()
 const userPlan = computed(() => userStore.userPlan)
 const bitmap = computed(() => {
-  const b = userStore.bitmap
-  return b ? parseInt(b, 16).toString(2).padStart(4, '0') : ''
+  const base64String = userStore.bitmap
+  // Input Base64 string
+  if (!base64String) return 'n/a'
+  // Step 1: Decode the Base64 string to a byte array
+  const bi = BigInt(base64String)
+  // Step 3: Convert the BigInt to a binary string
+  const binaryString = bi.toString(2)
 })
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
@@ -149,6 +174,22 @@ const termsOfUseResponse = ref<{
   data: null
 })
 
+const userRequestResponse = ref<{
+  data: UserRequest[]
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: []
+})
+
+const subscriptionDatasetResponse = ref<{
+  data: SubscriptionDataset[]
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: []
+})
+
 const resetView = () => {
   store.view = null
 }
@@ -160,6 +201,11 @@ watch(
     if (_view === ViewChangePlanRequest) {
       console.debug('[Modals] @watch view = ViewChangePlanRequest')
       fetchUserPlanChangeRequest()
+    }
+    if (_view === ViewUserRequests) {
+      console.debug('[Modals] @watch view = ViewUserRequests')
+      fetchUserRequest()
+      fetchSubscriptionDatasets()
     }
   }
 )
@@ -263,6 +309,53 @@ const patchCurrentPlanChangeRequest = async ({ plan }) => {
     })
     .catch((err: FeathersError) => {
       console.error('[ChangePlanModal] create', err.message, err.data)
+    })
+}
+
+const fetchUserRequest = async () => {
+  console.debug('[Modals] fetchUserRequest')
+  // load current status
+  if (!user.value) {
+    return
+  }
+  userRequestResponse.value = { data: [], status: 'loading' }
+
+  // fetch user requests
+  userRequestsService
+    .find()
+    .then(data => {
+      console.info('[Modals] @useEffect - userRequestsService', data)
+      userRequestResponse.value = { data, status: 'success' }
+    })
+    .catch((err: FeathersError) => {
+      console.error('[Modals] @useEffect - userRequestsService', err.message, err.data, err.code)
+      userRequestResponse.value = { data: [], status: 'error' }
+    })
+  // fetch subscription datasets
+}
+const fetchSubscriptionDatasets = async () => {
+  console.debug('[Modals] fetchSubscriptionDatasets')
+  // load current status
+  if (!user.value) {
+    return
+  }
+  subscriptionDatasetResponse.value = { data: [], status: 'loading' }
+
+  // fetch subscription datasets
+  subscriptionDatasetsService
+    .find()
+    .then(data => {
+      console.info('[Modals] @useEffect - subscriptionDatasetsService', data)
+      subscriptionDatasetResponse.value = { data, status: 'success' }
+    })
+    .catch((err: FeathersError) => {
+      console.error(
+        '[Modals] @useEffect - subscriptionDatasetsService',
+        err.message,
+        err.data,
+        err.code
+      )
+      subscriptionDatasetResponse.value = { data: [], status: 'error' }
     })
 }
 onMounted(() => {
