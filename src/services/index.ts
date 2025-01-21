@@ -152,6 +152,7 @@ export const mentions = app.service('mentions')
 export const embeddings = app.service('embeddings')
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks)
 export const searchFacets = app.service('search-facets/search')
+export const searchFacetsImages = app.service('search-facets/images')
 export const searchFacetsTRClusters = app.service('search-facets/tr-clusters')
 export const searchFacetsTRPassages = app.service('search-facets/tr-passages')
 export const getSearchFacetsService = (index: string) => {
@@ -162,6 +163,8 @@ export const getSearchFacetsService = (index: string) => {
       return searchFacetsTRClusters
     case 'tr-passages':
       return searchFacetsTRPassages
+    case 'images':
+      return searchFacetsImages
     default:
       throw new Error(`Unknown search facet index: ${index}`)
   }
