@@ -149,6 +149,7 @@ const bitmap = computed(() => {
   const bi = BigInt(base64String)
   // Step 3: Convert the BigInt to a binary string
   const binaryString = bi.toString(2)
+  return `${binaryString} - "${base64String}"`
 })
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)

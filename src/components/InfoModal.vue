@@ -17,11 +17,17 @@
 <script setup lang="ts">
 import Modal from './base/Modal.vue'
 
-const props = defineProps<{
-  isVisible: boolean
-  title: string
-  dialogClass?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    isVisible: boolean
+    title: string
+    dialogClass?: string
+  }>(),
+  {
+    dialogClass: 'modal-dialog-scrollable modal-md',
+    title: 'Info'
+  }
+)
 
 const emit = defineEmits(['dismiss'])
 
