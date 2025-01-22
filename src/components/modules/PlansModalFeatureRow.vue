@@ -1,7 +1,7 @@
 <template>
   <div class="PlansModalFeatureRow row" :class="props.className">
-    <div class="col col-lg-2" v-html="props.label"></div>
-    <div class="col" v-for="plan in props.plans" :key="plan.id">
+    <div class="col-lg-2 small" v-html="props.label"></div>
+    <div class="col-lg-2" v-for="plan in props.plans" :key="plan.id">
       <div class="row d-flex align-items-center h-100">
         <div
           class="col"
@@ -16,15 +16,18 @@
     </div>
   </div>
 </template>
-
+<style>
+.PlansModalFeatureRow svg {
+  stroke: var(--impresso-color-black);
+}
+</style>
 <script lang="ts" setup>
 import { defineProps } from 'vue'
 import PlansModalFeatureCard from './PlansModalFeatureCard.vue'
+import Icon from '../base/Icon.vue'
 
 type PlanFeature = {
-  title: string
-  status: string
-  iconColor: string
+  icon?: string
   ref: string
 }
 

@@ -1,11 +1,13 @@
 <template>
   <div :class="status" class="MarkdownContent" v-html="content" />
+  <LoadingBlock v-if="status === 'pending' || status === 'idle'" style="height: 100px" />
 </template>
 
 <script setup lang="ts">
 import axios from 'axios'
 import { ref, watch } from 'vue'
 import markdown from '@/filters/markdown'
+import LoadingBlock from './LoadingBlock.vue'
 
 const props = defineProps<{
   url?: string
