@@ -30,6 +30,14 @@
         />
       </template>
     </TermsOfUseModal>
+    <PlansModal
+      :isVisible="view === ViewPlans"
+      @dismiss="() => resetView()"
+      :modalTitle="$t('User plans overview')"
+      :title="$t('Impresso User Plans')"
+      :userPlan="userPlan"
+      :userPlanLabel="PlanLabels[userPlan]"
+    />
     <InfoModal
       :isVisible="view === ViewInfoModal"
       :title="$t('User settings')"
@@ -118,6 +126,7 @@ import type {
 import {
   Views,
   ViewTermsOfUse,
+  ViewPlans,
   ViewChangePlanRequest,
   ViewUserRequests,
   ViewConfirmChangePlanRequest,
@@ -138,6 +147,7 @@ import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
 import UserRequestsModal from './UserRequestsModal.vue'
+import PlansModal from './PlansModal.vue'
 const store = useViewsStore()
 const userStore = useUserStore()
 const userPlan = computed(() => userStore.userPlan)
