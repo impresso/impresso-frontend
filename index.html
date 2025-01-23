@@ -28,7 +28,7 @@
     </script>
     <!-- End Matomo Code -->
     <style>
-      #app-loading {
+      #app-container-loading {
         position: fixed;
         top: 0;
         bottom: 0;
@@ -39,7 +39,7 @@
         background: linear-gradient(to top, #181a1d, #343a40);
         transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      #app-loading::before {
+      #app-container-loading::before {
         position: absolute;
         top: 0;
         left: 0;
@@ -49,11 +49,11 @@
         background-color: #ffeb78;
         content: '';
       }
-      #app-loading.dismissed {
+      #app-container-loading.dismissed {
         opacity: 0;
         pointer-events: none;
       }
-      #app-loading .spinner {
+      #app-container-loading .spinner {
         border: 1px solid #f3f3f3;
         border-top: 1px solid black;
         border-radius: 50%;
@@ -80,7 +80,7 @@
   </head>
   <body>
     <div id="app-container" style="height: 100%"></div>
-    <div id="app-loading">
+    <div id="app-container-loading">
       <svg
         id="app-loading-logo"
         data-name="Layer 1"
