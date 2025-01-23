@@ -55,7 +55,7 @@ async function waitForConnectivity() {
 // window
 document.addEventListener('DOMContentLoaded', async () => {
   console.debug('[main.ts] DOM fully loaded and parsed')
-  const loadingElement = document.getElementById('app-loading')
+  const loadingElement = document.getElementById('app-container-loading')
   console.debug('[main.ts] Check DOM loading elements...', loadingElement)
 
   try {
