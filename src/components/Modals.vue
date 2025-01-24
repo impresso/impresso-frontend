@@ -35,8 +35,14 @@
       @dismiss="() => resetView()"
       :modalTitle="$t('User plans overview')"
       :title="$t('Impresso User Plans')"
+      :content="fetchPlansResponse.data?.planContent.body || ''"
       :userPlan="userPlan"
-      :userPlanLabel="PlanLabels[userPlan]"
+      :plans="fetchPlansResponse.data?.plans || []"
+      :dataFeatureLabels="fetchPlansResponse.data?.DataFeatureLabels || {}"
+      :requirementsLabels="fetchPlansResponse.data?.RequirementsLabels || {}"
+      :isLoading="fetchPlansResponse.status === 'loading' || fetchPlansResponse.status === 'idle'"
+      :values="fetchPlansResponse.data?.values || {}"
+      :acceptedTermsDate="acceptTermsDate"
     />
     <InfoModal
       :isVisible="view === ViewInfoModal"
@@ -148,6 +154,8 @@ import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
 import UserRequestsModal from './UserRequestsModal.vue'
 import PlansModal from './PlansModal.vue'
+import axios from 'axios'
+
 const store = useViewsStore()
 const userStore = useUserStore()
 const userPlan = computed(() => userStore.userPlan)
@@ -161,6 +169,7 @@ const bitmap = computed(() => {
   const binaryString = bi.toString(2)
   return `${binaryString} - "${base64String}"`
 })
+
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
 const user = computed(() => !!userStore.userData)
@@ -201,6 +210,37 @@ const subscriptionDatasetResponse = ref<{
   data: []
 })
 
+const fetchPlansResponse = ref<{
+  data: {
+    plans: {
+      title: string
+      icon: string
+      id: string
+      features: {
+        ref: string
+        icon?: string
+      }[]
+      requirements: string[]
+      body: string
+    }[]
+    AvailablePlans: string[]
+    DataFeatureLabels: Record<string, string>
+    ExportFeatureLabels: Record<string, string>
+    GenericFeatureLabels: Record<string, string>
+    RequirementsLabels: Record<string, string>
+    values: Record<string, string>
+    planContent: {
+      excerpt: string
+      body: string
+    }
+    features: string[]
+  } | null
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: null
+})
+
 const resetView = () => {
   store.view = null
 }
@@ -212,8 +252,10 @@ watch(
     if (_view === ViewChangePlanRequest) {
       console.debug('[Modals] @watch view = ViewChangePlanRequest')
       fetchUserPlanChangeRequest()
-    }
-    if (_view === ViewUserRequests) {
+    } else if (_view === ViewPlans) {
+      console.debug('[Modals] @watch view = ViewTermsOfUse')
+      fetchPlansContent()
+    } else if (_view === ViewUserRequests) {
       console.debug('[Modals] @watch view = ViewUserRequests')
       fetchUserRequest()
       fetchSubscriptionDatasets()
@@ -221,16 +263,48 @@ watch(
   }
 )
 
-const fetchAcceptTermsDate = async () => {
+/**
+ * Fetches the plans content from a JSON URL specified in the environment variables.
+ *
+ * Logs the URL being fetched from for debugging purposes.
+ * If the user is not available, the function returns early.
+ * Sets the fetchPlansResponse to a loading state before making the request.
+ *
+ * Upon successful response, updates fetchPlansResponse with the fetched data and sets the status to 'success'.
+ *
+ * @async
+ * @function fetchPlansContent
+ * @returns {Promise<void>} A promise that resolves when the fetch operation is complete.
+ */
+const fetchPlansContent = async (): Promise<void> => {
+  console.debug('[Modals] fetchPlansContent from JSON:', import.meta.env.VITE_PLANS_JSON_URL)
+  // load current status
+  if (!user.value) {
+    return
+  }
+  fetchPlansResponse.value = { data: null, status: 'loading' }
+  const response = await axios.get(import.meta.env.VITE_PLANS_JSON_URL).then(response => {
+    console.info(
+      '[Modals]fetchPlansContent - axios.get(import.meta.env.VITE_PLANS_JSON_URL)',
+      response
+    )
+    return response
+  })
+  fetchPlansResponse.value = { data: response.data, status: 'success' }
+}
+
+/**
+ * Fetches the date when the user accepted the terms of use.
+ *
+ * This method updates the `acceptTermsDateResponse` ref with the status of the request.
+ * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
+ *@async
+ * @function fetchAcceptTermsDate
+ * @returns {Promise<void>}
+ */
+const fetchAcceptTermsDate = async (): Promise<void> => {
   console.debug('[Modals:fetchAcceptTermsDate] is user:', user.value)
-  /**
-   * Fetches the date when the user accepted the terms of use.
-   *
-   * This method updates the `acceptTermsDateResponse` ref with the status of the request.
-   * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
-   *
-   * @returns {Promise<void>}
-   */
+
   if (!user.value) {
     return
   }
