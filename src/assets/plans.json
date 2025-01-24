@@ -1,0 +1,340 @@
+{
+  "AvailablePlans": ["plan-basic", "plan-educational", "plan-researcher"],
+  "PlanLabels": {
+    "guest": "Guest",
+    "plan-basic": "Basic User",
+    "plan-educational": "Student User",
+    "plan-researcher": "Academic User",
+    "academic-user-plus": "Academic User +",
+    "no-plan": "No Plan",
+    "plan-special-membership": "Special Membership"
+  },
+  "DataFeatureLabels": {
+    "metadata": "Metadata (bibliographic, descriptive, technical - public and protected domain)",
+    "facsimiles": "Facsimiles  - Protected Domain",
+    "facsimiles-public-domain": "Facsimiles - Public domain",
+    "audio": "Audio records - Protected Domain",
+    "audio-public-domain": "Audio records - Public Domain",
+    "transcripts": "Transcripts - Protected Domain",
+    "transcripts-public-domain": "Transcripts - Public Domain",
+    "images": "Images (illustrations, photographs, etc.) - Protected Domain",
+    "images-public-domain": "Images (illustrations, photographs, etc.) - Public Domain",
+    "semantic-enrichments": "Named entities, text reuse clusters, topics, image classification etc. (for both public and protected data)",
+    "semantic-enrichments-public-domain": "Named entities, text reuse clusters, topics, image classification etc. </br><b>Public Domain</b>"
+  },
+  "PlanAvailabilityLabels": {
+    "guest": "Public Domain, always accessible",
+    "plan-basic": "Feature accessible with a basic account",
+    "plan-educational": "Feature accessible with a student account",
+    "plan-researcher": "Feature accessible with an academic account",
+    "academic-user-plus": "Feature accessible with an academic account",
+    "no-plan": "Feature not accessible"
+  },
+  "PlanIconLabels": {
+    "restricted-only-access-no-download": "Access to protected data determined only by Impresso partners. <b>No download possible<b>",
+    "restricted-only-access-download": "Access and download to protected data determined only by Impresso partners.",
+    "public-domain-only-access-no-download": "Access Granted, <b>Download Not Available<b>"
+  },
+  "GenericFeatureLabels": {
+    "explore-all-features": "Explore all features of the Impresso Web App and Datalab.",
+    "create-store-export-collections": "Create, store and export personal collections.",
+    "generate-api-keys": "Generate API keys to access parts of our corpus via the Impresso Datalab."
+  },
+  "RequirementsLabels": {
+    "terms-of-use": "Agreement to Terms of Use",
+    "impresso-account": "Impresso Account creation",
+    "proof-of-student-enrollment": "Proof of enrollement in higher education (for students)",
+    "proof-of-academic-affiliation": "Proof of academic affiliation",
+    "data-access-granted": "Account creation request must receive approval from content provider"
+  },
+  "Plans": [
+    {
+      "title": "Guest User",
+      "icon": "basic",
+      "id": "no-plan",
+      "features": [
+        {
+          "ref": "metadata"
+        },
+        {
+          "ref": "export-metadata"
+        },
+        {
+          "ref": "facsimiles-public-domain"
+        },
+        {
+          "ref": "audio-public-domain"
+        },
+        {
+          "ref": "transcripts-public-domain"
+        },
+        {
+          "ref": "export-transcripts-public-domain"
+        },
+        {
+          "ref": "images-public-domain"
+        },
+        {
+          "ref": "semantic-enrichments"
+        },
+        {
+          "ref": "export-semantic-enrichments"
+        }
+      ],
+      "requirements": ["terms-of-use"],
+      "body": "The Guest User Plan allows anyone to explore the public domain part of the Impresso Corpus, as well as to access all metadata and semantic enrichments through the Impresso Web App and Datalab, without the need to create an account."
+    },
+    {
+      "title": "Basic User",
+      "icon": "basic",
+      "id": "plan-basic",
+      "features": [
+        {
+          "ref": "explore-all-features"
+        },
+        {
+          "ref": "create-store-export-collections"
+        },
+        {
+          "ref": "generate-api-keys"
+        },
+        {
+          "ref": "metadata-public-domain"
+        },
+        {
+          "ref": "metadata"
+        },
+        {
+          "ref": "export-metadata"
+        },
+        {
+          "ref": "facsimiles-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "facsimiles",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "audio-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "audio",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "transcripts-public-domain"
+        },
+        {
+          "ref": "transcripts",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "images-public-domain"
+        },
+        {
+          "ref": "images",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "semantic-enrichments-public-domain"
+        },
+        {
+          "ref": "semantic-enrichments"
+        }
+      ],
+      "requirements": ["terms-of-use", "impresso-account"],
+      "body": "The Basic User Plan offers access to the public domain part of the Impresso Corpus, some protected domain data, as well as metadata and semantic enrichments. With this plan, users can create, save, and export personal collections."
+    },
+    {
+      "title": "Student User",
+      "icon": "basic",
+      "id": "plan-educational",
+      "features": [
+        {
+          "ref": "explore-all-features"
+        },
+        {
+          "ref": "create-store-export-collections"
+        },
+        {
+          "ref": "generate-api-keys"
+        },
+        {
+          "ref": "metadata-public-domain"
+        },
+        {
+          "ref": "metadata"
+        },
+        {
+          "ref": "export-metadata"
+        },
+        {
+          "ref": "facsimiles-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "facsimiles",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "audio-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "audio",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "transcripts-public-domain"
+        },
+        {
+          "ref": "transcripts",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "images-public-domain"
+        },
+        {
+          "ref": "images",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "semantic-enrichments-public-domain"
+        },
+        {
+          "ref": "semantic-enrichments"
+        }
+      ],
+      "requirements": ["terms-of-use", "impresso-account", "proof-of-student-enrollment"],
+      "body": "The Student User Plan provides students with the same benefits as the Basic Plan, along with access to additional protected domain data."
+    },
+    {
+      "title": "Academic User",
+      "icon": "basic",
+      "id": "plan-researcher",
+      "features": [
+        {
+          "ref": "explore-all-features"
+        },
+        {
+          "ref": "create-store-export-collections"
+        },
+        {
+          "ref": "generate-api-keys"
+        },
+        {
+          "ref": "metadata-public-domain"
+        },
+        {
+          "ref": "metadata"
+        },
+        {
+          "ref": "export-metadata"
+        },
+        {
+          "ref": "facsimiles-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "facsimiles",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "audio-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "audio",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "transcripts-public-domain"
+        },
+        {
+          "ref": "transcripts",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "images-public-domain"
+        },
+        {
+          "ref": "images",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "semantic-enrichments-public-domain"
+        },
+        {
+          "ref": "semantic-enrichments"
+        }
+      ],
+      "requirements": ["terms-of-use", "impresso-account", "proof-of-academic-affiliation"],
+      "body": "The Academic User Plan, available to those with an academic affiliation, includes all benefits of the Basic Plan, with access to an expanded range of protected domain data."
+    },
+    {
+      "title": "Coming soon: Special Membership",
+      "icon": "basic",
+      "id": "plan-special-membership",
+      "features": [
+        {
+          "ref": "explore-all-features"
+        },
+        {
+          "ref": "create-store-export-collections"
+        },
+        {
+          "ref": "generate-api-keys"
+        },
+        {
+          "ref": "metadata-public-domain"
+        },
+        {
+          "ref": "metadata"
+        },
+        {
+          "ref": "export-metadata"
+        },
+        {
+          "ref": "facsimiles-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "facsimiles",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "audio-public-domain",
+          "icon": "public-domain-only-access-no-download"
+        },
+        {
+          "ref": "audio",
+          "icon": "restricted-only-access-no-download"
+        },
+        {
+          "ref": "transcripts-public-domain"
+        },
+        {
+          "ref": "transcripts",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "images-public-domain"
+        },
+        {
+          "ref": "images",
+          "icon": "restricted-only-access-download"
+        },
+        {
+          "ref": "semantic-enrichments-public-domain"
+        },
+        {
+          "ref": "semantic-enrichments"
+        }
+      ],
+      "requirements": ["terms-of-use", "impresso-account", "data-access-granted"],
+      "body": "The Academic User+ Plan offers extended access, including collections that require approval from content providers for an Impresso user account."
+    }
+  ]
+}

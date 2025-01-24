@@ -55,7 +55,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewTermsOfUse, ViewChangePlanRequest, ViewInfoModal, ViewUserRequests } from '@/constants'
+import {
+  ViewTermsOfUse,
+  ViewChangePlanRequest,
+  ViewInfoModal,
+  ViewUserRequests,
+  ViewPlans
+} from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
@@ -126,6 +132,7 @@ const userPicture = computed(() => {
     "label_change_plan_request": "Change Plan Request",
     "label_user_requests": "Your requests for data domains",
     "label_verbose_info": "[staff only] Verbose Info",
+    "label_plans": "Plans",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",

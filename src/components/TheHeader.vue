@@ -69,7 +69,13 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-
+        <b-nav-item>
+          <LinkToModal class="nav-link" :view="ViewPlans">
+            <span>
+              {{ $t('label_plans') }}
+            </span>
+          </LinkToModal>
+        </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -216,12 +222,15 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
+import { ViewPlans } from '@/constants'
+import LinkToModal from './LinkToModal.vue'
 
 export default defineComponent({
   // props: {
   //   searchQuery: Object,
   // },
   data: () => ({
+    ViewPlans,
     languages: {
       de: {
         code: 'de',
@@ -427,7 +436,8 @@ export default defineComponent({
     JobItem,
     Pagination,
     InfoButton,
-    UserArea
+    UserArea,
+    LinkToModal
   }
 })
 </script>
@@ -720,6 +730,7 @@ export default defineComponent({
     "collections": "Collections",
     "profile": "Profile",
     "label_home": "Home",
+    "label_plans": "Plans",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
