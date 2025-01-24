@@ -1,14 +1,14 @@
 <template>
   <div>
-    PlansModalFeatureCard
-    {{ feature }}
+    <Icon v-if="feature.icon" name="warningCircle" />
+    <Icon v-else name="check" />
   </div>
 </template>
 <script lang="ts" setup>
+import Icon from '../base/Icon.vue'
+
 type PlanFeature = {
-  title: string
-  status: string
-  iconColor: string
+  icon?: string
   ref: string
 }
 
