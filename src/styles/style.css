@@ -264,6 +264,12 @@ label {
   font-weight: var(--impresso-wght);
   font-variation-settings: 'wght' var(--impresso-wght);
 }
+.very-small {
+  font-size: 0.75em;
+  font-weight: inherit;
+  font-weight: var(--impresso-wght);
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .text-accent {
   color: var(--accent);
 }
