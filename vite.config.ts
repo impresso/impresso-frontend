@@ -14,6 +14,7 @@ export default ({ mode }: { mode: string }) => {
     console.log(env)
   }
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
+  const DatalabContentProxyPath = `^${env.VITE_DATALAB_CONTENT_API_PATH}`
   const ApiIiifProxyPath = [
     '^',
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
@@ -50,6 +51,11 @@ export default ({ mode }: { mode: string }) => {
         [SocketIoProxyPath]: {
           target: env.VITE_MIDDLELAYER_API,
           ws: true,
+          changeOrigin: true
+        },
+        [DatalabContentProxyPath]: {
+          target: env.VITE_DATALAB_CONTENT_API_HOST,
+          ws: false,
           changeOrigin: true
         },
         // this is from IIIF stored in the database, thsy usually contain /api/proxy
