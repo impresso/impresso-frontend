@@ -113,14 +113,7 @@
             [values.DataFeatureFacsimilesPublicDomain, values.ExportFeatureFacsimilesPublicDomain],
             [values.DataFeatureAudioPublicDomain, values.ExportFeatureAudioPublicDomain],
             [values.DataFeatureImagesPublicDomain, values.ExportFeatureImagesPublicDomain],
-            [
-              values.DataFeatureTranscriptsPublicDomain,
-              values.ExportFeatureTranscriptsPublicDomain
-            ],
-            [
-              values.DataFeatureSemanticEnrichmentsPublicDomain,
-              values.ExportFeatureSemanticEnrichmentsPublicDomain
-            ]
+            [values.DataFeatureTranscriptsPublicDomain, values.ExportFeatureTranscriptsPublicDomain]
           ]"
           :key="index"
         >
@@ -141,7 +134,24 @@
             [values.DataFeatureFacsimiles, values.ExportFeatureFacsimiles],
             [values.DataFeatureAudio, values.ExportFeatureAudio],
             [values.DataFeatureImages, values.ExportFeatureImages],
-            [values.DataFeatureTranscripts, values.ExportFeatureTranscripts],
+            [values.DataFeatureTranscripts, values.ExportFeatureTranscripts]
+          ]"
+          :key="index"
+        >
+          <PlansModalFeatureRow
+            :plans="plans"
+            :label="dataFeatureLabels[keyData]"
+            :featureIds="[keyData, keyExport]"
+            class="PlansModal__hRow mb-2"
+          />
+        </div>
+        <div class="row">
+          <div class="col pt-1 mb-1">
+            <h4 class="font-size-inherit mt-2">&rarr; Semantic Enrichments</h4>
+          </div>
+        </div>
+        <div
+          v-for="([keyData, keyExport], index) in [
             [values.DataFeatureSemanticEnrichments, values.ExportFeatureSemanticEnrichments]
           ]"
           :key="index"
