@@ -89,27 +89,27 @@ export const Default: Story = {
       'semantic-enrichments-public-domain':
         'Named entities, text reuse clusters, topics, image classification etc. '
     },
-    PlanAvailabilityLabels: {
-      guest: 'Public Domain, always accessible',
-      'plan-basic': 'Feature accessible with a basic account',
-      'plan-educational': 'Feature accessible with a student account',
-      'plan-researcher': 'Feature accessible with an academic account',
-      'academic-user-plus': 'Feature accessible with an academic account',
-      'no-plan': 'Feature not accessible'
-    },
-    PlanIconLabels: {
-      'restricted-only-access-no-download':
-        'Access to protected data determined only by Impresso partners. <b>No download possible<b>',
-      'restricted-only-access-download':
-        'Access and download to protected data determined only by Impresso partners.',
-      'public-domain-only-access-no-download': 'Access Granted, <b>Download Not Available<b>'
-    },
-    GenericFeatureLabels: {
-      'explore-all-features': 'Explore all features of the Impresso Web App and Datalab.',
-      'create-store-export-collections': 'Create, store and export personal collections.',
-      'generate-api-keys':
-        'Generate API keys to access parts of our corpus via the Impresso Datalab.'
-    },
+    // PlanAvailabilityLabels: {
+    //   guest: 'Public Domain, always accessible',
+    //   'plan-basic': 'Feature accessible with a basic account',
+    //   'plan-educational': 'Feature accessible with a student account',
+    //   'plan-researcher': 'Feature accessible with an academic account',
+    //   'academic-user-plus': 'Feature accessible with an academic account',
+    //   'no-plan': 'Feature not accessible'
+    // },
+    // PlanIconLabels: {
+    //   'restricted-only-access-no-download':
+    //     'Access to protected data determined only by Impresso partners. <b>No download possible<b>',
+    //   'restricted-only-access-download':
+    //     'Access and download to protected data determined only by Impresso partners.',
+    //   'public-domain-only-access-no-download': 'Access Granted, <b>Download Not Available<b>'
+    // },
+    // GenericFeatureLabels: {
+    //   'explore-all-features': 'Explore all features of the Impresso Web App and Datalab.',
+    //   'create-store-export-collections': 'Create, store and export personal collections.',
+    //   'generate-api-keys':
+    //     'Generate API keys to access parts of our corpus via the Impresso Datalab.'
+    // },
     requirementsLabels: {
       'terms-of-use': 'Agreement to Terms of Use',
       'impresso-account': 'Impresso Account creation',
@@ -117,20 +117,20 @@ export const Default: Story = {
       'proof-of-academic-affiliation': 'Proof of academic affiliation',
       'data-access-granted': 'Account creation request must receive approval from content provider'
     },
-    ExportFeatureLabels: {
-      'export-metadata': 'Export Metadata',
-      'export-metadata-public-domain': 'Export Metadata',
-      'export-facsimiles': 'Export Facsimiles',
-      'export-facsimiles-public-domain': 'Export Facsimiles',
-      'export-audio': 'Export Audio',
-      'export-audio-public-domain': 'Export Audio',
-      'export-transcripts': 'Export Transcripts',
-      'export-transcripts-public-domain': 'Export Transcripts',
-      'export-images': 'Export Images',
-      'export-images-public-domain': 'Export Images',
-      'export-semantic-enrichments': 'Export Semantic Enrichments',
-      'semantic-enrichments-public-domain': 'Export Semantic Enrichments'
-    },
+    // ExportFeatureLabels: {
+    //   'export-metadata': 'Export Metadata',
+    //   'export-metadata-public-domain': 'Export Metadata',
+    //   'export-facsimiles': 'Export Facsimiles',
+    //   'export-facsimiles-public-domain': 'Export Facsimiles',
+    //   'export-audio': 'Export Audio',
+    //   'export-audio-public-domain': 'Export Audio',
+    //   'export-transcripts': 'Export Transcripts',
+    //   'export-transcripts-public-domain': 'Export Transcripts',
+    //   'export-images': 'Export Images',
+    //   'export-images-public-domain': 'Export Images',
+    //   'export-semantic-enrichments': 'Export Semantic Enrichments',
+    //   'semantic-enrichments-public-domain': 'Export Semantic Enrichments'
+    // },
     plans: [
       {
         title: 'Guest User',
