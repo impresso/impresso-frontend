@@ -24,9 +24,7 @@
     <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
       {{ $t('label_terms_of_use') }}
     </LinkToModal>
-    <LinkToModal class="dropdown-item" :view="ViewPlans">
-      {{ $t('label_plans') }}
-    </LinkToModal>
+
     <b-dropdown-item v-on:click="logout">{{ $t('logout') }}</b-dropdown-item>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
