@@ -33,7 +33,7 @@ const title = computed(() => {
     try {
       return glob.impressoNewspapers[props.item.id].name
     } catch (e) {
-      debugger
+      // debugger
       return props.item.name || props.item.id
     }
   }
