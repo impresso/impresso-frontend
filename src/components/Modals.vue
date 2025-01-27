@@ -116,6 +116,14 @@
         subscriptionDatasetResponse.status === 'idle'
       "
     ></UserRequestsModal>
+    <CorpusOverviewModal
+      :title="$t('Corpus Overview')"
+      :isVisible="view === ViewCorpusOverview"
+      :userPlan="userPlan"
+      :plansLabels="PlanLabels"
+      :datasets="[]"
+      @dismiss="() => resetView()"
+    />
   </div>
 </template>
 
@@ -136,7 +144,8 @@ import {
   ViewChangePlanRequest,
   ViewUserRequests,
   ViewConfirmChangePlanRequest,
-  ViewInfoModal
+  ViewInfoModal,
+  ViewCorpusOverview
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
@@ -153,6 +162,7 @@ import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
 import UserRequestsModal from './UserRequestsModal.vue'
+import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
 import axios from 'axios'
 

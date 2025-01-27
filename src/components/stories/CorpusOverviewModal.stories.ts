@@ -15,7 +15,7 @@ const meta: Meta<typeof CorpusOverviewModal> = {
       },
       components: { CorpusOverviewModal },
       template:
-        '<div style="height: 400px; width: 100%"><CorpusOverviewModal v-bind="args"></CorpusOverviewModal></div>'
+        '<div style="height: 1000px; width: 100%"><CorpusOverviewModal v-bind="args"></CorpusOverviewModal></div>'
     }
   }
 }
@@ -28,7 +28,8 @@ export const Default: Story = {
   args: {
     userPlan: AvailablePlans[0],
     isVisible: true,
-    isLoading: true,
+    isLoading: false,
+    plansLabels: PlanLabels,
     datasets: [
       {
         dataPartnerInstitution: 'SNL',
@@ -39,9 +40,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Public Domain',
         permittedUse: 'Personal, Research and Educational',
-        minimumUserPlanRequiredToExploreInWebapp: 'Guest User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Basic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Basic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'guest',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
+        minimumUserPlanRequiredToExportIllustration: 'plan-basic',
         partnerBitmapIndex: 5
       },
       {
@@ -53,9 +54,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Public Domain',
         permittedUse: 'Personal, Research and Educational',
-        minimumUserPlanRequiredToExploreInWebapp: 'Guest User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Basic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Basic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'guest',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
+        minimumUserPlanRequiredToExportIllustration: 'plan-basic',
         partnerBitmapIndex: 5
       },
       {
@@ -67,9 +68,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Public Domain',
         permittedUse: 'Personal, Research and Educational',
-        minimumUserPlanRequiredToExploreInWebapp: 'Guest User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Basic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Basic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'guest',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
+        minimumUserPlanRequiredToExportIllustration: 'plan-basic',
         partnerBitmapIndex: 22
       },
       {
@@ -81,9 +82,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Protected Domain: In copyright',
         permittedUse: 'Research',
-        minimumUserPlanRequiredToExploreInWebapp: 'Academic User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Academic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Academic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'plan-researcher',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-researcher',
+        minimumUserPlanRequiredToExportIllustration: 'plan-researcher',
         partnerBitmapIndex: 22
       },
       {
@@ -95,9 +96,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Protected Domain: In copyright',
         permittedUse: 'Academic users at least OR Archive members',
-        minimumUserPlanRequiredToExploreInWebapp: 'Basic User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Academic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Academic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'plan-basic',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-researcher',
+        minimumUserPlanRequiredToExportIllustration: 'plan-researcher',
         partnerBitmapIndex: 6
       },
       {
@@ -109,9 +110,9 @@ export const Default: Story = {
         medium: 'print',
         copyright: 'Public Domain',
         permittedUse: 'Personal, Research and Educational',
-        minimumUserPlanRequiredToExploreInWebapp: 'Guest User Plan',
-        minimumUserPlanRequiredToExportTranscripts: 'Basic User Plan',
-        minimumUserPlanRequiredToExportIllustration: 'Basic User Plan',
+        minimumUserPlanRequiredToExploreInWebapp: 'guest',
+        minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
+        minimumUserPlanRequiredToExportIllustration: 'plan-basic',
         partnerBitmapIndex: 6
       }
     ] as Dataset[]

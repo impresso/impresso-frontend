@@ -31,11 +31,12 @@ export const ViewConfirmChangePlanRequest = 'confirm-change-plan-request'
 export const ViewInfoModal = 'info-modal'
 export const ViewUserRequests = 'user-requests'
 export const ViewPlans = 'plans'
-
+export const ViewCorpusOverview = 'corpus-overview'
 export const Views: string[] = [
   ViewTermsOfUse,
   ViewChangePlanRequest,
   ViewConfirmChangePlanRequest,
   ViewUserRequests,
-  ViewPlans
+  ViewPlans,
+  ViewCorpusOverview
 ]

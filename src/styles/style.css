@@ -276,6 +276,9 @@ label {
 .text-decoration-underline {
   text-decoration: underline;
 }
+.text-nowrap {
+  white-space: nowrap;
+}
 .font-weight-bold {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);

@@ -85,6 +85,6 @@ export interface MediaOutlet {
   type: 'newspaper' | 'radio'
   name: string
   acronym: string
-  startYear: number
-  endYear: number
+  startYear?: number
+  endYear?: number
 }
