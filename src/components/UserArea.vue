@@ -29,8 +29,11 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
-    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
+    <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
       {{ $t('label_user_requests') }}
+    </LinkToModal> -->
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewCorpusOverview">
+      {{ $t('label_corpus_overview') }}
     </LinkToModal>
     <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewInfoModal">
       {{ $t('label_verbose_info') }}
@@ -59,8 +62,9 @@ import {
   ViewTermsOfUse,
   ViewChangePlanRequest,
   ViewInfoModal,
-  ViewUserRequests,
-  ViewPlans
+  // ViewUserRequests,
+  // ViewPlans
+  ViewCorpusOverview
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
@@ -133,6 +137,7 @@ const userPicture = computed(() => {
     "label_user_requests": "Your requests for data domains",
     "label_verbose_info": "[staff only] Verbose Info",
     "label_plans": "Plans",
+    "label_corpus_overview": "Corpus Overview",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",

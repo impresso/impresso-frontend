@@ -6,7 +6,7 @@
       <span class="small-caps">{{ $t(item.type + '_label') }}</span>
     </router-link>
     <div v-else>
-      <span>{{ title }}</span
+      <span className="font-weight-medium text-decoration-underline">{{ title }}</span
       >{{ ' ' }}
       <span class="small-caps">{{ $t(item.type + '_label') }}</span>
     </div>
@@ -14,11 +14,12 @@
 </template>
 <script lang="ts" setup>
 import { MediaOutlet } from '@/services/types'
+import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
 
 const props = defineProps<{
   item: MediaOutlet
-  showLink: boolean
+  showLink?: boolean
 }>()
 
 const routerLinkUrl = computed(() => ({
