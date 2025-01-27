@@ -210,7 +210,7 @@ const props = withDefaults(
     title: 'Impresso Corpus Overview',
     modalTitle: 'Impresso Corpus Overview:  Data Accessibility and Usage Permissions',
     content:
-      'The Impresso Corpus features newspaper titles and radio broadcasts from various cultural heritage institutions. This table outlines its composition, detailing data accessibility (required [user plans](/datalab/plans)) and permitted uses.',
+      'The Impresso Corpus features newspaper titles and radio broadcasts from various cultural heritage institutions. This table outlines its composition, detailing data accessibility and permitted uses.',
     defaultSortOrder: 'timePeriod',
     sortOptions: () => [
       { value: 'timePeriod', text: 'Time Period' },

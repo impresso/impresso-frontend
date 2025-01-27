@@ -137,6 +137,7 @@ const userPicture = computed(() => {
     "label_user_requests": "Your requests for data domains",
     "label_verbose_info": "[staff only] Verbose Info",
     "label_plans": "Plans",
+    "label_corpus_overview": "Corpus Overview",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",

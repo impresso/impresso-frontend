@@ -121,8 +121,13 @@
       :isVisible="view === ViewCorpusOverview"
       :userPlan="userPlan"
       :plansLabels="PlanLabels"
-      :datasets="[]"
+      :datasets="fetchCorpusOverviewResponse.data"
       @dismiss="() => resetView()"
+      showLink
+      :isLoading="
+        fetchCorpusOverviewResponse.status === 'loading' ||
+        fetchCorpusOverviewResponse.status === 'idle'
+      "
     />
   </div>
 </template>
@@ -163,6 +168,7 @@ import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
 import UserRequestsModal from './UserRequestsModal.vue'
 import CorpusOverviewModal from './CorpusOverviewModal.vue'
+import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
 import axios from 'axios'
 
@@ -220,6 +226,14 @@ const subscriptionDatasetResponse = ref<{
   data: []
 })
 
+const fetchCorpusOverviewResponse = ref<{
+  data: Dataset[]
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: []
+})
+
 const fetchPlansResponse = ref<{
   data: {
     plans: {
@@ -269,6 +283,9 @@ watch(
       console.debug('[Modals] @watch view = ViewUserRequests')
       fetchUserRequest()
       fetchSubscriptionDatasets()
+    } else if (_view === ViewCorpusOverview) {
+      console.debug('[Modals] @watch view = ViewCorpusOverview')
+      fetchCorpusOverview()
     }
   }
 )
@@ -301,6 +318,20 @@ const fetchPlansContent = async (): Promise<void> => {
     return response
   })
   fetchPlansResponse.value = { data: response.data, status: 'success' }
+}
+
+const fetchCorpusOverview = async (): Promise<void> => {
+  console.debug(
+    '[Modals] fetchCorpusOverview from JSON:',
+    import.meta.env.VITE_CORPUS_OVERVIEW_JSON_URL
+  )
+  // load current status
+  fetchCorpusOverviewResponse.value = { data: [], status: 'loading' }
+  const response = await axios.get(import.meta.env.VITE_CORPUS_OVERVIEW_JSON_URL).then(response => {
+    console.info('[Modals]fetchCorpusOverview success', response)
+    return response
+  })
+  fetchCorpusOverviewResponse.value = { data: response.data, status: 'success' }
 }
 
 /**
