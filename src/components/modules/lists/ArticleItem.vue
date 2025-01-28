@@ -27,22 +27,21 @@
         />
       </div>
     </div>
-
+    <div class="article-meta">
+      <span v-if="showType && !showMeta">{{ $t(`buckets.type.${item.type}`) }}</span>
+      <span v-if="showPages && !showMeta"> – {{ pages }} </span>
+    </div>
     <div
       v-if="showExcerpt && !item?.matches?.length && item.type !== 'image'"
       class="article-excerpt mt-2"
     >
-      <span class="article-excerpt">{{ item.excerpt }}</span>
-      <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
-        <span v-if="showType && item.type">{{ $t(`buckets.type.${item.type}`) }} | </span>
-        <span v-if="showSize">
-          <span v-if="item.size > 1200">{{
-            $t('readingTime', { min: parseInt(item.size / 1200) })
-          }}</span>
-          <span v-else>{{ $t('reducedReadingTime') }}</span>
-        </span>
+      <blockquote class="text-muted">{{ item.excerpt }}</blockquote>
+      <b-badge v-if="showSize" variant="light" class="mr-1 pt-1">
+        <span v-if="item.size > 1200">{{
+          $t('readingTime', { min: parseInt(item.size / 1200) })
+        }}</span>
+        <span v-else>{{ $t('reducedReadingTime') }}</span>
       </b-badge>
-      <span v-if="showPages">{{ pages }}</span>
     </div>
 
     <slot name="actions"></slot>
