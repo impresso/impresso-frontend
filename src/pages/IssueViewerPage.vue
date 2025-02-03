@@ -5,7 +5,7 @@
       :hide-pagination="!displayOnlyMatchingArticles"
       :paginationList="paginationList"
       @change-page="handleMatchingArticlesChangePage"
-      width="350px"
+      width="300px"
     >
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
@@ -18,15 +18,6 @@
           </template>
           <template v-slot:default>
             <div class="p-2 px-3 mb-1">
-              <p
-                v-html="
-                  $t('stats', {
-                    countArticles: issue.countArticles,
-                    countPages: issue.countPages,
-                    accessRights: $t(`buckets.accessRight.${issue.accessRights}`)
-                  })
-                "
-              />
               <form class="pb-1 form-inline">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
@@ -50,6 +41,7 @@
                   v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
                 >
                 </span>
+                {{ ignoredFilters }}
               </b-alert>
               <search-pills
                 disable-reset
@@ -69,6 +61,15 @@
                   switch>
                   <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
                 </b-form-checkbox> -->
+              <div
+                v-if="!hasMatchingArticles"
+                v-html="
+                  $t('label_stats', {
+                    countArticles: issue.countArticles,
+                    countPages: issue.countPages
+                  })
+                "
+              />
               <div class="mb-2 IssueViewerPage_matchingArticles" v-if="hasMatchingArticles">
                 <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
                 <div
@@ -117,49 +118,53 @@
     <i-layout-section main>
       <!-- header -->
       <template v-slot:header>
+        <IssueViewerPageHeading
+          :label="$t('Newspaper issue viewer')"
+          :isLoading="isLoading"
+          :showCurrentSearchFilters="applyCurrentSearchFilters"
+          :filtersWithItems="filtersWithItems"
+          :issue="issue"
+          :article="selectedArticle"
+          :mediaSource="tableOfContents?.newspaper"
+          :page="page"
+        >
+          <template v-slot:actions v-if="issue">
+            <WithTooltip :content="$t('label_previous_page')" delay>
+              <b-button
+                class="border-dark"
+                variant="light"
+                size="sm"
+                :disabled="currentPageIndex === 0"
+                @click="changeCurrentPageIndex(currentPageIndex - 1)"
+              >
+                <div class="dripicons dripicons-media-previous pt-1"></div>
+              </b-button>
+            </WithTooltip>
+            <div
+              class="px-2 pt-1 border-top border-bottom"
+              v-html="
+                $t('ppOf', {
+                  num: page.num,
+                  pages: issue.pages.length
+                })
+              "
+            ></div>
+            <WithTooltip :content="$t('label_next_page')" delay>
+              <b-button
+                class="border-dark"
+                variant="light"
+                size="sm"
+                :disabled="currentPageIndex + 1 === issue.pages.length"
+                @click="changeCurrentPageIndex(currentPageIndex + 1)"
+              >
+                <div class="dripicons dripicons-media-next pt-1"></div>
+              </b-button>
+            </WithTooltip>
+          </template>
+        </IssueViewerPageHeading>
         <div class="border-bottom" v-if="issue">
           <b-navbar variant="light" class="px-0 py-0 border-bottom">
-            <b-navbar-nav class="p-2 pl-3">
-              <section>
-                <h3 class="m-0">
-                  <b>{{ issue.newspaper.name }}</b> &middot;
-                  <span class="date">{{ $d(issue.date, 'long') }}</span>
-                </h3>
-              </section>
-            </b-navbar-nav>
-            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
-              <WithTooltip :content="$t('label_previous_page')" delay>
-                <b-button
-                  class="border-dark"
-                  variant="light"
-                  size="sm"
-                  :disabled="currentPageIndex === 0"
-                  @click="changeCurrentPageIndex(currentPageIndex - 1)"
-                >
-                  <div class="dripicons dripicons-media-previous pt-1"></div>
-                </b-button>
-              </WithTooltip>
-              <div
-                class="px-2 pt-1 border-top border-bottom"
-                v-html="
-                  $t('ppOf', {
-                    num: page.num,
-                    pages: issue.pages.length
-                  })
-                "
-              ></div>
-              <WithTooltip :content="$t('label_next_page')" delay>
-                <b-button
-                  class="border-dark"
-                  variant="light"
-                  size="sm"
-                  :disabled="currentPageIndex + 1 === issue.pages.length"
-                  @click="changeCurrentPageIndex(currentPageIndex + 1)"
-                >
-                  <div class="dripicons dripicons-media-next pt-1"></div>
-                </b-button>
-              </WithTooltip>
-            </b-navbar-nav>
+            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed"> </b-navbar-nav>
           </b-navbar>
           <b-navbar variant="light" class="px-0 py-0">
             <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
@@ -280,6 +285,7 @@ import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticl
 import PageItem from '@/components/modules/lists/PageItem.vue'
 import List from '@/components/modules/lists/List.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
+import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -308,7 +314,7 @@ import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
-
+import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models/ArticleBase').default} ArticleBase
@@ -320,7 +326,7 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
-const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person']
+const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person', 'hasTextContents']
 
 export default {
   data: () => ({
@@ -350,7 +356,19 @@ export default {
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
     CollectionAddTo,
-    WithTooltip
+    WithTooltip,
+    IssueViewerPageHeading,
+    MediaSourceLabel
+  },
+  props: {
+    filters: {
+      type: Array,
+      default: () => []
+    },
+    filtersWithItems: {
+      type: Array,
+      default: () => []
+    }
   },
   mounted() {
     if (this.suggestionQuery.length) {
@@ -376,12 +394,14 @@ export default {
     ...mapStores(useEntitiesStore, useUserStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
-      ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
           p: '1'
         }
       })
+    },
+    isLoading() {
+      return this.issue == null
     },
     $navigation() {
       return new Navigation(this)
@@ -389,11 +409,11 @@ export default {
     /** @returns {Filter[]} */
     filters() {
       // filter by type
-      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {number} */
     countActiveFilters() {
@@ -563,8 +583,17 @@ export default {
     issueId: {
       /** @param {string} id */
       async handler(id) {
-        this.issue = new Issue(await issuesService.get(id))
-        this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
+        this.issue = await issuesService.get(id).then(data => {
+          console.debug('[IssueViewerPage] issue', data)
+          return new Issue(data)
+        })
+
+        this.tableOfContents = new TableOfContents(
+          await tableOfContentsService.get(id).then(res => {
+            console.debug('[IssueViewerPage] tableOfContents', res)
+            return res
+          })
+        )
         // / load images
         this.issueImages = await imagesService
           .find({
@@ -782,6 +811,7 @@ export default {
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",
+    "label_stats": "<span class='number'>{countArticles}</span> articles in <span class='number'>{countPages}</span> pages",
     "label_previous_page": "Previous Page (Shift + ←)",
     "label_next_page": "Next Page (Shift + →)",
     "label_display": "Display as",
