@@ -13,7 +13,7 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <MediaOutletLabel :item="item.mediaOutlet" show-link class="d-inline-block" />
+      <MediaSourceLabel :item="item.MediaSource" show-link class="d-inline-block" />
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
@@ -105,7 +105,7 @@
 import ItemSelector from '../ItemSelector.vue'
 import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
-import MediaOutletLabel from './MediaOutletLabel.vue'
+import MediaSourceLabel from './MediaSourceLabel.vue'
 export default {
   props: {
     item: {
@@ -168,7 +168,7 @@ export default {
   components: {
     ItemSelector,
     VizBar,
-    MediaOutletLabel
+    MediaSourceLabel
   }
 }
 </script>
