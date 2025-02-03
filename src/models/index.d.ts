@@ -66,10 +66,28 @@ export interface TextReuseCluster {
   connectedClustersCount: number
 }
 
-export interface IMediaSourceRef {
-  uid: string
+export interface MediaSource {
+  id: string
   name: string
-  type: 'newspaper'
+  type: 'newspaper' | 'radio'
+  acronym?: string
+  startYear?: number
+  endYear?: number
+}
+export interface Page {
+  num: number
+  uid: string
+}
+export interface DataProvider {
+  id: string
+  name?: string
+}
+
+export interface Issue {
+  uid: string
+  countArticles: number
+  countPages: number
+  date: Date
 }
 
 export interface IImage {

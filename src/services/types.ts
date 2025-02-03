@@ -79,12 +79,3 @@ export interface UserRequest {
 }
 
 // new type from media endpoint
-
-export interface MediaOutlet {
-  id: string
-  type: 'newspaper' | 'radio'
-  name: string
-  acronym: string
-  startYear?: number
-  endYear?: number
-}
