@@ -82,6 +82,12 @@ export const loadVersion = async () => {
   glob.impressoApiVersion = res.apiVersion
   glob.impressoDocumentsDateSpan = res.documentsDateSpan
   glob.impressoNewspapers = res.newspapers
+  glob.impressoDataProviders = {
+    SNL: 'Swiss National Library',
+    BNL: 'Luxembourg National Library',
+    NZZ: 'NZZ',
+    Migros: 'Migros'
+  }
   glob.impressoFeatures = res.features
   glob.impressoDocumentsYearSpan = {
     firstYear: new Date(res.documentsDateSpan.firstDate).getFullYear(),
