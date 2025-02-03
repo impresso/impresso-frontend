@@ -9,7 +9,7 @@ import { defineStore } from 'pinia'
 
 type SortOrder = '-date' | 'date' | '-size' | 'size'
 
-interface State {
+export interface State {
   collectionsValue: (Collection | object)[]
   collectionsPaginationCurrentPage: number
   collectionsOrderBy: SortOrder
@@ -18,33 +18,33 @@ interface State {
   collectionsPaginationTotalRows: number
 }
 
-interface AddCollectionDetails {
+export interface AddCollectionDetails {
   name: string
   description?: string
 }
 
-interface EditCollectionDetails extends AddCollectionDetails {
+export interface EditCollectionDetails extends AddCollectionDetails {
   uid: string
 }
 
-interface AddCollectionItemDetails {
+export interface AddCollectionItemDetails {
   item: { uid: string }
   collection: { uid: string }
   contentType: string
 }
 
-interface AddCollectionItemsDetails {
+export interface AddCollectionItemsDetails {
   items: { uid: string }[]
   collection: { uid: string }
   contentType: string
 }
 
-interface RemoveCollectionItemDetails {
+export interface RemoveCollectionItemDetails {
   item: { uid: string }
   collection: { uid: string }
 }
 
-interface RemoveCollectionItemsDetails {
+export interface RemoveCollectionItemsDetails {
   items: { uid: string }[]
   collection: { uid: string }
 }
