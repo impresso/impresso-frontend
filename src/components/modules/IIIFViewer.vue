@@ -1,5 +1,5 @@
 <template>
-  <div ref="viewerContainer"></div>
+  <div class="IIIFViewer" ref="viewerContainer"></div>
 </template>
 
 <script setup lang="ts">
@@ -76,8 +76,6 @@ const addOverlays = () => {
       const overlayElement = document.createElement('div') as HTMLDivElement
       overlayElement.setAttribute('data-id', `${itemIdx}-${regionIdx}`)
       overlayElement.classList.add('overlay', 'rounded-sm')
-      overlayElement.style.border = '1px solid red'
-      overlayElement.style.backgroundColor = 'rgba(255, 0, 0, 0.12)'
       // add onclick and prevent zoom
       overlayElement.onclick = e => {
         e.stopPropagation()
@@ -232,7 +230,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style>
+<style type="text/css">
 .IIIFViewer .viewer-container {
   width: 100%;
   height: 600px; /* Adjust the height as needed */
@@ -240,10 +238,14 @@ onBeforeUnmount(() => {
 }
 
 /* Optional styling for overlay elements */
-.overlay {
+.IIIFViewer .overlay {
   position: absolute;
+  background-color: rgba(86, 204, 242, 0.5);
+  cursor: inherit;
+
+  mix-blend-mode: multiply;
 }
-.openseadragon-container {
+.IIIFViewer .openseadragon-container {
   overflow: hidden;
 }
 </style>
