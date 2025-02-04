@@ -15,7 +15,7 @@
           titleClass=""
           :item="mediaSource"
         />&nbsp;
-        <span class="date small">{{ $d(issue.date, 'long') }}</span>
+        <span class="date small" v-if="issue">{{ $d(issue.date, 'long') }}</span>
         <span class="pages small" v-if="article"
           >&nbsp;&mdash;
           {{
@@ -63,10 +63,10 @@ import { computed } from 'vue'
 import DataProviderLabel from './modules/lists/DataProviderLabel.vue'
 
 export interface IssueViewerPageHeadingProps {
-  issue: Issue
+  issue?: Issue
   mediaSource?: MediaSource
   dataProvider?: DataProvider
-  page: Page
+  page?: Page
   label: string
   infoButtonRef?: string
   isLoading?: boolean
