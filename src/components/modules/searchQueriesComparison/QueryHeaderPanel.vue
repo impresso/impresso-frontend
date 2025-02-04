@@ -120,23 +120,9 @@ import Autocomplete from '../../Autocomplete.vue'
 // import CollectionPicker from '../../base/CollectionPicker';
 import InfoIgnoredFilters from '../../base/InfoIgnoredFilters.vue'
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
-import { serializeFilters } from '@/logic/filters'
+import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 
-const SupportedFilterTypes = [
-  'string',
-  'title',
-  'accessRight',
-  'type',
-  'location',
-  'country',
-  'person',
-  'language',
-  'topic',
-  'newspaper',
-  'collection',
-  'daterange',
-  'isFront'
-]
+const SupportedFilterTypes = SupportedFiltersByContext.search
 
 /**
  * @typedef {import('@/models').Filter} Filter
