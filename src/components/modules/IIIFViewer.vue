@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, watch, computed } from 'vue'
+import { onMounted, onBeforeUnmount, ref, watch, computed, nextTick } from 'vue'
 import OpenSeadragon, { Viewer } from 'openseadragon'
 
 interface OverlayCoords {
@@ -45,9 +45,15 @@ const emit = defineEmits(['clickOnOverlayRegion'])
 const viewerContainer = ref<HTMLDivElement | null>(null)
 const viewer = ref<Viewer | null>(null)
 const isViewerReady = ref(false)
-const propsChanged = computed(() => {
-  return JSON.stringify([props.manifestUrls, props.fitBoundsToOverlayIdx, props.overlays]) // eslint-disable-line
+
+const manifestUrlsChanged = computed(() => {
+  return JSON.stringify(props.manifestUrls) // eslint-disable-line
 })
+
+const overlaysChanged = computed(() => {
+  return JSON.stringify(props.overlays) // eslint-disable-line
+})
+
 /**
  * Clears current overlays and adds new overlays to the viewer.
  */
@@ -169,7 +175,11 @@ const createViewer = () => {
     collectionRows: 1,
     collectionLayout: 'vertical',
     collectionTileMargin: props.margin,
-    showNavigator: true
+    showNavigator: true,
+    // do not click and zoom, only double click
+    gestureSettingsMouse: {
+      clickToZoom: false
+    }
   })
   //  add css class to openseadragon viewer
   if (props.openseadragonCssClass) {
@@ -177,32 +187,35 @@ const createViewer = () => {
   }
 
   // Once the image is loaded, add the overlays.
-  viewer.value.addOnceHandler('open', () => {
+  viewer.value.addHandler('open', () => {
     // Use nextTick to ensure the viewport is fully initialized.
-    console.debug('[IIIFViewer] @open', props.manifestUrls)
-    addOverlays()
-  })
+    console.debug('[IIIFViewer] @open n.tiles:', props.manifestUrls.length)
 
-  viewer.value.addOnceHandler('tile-loaded', () => {
-    // viewer.value.viewport.fitBounds(viewer.value.world.getItemAt(this.currentPageIndex).getBounds(), true)
-    // viewer.value.viewport.zoomTo(DefaultZoomLevel)
-    // this.tilesAreReady = true
-    console.log('[IIIFViewer] @tile-loaded', props.manifestUrls)
-    fitBoundsToOverlay(props.fitBoundsToOverlayIdx)
-    isViewerReady.value = true
+    nextTick(() => {
+      addOverlays()
+      fitBoundsToOverlay(props.fitBoundsToOverlayIdx)
+    })
   })
 }
 
-watch(propsChanged, v => {
-  console.debug('[IIIFViewer] propsChanged to:', v)
+watch([manifestUrlsChanged, overlaysChanged], _ => {
+  console.debug('[IIIFViewer] manifestUrls changed to:', props.manifestUrls)
   if (!viewer.value) {
     createViewer()
-    viewer.value.open(props.manifestUrls)
   }
-  addOverlays()
-  fitBoundsToOverlay(props.fitBoundsToOverlayIdx)
-  // do somenthing.
+  // @todo: handle case when manifesturls do not change
+  viewer.value.open(props.manifestUrls)
 })
+
+watch(
+  () => props.fitBoundsToOverlayIdx,
+  v => {
+    if (viewer.value) {
+      console.debug('[IIIFViewer] fitBoundsToOverlayIdx changed to:', v)
+      fitBoundsToOverlay(v)
+    }
+  }
+)
 
 onMounted(() => {
   console.debug('[IIIFViewer] onMounted')
