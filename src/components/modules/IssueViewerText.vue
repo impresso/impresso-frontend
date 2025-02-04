@@ -408,7 +408,8 @@ export default {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = []
-
+        console.info('[IssueViewerText] @article_uid', articleUid)
+        this.fitBoundsToOverlayIdx = [0, 0]
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
               .find({ query: { id: articleUid } })
