@@ -75,8 +75,6 @@
                   @passageMouseenter="mouseenterPassageHandler"
                   @passageMouseleave="mouseleavePassageHandler"
                 />
-                {{ [pageIdx, i] }}
-                {{ page.id }}
               </div>
             </div>
           </div>
