@@ -46,7 +46,7 @@
               <search-pills
                 disable-reset
                 v-if="applyCurrentSearchFilters"
-                :filters="filters"
+                :filters="allowedFilters"
                 @changed="handleFiltersChanged"
                 class="pb-1"
               />
@@ -326,7 +326,16 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
-const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person', 'hasTextContents']
+const AllowedFilterTypes = [
+  'contentLength',
+  'partner',
+  'title',
+  'string',
+  'location',
+  'topic',
+  'person',
+  'hasTextContents'
+]
 
 export default {
   data: () => ({
@@ -394,6 +403,7 @@ export default {
     ...mapStores(useEntitiesStore, useUserStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
+      ...searchQueryGetter(),
       ...searchQuerySetter({
         additionalQueryParams: {
           p: '1'
@@ -407,7 +417,7 @@ export default {
       return new Navigation(this)
     },
     /** @returns {Filter[]} */
-    filters() {
+    allowedFilters() {
       // filter by type
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
