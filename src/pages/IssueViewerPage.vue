@@ -128,106 +128,72 @@
           :mediaSource="tableOfContents?.newspaper"
           :page="page"
         >
-          <template v-slot:actions v-if="issue">
-            <WithTooltip :content="$t('label_previous_page')" delay>
-              <b-button
-                class="border-dark"
-                variant="light"
-                size="sm"
-                :disabled="currentPageIndex === 0"
-                @click="changeCurrentPageIndex(currentPageIndex - 1)"
-              >
-                <div class="dripicons dripicons-media-previous pt-1"></div>
-              </b-button>
-            </WithTooltip>
-            <div
-              class="px-2 pt-1 border-top border-bottom"
-              v-html="
-                $t('ppOf', {
-                  num: page.num,
-                  pages: issue.pages.length
-                })
-              "
-            ></div>
-            <WithTooltip :content="$t('label_next_page')" delay>
-              <b-button
-                class="border-dark"
-                variant="light"
-                size="sm"
-                :disabled="currentPageIndex + 1 === issue.pages.length"
-                @click="changeCurrentPageIndex(currentPageIndex + 1)"
-              >
-                <div class="dripicons dripicons-media-next pt-1"></div>
-              </b-button>
-            </WithTooltip>
-          </template>
-        </IssueViewerPageHeading>
-        <div class="border-bottom" v-if="issue">
-          <b-navbar variant="light" class="px-0 py-0 border-bottom">
-            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed"> </b-navbar-nav>
-          </b-navbar>
-          <b-navbar variant="light" class="px-0 py-0">
-            <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-              <WithTooltip
-                placement="top"
-                :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')"
-              >
+          <template v-slot:actions>
+            <CollectionAddTo
+              right
+              v-if="!isLoading && selectedArticle"
+              :item="selectedArticle"
+              :text="$t('add_to_collection')"
+            />
+            <div v-else-if="!isLoading && issue">
+              <WithTooltip :content="$t('label_previous_page')" delay>
                 <b-button
-                  :variant="outlinesVisible ? 'primary' : 'outline-primary'"
+                  class="border-dark"
+                  variant="light"
                   size="sm"
-                  @click="outlinesVisible = !outlinesVisible"
+                  :disabled="currentPageIndex === 0"
+                  @click="changeCurrentPageIndex(currentPageIndex - 1)"
                 >
-                  <div class="d-flex flex-row align-items-center">
-                    <div class="d-flex dripicons dripicons-duplicate my-1" />
-                    <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
-                    <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
-                  </div>
+                  <div class="dripicons dripicons-media-previous pt-1"></div>
                 </b-button>
               </WithTooltip>
-              <!-- <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
-              <b-button
-                :variant="isFullscreen ? 'primary' : 'outline-primary'"
-                size="sm"
-                @click="toggleFullscreen"
-                class="ml-1">
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
-                </div>
-              </b-button>
-            </WithTooltip> -->
-            </b-navbar-nav>
-
-            <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
-              <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
-
-              <b-button-group class="ml-2 p-1 border rounded">
+              <div
+                class="px-2 pt-1 border-top border-bottom"
+                v-html="
+                  $t('ppOf', {
+                    num: page.num,
+                    pages: issue.pages.length
+                  })
+                "
+              ></div>
+              <WithTooltip :content="$t('label_next_page')" delay>
                 <b-button
+                  class="border-dark"
+                  variant="light"
                   size="sm"
-                  class="mr-1"
-                  :class="{ active: !isArticleTextDisplayed }"
-                  variant="outline-primary"
+                  :disabled="currentPageIndex + 1 === issue.pages.length"
+                  @click="changeCurrentPageIndex(currentPageIndex + 1)"
+                >
+                  <div class="dripicons dripicons-media-next pt-1"></div>
+                </b-button>
+              </WithTooltip>
+            </div>
+          </template>
+        </IssueViewerPageHeading>
+        <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2" v-if="selectedArticle">
+          <b-tabs pills>
+            <template v-slot:tabs-end>
+              <b-nav-item class="pl-2" :class="{ active: !isArticleTextDisplayed }">
+                <button
+                  size="sm"
+                  class="btn btn-transparent small-caps"
                   @click="isArticleTextDisplayed = false"
                 >
-                  <div class="d-flex align-items-center">
-                    {{ $t('facsimileView') }}
-                    <div class="d-flex dripicons dripicons-article ml-2" />
-                  </div>
-                </b-button>
-                <b-button
+                  {{ $t('facsimileView') }}
+                </button>
+              </b-nav-item>
+              <b-nav-item class="pl-2" :class="{ active: isArticleTextDisplayed }">
+                <button
                   size="sm"
-                  :class="{ active: isArticleTextDisplayed }"
-                  variant="outline-primary"
+                  class="btn btn-transparent small-caps"
                   @click="isArticleTextDisplayed = true"
                 >
-                  <div class="d-flex align-items-center">
-                    {{ $t('closeReadingView') }}
-                    <div class="d-flex dripicons dripicons-align-justify ml-2" />
-                  </div>
-                </b-button>
-              </b-button-group>
-            </b-navbar-nav>
-          </b-navbar>
-        </div>
+                  {{ $t('closeReadingView') }}
+                </button>
+              </b-nav-item>
+            </template>
+          </b-tabs>
+        </b-navbar-nav>
       </template>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
@@ -848,5 +814,13 @@ section.i-layout-section {
 }
 section.i-layout-section > div.header {
   background-color: $clr-bg-primary;
+}
+.IssueViewerPage_tabs .active > .small-caps {
+  font-weight: var(--impresso-wght-smallcaps-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
+  box-shadow:
+    var(--impresso-color-black) 0 2px 0 0,
+    var(--impresso-color-black) 0 2px 0 0;
+  border-bottom: 1px solid var(--impresso-color-black);
 }
 </style>

@@ -2,6 +2,9 @@
   <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
+      <ArticleItem :item="article" showEntities showTopics class="container-fluid pl-0">
+        <template #title>&nbsp;</template>
+      </ArticleItem>
       <b-badge
         v-for="(collection, i) in article.collections"
         v-bind:key="`co_${i}`"
@@ -33,6 +36,7 @@
           />
           <info-button class="ml-2" name="text-reuse" />
         </div>
+
         <!-- computed regions -->
         <div class="row">
           <div class="col-sm-6 col-xl-7">
@@ -159,6 +163,7 @@ import {
 import TextReuseCluster from '@/models/TextReuseCluster'
 import TextReusePassage from '@/models/TextReusePassage'
 import { type Overlay } from './IIIFViewer.vue'
+import Ellipsis from './Ellipsis.vue'
 const colourScheme = [
   '#8dd3c7',
   '#bebada',
@@ -180,7 +185,7 @@ export default {
       articlesSuggestions: [],
       textReusePassages: [],
       selectedPassageId: undefined,
-      hoverPassageLineTopOffset: undefined,
+      hoverPassageLineTopOffset: 0,
       viewerTopOffset: 0,
       fitBoundsToOverlayIdx: [0, 0],
       availableOffsetHeight: 500,
@@ -188,6 +193,8 @@ export default {
     } as {
       article: any
       textReusePassages: any[]
+      articlesSuggestions: any[]
+      hoverPassageLineTopOffset: number
       viewerTopOffset: number
       fitBoundsToOverlayIdx: [number, number]
       availableOffsetHeight: number
@@ -310,7 +317,8 @@ export default {
     SearchResultsSimilarItem,
     AnnotatedText,
     InfoButton,
-    IIIFViewer
+    IIIFViewer,
+    Ellipsis
   },
   methods: {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
@@ -415,7 +423,10 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          articlesService.get(articleUid).then(d => new Article(d)),
+          articlesService.get(articleUid).then(d => {
+            console.debug(['[IssueViewerText] @article_uid', d])
+            return new Article(d)
+          }),
           trPromise
         ])
         this.article = article
