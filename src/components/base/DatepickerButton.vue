@@ -123,6 +123,9 @@ const handleInput = (e: Event) => {
     return
   }
   emit('update:modelValue', target.value)
+  // focus and blur to close the picker in Safari
+  dateInput.value?.focus?.()
+  dateInput.value?.blur?.()
 }
 </script>
 
