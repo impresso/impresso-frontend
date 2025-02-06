@@ -430,9 +430,12 @@ export default {
         })
       }
     },
+    allowedFiltersWithItems() {
+      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+    },
     /** @returns {Filter[]} */
     enrichedFilters() {
-      return this.filtersWithItems.length ? this.filtersWithItems : this.filters
+      return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
