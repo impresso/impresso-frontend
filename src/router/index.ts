@@ -465,7 +465,8 @@ router.beforeEach((to, from, next) => {
     userStore.setRedirectionRoute({
       name: from.name,
       path: from.path,
-      query: from.query
+      query: from.query,
+      params: from.params
     })
     next()
   } else if (to.meta.requiresAuth === false) {

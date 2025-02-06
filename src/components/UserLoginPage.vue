@@ -72,7 +72,7 @@ export default {
   data: () => ({
     email: '',
     password: '',
-    error: false,
+    error: false
   }),
   methods: {
     autocomplete() {
@@ -85,12 +85,12 @@ export default {
       this.userStore
         .login({
           email: this.email,
-          password: this.password,
+          password: this.password
         })
         .then(() => {
           this.$router.push({
             path,
-            ...this.userStore.redirectionParams,
+            ...this.computedRedirectionParams
           })
         })
         .catch(err => {
@@ -99,9 +99,12 @@ export default {
           }
           console.warn('error', err)
         })
-    },
+    }
   },
   computed: {
+    computedRedirectionParams() {
+      return this.userStore.redirectionParams
+    },
     ...mapStores(useUserStore),
     rememberCredentials: {
       get() {
@@ -109,10 +112,10 @@ export default {
       },
       set(val) {
         this.userStore.setRememberCredentials(val)
-      },
-    },
+      }
+    }
   },
-  components: {},
+  components: {}
 }
 </script>
 
