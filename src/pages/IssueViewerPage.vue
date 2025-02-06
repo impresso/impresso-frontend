@@ -281,6 +281,7 @@ import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
+import { SupportedFiltersByContext } from '@/logic/filters'
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models/ArticleBase').default} ArticleBase
@@ -292,16 +293,7 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
-const AllowedFilterTypes = [
-  'contentLength',
-  'partner',
-  'title',
-  'string',
-  'location',
-  'topic',
-  'person',
-  'hasTextContents'
-]
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 export default {
   data: () => ({
@@ -652,7 +644,15 @@ export default {
   },
   methods: {
     handleLoginClick() {
-      this.$router.push({ name: 'login' })
+      this.userStore.setRedirectionRoute({
+        path: this.$route.path,
+        query: this.$route.query,
+        params: this.$route.params
+      })
+      console.info('router', this.$route)
+      this.$router.push({
+        name: 'login'
+      })
     },
     keyDown(e) {
       if (e.shiftKey) {
