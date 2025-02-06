@@ -230,6 +230,12 @@ export default {
   }
 }
 
+.ArticleItem .article-topics div.flex-grow-1 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .ArticleItem ul.article-matches {
   list-style-type: none;
   font-size: smaller;
