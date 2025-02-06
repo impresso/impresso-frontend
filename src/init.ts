@@ -55,7 +55,8 @@ export const loadVersion = async () => {
         apiVersion: { version: 'n/a', branch: 'n/a', revision: 'n/a' },
         version: 'n/a',
         documentsDateSpan: { firstDate: '1700-01-01', lastDate: new Date().toISOString() },
-        newspapers: {}
+        newspapers: {},
+        features: DefaultImpressoFeatures
       } as VersionResponse
     })
 
