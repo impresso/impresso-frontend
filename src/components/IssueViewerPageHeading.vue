@@ -6,10 +6,14 @@
       </div>
       <slot name="title">
         <h3 v-if="isLoading">... (loading)</h3>
-        <h3 v-else>
+        <h3 v-else class="m-0">
           <span v-if="article">
-            {{ $t('buckets.type.' + article.type) }} <b>{{ article.title }}</b>
+            <span style="text-transform: capitalize">{{ $t('buckets.type.' + article.type) }}</span
+            >&nbsp;
+            <b>{{ article.title }}</b>
           </span>
+          <span v-else-if="issue" v-html="$t('label_stats')"></span>
+          <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
         </h3>
         <InfoButton v-if="infoButtonRef" :name="infoButtonRef" />
         <div class="d-flex align-items-center">
@@ -28,14 +32,19 @@
             :type="mediaSource.type"
           /> -->
             &nbsp;
-            <span class="date" v-if="issue">{{ $d(issue.date, 'long') }}</span>
-            <span class="pages" v-if="article"
+            <span class="date textbox-fancy text-serif" v-if="issue">{{
+              $d(issue.date, 'long')
+            }}</span>
+            <span class="pages textbox-fancy text-serif" v-if="article?.pages"
               >&nbsp;&mdash;
               {{
-                $t('pp', { pages: article.pages.map(p => p.num).join(', '), n: article.pages })
+                $tc('pp', article.pages.length, {
+                  pages: article.pages.map(p => p.num).join(', '),
+                  n: article.pages.length
+                })
               }}</span
             >
-            <span class="pages small" v-else-if="page"
+            <span class="pages" v-else-if="page"
               >&nbsp;&mdash; {{ $t('page', { num: page.num }) }}</span
             >
           </div>
@@ -46,32 +55,17 @@
       </slot>
     </section>
   </b-navbar>
-  <b-navbar class="border-bottom" v-if="!article">
-    <span
-      v-if="!isLoading && issue"
-      v-html="
-        $t('label_stats', {
-          countArticles: issue.countArticles,
-          countPages: issue.countPages
-        })
-      "
-    />{{ ' ' }}
-    <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
-    <span v-if="isLoading">...</span>
-  </b-navbar>
 </template>
 <i18n lang="json">
 {
   "en": {
     "page": "p.{num}",
-    "label_stats": "<span class='number'>{countArticles}</span> content items in <span class='number'>{countPages}</span> pages"
+    "label_stats": "Facsimile of the newspaper issue"
   }
 }
 </i18n>
 <script setup lang="ts">
 import InfoButton from '@/components/base/InfoButton.vue'
-import ItemSelector from '@/components/modules/ItemSelector.vue'
-import Ellipsis from '@/components/modules/Ellipsis.vue'
 import type { Filter, MediaSource, Issue, DataProvider, Page } from '@/models'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import { computed } from 'vue'

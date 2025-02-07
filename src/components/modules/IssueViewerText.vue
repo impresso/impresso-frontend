@@ -38,7 +38,7 @@
         </div>
 
         <!-- computed regions -->
-        <div class="row">
+        <div class="row" v-if="withIIIFViewer">
           <div class="col-sm-6 col-xl-7">
             <div
               :style="{
@@ -58,18 +58,22 @@
                 "
                 :overlays="computedIIIFViewerOverlays"
                 :fitBoundsToOverlayIdx="fitBoundsToOverlayIdx"
+                @clickOnOverlayRegion="
+                  ({ fitBoundsToOverlayIdx: idx }) => annotatedTextClickHandler(idx)
+                "
               />
             </div>
           </div>
           <div class="col-sm-6 col-xl-4">
             <div v-for="(page, pageIdx) in computedIIIFViewerOverlays" :key="pageIdx">
               <div
-                class="IssueViewerText__region region py-3"
+                class="IssueViewerText__region region text-serif py-2"
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
                 @click="() => annotatedTextClickHandler([pageIdx, i])"
               >
                 <AnnotatedText
+                  class="text-serif"
                   v-if="regionsAnnotationTree[region.idx]"
                   :children="regionsAnnotationTree[region.idx].children"
                   :cluster-colours="clusterColourMap"
@@ -83,8 +87,9 @@
             </div>
           </div>
         </div>
-        <!-- <b-row
-          class="IssueViewerText__regions mt-1"
+        <div
+          v-if="!withIIIFViewer"
+          class="row IssueViewerText__regions mt-1"
           v-for="(region, i) in computedRegions"
           v-bind:key="i"
         >
@@ -92,15 +97,24 @@
             <div class="py-3">
               <img
                 v-bind:src="region.iiifFragment"
-                alt="IIIF Region"
+                alt="..."
                 :style="{ width: `${region.nw * 100}%` }"
               />
             </div>
           </div>
-          <div class="col col-sm-7">
-            {{ region }}
+          <div class="col col-sm-7 text-serif py-2">
+            <AnnotatedText
+              v-if="regionsAnnotationTree[i]"
+              :children="regionsAnnotationTree[i].children"
+              :cluster-colours="clusterColourMap"
+              :selected-cluster-id="selectedClusterId"
+              @clusterSelected="clusterSelectedHandler"
+              @passageClicked="passageSelectedHandler"
+              @passageMouseenter="mouseenterPassageHandler"
+              @passageMouseleave="mouseleavePassageHandler"
+            />
           </div>
-        </b-row> -->
+        </div>
       </b-container>
     </div>
     <hr class="py-4" />
@@ -161,9 +175,8 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import TextReusePassage from '@/models/TextReusePassage'
-import { type Overlay } from './IIIFViewer.vue'
 import Ellipsis from './Ellipsis.vue'
+import { a } from 'node_modules/@storybook/vue3/dist/render-0377a2e9'
 const colourScheme = [
   '#8dd3c7',
   '#bebada',
@@ -311,7 +324,13 @@ export default {
       return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
-  props: ['article_uid'],
+  props: {
+    article_uid: String,
+    withIIIFViewer: {
+      type: Boolean,
+      default: false
+    }
+  },
   components: {
     ArticleItem,
     SearchResultsSimilarItem,
@@ -327,10 +346,18 @@ export default {
     resize() {
       const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
       if (this.$refs.root) {
+        const rootAsDiv = this.$refs.root as HTMLDivElement
         try {
-          const availableOffsetHeight = this.$refs.root.parentNode?.offsetHeight
-          console.debug('[IssueViewerText] @updated ', availableOffsetHeight)
-          this.availableOffsetHeight = availableOffsetHeight
+          const { top: offsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
+          const availableOffsetHeight = rootAsDiv.parentNode?.offsetHeight
+          console.debug(
+            '[IssueViewerText] resize() availableOffsetHeight:',
+            availableOffsetHeight,
+            'offsetTop:',
+            offsetTop
+          )
+
+          this.availableOffsetHeight = Math.max(200, availableOffsetHeight - offsetTop)
         } catch (e) {
           console.warn('[IssueViewerText] @updated parentNode not found', e)
         }
@@ -414,11 +441,23 @@ export default {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = []
-        console.info('[IssueViewerText] @article_uid', articleUid)
+        console.info(
+          '[IssueViewerText] watch@article_uid',
+          articleUid,
+          '- textReuseEnabled:',
+          this.textReuseEnabled
+        )
         this.fitBoundsToOverlayIdx = [0, 0]
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
               .find({ query: { id: articleUid } })
+              .then(res => {
+                console.debug(
+                  '[IssueViewerText] watch@article_uid articleTextReusePassages succesfully get',
+                  res
+                )
+                return res
+              })
               .then(({ passages }) => passages)
           : Promise.resolve([])
 
@@ -431,7 +470,7 @@ export default {
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-
+        this.resize()
         articlesSuggestions.get(articleUid).then(res => {
           this.articlesSuggestions = res.data
         })

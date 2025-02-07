@@ -185,7 +185,7 @@ const router = createRouter({
     },
     {
       path: '/issue/:issue_uid',
-      component: IssuePage,
+      component: IssueViewerPage,
       name: 'issue',
       props: true,
       meta: {

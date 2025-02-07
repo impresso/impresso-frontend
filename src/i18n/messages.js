@@ -454,7 +454,8 @@ export default {
     lexicalOverlap: 'lexical overlap',
     notFound: '(this is an empty list)',
     facsimileView: 'Facsimile',
-    closeReadingView: 'Transcript'
+    closeReadingView: 'Transcript',
+    contextView: 'Facsimile + Transcript'
   },
   nl: {
     language: 'Taal',

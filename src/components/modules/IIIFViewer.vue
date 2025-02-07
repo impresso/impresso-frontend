@@ -32,6 +32,8 @@ export interface IIIFViewerProps {
   openseadragonCssClass?: string
 }
 
+const currentOverlayIdx = ref<[number, number]>([-1, -1])
+
 // Define props with defaults.
 const props = withDefaults(defineProps<IIIFViewerProps>(), {
   overlays: () => [],
@@ -44,7 +46,6 @@ const emit = defineEmits(['clickOnOverlayRegion'])
 
 const viewerContainer = ref<HTMLDivElement | null>(null)
 const viewer = ref<Viewer | null>(null)
-const isViewerReady = ref(false)
 
 const manifestUrlsChanged = computed(() => {
   return JSON.stringify(props.manifestUrls) // eslint-disable-line
@@ -81,7 +82,7 @@ const addOverlays = () => {
         e.stopPropagation()
         e.preventDefault()
         e.stopImmediatePropagation()
-        console.debug('[IIIFViewer] @click on overlay', region.id)
+        console.debug('[IIIFViewer] @click on overlay', `${itemIdx}-${regionIdx}`)
         emit('clickOnOverlayRegion', {
           fitBoundsToOverlayIdx: [itemIdx, regionIdx],
           overlayId: overlay.id,
@@ -124,13 +125,45 @@ const resetZoom = () => {
   viewer.value.addHandler('animation-finish', onAnimationFinish)
 }
 
+const toggleOverlayActive = (idx: [number, number], active: boolean) => {
+  if (!viewer.value) {
+    console.debug('[IIIFViewer] toggleOverlayActive -> viewer not found')
+    return
+  }
+  const overlayElement = viewer.value.element.querySelector(`.overlay[data-id="${idx.join('-')}"]`)
+  if (!overlayElement) {
+    console.debug(
+      `[IIFViewer] toggleOverlayActive: overlay not found! overlay[data-id="${idx.join('-')}"]`
+    )
+    return
+  }
+  console.debug('[IIIFViewer] toggleOverlayActive:', idx.join(', '), active)
+  overlayElement.classList.toggle('active', active)
+}
+
 const fitBoundsToOverlay = (idx: [number, number]) => {
-  console.debug('[IIIFViewer] fitBoundsToOverlay: ', idx.join(', '))
+  console.debug(
+    '[IIIFViewer] fitBoundsToOverlay: ',
+    idx.join(', '),
+    'currentOverlayIdx:',
+    currentOverlayIdx.value.join(', ')
+  )
   if (idx[0] < 0 || idx[1] < 0) {
     resetZoom()
     return
   }
+  if (currentOverlayIdx.value[0] === idx[0] && currentOverlayIdx.value[1] === idx[1]) {
+    console.debug('[IIIFViewer] fitBoundsToOverlay: already zoomed to this overlay')
+    return
+  } else if (currentOverlayIdx.value[0] > -1) {
+    console.debug('[IIIFViewer] fitBoundsToOverlay: reset current overlay')
+    toggleOverlayActive(currentOverlayIdx.value, false)
+    currentOverlayIdx.value = idx
+  }
+
   const overlay = props.overlays[idx[0]].regions[idx[1]]
+  currentOverlayIdx.value = idx
+  toggleOverlayActive(idx, true)
   const coords = overlay.coords
   const tiledImage = viewer.value.world.getItemAt(idx[0])
   if (!tiledImage) {
@@ -240,10 +273,21 @@ onBeforeUnmount(() => {
 /* Optional styling for overlay elements */
 .IIIFViewer .overlay {
   position: absolute;
-  background-color: rgba(86, 204, 242, 0.5);
-  cursor: inherit;
-
+  background-color: rgba(86, 204, 242, 0);
+  cursor: pointer;
+  border: 1px solid rgb(0, 114, 152);
   mix-blend-mode: multiply;
+  transition:
+    background-color 0.2s var(--impresso-transition-ease),
+    border-color 0.2s var(--impresso-transition-ease);
+  box-shadow:
+    0 0 8px rgba(0, 0, 0, 0.35),
+    inset 0 0 2px rgba(0, 0, 0, 0.35);
+}
+.IIIFViewer .overlay:hover,
+.IIIFViewer .overlay.active {
+  background-color: rgba(86, 204, 242, 0.5);
+  border-color: rgba(86, 204, 242, 1);
 }
 .IIIFViewer .openseadragon-container {
   overflow: hidden;

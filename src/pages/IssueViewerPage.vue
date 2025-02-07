@@ -119,7 +119,6 @@
       <!-- header -->
       <template v-slot:header>
         <IssueViewerPageHeading
-          :label="$t('Newspaper issue viewer')"
           :isLoading="isLoading"
           :showCurrentSearchFilters="applyCurrentSearchFilters"
           :filtersWithItems="filtersWithItems"
@@ -128,6 +127,20 @@
           :mediaSource="tableOfContents?.newspaper"
           :page="page"
         >
+          <template v-slot:label>
+            <RouterLink :to="{ name: 'issue', params: { issue_uid: issueId } }">
+              <span
+                v-if="issue"
+                v-html="
+                  $t('label_stats', {
+                    countArticles: issue.countArticles,
+                    countPages: issue.countPages
+                  })
+                "
+              />
+              <span v-else>{{ $t('loading') }}</span>
+            </RouterLink>
+          </template>
           <template v-slot:actions>
             <CollectionAddTo
               right
@@ -135,7 +148,7 @@
               :item="selectedArticle"
               :text="$t('add_to_collection')"
             />
-            <div v-else-if="!isLoading && issue">
+            <div v-else-if="!isLoading && issue" class="d-flex justify-content-end">
               <WithTooltip :content="$t('label_previous_page')" delay>
                 <b-button
                   class="border-dark"
@@ -170,25 +183,34 @@
             </div>
           </template>
         </IssueViewerPageHeading>
-        <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2" v-if="selectedArticle">
+        <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
           <b-tabs pills>
             <template v-slot:tabs-end>
-              <b-nav-item class="pl-2" :class="{ active: !isArticleTextDisplayed }">
+              <b-nav-item class="pl-2" :class="{ active: mode === FacsimileMode }">
                 <button
                   size="sm"
                   class="btn btn-transparent small-caps"
-                  @click="isArticleTextDisplayed = false"
+                  @click="mode = FacsimileMode"
                 >
                   {{ $t('facsimileView') }}
                 </button>
               </b-nav-item>
-              <b-nav-item class="pl-2" :class="{ active: isArticleTextDisplayed }">
+              <b-nav-item class="pl-2" :class="{ active: mode === RegionTranscriptMode }">
                 <button
                   size="sm"
                   class="btn btn-transparent small-caps"
-                  @click="isArticleTextDisplayed = true"
+                  @click="mode = RegionTranscriptMode"
                 >
                   {{ $t('closeReadingView') }}
+                </button>
+              </b-nav-item>
+              <b-nav-item class="pl-2" :class="{ active: mode === IIIFViewerTranscriptMode }">
+                <button
+                  size="sm"
+                  class="btn btn-transparent small-caps"
+                  @click="mode = IIIFViewerTranscriptMode"
+                >
+                  {{ $t('contextView') }}
                 </button>
               </b-nav-item>
             </template>
@@ -208,34 +230,35 @@
         </div>
         <open-seadragon-article-viewer
           :class="{ 'show-outlines': outlinesVisible }"
-          :style="isContentAvailable && !isArticleTextDisplayed ? {} : { display: 'none' }"
+          :style="isContentAvailable && mode === FacsimileMode ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
           :article="{ uid: articleId }"
           :marginaliaSections="
-            isContentAvailable && !isArticleTextDisplayed ? marginaliaSections : []
+            isContentAvailable && mode === FacsimileMode ? marginaliaSections : []
           "
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleIdSelectedInViewer"
         />
 
         <issue-viewer-text
-          v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
+          v-if="isContentAvailable && articleId != null && mode !== FacsimileMode"
           :article_uid="articleId"
+          :withIIIFViewer="mode === IIIFViewerTranscriptMode"
         />
 
         <issue-viewer-bookmarker
           @remove-selection="handleRemoveSelection"
           @click-full-text="showArticleText(selectedArticle.uid)"
           :article="selectedArticle"
-          :visible="!isArticleTextDisplayed"
+          :visible="mode === FacsimileMode"
         />
 
         <div
           class="position-absolute d-flex drop-shadow bg-dark border-radius"
           style="bottom: 1rem"
-          v-if="!isArticleTextDisplayed"
+          v-if="mode === FacsimileMode"
         >
           <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
             <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
@@ -282,6 +305,8 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
+import { RouterLink } from 'vue-router'
+
 /**
  * @typedef {import('@/models').Filter} Filter
  * @typedef {import('@/models/ArticleBase').default} ArticleBase
@@ -295,8 +320,16 @@ const QueryParams = Object.freeze({
 })
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
+const FacsimileMode = '0'
+const RegionTranscriptMode = '1'
+const IIIFViewerTranscriptMode = '2'
+
 export default {
   data: () => ({
+    FacsimileMode,
+    RegionTranscriptMode,
+    IIIFViewerTranscriptMode,
+    //
     issue: /** @type {Issue|undefined} */ (undefined),
     tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
     issueImages: /** @type {Image[]} */ ([]),
@@ -420,16 +453,18 @@ export default {
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
-    isArticleTextDisplayed: {
-      /** @returns {boolean} */
+    mode: {
       get() {
+        if (!this.selectedArticle) return FacsimileMode
         const textMode = getQueryParameter(this, QueryParams.TextMode)
-        return textMode === '1'
+        if ([FacsimileMode, RegionTranscriptMode, IIIFViewerTranscriptMode].includes(textMode)) {
+          return textMode
+        }
+        return IIIFViewerTranscriptMode
       },
-      /** @param {string} q */
       set(q) {
         this.$navigation.updateQueryParametersWithHistory({
-          [QueryParams.TextMode]: q ? '1' : undefined
+          [QueryParams.TextMode]: q
         })
       }
     },
