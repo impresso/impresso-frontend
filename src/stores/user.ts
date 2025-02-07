@@ -128,6 +128,7 @@ export const useUserStore = defineStore('user', {
       })
     },
     setRedirectionRoute(params) {
+      console.debug('[tores/user] setRedirectionRoute params:', params)
       this.redirectionParams = params
     }
   },

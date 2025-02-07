@@ -99,7 +99,7 @@
           <div class="col-sm-2">{{ dataset.timePeriod }}</div>
 
           <div class="col-sm-4">
-            <MediaOutletLabel
+            <MediaSourceLabel
               :item="{
                 id: dataset.mediaId,
                 acronym: dataset.mediaId,
@@ -165,7 +165,7 @@ import Modal from './base/Modal.vue'
 import Icon from './base/Icon.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import Dropdown from './layout/Dropdown.vue'
-import MediaOutletLabel from './modules/lists/MediaOutletLabel.vue'
+import MediaSourceLabel from './modules/lists/MediaSourceLabel.vue'
 import { filter } from 'd3'
 
 export type Dataset = {

@@ -13,7 +13,7 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <MediaOutletLabel :item="item.mediaOutlet" show-link class="d-inline-block" />
+      <MediaSourceLabel :item="item.MediaSource" show-link class="d-inline-block" />
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
@@ -48,23 +48,27 @@
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
       <div v-if="item.locations?.length" data-testid="article-locations">
-        <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
-        <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
-          <item-selector
-            :uid="location.uid"
-            :label="location.name"
-            :item="location"
-            type="location"
-          />
-          <span v-if="idx !== item.locations.length - 1">, </span>
-        </span>
+        <Ellipsis :initialHeight="100" :maxHeight="200">
+          <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
+          <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
+            <item-selector
+              :uid="location.uid"
+              :label="location.name"
+              :item="location"
+              type="location"
+            />
+            <span v-if="idx !== item.locations.length - 1">, </span>
+          </span>
+        </Ellipsis>
       </div>
       <div v-if="item.persons?.length" data-testid="article-persons">
-        <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
-        <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
-          <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
-          <span class="small" v-if="idx !== item.persons.length - 1">, </span>
-        </span>
+        <Ellipsis :initialHeight="100" :maxHeight="200">
+          <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
+          <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
+            <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
+            <span class="small" v-if="idx !== item.persons.length - 1">, </span>
+          </span>
+        </Ellipsis>
       </div>
     </div>
     <div
@@ -105,7 +109,9 @@
 import ItemSelector from '../ItemSelector.vue'
 import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
-import MediaOutletLabel from './MediaOutletLabel.vue'
+import MediaSourceLabel from './MediaSourceLabel.vue'
+import Ellipsis from '../Ellipsis.vue'
+
 export default {
   props: {
     item: {
@@ -168,7 +174,8 @@ export default {
   components: {
     ItemSelector,
     VizBar,
-    MediaOutletLabel
+    MediaSourceLabel,
+    Ellipsis
   }
 }
 </script>
@@ -221,6 +228,12 @@ export default {
   div {
     break-inside: avoid-column;
   }
+}
+
+.ArticleItem .article-topics div.flex-grow-1 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .ArticleItem ul.article-matches {

@@ -5,7 +5,7 @@
       :hide-pagination="!displayOnlyMatchingArticles"
       :paginationList="paginationList"
       @change-page="handleMatchingArticlesChangePage"
-      width="350px"
+      width="300px"
     >
       <template v-slot:header v-if="issue">
         <b-tabs pills class="mx-2 pt-2">
@@ -18,15 +18,6 @@
           </template>
           <template v-slot:default>
             <div class="p-2 px-3 mb-1">
-              <p
-                v-html="
-                  $t('stats', {
-                    countArticles: issue.countArticles,
-                    countPages: issue.countPages,
-                    accessRights: $t(`buckets.accessRight.${issue.accessRights}`)
-                  })
-                "
-              />
               <form class="pb-1 form-inline">
                 <b-form-checkbox
                   :disabled="countActiveFilters === 0"
@@ -50,11 +41,12 @@
                   v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
                 >
                 </span>
+                {{ ignoredFilters }}
               </b-alert>
               <search-pills
                 disable-reset
                 v-if="applyCurrentSearchFilters"
-                :filters="filters"
+                :filters="allowedFilters"
                 @changed="handleFiltersChanged"
                 class="pb-1"
               />
@@ -69,6 +61,15 @@
                   switch>
                   <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
                 </b-form-checkbox> -->
+              <div
+                v-if="!hasMatchingArticles"
+                v-html="
+                  $t('label_stats', {
+                    countArticles: issue.countArticles,
+                    countPages: issue.countPages
+                  })
+                "
+              />
               <div class="mb-2 IssueViewerPage_matchingArticles" v-if="hasMatchingArticles">
                 <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
                 <div
@@ -117,17 +118,37 @@
     <i-layout-section main>
       <!-- header -->
       <template v-slot:header>
-        <div class="border-bottom" v-if="issue">
-          <b-navbar variant="light" class="px-0 py-0 border-bottom">
-            <b-navbar-nav class="p-2 pl-3">
-              <section>
-                <h3 class="m-0">
-                  <b>{{ issue.newspaper.name }}</b> &middot;
-                  <span class="date">{{ $d(issue.date, 'long') }}</span>
-                </h3>
-              </section>
-            </b-navbar-nav>
-            <b-navbar-nav class="ml-auto mr-2" v-show="!isArticleTextDisplayed">
+        <IssueViewerPageHeading
+          :isLoading="isLoading"
+          :showCurrentSearchFilters="applyCurrentSearchFilters"
+          :filtersWithItems="filtersWithItems"
+          :issue="issue"
+          :article="selectedArticle"
+          :mediaSource="tableOfContents?.newspaper"
+          :page="page"
+        >
+          <template v-slot:label>
+            <RouterLink :to="{ name: 'issue', params: { issue_uid: issueId } }">
+              <span
+                v-if="issue"
+                v-html="
+                  $t('label_stats', {
+                    countArticles: issue.countArticles,
+                    countPages: issue.countPages
+                  })
+                "
+              />
+              <span v-else>{{ $t('loading') }}</span>
+            </RouterLink>
+          </template>
+          <template v-slot:actions>
+            <CollectionAddTo
+              right
+              v-if="!isLoading && selectedArticle"
+              :item="selectedArticle"
+              :text="$t('add_to_collection')"
+            />
+            <div v-else-if="!isLoading && issue" class="d-flex justify-content-end">
               <WithTooltip :content="$t('label_previous_page')" delay>
                 <b-button
                   class="border-dark"
@@ -159,70 +180,42 @@
                   <div class="dripicons dripicons-media-next pt-1"></div>
                 </b-button>
               </WithTooltip>
-            </b-navbar-nav>
-          </b-navbar>
-          <b-navbar variant="light" class="px-0 py-0">
-            <b-navbar-nav class="ml-auto p-2" v-if="!isArticleTextDisplayed">
-              <WithTooltip
-                placement="top"
-                :content="!outlinesVisible ? $t('toggle_outlines_on') : $t('toggle_outlines_off')"
-              >
-                <b-button
-                  :variant="outlinesVisible ? 'primary' : 'outline-primary'"
+            </div>
+          </template>
+        </IssueViewerPageHeading>
+        <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
+          <b-tabs pills>
+            <template v-slot:tabs-end>
+              <b-nav-item class="pl-2" :class="{ active: mode === FacsimileMode }">
+                <button
                   size="sm"
-                  @click="outlinesVisible = !outlinesVisible"
+                  class="btn btn-transparent small-caps"
+                  @click="mode = FacsimileMode"
                 >
-                  <div class="d-flex flex-row align-items-center">
-                    <div class="d-flex dripicons dripicons-duplicate my-1" />
-                    <!-- <div v-if="outlinesVisible">{{$t('toggle_outlines_on')}}</div> -->
-                    <!-- <div v-else>{{$t('toggle_outlines_off')}}</div> -->
-                  </div>
-                </b-button>
-              </WithTooltip>
-              <!-- <WithTooltip placement="top" :content="!isFullscreen ? $t('toggle_fullscreen_on') : $t('toggle_fullscreen_off')">
-              <b-button
-                :variant="isFullscreen ? 'primary' : 'outline-primary'"
-                size="sm"
-                @click="toggleFullscreen"
-                class="ml-1">
-                <div class="d-flex flex-row align-items-center">
-                  <div class="d-flex dripicons my-1" :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen}" />
-                </div>
-              </b-button>
-            </WithTooltip> -->
-            </b-navbar-nav>
-
-            <b-navbar-nav class="ml-auto p-2" v-if="selectedArticle">
-              <collection-add-to :item="selectedArticle" :text="$t('add_to_collection')" />
-
-              <b-button-group class="ml-2 p-1 border rounded">
-                <b-button
+                  {{ $t('facsimileView') }}
+                </button>
+              </b-nav-item>
+              <b-nav-item class="pl-2" :class="{ active: mode === RegionTranscriptMode }">
+                <button
                   size="sm"
-                  class="mr-1"
-                  :class="{ active: !isArticleTextDisplayed }"
-                  variant="outline-primary"
-                  @click="isArticleTextDisplayed = false"
+                  class="btn btn-transparent small-caps"
+                  @click="mode = RegionTranscriptMode"
                 >
-                  <div class="d-flex align-items-center">
-                    {{ $t('facsimileView') }}
-                    <div class="d-flex dripicons dripicons-article ml-2" />
-                  </div>
-                </b-button>
-                <b-button
+                  {{ $t('closeReadingView') }}
+                </button>
+              </b-nav-item>
+              <b-nav-item class="pl-2" :class="{ active: mode === IIIFViewerTranscriptMode }">
+                <button
                   size="sm"
-                  :class="{ active: isArticleTextDisplayed }"
-                  variant="outline-primary"
-                  @click="isArticleTextDisplayed = true"
+                  class="btn btn-transparent small-caps"
+                  @click="mode = IIIFViewerTranscriptMode"
                 >
-                  <div class="d-flex align-items-center">
-                    {{ $t('closeReadingView') }}
-                    <div class="d-flex dripicons dripicons-align-justify ml-2" />
-                  </div>
-                </b-button>
-              </b-button-group>
-            </b-navbar-nav>
-          </b-navbar>
-        </div>
+                  {{ $t('contextView') }}
+                </button>
+              </b-nav-item>
+            </template>
+          </b-tabs>
+        </b-navbar-nav>
       </template>
       <!-- content -->
       <div class="d-flex h-100 justify-content-center position-relative" v-if="issue">
@@ -237,34 +230,35 @@
         </div>
         <open-seadragon-article-viewer
           :class="{ 'show-outlines': outlinesVisible }"
-          :style="isContentAvailable && !isArticleTextDisplayed ? {} : { display: 'none' }"
+          :style="isContentAvailable && mode === FacsimileMode ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :regions="regions"
           :defaultCurrentPageIndex="currentPageIndex"
           :article="{ uid: articleId }"
           :marginaliaSections="
-            isContentAvailable && !isArticleTextDisplayed ? marginaliaSections : []
+            isContentAvailable && mode === FacsimileMode ? marginaliaSections : []
           "
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleIdSelectedInViewer"
         />
 
         <issue-viewer-text
-          v-if="isContentAvailable && articleId != null && isArticleTextDisplayed"
+          v-if="isContentAvailable && articleId != null && mode !== FacsimileMode"
           :article_uid="articleId"
+          :withIIIFViewer="mode === IIIFViewerTranscriptMode"
         />
 
         <issue-viewer-bookmarker
           @remove-selection="handleRemoveSelection"
           @click-full-text="showArticleText(selectedArticle.uid)"
           :article="selectedArticle"
-          :visible="!isArticleTextDisplayed"
+          :visible="mode === FacsimileMode"
         />
 
         <div
           class="position-absolute d-flex drop-shadow bg-dark border-radius"
           style="bottom: 1rem"
-          v-if="!isArticleTextDisplayed"
+          v-if="mode === FacsimileMode"
         >
           <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
             <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
@@ -280,6 +274,7 @@ import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticl
 import PageItem from '@/components/modules/lists/PageItem.vue'
 import List from '@/components/modules/lists/List.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
+import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
@@ -308,6 +303,9 @@ import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
+import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
+import { SupportedFiltersByContext } from '@/logic/filters'
+import { RouterLink } from 'vue-router'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -320,10 +318,18 @@ const QueryParams = Object.freeze({
   ArticleId: 'articleId',
   TextMode: 'text'
 })
-const AllowedFilterTypes = ['title', 'string', 'location', 'topic', 'person']
+const AllowedFilterTypes = SupportedFiltersByContext.search
+
+const FacsimileMode = '0'
+const RegionTranscriptMode = '1'
+const IIIFViewerTranscriptMode = '2'
 
 export default {
   data: () => ({
+    FacsimileMode,
+    RegionTranscriptMode,
+    IIIFViewerTranscriptMode,
+    //
     issue: /** @type {Issue|undefined} */ (undefined),
     tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
     issueImages: /** @type {Image[]} */ ([]),
@@ -350,7 +356,19 @@ export default {
     IssueViewerBookmarker,
     IssueViewerTableOfContents,
     CollectionAddTo,
-    WithTooltip
+    WithTooltip,
+    IssueViewerPageHeading,
+    MediaSourceLabel
+  },
+  props: {
+    filters: {
+      type: Array,
+      default: () => []
+    },
+    filtersWithItems: {
+      type: Array,
+      default: () => []
+    }
   },
   mounted() {
     if (this.suggestionQuery.length) {
@@ -383,17 +401,20 @@ export default {
         }
       })
     },
+    isLoading() {
+      return this.issue == null
+    },
     $navigation() {
       return new Navigation(this)
     },
     /** @returns {Filter[]} */
-    filters() {
+    allowedFilters() {
       // filter by type
-      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
     /** @returns {number} */
     countActiveFilters() {
@@ -432,16 +453,18 @@ export default {
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
-    isArticleTextDisplayed: {
-      /** @returns {boolean} */
+    mode: {
       get() {
+        if (!this.selectedArticle) return FacsimileMode
         const textMode = getQueryParameter(this, QueryParams.TextMode)
-        return textMode === '1'
+        if ([FacsimileMode, RegionTranscriptMode, IIIFViewerTranscriptMode].includes(textMode)) {
+          return textMode
+        }
+        return IIIFViewerTranscriptMode
       },
-      /** @param {string} q */
       set(q) {
         this.$navigation.updateQueryParametersWithHistory({
-          [QueryParams.TextMode]: q ? '1' : undefined
+          [QueryParams.TextMode]: q
         })
       }
     },
@@ -563,8 +586,17 @@ export default {
     issueId: {
       /** @param {string} id */
       async handler(id) {
-        this.issue = new Issue(await issuesService.get(id))
-        this.tableOfContents = new TableOfContents(await tableOfContentsService.get(id))
+        this.issue = await issuesService.get(id).then(data => {
+          console.debug('[IssueViewerPage] issue', data)
+          return new Issue(data)
+        })
+
+        this.tableOfContents = new TableOfContents(
+          await tableOfContentsService.get(id).then(res => {
+            console.debug('[IssueViewerPage] tableOfContents', res)
+            return res
+          })
+        )
         // / load images
         this.issueImages = await imagesService
           .find({
@@ -647,7 +679,15 @@ export default {
   },
   methods: {
     handleLoginClick() {
-      this.$router.push({ name: 'login' })
+      this.userStore.setRedirectionRoute({
+        path: this.$route.path,
+        query: this.$route.query,
+        params: this.$route.params
+      })
+      console.info('router', this.$route)
+      this.$router.push({
+        name: 'login'
+      })
     },
     keyDown(e) {
       if (e.shiftKey) {
@@ -782,6 +822,7 @@ export default {
 {
   "en": {
     "stats": "<b>{countArticles}</b> articles in <b>{countPages}</b> pages <br/><span class='small'>{accessRights}</span>",
+    "label_stats": "<span class='number'>{countArticles}</span> articles in <span class='number'>{countPages}</span> pages",
     "label_previous_page": "Previous Page (Shift + ←)",
     "label_next_page": "Next Page (Shift + →)",
     "label_display": "Display as",
@@ -808,5 +849,13 @@ section.i-layout-section {
 }
 section.i-layout-section > div.header {
   background-color: $clr-bg-primary;
+}
+.IssueViewerPage_tabs .active > .small-caps {
+  font-weight: var(--impresso-wght-smallcaps-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
+  box-shadow:
+    var(--impresso-color-black) 0 2px 0 0,
+    var(--impresso-color-black) 0 2px 0 0;
+  border-bottom: 1px solid var(--impresso-color-black);
 }
 </style>

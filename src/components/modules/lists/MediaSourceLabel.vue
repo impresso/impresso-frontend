@@ -1,26 +1,33 @@
 <template>
-  <div class="MediaOutletLabel">
+  <div class="MediaSourceLabel">
     <router-link v-if="showLink" :to="routerLinkUrl">
-      <span>{{ title }}</span
+      <span :class="titleClass">{{ title }}</span
       >{{ ' ' }}
-      <span class="small-caps">{{ $t(item.type + '_label') }}</span>
+      <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
     </router-link>
     <div v-else>
-      <span className="font-weight-medium text-decoration-underline">{{ title }}</span
+      <span :class="titleClass">{{ title }}</span
       >{{ ' ' }}
-      <span class="small-caps">{{ $t(item.type + '_label') }}</span>
+      <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { MediaOutlet } from '@/services/types'
+import type { MediaSource } from '@/models'
 import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
 
-const props = defineProps<{
-  item: MediaOutlet
+interface MediaSourceLabelProps {
+  item: MediaSource
   showLink?: boolean
-}>()
+  showType?: boolean
+  titleClass?: string
+}
+
+const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
+  showType: true,
+  titleClass: 'font-weight-medium text-decoration-underline'
+})
 
 const routerLinkUrl = computed(() => ({
   name: 'newspaper_metadata',
@@ -38,7 +45,7 @@ const title = computed(() => {
       return props.item.name || props.item.id
     }
   }
-  return props.item.name || props.item.name || props.item.id
+  return props.item.name || props.item.id
 })
 </script>
 <i18n>

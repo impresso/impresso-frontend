@@ -225,6 +225,14 @@ h6.dropdown-header {
   letter-spacing: var(--impresso-letter-spacing-smallcaps);
   text-transform: uppercase;
 }
+
+.alert {
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+.alert p {
+  margin: 0;
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);

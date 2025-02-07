@@ -47,7 +47,7 @@ export default class Article extends ArticleBase {
     nbPages = 0,
     dataProvider = '',
     newspaper = new Newspaper(),
-    mediaOutlet = null,
+    MediaSource = null,
     pages = [],
     regions = [],
     size = 0,
@@ -116,8 +116,8 @@ export default class Article extends ArticleBase {
       this.newspaper = new Newspaper(newspaper)
     }
     // temporary hack
-    if (!this.mediaOutlet && this.newspaper) {
-      this.mediaOutlet = {
+    if (!this.MediaSource && this.newspaper) {
+      this.MediaSource = {
         name: this.newspaper.acronym,
         type: 'newspaper',
         id: this.newspaper.uid

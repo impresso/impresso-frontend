@@ -1,10 +1,10 @@
 <template>
-  <div id="IssueViewerText" class="px-3 bg-light w-100">
+  <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <article-item :item="article" show-entities show-topics />
-      <div class="my-2" />
-      <!-- <collection-add-to :item="article" :text="$t('add_to_collection')" /> -->
+      <ArticleItem :item="article" showEntities showTopics class="container-fluid pl-0">
+        <template #title>&nbsp;</template>
+      </ArticleItem>
       <b-badge
         v-for="(collection, i) in article.collections"
         v-bind:key="`co_${i}`"
@@ -25,8 +25,8 @@
       <div v-if="hasValidRegions === false">
         <p>{{ article.excerpt }}</p>
       </div>
-      <b-container fluid v-else class="region-row mt-3 mb-3 position-relative">
-        <div class="small d-flex align-items-center m-0">
+      <b-container fluid v-else class="region-row px-0 mt-3 mb-3 position-relative">
+        <div v-if="textReusePassages.length" class="small d-flex align-items-center m-0">
           <div
             v-html="
               $tc('textReuseLabel', textReusePassages.length, {
@@ -36,9 +36,60 @@
           />
           <info-button class="ml-2" name="text-reuse" />
         </div>
+
         <!-- computed regions -->
-        <b-row
-          class="IssueViewerText__regions mt-1"
+        <div class="row" v-if="withIIIFViewer">
+          <div class="col-sm-6 col-xl-7">
+            <div
+              :style="{
+                position: 'sticky',
+                top: `${iiifViewerMarginTop}px`
+              }"
+            >
+              <IIIFViewer
+                class="bg-dark rounded-md shadow border"
+                openseadragonCssClass="overflow-hidden rounded-md"
+                :style="{ height: `${availableOffsetHeight - iiifViewerMarginTop * 2}px` }"
+                v-if="article"
+                :manifestUrls="
+                  computedIIIFViewerOverlays.map((d: any) => {
+                    return d.manifestUrls
+                  })
+                "
+                :overlays="computedIIIFViewerOverlays"
+                :fitBoundsToOverlayIdx="fitBoundsToOverlayIdx"
+                @clickOnOverlayRegion="
+                  ({ fitBoundsToOverlayIdx: idx }) => annotatedTextClickHandler(idx)
+                "
+              />
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <div v-for="(page, pageIdx) in computedIIIFViewerOverlays" :key="pageIdx">
+              <div
+                class="IssueViewerText__region region text-serif py-2"
+                v-for="(region, i) in page.regions"
+                :key="region.idx"
+                @click="() => annotatedTextClickHandler([pageIdx, i])"
+              >
+                <AnnotatedText
+                  class="text-serif"
+                  v-if="regionsAnnotationTree[region.idx]"
+                  :children="regionsAnnotationTree[region.idx].children"
+                  :cluster-colours="clusterColourMap"
+                  :selected-cluster-id="selectedClusterId"
+                  @clusterSelected="clusterSelectedHandler"
+                  @passageClicked="passageSelectedHandler"
+                  @passageMouseenter="mouseenterPassageHandler"
+                  @passageMouseleave="mouseleavePassageHandler"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="!withIIIFViewer"
+          class="row IssueViewerText__regions mt-1"
           v-for="(region, i) in computedRegions"
           v-bind:key="i"
         >
@@ -46,26 +97,24 @@
             <div class="py-3">
               <img
                 v-bind:src="region.iiifFragment"
-                alt="IIIF Region"
+                alt="..."
                 :style="{ width: `${region.nw * 100}%` }"
               />
             </div>
           </div>
-          <div class="col col-sm-7">
-            <div class="region py-3">
-              <AnnotatedText
-                v-if="regionsAnnotationTree[i]"
-                :children="regionsAnnotationTree[i].children"
-                :cluster-colours="clusterColourMap"
-                :selected-cluster-id="selectedClusterId"
-                @clusterSelected="clusterSelectedHandler"
-                @passageClicked="passageSelectedHandler"
-                @passageMouseenter="mouseenterPassageHandler"
-                @passageMouseleave="mouseleavePassageHandler"
-              />
-            </div>
+          <div class="col col-sm-7 text-serif py-2">
+            <AnnotatedText
+              v-if="regionsAnnotationTree[i]"
+              :children="regionsAnnotationTree[i].children"
+              :cluster-colours="clusterColourMap"
+              :selected-cluster-id="selectedClusterId"
+              @clusterSelected="clusterSelectedHandler"
+              @passageClicked="passageSelectedHandler"
+              @passageMouseenter="mouseenterPassageHandler"
+              @passageMouseleave="mouseleavePassageHandler"
+            />
           </div>
-        </b-row>
+        </div>
       </b-container>
     </div>
     <hr class="py-4" />
@@ -114,6 +163,7 @@ import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 import ArticleItem from './lists/ArticleItem.vue'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import IIIFViewer from './IIIFViewer.vue'
 
 import Article from '@/models/Article'
 import { useCollectionsStore } from '@/stores/collections'
@@ -125,8 +175,8 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import TextReusePassage from '@/models/TextReusePassage'
-
+import Ellipsis from './Ellipsis.vue'
+import { a } from 'node_modules/@storybook/vue3/dist/render-0377a2e9'
 const colourScheme = [
   '#8dd3c7',
   '#bebada',
@@ -148,13 +198,28 @@ export default {
       articlesSuggestions: [],
       textReusePassages: [],
       selectedPassageId: undefined,
-      hoverPassageLineTopOffset: undefined,
-      viewerTopOffset: 0
+      hoverPassageLineTopOffset: 0,
+      viewerTopOffset: 0,
+      fitBoundsToOverlayIdx: [0, 0],
+      availableOffsetHeight: 500,
+      iiifViewerMarginTop: 20
+    } as {
+      article: any
+      textReusePassages: any[]
+      articlesSuggestions: any[]
+      hoverPassageLineTopOffset: number
+      viewerTopOffset: number
+      fitBoundsToOverlayIdx: [number, number]
+      availableOffsetHeight: number
+      iiifViewerMarginTop: number
     }
   },
   updated() {
-    const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
-    this.viewerTopOffset = height
+    this.resize()
+  },
+  mounted() {
+    this.viewerTopOffset = document.querySelector('#TheHeader').getBoundingClientRect().height
+    window.addEventListener('resize', this.resize)
   },
   computed: {
     ...mapStores(useCollectionsStore),
@@ -184,14 +249,40 @@ export default {
         return isNaN(coords.x) || isNaN(coords.y) || isNaN(coords.w) || isNaN(coords.h)
       })
     },
-    // this wuld ensure to have a max width of 100% for the largest region and smaller fr the ther ones
+    computedIIIFViewerOverlays() {
+      if (!this.hasValidRegions) return []
+      const regionsByPageIndex = this.article.regions.reduce((acc, region, idx) => {
+        if (!acc[region.pageUid]) {
+          acc[region.pageUid] = []
+        }
+
+        acc[region.pageUid].push({
+          ...region,
+          idx
+        })
+        return acc
+      }, {})
+
+      const overlays = this.article.pages
+        .sort(d => d.pageUid)
+        .map((page: any, j: number) => {
+          return {
+            id: page.uid,
+            manifestUrls: page.iiif,
+            regions: regionsByPageIndex[page.uid] || []
+          }
+        })
+      console.debug('[IssueViewerText] @computedIIIFViewerOverlays', overlays)
+      return overlays
+    },
     computedRegions() {
       if (!this.hasValidRegions) return []
       const regions = this.article.regions
       const maxRegionWidth = Math.max(...regions.map(({ coords }) => coords.w))
 
-      return regions.map(r => ({
+      return regions.map((r, i) => ({
         ...r,
+        id: i,
         // nrmalised width
         nw: Math.min(1, r.coords.w / maxRegionWidth)
       }))
@@ -233,14 +324,46 @@ export default {
       return !!window.impressoFeatures?.textReuse?.enabled
     }
   },
-  props: ['article_uid'],
+  props: {
+    article_uid: String,
+    withIIIFViewer: {
+      type: Boolean,
+      default: false
+    }
+  },
   components: {
     ArticleItem,
     SearchResultsSimilarItem,
     AnnotatedText,
-    InfoButton
+    InfoButton,
+    IIIFViewer,
+    Ellipsis
   },
   methods: {
+    annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
+      this.fitBoundsToOverlayIdx = fitBoundsToOverlayIdx
+    },
+    resize() {
+      const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
+      if (this.$refs.root) {
+        const rootAsDiv = this.$refs.root as HTMLDivElement
+        try {
+          const { top: offsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
+          const availableOffsetHeight = rootAsDiv.parentNode?.offsetHeight
+          console.debug(
+            '[IssueViewerText] resize() availableOffsetHeight:',
+            availableOffsetHeight,
+            'offsetTop:',
+            offsetTop
+          )
+
+          this.availableOffsetHeight = Math.max(200, availableOffsetHeight - offsetTop)
+        } catch (e) {
+          console.warn('[IssueViewerText] @updated parentNode not found', e)
+        }
+      }
+      this.viewerTopOffset = height
+    },
     commonTopics(suggestionTopics) {
       return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid))
       // sort by master topics relevance
@@ -318,20 +441,36 @@ export default {
       immediate: true,
       async handler(articleUid) {
         this.articlesSuggestions = []
-
+        console.info(
+          '[IssueViewerText] watch@article_uid',
+          articleUid,
+          '- textReuseEnabled:',
+          this.textReuseEnabled
+        )
+        this.fitBoundsToOverlayIdx = [0, 0]
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
               .find({ query: { id: articleUid } })
+              .then(res => {
+                console.debug(
+                  '[IssueViewerText] watch@article_uid articleTextReusePassages succesfully get',
+                  res
+                )
+                return res
+              })
               .then(({ passages }) => passages)
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          articlesService.get(articleUid).then(d => new Article(d)),
+          articlesService.get(articleUid).then(d => {
+            console.debug(['[IssueViewerText] @article_uid', d])
+            return new Article(d)
+          }),
           trPromise
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-
+        this.resize()
         articlesSuggestions.get(articleUid).then(res => {
           this.articlesSuggestions = res.data
         })
@@ -343,6 +482,19 @@ export default {
 
 <style lang="scss">
 @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+
+.IssueViewerText__region {
+  cursor: pointer;
+  transition: border-color 0.2s var(--impresso-transition-ease);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+}
+
+.IssueViewerText__region:hover {
+  border-color: var(--clr-grey-400);
+}
 
 #IssueViewerText {
   overflow: none;
