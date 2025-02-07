@@ -205,8 +205,10 @@ export default {
       iiifViewerMarginTop: 20
     } as {
       article: any
+
       textReusePassages: any[]
       articlesSuggestions: any[]
+      selectedPassageId: string | number | undefined
       hoverPassageLineTopOffset: number
       viewerTopOffset: number
       fitBoundsToOverlayIdx: [number, number]
@@ -349,7 +351,7 @@ export default {
         const rootAsDiv = this.$refs.root as HTMLDivElement
         try {
           const { top: offsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
-          const availableOffsetHeight = rootAsDiv.parentNode?.offsetHeight
+          const availableOffsetHeight = (rootAsDiv.parentNode as HTMLElement)?.offsetHeight
           console.debug(
             '[IssueViewerText] resize() availableOffsetHeight:',
             availableOffsetHeight,
