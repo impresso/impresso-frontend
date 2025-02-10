@@ -81,23 +81,25 @@ export default {
     authenticate() {
       this.error = false
       const path = this.$route.query.redirect || window.redirect || '/'
-
+      const pathWithStoredRedirectionParams = {
+        path,
+        ...this.computedRedirectionParams
+      }
+      console.debug('[UserLoginPage] authenticate() with path: ', pathWithStoredRedirectionParams)
       this.userStore
         .login({
           email: this.email,
           password: this.password
         })
-        .then(() => {
-          this.$router.push({
-            path,
-            ...this.computedRedirectionParams
-          })
+        .then(user => {
+          console.debug('[UserLoginPage] logged in! Redirect to: ', pathWithStoredRedirectionParams)
+          this.$router.push(pathWithStoredRedirectionParams)
         })
         .catch(err => {
           if (err.code === 401) {
             this.error = this.$t('errors.LoginFailed')
           }
-          console.warn('error', err)
+          console.warn('[UserLoginPage] error', err)
         })
     }
   },
