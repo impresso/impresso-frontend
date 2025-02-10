@@ -69,11 +69,11 @@ import {
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
-import User from '@/models/User'
+import { type User } from '@/models'
 
 const userStore = useUserStore()
 
-interface UserAreaProps {
+export interface UserAreaProps {
   user: User
   userPlanLabel: string
 }

@@ -100,3 +100,14 @@ export interface IImage {
   mediaSourceRef?: IMediaSourceRef
   date?: Date
 }
+
+export interface User {
+  uid: string
+  username: string
+  isActive: boolean
+  isStaff: boolean
+  email: string
+  firstname: string
+  lastname: string
+  pattern: string[]
+}
