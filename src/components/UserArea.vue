@@ -5,7 +5,7 @@
         <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
         <div class="UserArea__userLabel">
           <div class="user-fullname small mb-1">{{ userFullName }}</div>
-          <div class="user-role small-caps">{{ userRole }}</div>
+          <div class="user-role small-caps">{{ userPlanLabel }}</div>
         </div>
       </div>
     </template>
@@ -35,7 +35,7 @@
     <LinkToModal v-if="user" class="dropdown-item" :view="ViewCorpusOverview">
       {{ $t('label_corpus_overview') }}
     </LinkToModal>
-    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewInfoModal">
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewInfoModal">
       {{ $t('label_verbose_info') }}
     </LinkToModal>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
@@ -69,14 +69,17 @@ import {
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
+import User from '@/models/User'
 
 const userStore = useUserStore()
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true
-  }
-})
+
+interface UserAreaProps {
+  user: User
+  userPlanLabel: string
+}
+
+const props = defineProps<UserAreaProps>()
+
 const version = computed(() => {
   return (window as any).impressoFrontendVersion
 })
@@ -94,9 +97,6 @@ const userFullName = computed(() => {
   return name
 })
 
-const userRole = computed(() => {
-  return props.user.isStaff ? 'staff' : 'researcher'
-})
 const test = () => {
   return jobsService.create({})
 }
@@ -135,7 +135,7 @@ const userPicture = computed(() => {
     "label_terms_of_use": "Terms of Use",
     "label_change_plan_request": "Change Plan Request",
     "label_user_requests": "Your requests for data domains",
-    "label_verbose_info": "[staff only] Verbose Info",
+    "label_verbose_info": "Settings",
     "label_plans": "Plans",
     "label_corpus_overview": "Corpus Overview",
     "logout": "Logout",

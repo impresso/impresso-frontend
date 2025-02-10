@@ -149,7 +149,7 @@
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
-        <UserArea :user="user" />
+        <UserArea :user="user" :userPlan="userPlan" :userPlanLabel="userPlanLabel" />
       </b-navbar-nav>
       <!-- end of user area -->
       <!-- login area -->
@@ -222,7 +222,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
-import { ViewPlans } from '@/constants'
+import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
 import LinkToModal from './LinkToModal.vue'
 
 export default defineComponent({
@@ -323,34 +323,13 @@ export default defineComponent({
     user() {
       return this.userStore.user
     },
-    userFullName() {
-      const name = `${this.user.firstname} ${this.user.lastname}`.trim()
-      return name === '' ? this.user.username : name
+    userPlan() {
+      return this.userStore.userPlan || PlanGuest
     },
-    userRole() {
-      // if (this.user.displayName && this.user.displayName.length) {
-      //   return this.user.displayName
-      // }
-      return this.user.isStaff ? this.$t('staff') : this.$t('researcher')
+    userPlanLabel() {
+      return PlanLabels[this.userPlan]
     },
-    userPicture() {
-      const style = {
-        backgroundColor: 'black'
-      }
 
-      if (this.user.pattern) {
-        const gradient = []
-
-        this.user.pattern.forEach((color, i) => {
-          const start = Math.round((100 * i) / this.user.pattern.length)
-          const stop = Math.round((100 * (i + 1)) / this.user.pattern.length)
-          gradient.push(`${color} ${start}%, ${color} ${stop}%`)
-        })
-
-        style.backgroundImage = `linear-gradient(90deg,${gradient.join(',')})`
-      }
-      return style
-    },
     connectivityStatus() {
       return this.notificationsStore.connectivityStatus
     },
