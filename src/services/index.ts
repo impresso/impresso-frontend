@@ -108,7 +108,7 @@ app.service('logs').on('created', payload => {
   // if tasktype: "UUB",
   if (payload.tasktype === 'UUB') {
     // force reauthentication
-    app.reAuthenticate().then(res => {
+    app.reAuthenticate(true).then(res => {
       console.info('[@logs->created] Reauthenticated after UUB', res)
     })
   }
