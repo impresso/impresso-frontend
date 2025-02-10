@@ -122,7 +122,7 @@ export const initSequence = async () => {
   await loadVersion()
   const userStore = useUserStore()
   await Promise.race([
-    appService.reAuthenticate(),
+    appService.reAuthenticate(true),
     reducedTimeoutPromise({ ms: 2000, service: 'app.reAuthenticate' })
   ])
     .catch(err => {
@@ -145,7 +145,7 @@ export const initSequence = async () => {
         console.error(err)
       }
     })
-    .then(async res => {
+    .then((res: any) => {
       if (!res) {
         console.debug('[init:initSequence] No reAuthenticateResponse')
         // force logout
@@ -155,16 +155,16 @@ export const initSequence = async () => {
         return
       }
       // eslint-disable-next-line
-      console.debug('[init:initSequence] Loading app & data version:', Object.keys(res), res)
+      console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
-        '[init:initSequence] username:',
-        userStore.user ? userStore.user.username : 'n/a'
+        '[init:initSequence] - username:',
+        res.user.username,
+        '- bitmap:',
+        res.user.bitmap,
+        '- groups:',
+        res.user.groups
       )
-      if (!userStore.user) {
-        console.debug('[init:initSequence] No user data found. Loading fresh data...')
-        const user = await userStore.refreshUser()
-        console.debug('[init:initSequence] User data loaded:', user?.username)
-      }
+      userStore.refreshUser()
     })
   return
 }
