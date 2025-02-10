@@ -72,13 +72,19 @@
       </div>
     </div>
     <div
-      v-if="showTopics"
+      v-if="showTopics && item.topics?.length"
       class="small article-extras article-topics my-2"
       data-testid="article-topics"
     >
       <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
-      <b-row v-if="item.topics.length">
-        <b-col lg="6" xl="4" class="my-1" v-for="(rel, idx) in item.topics" v-bind:key="idx">
+      <b-row>
+        <b-col
+          lg="6"
+          xl="4"
+          class="my-1"
+          v-for="(rel, idx) in computedRelevantTopics"
+          v-bind:key="idx"
+        >
           <viz-bar
             show-border
             show-percent
@@ -128,13 +134,18 @@ export default {
     showType: Boolean,
     showEntities: Boolean,
     showTopics: Boolean,
-    asReference: Boolean
+    asReference: Boolean,
+    minTopicRelevance: Number
   },
   computed: {
     pages() {
       return this.$tc('pp', this.item.nbPages, {
         pages: this.item.pages?.map(d => d.num)?.join(',')
       })
+    },
+    computedRelevantTopics() {
+      if (isNaN(this.minTopicRelevance)) return this.item.topics || []
+      return (this.item.topics || []).filter(t => t.relevance > this.minTopicRelevance)
     },
     routerLinkUrl() {
       const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]

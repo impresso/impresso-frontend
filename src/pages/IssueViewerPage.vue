@@ -56,20 +56,7 @@
                 debounce="500"
                 :placeholder="$t('label_filter_articles')"
               />
-              <!-- <b-form-checkbox :disabled="!hasMatchingArticles"
-                  v-model="displayOnlyMatchingArticles"
-                  switch>
-                  <span v-html="$tc('filter_included_only', paginationTotalRows)"/>
-                </b-form-checkbox> -->
-              <div
-                v-if="!hasMatchingArticles"
-                v-html="
-                  $t('label_stats', {
-                    countArticles: issue.countArticles,
-                    countPages: issue.countPages
-                  })
-                "
-              />
+
               <div class="mb-2 IssueViewerPage_matchingArticles" v-if="hasMatchingArticles">
                 <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
                 <div
@@ -128,18 +115,11 @@
           :page="page"
         >
           <template v-slot:label>
-            <RouterLink :to="{ name: 'issue', params: { issue_uid: issueId } }">
-              <span
-                v-if="issue"
-                v-html="
-                  $t('label_stats', {
-                    countArticles: issue.countArticles,
-                    countPages: issue.countPages
-                  })
-                "
-              />
-              <span v-else>{{ $t('loading') }}</span>
+            <RouterLink v-if="issue" :to="{ name: 'issue', params: { issue_uid: issueId } }">
+              {{ $t('Newspaper issue') }}
             </RouterLink>
+
+            <span v-else>{{ $t('loading') }}</span>
           </template>
           <template v-slot:actions>
             <CollectionAddTo

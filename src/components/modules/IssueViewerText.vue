@@ -2,7 +2,13 @@
   <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <ArticleItem :item="article" showEntities showTopics class="container-fluid pl-0">
+      <ArticleItem
+        :item="article"
+        showEntities
+        showTopics
+        :minTopicRelevance="0.1"
+        class="container-fluid pl-0"
+      >
         <template #title>&nbsp;</template>
       </ArticleItem>
       <b-badge
