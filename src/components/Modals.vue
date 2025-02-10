@@ -88,6 +88,9 @@
           {{ $t('not_accepted_on_db_label') }}
         </div>
       </div>
+      <div class="d-flex justify-content-between border-bottom p-2">
+        <TermsOfUseStatus withCallToAction />
+      </div>
     </InfoModal>
     <!--  -->
     <ChangePlanModal

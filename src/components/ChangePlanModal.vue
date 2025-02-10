@@ -39,8 +39,10 @@
       :error="null"
       :current-plan="props.userPlan"
       :userChangePlanRequest="userChangePlanRequest"
+      :allow-all-plans="!userChangePlanRequest"
       @submit="submit"
     />
+
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>

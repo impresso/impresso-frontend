@@ -29,7 +29,10 @@ export const useUserStore = defineStore('user', {
     },
 
     userPlan(state) {
-      let userPlan = state.userData !== null && state.acceptTermsDate ? PlanImpressoUser : PlanGuest
+      if (!state.acceptTermsDate) {
+        return PlanGuest
+      }
+      let userPlan = state.userData !== null ? PlanImpressoUser : PlanGuest
       if (state.userData && Array.isArray(state.userData?.groups)) {
         for (const group of state.userData.groups) {
           if (group.name === PlanEducational || group.name === PlanResearcher) {
