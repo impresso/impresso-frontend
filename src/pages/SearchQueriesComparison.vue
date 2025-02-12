@@ -855,7 +855,7 @@ export default {
     },
     "sortBy": "Sort by",
     "sortingMethods": {
-      "HighestTotalIntersectionInPercents": "Total intercection span in %",
+      "HighestTotalIntersectionInPercents": "Total intersection span in %",
       "HighestAbsoluteIntersection": "Absolute intersection"
     },
     "scale": "Scale",
