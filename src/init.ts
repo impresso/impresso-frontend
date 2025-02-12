@@ -34,7 +34,7 @@ type VersionResponse = {
 export const loadVersion = async () => {
   const res: VersionResponse = await Promise.race([
     reducedTimeoutPromise({
-      ms: 450,
+      ms: 2450,
       service: 'version'
     }),
     versionService.find().then(res => {
@@ -50,7 +50,7 @@ export const loadVersion = async () => {
       features: res.features
     }))
     .catch(err => {
-      console.warn(err)
+      console.warn('[init:loadVersion] error:', err)
       return {
         apiVersion: { version: 'n/a', branch: 'n/a', revision: 'n/a' },
         version: 'n/a',
