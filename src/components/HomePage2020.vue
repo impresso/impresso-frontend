@@ -36,11 +36,7 @@
 
         <p>
           More? Check on our
-          <a
-            class="text-white"
-            href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html"
-            >blog</a
-          >
+          <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p>
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
