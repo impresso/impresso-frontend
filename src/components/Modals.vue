@@ -43,7 +43,16 @@
       :isLoading="fetchPlansResponse.status === 'loading' || fetchPlansResponse.status === 'idle'"
       :values="fetchPlansResponse.data?.values || {}"
       :acceptedTermsDate="acceptTermsDate"
-    />
+    >
+      <!-- <template v-slot:terms-of-use-status>
+        <Alert
+          :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
+          class="bg-info mb-3"
+        >
+          <TermsOfUseStatus />
+        </Alert>
+      </template> -->
+    </PlansModal>
     <InfoModal
       :isVisible="view === ViewInfoModal"
       :title="$t('User settings')"
@@ -280,7 +289,8 @@ watch(
       console.debug('[Modals] @watch view = ViewChangePlanRequest')
       fetchUserPlanChangeRequest()
     } else if (_view === ViewPlans) {
-      console.debug('[Modals] @watch view = ViewTermsOfUse')
+      ;``
+      console.debug('[Modals] @watch view = ViewPlans')
       fetchPlansContent()
     } else if (_view === ViewUserRequests) {
       console.debug('[Modals] @watch view = ViewUserRequests')
@@ -308,10 +318,7 @@ watch(
  */
 const fetchPlansContent = async (): Promise<void> => {
   console.debug('[Modals] fetchPlansContent from JSON:', import.meta.env.VITE_PLANS_JSON_URL)
-  // load current status
-  if (!user.value) {
-    return
-  }
+
   fetchPlansResponse.value = { data: null, status: 'loading' }
   const response = await axios.get(import.meta.env.VITE_PLANS_JSON_URL).then(response => {
     console.info(

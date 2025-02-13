@@ -11,8 +11,15 @@
     <LoadingBlock v-if="isLoading" />
     <section v-else>
       <div class="container">
-        <div class="row my-3">{{ content }}</div>
+        <div class="row my-3">
+          {{ content }}
+          <br />
+          <LinkToModal class="text-decoration-underline" :view="ViewCorpusOverview"
+            >See what's available to which plan</LinkToModal
+          >
+        </div>
       </div>
+      <slot name="terms-of-use-status"></slot>
       <div class="container bg-light">
         <div class="row position-sticky top-0 bg-light" style="z-index: 1">
           <div class="col-lg-2"></div>
@@ -177,6 +184,8 @@ import Icon from './base/Icon.vue'
 import PlansModalFeatureRow from './modules/PlansModalFeatureRow.vue'
 import type { Plan } from './modules/PlansModalFeatureRow.vue'
 import LoadingBlock from './LoadingBlock.vue'
+import LinkToModal from './LinkToModal.vue'
+import { ViewCorpusOverview } from '@/constants'
 
 const props = withDefaults(
   defineProps<{
