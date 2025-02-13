@@ -148,6 +148,8 @@ export default {
         '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
       clusters:
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
+      contentItems:
+        'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articles:
         'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       articlesInCommon:
