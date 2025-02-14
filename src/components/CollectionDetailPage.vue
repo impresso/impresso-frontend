@@ -4,7 +4,15 @@
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
         <section>
           <span class="label small-caps">
-            <router-link v-bind:to="updateCurrentRoute({ name: 'collections' })"
+            <router-link
+              v-bind:to="
+                updateCurrentRoute({
+                  name: 'collections',
+                  query: {
+                    tab: 'overview'
+                  }
+                })
+              "
               >&larr; {{ $t('Collections') }}</router-link
             >
           </span>
@@ -537,6 +545,11 @@ export default {
           return data
         })
 
+      const collectionsItemsById = collectionsItems.reduce((acc, item) => {
+        acc[item.itemId] = item
+        return acc
+      }, {})
+
       const articles = await searchService
         .find({
           query: {
@@ -550,7 +563,14 @@ export default {
             group_by: 'articles'
           }
         })
-        .then(({ data }) => data.map(d => new Article(d)))
+        .then(({ data }) =>
+          data.map(d => {
+            return new Article({
+              ...d,
+              collections: collectionsItemsById[d.uid].collections
+            })
+          })
+        )
       this.articles = articles
       this.fetching = false
     },
