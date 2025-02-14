@@ -5,7 +5,8 @@ import { useNotificationsStore } from './stores/notifications'
 import { reducedTimeoutPromise } from './services/utils'
 
 const DefaultImpressoFeatures = {
-  textReuse: { enabled: true }
+  textReuse: { enabled: true },
+  viewPlans: { enabled: false }
 }
 
 type ApiVersion = {
@@ -21,6 +22,7 @@ type DocumentsDateSpan = {
 
 type Features = {
   textReuse: { enabled: boolean }
+  viewPlans: { enabled: boolean }
 }
 
 type VersionResponse = {
@@ -89,7 +91,7 @@ export const loadVersion = async () => {
     NZZ: 'NZZ',
     Migros: 'Migros'
   }
-  glob.impressoFeatures = res.features
+  glob.impressoFeatures = { ...DefaultImpressoFeatures, ...res.features }
   glob.impressoDocumentsYearSpan = {
     firstYear: new Date(res.documentsDateSpan.firstDate).getFullYear(),
     lastYear: new Date(res.documentsDateSpan.lastDate).getFullYear()

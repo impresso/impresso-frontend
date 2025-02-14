@@ -17,7 +17,10 @@
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
-      <div data-testid="article-access-rights" v-if="item.dataProvider != null">
+      <div
+        data-testid="article-access-rights"
+        v-if="item.dataProvider != null && item.dataProvider.length"
+      >
         {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
         <ItemSelector
           :uid="item.dataProvider"

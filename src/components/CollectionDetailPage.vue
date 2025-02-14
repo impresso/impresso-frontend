@@ -4,7 +4,15 @@
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
         <section>
           <span class="label small-caps">
-            <router-link v-bind:to="updateCurrentRoute({ name: 'collections' })"
+            <router-link
+              v-bind:to="
+                updateCurrentRoute({
+                  name: 'collections',
+                  query: {
+                    tab: 'overview'
+                  }
+                })
+              "
               >&larr; {{ $t('Collections') }}</router-link
             >
           </span>
@@ -170,7 +178,7 @@
             v-for="(article, index) in articles"
             v-bind:key="`${index}-${article.uid}`"
           >
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+            <search-results-list-item v-model="articles[index]" />
           </b-col>
         </b-row>
 
@@ -184,15 +192,10 @@
             v-bind:key="`${index}-${article.uid}`"
           >
             <!-- {{article}} -->
-            <search-results-tiles-item
-              v-if="article.type === 'ar'"
-              v-on:click="gotoArticle(article)"
-              v-model="articles[index]"
-            />
+            <search-results-tiles-item v-if="article.type === 'ar'" v-model="articles[index]" />
             <search-results-image-item
               v-if="article.type !== 'ar'"
               v-bind:searchResult="article"
-              v-on:click="gotoArticle(article)"
               v-model="articles[index]"
             />
           </b-col>
@@ -307,6 +310,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
+  search as searchService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
@@ -520,7 +524,7 @@ export default {
         }
       }
     },
-    loadCollectionItems() {
+    async loadCollectionItems() {
       this.fetching = true
       const query = {
         resolve: 'item',
@@ -532,16 +536,43 @@ export default {
       if (this.collectionUid) {
         query.collection_uids = [this.collectionUid]
       }
-      return collectionsItemsService.find({ query }).then(({ data, total }) => {
-        this.paginationTotalRows = total
-        this.fetching = false
-        this.articles = data.map(({ item }) => {
-          if (item instanceof Article) {
-            return item
-          }
-          return new Article(item)
+
+      const collectionsItems = await collectionsItemsService
+        .find({ query })
+        .then(({ data, total }) => {
+          console.debug('[CollectionDetailPage] loadCollectionItems() success. Data:', data)
+          this.paginationTotalRows = total
+          return data
         })
-      })
+
+      const collectionsItemsById = collectionsItems.reduce((acc, item) => {
+        acc[item.itemId] = item
+        return acc
+      }, {})
+
+      const articles = await searchService
+        .find({
+          query: {
+            filters: [
+              {
+                type: 'uid',
+                q: collectionsItems.map(d => d.itemId)
+              }
+            ],
+
+            group_by: 'articles'
+          }
+        })
+        .then(({ data }) =>
+          data.map(d => {
+            return new Article({
+              ...d,
+              collections: collectionsItemsById[d.uid].collections
+            })
+          })
+        )
+      this.articles = articles
+      this.fetching = false
     },
     gotoArticle(article) {
       if (

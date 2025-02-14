@@ -69,7 +69,7 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-        <b-nav-item>
+        <b-nav-item v-if="viewPlansEnabled">
           <LinkToModal class="nav-link" :view="ViewPlans">
             <span>
               {{ $t('label_plans') }}
@@ -335,6 +335,9 @@ export default defineComponent({
     },
     version() {
       return window.impressoFrontendVersion
+    },
+    viewPlansEnabled() {
+      return !!window.impressoFeatures?.viewPlans?.enabled
     },
     textReuseEnabled() {
       // @ts-ignore

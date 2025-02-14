@@ -165,7 +165,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          component: () => import('@/components/CollectionDetailPage.vue'),
+          component: () => import('@/components/CollectionExplorerPage.vue'),
           name: 'collections',
           meta: {
             requiresAuth: true,
