@@ -127,7 +127,11 @@ import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
 import Helpers from '@/plugins/Helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { searchFacets as searchFacetsService, search as searchService } from '@/services'
+import {
+  searchFacets as searchFacetsService,
+  search as searchService,
+  collectionsItems as collectableItemsService
+} from '@/services'
 import { useUserStore } from '@/stores/user'
 import { watch } from 'vue'
 import Facet from '@/models/Facet'
@@ -247,22 +251,40 @@ const fetchContentItems = async () => {
     }
     return
   }
+  const contentItemsIds = response.data.map(d => d.uid)
+  if (contentItemsIds.length === 0) {
+    contentItemsResponse.value = {
+      status: 'success',
+      data: [],
+      total: 0
+    }
+    return
+  }
+  const collectableItemsIndex = await collectableItemsService
+    .find({
+      query: {
+        item_uids: contentItemsIds,
+        limit: response.data.length
+      }
+    })
+    .then(({ data }) =>
+      data.reduce((acc, d) => {
+        acc[d.itemId] = d
+        return acc
+      }, {})
+    )
+
   contentItemsResponse.value = {
     status: 'success',
-    data: response.data.map(d => new Article(d)),
+    data: response.data.map(d => {
+      return new Article({
+        ...d,
+        collections: collectableItemsIndex[d.uid]?.collections || []
+      })
+    }),
     total: response.total
   }
   console.debug('[CollectionExplorerPage] fetchContentItems success', response.data)
-  // gather collection uids
-  const collectionsUids = response.data.reduce((acc, item) => {
-    item.collections.forEach(c => {
-      if (!acc.includes(c.uid)) {
-        acc.push(c.uid)
-      }
-    })
-    return acc
-  }, [])
-  console.log(collectionsUids)
 }
 
 const searchFacetsResponse = ref<{
