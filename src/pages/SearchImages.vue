@@ -2,7 +2,7 @@
   <i-layout class="search-images">
     <search-sidebar
       width="400px"
-      :filters="enrichedFilters"
+      :filters="filters"
       :ignored-filters="ignoredFilters"
       :facets="facets"
       :excludedTypes="excludedTypes"
@@ -92,7 +92,7 @@
             <ellipsis v-if="!isLoading" v-bind:initialHeight="60">
               <search-results-summary
                 group-by="images"
-                :searchQuery="{ filters: enrichedFilters }"
+                :searchQuery="{ filters }"
                 :totalRows="paginationTotalRows"
               />
             </ellipsis>
@@ -188,7 +188,6 @@ interface IData {
   searchResults: IImage[]
   paginationTotalRows: number
   facets: FacetModel[]
-  filtersWithItems: Filter[]
   headers: Record<string, string> | null
 }
 
@@ -198,6 +197,10 @@ export default defineComponent({
     enableSimilarTo: {
       type: Boolean,
       default: true
+    },
+    filtersWithItems: {
+      type: Array as () => Filter[],
+      default: () => []
     }
   },
   components: {
@@ -221,8 +224,7 @@ export default defineComponent({
       paginationTotalRows: 0,
       /** @type {Facet[]} */
       facets: [],
-      /** @type {Filter[]} */
-      filtersWithItems: [],
+
       headers: null
     }
   },
@@ -253,18 +255,14 @@ export default defineComponent({
     seed() {
       return this.$route.query.seed || 0
     },
-    /** @returns {Filter[]} */
-    enrichedFilters() {
-      return this.filtersWithItems.length ? this.filtersWithItems : this.filters
-    },
-    /** @returns {Filter[]} */
     ignoredFilters() {
-      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.filtersWithItems
+        .filter(({ type }) => type !== 'hasTextContents')
+        .filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
     filters() {
       // filter by type
-      return this.searchQuery.filters.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {string[]} */
     excludedTypes() {
@@ -506,8 +504,7 @@ export default defineComponent({
         console.info('@serviceQuery query:', query)
         const [
           res, // { offset, limit, total, data, info },
-          facets,
-          filtersWithItems
+          facets
         ] = await Promise.all([
           imagesService.find({
             query
@@ -517,18 +514,10 @@ export default defineComponent({
               filters: serializedFilters,
               facets: AllowedFacetTypes
             }
-          }),
-          filtersItemsService
-            .find({
-              query: {
-                filters: serializedFilters
-              }
-            })
-            .then(joinFiltersWithItems)
+          })
         ])
         this.paginationTotalRows = res.pagination.total
         this.searchResults = res.data //.map(d => new Image(d))
-        this.filtersWithItems = filtersWithItems
         this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1
 
         // const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res)
