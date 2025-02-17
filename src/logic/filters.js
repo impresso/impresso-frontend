@@ -67,6 +67,9 @@ export function optimizeFilters(filters) {
     if (RangeFacets.includes(filter.type)) {
       key += `-${i}`
     }
+    if (filter.type === 'string') {
+      key += `-${i}`
+    }
 
     const items = map.get(key) || []
     map.set(key, items.concat([filter]))
