@@ -45,6 +45,18 @@
           <b-nav-item class="navbar-text ml-3 mr-2 text-muted small-caps">
             {{ $t('sortBy') }}
           </b-nav-item>
+          <i-dropdown
+            v-model="orderBy"
+            :options="
+              orderByOptions.map(value => ({
+                value,
+                text: $t(`label_sort_${value}`)
+              }))
+            "
+            class="mr-auto"
+            size="sm"
+            variant="outline-tertiary"
+          ></i-dropdown>
         </b-navbar-nav>
       </template>
 
@@ -157,6 +169,9 @@ const FacetTypes = [
   'accessRight'
 ]
 
+const orderByOptions = ['-date', 'date']
+const orderBy = ref(orderByOptions[0])
+
 const collectionFilter = computed(() => {
   const collectionPrefix =
     userStore.userData && typeof userStore.userData !== 'boolean' ? userStore.userData.uid : '-'
@@ -229,7 +244,16 @@ const contentItemsPaginationList = computed(() => ({
   perPage: 12
 }))
 
-const fetchContentItems = async () => {
+const contentItemsSearchQuery = computed(() => {
+  return {
+    filters: [collectionFilter.value],
+    limit: contentItemsPaginationList.value.perPage,
+    offset: (contentItemsCurrentPage.value - 1) * contentItemsPaginationList.value.perPage,
+    order_by: orderBy.value
+  }
+})
+
+const fetchContentItems = async (query = {}) => {
   console.debug('[CollectionExplorerPage] fetchContentItems')
   contentItemsResponse.value = {
     status: 'loading',
@@ -237,11 +261,7 @@ const fetchContentItems = async () => {
     total: 0
   }
   const response = await searchService.find({
-    query: {
-      filters: [collectionFilter.value],
-      limit: 10,
-      group_by: 'articles'
-    }
+    query: contentItemsSearchQuery.value
   })
   if (!response) {
     contentItemsResponse.value = {
@@ -358,6 +378,19 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => contentItemsSearchQuery.value,
+  async (value, oldValue) => {
+    const keyA = value ? JSON.stringify(value).split('').sort().join('') : ''
+    const keyB = oldValue ? JSON.stringify(oldValue).split('').sort().join('') : ''
+    if (keyA === keyB) {
+      return
+    }
+    console.info('[CollectionExplorerPage] contentItemsSearchQuery.value changed to', value)
+    await fetchContentItems()
+  }
+)
 // load first page of articles
 </script>
 
@@ -368,7 +401,9 @@ watch(
     "label_all_overview": "Overview of my collected items",
     "label_all_ci": "List of my collected Items",
     "label_TabOverview": "Overview",
-    "label_TabContentItems": "Content Items"
+    "label_TabContentItems": "Content Items",
+    "label_sort_-date": "publication date, most recent first",
+    "label_sort_date": "publication date, oldest first"
   }
 }
 </i18n>

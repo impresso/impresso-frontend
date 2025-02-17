@@ -458,7 +458,13 @@ export default {
             group_by: 'articles',
             index: 'tr_passages',
             collection_uid: this.selectedCollection.uid,
-            filters: optimizeFilters(this.supportedFilters)
+            filters: optimizeFilters([
+              ...this.supportedFilters,
+              {
+                type: 'textReuseCluster',
+                q: '*'
+              }
+            ])
           },
           { ignoreErrors: true }
         )
