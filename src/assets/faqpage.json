@@ -261,7 +261,7 @@
             ]
           },
           {
-            "id": "Why does the image search have limited filters?",
+            "id": "why-does-the-image-search-have-limited-filters",
             "title": "Why does the image search have limited filters?",
             "summary": "Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.",
             "description": []
@@ -310,10 +310,10 @@
         "faq": [
           {
             "id": "what-compare-and-inspect",
-        "title": "What is Inspect & Compare?",
-        "summary": "The Inspect & Compare page allows you to examine large sets of articles based on metadata (such as publication date, language, and newspaper title) and Natural Language Processing (NLP) annotations (like named entities, locations, and topics).",
-        "description": [
-          "<p>This feature provides a side-by-side comparison of articles, helping you identify patterns, similarities, and differences within the Impresso corpus. Each article is processed uniformly, allowing for the extraction and comparison of metadata and annotations.</p><p>The “Inspect” view allows you to analyze the metadata and NLP annotations of two collections or queries separately, giving you a snapshot of what is contained within each article set. The “Compare” view highlights the commonalities and differences between two sets of articles, showing the overlap in terms of named entities, topics, and newspaper titles, helping you see where they intersect or diverge.</p><p><b>Further reading</b> For more details on the Inspect & Compare feature, please refer to this article:<ul><li>Düring, Marten, Roman Kalyakin, Estelle Bunout, and Daniele Guido. “Impresso Inspect and Compare. Visual Comparison of Semantically Enriched Historical Newspaper Articles.” Information 12, no. 9 (September 2021): 348. <a>https://doi.org/10.3390/info12090348</a>.</li></ul></p>"
+            "title": "What is Inspect & Compare?",
+            "summary": "The Inspect & Compare page allows you to examine large sets of articles based on metadata (such as publication date, language, and newspaper title) and Natural Language Processing (NLP) annotations (like named entities, locations, and topics).",
+            "description": [
+              "<p>This feature provides a side-by-side comparison of articles, helping you identify patterns, similarities, and differences within the Impresso corpus. Each article is processed uniformly, allowing for the extraction and comparison of metadata and annotations.</p><p>The “Inspect” view allows you to analyze the metadata and NLP annotations of two collections or queries separately, giving you a snapshot of what is contained within each article set. The “Compare” view highlights the commonalities and differences between two sets of articles, showing the overlap in terms of named entities, topics, and newspaper titles, helping you see where they intersect or diverge.</p><p><b>Further reading</b> For more details on the Inspect & Compare feature, please refer to this article:<ul><li>Düring, Marten, Roman Kalyakin, Estelle Bunout, and Daniele Guido. “Impresso Inspect and Compare. Visual Comparison of Semantically Enriched Historical Newspaper Articles.” Information 12, no. 9 (September 2021): 348. <a>https://doi.org/10.3390/info12090348</a>.</li></ul></p>"
             ]
           },
           {

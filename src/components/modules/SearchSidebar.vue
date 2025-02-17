@@ -96,6 +96,9 @@ export default {
     /** @return {boolean} */
     /** @return {string} */
     infoButtonName() {
+      if (this.contextTag === 'search-images') {
+        return 'why-does-the-image-search-have-limited-filters'
+      }
       return `how-${this.contextTag}-work-with-search-filters`
     },
     startYear() {
