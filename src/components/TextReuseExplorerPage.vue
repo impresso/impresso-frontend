@@ -46,49 +46,44 @@
       </b-navbar>
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })"
-            active-class="active"
-            exact
-            class="pl-2"
-          >
-            <span>{{ $t('routeTextReuseOverview') }}</span>
-          </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseStatistics' })"
-            active-class="active"
-            exact
-            class="pl-2"
-          >
-            <span>{{ $t('routeTextReuseStatistics') }}</span>
-          </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReuseClusters' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span
-              v-html="
-                $tc('routeTextReuseClusters', totalClusters, {
-                  n: isLoadingClusters ? '...' : $n(totalClusters)
-                })
-              "
-            />
-          </b-nav-item>
-          <b-nav-item
-            :to="goToRoute({ name: 'textReusePassages' })"
-            active-class="active"
-            class="pl-2"
-          >
-            <span
-              v-html="
-                $tc('routeTextReusePassages', totalPassages, {
-                  n: isLoadingPassages ? '...' : $n(totalPassages)
-                })
-              "
-            />
-          </b-nav-item>
-
+          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseOverview' }">
+            <RouterLink
+              class="nav-link"
+              :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })"
+              ><span>{{ $t('routeTextReuseOverview') }}</span>
+            </RouterLink>
+          </li>
+          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseStatistics' }">
+            <RouterLink class="nav-link" :to="goToRoute({ name: 'textReuseStatistics' })"
+              ><span>{{ $t('routeTextReuseStatistics') }}</span>
+            </RouterLink>
+          </li>
+          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseClusters' }">
+            <RouterLink
+              class="nav-link"
+              :to="goToRoute({ name: 'textReuseClusters', query: { p: 1 } })"
+              ><span
+                v-html="
+                  $tc('routeTextReuseClusters', totalClusters, {
+                    n: isLoadingClusters ? '...' : $n(totalClusters)
+                  })
+                "
+              ></span>
+            </RouterLink>
+          </li>
+          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReusePassages' }">
+            <RouterLink
+              class="nav-link"
+              :to="goToRoute({ name: 'textReusePassages', query: { p: 1 } })"
+              ><span
+                v-html="
+                  $tc('routeTextReusePassages', totalPassages, {
+                    n: isLoadingPassages ? '...' : $n(totalPassages)
+                  })
+                "
+              ></span>
+            </RouterLink>
+          </li>
           <li class="navbar-text p-0 d-flex align-items-center ml-3"></li>
         </template>
       </b-tabs>
@@ -552,7 +547,7 @@ export default {
         page: this.paginationCurrentPage,
         limit: this.paginationPerPage,
         order_by: this.orderBy,
-        filters: optimizeFilters(this.supportedFilters),
+        filters: this.supportedFilters,
         addons: { newspaper: 'text' }
       }
       return {
@@ -587,7 +582,12 @@ export default {
           return false
         }
         // eslint-disable-next-line
-        console.debug('[TextReuseExplorer] @searchApiQueryParameters \n query:', query)
+        console.debug(
+          '[TextReuseExplorer] @searchApiQueryParameters \n query:',
+          query,
+          '- this.supportedFilters',
+          this.supportedFilters
+        )
 
         await this.loadPassages({ query })
         await this.loadClusters({ query })
