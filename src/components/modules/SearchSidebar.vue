@@ -8,7 +8,7 @@
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
           <search-pills :filters="filters" @changed="handleFiltersChanged" />
-          <span v-if="filters.length && ignoredFilters.length">
+          <span class="d-block mb-2" v-if="filters.length && ignoredFilters.length">
             <i
               class="small"
               v-html="
@@ -16,9 +16,7 @@
                   n: ignoredFilters.length
                 })
               "
-            />
-
-            <info-button :name="infoButtonName" />
+            />{{ ' ' }}<info-button :name="infoButtonName" />
           </span>
           <slot name="header" :focusHandler="focusHandler">
             <!-- extra header -->
