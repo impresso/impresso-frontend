@@ -1,19 +1,37 @@
 <template>
   <div class="container-fluid position-relative">
-    <div class="labels" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
-      <div v-for="(category, index) in data.categories" :key="index" :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)`, position: 'absolute' }">
+    <div
+      class="labels"
+      :style="{
+        top: `${this.chart ? this.chart.margin.top : 0}px`,
+        left: `${this.chart ? this.chart.margin.left / 2 : 0}px`
+      }"
+    >
+      <div
+        v-for="(category, index) in data.categories"
+        :key="index"
+        :style="{ transform: `translate(0, ${getLabelTopOffset(index)}px)`, position: 'absolute' }"
+      >
         <slot :category="category" :index="index">
           <div :class="`label ${category.isSubcategory ? 'sub' : ''}`">
-            Label for {{ category.isSubcategory ? 'sub' : '' }} category {{index}}
+            Label for {{ category.isSubcategory ? 'sub' : '' }} category {{ index }}
           </div>
         </slot>
       </div>
     </div>
 
-    <div class="gutters" :style="{ top: `${this.chart ? this.chart.margin.top : 0}px`, left: `${this.chart ? this.chart.margin.left / 2 : 0}px` }">
-      <div v-for="slotIndex in gutterSlotsIndexes"
-           :key="slotIndex"
-           :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex) + categoryYSpace}px)` }">
+    <div
+      class="gutters"
+      :style="{
+        top: `${this.chart ? this.chart.margin.top : 0}px`,
+        left: `${this.chart ? this.chart.margin.left / 2 : 0}px`
+      }"
+    >
+      <div
+        v-for="slotIndex in gutterSlotsIndexes"
+        :key="slotIndex"
+        :style="{ transform: `translate(0, ${getLabelTopOffset(slotIndex) + categoryYSpace}px)` }"
+      >
         <slot name="gutter" :categoryIndex="slotIndex">
           <div>Gutter for category {{ slotIndex }}</div>
         </slot>
@@ -23,11 +41,16 @@
     <tooltip :tooltip="tooltip" :class="{ fadeOut: tooltip.fadeOut }">
       <slot name="tooltip" :tooltip="tooltip">
         <div v-if="tooltip.item" class="text-center small-caps">
-          <span v-html="$tc('numbers.articles', tooltip.item.value, {
-            n: $n(tooltip.item.value),
-          })"/> &middot; {{ tooltipFormattedTime }}
-          <br/>
-          <b>{{tooltip.item.label}}</b>
+          <span
+            v-html="
+              $tc('numbers.articles', tooltip?.item?.value ?? 0, {
+                n: $n(tooltip?.item?.value ?? 0)
+              })
+            "
+          />
+          &middot; {{ tooltipFormattedTime }}
+          <br />
+          <b>{{ tooltip.item.label }}</b>
         </div>
         <div v-else>
           {{ $tc('numbers.resultsParenthesis', 0) }}
@@ -35,21 +58,24 @@
       </slot>
     </tooltip>
     <div ref="chart" class="time-punchcard" :style="{ height: `${height}px` }" />
-    <line-pointer v-if="tooltip.item"
+    <line-pointer
+      v-if="tooltip.item"
       :label="tooltipFormattedTime"
       :x="tooltip.x"
-      :height="height" :class="{ fadeOut: tooltip.fadeOut }"/>
+      :height="height"
+      :class="{ fadeOut: tooltip.fadeOut }"
+    />
   </div>
 </template>
 
 <script>
 import TimePunchcardChart from '@/d3-modules/TimePunchcardChart'
 import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
-import LinePointer from '@/components/modules/tooltips/LinePointer'
+import LinePointer from '@/components/modules/tooltips/LinePointer.vue'
 /**
  * @typedef {import('@/d3-modules/TimePunchcardChart').ChartData} ChartData
  */
-const TooltipOffsetTop = -50;
+const TooltipOffsetTop = -50
 export default {
   components: {
     Tooltip,
@@ -63,17 +89,17 @@ export default {
     tooltip: {
       x: 0,
       y: 0,
-      isActive:false,
+      isActive: false,
       item: null,
-      fadeOut: false,
+      fadeOut: false
     },
-    timerTooltipFadeOut: 0,
+    timerTooltipFadeOut: 0
   }),
   props: {
     /** @type {import('vue').PropOptions<ChartData>} */
     data: {
       type: Object,
-      required: true,
+      required: true
     },
     options: {
       type: Object,
@@ -90,28 +116,31 @@ export default {
   },
   methods: {
     render() {
-      const { height, yOffsets, categoryYSpace } = this.chart?.render(this.data, this.options) ?? { height: 0, yOffsets: [] }
+      const { height, yOffsets, categoryYSpace } = this.chart?.render(this.data, this.options) ?? {
+        height: 0,
+        yOffsets: []
+      }
       this.height = height
       this.labelsOffsets = yOffsets
       this.categoryYSpace = /** @type {number} */ (categoryYSpace)
     },
     getLabelTopOffset(index) {
-      return (this.labelsOffsets[index] ?? 0);
+      return this.labelsOffsets[index] ?? 0
     },
     fadeOutTooltip() {
       this.tooltip = {
         ...this.tooltip,
-        fadeOut: true,
+        fadeOut: true
       }
-      clearTimeout(this.timerTooltipFadeOut);
+      clearTimeout(this.timerTooltipFadeOut)
       this.timerTooltipFadeOut = setTimeout(() => {
         this.tooltip = {
           ...this.tooltip,
           isActive: false,
-          fadeOut: false,
-        };
-      }, 1000);
-    },
+          fadeOut: false
+        }
+      }, 1000)
+    }
   },
   computed: {
     /** @returns {any} */
@@ -131,9 +160,9 @@ export default {
         if (isSubcategory && (nextItem == null || !nextItem.isSubcategory)) {
           acc.push(index)
         }
-        return acc;
+        return acc
       }, /** @type {number[]} */ ([]))
-    },
+    }
     // /** @returns {any} */
     // tooltip() {
     //   return {
@@ -155,20 +184,20 @@ export default {
             const element = this.$refs.chart
             element.textContent = ''
             this.chart = new TimePunchcardChart({ element })
-            this.chart.on('punch.click', (e) => {
+            this.chart.on('punch.click', e => {
               this.$emit('punch-click', e)
-              this.fadeOutTooltip();
-            });
+              this.fadeOutTooltip()
+            })
             this.chart.on('punch.mousemove', ({ x, y, item }) => {
-              clearTimeout(this.timerTooltipFadeOut);
-              this.tooltip = { x, y: y - TooltipOffsetTop, item, isActive: true };
-            });
+              clearTimeout(this.timerTooltipFadeOut)
+              this.tooltip = { x, y: y - TooltipOffsetTop, item, isActive: true }
+            })
             this.chart.on('category.mousemove', ({ x, y, item }) => {
-              clearTimeout(this.timerTooltipFadeOut);
-              this.tooltip = { x, y: y - TooltipOffsetTop, item, isActive: true };
-            });
-            this.chart.on('category.mouseout', () => this.fadeOutTooltip());
-            this.chart.on('punch.mouseout', () => this.fadeOutTooltip());
+              clearTimeout(this.timerTooltipFadeOut)
+              this.tooltip = { x, y: y - TooltipOffsetTop, item, isActive: true }
+            })
+            this.chart.on('category.mouseout', () => this.fadeOutTooltip())
+            this.chart.on('punch.mouseout', () => this.fadeOutTooltip())
           }
           this.render()
         })
@@ -181,80 +210,81 @@ export default {
 </script>
 
 <style lang="scss">
-  .time-punchcard {
-    &.container {
-      border: 1px dashed red;
-      min-height: 9em;
-    }
+.time-punchcard {
+  &.container {
+    border: 1px dashed red;
+    min-height: 9em;
+  }
 
-    circle.punch {
-      cursor: pointer;
-      fill: #000000;
-      &:hover{
-        fill: blue;
+  circle.punch {
+    cursor: pointer;
+    fill: #000000;
+    &:hover {
+      fill: blue;
+    }
+  }
+
+  rect.pointer {
+    fill: magenta;
+    pointer-events: none;
+  }
+
+  .axes {
+    .x {
+      .domain {
+        // hide axes
+        stroke-width: 0;
       }
-    }
-
-    rect.pointer{
-      fill: magenta;
-      pointer-events: none;
-    }
-
-    .axes {
-      .x {
-        .domain {
-          // hide axes
-          stroke-width: 0;
-        }
-        g.tick {
-          line {
-            stroke-width: 0.8px;
-            stroke: #ddd;
-          }
-        }
-        g.tick.major {
-          line {
-            stroke-width: 1px;
-            stroke: #aaa;
-          }
+      g.tick {
+        line {
+          stroke-width: 0.8px;
+          stroke: #ddd;
         }
       }
-    }
-
-    .categories {
-      .category {
-        .bar {
-          .punch {}
-          .highlight {
-            stroke-width: 1.5px;
-          }
+      g.tick.major {
+        line {
+          stroke-width: 1px;
+          stroke: #aaa;
         }
-        .sizer {
-          width: 4px;
-          fill: #7772;
+      }
+    }
+  }
+
+  .categories {
+    .category {
+      .bar {
+        .punch {
         }
         .highlight {
-          // fill: #dddddd33;
-        }
-        &.sub {
-          .sizer {
-          }
-          rect.highlight {
-            fill: #dddddd77;
-            //stroke: #ff0000;
-          }
+          stroke-width: 1.5px;
         }
       }
-    }
-  }
-  .labels {
-    position: relative;
-    .label {
-      position: absolute;
-      white-space: nowrap;
+      .sizer {
+        width: 4px;
+        fill: #7772;
+      }
+      .highlight {
+        // fill: #dddddd33;
+      }
       &.sub {
-        margin-left: 8px;
+        .sizer {
+        }
+        rect.highlight {
+          fill: #dddddd77;
+          //stroke: #ff0000;
+        }
       }
     }
   }
+}
+.labels {
+  position: relative;
+  .label {
+    position: absolute;
+    white-space: nowrap;
+    &.sub {
+      margin-left: 8px;
+    }
+  }
+}
 </style>

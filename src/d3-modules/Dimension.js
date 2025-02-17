@@ -101,7 +101,7 @@ class Dimension {
    * @return {[type]}          [description]
    */
   update({ property, values, range }) {
-    this.values = values.map((d) => d[this.property])
+    this.values = values?.map?.(d => d[this.property]) ?? []
     if (property) {
       this.property = property
     }
@@ -115,11 +115,13 @@ class Dimension {
     // recalculate cat according to type
     if (this.type === TYPE_DISCRETE) {
       try {
+        if (!Array.isArray(values)) return
+
         const groups = Dimension.groupBy(values, this.property)
         this.domain = Object.keys(groups)
         this.updateDiscreteColors(this.discreteColorsSchemeName)
         this.scale = this.scaleFn(this.discreteColors).domain(this.domain)
-        this.domain.forEach((key) => {
+        this.domain.forEach(key => {
           this.legend.push({
             name: key,
             property: this.property,
@@ -138,8 +140,8 @@ class Dimension {
         )
       }
     } else {
-      if (!this.isDomainFixed) {
-        this.domain = d3.extent(values, (d) => d[this.property])
+      if (!this.isDomainFixed && Array.isArray(values)) {
+        this.domain = d3.extent(values, d => d[this.property])
         // console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
       }
       this.scale = this.scaleFn().domain(this.domain).range(this.range)
@@ -147,7 +149,7 @@ class Dimension {
   }
 
   accessor() {
-    return (d) => this.scale(d[this.property])
+    return d => this.scale(d[this.property])
   }
 
   /**

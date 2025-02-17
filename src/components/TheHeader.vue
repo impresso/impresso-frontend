@@ -69,7 +69,13 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-
+        <b-nav-item v-if="viewPlansEnabled">
+          <LinkToModal class="nav-link" :view="ViewPlans">
+            <span>
+              {{ $t('label_plans') }}
+            </span>
+          </LinkToModal>
+        </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -143,7 +149,7 @@
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
-        <UserArea :user="user" />
+        <UserArea :user="user" :userPlan="userPlan" :userPlanLabel="userPlanLabel" />
       </b-navbar-nav>
       <!-- end of user area -->
       <!-- login area -->
@@ -173,8 +179,11 @@
             >{{ $t(`errors.Timeout`) }} {{ error.message }}</span
           >
           <span v-else-if="error.name === 'BadRequest'">
-            {{ $t(`errors.BadRequest`) }}
+            {{ $t('errors.BadRequest') }}
             <span>{{ error.message }}</span>
+          </span>
+          <span v-else-if="error.name === 'NotFound'">
+            {{ $t(`errors.NotFound`) }}
           </span>
           <span v-else-if="error.name === 'GeneralError'">
             {{
@@ -182,6 +191,9 @@
             }}
           </span>
           <span v-else-if="error.name === 'Error'">
+            {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
+          </span>
+          <span v-else-if="error.name === 'NotImplemented'">
             {{ $t(`errors.Error`, { error: error.message ?? 'general error, unspecified' }) }}
           </span>
           <span v-else>{{ error }}</span>
@@ -210,12 +222,15 @@ import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
+import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
+import LinkToModal from './LinkToModal.vue'
 
 export default defineComponent({
   // props: {
   //   searchQuery: Object,
   // },
   data: () => ({
+    ViewPlans,
     languages: {
       de: {
         code: 'de',
@@ -308,39 +323,21 @@ export default defineComponent({
     user() {
       return this.userStore.user
     },
-    userFullName() {
-      const name = `${this.user.firstname} ${this.user.lastname}`.trim()
-      return name === '' ? this.user.username : name
+    userPlan() {
+      return this.userStore.userPlan || PlanGuest
     },
-    userRole() {
-      // if (this.user.displayName && this.user.displayName.length) {
-      //   return this.user.displayName
-      // }
-      return this.user.isStaff ? this.$t('staff') : this.$t('researcher')
+    userPlanLabel() {
+      return PlanLabels[this.userPlan]
     },
-    userPicture() {
-      const style = {
-        backgroundColor: 'black'
-      }
 
-      if (this.user.pattern) {
-        const gradient = []
-
-        this.user.pattern.forEach((color, i) => {
-          const start = Math.round((100 * i) / this.user.pattern.length)
-          const stop = Math.round((100 * (i + 1)) / this.user.pattern.length)
-          gradient.push(`${color} ${start}%, ${color} ${stop}%`)
-        })
-
-        style.backgroundImage = `linear-gradient(90deg,${gradient.join(',')})`
-      }
-      return style
-    },
     connectivityStatus() {
       return this.notificationsStore.connectivityStatus
     },
     version() {
       return window.impressoFrontendVersion
+    },
+    viewPlansEnabled() {
+      return !!window.impressoFeatures?.viewPlans?.enabled
     },
     textReuseEnabled() {
       // @ts-ignore
@@ -421,7 +418,8 @@ export default defineComponent({
     JobItem,
     Pagination,
     InfoButton,
-    UserArea
+    UserArea,
+    LinkToModal
   }
 })
 </script>
@@ -470,8 +468,8 @@ export default defineComponent({
   .badge-pill {
     position: absolute;
     line-height: 0.9;
-    top: 0;
-    right: 0;
+    top: -5px;
+    right: -15px;
     border-radius: 10px;
     min-width: 20px;
     height: 20px;
@@ -714,6 +712,7 @@ export default defineComponent({
     "collections": "Collections",
     "profile": "Profile",
     "label_home": "Home",
+    "label_plans": "Plans",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
     "label_newspapers": "Newspapers",
@@ -725,6 +724,7 @@ export default defineComponent({
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "Help",
+    "label_terms": "Terms of Use",
     "label_jobs": "Running tasks",
     "label_terms_of_use": "Terms of Use",
     "staff": "staff",

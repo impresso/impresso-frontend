@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex">
+    <div class="d-flex align-items-center">
       <div class="mr-2 small-caps" v-if="showPercent">{{ toolTitle }}</div>
       <div class="flex-grow-1">
         <ItemLabel :item="item" :type="type" class="mr-1" />
@@ -36,23 +36,23 @@ export default {
     item: { type: Object },
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false,
+      default: false
     },
     searchIndex: {
       type: String,
-      default: 'search',
-    },
+      default: 'search'
+    }
   },
   components: {
     ItemSelector,
-    ItemLabel,
+    ItemLabel
   },
   computed: {
     /** @returns {string} */
     toolTitle() {
       const title = this.percent ? `${this.$n(this.percent)}%` : ''
       return title
-    },
-  },
+    }
+  }
 }
 </script>

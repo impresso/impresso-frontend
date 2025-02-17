@@ -33,36 +33,36 @@ export default defineComponent({
   props: {
     chartType: {
       type: String, // as PropType<ChartType>,
-      default: 'multivalue',
+      default: 'multivalue'
     },
     data: {
       type: Array, // DataItem[]
-      default: () => [],
+      default: () => []
     },
     lineMetrics: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     areaMetrics: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     itemsDictionary: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     colorPalette: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     horizontal: {
       type: Boolean,
-      default: false,
+      default: false
     },
     options: {
       type: Object,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   emits: ['item:click', 'mousemove'],
   setup(props, { emit }) {
@@ -75,7 +75,7 @@ export default defineComponent({
         colorPalette: props.colorPalette,
         onClick: e => emit('item:click', e),
         onMouseMove: e => emit('mousemove', e),
-        ...props.options,
+        ...props.options
       })
     }
 
@@ -99,7 +99,7 @@ export default defineComponent({
         const Chart = getChartClass(props.chartType, props.horizontal)
         instance.value = new Chart({ element: chart.value })
         render()
-      },
+      }
     )
 
     watch(
@@ -107,17 +107,17 @@ export default defineComponent({
         data: JSON.stringify(props.data),
         lineMetrics: props.lineMetrics,
         areaMetrics: props.areaMetrics,
-        colorPalette: props.colorPalette,
+        colorPalette: props.colorPalette
       }),
       () => {
         if (instance.value == null) return
         render()
       },
-      { deep: true },
+      { deep: true }
     )
 
     return { chart }
-  },
+  }
 })
 </script>
 
@@ -125,5 +125,6 @@ export default defineComponent({
 .chart {
   display: block;
   flex-grow: 1;
+  height: 100%;
 }
 </style>

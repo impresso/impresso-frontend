@@ -1,25 +1,57 @@
 import { defineStore } from 'pinia'
 import { app, me as meService } from '@/services'
 import User from '@/models/User'
+import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
 
 export interface State {
   userData: User | false
+  bitmap: string
   rememberCredentials: boolean
   redirectionParams: any
+  acceptTermsDate: string | null
+  acceptTermsDateOnLocalStorage: string | null
 }
 
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
+    bitmap: '1',
     rememberCredentials: false,
     redirectionParams: {},
+    // this is not stored on localStorage, and if it is not null is a ISO date string
+    acceptTermsDate: null,
+    // this is stored on localStorage
+    acceptTermsDateOnLocalStorage: null
   }),
   getters: {
     user(state) {
       return state.userData
     },
+
+    userPlan(state) {
+      if (!state.acceptTermsDate) {
+        return PlanGuest
+      }
+      let userPlan = state.userData !== null ? PlanImpressoUser : PlanGuest
+      if (state.userData && Array.isArray(state.userData?.groups)) {
+        for (const group of state.userData.groups) {
+          if (group.name === PlanEducational || group.name === PlanResearcher) {
+            userPlan = group.name
+            break
+          }
+        }
+      }
+      return userPlan
+    }
   },
   actions: {
+    setAcceptTermsDate(date: string) {
+      this.acceptTermsDate = date
+      this.acceptTermsDateOnLocalStorage = date
+    },
+    setBitmap(bitmap: string) {
+      this.bitmap = bitmap
+    },
     logout() {
       return (app as any)
         .logout()
@@ -30,18 +62,34 @@ export const useUserStore = defineStore('user', {
         .finally(() => {
           const expiredDate = new Date(-1)
           document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/'
+          // remove from localstorage
+          localStorage.removeItem('feathers-jwt')
+          // clean terms date and bitmap
           this.userData = false
+          this.acceptTermsDate = null
         })
+    },
+    async refreshUser() {
+      return meService.find().then(d => {
+        console.info('[store/user]', d)
+        const user = new User(d)
+        this.userData = user
+        return user
+      })
     },
     async login({ email, password }: { email: string; password: string }) {
       return (app as any)
         .authenticate({
           strategy: 'local',
           email,
-          password,
+          password
         })
-        .then(res => {
-          console.info('Authentication response:', res)
+        .then((res: any) => {
+          console.info('[store/user] Authentication response:', Object.keys(res))
+          if (res.user && res.user.bitmap) {
+            console.info(' - bitmap:', res.user.bitmap)
+            this.bitmap = res.user.bitmap
+          }
           return res
         })
         .then(({ user }) => {
@@ -53,7 +101,7 @@ export const useUserStore = defineStore('user', {
           this.userData = new User({
             ...user,
             picture: user.profile.picture,
-            pattern: user.profile.pattern,
+            pattern: user.profile.pattern
           })
           return user
         })
@@ -67,7 +115,7 @@ export const useUserStore = defineStore('user', {
     changePassword({
       uid,
       previousPassword,
-      newPassword,
+      newPassword
     }: {
       uid: string
       previousPassword: string
@@ -83,10 +131,11 @@ export const useUserStore = defineStore('user', {
       })
     },
     setRedirectionRoute(params) {
+      console.debug('[tores/user] setRedirectionRoute params:', params)
       this.redirectionParams = params
-    },
+    }
   },
   persist: {
-    paths: ['rememberCredentials', 'userData'],
-  },
+    paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage']
+  }
 })

@@ -72,7 +72,7 @@ export default {
   data: () => ({
     email: '',
     password: '',
-    error: false,
+    error: false
   }),
   methods: {
     autocomplete() {
@@ -81,27 +81,32 @@ export default {
     authenticate() {
       this.error = false
       const path = this.$route.query.redirect || window.redirect || '/'
-
+      const pathWithStoredRedirectionParams = {
+        path,
+        ...this.computedRedirectionParams
+      }
+      console.debug('[UserLoginPage] authenticate() with path: ', pathWithStoredRedirectionParams)
       this.userStore
         .login({
           email: this.email,
-          password: this.password,
+          password: this.password
         })
-        .then(() => {
-          this.$router.push({
-            path,
-            ...this.userStore.redirectionParams,
-          })
+        .then(user => {
+          console.debug('[UserLoginPage] logged in! Redirect to: ', pathWithStoredRedirectionParams)
+          this.$router.push(pathWithStoredRedirectionParams)
         })
         .catch(err => {
           if (err.code === 401) {
             this.error = this.$t('errors.LoginFailed')
           }
-          console.warn('error', err)
+          console.warn('[UserLoginPage] error', err)
         })
-    },
+    }
   },
   computed: {
+    computedRedirectionParams() {
+      return this.userStore.redirectionParams
+    },
     ...mapStores(useUserStore),
     rememberCredentials: {
       get() {
@@ -109,10 +114,10 @@ export default {
       },
       set(val) {
         this.userStore.setRememberCredentials(val)
-      },
-    },
+      }
+    }
   },
-  components: {},
+  components: {}
 }
 </script>
 

@@ -13,16 +13,14 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <router-link
-        :to="{ name: 'newspaper', params: { newspaper_uid: item?.newspaper?.uid } }"
-        class="article-newspaper"
-      >
-        {{ item.newspaper.name }}
-      </router-link>
+      <MediaSourceLabel :item="item.MediaSource" show-link class="d-inline-block" />
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
-      <div data-testid="article-access-rights" v-if="item.dataProvider != null">
+      <div
+        data-testid="article-access-rights"
+        v-if="item.dataProvider != null && item.dataProvider.length"
+      >
         {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
         <ItemSelector
           :uid="item.dataProvider"
@@ -32,55 +30,64 @@
         />
       </div>
     </div>
-
+    <div class="article-meta">
+      <span v-if="showType && !showMeta">{{ $t(`buckets.type.${item.type}`) }}</span>
+      <span v-if="showPages && !showMeta"> – {{ pages }} </span>
+    </div>
     <div
       v-if="showExcerpt && !item?.matches?.length && item.type !== 'image'"
       class="article-excerpt mt-2"
     >
-      <span class="article-excerpt">{{ item.excerpt }}</span>
-      <b-badge v-if="showSize || showType" variant="light" class="mr-1 pt-1">
-        <span v-if="showType && item.type">{{ $t(`buckets.type.${item.type}`) }} | </span>
-        <span v-if="showSize">
-          <span v-if="item.size > 1200">{{
-            $t('readingTime', { min: parseInt(item.size / 1200) })
-          }}</span>
-          <span v-else>{{ $t('reducedReadingTime') }}</span>
-        </span>
+      <blockquote class="text-muted">{{ item.excerpt }}</blockquote>
+      <b-badge v-if="showSize" variant="light" class="mr-1 pt-1">
+        <span v-if="item.size > 1200">{{
+          $t('readingTime', { min: parseInt(item.size / 1200) })
+        }}</span>
+        <span v-else>{{ $t('reducedReadingTime') }}</span>
       </b-badge>
-      <span v-if="showPages">{{ pages }}</span>
     </div>
 
     <slot name="actions"></slot>
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
       <div v-if="item.locations?.length" data-testid="article-locations">
-        <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
-        <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
-          <item-selector
-            :uid="location.uid"
-            :label="location.name"
-            :item="location"
-            type="location"
-          />
-          <span v-if="idx !== item.locations.length - 1">, </span>
-        </span>
+        <Ellipsis :initialHeight="100" :maxHeight="200">
+          <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
+          <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
+            <item-selector
+              :uid="location.uid"
+              :label="location.name"
+              :item="location"
+              type="location"
+            />
+            <span v-if="idx !== item.locations.length - 1">, </span>
+          </span>
+        </Ellipsis>
       </div>
       <div v-if="item.persons?.length" data-testid="article-persons">
-        <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
-        <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
-          <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
-          <span class="small" v-if="idx !== item.persons.length - 1">, </span>
-        </span>
+        <Ellipsis :initialHeight="100" :maxHeight="200">
+          <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
+          <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
+            <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
+            <span class="small" v-if="idx !== item.persons.length - 1">, </span>
+          </span>
+        </Ellipsis>
       </div>
     </div>
     <div
-      v-if="showTopics"
+      v-if="showTopics && item.topics?.length"
       class="small article-extras article-topics my-2"
       data-testid="article-topics"
     >
       <b-badge variant="light" class="mr-1 small-caps bg-medium">topics</b-badge>
-      <b-row v-if="item.topics.length">
-        <b-col lg="6" xl="4" class="my-1" v-for="(rel, idx) in item.topics" v-bind:key="idx">
+      <b-row>
+        <b-col
+          lg="6"
+          xl="4"
+          class="my-1"
+          v-for="(rel, idx) in computedRelevantTopics"
+          v-bind:key="idx"
+        >
           <viz-bar
             show-border
             show-percent
@@ -111,6 +118,8 @@
 import ItemSelector from '../ItemSelector.vue'
 import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
+import MediaSourceLabel from './MediaSourceLabel.vue'
+import Ellipsis from '../Ellipsis.vue'
 
 export default {
   props: {
@@ -128,13 +137,18 @@ export default {
     showType: Boolean,
     showEntities: Boolean,
     showTopics: Boolean,
-    asReference: Boolean
+    asReference: Boolean,
+    minTopicRelevance: Number
   },
   computed: {
     pages() {
       return this.$tc('pp', this.item.nbPages, {
         pages: this.item.pages?.map(d => d.num)?.join(',')
       })
+    },
+    computedRelevantTopics() {
+      if (isNaN(this.minTopicRelevance)) return this.item.topics || []
+      return (this.item.topics || []).filter(t => t.relevance > this.minTopicRelevance)
     },
     routerLinkUrl() {
       const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]
@@ -173,7 +187,9 @@ export default {
   },
   components: {
     ItemSelector,
-    VizBar
+    VizBar,
+    MediaSourceLabel,
+    Ellipsis
   }
 }
 </script>
@@ -226,6 +242,12 @@ export default {
   div {
     break-inside: avoid-column;
   }
+}
+
+.ArticleItem .article-topics div.flex-grow-1 {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .ArticleItem ul.article-matches {

@@ -35,7 +35,7 @@ app.configure(
 
 const needsLockScreen = (p: string) => ['search.find', 'ngram-trends.create'].includes(p)
 
-const silentErrorCodes = [404, 409]
+const silentErrorCodes = [404, 409, 400]
 
 app.hooks({
   before: {
@@ -104,7 +104,14 @@ app.hooks({
 })
 
 app.service('logs').on('created', payload => {
-  console.info('@logs->created', payload)
+  console.info('[@logs->created]', payload)
+  // if tasktype: "UUB",
+  if (payload.tasktype === 'UUB') {
+    // force reauthentication
+    app.reAuthenticate(true).then(res => {
+      console.info('[@logs->created] Reauthenticated after UUB', res)
+    })
+  }
   if (payload.job) {
     const extra: { collection?: any } = {}
     if (payload.collection) {
@@ -145,6 +152,7 @@ export const mentions = app.service('mentions')
 export const embeddings = app.service('embeddings')
 export const uploadedImages = app.service('uploaded-images').hooks(uploadedImagesHooks)
 export const searchFacets = app.service('search-facets/search')
+export const searchFacetsImages = app.service('search-facets/images')
 export const searchFacetsTRClusters = app.service('search-facets/tr-clusters')
 export const searchFacetsTRPassages = app.service('search-facets/tr-passages')
 export const getSearchFacetsService = (index: string) => {
@@ -155,6 +163,8 @@ export const getSearchFacetsService = (index: string) => {
       return searchFacetsTRClusters
     case 'tr-passages':
       return searchFacetsTRPassages
+    case 'images':
+      return searchFacetsImages
     default:
       throw new Error(`Unknown search facet index: ${index}`)
   }
@@ -176,6 +186,10 @@ export const articlesSearch = app.service('articles-search')
 export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 export const passwordReset = app.service('password-reset')
+export const termsOfUse = app.service('terms-of-use')
+export const userChangePlanRequest = app.service('user-change-plan-request')
+export const userRequests = app.service('user-requests')
+export const subscriptionDatasets = app.service('subscriptions')
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH

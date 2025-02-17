@@ -105,7 +105,7 @@ export default {
       generatePattern: 'Generate Pattern',
       getSimilarImages: 'view similar images ...',
       previewFilter: 'Preview filter',
-      requestNewPassword: 'Request New Password',
+      requestNewPassword: 'Apply changes',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
       resetItems: 'reset list',
@@ -148,6 +148,8 @@ export default {
         '0 passages | <span class="number">{n}</span> passage | <span class="number">{n}</span> passages',
       clusters:
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
+      contentItems:
+        'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articles:
         'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
       articlesInCommon:
@@ -222,6 +224,7 @@ export default {
       loggedInOnly: 'You need to be logged in to access this content.',
       TypeError: 'TypeError:',
       Timeout: 'Timeout:',
+      NotFound: 'The resource requested was not found.',
       formError: 'Please correct the form below. <b>{error}</b>',
       BadRequest: 'Bad request.',
       NotImplemented: 'Not implemented.',
@@ -263,6 +266,9 @@ export default {
     pages: {
       powervis: {
         title: 'XY visualisation'
+      },
+      termsOfUse: {
+        title: 'Terms of Use'
       }
     },
     label: {
@@ -450,7 +456,8 @@ export default {
     lexicalOverlap: 'lexical overlap',
     notFound: '(this is an empty list)',
     facsimileView: 'Facsimile',
-    closeReadingView: 'Transcript'
+    closeReadingView: 'Transcript',
+    contextView: 'Facsimile + Transcript'
   },
   nl: {
     language: 'Taal',

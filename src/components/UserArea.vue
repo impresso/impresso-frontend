@@ -5,7 +5,7 @@
         <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
         <div class="UserArea__userLabel">
           <div class="user-fullname small mb-1">{{ userFullName }}</div>
-          <div class="user-role small-caps">{{ userRole }}</div>
+          <div class="user-role small-caps">{{ userPlanLabel }}</div>
         </div>
       </div>
     </template>
@@ -13,13 +13,33 @@
       <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-    <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
+    <!-- <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
       {{ $t('label_terms_of_use') }}
-    </b-dropdown-item>
+    </b-dropdown-item> -->
 
-    <b-dropdown-item :to="{ name: 'logout' }">{{ $t('logout') }}</b-dropdown-item>
+    <LinkToModal class="dropdown-item" :view="ViewChangePlanRequest">
+      {{ $t('label_change_plan_request') }}
+    </LinkToModal>
+
+    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
+      {{ $t('label_terms_of_use') }}
+    </LinkToModal>
+
+    <b-dropdown-item v-on:click="logout">{{ $t('logout') }}</b-dropdown-item>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
+    }}</b-dropdown-item>
+    <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
+      {{ $t('label_user_requests') }}
+    </LinkToModal> -->
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewCorpusOverview">
+      {{ $t('label_corpus_overview') }}
+    </LinkToModal>
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewInfoModal">
+      {{ $t('label_verbose_info') }}
+    </LinkToModal>
+    <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
+      $t('send_update_bitmap')
     }}</b-dropdown-item>
     <b-dropdown-item
       target="_blank"
@@ -37,20 +57,37 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import LinkToModal from './LinkToModal.vue'
+import {
+  ViewTermsOfUse,
+  ViewChangePlanRequest,
+  ViewInfoModal,
+  // ViewUserRequests,
+  // ViewPlans
+  ViewCorpusOverview
+} from '@/constants'
 import Icon from './base/Icon.vue'
-import { jobs as jobsService } from '@/services'
+import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
+import { useUserStore } from '@/stores/user'
+import { type User } from '@/models'
 
-const props = defineProps({
-  user: {
-    type: Object,
-    required: true
-  }
-})
-console.log('PROPS', props)
+const userStore = useUserStore()
+
+export interface UserAreaProps {
+  user: User
+  userPlanLabel: string
+}
+
+const props = defineProps<UserAreaProps>()
+
 const version = computed(() => {
   return (window as any).impressoFrontendVersion
 })
 
+const logout = () => {
+  console.info('logging out..')
+  userStore.logout()
+}
 const userFullName = computed(() => {
   const name = `${props.user.firstname} ${props.user.lastname}`.trim()
   if (name === '') {
@@ -60,12 +97,15 @@ const userFullName = computed(() => {
   return name
 })
 
-const userRole = computed(() => {
-  return props.user.isStaff ? 'staff' : 'researcher'
-})
 const test = () => {
   return jobsService.create({})
 }
+const send_update_bitmap = async () => {
+  return termsOfUseService.patch(0, {}).then(() => {
+    console.debug('[UserArea] request to update bitmap...')
+  })
+}
+
 const userPicture = computed(() => {
   const style: {
     backgroundImage?: string
@@ -93,10 +133,18 @@ const userPicture = computed(() => {
   "en": {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
+    "label_change_plan_request": "Change Plan Request",
+    "label_user_requests": "Your requests for data domains",
+    "label_verbose_info": "Settings",
+    "label_plans": "Plans",
+    "label_corpus_overview": "Corpus Overview",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",
-    "send_test_job": "[staff only] Send test job"
+    "send_test_job": "[staff only] Send test job",
+    "send_update_bitmap":
+      "[staff only] Test update bitmap"
+    
   }
 }
 </i18n>

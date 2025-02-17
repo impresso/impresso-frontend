@@ -8,16 +8,31 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import autoprefixer from 'autoprefixer'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
+function isLocalhost(url: string): boolean {
+  try {
+    const { hostname } = new URL(url)
+    return hostname === 'localhost' || hostname === '127.0.0.1'
+  } catch {
+    return false
+  }
+}
+
 export default ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd())
-
+  if (mode === 'development') {
+    console.log(env)
+  }
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
+  const DatalabContentProxyPath = `^${env.VITE_DATALAB_CONTENT_API_PATH}`
   const ApiIiifProxyPath = [
     '^',
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
     '/proxy/'
   ].join('')
-
+  if (mode === 'development') {
+    console.log('SocketIoProxyPath', SocketIoProxyPath)
+    console.log('ApiIiifProxyPath', ApiIiifProxyPath)
+  }
   // https://vitejs.dev/config/
   return defineConfig({
     plugins: [
@@ -45,13 +60,20 @@ export default ({ mode }: { mode: string }) => {
         [SocketIoProxyPath]: {
           target: env.VITE_MIDDLELAYER_API,
           ws: true,
+          // not changing origin on localhost to allow iiif proxy get the address of the web app instead of the downstream service
+          changeOrigin: !isLocalhost(env.VITE_MIDDLELAYER_API)
+        },
+        [DatalabContentProxyPath]: {
+          target: env.VITE_DATALAB_CONTENT_API_HOST,
+          ws: false,
           changeOrigin: true
         },
         // this is from IIIF stored in the database, thsy usually contain /api/proxy
         [ApiIiifProxyPath]: {
           target: env.VITE_MIDDLELAYER_API,
           ws: false,
-          changeOrigin: true
+          // not changing origin on localhost to allow iiif proxy get the address of the web app instead of the downstream service
+          changeOrigin: !isLocalhost(env.VITE_MIDDLELAYER_API)
         }
       }
     },

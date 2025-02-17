@@ -1,5 +1,4 @@
-
-const regexpColor = new RegExp(/^#[a-f0-9]{3,6}$/);
+const regexpColor = new RegExp(/^#[a-f0-9]{3,6}$/)
 /**
  * @class User is an object representing a loggedin user
  * @param {String}  firstname=''  First name of the user
@@ -12,6 +11,10 @@ const regexpColor = new RegExp(/^#[a-f0-9]{3,6}$/);
  * @param {String}  groups=[]       Permission groups user is granted access
  * @param {String}  picture=''     Url of the picture
  * @param {Array}   pattern=[]     a list of hex colors, randomly picked at signup
+ * @param {Date}    creationDate=null Date of creation
+ * @param {Boolean} emailAccepted=false Email accepted
+ * @param {String}  displayName=''  Display name
+ * @param {String}  bitmap=''      Bitmap as base64 string
  */
 export default class User {
   constructor({
@@ -28,49 +31,51 @@ export default class User {
     creationDate = null,
     emailAccepted = false,
     displayName = '',
+    bitmap = '' // bitmap as base64 string
   } = {}) {
-    this.firstname = String(firstname);
-    this.lastname = String(lastname);
-    this.email = String(email);
-    this.uid = String(uid);
-    this.username = String(username);
-    this.isActive = !!isActive;
-    this.isStaff = !!isStaff;
-    this.groups = groups;
-    this.picture = String(picture);
+    this.firstname = String(firstname)
+    this.lastname = String(lastname)
+    this.email = String(email)
+    this.uid = String(uid)
+    this.username = String(username)
+    this.isActive = !!isActive
+    this.isStaff = !!isStaff
+    this.groups = groups
+    this.picture = String(picture)
 
-    this.setPattern(pattern);
+    this.setPattern(pattern)
 
     if (creationDate instanceof Date) {
-      this.creationDate = creationDate;
-    } else if(creationDate) {
-      this.creationDate = new Date(creationDate);
+      this.creationDate = creationDate
+    } else if (creationDate) {
+      this.creationDate = new Date(creationDate)
     }
 
-    this.emailAccepted = Boolean(emailAccepted);
+    this.emailAccepted = Boolean(emailAccepted)
 
     if (displayName) {
-      this.displayName = String(displayName);
+      this.displayName = String(displayName)
     } else if (this.isStaff) {
-      this.displayName = 'staff';
+      this.displayName = 'staff'
     } else {
-      this.displayName = 'guest';
+      this.displayName = 'guest'
     }
+    this.bitmap = String(bitmap)
   }
 
   setPattern(pattern) {
     if (!Array.isArray(pattern)) {
-      this.pattern = String(pattern).split(/\s*,\s*/);
+      this.pattern = String(pattern).split(/\s*,\s*/)
     } else {
-      this.pattern = pattern;
+      this.pattern = pattern
     }
-    this.colors = [];
-    this.pattern = this.pattern.map((color) => {
-      if (regexpColor.test(color) ){
-        this.colors.push(color);
-        return color;
+    this.colors = []
+    this.pattern = this.pattern.map(color => {
+      if (regexpColor.test(color)) {
+        this.colors.push(color)
+        return color
       }
-      return color;
-    });
+      return color
+    })
   }
 }

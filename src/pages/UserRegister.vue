@@ -28,9 +28,11 @@
           <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
         </b-col>
       </b-row>
-      <b-alert v-if="featherError" show dismissible fade variant="danger">{{
-        featherError
-      }}</b-alert>
+      <b-row>
+        <b-col md="6" offset-md="3">
+          <FeathersErrorManager :error="featherError" />
+        </b-col>
+      </b-row>
       <b-row v-if="isCreated">
         <b-col md="6" offset-md="3">
           <p>
@@ -50,69 +52,58 @@
       </b-row>
       <b-row v-else>
         <b-col md="6" offset-md="3">
+          <p>
+            Create your Impresso account to explore the full potential of our Web App and Datalab.
+            Be careful to select the User Plan which best describes your current status and be
+            prepared to provide evidence for Student user and Academic User registrations. Select
+            the User Plan which fits your profile and be ready to <b>provide evidence</b> for
+            Student User and Academic User registrations.
+          </p>
+        </b-col>
+        <b-col md="6" offset-md="3">
+          <ChangePlanForm
+            allowAllPlans
+            :availablePlansLabels="availablePlansLabels"
+            :availablePlans="availablePlans"
+            :error="null"
+            @change="onChangePlan"
+          />
           <form @submit.prevent="onSubmit">
-            <b-form-group
-              id="input-group-0"
-              label="User Name"
-              label-for="username"
-              :description="v$.user.username.$errors[0]?.$message"
-            >
-              <b-form-input
-                id="username"
-                name="username"
-                required
-                v-model.trim="user.username"
-                :class="{ 'border-danger': v$.user.username.$error }"
-              />
-            </b-form-group>
-            <b-form-group
-              id="input-group-1"
-              label="Email address"
-              label-for="email"
-              :description="v$.user.email.$errors[0]?.$message"
-            >
-              <b-form-input
-                id="email"
-                name="email"
-                autocomplete="home email"
-                :class="{ 'border-danger': v$.user.email.$error }"
-                v-model.trim="user.email"
-              ></b-form-input>
-            </b-form-group>
-            <!-- password -->
             <b-row>
               <b-col>
                 <b-form-group
-                  id="input-group-changepwd-2"
-                  :label="$t('form_password')"
-                  label-for="password"
-                  :description="v$.user.password.$errors[0]?.$message"
+                  id="input-group-0"
+                  label="User Name"
+                  label-for="username"
+                  :description="v$.user.username.$errors[0]?.$message"
                 >
                   <b-form-input
-                    id="password"
-                    name="password"
-                    v-model.trim="user.password"
-                    type="password"
-                    maxlength="80"
-                    :class="{ 'border-danger': v$.user.password.$error }"
-                  ></b-form-input>
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    v-model.trim="user.username"
+                    :class="{ 'border-danger': v$.user.username.$error }"
+                  />
                 </b-form-group>
               </b-col>
               <b-col>
                 <b-form-group
-                  id="input-group-changepwd-3"
-                  :label="$t('form_password_repeat')"
-                  label-for="repeat-password"
-                  :description="v$.repeatPassword.$errors[0]?.$message"
+                  id="input-group-1"
+                  label="Email address"
+                  label-for="email"
+                  :description="v$.user.email.$errors[0]?.$message"
                 >
                   <b-form-input
-                    id="repeat-password"
-                    name="repeat-password"
-                    v-model.trim="repeatPassword"
-                    maxlength="80"
-                    :class="{ 'border-danger': v$.repeatPassword.$error }"
-                    type="password"
-                  />
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autocomplete="email"
+                    :class="{ 'border-danger': v$.user.email.$error }"
+                    v-model.trim="user.email"
+                  ></b-form-input>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -129,9 +120,12 @@
                     autocomplete="firstname"
                     v-model.trim="user.firstname"
                     maxlength="20"
+                    required
                   ></b-form-input>
                 </b-form-group>
               </b-col>
+            </b-row>
+            <b-row>
               <b-col>
                 <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
                   <b-form-input
@@ -140,18 +134,50 @@
                     autocomplete="lastname"
                     v-model.trim="user.lastname"
                     maxlength="20"
+                    required
                   ></b-form-input>
                 </b-form-group>
               </b-col>
             </b-row>
-
-            <b-form-group
-              id="input-group-5"
-              :label="$t('form_displayname')"
-              label-for="displayname"
-            >
-              <b-form-input id="displayname" v-model.trim="user.displayName" maxlength="20" />
-            </b-form-group>
+            <!-- password -->
+            <b-row>
+              <b-col>
+                <b-form-group
+                  id="input-group-changepwd-2"
+                  :label="$t('form_password')"
+                  label-for="password"
+                  :description="v$.user.password.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="password"
+                    name="password"
+                    v-model.trim="user.password"
+                    type="password"
+                    maxlength="80"
+                    required
+                    :class="{ 'border-danger': v$.user.password.$error }"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+              <b-col>
+                <b-form-group
+                  id="input-group-changepwd-3"
+                  :label="$t('form_password_repeat')"
+                  label-for="repeat-password"
+                  :description="v$.repeatPassword.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="repeat-password"
+                    name="repeat-password"
+                    v-model.trim="repeatPassword"
+                    maxlength="80"
+                    required
+                    :class="{ 'border-danger': v$.repeatPassword.$error }"
+                    type="password"
+                  />
+                </b-form-group>
+              </b-col>
+            </b-row>
 
             <div
               id="input-group-4"
@@ -187,8 +213,8 @@
                 :style="getColorBandStyle(color)"
               ></div>
             </div>
-            {{ user.pattern }}
 
+            <AcceptTermsOfUse localStorageOnly />
             <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
             <!-- <b-form-group
                   id="nda"
@@ -202,15 +228,16 @@
                   </div>
                 </b-form-group> -->
             <!-- </ValidationProvider> -->
-
-            <b-button
-              size="sm"
-              type="submit"
-              class="mt-2"
-              variant="outline-primary"
-              :disabled="v$.$error || !v$.$anyDirty"
-              >{{ $t('actions.requestAccount') }}</b-button
-            >
+            <div class="text-center">
+              <b-button
+                size="lg"
+                type="submit"
+                class="mt-2"
+                variant="outline-primary"
+                :disabled="v$.$error || !v$.$anyDirty"
+                >{{ $t('actions.requestAccount') }}</b-button
+              >
+            </div>
           </form>
         </b-col>
       </b-row>
@@ -225,7 +252,13 @@ import { email, helpers, minLength, required, sameAs } from '@vuelidate/validato
 import { users as usersService } from '@/services'
 import { PasswordRegex, UserRegex } from '@/logic/user'
 import User from '@/models/User'
+import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
+import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
+import { useUserStore } from '@/stores/user'
+import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/ChangePlanForm.vue'
+import { AvailablePlans, PlanLabels } from '@/constants'
 
+const userStore = useUserStore()
 // extend('required', {
 //   ...required,
 //   message: 'This field is required'
@@ -275,10 +308,19 @@ export default defineComponent({
   setup() {
     return { v$: useVuelidate() }
   },
+
   props: {
     allowUploadOfNDA: Boolean
   },
+  components: {
+    FeathersErrorManager,
+    AcceptTermsOfUse,
+    ChangePlanForm
+  },
   data: () => ({
+    availablePlansLabels: PlanLabels,
+    availablePlans: AvailablePlans,
+    selectedPlan: null,
     passwordRegex: PasswordRegex,
     userRegex: UserRegex,
     user: {
@@ -295,7 +337,7 @@ export default defineComponent({
     nda: null,
     repeatPassword: '',
     errors: [],
-    featherError: '',
+    featherError: null,
     palettes: [
       '#96ceb4',
       '#ffeead',
@@ -346,16 +388,30 @@ export default defineComponent({
       set(v: string) {
         this.user.pattern = v.split(',').map(v => v.trim())
       }
+    },
+    isTermsOfUseAccepted() {
+      return userStore.acceptTermsDateOnLocalStorage !== null
     }
   },
   methods: {
     onSubmit() {
       // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
-      this.featherError = ''
+      if (!this.isTermsOfUseAccepted) {
+        this.featherError = new Error('Please accept the Terms of Use')
+        return
+      }
+      if (!this.selectedPlan) {
+        this.featherError = new Error('Please select the plan')
+        return
+      }
+      this.featherError = null
       this.isLoading = true
       usersService
-        .create(this.user)
+        .create({
+          ...this.user,
+          plan: this.selectedPlan
+        })
         .then(res => {
           console.info('UserRegister#onSubmit() success, received:', res)
           this.isCreated = true
@@ -363,9 +419,9 @@ export default defineComponent({
         .catch(err => {
           console.warn(err)
           if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
-            this.featherError = this.$t('errors.Conflict.UsernameExistError')
+            this.featherError = new Error(this.$t('errors.Conflict.UsernameExistError'))
           } else {
-            this.featherError = err.message
+            this.featherError = err
           }
         })
         .finally(() => {
@@ -380,6 +436,10 @@ export default defineComponent({
         colors.push(mycolor)
       }
       this.user.pattern = colors
+    },
+    onChangePlan(payload: ChangePlanRequestFormPayload) {
+      console.info('UserRegister#onChangePlanSubmit()', payload.plan)
+      this.selectedPlan = payload.plan
     },
     getColorBandStyle(color: string) {
       const width = this.user.pattern.length ? `${100 / this.user.pattern.length}%` : '0%'
@@ -396,7 +456,7 @@ export default defineComponent({
     return {
       user: {
         username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
-        email: { required, email, $autoDirty: true }, // required|email
+        email: { required, minLength: minLength(4), email, $autoDirty: true }, // required|email
         password: { minLength: minLength(8), complexPassword, $autoDirty: true } // min: 8, regex: passwordRegex
       },
       repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true } // required|confirmed:repeatPassword

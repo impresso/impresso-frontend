@@ -33,11 +33,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { arrow, offset, useFloating } from '@floating-ui/vue'
+import { computed, PropType, ref } from 'vue'
+import { arrow, offset, useFloating, autoPlacement, Side } from '@floating-ui/vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'
-import faqContent from '@/assets/faqpage.json'
+import { FaqContentsMap } from '../../data/faq'
 
 type MiddlewareData = {
   arrow?: {
@@ -45,16 +45,6 @@ type MiddlewareData = {
     y: number
   }
 }
-// flatten down the faqContent object to get a dict like {language : { id : <item> } }
-const FaqContentsMap = Object.entries(faqContent).reduce((acc, [language, item]) => {
-  acc[language] = item.groups.reduce((acc, group) => {
-    group.faq.forEach(faq => {
-      acc[faq.id] = faq
-    })
-    return acc
-  }, {})
-  return acc
-}, {})
 
 const reference = ref(null)
 const floating = ref(null)
@@ -67,8 +57,8 @@ const props = defineProps({
     required: true
   },
   placement: {
-    type: String,
-    default: 'right'
+    type: String as PropType<Side>,
+    required: false
   },
   offsetOptions: {
     type: Object,
@@ -76,16 +66,20 @@ const props = defineProps({
   }
 })
 
-const { floatingStyles, middlewareData } = useFloating(reference, floating, {
-  placement: props.placement as any,
-  middleware: [offset(props.offsetOptions), arrow({ element: floatingArrow })]
+const middleware = computed(() => {
+  return [
+    ...(props.placement == null ? [autoPlacement()] : []),
+    offset(props.offsetOptions),
+    arrow({ element: floatingArrow })
+  ]
 })
 
-// const floatingStyles = computed(() => ({
-//   top: `${y.value}px`,
-//   left: `${x.value}px`,
-//   position: strategy.value
-// }))
+const placement = computed(() => props.placement)
+
+const { floatingStyles, middlewareData } = useFloating(reference, floating, {
+  placement,
+  middleware
+})
 
 const floatingArrowStyles = computed(() => {
   const m = middlewareData as unknown as MiddlewareData
@@ -99,9 +93,14 @@ const show = ref(false)
 
 const store = useSettingsStore()
 const activeLanguageCode = computed(() => store.language_code)
-const content = computed(
-  () => FaqContentsMap[activeLanguageCode.value][props.name] || { title: props.name }
-)
+const content = computed(() => {
+  let content = FaqContentsMap[activeLanguageCode.value]?.[props.name]
+  if (!content) {
+    content = { title: props.name }
+    console.warn(`[InfoButton] 😖 props.name not found: "${props.name}" `)
+  }
+  return content
+})
 
 const togglePopover = () => (show.value = !show.value)
 
@@ -124,7 +123,7 @@ useClickOutside(floating, () => (show.value = false), reference)
 .InfoButton .popover-body {
   pointer-events: auto;
   padding: var(--spacing-2-5);
-  max-width: 185px;
+  max-width: 200px;
   background-color: var(--impresso-color-black) !important;
   color: var(--impresso-color-paper) !important;
 }

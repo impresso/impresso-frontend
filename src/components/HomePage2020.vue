@@ -36,11 +36,7 @@
 
         <p>
           More? Check on our
-          <a
-            class="text-white"
-            href="https://impresso-project.ch/news/2020/01/23/state-corpus-january2020.html"
-            >blog</a
-          >
+          <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p>
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
@@ -49,26 +45,36 @@
             <br />
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
-          <br />
-          <img
-            src="@/assets/img/GitHub-Mark-Light-32px.png"
-            alt="GitHub icon"
-            class="mr-2"
-            style="max-height: 1em"
-          />
-          github:
-          <a :href="impressoInfo.project.repoUrl" target="_blank">
-            {{ impressoInfo.project.repoUrlLabel }}</a
-          >
-          <p>
+          <p class="mb-0">
             <img
-              src="@/assets/img/Twitter_Logo_WhiteOnImage.png"
+              src="@/assets/img/GitHub-Mark-Light-32px.png"
+              alt="GitHub icon"
               class="mr-2"
-              style="max-height: 1em"
+              style="max-height: 16px"
+            />
+            github:
+            <a :href="impressoInfo.project.repoUrl" target="_blank">
+              {{ impressoInfo.project.repoUrlLabel }}</a
+            >
+          </p>
+          <p class="mb-0">
+            <img
+              src="@/assets/img/X-logo-white.svg"
+              class="mr-2"
+              style="max-height: 15px"
               alt="X (former Twitter) icon"
             />
             X (former Twitter):
             <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
+          </p>
+          <p>
+            <img
+              src="@/assets/img/Mastodon-logo-white.svg"
+              class="mr-2"
+              style="max-height: 16px"
+              alt="Mastodon"
+            />
+            Mastodon: <a href="https://fedihum.org/@impresso" target="_blank">@impresso</a>
           </p>
           <p>
             version:
@@ -84,16 +90,17 @@
         </div>
 
         <br />
+        <TermsOfUseStatus withCallToAction />
       </div>
     </i-layout-section>
     <i-layout-section>
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
-          <h1 class="HomePage__hugeHeading">
+          <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
-          <h2 style="font-style: italic">
-            Mining 200 years <br />of historical newspapers, and radio.
+          <h2>
+            <em> Mining 200 years <br />of historical newspapers, and radio.</em>
           </h2>
         </section>
         <section
@@ -143,12 +150,10 @@
             How to explore the newspapers with persons or locations? <br />What are topics good for?
             <br />What elements can be compared?
           </p>
-          <b-button
-            variant="primary"
-            size="lg"
+          <a
             href="./../assets/impresso-challenges-1.2.3.pdf"
             target="_blank"
-            class="rounded border"
+            class="btn btn-primary btn-lg rounded border"
           >
             <div class="d-flex flex-row w-100 align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
@@ -157,7 +162,7 @@
                 <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
               </div>
             </div>
-          </b-button>
+          </a>
           <!-- <b-row class="p-0 rounded" style="overflow: hidden">
             <b-col lg="6" md="12" class="bg-white">
               <img
@@ -239,6 +244,7 @@
 import Autocomplete from './Autocomplete.vue'
 import SearchTabs from './modules/SearchTabs.vue'
 import SearchPills from '@/components/SearchPills.vue'
+import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
@@ -341,7 +347,8 @@ export default {
     SearchTabs,
     HomePageFooter,
     SearchPills,
-    Recipe
+    Recipe,
+    TermsOfUseStatus
   }
 }
 </script>
@@ -429,8 +436,11 @@ export default {
 }
 
 h1.HomePage__hugeHeading {
-  font-size: 8vh;
-  line-height: 0.9;
+  line-height: 1.06em !important;
+  text-decoration: underline;
+  text-decoration-color: currentcolor;
+  text-decoration-color: var(--impresso-color-yellow);
+  font-size: calc(1.525rem + 3.3vw);
 }
 
 .stats span.number {
@@ -438,9 +448,9 @@ h1.HomePage__hugeHeading {
 }
 
 .bg-dark {
-  h1.HomePage__hugeHeading {
-    text-shadow: 1px 1px 1px #17191c;
-  }
+  // h1.HomePage__hugeHeading {
+  //   text-shadow: 1px 1px 1px #17191c;
+  // }
 
   h1.HomePage__hugeHeading,
   h2 {

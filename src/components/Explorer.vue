@@ -50,7 +50,7 @@
       </div>
       <div class="position-absolute right-0 top-0">
         <button class="btn btn-icon" v-on:click.prevent="close">
-          <Icon name="cross" />
+          <span class="dripicons-cross" />
         </button>
       </div>
     </template>
@@ -114,7 +114,6 @@ import Pagination from './modules/Pagination.vue'
 import Bucket from '@/models/Bucket'
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
 import { v4 } from 'uuid'
-import Icon from '@/components/base/Icon.vue'
 
 const TypeToServiceMap = Object.freeze({
   person: entities,
@@ -365,8 +364,7 @@ export default {
     Pagination,
     RangeFacetExplorer,
     TimeFacetExplorer,
-    Modal,
-    Icon
+    Modal
   },
   watch: {
     searchParameters: {

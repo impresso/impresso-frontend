@@ -4,7 +4,15 @@
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
         <section>
           <span class="label small-caps">
-            <router-link v-bind:to="updateCurrentRoute({ name: 'collections' })"
+            <router-link
+              v-bind:to="
+                updateCurrentRoute({
+                  name: 'collections',
+                  query: {
+                    tab: 'overview'
+                  }
+                })
+              "
               >&larr; {{ $t('Collections') }}</router-link
             >
           </span>
@@ -23,15 +31,10 @@
             "
             class="m-1"
           >
-            <button
-              type="button"
-              class="btn btn-outline-info btn-sm"
-              @click="showConfirmDeleteModal()"
-            >
+            <button type="button" class="btn btn-outline-info btn-sm">
               {{ $t('compare_collection') }}
             </button>
           </router-link>
-
           <b-dropdown
             class="m-1"
             size="sm"
@@ -68,7 +71,7 @@
                 type="button"
                 class="btn btn-outline-danger btn-sm form-control mb-3"
                 v-on:click.alt="remove(collection)"
-                v-on:click.exact="showConfirmDeleteModal()"
+                v-on:click.exact="showConfirmDeleteModal"
               >
                 {{ $t('delete_collection') }}
               </button>
@@ -81,13 +84,20 @@
           :title="$t('delete_collection_no_option')"
           centered
           :show="isConfirmDeleteModalVisible"
-          @ok="remove(collection)"
+          @ok="
+            () => {
+              console.info('[CollectionDetailPage] remove: ', collection)
+              hideConfirmDeleteModal()
+              remove(collection)
+            }
+          "
+          @close="hideConfirmDeleteModal"
         >
           {{ this.$t('confirm_delete', [collection.name]) }}
         </Modal>
       </b-navbar>
 
-      <b-navbar v-else type="light" variant="light">
+      <b-navbar v-else>
         <section class="pt-2 pb-1">
           <span class="label small-caps">{{ $t('collections') }}</span>
           <h3 class="mb-1">{{ $t('all_collections_title') }}</h3>
@@ -110,24 +120,20 @@
       </b-tabs>
 
       <b-navbar
-        type="light"
-        variant="light"
-        class="px-0 py-0 border-bottom"
+        class="px-0 py-2 border-bottom"
         v-if="
           tab.name !== TAB_RECOMMENDATIONS &&
           (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)
         "
       >
-        <b-navbar-nav v-if="$route.params.collection_uid">
-          <b-navbar-item class="p-2 ml-3 form-inline">
-            <form class="form-inline">
-              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-                {{ $t('actions.searchMore') }}
-              </router-link>
-            </form>
-          </b-navbar-item>
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
+          <form class="form-inline">
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
+          </form>
         </b-navbar-nav>
-        <b-navbar-nav>
+        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
           <b-button
             @click="handleExportCollection"
             size="sm"
@@ -137,7 +143,10 @@
             <div>{{ $t('label_export_csv') }}</div>
             <div class="dripicons-export ml-1"></div>
           </b-button>
-          <info-button name="can-i-download-part-of-the-data" class="float-right ml-2" />
+          <info-button
+            name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
+            class="float-right ml-2"
+          />
         </b-navbar-nav>
         <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
           <!-- <b-navbar-form class="p-2 border-right">
@@ -169,7 +178,7 @@
             v-for="(article, index) in articles"
             v-bind:key="`${index}-${article.uid}`"
           >
-            <search-results-list-item v-on:click="gotoArticle(article)" v-model="articles[index]" />
+            <search-results-list-item v-model="articles[index]" />
           </b-col>
         </b-row>
 
@@ -183,15 +192,10 @@
             v-bind:key="`${index}-${article.uid}`"
           >
             <!-- {{article}} -->
-            <search-results-tiles-item
-              v-if="article.type === 'ar'"
-              v-on:click="gotoArticle(article)"
-              v-model="articles[index]"
-            />
+            <search-results-tiles-item v-if="article.type === 'ar'" v-model="articles[index]" />
             <search-results-image-item
               v-if="article.type !== 'ar'"
               v-bind:searchResult="article"
-              v-on:click="gotoArticle(article)"
               v-model="articles[index]"
             />
           </b-col>
@@ -306,6 +310,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
+  search as searchService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
@@ -388,7 +393,12 @@ export default {
     filters: mapFilters(),
     searchPageLink() {
       if (!this.collection) {
-        return { name: 'search' }
+        return {
+          name: 'search',
+          query: SearchQuery.serialize({
+            filters: [{ type: 'collection', q: 'local-dg-*' }]
+          })
+        }
       }
       return {
         name: 'search',
@@ -514,7 +524,7 @@ export default {
         }
       }
     },
-    loadCollectionItems() {
+    async loadCollectionItems() {
       this.fetching = true
       const query = {
         resolve: 'item',
@@ -526,16 +536,43 @@ export default {
       if (this.collectionUid) {
         query.collection_uids = [this.collectionUid]
       }
-      return collectionsItemsService.find({ query }).then(({ data, total }) => {
-        this.paginationTotalRows = total
-        this.fetching = false
-        this.articles = data.map(({ item }) => {
-          if (item instanceof Article) {
-            return item
-          }
-          return new Article(item)
+
+      const collectionsItems = await collectionsItemsService
+        .find({ query })
+        .then(({ data, total }) => {
+          console.debug('[CollectionDetailPage] loadCollectionItems() success. Data:', data)
+          this.paginationTotalRows = total
+          return data
         })
-      })
+
+      const collectionsItemsById = collectionsItems.reduce((acc, item) => {
+        acc[item.itemId] = item
+        return acc
+      }, {})
+
+      const articles = await searchService
+        .find({
+          query: {
+            filters: [
+              {
+                type: 'uid',
+                q: collectionsItems.map(d => d.itemId)
+              }
+            ],
+
+            group_by: 'articles'
+          }
+        })
+        .then(({ data }) =>
+          data.map(d => {
+            return new Article({
+              ...d,
+              collections: collectionsItemsById[d.uid].collections
+            })
+          })
+        )
+      this.articles = articles
+      this.fetching = false
     },
     gotoArticle(article) {
       if (
@@ -667,7 +704,7 @@ export default {
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
-    "edit_collection": "Settings",
+    "edit_collection": "Edit collection",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "delete_collection_no_option": "Delete Collection",

@@ -11,14 +11,21 @@
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
       </template>
       <div>
-        <b-button
-          class="float-right mx-3 btn-sm"
+        <button
+          class="float-right mx-3 btn btn-sm btn-outline-secondary"
           @click="showModal('embeddings')"
           data-testid="add-similar-words-button"
         >
           {{ $t('label_embeddings') }}
-          <info-button class="ml-1" name="how-are-word-embeddings-generated" />
-        </b-button>
+          <info-button
+            class="ml-1"
+            :offset-options="{
+              crossAxis: 100,
+              mainAxis: 20
+            }"
+            name="how-are-word-embeddings-generated"
+          />
+        </button>
         <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
           <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
             {{ $t('label_isFront') }}
@@ -82,10 +89,8 @@
             </ellipsis>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-3">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              class="mr-1"
+            <RouterLink
+              class="mr-1 btn btn-sm btn-outline-primary"
               :to="{
                 name: 'compare',
                 query: {
@@ -94,7 +99,7 @@
               }"
             >
               {{ $t('actions.compare') }}
-            </b-button>
+            </RouterLink>
             <b-dropdown
               v-if="isLoggedIn"
               v-bind:text="$t('query_actions')"
@@ -123,7 +128,7 @@
                 {{ $t('query_export_csv') }}
                 <info-button
                   placement="left"
-                  name="can-i-download-part-of-the-data"
+                  name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
                   right
                   class="float-right"
                   :offset-options="{
@@ -286,6 +291,7 @@ import {
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
+import { RouterLink } from 'vue-router'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -424,9 +430,12 @@ export default {
         })
       }
     },
+    allowedFiltersWithItems() {
+      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+    },
     /** @returns {Filter[]} */
     enrichedFilters() {
-      return this.filtersWithItems.length ? this.filtersWithItems : this.filters
+      return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters
     },
     /** @returns {Filter[]} */
     ignoredFilters() {
@@ -653,16 +662,21 @@ export default {
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
         this.isLoadingResults = true
-        const { total, data, info } = await searchService.find({
-          query: {
-            page,
-            limit,
-            filters,
-            facets: FACET_TYPES_S,
-            order_by: orderBy,
-            group_by: groupBy
-          }
-        })
+        const { total, data, info } = await searchService
+          .find({
+            query: {
+              page,
+              limit,
+              filters,
+              facets: FACET_TYPES_S,
+              order_by: orderBy,
+              group_by: groupBy
+            }
+          })
+          .then(response => {
+            console.log('[Search] data:', response.data)
+            return response
+          })
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false

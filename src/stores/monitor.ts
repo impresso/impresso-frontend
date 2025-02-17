@@ -1,15 +1,11 @@
-import { defineStore } from 'pinia'
-import { search as searchService, entities as entitiesService } from '@/services'
-import Helpers from '@/plugins/Helpers'
+import type { Filter } from '@/models'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
+import Helpers from '@/plugins/Helpers'
+import { entities as entitiesService, search as searchService } from '@/services'
+import { defineStore } from 'pinia'
 
-interface Filter {
-  q?: string
-  type?: string
-}
-
-interface ActivateParameters {
+export interface ActivateParameters {
   item: { uid: string }
   type: string
   filters?: Filter[]
@@ -18,13 +14,13 @@ interface ActivateParameters {
   disableFilterModification?: boolean
 }
 
-interface State {
+export interface State {
   applyCurrentSearchFilters: boolean
   filters: Filter[]
   timeline: object[]
   isPendingTimeline: boolean
   type?: string
-  item?: { uid: string }
+  item?: { uid: string; wikidataId?: string }
   groupBy: 'articles'
   itemCountRelated: number
   isActive: boolean

@@ -3,7 +3,7 @@
     <div
       v-if="isRendered"
       class="modal"
-      :class="modalClasses"
+      :class="[modalClasses, { show: props.show }]"
       tabindex="-1"
       :aria-labelledby="`${id}-title`"
       aria-modal="true"
@@ -12,12 +12,8 @@
     >
       <div class="modal-dialog" :class="dialogClass">
         <div class="modal-content" :class="contentClass">
-          <div class="modal-header">
-            <slot
-              name="modal-header d-flex align-items-center"
-              v-bind:title-id="`${id}-title`"
-              v-bind:close="() => close()"
-            >
+          <div class="modal-header d-flex align-items-center">
+            <slot name="modal-header" v-bind:title-id="`${id}-title`" v-bind:close="() => close()">
               <h5 class="modal-title small-caps" :id="`${id}-title`">{{ props.title }}</h5>
               <button
                 class="btn btn-transparent text-dark"
@@ -26,7 +22,7 @@
                 aria-label="Close"
                 @click="close"
               >
-                <Icon name="cross" />
+                <Icon name="cross" color />
               </button>
             </slot>
           </div>
@@ -57,9 +53,9 @@
 </template>
 
 <script setup lang="ts">
-import Icon from './Icon.vue'
 import { ref, computed, watch } from 'vue'
 import { v4 } from 'uuid'
+import Icon from './Icon.vue'
 
 const props = defineProps({
   show: {
@@ -87,6 +83,10 @@ const props = defineProps({
   modalClass: String,
   dialogClass: String,
   contentClass: String,
+  showDelay: {
+    type: Number,
+    default: 500
+  },
   hideHeaderClose: {
     type: Boolean,
     default: false
@@ -119,7 +119,7 @@ watch(isVisible, visible => {
   if (!visible) {
     setTimeout(() => {
       isRendered.value = false
-    }, 500)
+    }, props.showDelay)
   } else {
     emit('shown')
   }
@@ -136,8 +136,16 @@ const modalClasses = computed(() => ({
   [props.modalClass as string]: !!props.modalClass
 }))
 </script>
-<style scoped>
-.btn svg {
-  color: black;
+<style>
+.modal .btn svg path {
+  stroke: black;
+}
+
+@media (min-width: 1024px) {
+  .modal-lg,
+  .modal-xl,
+  .modal-xxl {
+    --bs-modal-width: 1000px !important;
+  }
 }
 </style>

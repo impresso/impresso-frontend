@@ -1,5 +1,5 @@
 # 1. build
-FROM node:22-alpine AS frontend_builder
+FROM node:23-alpine AS frontend_builder
 
 ARG GIT_TAG
 ARG GIT_BRANCH

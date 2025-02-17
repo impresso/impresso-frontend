@@ -6,8 +6,11 @@
       <div class="row">
         <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
-            <a href="https://dhlab.epfl.ch/" target="_blank"
-              title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland">
+            <a
+              href="https://dhlab.epfl.ch/"
+              target="_blank"
+              title="Digital Humanities Laboratory (DHLAB) Ecole Polytechnique Federale de Lausanne, Switzerland"
+            >
               <EpflLogo />
             </a>
             <p>
@@ -17,17 +20,23 @@
           </div>
         </div>
         <div class="col-md-12 col-lg-6 col-xl-3">
-          <div class="logo ">
-            <a href="http://www.cl.uzh.ch/en.html" target="_blank"
-              title="Institute for Computational Linguistics Zurich University, Switzerland">
+          <div class="logo">
+            <a
+              href="http://www.cl.uzh.ch/en.html"
+              target="_blank"
+              title="Institute for Computational Linguistics Zurich University, Switzerland"
+            >
               <UzhLogo />
             </a>
             <p>Institute of Computational Linguistics Zurich University, Switzerland</p>
           </div>
         </div>
         <div class="col-md-12 col-lg-6 col-xl-3">
-          <div class="logo ">
-            <a href="/consortium/#unil" title="History department, University of Lausanne, UNIL.">
+          <div class="logo">
+            <a
+              href="https://www.unil.ch/hist/fr/home.html"
+              title="History department, University of Lausanne, UNIL."
+            >
               <UnilLogo class="mb-3" />
             </a>
             <p>History department, <br />University of Lausanne, UNIL.</p>
@@ -35,8 +44,11 @@
         </div>
         <div class="col-md-12 col-lg-6 col-xl-3">
           <div class="logo">
-            <a href="https://www.c2dh.uni.lu" target="_blank"
-              title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg.">
+            <a
+              href="https://www.c2dh.uni.lu"
+              target="_blank"
+              title="Centre for Contemporary and Digital History (C2DH) Luxembourg University, Luxembourg."
+            >
               <UniLogo />
             </a>
             <p>
@@ -60,7 +72,11 @@
       <div class="row">
         <div class="col-sm-12 col-md-6">
           <div class="logo">
-            <a href="http://www.snf.ch/en/Pages/default.aspx" target="_blank" title="Swiss National Science Foundation">
+            <a
+              href="http://www.snf.ch/en/Pages/default.aspx"
+              target="_blank"
+              title="Swiss National Science Foundation"
+            >
               <SnsfLogo />
             </a>
             <p>
@@ -71,7 +87,11 @@
         </div>
         <div class="col-sm-12 col-md-6">
           <div class="logo">
-            <a href="https://www.fnr.lu/" target="_blank" title="Luxembourg National Research Fund - Aller à l'accueil">
+            <a
+              href="https://www.fnr.lu/"
+              target="_blank"
+              title="Luxembourg National Research Fund - Aller à l'accueil"
+            >
               <FnrLogo />
             </a>
             <p>
@@ -101,11 +121,11 @@ export default {
     UniLogo,
     SnsfLogo,
     UnilLogo,
-    FnrLogo,
+    FnrLogo
   },
   data: () => ({
-    partners,
-  }),
+    partners
+  })
 }
 </script>
 
@@ -119,7 +139,6 @@ footer {
   }
 
   .logo {
-
     a svg,
     a svg path {
       fill: var(--clr-grey-900);

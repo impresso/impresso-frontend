@@ -33,30 +33,30 @@
       "video": "https://vimeo.com/347022471/"
     },
     {
-     "caption": "How to limit the date range of your query?",
-     "text": "Focus on the years 1927-1928",
-     "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
-     "query": "/app/search?sq=CgIYAgoMEAIYByABKgRqZXV4ChIQAhgHIAEqCm9seW1waXF1ZXMKMhACGAoqLDE5MjctMDEtMDFUMDA6MDA6MDBaIFRPIDE5MjgtMTItMzFUMjM6NTk6NTla&p=1",
-     "video": "https://vimeo.com/364796757"
-   },
-{
-     "caption": "Merge two collections",
-     "text": "Create a new collection based on two or more collections",
-     "img_src": "https://media.giphy.com/media/TLDGzHax8jJ8ziExPe/giphy.gif",
-     "video": "https://vimeo.com/364801944"
-   },
-{
-     "caption": "What is on the front page?",
-     "text": "Limit your search to the first page of a newspaper issue",
-     "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
-     "video": "https://vimeo.com/364796778"
-   },
-{
-     "caption": "Curate your result list from article viewer",
-     "text": "Use topic to select sports related articles",
-     "img_src": "https://media.giphy.com/media/U6YfJn7iCg2BMIa6Bx/giphy.gif",
-     "video": "https://vimeo.com/364796883"
-   }
+      "caption": "How to limit the date range of your query?",
+      "text": "Focus on the years 1927-1928",
+      "img_src": "https://media.giphy.com/media/mC7d6yRqLqZugfdqRa/giphy.gif",
+      "query": "/app/search?sq=CgIYAgoMEAIYByABKgRqZXV4ChIQAhgHIAEqCm9seW1waXF1ZXMKMhACGAoqLDE5MjctMDEtMDFUMDA6MDA6MDBaIFRPIDE5MjgtMTItMzFUMjM6NTk6NTla&p=1",
+      "video": "https://vimeo.com/364796757"
+    },
+    {
+      "caption": "Merge two collections",
+      "text": "Create a new collection based on two or more collections",
+      "img_src": "https://media.giphy.com/media/TLDGzHax8jJ8ziExPe/giphy.gif",
+      "video": "https://vimeo.com/364801944"
+    },
+    {
+      "caption": "What is on the front page?",
+      "text": "Limit your search to the first page of a newspaper issue",
+      "img_src": "https://media.giphy.com/media/eKU0xyzpQALTeamE60/giphy.gif",
+      "video": "https://vimeo.com/364796778"
+    },
+    {
+      "caption": "Curate your result list from article viewer",
+      "text": "Use topic to select sports related articles",
+      "img_src": "https://media.giphy.com/media/U6YfJn7iCg2BMIa6Bx/giphy.gif",
+      "video": "https://vimeo.com/364796883"
+    }
   ],
   "faq": {
     "title": "FAQ",
@@ -66,7 +66,7 @@
         "questions": [
           {
             "question": "Which newspapers do you have in your corpus?",
-            "answer": "In a nutshell, the impresso corpus contains the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Neue Zürcher Zeitung, Le Temps, the Valais State Archives and the Swiss Economic Archives. We recommend that you take a closer look at <u><a href=\"https://impresso-project.ch/app/newspapers/\">our overview of newspapers</a></u>."
+            "answer": "In a nutshell, the Impresso corpus contains the historical newspaper collections of the Swiss National Library, the National Library of Luxembourg, the Neue Zürcher Zeitung, Le Temps, the Valais State Archives and the Swiss Economic Archives. We recommend that you take a closer look at <u><a href=\"https://impresso-project.ch/app/newspapers/\">our overview of newspapers</a></u>."
           },
           {
             "question": "Why can’t I see everything? How do I get access to the full corpus?",
@@ -74,7 +74,7 @@
           },
           {
             "question": "Can I download everything? Do you have an API?",
-            "answer": "impresso users can download text and metadata for a maximum of 10.000 articles in form of a .csv file to allow - for example - further processing topic modeling on personally curated corpora. For advanced users we provide access via an API. If this is of interest to you, please contact us at <u><a href=\"mailto:info@impresso-project.ch\">info@impresso-project.ch</a></u>."
+            "answer": "Impresso users can download text and metadata for a maximum of 10.000 articles in form of a .csv file to allow - for example - further processing topic modeling on personally curated corpora. For advanced users we provide access via an API. If this is of interest to you, please contact us at <u><a href=\"mailto:info@impresso-project.ch\">info@impresso-project.ch</a></u>."
           }
         ]
       },
@@ -83,7 +83,7 @@
         "questions": [
           {
             "question": "What is a Named Entity?",
-            "answer": "<p>Named entities are defined entities, that means identifiable persons, institutions, locations. The important criteria is here the name: to differentiate for instance a common noun such as [pope] from the mention of a particular named entity such as [Pope Francis].</p><p>The improved automated recognition of named entities in historical texts is one of impresso’s research objectives.</p>"
+            "answer": "<p>Named entities are defined entities, that means identifiable persons, institutions, locations. The important criteria is here the name: to differentiate for instance a common noun such as [pope] from the mention of a particular named entity such as [Pope Francis].</p><p>The improved automated recognition of named entities in historical texts is one of Impresso’s research objectives.</p>"
           }
         ]
       },
@@ -96,16 +96,16 @@
           },
           {
             "question": "I have a problem / I would like to report an error / I would like to give feedback",
-            "answer": "<p>The impresso interface remains under active development and we will add new features to the interface in the common months.</p><p>We always look forward to hearing from you and to learn how you made use of impresso’s tools. To leave us feedback, please click on the black envelope on the lower right of the interface. We will get back to you soon after.</p>"
+            "answer": "<p>The Impresso interface remains under active development and we will add new features to the interface in the common months.</p><p>We always look forward to hearing from you and to learn how you made use of Impresso’s tools. To leave us feedback, please click on the black envelope on the lower right of the interface. We will get back to you soon after.</p>"
           }
         ]
       },
       {
-        "title": "About impresso",
+        "title": "About Impresso",
         "questions": [
           {
-            "question": "Who is behind impresso?",
-            "answer": "<p>The impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians.</p><p>The core team consists of computational linguists, designers/developers as well as historians based at the <a href=\"http://dhlab.epfl.ch\">DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a href=\"https://www.cl.uzh.ch/de.html\">Institute of Computational Linguistics at the University of Zurich</a> and the <a href=\"http://c2dh.uni.lu\">Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href=\"http://www.snf.ch/\">Swiss National Science foundation</a> (Grant CR- SII5_173719).</p><p>Take a look at <a href=\"http://impresso-project.ch\">our project homepage for more details</a>.</p>"
+            "question": "Who is behind Impresso?",
+            "answer": "<p>The Impresso project is a Swiss-Luxembourgish research project dedicated to the computational enrichment of historical newspapers and the development of new workflows for (digital) historians.</p><p>The core team consists of computational linguists, designers/developers as well as historians based at the <a href=\"http://dhlab.epfl.ch\">DHLAB of the École polytechnique fédérale de Lausanne (EPFL)</a>, the <a href=\"https://www.cl.uzh.ch/de.html\">Institute of Computational Linguistics at the University of Zurich</a> and the <a href=\"http://c2dh.uni.lu\">Luxembourg Centre for Contemporary and Digital History (C2DH)</a>. The project is funded by the <a href=\"http://www.snf.ch/\">Swiss National Science foundation</a> (Grant CR- SII5_173719).</p><p>Take a look at <a href=\"http://impresso-project.ch\">our project homepage for more details</a>.</p>"
           }
         ]
       }
