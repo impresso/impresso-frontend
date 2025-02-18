@@ -12,6 +12,16 @@ export interface State {
   acceptTermsDateOnLocalStorage: string | null
 }
 
+interface IAuthResult {
+  accessToken?: string
+  authentication?: {
+    payload?: {
+      exp?: number // expiration timestamp
+    }
+  }
+  user?: User
+}
+
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
@@ -78,33 +88,31 @@ export const useUserStore = defineStore('user', {
       })
     },
     async login({ email, password }: { email: string; password: string }) {
-      return (app as any)
-        .authenticate({
-          strategy: 'local',
-          email,
-          password
-        })
-        .then((res: any) => {
-          console.info('[store/user] Authentication response:', Object.keys(res))
-          if (res.user && res.user.bitmap) {
-            console.info(' - bitmap:', res.user.bitmap)
-            this.bitmap = res.user.bitmap
-          }
-          return res
-        })
-        .then(({ user }) => {
-          console.info('LOGIN: user', user.username, 'logged in!')
-          // don't save cookie
-          // const expiredDate = new Date(authentication?.payload?.exp * 1000)
-          // document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
-          app.set('user', user)
-          this.userData = new User({
-            ...user,
-            picture: user.profile.picture,
-            pattern: user.profile.pattern
-          })
-          return user
-        })
+      const authResult = await app.authenticate({
+        strategy: 'local',
+        email,
+        password
+      })
+
+      const { accessToken, authentication, user } = authResult as IAuthResult
+
+      console.info('[store/user] Authentication response:', Object.keys(authResult))
+      if (user && user.bitmap) {
+        console.info(' - bitmap:', user.bitmap)
+        this.bitmap = user.bitmap
+      }
+      console.info('LOGIN: user', user.username, 'logged in!')
+
+      const expiredDate = new Date(authentication?.payload?.exp * 1000)
+      document.cookie =
+        'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/'
+      app.set('user', user)
+      this.userData = new User({
+        ...user,
+        picture: (user as any).profile.picture,
+        pattern: (user as any).profile.pattern
+      })
+      return user
     },
     setRememberCredentials(remember: boolean) {
       this.rememberCredentials = remember
