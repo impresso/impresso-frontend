@@ -1,7 +1,7 @@
 <template>
   <div class="IIIFFragment">
     <figure class="position-relative IIIFFragment overflow-hidden">
-      <img
+      <auth-img
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
@@ -9,6 +9,9 @@
           transform: `scale(${scale})`,
           'transform-origin': 'left top'
         }"
+        :auth-condition="authCondition"
+        @load="onImageLoad"
+        @error="onImageLoadError"
       />
       <div
         class="IIIFFragment__regions"
@@ -33,9 +36,21 @@
     </div>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import AuthImg from '@/components/AuthImg.vue'
+import { getAuthenticationToken } from '@/services'
+import { getAuthHeaders } from '@/util/auth'
+import { defaultAuthCondition } from '@/util/imageAuth'
 import axios from 'axios'
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+
+interface ICoords {
+  x: number
+  y: number
+  w: number
+  h: number
+}
 
 export default defineComponent({
   name: 'IIIFFragment',
@@ -45,7 +60,6 @@ export default defineComponent({
       height: 0,
       imageWidth: 0,
       imageHeight: 0,
-      image: null,
       isLoaded: false,
       isNotFound: false,
       errorMessage: null
@@ -77,7 +91,7 @@ export default defineComponent({
       type: Object
     },
     regions: {
-      type: Array,
+      type: Array as PropType<{ coords: ICoords }[]>,
       default: () => []
     },
     matches: {
@@ -87,6 +101,10 @@ export default defineComponent({
     coordMinArea: {
       type: Number,
       default: 250 * 250
+    },
+    authCondition: {
+      type: Function as PropType<(imageUrl: string) => boolean>,
+      default: () => defaultAuthCondition
     }
   },
   computed: {
@@ -142,6 +160,27 @@ export default defineComponent({
     }
   },
   methods: {
+    onImageLoad(e: Event) {
+      const target = e.target as HTMLImageElement
+      this.imageWidth = target.naturalWidth
+      this.imageHeight = target.naturalHeight
+      this.isLoaded = true
+    },
+    onImageLoadError(e: Error) {
+      this.isNotFound = e['status'] === 404
+      this.isLoaded = false
+      if (e['status'] !== 404) {
+        this.errorMessage = e.message
+      }
+    },
+    requiresAuth(url: string) {
+      const authCondition = this.authCondition ?? defaultAuthCondition
+      return authCondition(url)
+    },
+    getRequestHeaders(url: string) {
+      const headers = this.requiresAuth(url) ? getAuthHeaders(getAuthenticationToken()) : {}
+      return headers
+    },
     getCoordsFromArticleRegions() {
       let x0 = Infinity
       let x1 = 0
@@ -170,45 +209,29 @@ export default defineComponent({
       }
     },
     async getIIIFInfo() {
-      const iiif = this.iiif
-        .replace('/info.json', '')
-        .replace(String(import.meta.env.VITE_BASE_URL), '')
+      const iiif = this.iiif.replace('/info.json', '')
+      // .replace(String(import.meta.env.VITE_BASE_URL), '')
 
-      const status = await axios
-        .get(`${iiif}/info.json`)
-        .then(response => {
-          this.width = response.data.width
-          this.height = response.data.height
-          this.image = new Image()
-          // get actual size fo the image
-          this.image.onload = () => {
-            this.imageWidth = this.image.naturalWidth
-            this.imageHeight = this.image.naturalHeight
-            this.isLoaded = true
-          }
-          this.image.src = this.computedImageUrl
-          return 'success'
+      try {
+        const response = await axios.get(`${iiif}/info.json`, {
+          headers: this.getRequestHeaders(iiif)
         })
-        .catch(error => {
-          if (error?.response?.status !== 404) {
-            this.errorMessage = `${error.message}: ${iiif}`
-            return 'error'
-          }
-          console.warn(
-            '[IIIFFragment] Error catch on @mounted iiif',
-            iiif,
-            '\nerror:',
-            error.message,
-            error
-          )
+
+        this.width = response.data.width
+        this.height = response.data.height
+      } catch (error) {
+        if (error?.response?.status !== 404) {
+          this.errorMessage = `${error.message}: ${iiif}`
+        } else {
           this.isLoaded = false
           this.isNotFound = true
-          return 'not found'
-        })
-      console.info('[IIIFFragment] \n - iiif:', iiif, '\n - status:', status)
+        }
+      }
     }
   },
-
+  components: {
+    AuthImg
+  },
   mounted() {
     this.getIIIFInfo()
     // load iiiif info.json

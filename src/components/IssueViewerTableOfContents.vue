@@ -9,7 +9,6 @@
       <table-of-contents-item
         :ref="`toc-article-${item.uid}`"
         :item="item"
-        :headers="headers"
         :active="item.uid === selectedArticleId"
       >
         <!-- <template v-slot:actions>
@@ -39,10 +38,6 @@ export default {
     scrollTocToArticleTimer: 0
   }),
   props: {
-    headers: {
-      type: Object,
-      default: () => {}
-    },
     selectedArticleId: String,
     items: {
       type: Array,

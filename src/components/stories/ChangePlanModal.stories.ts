@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import ChangePlanModal from '@/components/ChangePlanModal.vue'
-import { ref } from 'vue'
 import { AvailablePlans, PlanLabels } from '@/constants'
 import { UserChangePlanRequest } from '@/services/types'
 

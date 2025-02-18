@@ -1,17 +1,15 @@
-<template lang="html">
-  <div class="page-item" :class="{ active }">
-    <div class="number text-center position-absolute">{{ item.num }}</div>
-    <img :src="item.getIiifThumbnail({ dim: 30 })" width="100%" />
+<template>
+  <div class="page-item" :class="{ active: props.active }">
+    <div class="number text-center position-absolute">{{ props.item.num }}</div>
+    <AuthImg :src="props.item.getIiifThumbnail({ dim: 30 })" width="100%" />
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    active: Boolean,
-    item: Object,
-  },
-}
+<script setup lang="ts">
+import AuthImg from '@/components/AuthImg.vue'
+import Page from '@/models/Page'
+
+const props = defineProps<{ active: boolean; item: Page }>()
 </script>
 
 <style lang="scss" scoped>

@@ -21,7 +21,7 @@
           </template>
         </article-item>
         <div v-bind:key="i" v-for="(image, i) in item.images">
-          <image-item :height="200" class="mx-3 mb-2" :item="image" :headers="headers" />
+          <image-item :height="200" class="mx-3 mb-2" :item="image" />
           <div class="ml-3 mb-3">
             <router-link class="btn btn-outline-secondary btn-sm" :to="getSimilarImagesHref(image)">
               get similar images
@@ -40,8 +40,7 @@ import ImageItem from '@/components/modules/lists/ImageItem.vue'
 export default {
   props: {
     active: Boolean,
-    item: Object,
-    headers: {}
+    item: Object
   },
   methods: {
     getSimilarImagesHref(image) {

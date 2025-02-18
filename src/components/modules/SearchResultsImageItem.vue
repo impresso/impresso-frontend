@@ -8,13 +8,7 @@
           v-bind:checked="isChecked"
           v-on:change="$emit('toggleSelected', item)"
         />
-        <image-item
-          :headers="headers"
-          fluid-grow
-          :enableSimilarTo="enableSimilarTo"
-          :item="item"
-          show-meta
-        />
+        <image-item fluid-grow :item="item" show-meta />
       </p>
     </div>
     <div v-if="enableSimilarTo" class="card-footer">
@@ -43,8 +37,7 @@ export default defineComponent({
     item: Object as PropType<IImage>,
     enableCheckbox: Boolean,
     enableSimilarTo: Boolean,
-    isChecked: Boolean,
-    headers: Object
+    isChecked: Boolean
   }
 })
 </script>

@@ -195,5 +195,6 @@ export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
 
-export const getAuthenticationBearer = () => app.authentication.options.storage['feathers-jwt']
+export const getAuthenticationToken = (): string | undefined =>
+  app.authentication.options.storage['feathers-jwt']
 export const namesService = new NamesService()

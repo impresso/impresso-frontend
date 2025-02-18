@@ -94,7 +94,7 @@ export const useUserStore = defineStore('user', {
         password
       })
 
-      const { accessToken, authentication, user } = authResult as IAuthResult
+      const { /* accessToken, authentication, */ user } = authResult as IAuthResult
 
       console.info('[store/user] Authentication response:', Object.keys(authResult))
       if (user && user.bitmap) {
@@ -103,9 +103,10 @@ export const useUserStore = defineStore('user', {
       }
       console.info('LOGIN: user', user.username, 'logged in!')
 
-      const expiredDate = new Date(authentication?.payload?.exp * 1000)
-      document.cookie =
-        'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/'
+      // Not using cookies to exclude CSRF attacks (https://feathersjs.com/guides/security)
+      // const expiredDate = new Date(authentication?.payload?.exp * 1000)
+      // document.cookie =
+      //   'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/'
       app.set('user', user)
       this.userData = new User({
         ...user,

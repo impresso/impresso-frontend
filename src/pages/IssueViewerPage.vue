@@ -94,7 +94,6 @@
         <issue-viewer-table-of-contents
           :items="tableOfContentsArticles"
           :selected-article-id="articleId"
-          :headers="headers"
           @article-selected="handleArticleSelected"
           @click-full-text="showArticleText"
         />
@@ -253,14 +252,11 @@ import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticl
 import PageItem from '@/components/modules/lists/PageItem.vue'
 import List from '@/components/modules/lists/List.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
-import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
-  articles as articlesService,
   search as searchService,
-  images as imagesService,
-  getAuthenticationBearer
+  images as imagesService
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { getPageId, getShortArticleId, getLongArticleId } from '@/logic/ids'
@@ -284,7 +280,6 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
-import { RouterLink } from 'vue-router'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -323,8 +318,7 @@ export default {
     outlinesVisible: false,
     isFullscreen: false,
     isLoadingServiceQuery: false,
-    displayOnlyMatchingArticles: false,
-    headers: /** @type {{[key: string] : string }} */ ({})
+    displayOnlyMatchingArticles: false
   }),
   components: {
     OpenSeadragonArticleViewer,
@@ -336,8 +330,7 @@ export default {
     IssueViewerTableOfContents,
     CollectionAddTo,
     WithTooltip,
-    IssueViewerPageHeading,
-    MediaSourceLabel
+    IssueViewerPageHeading
   },
   props: {
     filters: {
@@ -352,9 +345,6 @@ export default {
   mounted() {
     if (this.suggestionQuery.length) {
       this.displayOnlyMatchingArticles = true
-    }
-    this.headers = {
-      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
     }
   },
   created() {
