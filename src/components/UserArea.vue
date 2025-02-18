@@ -2,7 +2,9 @@
   <b-dropdown class="UserArea px-0 bg-dark" right>
     <template v-slot:button-content>
       <div class="d-flex px-2 py-1 align-items-center">
-        <div class="user-picture position-relative mr-2 me-2" :style="userPicture"></div>
+        <div class="user-picture position-relative mr-2 me-2">
+          <Sunset :radius="15" :colors="user.pattern" class="position-absolute left-0 top-0 m-0" />
+        </div>
         <div class="UserArea__userLabel">
           <div class="user-fullname small mb-1">{{ userFullName }}</div>
           <div class="user-role small-caps">{{ userPlanLabel }}</div>
@@ -70,6 +72,7 @@ import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
 import { type User } from '@/models'
+import Sunset from './base/Sunset.vue'
 
 const userStore = useUserStore()
 
@@ -105,28 +108,6 @@ const send_update_bitmap = async () => {
     console.debug('[UserArea] request to update bitmap...')
   })
 }
-
-const userPicture = computed(() => {
-  const style: {
-    backgroundImage?: string
-    backgroundColor: string
-  } = {
-    backgroundColor: 'black'
-  }
-
-  if (props.user.pattern) {
-    const gradient = []
-
-    props.user.pattern.forEach((color: string, i: number) => {
-      const start = Math.round((100 * i) / props.user.pattern.length)
-      const stop = Math.round((100 * (i + 1)) / props.user.pattern.length)
-      gradient.push(`${color} ${start}%, ${color} ${stop}%`)
-    })
-
-    style.backgroundImage = `linear-gradient(180deg,${gradient.join(',')})`
-  }
-  return style
-})
 </script>
 <i18n>
 {
@@ -161,6 +142,10 @@ const userPicture = computed(() => {
   box-shadow: none;
 }
 
+.UserArea.dropdown .btn.dropdown-toggle:not(.disabled):hover .user-picture svg,
+.UserArea.dropdown .btn.dropdown-toggle:not(.disabled):focus .user-picture svg {
+  transform: none;
+}
 .UserArea.bg-dark .btn.dropdown-toggle:hover {
   color: var(--impresso-color-paper);
   background-color: var(--clr-grey-100);
