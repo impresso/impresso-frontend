@@ -41,7 +41,6 @@
                   v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
                 >
                 </span>
-                {{ ignoredFilters }}
               </b-alert>
               <search-pills
                 disable-reset
@@ -529,6 +528,10 @@ export default {
       /** @returns {number} */
       get() {
         if (!this.issue) return -1
+        if (this.selectedArticle) {
+          const articlePage = this.selectedArticle.pages[0]
+          return this.issue.pages.findIndex(p => p.uid === articlePage.uid)
+        }
         const pageNumber = parseInt(
           /** @type {string} */ (getQueryParameter(this, QueryParams.PageNumber)),
           10
