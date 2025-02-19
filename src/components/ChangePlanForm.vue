@@ -43,6 +43,7 @@
     </section>
 
     <button
+      v-if="showSubmitButton"
       type="submit"
       :disabled="props.currentPlan === selectedPlan"
       class="btn btn-outline-secondary btn-md px-4 border border-dark btn-block"
@@ -75,6 +76,7 @@ export interface ChangePlanRequestFormProps {
   availablePlans?: string[]
   availablePlansLabels?: Record<string, string>
   allowAllPlans?: boolean
+  showSubmitButton?: boolean
 }
 
 /**
@@ -82,7 +84,8 @@ export interface ChangePlanRequestFormProps {
  */
 const props = withDefaults(defineProps<ChangePlanRequestFormProps>(), {
   availablePlans: () => [],
-  availablePlansLabels: () => ({})
+  availablePlansLabels: () => ({}),
+  showSubmitButton: true
 })
 
 const emits = defineEmits(['submit', 'change'])
