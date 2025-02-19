@@ -170,8 +170,8 @@ import FacetModel from '@/models/Facet'
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 import { Navigation } from '@/plugins/Navigation'
-import { defineComponent } from 'vue'
-import { IImage } from '@/models'
+import { defineComponent, PropType } from 'vue'
+import { IImage, Filter } from '@/models'
 
 const AllowedFilterTypes = ['newspaper', 'isFront', 'daterange', 'title']
 
@@ -198,7 +198,7 @@ export default defineComponent({
       default: true
     },
     filtersWithItems: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
   },
