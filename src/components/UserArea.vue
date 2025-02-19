@@ -19,7 +19,11 @@
       {{ $t('label_terms_of_use') }}
     </b-dropdown-item> -->
 
-    <LinkToModal class="dropdown-item" :view="ViewChangePlanRequest">
+    <LinkToModal
+      v-if="user && isViewPlansFeatureEnabled"
+      class="dropdown-item"
+      :view="ViewChangePlanRequest"
+    >
       {{ $t('label_change_plan_request') }}
     </LinkToModal>
 
@@ -34,10 +38,18 @@
     <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
       {{ $t('label_user_requests') }}
     </LinkToModal> -->
-    <LinkToModal v-if="user" class="dropdown-item" :view="ViewCorpusOverview">
+    <LinkToModal
+      v-if="user && isViewPlansFeatureEnabled"
+      class="dropdown-item"
+      :view="ViewCorpusOverview"
+    >
       {{ $t('label_corpus_overview') }}
     </LinkToModal>
-    <LinkToModal v-if="user" class="dropdown-item" :view="ViewInfoModal">
+    <LinkToModal
+      v-if="user && isViewPlansFeatureEnabled"
+      class="dropdown-item"
+      :view="ViewInfoModal"
+    >
       {{ $t('label_verbose_info') }}
     </LinkToModal>
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
@@ -85,6 +97,10 @@ const props = defineProps<UserAreaProps>()
 
 const version = computed(() => {
   return (window as any).impressoFrontendVersion
+})
+
+const isViewPlansFeatureEnabled = computed(() => {
+  return (window as any).impressoFeatures?.viewPlans?.enabled
 })
 
 const logout = () => {
