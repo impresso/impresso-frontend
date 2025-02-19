@@ -238,7 +238,7 @@
           style="bottom: 1rem"
           v-if="mode === FacsimileMode"
         >
-          <div v-for="(item, i) in issue.pages" :key="i" @click="changeCurrentPageIndex(i)">
+          <div v-for="(item, i) in issue.pages" :key="i" @click="() => changeCurrentPageIndex(i)">
             <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
           </div>
         </div>
@@ -708,6 +708,10 @@ export default {
     /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
       this.currentPageIndex = pageIndex
+      this.$navigation.updateQueryParameters({
+        [QueryParams.ArticleId]: undefined,
+        [QueryParams.PageNumber]: String(this.issue.pages[pageIndex]?.num)
+      })
     },
     handleRemoveSelection() {
       this.$navigation.updateQueryParameters({
