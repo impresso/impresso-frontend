@@ -133,7 +133,7 @@
                   variant="light"
                   size="sm"
                   :disabled="currentPageIndex === 0"
-                  @click="changeCurrentPageIndex(currentPageIndex - 1)"
+                  @click="() => changeCurrentPageIndex(currentPageIndex - 1)"
                 >
                   <div class="dripicons dripicons-media-previous pt-1"></div>
                 </b-button>
@@ -153,7 +153,7 @@
                   variant="light"
                   size="sm"
                   :disabled="currentPageIndex + 1 === issue.pages.length"
-                  @click="changeCurrentPageIndex(currentPageIndex + 1)"
+                  @click="() => changeCurrentPageIndex(currentPageIndex + 1)"
                 >
                   <div class="dripicons dripicons-media-next pt-1"></div>
                 </b-button>
@@ -238,7 +238,7 @@
           style="bottom: 1rem"
           v-if="mode === FacsimileMode"
         >
-          <div v-for="(item, i) in issue.pages" :key="i" @click="() => changeCurrentPageIndex(i)">
+          <div v-for="(item, i) in issue.pages" :key="i" @click="() => changePageNum(item.num)">
             <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
           </div>
         </div>
@@ -708,9 +708,16 @@ export default {
     /** @param {number} pageIndex */
     changeCurrentPageIndex(pageIndex) {
       this.currentPageIndex = pageIndex
+      // this.$navigation.updateQueryParameters({
+      //   [QueryParams.ArticleId]: undefined,
+      //   [QueryParams.PageNumber]: String(this.issue.pages[pageIndex]?.num)
+      // })
+    },
+    changePageNum(pageNum) {
+      console.debug('[IssueViewerPage] changePageNum to:', pageNum)
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: undefined,
-        [QueryParams.PageNumber]: String(this.issue.pages[pageIndex]?.num)
+        [QueryParams.PageNumber]: pageNum
       })
     },
     handleRemoveSelection() {
