@@ -36,7 +36,7 @@ export default defineComponent({
     },
     authCondition: {
       type: Function,
-      default: () => defaultAuthCondition
+      default: defaultAuthCondition
     }
   },
   computed: {
