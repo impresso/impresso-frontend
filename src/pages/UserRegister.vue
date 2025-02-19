@@ -2,39 +2,32 @@
   <main id="UserDashboard">
     <b-container class="mb-5">
       <b-row>
-        <b-col md="6" offset-md="3">
+        <div class="col-12 col-lg-8 offset-lg-2">
           <div class="d-flex align-items-center my-5">
             <div class="colors-wrapper flex-shrink-1">
-              <div>
-                <div
-                  class="color"
-                  v-for="(color, k) in user.pattern"
-                  v-bind:key="k"
-                  :style="getColorBandStyle(color)"
-                ></div>
-              </div>
+              <Sunset :colors="user.pattern" :radius="40"></Sunset>
             </div>
             <div class="ml-4">
               <h1 class="user-fullname m-0 sans font-weight-bold">
                 {{ userLabel }}
               </h1>
               <div class="user-displayname small-caps">
-                {{ user.displayName }}
+                {{ userPlanLabel }}
               </div>
             </div>
           </div>
-        </b-col>
-        <b-col md="6" offset-md="3">
+        </div>
+        <div class="col-12 col-lg-8 offset-lg-2">
           <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
-        </b-col>
+        </div>
       </b-row>
       <b-row>
-        <b-col md="6" offset-md="3">
+        <div class="col-12 col-lg-8 offset-lg-2" ref="errorManager">
           <FeathersErrorManager :error="featherError" />
-        </b-col>
+        </div>
       </b-row>
       <b-row v-if="isCreated">
-        <b-col md="6" offset-md="3">
+        <div class="col-12 col-lg-8 offset-lg-2">
           <p>
             Thank you for completing the first step of the registration.
             <br /><br />
@@ -48,10 +41,10 @@
             Once we have received the signed NDA, your account will be activated within two working
             days.
           </p>
-        </b-col>
+        </div>
       </b-row>
       <b-row v-else>
-        <b-col md="6" offset-md="3">
+        <div class="col-12 col-lg-8 offset-lg-2">
           <p>
             Create your Impresso account to explore the full potential of our Web App and Datalab.
             Be careful to select the User Plan which best describes your current status and be
@@ -59,18 +52,23 @@
             the User Plan which fits your profile and be ready to <b>provide evidence</b> for
             Student User and Academic User registrations.
           </p>
-        </b-col>
-        <b-col md="6" offset-md="3">
+        </div>
+        <div class="col-12 col-lg-8 offset-lg-2">
+          <h3 class="mb-3 font-weight-bold font-size-inherit">
+            Select the User Plan which fits your profile
+          </h3>
           <ChangePlanForm
             allowAllPlans
             :availablePlansLabels="availablePlansLabels"
             :availablePlans="availablePlans"
             :error="null"
             @change="onChangePlan"
+            :show-submit-button="false"
           />
+          <h3 class="mb-3 font-weight-bold font-size-inherit">Complete the registration form</h3>
           <form @submit.prevent="onSubmit">
             <b-row>
-              <b-col>
+              <div class="col">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
@@ -87,8 +85,8 @@
                     :class="{ 'border-danger': v$.user.username.$error }"
                   />
                 </b-form-group>
-              </b-col>
-              <b-col>
+              </div>
+              <div class="col">
                 <b-form-group
                   id="input-group-1"
                   label="Email address"
@@ -105,10 +103,10 @@
                     v-model.trim="user.email"
                   ></b-form-input>
                 </b-form-group>
-              </b-col>
+              </div>
             </b-row>
             <b-row>
-              <b-col>
+              <div class="col">
                 <b-form-group
                   id="input-group-2"
                   :label="$t('form_firstname')"
@@ -123,10 +121,10 @@
                     required
                   ></b-form-input>
                 </b-form-group>
-              </b-col>
+              </div>
             </b-row>
             <b-row>
-              <b-col>
+              <div class="col">
                 <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
                   <b-form-input
                     id="lastname"
@@ -137,11 +135,11 @@
                     required
                   ></b-form-input>
                 </b-form-group>
-              </b-col>
+              </div>
             </b-row>
             <!-- password -->
             <b-row>
-              <b-col>
+              <div class="col">
                 <b-form-group
                   id="input-group-changepwd-2"
                   :label="$t('form_password')"
@@ -158,8 +156,8 @@
                     :class="{ 'border-danger': v$.user.password.$error }"
                   ></b-form-input>
                 </b-form-group>
-              </b-col>
-              <b-col>
+              </div>
+              <div class="col">
                 <b-form-group
                   id="input-group-changepwd-3"
                   :label="$t('form_password_repeat')"
@@ -176,7 +174,7 @@
                     type="password"
                   />
                 </b-form-group>
-              </b-col>
+              </div>
             </b-row>
 
             <div
@@ -214,39 +212,37 @@
               ></div>
             </div>
 
-            <AcceptTermsOfUse localStorageOnly />
-            <!-- <ValidationProvider v-if="allowUploadOfNDA" rules="required|ext:jpeg,jpg,gif,png,pdf" v-slot="{ validate, errors }"> -->
-            <!-- <b-form-group
-                  id="nda"
-                  label="Signed NDA"
-                  label-for="nda"
-                  :class="{'border-danger': errors[0] }"
-                  :description="errors[0]">
-                  <div class="custom-file b-form-file" id="nda" :state="errors.length === 0" @input="validate"
-                    placeholder="Choose a file or drop it here...">
-                    NOTE: This code is not used. Implement file upload when needed.
-                  </div>
-                </b-form-group> -->
-            <!-- </ValidationProvider> -->
+            <AcceptTermsOfUse
+              localStorageOnly
+              :checked="isTermsOfUseAccepted"
+              v-on:change="
+                (event: Event) => {
+                  const isChecked = (event.target as HTMLInputElement).checked
+                  console.debug('[UserRegister] AcceptTermsOfUse@onChange', isChecked)
+                  toggleAcceptTermsDate(isChecked)
+                }
+              "
+            />
+
             <div class="text-center">
               <b-button
                 size="lg"
                 type="submit"
                 class="mt-2"
                 variant="outline-primary"
-                :disabled="v$.$error || !v$.$anyDirty"
+                :disabled="!selectedPlan || !isTermsOfUseAccepted || v$.$error || !v$.$anyDirty"
                 >{{ $t('actions.requestAccount') }}</b-button
               >
             </div>
           </form>
-        </b-col>
+        </div>
       </b-row>
     </b-container>
   </main>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { users as usersService } from '@/services'
@@ -257,42 +253,8 @@ import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
 import { useUserStore } from '@/stores/user'
 import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/ChangePlanForm.vue'
 import { AvailablePlans, PlanLabels } from '@/constants'
-
-const userStore = useUserStore()
-// extend('required', {
-//   ...required,
-//   message: 'This field is required'
-// });
-
-// extend('email', email);
-
-// extend('confirmed', {
-//   ...confirmed,
-//   message: 'Passwords do not match'
-// });
-
-// extend('min', {
-//   validate(value, { length }) {
-//     return value.length >= length;
-//   },
-//   params: ['length'],
-//   message: 'The {_field_} must have at least {length} characters'
-// });
-
-// extend('regex', {
-//   ...regex,
-//   message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-// });
-
-// extend('userRegex', {
-//   validate: value => value.match(UserRegex),
-//   message: 'Please use only lowercase alpha-numeric characters'
-// });
-
-// extend('ext', {
-//   ...ext,
-//   message: 'The file must be of type IMAGE or PDF'
-// });
+import { mapStores } from 'pinia'
+import Sunset from '@/components/base/Sunset.vue'
 
 const userRegex = helpers.withMessage(
   'Please use only lowercase alpha-numeric characters',
@@ -306,7 +268,8 @@ const complexPassword = helpers.withMessage(
 
 export default defineComponent({
   setup() {
-    return { v$: useVuelidate() }
+    const errorManager = ref(null)
+    return { v$: useVuelidate(), errorManager }
   },
 
   props: {
@@ -315,7 +278,8 @@ export default defineComponent({
   components: {
     FeathersErrorManager,
     AcceptTermsOfUse,
-    ChangePlanForm
+    ChangePlanForm,
+    Sunset
   },
   data: () => ({
     availablePlansLabels: PlanLabels,
@@ -372,11 +336,18 @@ export default defineComponent({
     numColors: 5
   }),
   computed: {
+    ...mapStores(useUserStore),
     userLabel() {
       if (this.user.firstname.length || this.user.lastname.length) {
         return `${this.user.firstname} ${this.user.lastname}`
       }
       return this.$t('signUp')
+    },
+    userPlanLabel() {
+      if (!this.selectedPlan) {
+        return ''
+      }
+      return this.availablePlansLabels[this.selectedPlan]
     },
     patternAsText: {
       get() {
@@ -390,19 +361,33 @@ export default defineComponent({
       }
     },
     isTermsOfUseAccepted() {
-      return userStore.acceptTermsDateOnLocalStorage !== null
+      return this.userStore.acceptTermsDateOnLocalStorage !== null
     }
   },
   methods: {
+    scrollToError() {
+      if (this.$refs.errorManager) {
+        ;(this.$refs.errorManager as HTMLElement).scrollIntoView({ behavior: 'smooth' })
+      }
+    },
+    toggleAcceptTermsDate(isChecked: boolean) {
+      if (isChecked) {
+        this.userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
+      } else {
+        this.userStore.acceptTermsDateOnLocalStorage = null
+      }
+    },
     onSubmit() {
       // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
       if (!this.isTermsOfUseAccepted) {
         this.featherError = new Error('Please accept the Terms of Use')
+        this.scrollToError()
         return
       }
       if (!this.selectedPlan) {
         this.featherError = new Error('Please select the plan')
+        this.scrollToError()
         return
       }
       this.featherError = null
@@ -420,8 +405,10 @@ export default defineComponent({
           console.warn(err)
           if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
             this.featherError = new Error(this.$t('errors.Conflict.UsernameExistError'))
+            this.scrollToError()
           } else {
             this.featherError = err
+            this.scrollToError()
           }
         })
         .finally(() => {
@@ -467,9 +454,9 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .colors-wrapper {
-  background-color: black;
-  width: 100px;
-  height: 100px;
+  background-color: transparent;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   position: relative;
