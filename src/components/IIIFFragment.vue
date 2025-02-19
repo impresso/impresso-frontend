@@ -104,7 +104,7 @@ export default defineComponent({
     },
     authCondition: {
       type: Function as PropType<(imageUrl: string) => boolean>,
-      default: () => defaultAuthCondition
+      default: defaultAuthCondition
     }
   },
   computed: {
