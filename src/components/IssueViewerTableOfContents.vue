@@ -68,10 +68,13 @@ export default {
     /** @param {string} id */
     selectedArticleId: {
       handler(id) {
-        this.scrollTocToArticle(id)
+        if (id) this.scrollTocToArticle(id)
       },
       immediate: true
     }
+  },
+  unmounted() {
+    clearTimeout(this.scrollTocToArticleTimer)
   }
 }
 </script>
