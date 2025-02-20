@@ -150,12 +150,11 @@
 
 <script lang="ts">
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
-import { serializeFilters, joinFiltersWithItems } from '@/logic/filters'
+import { serializeFilters } from '@/logic/filters'
 import { buildEmptyFacets } from '@/logic/facets'
 import {
   images as imagesService,
   searchFacetsImages as searchFacetsImagesService,
-  filtersItems as filtersItemsService,
   getAuthenticationBearer
 } from '@/services'
 import FilterImageUpload from '@/components/modules/FilterImageUpload.vue'
@@ -166,13 +165,13 @@ import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
 import FilterFactory from '@/models/FilterFactory'
-import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
+import SearchQuery from '@/models/SearchQuery'
 import FacetModel from '@/models/Facet'
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 import { Navigation } from '@/plugins/Navigation'
-import { defineComponent } from 'vue'
-import { Filter, IImage } from '@/models'
+import { defineComponent, PropType } from 'vue'
+import { IImage, Filter } from '@/models'
 
 const AllowedFilterTypes = ['newspaper', 'isFront', 'daterange', 'title']
 
@@ -199,7 +198,7 @@ export default defineComponent({
       default: true
     },
     filtersWithItems: {
-      type: Array as () => Filter[],
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
   },
@@ -255,13 +254,16 @@ export default defineComponent({
     seed() {
       return this.$route.query.seed || 0
     },
+    /**
+     * Filters not used for searching images
+     */
     ignoredFilters() {
-      return this.filtersWithItems
-        .filter(({ type }) => type !== 'hasTextContents')
-        .filter(({ type }) => !AllowedFilterTypes.includes(type))
+      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
+    /**
+     * Filters used for searching images
+     */
     filters() {
-      // filter by type
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
     /** @returns {string[]} */
@@ -348,7 +350,7 @@ export default defineComponent({
         return {
           seed: this.seed,
           similarTo: this.similarToImageUid,
-          filters: this.filters.map(getFilterQuery),
+          filters: this.filters,
           // groupBy: this.groupBy,
           orderBy: this.orderBy,
           limit: this.paginationPerPage,
@@ -479,10 +481,6 @@ export default defineComponent({
     },
     serviceQuery: {
       async handler({ page, limit, filters, orderBy, similarTo }) {
-        if (this.isLoading) {
-          console.warn('loading already... please try again later on')
-          return
-        }
         this.isLoading = true
 
         const serializedFilters = serializeFilters(filters)
