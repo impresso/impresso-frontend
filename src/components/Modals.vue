@@ -153,7 +153,7 @@ import type {
   TermsOfUse,
   UserChangePlanRequest,
   UserRequest
-} from '@/services/types.ts'
+} from '@/services/types'
 import {
   Views,
   ViewTermsOfUse,

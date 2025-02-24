@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import CorpusOverviewModal from '@/components/CorpusOverviewModal.vue'
 import type { Dataset } from '@/components/CorpusOverviewModal.vue'
 import { AvailablePlans, PlanLabels } from '@/constants'
-import { UserChangePlanRequest } from '@/services/types'
 
 const meta: Meta<typeof CorpusOverviewModal> = {
   title: 'Components/CorpusOverviewModal',

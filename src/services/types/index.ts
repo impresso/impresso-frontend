@@ -1,4 +1,5 @@
 import type { ServiceMethods } from '@feathersjs/feathers'
+import { ImageService } from './images'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -20,6 +21,7 @@ interface UntypedServices {
 
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
+  images: ImageService
 }
 
 export interface Group {

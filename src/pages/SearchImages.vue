@@ -505,7 +505,7 @@ export default defineComponent({
         ])
         this.paginationTotalRows = res.pagination.total
         this.searchResults = res.data //.map(d => new Image(d))
-        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1
+        this.paginationCurrentPage = Math.round(res.pagination.offset / res.pagination.limit) + 1
 
         // const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res)
         this.facets = facets.data.map(f => new FacetModel(f))
