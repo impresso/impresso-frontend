@@ -4,7 +4,12 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, watch, computed, nextTick } from 'vue'
-import OpenSeadragon, { Viewer } from 'openseadragon'
+import {
+  createOpenSeadragon,
+  Viewer,
+  getAuthOptions,
+  isAuthRequired
+} from '@/services/openseadragon'
 
 interface OverlayCoords {
   x: number // x coordinate (in image pixel units)
@@ -198,7 +203,7 @@ const createViewer = () => {
   }
   console.debug('[IIIFViewer] createViewer')
   // Initialize OpenSeadragon with the initial IIIF tile source.
-  viewer.value = OpenSeadragon({
+  viewer.value = createOpenSeadragon({
     element: viewerContainer.value,
     // no controls button
     showNavigationControl: false,
@@ -235,7 +240,12 @@ watch([manifestUrlsChanged, overlaysChanged], _ => {
     createViewer()
   }
   // @todo: handle case when manifesturls do not change
-  viewer.value.open(props.manifestUrls)
+  viewer.value.open(
+    props.manifestUrls.map(url => ({
+      tileSource: url,
+      ...(isAuthRequired(url) ? getAuthOptions() : {})
+    }))
+  )
 })
 
 watch(
@@ -251,7 +261,12 @@ watch(
 onMounted(() => {
   console.debug('[IIIFViewer] onMounted')
   createViewer()
-  viewer.value.open(props.manifestUrls)
+  viewer.value.open(
+    props.manifestUrls.map(url => ({
+      tileSource: url,
+      ...(isAuthRequired(url) ? getAuthOptions() : {})
+    }))
+  )
 })
 
 onBeforeUnmount(() => {

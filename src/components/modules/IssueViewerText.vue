@@ -101,7 +101,7 @@
         >
           <div v-if="article.isCC" class="col col-sm-5">
             <div class="py-3">
-              <img
+              <auth-img
                 v-bind:src="region.iiifFragment"
                 alt="..."
                 :style="{ width: `${region.nw * 100}%` }"
@@ -158,11 +158,11 @@
 </template>
 
 <script lang="ts">
+import AuthImg from '@/components/AuthImg.vue'
 import { mapStores } from 'pinia'
 import {
   articlesSuggestions,
   articleTextReusePassages,
-  textReusePassages as textReusePassagesService,
   articles as articlesService
 } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
@@ -182,7 +182,7 @@ import {
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import Ellipsis from './Ellipsis.vue'
-import { a } from 'node_modules/@storybook/vue3/dist/render-0377a2e9'
+
 const colourScheme = [
   '#8dd3c7',
   '#bebada',
@@ -345,7 +345,7 @@ export default {
     AnnotatedText,
     InfoButton,
     IIIFViewer,
-    Ellipsis
+    AuthImg
   },
   methods: {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {

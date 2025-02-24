@@ -110,8 +110,7 @@
 
 <script setup lang="ts">
 import Modal from './base/Modal.vue'
-import { type UserRequest } from '@/services/types'
-import { type SubscriptionDataset } from '@/services/types'
+import type { UserRequest, SubscriptionDataset } from '@/services/types'
 import Alert from './Alert.vue'
 import SubscriptionDatasetItem from './modules/lists/SubscriptionDatasetItem.vue'
 import LoadingBlock from './LoadingBlock.vue'
@@ -166,7 +165,7 @@ const dismiss = () => {
 <i18n>
   {
     "en": {
-      "subscriptiondataset_index_label" : "#{idx} of {l}" 
+      "subscriptiondataset_index_label" : "#{idx} of {l}"
     }
   }
 </i18n>

@@ -1,20 +1,38 @@
 <template>
-  <marginalia-panel :isLeft="true" :sections="marginaliaSections.filter(({ isLeft }) => isLeft)"
-    ref="marginaliaPanelLeft" />
-  <div class="os-article-viewer" v-bind="$attrs" :style="{ 'font-size': `${fontSize}%` }" ref="container"></div>
-  <marginalia-panel :isLeft="false" :sections="marginaliaSections.filter(({ isLeft }) => !isLeft)"
-    ref="marginaliaPanelRight" />
+  <marginalia-panel
+    :isLeft="true"
+    :sections="marginaliaSections.filter(({ isLeft }) => isLeft)"
+    ref="marginaliaPanelLeft"
+  />
+  <div
+    class="os-article-viewer"
+    v-bind="$attrs"
+    :style="{ 'font-size': `${fontSize}%` }"
+    ref="container"
+  ></div>
+  <marginalia-panel
+    :isLeft="false"
+    :sections="marginaliaSections.filter(({ isLeft }) => !isLeft)"
+    ref="marginaliaPanelRight"
+  />
 </template>
 
 <script lang="ts">
 import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
-import initViewer, { Rect, Viewer, type TiledImage } from 'openseadragon'
-import { defineComponent, ref, type PropType } from 'vue'
+import {
+  createOpenSeadragon,
+  Rect,
+  Viewer,
+  TiledImage,
+  getAuthOptions,
+  isAuthRequired
+} from '@/services/openseadragon'
+import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
 interface Region {
-  articleUid: string,
-  pageUid: string,
-  coords: { x: number, y: number, w: number, h: number }
+  articleUid: string
+  pageUid: string
+  coords: { x: number; y: number; w: number; h: number }
 }
 
 function createPageOverlay(tiledImage: TiledImage) {
@@ -28,7 +46,7 @@ function createRegionOverlay(
   tiledImage: TiledImage,
   region: Region,
   clickHandler: (articleUid: string) => void
-): { overlay: any, rect: Rect } {
+): { overlay: any; rect: Rect } {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
   overlay.dataset.articleUid = region.articleUid
@@ -72,7 +90,7 @@ function createRegionOverlay(
     region.coords.x,
     region.coords.y,
     region.coords.w,
-    region.coords.h,
+    region.coords.h
   )
 
   return { overlay, rect }
@@ -90,19 +108,19 @@ const DefaultZoomLevel = 0.0008
 const MaxFontSizePc = 100
 
 interface MarginaliaSection {
-  title: string,
-  items: string[],
+  title: string
+  items: string[]
   isLeft: boolean
 }
 
 interface Data {
-  viewer?: Viewer,
-  currentPageIndex: number,
-  tilesAreReady: boolean,
-  pagesAreOpen: boolean,
-  currentOverlays: HTMLDivElement[],
-  isDragging: boolean,
-  currentZoomLevel: number,
+  viewer?: Viewer
+  currentPageIndex: number
+  tilesAreReady: boolean
+  pagesAreOpen: boolean
+  currentOverlays: HTMLDivElement[]
+  isDragging: boolean
+  currentZoomLevel: number
 }
 
 export default defineComponent({
@@ -113,35 +131,40 @@ export default defineComponent({
     currentOverlays: [],
     isDragging: false,
     currentZoomLevel: DefaultZoomLevel,
-    pagesAreOpen: false,
+    pagesAreOpen: false
   }),
   setup() {
     const container = ref<HTMLElement | undefined>()
-    const marginaliaPanelLeft = ref<typeof MarginaliaPanel | undefined>()
-    const marginaliaPanelRight = ref<typeof MarginaliaPanel | undefined>()
+    const marginaliaPanelLeft = ref<ComponentPublicInstance | undefined>()
+    const marginaliaPanelRight = ref<ComponentPublicInstance | undefined>()
     return {
       container,
       marginaliaPanelLeft,
-      marginaliaPanelRight,
+      marginaliaPanelRight
     }
   },
   props: {
     pages: {
+      /**
+       * Array of page URLs.
+       */
       type: Array as PropType<string[]>,
+      default: () => [],
+      required: true
     },
     defaultCurrentPageIndex: {
       type: Number,
-      default: 0,
+      default: 0
     },
     article: Object,
     regions: {
       type: Array as PropType<Region[]>,
-      default: () => [],
+      default: () => []
     },
     marginaliaSections: {
       type: Array as PropType<MarginaliaSection[]>,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   emits: ['page-changed', 'article-selected'],
   methods: {
@@ -150,20 +173,20 @@ export default defineComponent({
 
       if (this.viewer != null) return this.viewer
 
-      this.viewer = initViewer({
+      this.viewer = createOpenSeadragon({
         element: this.container,
         immediateRender: true,
         showNavigationControl: false,
         // animationTime: 0,
         gestureSettingsMouse: {
           clickToZoom: false,
-          dblClickToZoom: true,
+          dblClickToZoom: true
         },
         defaultZoomLevel: DefaultZoomLevel,
         collectionMode: true,
         collectionRows: 1,
         // collectionTileSize:   512,
-        collectionTileMargin: 16,
+        collectionTileMargin: 16
         // debugMode: true
       })
 
@@ -178,7 +201,7 @@ export default defineComponent({
         if (currentX < firstItemX) currentX = firstItemX
 
         const itemsBounds = [...Array(viewer.world.getItemCount()).keys()].map(i =>
-          viewer.world.getItemAt(i).getBounds(),
+          viewer.world.getItemAt(i).getBounds()
         )
         const currentItemIndex = itemsBounds.findIndex((item, index, bounds) => {
           if (index + 1 >= bounds.length) return true
@@ -188,8 +211,8 @@ export default defineComponent({
 
           const leftBoundary = previousItem
             ? previousItem.x +
-            previousItem.width +
-            (item.x - (previousItem.x + previousItem.width)) / 2
+              previousItem.width +
+              (item.x - (previousItem.x + previousItem.width)) / 2
             : item.x
           const rightBoundary = item.x + item.width + (nextItem.x - (item.x + item.width)) / 2
 
@@ -231,7 +254,7 @@ export default defineComponent({
 
       //   }, 0)
       // })
-    },
+    }
   },
   mounted() {
     this.currentPageIndex = this.defaultCurrentPageIndex
@@ -245,14 +268,14 @@ export default defineComponent({
       return {
         regions: this.regions,
         article: this.article,
-        pagesAreOpen: this.pagesAreOpen,
+        pagesAreOpen: this.pagesAreOpen
       }
     },
     /** @returns {number} */
     fontSize() {
       const newFontSize = ((this.currentZoomLevel * 0.7) / DefaultZoomLevel) * MaxFontSizePc
       return newFontSize > MaxFontSizePc ? MaxFontSizePc : newFontSize
-    },
+    }
   },
   watch: {
     pages: {
@@ -266,11 +289,15 @@ export default defineComponent({
           viewer.viewport.zoomTo(DefaultZoomLevel)
           this.tilesAreReady = true
         })
-
-        viewer.open(pages)
+        viewer.open(
+          pages.map(page => ({
+            tileSource: page,
+            ...(isAuthRequired(page) ? getAuthOptions() : {})
+          }))
+        )
       },
       immediate: true,
-      deep: true,
+      deep: true
     },
     defaultCurrentPageIndex: {
       handler(idx: number) {
@@ -279,10 +306,18 @@ export default defineComponent({
           this.viewer.viewport.zoomTo(DefaultZoomLevel)
         }
       },
-      immediate: true,
+      immediate: true
     },
     readyData: {
-      async handler({ regions, article, pagesAreOpen }: { regions: Region[], article: { uid: string }, pagesAreOpen: boolean }) {
+      async handler({
+        regions,
+        article,
+        pagesAreOpen
+      }: {
+        regions: Region[]
+        article: { uid: string }
+        pagesAreOpen: boolean
+      }) {
         if (!pagesAreOpen) return
 
         // await new Promise(resolve => setTimeout(resolve, 1000))
@@ -319,14 +354,17 @@ export default defineComponent({
         viewer.addOverlay(this.marginaliaPanelLeft.$el, getMarginaliaOverlayRect(tiledImage, false))
 
         viewer.removeOverlay(this.marginaliaPanelRight?.$el)
-        viewer.addOverlay(this.marginaliaPanelRight?.$el, getMarginaliaOverlayRect(tiledImage, true))
+        viewer.addOverlay(
+          this.marginaliaPanelRight?.$el,
+          getMarginaliaOverlayRect(tiledImage, true)
+        )
       },
       immediate: true,
-      deep: true,
-    },
+      deep: true
+    }
   },
   components: {
-    MarginaliaPanel,
+    MarginaliaPanel
   }
 })
 </script>
@@ -345,7 +383,6 @@ div.overlay-page {
   pointer-events: none;
 }
 
-
 .overlay-region {
   background-color: transparentize($clr-accent-secondary, 1);
   transition: background-color 300ms;
@@ -359,7 +396,6 @@ div.overlay-page {
     cursor: inherit;
   }
 }
-
 
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {

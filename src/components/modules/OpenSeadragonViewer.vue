@@ -2,126 +2,121 @@
   <div class="os-viewer"></div>
 </template>
 
-<script>
-import OpenSeadragon from 'openseadragon';
-import { getAuthenticationBearer } from '@/services';
+<script lang="ts">
+import { createOpenSeadragon } from '@/services/openseadragon'
+
+interface InitEvent {
+  tileSources?: string[]
+  [key: string]: any
+}
+
+interface ICoords {
+  x: number
+  y: number
+  w: number
+  h: number
+}
 
 export default {
   props: {
     handler: {
       required: true,
-      type: Object,
-    },
+      type: Object
+    }
   },
   data: () => ({
     viewer: null,
-    overlays: [],
+    overlays: []
   }),
-  computed: {
-    authenticationOptions() {
-      const token = getAuthenticationBearer()
-      return typeof token === 'string' && token.length
-        ? {
-          loadTilesWithAjax: true,
-          ajaxHeaders: {
-            Authorization: 'Bearer ' + token
-          }
-        }
-        : null
-    }
-  },
   mounted() {
     if (this.handler) {
-      this.handler.on('init', ({ tileSources=[], ...options} = {}) => {
+      this.handler.on('init', ({ tileSources = [], ...options }: InitEvent = {}) => {
         if (this.viewer) return
-        // add authentication options only if striclty necessary;
-        // that is, if tileSources contains `import.meta.env.VITE_BASE_URL`
-        // e.g. VITE_BASE_URL=https://impresso-project.ch/
-        const localAuthenticationOptions = tileSources.some(d => d.indexOf(import.meta.env.VITE_BASE_URL) === 0)
-          ? this.authenticationOptions
-          : null
 
-        this.viewer = OpenSeadragon({
+        this.viewer = createOpenSeadragon({
           immediateRender: true,
           element: this.$el,
           showNavigationControl: false,
           animationTime: 0,
           defaultZoomLevel: 1,
           tileSources,
-          ...options,
-          ...localAuthenticationOptions
-        });
+          ...options
+        })
 
         this.viewer.addOnceHandler('tile-loaded', () => {
-          this.handler.emit('tile-loaded', this.$el);
-        });
-      });
+          this.handler.emit('tile-loaded', this.$el)
+        })
+      })
 
-      this.handler.on('dispatch', (cb) => {
+      this.handler.on('dispatch', cb => {
         if (cb && this.viewer) {
-          cb.call(null, this.viewer);
+          cb.call(null, this.viewer)
         }
-      });
+      })
 
       this.handler.on('destroy', () => {
-        this.destroy();
-      });
+        this.destroy()
+      })
 
-      this.handler.on('fit-bounds', (options) => {
+      this.handler.on('fit-bounds', options => {
         const rect = this.viewer.viewport.imageToViewportRectangle(
           options.x,
           options.y,
           options.w,
-          options.h);
-        this.viewer.viewport.fitBounds(rect, true);
-      });
+          options.h
+        )
+        this.viewer.viewport.fitBounds(rect, true)
+      })
 
       this.handler.on('fit-bounds-to-overlays', () => {
         if (this.overlays.length) {
-          let rect = this.overlays.pop();
+          let rect = this.overlays.pop()
 
-          this.overlays.forEach((region) => {
-            rect = rect.union(region);
-          });
+          this.overlays.forEach(region => {
+            rect = rect.union(region)
+          })
 
-          this.viewer.viewport.fitBounds(rect, true);
+          this.viewer.viewport.fitBounds(rect, true)
         }
-      });
+      })
 
-      this.handler.on('add-overlay', (options = {}) => {
+      this.handler.on(
+        'add-overlay',
+        (options: ICoords & { class?: string } = { x: 0, y: 0, h: 0, w: 0 }) => {
+          const rect = this.viewer.viewport.imageToViewportRectangle(
+            options.x,
+            options.y,
+            options.w,
+            options.h
+          )
 
-        const rect = this.viewer.viewport.imageToViewportRectangle(
-          options.x,
-          options.y,
-          options.w,
-          options.h);
+          this.overlays.push(rect)
 
-        this.overlays.push(rect);
+          const overlay = window.document.createElement('div')
+          overlay.setAttribute('class', 'overlay')
 
-        const overlay = window.document.createElement('div');
-        overlay.setAttribute('class', 'overlay');
+          if (options.class !== undefined) {
+            overlay.setAttribute('class', options.class)
+          }
 
-        if (options.class !== undefined) {
-          overlay.setAttribute('class', options.class);
+          this.viewer.addOverlay(overlay, rect)
         }
-
-        this.viewer.addOverlay(overlay, rect);
-      });
+      )
     }
   },
   methods: {
     destroy() {
-      this.overlays = [];
+      this.overlays = []
 
       if (this.viewer) {
-        this.viewer = this.viewer.destroy();
+        this.viewer = this.viewer.destroy()
       }
-    },
+    }
   },
   beforeUnmount() {
-    this.destroy();
-  },
-};
+    this.destroy()
+  }
+}
 </script>
 
 <style lang="less">

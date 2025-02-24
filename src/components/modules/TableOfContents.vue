@@ -6,11 +6,14 @@
         class="media article flatten"
         v-for="(art, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{active: art.uid === selectedArticleUid}"
-        v-on:click.stop.prevent="onClick(art, art.pages[0])">
+        v-bind:class="{ active: art.uid === selectedArticleUid }"
+        v-on:click.stop.prevent="onClick(art, art.pages[0])"
+      >
         <div class="media-body">
-          <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3" :headers="headers"/>
-          <article-item :item="art" class="mx-3 py-3 border-bottom clearfix"
+          <image-item :item="article" v-if="art.type === 'image'" class="my-2 ml-3" />
+          <article-item
+            :item="art"
+            class="mx-3 py-3 border-bottom clearfix"
             show-excerpt
             show-entities
             show-size
@@ -23,29 +26,36 @@
     </div>
 
     <div v-else>
-      <div v-for="(pag, index) in tableOfContents.pages"
-           v-bind:key="index"
-           class="mb-2 pb-1px page "
-           v-bind:class="{activepage: pag.uid === selectedPageUid}">
-        <div class="d-block text-bold pagenumber"
-        :ref="`page-${pag.uid}`" :data-id='pag.uid'>
-          <div class="p-1 text-white rounded ml-3 border-bottom TableOfContents_page"><b>{{$t('page')}} {{pag.num}}</b></div>
+      <div
+        v-for="(pag, index) in tableOfContents.pages"
+        v-bind:key="index"
+        class="mb-2 pb-1px page"
+        v-bind:class="{ activepage: pag.uid === selectedPageUid }"
+      >
+        <div class="d-block text-bold pagenumber" :ref="`page-${pag.uid}`" :data-id="pag.uid">
+          <div class="p-1 text-white rounded ml-3 border-bottom TableOfContents_page">
+            <b>{{ $t('page') }} {{ pag.num }}</b>
+          </div>
           <div
             :ref="`article-${art.uid}`"
             class="media article border-bottom"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
-            v-bind:class="{activepage: pag.uid === selectedPageUid, active: art.uid === selectedArticleUid}"
-            v-on:click.stop.prevent="onClick(art, pag)">
+            v-bind:class="{
+              activepage: pag.uid === selectedPageUid,
+              active: art.uid === selectedArticleUid
+            }"
+            v-on:click.stop.prevent="onClick(art, pag)"
+          >
             <div class="media-body">
               <image-item
                 :height="200"
                 :item="article"
                 v-if="art.type === 'image'"
                 class="my-2 ml-3"
-                :headers="headers"
-                />
-              <article-item :item="art"
+              />
+              <article-item
+                :item="art"
                 show-excerpt
                 show-entities
                 show-size
@@ -55,17 +65,15 @@
               />
               <div v-if="isLoggedIn">
                 <div v-bind:key="i" v-for="(image, i) in art.images">
-                  <image-item
-                    class="mx-3 mb-2"
-                    :item="image"
-                    :headers="headers"
-                  />
+                  <image-item class="mx-3 mb-2" :item="image" />
                   <div class="text-right mr-3 mb-2">
-                  <router-link class="btn btn-outline-secondary btn-sm "
-                    :to="getSimilarImagesHref(image)">
-                    get similar images
-                  </router-link>
-                </div>
+                    <router-link
+                      class="btn btn-outline-secondary btn-sm"
+                      :to="getSimilarImagesHref(image)"
+                    >
+                      get similar images
+                    </router-link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -79,11 +87,10 @@
 
 <script>
 import { mapStores } from 'pinia'
-import ArticleItem from './lists/ArticleItem.vue';
-import ImageItem from './lists/ImageItem.vue';
+import ArticleItem from './lists/ArticleItem.vue'
+import ImageItem from './lists/ImageItem.vue'
 
-import CopyToClipboard from '../modals/CopyToClipboard.vue';
-import { getAuthenticationBearer } from '@/services';
+import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 
@@ -93,76 +100,79 @@ export default {
     retryTimer: 0,
     selectedArticleUid: '',
     selectedPageUid: '',
-    showModalShare: false,
-    headers: null,
+    showModalShare: false
   }),
   props: {
     articles: {
-      type: Array,
+      type: Array
     },
     flatten: {
-      type: Boolean,
+      type: Boolean
     },
     tableOfContents: {
       type: Object,
-      required: true,
+      required: true
     },
     page: {
-      type: Object,
+      type: Object
     },
     article: {
       type: Object
-    },
+    }
   },
   components: {
     ArticleItem,
     ImageItem,
-    CopyToClipboard,
+    CopyToClipboard
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
     isLoggedIn() {
       return this.userStore.userData
-    },
+    }
   },
   methods: {
     orderedTopics(topics) {
-      return topics.sort((a, b) => b.relevance - a.relevance);
+      return topics.sort((a, b) => b.relevance - a.relevance)
     },
     onClick(article, page) {
-      this.selectedArticleUid = article.uid;
+      this.selectedArticleUid = article.uid
       this.$emit('click', {
         article,
-        page,
-      });
+        page
+      })
     },
     scrollToActivePage() {
       const elementsList = this.$refs[`page-${this.selectedPageUid}`]
       const elm = elementsList ? elementsList[0] : undefined
 
       if (!elm) {
-        console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`);
-        clearTimeout(this.retryTimer);
-        this.retryTimer = setTimeout(this.scrollToActivePage, 500);
+        console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`)
+        clearTimeout(this.retryTimer)
+        this.retryTimer = setTimeout(this.scrollToActivePage, 500)
       } else {
-        const parent = this.$refs.TableOfContents.parentNode;
-        const elmRelativeTop = elm.offsetTop - parent.offsetTop;
-        parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
+        const parent = this.$refs.TableOfContents.parentNode
+        const elmRelativeTop = elm.offsetTop - parent.offsetTop
+        parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' })
       }
     },
     scrollToActiveArticle() {
       if (!this.$refs[`article-${this.selectedArticleUid}`]) {
-        console.warn(`Cannot scrollToActiveArticle: ${this.selectedArticleUid} not ready or not found;`);
-        clearTimeout(this.retryTimer);
-        this.retryTimer = setTimeout(this.scrollToActiveArticle, 500);
+        console.warn(
+          `Cannot scrollToActiveArticle: ${this.selectedArticleUid} not ready or not found;`
+        )
+        clearTimeout(this.retryTimer)
+        this.retryTimer = setTimeout(this.scrollToActiveArticle, 500)
       } else {
-        const elm = this.$refs[`article-${this.selectedArticleUid}`][0];
-        const parent = this.$refs.TableOfContents.parentNode;
-        const elmRelativeTop = elm.offsetTop - parent.offsetTop;
-        if (parent.scrollTop > elmRelativeTop ||
-          (elm.offsetTop + elm.offsetHeight) - parent.scrollTop >
-          parent.offsetTop + parent.offsetHeight) {
-          parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' });
+        const elm = this.$refs[`article-${this.selectedArticleUid}`][0]
+        const parent = this.$refs.TableOfContents.parentNode
+        const elmRelativeTop = elm.offsetTop - parent.offsetTop
+        if (
+          parent.scrollTop > elmRelativeTop ||
+          elm.offsetTop + elm.offsetHeight - parent.scrollTop >
+            parent.offsetTop + parent.offsetHeight
+        ) {
+          parent.scrollTo({ top: elmRelativeTop - 1, behavior: 'smooth' })
         }
       }
       // if (this.article) {
@@ -181,22 +191,24 @@ export default {
       // }
     },
     onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => (c.uid === collection.uid));
+      const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
-        this.collectionsStore.removeCollectionItem({
-          collection,
-          item,
-        }).then(() => {
-          item.collections.splice(idx, 1);
-          this.$forceUpdate();
-        });
+        this.collectionsStore
+          .removeCollectionItem({
+            collection,
+            item
+          })
+          .then(() => {
+            item.collections.splice(idx, 1)
+            this.$forceUpdate()
+          })
       }
     },
     showModalShareArticle() {
-      this.showModalShare = true;
+      this.showModalShare = true
     },
     hideModalShareArticle() {
-      this.showModalShare = false;
+      this.showModalShare = false
     },
     getSimilarImagesHref(image) {
       return `/search/images?p=1&similarTo=${image.uid}`
@@ -207,32 +219,27 @@ export default {
       immediate: true,
       handler({ name, params }) {
         if (name === 'article') {
-          this.selectedArticleUid = params.article_uid;
-          this.scrollToActiveArticle();
+          this.selectedArticleUid = params.article_uid
+          this.scrollToActiveArticle()
         } else if (name === 'page') {
-          console.info(params);
-          this.selectedPageUid = params.page_uid;
-          this.scrollToActivePage();
+          console.info(params)
+          this.selectedPageUid = params.page_uid
+          this.scrollToActivePage()
         }
-      },
-    },
-  },
-  mounted() {
-    this.headers = {
-      Authorization: 'Bearer ' + getAuthenticationBearer() ?? ''
+      }
     }
   },
   beforeUnmount() {
-    clearTimeout(this.retryTimer);
-  },
-};
+    clearTimeout(this.retryTimer)
+  }
+}
 </script>
 
 <style lang="scss">
 @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-.toc{
+.toc {
   margin-left: 1px;
-  .article{
+  .article {
     transition: all 0.2s ease-in-out;
     cursor: pointer;
 
@@ -247,17 +254,17 @@ export default {
       box-shadow: inset 1px 0 $clr-primary;
     }
     &.active {
-      box-shadow: inset .25em 0 $clr-accent-secondary;
+      box-shadow: inset 0.25em 0 $clr-accent-secondary;
       background-color: $clr-bg-secondary;
       cursor: inherit;
     }
   }
 
-  .TableOfContents_page{
+  .TableOfContents_page {
     position: sticky;
     top: 10px;
     background: var(--dark);
-    z-index:2;
+    z-index: 2;
     display: inline-block;
   }
 }

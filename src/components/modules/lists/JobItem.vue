@@ -75,10 +75,10 @@
 /**
  * Model value is used to control the visibility of the panel.
  */
-
+import { getAuthHeaders } from '@/util/auth'
 import Job from '@/models/Job'
 import Icon from '@/components/base/Icon.vue'
-import { MIDDLELAYER_MEDIA_URL, getAuthenticationBearer, jobs as jobsService } from '@/services'
+import { MIDDLELAYER_MEDIA_URL, getAuthenticationToken, jobs as jobsService } from '@/services'
 import { computed } from 'vue'
 import router from '@/router'
 import type { PropType } from 'vue'
@@ -117,8 +117,7 @@ const onExport = () => {
   const today = new Date().toISOString().split('T').shift()
   const anchor = document.createElement('a')
   document.body.appendChild(anchor)
-  const headers = new Headers()
-  headers.append('Authorization', `Bearer ${getAuthenticationBearer()}`)
+  const headers = new Headers(getAuthHeaders(getAuthenticationToken()))
   fetch(`${MIDDLELAYER_MEDIA_URL}/jobs/${props.item.id}`, { headers })
     .then(res => res.blob())
     .then(blobby => {

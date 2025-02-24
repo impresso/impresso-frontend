@@ -60,7 +60,7 @@ import UserChangePlanRequestLabel from './UserChangePlanRequestLabel.vue'
 import { computed, ref } from 'vue'
 import Modal from './base/Modal.vue'
 import Alert from './Alert.vue'
-import type { UserChangePlanRequest } from '@/services/types'
+import type { UserChangePlanRequest } from '@/services/types/index'
 import LoadingBlock from './LoadingBlock.vue'
 
 const selectedPlan = ref<string>('')

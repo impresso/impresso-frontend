@@ -1,6 +1,6 @@
 <template>
   <div class="IssueItem card">
-    <img class="card-img-top" :src="computedIIIFFrontPageSrc" alt="Card image cap" />
+    <auth-img class="card-img-top" :src="computedIIIFFrontPageSrc" alt="Card image cap" />
     <div class="card-body">
       <router-link :to="routerLinkUrl">
         <span>{{ $d(new Date(item.date), 'long') }}</span>
@@ -10,18 +10,17 @@
 </template>
 
 <script>
-import LazyObserver from '@/components/LazyObserver.vue'
-
+import AuthImg from '@/components/AuthImg.vue'
 export default {
   props: {
     item: {
       type: Object,
-      required: true,
+      required: true
     },
     size: {
       type: Number,
-      default: 400,
-    },
+      default: 400
+    }
   },
   computed: {
     computedIIIFFrontPageSrc() {
@@ -31,15 +30,18 @@ export default {
       return {
         name: 'issue-viewer',
         params: {
-          issue_uid: this.item.uid,
+          issue_uid: this.item.uid
         },
         query: {
           ...this.$route.query,
-          p: this.item.frontPage.num,
-        },
+          p: this.item.frontPage.num
+        }
       }
-    },
+    }
   },
+  components: {
+    AuthImg
+  }
 }
 </script>
 
