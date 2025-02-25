@@ -200,7 +200,7 @@ const bitmap = computed(() => {
 
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
-const user = computed(() => !!userStore.userData)
+const isLoggedIn = computed(() => !!userStore.userData)
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
@@ -303,6 +303,17 @@ watch(
   }
 )
 
+watch(
+  () => isLoggedIn.value,
+  async () => {
+    console.debug('[Modals] @watch isLoggedIn.value is logged in:', isLoggedIn.value)
+    if (isLoggedIn.value) {
+      isLoading.value = true
+      await fetchAcceptTermsDate()
+      isLoading.value = false
+    }
+  }
+)
 /**
  * Fetches the plans content from a JSON URL specified in the environment variables.
  *
@@ -354,9 +365,8 @@ const fetchCorpusOverview = async (): Promise<void> => {
  * @returns {Promise<void>}
  */
 const fetchAcceptTermsDate = async (): Promise<void> => {
-  console.debug('[Modals:fetchAcceptTermsDate] is user:', user.value)
-
-  if (!user.value) {
+  console.debug('[Modals] fetchAcceptTermsDate is user logged in:', isLoggedIn.value)
+  if (!isLoggedIn.value) {
     return
   }
   return termsOfUseService
@@ -368,6 +378,9 @@ const fetchAcceptTermsDate = async (): Promise<void> => {
         data.dateAcceptedTerms ? new Date(data.dateAcceptedTerms).toISOString() : null
       )
       userStore.setBitmap(data.bitmap)
+      if (!data.dateAcceptedTerms) {
+        store.view = ViewTermsOfUse
+      }
     })
     .catch((err: FeathersError) => {
       console.error(
@@ -381,7 +394,7 @@ const fetchAcceptTermsDate = async (): Promise<void> => {
 }
 
 const patchAcceptTermsDate = async () => {
-  if (!user.value) {
+  if (!isLoggedIn.value) {
     console.debug('[Modals] patchAcceptTermsDate not authenticated')
     userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
     return
@@ -412,7 +425,7 @@ const fetchUserPlanChangeRequest = async () => {
    * @returns {Promise<void>}
    */
   // load current status
-  if (!user.value) {
+  if (!isLoggedIn.value) {
     return
   }
   userChangePlanRequestResponse.value = { data: null, status: 'loading' }
@@ -451,7 +464,7 @@ const patchCurrentPlanChangeRequest = async ({ plan }) => {
 const fetchUserRequest = async () => {
   console.debug('[Modals] fetchUserRequest')
   // load current status
-  if (!user.value) {
+  if (!isLoggedIn.value) {
     return
   }
   userRequestResponse.value = { data: [], status: 'loading' }
@@ -472,7 +485,7 @@ const fetchUserRequest = async () => {
 const fetchSubscriptionDatasets = async () => {
   console.debug('[Modals] fetchSubscriptionDatasets')
   // load current status
-  if (!user.value) {
+  if (!isLoggedIn.value) {
     return
   }
   subscriptionDatasetResponse.value = { data: [], status: 'loading' }
