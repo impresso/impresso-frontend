@@ -1,8 +1,8 @@
 import { ClientService } from '@feathersjs/feathers'
 import { Filter, FindResponse, IImage as Image } from '../../models/index.d'
 
-const OrderByParams = ['date', '-date']
-type OrderByParam = keyof typeof OrderByParams
+type OrderByParam = 'date' | '-date'
+const OrderByParams = ['date', '-date'] satisfies OrderByParam[]
 export const OrderByChoices: OrderByParam[] = Object.keys(OrderByParams) as OrderByParam[]
 
 export interface FindQuery {
