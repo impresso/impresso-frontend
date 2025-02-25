@@ -1,5 +1,6 @@
 import type { ServiceMethods } from '@feathersjs/feathers'
 import { ImageService } from './images'
+import { EmbeddingsService } from './embeddings'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -13,7 +14,7 @@ interface ErrorsCollectorPayload {
 export interface ErrorsCollectorService
   extends Pick<ServiceMethods<{}, ErrorsCollectorPayload>, 'create'> {}
 
-type UntypedService = Partial<ServiceMethods<any, any>>
+type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
 interface UntypedServices {
   [key: string]: UntypedService
@@ -22,6 +23,7 @@ interface UntypedServices {
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
   images: ImageService
+  embeddings: EmbeddingsService
 }
 
 export interface Group {
