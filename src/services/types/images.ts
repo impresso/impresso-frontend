@@ -15,6 +15,6 @@ export interface FindQuery {
 }
 
 export type ImageService = Pick<
-  ClientService<Image, unknown, unknown, FindResponse<Image>>,
+  ClientService<Image, unknown, unknown, FindResponse<Image>, { query: FindQuery }>,
   'find' | 'get'
 >
