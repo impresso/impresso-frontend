@@ -44,7 +44,7 @@
         v-for="(word, i) in words"
         :key="i"
         @click.prevent.stop="updateFilter(word.word)"
-        :title="$t('filter.add', { word })"
+        :title="$t('filter.add', { word: word.word })"
         class="mr-2 mt-2 border px-2 d-inline-block"
       >
         {{ word.word }}
