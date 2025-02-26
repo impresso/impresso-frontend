@@ -40,3 +40,14 @@ export const Views: string[] = [
   ViewPlans,
   ViewCorpusOverview
 ]
+
+const FeedbackOptionContentItemMetadataIssue = 'ContentItemMetadataIssue'
+const FeedbackOptionLayoutSegmentationIssue = 'LayoutSegmentationIssue'
+const FeedbackOptionDocumentLoadingIssue = 'DocumentLoadingIssue'
+const FeedbackOptionOtherIssue = 'OtherIssue'
+export const AvailableFeedbackOptions = [
+  FeedbackOptionContentItemMetadataIssue,
+  FeedbackOptionLayoutSegmentationIssue,
+  FeedbackOptionDocumentLoadingIssue,
+  FeedbackOptionOtherIssue
+]

@@ -8,10 +8,8 @@
     @confirm="confirm"
     hideBackdrop
   >
-    {{ userData }}
     <LoadingBlock :height="100" v-if="isLoading" label="please wait ...."> </LoadingBlock>
-    <FeedbackForm v-if="!isLoading" />
-
+    <FeedbackForm v-if="!isLoading" class="mt-2" />
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>
@@ -21,11 +19,7 @@
 import { useUserStore } from '@/stores/user'
 import Modal from './base/Modal.vue'
 import LoadingBlock from './LoadingBlock.vue'
-import { computed } from 'vue'
-
 import FeedbackForm from './FeedbackForm.vue'
-const userStore = useUserStore()
-const userData = computed(() => userStore.userData)
 
 const props = withDefaults(
   defineProps<{

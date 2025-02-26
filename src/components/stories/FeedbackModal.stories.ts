@@ -28,6 +28,6 @@ export const Default: Story = {
   args: {
     isVisible: true,
     isLoading: true,
-    title: 'Feedback'
+    title: 'Help us improve Impresso'
   }
 }
