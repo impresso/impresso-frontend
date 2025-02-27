@@ -9,12 +9,13 @@
     hideBackdrop
   >
     <LoadingBlock :height="100" v-if="isLoading" label="please wait ...."> </LoadingBlock>
-    <div v-if="errorMessages.length">
+    <div v-if="!feedbackFormError && errorMessages.length">
       <h3 class="form-label font-size-inherit font-weight-bold mb-3">
         Errors that will be reported
       </h3>
       <ul>
         <li v-for="(d, index) in errorMessages" :key="index">
+          {{ d }}
           <b>{{ d.message }}</b
           ><br />id: {{ d.id }} <br />code: {{ d.code }}
           {{ d.route }}

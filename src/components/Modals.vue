@@ -147,6 +147,7 @@
       @dismiss="() => resetView()"
       @submit="createFeedback"
       :errorMessages="errorMessages"
+      :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
   </div>
 </template>
@@ -180,7 +181,7 @@ import {
   subscriptionDatasets as subscriptionDatasetsService,
   feedback as feedbackService
 } from '@/services'
-import type { FeathersError } from '@feathersjs/errors'
+import { BadRequest, type FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
 import { AvailablePlans, PlanLabels } from '@/constants'
 import TermsOfUseStatus from './TermsOfUseStatus.vue'
@@ -214,7 +215,12 @@ const bitmap = computed(() => {
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
 const isLoggedIn = computed(() => !!userStore.userData)
-const errorMessages = computed(() => notificationsStore.errorMessages)
+const errorMessages = computed(() => {
+  if (feedbackCollectorResponse.value.status === 'error') {
+    return [new BadRequest('Error', feedbackCollectorResponse.value.data)]
+  }
+  return notificationsStore.errorMessages
+})
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
@@ -222,6 +228,14 @@ const acceptTermsDate = computed(() => userStore.acceptTermsDate)
 
 const userChangePlanRequestResponse = ref<{
   data: UserChangePlanRequest | null
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: null
+})
+
+const feedbackCollectorResponse = ref<{
+  data: any
   status: 'idle' | 'loading' | 'success' | 'error'
 }>({
   status: 'idle',
@@ -477,15 +491,19 @@ const patchCurrentPlanChangeRequest = async ({ plan }) => {
 
 const createFeedback = async (payload: FeedbackFormPayload) => {
   console.debug('[FeedbackModal] @createFeedback', payload)
+  feedbackCollectorResponse.value = { data: null, status: 'loading' }
   await feedbackService
-    .create(payload)
+    .create(payload, {
+      ignoreErrors: true
+    })
     .then(data => {
       console.info('[FeedbackModal] Feedback sent successfully. data:', data)
       store.view = null
+      feedbackCollectorResponse.value = { data, status: 'success' }
     })
     .catch((err: FeathersError) => {
       console.error('[FeedbackModal] create', err.message, err.data)
-      throw err
+      feedbackCollectorResponse.value = { data: err.data, status: 'error' }
     })
 }
 

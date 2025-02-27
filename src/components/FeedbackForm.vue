@@ -10,15 +10,15 @@
         :key="availableIssue"
         :class="[
           'border rounded-md shadow-sm d-block py-2 pr-3 pl-2 d-flex ',
-          { active: selectedIssue === availableIssue }
+          { active: form.issue === availableIssue }
         ]"
       >
         <input
           type="radio"
           :name="'plan'"
           :id="`feedback-form-${uniqueId}-${i}`"
-          :checked="selectedIssue === availableIssue"
-          @change="selectedIssue = availableIssue"
+          :checked="form.issue === availableIssue"
+          @change="form.issue = availableIssue"
         />
         <div class="ml-2">
           {{ $t('label_' + availableIssue) }}
@@ -30,15 +30,23 @@
     }}</label>
     <p class="text-muted small">{{ $t('label_additional_details_hint') }}</p>
     <textarea
-      class="form-control shadow-sm rounded-sm border border-dark"
+      class="form-control shadow-sm rounded-sm border"
       :id="uniqueId"
-      v-model="feedbackContent"
+      v-model="form.content"
       rows="3"
+      :class="{
+        'is-invalid': v$.content.$error,
+        'border-danger': v$.content.$error,
+        'border-success': !v$.content.$error
+      }"
     >
     </textarea>
+    <span v-if="v$.content.$error" class="text-danger">
+      {{ $t('label_max_length_exceeded') }}
+    </span>
     <button
       type="submit"
-      :disabled="!selectedIssue"
+      :disabled="!form.issue"
       class="btn btn-outline-secondary btn-md px-4 rounded-sm border border-dark btn-block my-3"
     >
       <Icon name="sendMail" />
@@ -48,13 +56,13 @@
 </template>
 <script setup lang="ts">
 import type { FeathersError } from '@feathersjs/errors'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Icon from './base/Icon.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import { AvailableFeedbackOptions } from '@/constants'
+import useVuelidate from '@vuelidate/core'
+import { maxLength, minLength } from '@vuelidate/validators'
 
-const feedbackContent = ref<string>('')
-const selectedIssue = ref<string>('')
 const uniqueId = ref<string>('feedbackform-' + Math.random().toString(36).substring(7))
 
 export interface FeedbackFormProps {
@@ -62,10 +70,23 @@ export interface FeedbackFormProps {
   availableFeedbackOptions?: typeof AvailableFeedbackOptions
   error?: FeathersError | null
 }
+
 export interface FeedbackFormPayload {
   issue: string
   content: string
 }
+
+const form = ref<FeedbackFormPayload>({
+  issue: '',
+  content: ''
+})
+// Validation rules
+const rules = computed(() => ({
+  issue: { required: true, minLength: minLength(1) },
+  content: { maxLength: maxLength(500) }
+}))
+// Use Vuelidate
+const v$ = useVuelidate(rules, form)
 
 const props = withDefaults(defineProps<FeedbackFormProps>(), {
   className: '',
@@ -77,9 +98,13 @@ const emits = defineEmits(['submit'])
 
 const handleOnSubmit = (event: Event) => {
   event.preventDefault()
+  v$.value.$validate() // Trigger validation
+  if (v$.value.$error) {
+    return
+  }
   emits('submit', {
-    issue: selectedIssue.value,
-    content: feedbackContent.value
+    issue: form.value.issue,
+    content: form.value.content
   } as FeedbackFormPayload)
 }
 </script>
@@ -92,7 +117,8 @@ const handleOnSubmit = (event: Event) => {
     "label_OtherIssue": "Other issue",
     "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details (optional)",
-    "label_additional_details_hint": "(Provide any extra information that might help us understand the issue better.)"
+    "label_additional_details_hint": "(Provide any extra information that might help us understand the issue better.)",
+    "label_max_length_exceeded": "The content exceeds the maximum length of 500 characters."
   }
 }
 </i18n>
