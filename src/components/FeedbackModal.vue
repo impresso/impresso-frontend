@@ -15,7 +15,8 @@
       </h3>
       <ul>
         <li v-for="(d, index) in errorMessages" :key="index">
-          <b>{{ d.message }}</b> {{ d.id }}
+          <b>{{ d.message }}</b
+          ><br />id: {{ d.id }} <br />code: {{ d.code }}
           {{ d.route }}
         </li>
       </ul>

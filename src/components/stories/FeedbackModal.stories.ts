@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import FeedbackModal from '@/components/FeedbackModal.vue'
+import { vueRouter } from 'storybook-vue3-router'
+import { ref } from 'vue'
+import { action } from '@storybook/addon-actions'
 
 const meta: Meta<typeof FeedbackModal> = {
   title: 'Components/FeedbackModal',
@@ -8,12 +11,14 @@ const meta: Meta<typeof FeedbackModal> = {
   render: args => {
     return {
       setup() {
-        return { args }
+        const handleSubmit = action('submit')
+        return { args, handleSubmit }
       },
       components: { FeedbackModal },
       template: `
-      <div style="height: 400px; width: 100%">
-        <FeedbackModal v-bind="args"></FeedbackModal>
+      <div style="height: 600px; width: 100%">
+        <FeedbackModal v-bind="args" @submit="handleSubmit"></FeedbackModal>
+        
       </div>
       `
     }
@@ -27,7 +32,32 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     isVisible: true,
-    isLoading: true,
+    isLoading: false,
     title: 'Help us improve Impresso'
   }
 }
+Default.decorators = [
+  /* this is the basic setup with no params passed to the decorator */
+  vueRouter()
+]
+
+export const WithErrors: Story = {
+  args: {
+    isVisible: true,
+    title: 'Help us improve Impresso',
+    errorMessages: [
+      {
+        id: '019029302019201',
+        message: 'Something went wrong',
+        code: 400,
+        name: 'BadRequest',
+        route: ['feedback.create']
+      }
+    ]
+  }
+}
+
+WithErrors.decorators = [
+  /* this is the basic setup with no params passed to the decorator */
+  vueRouter()
+]
