@@ -1,6 +1,6 @@
 <template>
   <form :class="['ChangePlanRequestForm', props.className]" @submit="handleOnSubmit">
-    <FeathersErrorManager :error="props.error" />
+    <FeathersErrorManager :error="props.error" v-if="error" />
     <h3 class="form-label font-size-inherit font-weight-bold mb-3">
       {{ $t('label_type_of_issue') }}
     </h3>
@@ -50,6 +50,7 @@
 import type { FeathersError } from '@feathersjs/errors'
 import { ref } from 'vue'
 import Icon from './base/Icon.vue'
+import FeathersErrorManager from './FeathersErrorManager.vue'
 import { AvailableFeedbackOptions } from '@/constants'
 
 const feedbackContent = ref<string>('')
@@ -58,8 +59,12 @@ const uniqueId = ref<string>('feedbackform-' + Math.random().toString(36).substr
 
 export interface FeedbackFormProps {
   className?: string
-  availableFeedbackOptions: typeof AvailableFeedbackOptions
+  availableFeedbackOptions?: typeof AvailableFeedbackOptions
   error?: FeathersError | null
+}
+export interface FeedbackFormPayload {
+  issue: string
+  content: string
 }
 
 const props = withDefaults(defineProps<FeedbackFormProps>(), {
@@ -72,7 +77,10 @@ const emits = defineEmits(['submit'])
 
 const handleOnSubmit = (event: Event) => {
   event.preventDefault()
-  emits('submit')
+  emits('submit', {
+    issue: selectedIssue.value,
+    content: feedbackContent.value
+  } as FeedbackFormPayload)
 }
 </script>
 <i18n lang="json">
@@ -82,7 +90,7 @@ const handleOnSubmit = (event: Event) => {
     "label_LayoutSegmentationIssue": "Layout segmentation issue",
     "label_DocumentLoadingIssue": "Document loading issue",
     "label_OtherIssue": "Other issue",
-    "label_type_of_issue": "What type of issue are you reporting?",
+    "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details (optional)",
     "label_additional_details_hint": "(Provide any extra information that might help us understand the issue better.)"
   }
