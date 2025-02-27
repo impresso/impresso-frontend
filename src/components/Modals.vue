@@ -141,6 +141,13 @@
         fetchCorpusOverviewResponse.status === 'idle'
       "
     />
+    <FeedbackModal
+      :title="$t('label_feedback_modal')"
+      :isVisible="view === ViewFeedback"
+      @dismiss="() => resetView()"
+      @submit="createFeedback"
+      :errorMessages="errorMessages"
+    ></FeedbackModal>
   </div>
 </template>
 
@@ -162,14 +169,16 @@ import {
   ViewUserRequests,
   ViewConfirmChangePlanRequest,
   ViewInfoModal,
-  ViewCorpusOverview
+  ViewCorpusOverview,
+  ViewFeedback
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
   userChangePlanRequest as userChangePlanRequestService,
   termsOfUse as termsOfUseService,
   userRequests as userRequestsService,
-  subscriptionDatasets as subscriptionDatasetsService
+  subscriptionDatasets as subscriptionDatasetsService,
+  feedback as feedbackService
 } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
@@ -183,9 +192,13 @@ import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
 import axios from 'axios'
+import FeedbackModal from './FeedbackModal.vue'
+import { FeedbackFormPayload } from './FeedbackForm.vue'
+import { useNotificationsStore } from '@/stores/notifications'
 
 const store = useViewsStore()
 const userStore = useUserStore()
+const notificationsStore = useNotificationsStore()
 const userPlan = computed(() => userStore.userPlan)
 const bitmap = computed(() => {
   const base64String = userStore.bitmap
@@ -201,6 +214,7 @@ const bitmap = computed(() => {
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
 const isLoggedIn = computed(() => !!userStore.userData)
+const errorMessages = computed(() => notificationsStore.errorMessages)
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
@@ -461,6 +475,20 @@ const patchCurrentPlanChangeRequest = async ({ plan }) => {
     })
 }
 
+const createFeedback = async (payload: FeedbackFormPayload) => {
+  console.debug('[FeedbackModal] @createFeedback', payload)
+  await feedbackService
+    .create(payload)
+    .then(data => {
+      console.info('[FeedbackModal] Feedback sent successfully. data:', data)
+      store.view = null
+    })
+    .catch((err: FeathersError) => {
+      console.error('[FeedbackModal] create', err.message, err.data)
+      throw err
+    })
+}
+
 const fetchUserRequest = async () => {
   console.debug('[Modals] fetchUserRequest')
   // load current status
@@ -522,6 +550,7 @@ onMounted(() => {
       "verbose_info_label": "[staff only] Verbose Info",
       "not_accepted_local_label": "Not accepted on this device",
       "not_accepted_on_db_label": "Not accepted on the server",
+      "label_feedback_modal": "Help us improve Impresso",
     }
   }
 </i18n>
