@@ -55,6 +55,9 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
       $t('send_update_bitmap')
     }}</b-dropdown-item>
+    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewFeedback">
+      {{ $t('label_feedback') }}
+    </LinkToModal>
     <b-dropdown-item
       target="_blank"
       href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ"
@@ -78,7 +81,8 @@ import {
   ViewInfoModal,
   // ViewUserRequests,
   // ViewPlans
-  ViewCorpusOverview
+  ViewCorpusOverview,
+  ViewFeedback
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
@@ -135,6 +139,7 @@ const send_update_bitmap = async () => {
     "label_verbose_info": "Settings",
     "label_plans": "Plans",
     "label_corpus_overview": "Corpus Overview",
+    "label_feedback": "[staff only] Feedback",
     "logout": "Logout",
     "join_slack_channel": "Join Slack Channel",
     "current_version": "Current version: {version}",
