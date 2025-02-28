@@ -686,7 +686,7 @@ export default {
 
         // get remaining facets and enriched filters.
         const facetTypes = [
-          ...['person', 'location', 'topic'],
+          ...['person', 'location', 'topic', 'partner'],
           ...(this.isLoggedIn ? ['collection'] : [])
         ]
 
