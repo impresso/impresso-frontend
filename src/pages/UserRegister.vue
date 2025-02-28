@@ -66,26 +66,11 @@
             :show-submit-button="false"
           />
           <h3 class="mb-3 font-weight-bold font-size-inherit">Complete the registration form</h3>
+          <p class="text-muted">
+            Please use your <em>institution email address</em> if student or academic user.
+          </p>
           <form @submit.prevent="onSubmit">
             <b-row>
-              <div class="col">
-                <b-form-group
-                  id="input-group-0"
-                  label="User Name"
-                  label-for="username"
-                  :description="v$.user.username.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="username"
-                    name="username"
-                    type="text"
-                    autocomplete="username"
-                    required
-                    v-model.trim="user.username"
-                    :class="{ 'border-danger': v$.user.username.$error }"
-                  />
-                </b-form-group>
-              </div>
               <div class="col">
                 <b-form-group
                   id="input-group-1"
@@ -102,6 +87,24 @@
                     :class="{ 'border-danger': v$.user.email.$error }"
                     v-model.trim="user.email"
                   ></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col">
+                <b-form-group
+                  id="input-group-0"
+                  label="User Name"
+                  label-for="username"
+                  :description="v$.user.username.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    v-model.trim="user.username"
+                    :class="{ 'border-danger': v$.user.username.$error }"
+                  />
                 </b-form-group>
               </div>
             </b-row>
