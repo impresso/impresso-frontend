@@ -44,11 +44,15 @@ export const Views: string[] = [
 ]
 
 const FeedbackOptionContentItemMetadataIssue = 'ContentItemMetadataIssue'
+const FeedbackOptionContentItemFacsimileIssue = 'ContentItemFacsimileIssue'
+const FeedbackOptionContentItemTranscriptionIssue = 'ContentItemTranscriptionIssue'
 const FeedbackOptionLayoutSegmentationIssue = 'LayoutSegmentationIssue'
 const FeedbackOptionDocumentLoadingIssue = 'DocumentLoadingIssue'
 const FeedbackOptionOtherIssue = 'OtherIssue'
 export const AvailableFeedbackOptions = [
   FeedbackOptionContentItemMetadataIssue,
+  FeedbackOptionContentItemFacsimileIssue,
+  FeedbackOptionContentItemTranscriptionIssue,
   FeedbackOptionLayoutSegmentationIssue,
   FeedbackOptionDocumentLoadingIssue,
   FeedbackOptionOtherIssue
