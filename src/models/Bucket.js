@@ -4,6 +4,7 @@ import Newspaper from '@/models/Newspaper'
 import Year from '@/models/Year'
 import Collection from '@/models/Collection'
 import TextReuseCluster from '@/models/TextReuseCluster'
+import { fromPartnerFacet } from '@/models/Partner'
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -20,7 +21,7 @@ export default class Bucket {
     included = true,
     type = '',
     upper = undefined,
-    lower = undefined,
+    lower = undefined
   } = {}) {
     this.val = String(val)
     this.count = parseInt(count, 10)
@@ -47,9 +48,12 @@ export default class Bucket {
       case 'textReuseCluster':
         this.item = TextReuseCluster.fromTextReusePassage(item)
         break
+      case 'partner':
+        this.item = fromPartnerFacet(item)
+        break
       default:
         this.item = {
-          uid: this.val,
+          uid: this.val
         }
         break
     }

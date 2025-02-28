@@ -1,7 +1,7 @@
 {
   "name": "impresso-frontend",
-  "version": "3.1.2",
-  "description": "Frontend app for impresso project",
+  "version": "3.1.4",
+  "description": "Frontend app for Impresso project",
   "author": "impresso <info@impresso-project.ch>",
   "contributors": [
     "Thijs van Beek",

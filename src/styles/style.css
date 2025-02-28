@@ -196,6 +196,7 @@ h6 em,
 i,
 em {
   font-style: normal;
+  font-family: var(--bs-font-sans-serif-italic);
 }
 .text-sans,
 .sans,

@@ -99,7 +99,6 @@ export const useIssueStore = defineStore('issue', {
                 q: this.issue.uid
               }
             ],
-            order_by: 'id',
             limit: 500
           }
         })
