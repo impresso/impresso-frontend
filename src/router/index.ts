@@ -127,6 +127,14 @@ const router = createRouter({
       path: '/user/register',
       name: 'register',
       component: () => import('@/pages/UserRegister.vue'),
+      beforeEnter: (to, from, next) => {
+        const userStore = useUserStore()
+        if (userStore.userData) {
+          next({ name: 'home' })
+        } else {
+          next()
+        }
+      },
       meta: {
         realm: 'user',
         requiresAuth: false
