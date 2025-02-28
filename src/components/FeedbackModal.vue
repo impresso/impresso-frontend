@@ -42,6 +42,22 @@ import { computed } from 'vue'
 import { BadRequestWithData } from './FeathersErrorManager.vue'
 import { useRoute } from 'vue-router'
 
+export interface FeedbackFormPayloadWithRoute extends FeedbackFormPayload {
+  route: {
+    fullPath: string
+    params: Record<string, any>
+    query: Record<string, any>
+    name: string | null
+  }
+  errorMessages: {
+    id: string
+    code: number
+    name: string
+    message: string
+    route: string[]
+  }[]
+}
+
 const props = withDefaults(
   defineProps<{
     dialogClass?: string
@@ -83,9 +99,14 @@ const confirm = () => {
 }
 
 const handleSubmit = (payload: FeedbackFormPayload) => {
-  const payloadWithRoute = {
+  const payloadWithRoute: FeedbackFormPayloadWithRoute = {
     ...payload,
-    route: route.path,
+    route: {
+      fullPath: route.fullPath,
+      params: route.params,
+      query: route.query,
+      name: route.name as string | null
+    },
     errorMessages: props.errorMessages
   }
   console.debug('[FeedbackModal] handleSubmit', payloadWithRoute)
