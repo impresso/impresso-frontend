@@ -111,9 +111,11 @@ const handleOnSubmit = (event: Event) => {
 <i18n lang="json">
 {
   "en": {
-    "label_ContentItemMetadataIssue": "Content item metadata issue",
-    "label_LayoutSegmentationIssue": "Layout segmentation issue",
-    "label_DocumentLoadingIssue": "Document loading issue",
+    "label_ContentItemMetadataIssue": "Faulty or missing metadata",
+    "label_ContentItemFacsimileIssue": "Facsimile issue",
+    "label_ContentItemTranscriptionIssue": "Transcription issue",
+    "label_LayoutSegmentationIssue": "Wrong Facsimile Layout segmentation",
+    "label_DocumentLoadingIssue": "User interface issue",
     "label_OtherIssue": "Other issue",
     "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details (optional)",
