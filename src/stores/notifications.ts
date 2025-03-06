@@ -20,7 +20,7 @@ export interface StoredNotification extends Notification {
   id: string
 }
 
-interface ErrorMessage {
+export interface ErrorMessage {
   id: string
   route: string[]
   message: string

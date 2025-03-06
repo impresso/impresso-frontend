@@ -6,7 +6,7 @@ import { reducedTimeoutPromise } from './services/utils'
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
-  viewPlans: { enabled: false }
+  viewPlans: { enabled: true }
 }
 
 type ApiVersion = {

@@ -149,22 +149,15 @@
       :errorMessages="errorMessages"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
-    <div
-      class="position-fixed"
-      style="
-        right: 0;
-        top: 50%;
-        transform: rotate(90deg) translateY(-50%);
-        transform-origin: right top;
-      "
-    >
+    <div class="position-fixed" style="right: 0; top: 50%">
       <button
         type="button"
-        class="btn btn-primary"
+        class="btn btn-primary rounded-md Modals__feedback-button"
         @click="() => (store.view = ViewFeedback)"
-        style="z-index: var(--z-index-modals); margin-top: 2.5rem"
+        style="z-index: var(--z-index-modals)"
       >
-        {{ $t('label_feedback_modal') }}
+        <Icon name="sendMail" />
+        <span class="ml-2">{{ $t('label_trigger_feedback_modal') }}</span>
       </button>
     </div>
   </div>
@@ -214,6 +207,7 @@ import axios from 'axios'
 import FeedbackModal from './FeedbackModal.vue'
 import { FeedbackFormPayload } from './FeedbackForm.vue'
 import { useNotificationsStore } from '@/stores/notifications'
+import Icon from './base/Icon.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -587,6 +581,27 @@ onMounted(() => {
       "not_accepted_local_label": "Not accepted on this device",
       "not_accepted_on_db_label": "Not accepted on the server",
       "label_feedback_modal": "Help us improve Impresso",
+      "label_trigger_feedback_modal": "Send feedback",
     }
   }
 </i18n>
+<style lang="css">
+.Modals__feedback-button {
+  position: absolute;
+  right: 0;
+  transform: rotate(90deg);
+  top: 100px;
+  margin-right: 5px;
+  transform-origin: right top;
+  display: flex;
+}
+.Modals__feedback-button:hover span {
+  text-decoration: underline;
+}
+.Modals__feedback-button svg {
+  stroke: currentColor;
+}
+.Modals__feedback-button span {
+  white-space: nowrap;
+}
+</style>

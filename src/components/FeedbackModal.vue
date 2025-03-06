@@ -41,6 +41,7 @@ import type { FeedbackFormPayload } from './FeedbackForm.vue'
 import { computed } from 'vue'
 import { BadRequestWithData } from './FeathersErrorManager.vue'
 import { useRoute } from 'vue-router'
+import { ErrorMessage } from '@/stores/notifications'
 
 export interface FeedbackFormPayloadWithRoute extends FeedbackFormPayload {
   route: {
@@ -49,13 +50,7 @@ export interface FeedbackFormPayloadWithRoute extends FeedbackFormPayload {
     query: Record<string, any>
     name: string | null
   }
-  errorMessages: {
-    id: string
-    code: number
-    name: string
-    message: string
-    route: string[]
-  }[]
+  errorMessages: ErrorMessage[]
 }
 
 const props = withDefaults(
@@ -65,13 +60,7 @@ const props = withDefaults(
     isVisible?: boolean
     errorCode?: string
     isLoading?: boolean
-    errorMessages?: {
-      id: string
-      code: number
-      name: string
-      message: string
-      route: string[]
-    }[]
+    errorMessages?: ErrorMessage[] | BadRequest[]
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-md',
