@@ -149,6 +149,24 @@
       :errorMessages="errorMessages"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
+    <div
+      class="position-fixed"
+      style="
+        right: 0;
+        top: 50%;
+        transform: rotate(90deg) translateY(-50%);
+        transform-origin: right top;
+      "
+    >
+      <button
+        type="button"
+        class="btn btn-primary"
+        @click="() => (store.view = ViewFeedback)"
+        style="z-index: var(--z-index-modals); margin-top: 2.5rem"
+      >
+        {{ $t('label_feedback_modal') }}
+      </button>
+    </div>
   </div>
 </template>
 
