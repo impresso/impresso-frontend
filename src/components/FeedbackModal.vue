@@ -60,7 +60,7 @@ const props = withDefaults(
     isVisible?: boolean
     errorCode?: string
     isLoading?: boolean
-    errorMessages?: ErrorMessage[] | BadRequest[]
+    errorMessages?: ErrorMessage[]
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-md',
@@ -74,7 +74,7 @@ const feedbackFormError = computed(() => {
   if (!props.errorMessages.length) return null
   // only forward 'feedback' service related error
   if ((props.errorMessages[0] as unknown as BadRequestWithData)?.data) {
-    return props.errorMessages[0] as unknown as BadRequestWithData
+    return new Error('HTML is not supported, please use plain text for your feedback.')
   }
   return null
 })
