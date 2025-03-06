@@ -68,7 +68,7 @@ const uniqueId = ref<string>('feedbackform-' + Math.random().toString(36).substr
 export interface FeedbackFormProps {
   className?: string
   availableFeedbackOptions?: typeof AvailableFeedbackOptions
-  error?: FeathersError | null
+  error?: FeathersError | Error | null
 }
 
 export interface FeedbackFormPayload {

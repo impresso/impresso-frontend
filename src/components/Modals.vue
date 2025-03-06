@@ -146,7 +146,7 @@
       :isVisible="view === ViewFeedback"
       @dismiss="() => resetView()"
       @submit="createFeedback"
-      :errorMessages="errorMessages"
+      :errorMessages="errorMessages as ErrorMessage[]"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
     <div class="position-fixed" style="right: 0; top: 50%">
@@ -206,7 +206,7 @@ import PlansModal from './PlansModal.vue'
 import axios from 'axios'
 import FeedbackModal from './FeedbackModal.vue'
 import { FeedbackFormPayload } from './FeedbackForm.vue'
-import { useNotificationsStore } from '@/stores/notifications'
+import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
 
 const store = useViewsStore()
