@@ -1,6 +1,7 @@
 import type { ServiceMethods } from '@feathersjs/feathers'
 import { ImageService } from './images'
 import { EmbeddingsService } from './embeddings'
+import { DatalabSupportService } from './datalabSupport'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -22,6 +23,7 @@ interface UntypedServices {
 
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
+  ['datalab-support']: DatalabSupportService
   images: ImageService
   embeddings: EmbeddingsService
 }
