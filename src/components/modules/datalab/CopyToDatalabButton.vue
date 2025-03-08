@@ -1,15 +1,10 @@
 <template>
   <div class="copy-to-datalab-button">
     <button class="btn btn-sm btn-outline-primary" @click="openModal">
-      <slot>Copy to Datalab</slot>
+      <slot>{{ $t('try_in_datalab') }}</slot>
     </button>
 
-    <Modal
-      v-model:show="isModalOpen"
-      :title="$t('copy_to_datalab')"
-      @close="closeModal"
-      hide-footer
-    >
+    <Modal v-model:show="isModalOpen" :title="$t('try_in_datalab')" @close="closeModal" hide-footer>
       <CopyToDatalabPanel :code="displayedCode" @copy="closeModal">
         <template #extra-buttons>
           <div class="form-group form-check mb-0">
@@ -25,13 +20,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, onMounted } from 'vue'
+import { ref, watchEffect, computed } from 'vue'
 import Modal from '@/components/base/Modal.vue'
 import CopyToDatalabPanel from './CopyToDatalabPanel.vue'
 import { datalabSupport } from '@/services'
 import { v4 } from 'uuid'
 
-const DefaultLocalstoreVariable = 'copy_to_datalab_extended_code'
+const DefaultLocalstoreVariable = 'try_in_datalab_extended_code'
 
 const props = defineProps<{
   base64Filters: string
@@ -59,12 +54,6 @@ const isExtendedCode = computed({
     )
     isExtendedCodeValue.value = value
   }
-})
-
-// Load preference from localStorage on mount
-onMounted(() => {
-  const savedPreference = localStorage.getItem('datalab_extended_code')
-  isExtendedCode.value = savedPreference === 'true'
 })
 
 const initialCode = `from impresso import connect
@@ -109,15 +98,15 @@ const closeModal = () => {
 <i18n lang="json">
 {
   "en": {
-    "copy_to_datalab": "Copy to Datalab",
+    "try_in_datalab": "Try in Datalab",
     "show_extended_code": "Show extended code"
   },
   "fr": {
-    "copy_to_datalab": "Copier vers Datalab",
+    "try_in_datalab": "Essayer dans Datalab",
     "show_extended_code": "Afficher le code étendu"
   },
   "de": {
-    "copy_to_datalab": "In Datalab kopieren",
+    "try_in_datalab": "In Datalab ausprobieren",
     "show_extended_code": "Erweiterten Code anzeigen"
   }
 }

@@ -46,7 +46,7 @@ const copyToClipboard = async () => {
     resetTimeout.value = window.setTimeout(() => {
       isCopied.value = false
       emit('copy')
-    }, 2000)
+    }, 1000)
   } catch (err) {
     console.error('Failed to copy text: ', err)
   }
