@@ -43,11 +43,9 @@ const getMe = http.get('/api/me', () => {
 
 const getImpressoPyFunction = http.get('/api/datalab-support/impresso-py-function', () => {
   return HttpResponse.json({
-    code: `from impresso import connect
-
-# Connect to the API
-impresso = connect()
-`
+    code: `impresso.search(
+  term="test",
+)`
   })
 })
 

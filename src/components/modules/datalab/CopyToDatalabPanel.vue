@@ -1,29 +1,37 @@
 <template>
   <div class="copy-to-datalab-panel">
     <div class="code-container">
-      <pre><code class="python">{{ code }}</code></pre>
+      <pre><code ref="codeRef" class="python">{{ code }}</code></pre>
     </div>
-    <button
-      class="copy-button btn btn-sm btn-primary"
-      @click="copyToClipboard"
-      :disabled="isCopied"
-    >
-      <span v-if="!isCopied">{{ $t('copy_code') }}</span>
-      <span v-else>{{ $t('copied') }}</span>
-    </button>
+    <div class="buttons">
+      <slot name="extra-buttons"></slot>
+      <button
+        class="copy-button btn btn-sm btn-primary"
+        @click="copyToClipboard"
+        :disabled="isCopied"
+      >
+        <span v-if="!isCopied">{{ $t('copy_code') }}</span>
+        <span v-else>{{ $t('copied') }}</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, onUnmounted } from 'vue'
+import hljs from 'highlight.js'
+import python from 'highlight.js/lib/languages/python'
+import 'highlight.js/styles/color-brewer.css'
+import { defineProps, onBeforeMount, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 
 interface Props {
   code: string
 }
 
 const props = defineProps<Props>()
+const emit = defineEmits(['copy'])
 const isCopied = ref(false)
 const resetTimeout = ref<number | null>(null)
+const codeRef = ref<HTMLElement | null>(null)
 
 const copyToClipboard = async () => {
   try {
@@ -37,11 +45,31 @@ const copyToClipboard = async () => {
 
     resetTimeout.value = window.setTimeout(() => {
       isCopied.value = false
+      emit('copy')
     }, 2000)
   } catch (err) {
     console.error('Failed to copy text: ', err)
   }
 }
+
+onBeforeMount(() => {
+  hljs.registerLanguage('python', python)
+})
+
+onMounted(() => {
+  if (codeRef.value) {
+    hljs.highlightElement(codeRef.value)
+  }
+})
+
+watchEffect(() => {
+  if (codeRef.value && props.code) {
+    setTimeout(() => {
+      delete codeRef.value.dataset.highlighted
+      hljs.highlightElement(codeRef.value)
+    }, 0)
+  }
+})
 
 // Clean up timeout when component is unmounted
 onUnmounted(() => {
@@ -58,7 +86,6 @@ onUnmounted(() => {
 
   .code-container {
     position: relative;
-    background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     padding: 1rem;
@@ -73,8 +100,13 @@ onUnmounted(() => {
     }
   }
 
-  .copy-button {
-    float: right;
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+
+    .copy-button {
+      float: right;
+    }
   }
 }
 </style>
