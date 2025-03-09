@@ -7,9 +7,14 @@
     <Modal v-model:show="isModalOpen" :title="$t('try_in_datalab')" @close="closeModal" hide-footer>
       <CopyToDatalabPanel :code="displayedCode" @copy="closeModal">
         <template #extra-buttons>
-          <div class="form-group form-check mb-0">
-            <input type="checkbox" class="form-check-input" :id="uid" v-model="isExtendedCode" />
-            <label class="form-check-label" :for="uid">
+          <div class="custom-control custom-checkbox mb-0">
+            <input
+              type="checkbox"
+              class="custom-control-input"
+              :id="uid"
+              v-model="isExtendedCode"
+            />
+            <label class="custom-control-label extended-code-label" :for="uid">
               {{ $t('show_extended_code') }}
             </label>
           </div>
@@ -20,13 +25,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed } from 'vue'
 import Modal from '@/components/base/Modal.vue'
-import CopyToDatalabPanel from './CopyToDatalabPanel.vue'
 import { datalabSupport } from '@/services'
+import { useSettingsStore } from '@/stores/settings'
 import { v4 } from 'uuid'
+import { computed, ref, watchEffect } from 'vue'
+import CopyToDatalabPanel from './CopyToDatalabPanel.vue'
 
-const DefaultLocalstoreVariable = 'try_in_datalab_extended_code'
+const settingsStore = useSettingsStore()
 
 const props = defineProps<{
   base64Filters: string
@@ -39,20 +45,12 @@ const code = ref('')
 const isModalOpen = ref(false)
 const uid = computed(() => v4())
 
-const isExtendedCodeValue = ref(
-  localStorage.getItem(props.localstoreToggleVariable ?? DefaultLocalstoreVariable) === 'true'
-)
-
 const isExtendedCode = computed({
   get() {
-    return isExtendedCodeValue.value == null ? true : isExtendedCodeValue.value
+    return settingsStore.showExtendedDatalabCode
   },
   set(value: boolean) {
-    localStorage.setItem(
-      props.localstoreToggleVariable ?? DefaultLocalstoreVariable,
-      value.toString()
-    )
-    isExtendedCodeValue.value = value
+    settingsStore.setShowExtendedDatalabCode(value)
   }
 })
 
@@ -92,6 +90,10 @@ const closeModal = () => {
 <style scoped lang="scss">
 .copy-to-datalab-button {
   display: inline-block;
+}
+.extended-code-label {
+  display: flex;
+  line-height: 1.5rem;
 }
 </style>
 

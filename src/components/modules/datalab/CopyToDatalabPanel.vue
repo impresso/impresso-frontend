@@ -21,7 +21,7 @@
 import hljs from 'highlight.js'
 import python from 'highlight.js/lib/languages/python'
 import 'highlight.js/styles/color-brewer.css'
-import { defineProps, onBeforeMount, onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { defineProps, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue'
 
 interface Props {
   code: string
@@ -54,12 +54,6 @@ const copyToClipboard = async () => {
 
 onBeforeMount(() => {
   hljs.registerLanguage('python', python)
-})
-
-onMounted(() => {
-  if (codeRef.value) {
-    hljs.highlightElement(codeRef.value)
-  }
 })
 
 watchEffect(() => {
@@ -97,12 +91,14 @@ onUnmounted(() => {
       white-space: pre-wrap;
       font-family: var(--bs-font-monospace);
       font-size: 0.875rem;
+      tab-size: 2;
     }
   }
 
   .buttons {
     display: flex;
     justify-content: space-between;
+    margin-top: 1rem;
 
     .copy-button {
       float: right;
