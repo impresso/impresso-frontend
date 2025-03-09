@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
 
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
@@ -16,12 +16,12 @@ const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
           y: 1800 + i,
           refs: {
             c: c,
-            a: c,
+            a: c
           }
         }
       }
     })
-  });
+  })
 })
 
 const getEntity = http.get('/api/entities/*', () => {
@@ -37,13 +37,21 @@ const getMe = http.get('/api/me', () => {
     username: 'johndoe',
     isActive: true,
     isStaff: false,
-    emailAccepted: false,
+    emailAccepted: false
   })
 })
 
+const getImpressoPyFunction = http.get('/api/datalab-support/impresso-py-function', () => {
+  return HttpResponse.json({
+    code: `impresso.search(
+  term="test",
+)`
+  })
+})
 
 export const handlers = {
   getYearFacetHandler,
   getEntity,
   getMe,
+  getImpressoPyFunction
 }

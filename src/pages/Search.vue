@@ -88,7 +88,12 @@
               />
             </ellipsis>
           </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-3">
+          <b-navbar-nav class="ml-auto pl-3 gap-2">
+            <CopyToDatalabButton
+              :base64Filters="base64Filters"
+              resource="search"
+              functionName="find"
+            />
             <RouterLink
               class="mr-1 btn btn-sm btn-outline-primary"
               :to="{
@@ -292,6 +297,7 @@ import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import { RouterLink } from 'vue-router'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -478,6 +484,9 @@ export default {
       return new SearchQuery({
         filters: this.filters
       }).getSerialized({ serializer: 'protobuf' })
+    },
+    base64Filters() {
+      return this.searchQueryHash
     }
   },
   mounted() {
@@ -757,7 +766,8 @@ export default {
     EmbeddingsSearch,
     SearchSidebar,
     InfoButton,
-    Modal
+    Modal,
+    CopyToDatalabButton
   }
 }
 </script>
