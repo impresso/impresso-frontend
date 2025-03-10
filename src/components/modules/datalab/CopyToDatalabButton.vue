@@ -4,7 +4,24 @@
       <slot>{{ $t('try_in_datalab') }}</slot>
     </button>
 
-    <Modal v-model:show="isModalOpen" :title="$t('try_in_datalab')" @close="closeModal" hide-footer>
+    <Modal
+      body-class="pb-0"
+      v-model:show="isModalOpen"
+      :title="$t('try_in_datalab')"
+      @close="closeModal"
+      hide-footer
+    >
+      <p>
+        Get an API key from <a href="/datalab" target="_blank">Impresso datalab website</a> and use
+        the following code in your Jupiter notebooks.
+      </p>
+      <p v-if="isExtendedCode">
+        First time using the API? Try out our
+        <a href="/datalab/notebooks/impresso-py-connect" target="_blank"
+          >Introduction to the Impresso library</a
+        >
+        notebook.
+      </p>
       <CopyToDatalabPanel :code="displayedCode" @copy="closeModal">
         <template #extra-buttons>
           <div class="custom-control custom-checkbox mb-0">

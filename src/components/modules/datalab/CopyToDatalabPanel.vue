@@ -1,7 +1,7 @@
 <template>
   <div class="copy-to-datalab-panel">
-    <div class="code-container">
-      <pre><code ref="codeRef" class="python">{{ code }}</code></pre>
+    <div class="code-container border shadow-sm rounded-md">
+      <pre class="rounded-md"><code ref="codeRef" class="python">{{ code }}</code></pre>
     </div>
     <div class="buttons">
       <slot name="extra-buttons"></slot>
@@ -80,12 +80,8 @@ onUnmounted(() => {
 
   .code-container {
     position: relative;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
     overflow-x: auto;
-
+    border: 0px solid transparent;
     pre {
       margin: 0;
       white-space: pre-wrap;
