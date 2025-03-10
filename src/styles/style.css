@@ -194,7 +194,8 @@ h6 em,
   font-variation-settings: 'wght' 375;
 }
 i,
-em {
+em,
+.font-style-italic {
   font-style: normal;
   font-family: var(--bs-font-sans-serif-italic);
 }

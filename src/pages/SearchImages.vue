@@ -127,6 +127,7 @@
               @toggleSelected="toggleSelected"
               :isChecked="isChecked(searchResult)"
               @click:search="onClickSearch"
+              :userPlan="userPlan"
             />
           </div>
         </div>
@@ -229,6 +230,9 @@ export default defineComponent({
   },
   computed: {
     ...mapStores(useUserStore),
+    userPlan() {
+      return this.userStore.userPlan
+    },
     $navigation() {
       return new Navigation(this)
     },
