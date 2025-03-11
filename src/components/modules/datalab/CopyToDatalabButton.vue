@@ -11,18 +11,15 @@
       @close="closeModal"
       hide-footer
     >
-      <p>
-        Get an API key from <a href="/datalab" target="_blank">Impresso datalab website</a> and use
-        the following code in your Jupiter notebooks.
-      </p>
-      <p v-if="isExtendedCode">
-        First time using the API? Try out our
-        <a href="/datalab/notebooks/impresso-py-connect" target="_blank"
-          >Introduction to the Impresso library</a
-        >
-        notebook.
-      </p>
+      <p v-html="$t('try_in_datalab_description_html')" />
       <CopyToDatalabPanel :code="displayedCode" @copy="closeModal">
+        <template #description>
+          <p
+            v-if="isExtendedCode"
+            v-html="$t('try_in_datalab_description_html_extended')"
+            class="text-muted m-2 small"
+          />
+        </template>
         <template #extra-buttons>
           <div class="custom-control custom-checkbox mb-0">
             <input
@@ -31,6 +28,7 @@
               :id="uid"
               v-model="isExtendedCode"
             />
+
             <label class="custom-control-label extended-code-label" :for="uid">
               {{ $t('show_extended_code') }}
             </label>
@@ -118,6 +116,8 @@ const closeModal = () => {
 {
   "en": {
     "try_in_datalab": "Try in Datalab",
+    "try_in_datalab_description_html": "Get an <a href='/datalab/token' target='_blank'>API key</a> to explore the data in <a href='/datalab' target='_blank'>Impresso Datalab</a>.",
+    "try_in_datalab_description_html_extended": "First time using the API? Check the Impresso Python library documentation or try out our <a href='/datalab/notebooks/impresso-py-connect' target='_blank'>Introduction to the Impresso library</a> notebook.",
     "show_extended_code": "Show extended code"
   },
   "fr": {

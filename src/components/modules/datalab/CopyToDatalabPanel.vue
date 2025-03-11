@@ -1,8 +1,19 @@
 <template>
   <div class="copy-to-datalab-panel">
-    <div class="code-container border shadow-sm rounded-md">
+    <div
+      class="code-container border shadow-sm rounded-md"
+      :class="{ isFocused }"
+      @mouseup="onMouseUp"
+    >
       <pre class="rounded-md"><code ref="codeRef" class="python">{{ code }}</code></pre>
+      <button
+        @click="copyToClipboard"
+        class="btn btn-sm btn-icon mx-2 position-absolute top-0 right-0"
+      >
+        <Icon name="copy" />
+      </button>
     </div>
+    <slot name="description"></slot>
     <div class="buttons">
       <slot name="extra-buttons"></slot>
       <button
@@ -22,6 +33,7 @@ import hljs from 'highlight.js'
 import python from 'highlight.js/lib/languages/python'
 import 'highlight.js/styles/color-brewer.css'
 import { defineProps, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue'
+import Icon from '@/components/base/Icon.vue'
 
 interface Props {
   code: string
@@ -30,10 +42,31 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits(['copy'])
 const isCopied = ref(false)
+const isFocused = ref(false)
 const resetTimeout = ref<number | null>(null)
 const codeRef = ref<HTMLElement | null>(null)
 
+const onMouseUp = () => {
+  const selection = window.getSelection()
+  if (!isFocused.value && selection.toString().length > 0) {
+    isFocused.value = true
+    return
+  }
+  selection.removeAllRanges()
+  if (isFocused.value) {
+    isFocused.value = false
+    return
+  }
+  // select all text
+  const range = document.createRange()
+  range.selectNodeContents(codeRef.value)
+  selection.addRange(range)
+  // set focus
+  isFocused.value = true
+}
+
 const copyToClipboard = async () => {
+  isFocused.value = true
   try {
     await navigator.clipboard.writeText(props.code)
     isCopied.value = true
@@ -77,11 +110,15 @@ onUnmounted(() => {
 .copy-to-datalab-panel {
   position: relative;
   margin-bottom: 1rem;
-
+  *::selection {
+    background: var(--impresso-color-pastel-blue-alpha-20);
+  }
   .code-container {
     position: relative;
     overflow-x: auto;
     border: 0px solid transparent;
+    cursor: text;
+    user-select: text;
     pre {
       margin: 0;
       white-space: pre-wrap;
@@ -89,6 +126,14 @@ onUnmounted(() => {
       font-size: 0.875rem;
       tab-size: 2;
     }
+    code {
+      border-radius: var(--impresso-border-radius-sm);
+      border: 1px solid transparent;
+    }
+  }
+
+  .code-container.isFocused {
+    border: 1px solid var(--impresso-color-pastel-blue) !important;
   }
 
   .buttons {

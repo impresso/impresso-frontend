@@ -455,7 +455,6 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   padding: var(--spacing-1);
   border-radius: 50%;
   border: 1px solid transparent;
-  transition: background-color 0.5s var(--impresso-transition-ease);
 }
 .btn-icon path {
   fill: transparent;
