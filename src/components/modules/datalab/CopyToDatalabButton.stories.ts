@@ -21,7 +21,7 @@ const meta: Meta<typeof CopyToDatalabButton> = {
   },
   decorators: [
     () => ({
-      template: '<div style="margin: 2rem;"><story/></div>'
+      template: '<div style="margin: 2rem; height:400px"><story/></div>'
     })
   ]
 }
