@@ -66,6 +66,8 @@ const isLikelyFilterBase64 = (str: string): boolean => {
 }
 
 const onValueChanged = (inputValue: string) => {
+  emits('update:modelValue', inputValue)
+
   errorMessage.value = null
 
   if (!inputValue) {
