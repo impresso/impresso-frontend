@@ -36,7 +36,7 @@ interface Props {
 }
 
 const emit = defineEmits<{
-  (e: 'parsedFilters', filters: Filter[]): void
+  parsedFilters: [value: Filter[]]
 }>()
 
 const props = defineProps<Props>()
@@ -60,7 +60,7 @@ function processFilters(base64String: string) {
 
   try {
     // Use the deserializeFilters function from filters.js
-    const filters = deserializeFilters(base64String)
+    const filters = deserializeFilters(base64String) as Filter[]
     displayedContent.value = JSON.stringify(filters, null, 2)
     error.value = null
     emit('parsedFilters', filters)
