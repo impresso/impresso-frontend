@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import FiltersRenderPanel from './FiltersRenderPanel.vue'
-import { protobuf } from 'impresso-jscommons'
+import { Filter, protobuf } from 'impresso-jscommons'
 
 // Generate a sample valid filters base64 string for the stories
 const sampleFilters = {
@@ -17,7 +17,7 @@ const sampleFilters = {
       type: 'string',
       q: 'economy'
     }
-  ]
+  ] satisfies Filter[]
 }
 
 const validFiltersBase64 = protobuf.searchQuery.serialize(sampleFilters)

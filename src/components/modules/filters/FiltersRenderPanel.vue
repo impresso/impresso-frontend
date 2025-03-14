@@ -21,12 +21,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, defineProps, onUnmounted } from 'vue'
+import { ref, watch, onMounted, defineProps, onUnmounted, defineEmits } from 'vue'
 import hljs from 'highlight.js'
 import json from 'highlight.js/lib/languages/json'
 import 'highlight.js/styles/github.css'
 import { deserializeFilters } from '@/logic/filters'
-import { Filter } from 'impresso-jscommons'
+import type { Filter } from 'impresso-jscommons'
 import Icon from '@/components/base/Icon.vue'
 
 const DefaultFilters: Filter[] = []
@@ -34,6 +34,10 @@ const DefaultFilters: Filter[] = []
 interface Props {
   modelValue: string // base64 encoded filters
 }
+
+const emit = defineEmits<{
+  (e: 'parsedFilters', filters: Filter[]): void
+}>()
 
 const props = defineProps<Props>()
 
@@ -50,6 +54,7 @@ function processFilters(base64String: string) {
   if (!base64String) {
     displayedContent.value = JSON.stringify(DefaultFilters)
     error.value = null
+    emit('parsedFilters', DefaultFilters)
     return
   }
 
@@ -58,10 +63,12 @@ function processFilters(base64String: string) {
     const filters = deserializeFilters(base64String)
     displayedContent.value = JSON.stringify(filters, null, 2)
     error.value = null
+    emit('parsedFilters', filters)
   } catch (err) {
     console.error('Error deserializing filters:', err)
     displayedContent.value = JSON.stringify(DefaultFilters)
     error.value = 'Malformed filters: Unable to deserialize the provided data.'
+    emit('parsedFilters', DefaultFilters)
   }
 }
 
