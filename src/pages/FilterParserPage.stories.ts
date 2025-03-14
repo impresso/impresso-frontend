@@ -49,7 +49,7 @@ export const WithBase64Input: Story = {
   name: 'With Base64 Input',
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const input = canvas.getByRole('textbox')
+    const input = canvas.getByTestId('filter-text-input').querySelector('textarea')
     await userEvent.click(input)
     await userEvent.paste(validFiltersBase64)
   }
@@ -59,7 +59,7 @@ export const WithUrlInput: Story = {
   name: 'With URL Input',
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const input = canvas.getByRole('textbox')
+    const input = canvas.getByTestId('filter-text-input').querySelector('textarea')
     await userEvent.click(input)
     await userEvent.paste(sampleUrl)
   }

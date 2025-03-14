@@ -15,6 +15,7 @@
             v-model="inputValue"
             class="mb-3"
             @update:filterString="handleFilterStringUpdate"
+            data-testid="filter-text-input"
           />
         </div>
 
@@ -24,7 +25,22 @@
             The parsed filters are displayed below. The JSON structure shows all filters with their
             types and values.
           </p>
-          <FiltersRenderPanel :modelValue="currentFilterString" />
+          <FiltersRenderPanel
+            :modelValue="currentFilterString"
+            @parsed-filters="filters => (parsedFilters = filters)"
+          />
+        </div>
+
+        <div class="mb-4">
+          <h2 class="h5 mb-3">Edit filters</h2>
+          <FilterJsonInput
+            :initial-value="parsedFiltersAsJson"
+            @update:filters="filters => (editedFilters = filters)"
+          />
+        </div>
+
+        <div class="mb-4">
+          <FilterUrlPanel :filters="editedFilters" />
         </div>
       </div>
     </i-layout-section>
@@ -32,12 +48,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import FilterTextInput from '@/components/modules/filters/FilterTextInput.vue'
 import FiltersRenderPanel from '@/components/modules/filters/FiltersRenderPanel.vue'
+import FilterUrlPanel from '@/components/modules/filters/FilterUrlPanel.vue'
+import FilterJsonInput from '@/components/modules/filters/FilterJsonInput.vue'
+import { Filter } from 'impresso-jscommons'
 
 const inputValue = ref('')
 const currentFilterString = ref('')
+const parsedFilters = ref<Filter[]>([])
+const editedFilters = ref<Filter[]>([])
+
+const parsedFiltersAsJson = computed(() => JSON.stringify(parsedFilters.value, null, 2))
 
 /**
  * Handle filter string update from FilterTextInput
