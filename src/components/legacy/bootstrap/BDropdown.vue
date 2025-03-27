@@ -90,7 +90,7 @@ defineExpose({
 .dropdown .dropdown-toggle::after {
   display: none;
 }
-.dropdown .dropdown-toggle:hover svg {
+.dropdown .dropdown-toggle:hover svg.Icon_chevron {
   transform: translateY(3px);
 }
 .dropdown.show .dropdown-toggle {
