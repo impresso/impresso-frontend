@@ -20,10 +20,21 @@
         class="mr-1 mb-1 search-pill"
         :data-testid="`search-pill-${filter.type}`"
       >
+        <!-- {{ filter.type }} -->
         <!--  button content -->
         <template v-slot:button-content>
           <!-- badge: initial type instead of icons -->
-          <span
+          <span class="position-relative mx-1" style="padding-left: 20px">
+            <Icon
+              class="m-0 position-absolute left-0"
+              style="top: -3px"
+              :height="20"
+              :width="20"
+              :stroke-width="1.5"
+              :name="filter.type"
+            ></Icon>
+          </span>
+          <!-- <span
             class="filter-icon"
             :class="[
               { 'dripicons-align-justify': filter.type === 'string' },
@@ -45,7 +56,7 @@
               { 'dripicons-scale': numericTypes.includes(filter.type) }
             ]"
             :title="$tc(`label.${filter.type}.title`, 0)"
-          />
+          /> -->
           <!--  type:string, type:title -->
           <span
             class="label sp-string sp-title"
@@ -76,7 +87,15 @@
           <span
             class="label sp-generic-item"
             v-if="
-              ['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1
+              [
+                'language',
+                'country',
+                'type',
+                'accessRight',
+                'copyright',
+                'dataDomain',
+                'partner'
+              ].indexOf(filter.type) !== -1
             "
             v-html="
               labelByItems({
@@ -195,6 +214,7 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
+import Icon from './base/Icon.vue'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -384,7 +404,8 @@ export default {
   },
   components: {
     FilterMonitor,
-    Explorer
+    Explorer,
+    Icon
   }
 }
 </script>
@@ -542,64 +563,6 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "label": {
-      "string": {
-        "title": "article text"
-      },
-      "isFront": "frontpage",
-      "title": {
-        "title": "title"
-      },
-      "country": {
-        "title": "Country of publication"
-      },
-      "topic": {
-        "title": "filter by topic"
-      },
-      "person": {
-        "title": "filter by person mentioned (experimental)"
-      },
-      "location": {
-        "title": "filter by location (experimental)"
-      },
-      "entity": {
-        "title": "filter by entity mentioned (experimental)"
-      },
-      "collection": {
-        "title": "filter by collection"
-      },
-      "newspaper": {
-        "title": "filter by newspaper"
-      },
-      "daterange": {
-        "title": "filter by date of publication",
-        "item": "From {start} to {end}"
-      },
-      "range": {
-        "title": "filter by {label}",
-        "item": "{label} between {start} and {end}"
-      },
-      "textReuseClusterSize": {
-        "title": "filter by text reuse cluster size",
-        "item": "Cluster size"
-      },
-      "textReuseClusterLexicalOverlap": {
-        "title": "filter by text reuse cluster lexical overlap",
-        "item": "Lexical overlap"
-      },
-      "textReuseClusterDayDelta": {
-        "title": "filter by text reuse time span in days",
-        "item": "Text reuse time span"
-      },
-      "textReuseCluster": {
-        "title": "filter by text reuse cluster",
-        "item": "Text reuse cluster id"
-      },
-      "contentLength": {
-        "title": "filter by content length",
-        "item": "Content length"
-      }
-    },
     "items": {
       "hidden": "({count} more)"
     },
