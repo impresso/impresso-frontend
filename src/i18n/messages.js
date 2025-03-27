@@ -43,6 +43,10 @@ export default {
         Closed: 'Personal use (no export)',
         OpenPublic: 'Public domain'
       },
+      copyright: {
+        in_cpy: 'in copyright',
+        pbl: 'public domain'
+      },
       country: {
         CH: 'Switzerland',
         LU: 'Luxembourg'
@@ -273,22 +277,161 @@ export default {
       }
     },
     label: {
-      useCurrentSearch: 'consider only results matching current search',
+      accessRight: {
+        title: 'Access right | Access right | Access Rights',
+        filterTitle: 'access right',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their access right is <b>one of {count} selected</b>',
+        description: 'filter results based on access right',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> available as'
+        }
+      },
+      collection: {
+        title: 'Collection | Collection | Collections',
+        filterTitle: 'collection',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> collection applies',
+        description: 'check one or more collection to filter results',
+        // eslint-disable-next-line quotes
+        empty: "... you haven't saved any result item in your collection",
+        item: 'Collection'
+      },
+      contentLength: {
+        title: 'Content Length | Content Length | Content Lengths',
+        filterTitle: 'content length',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are within the range',
+        description: 'total number of articles per content length',
+        empty: '(no results)',
+        item: 'Content length'
+      },
+
+      copyright: {
+        title: 'Copyright',
+        filterTitle: 'Copyright Status',
+        filtered: 'Results are filtered.',
+        empty: '...',
+        context: {
+          include: 'Licensed as',
+          exclude: '<b>NOT</b> licensed as'
+        }
+      },
+      country: {
+        title: 'Country | Country | Countries',
+        filterTitle: 'country of publication',
+        filtered: 'results are filtered when:',
+        selected:
+          'filter results if they are published in <b>one of {count} selected</b> countries',
+        description: 'check one or more countries to filter results',
+        empty: '(no results)',
+        item: 'Country of publication'
+      },
+      dataDomain: {
+        filterTitle: 'Data domain?',
+        empty: '...'
+      },
+      day: {
+        title: 'Day | Day | Days',
+        optionsTitle: 'Day of publication',
+        optionsDescription: 'Total number of articles per day'
+      },
+      daterange: {
+        title: 'filter by date of publication',
+        item: 'From {start} to {end}'
+      },
+      entity: {
+        title: 'filter by entity mentioned (experimental)'
+      },
+      isFront: 'frontpage',
       isFront: 'only results on the front page',
-      year: {
-        title: 'Year | Year | Years',
-        optionsTitle: 'Year of publication',
-        optionsDescription: 'Total number of articles per year'
+      language: {
+        title: 'Language | Language | Languages',
+        filterTitle: 'language of articles',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
+        description: 'check one or more language to filter results',
+        empty: '(no results)'
+      },
+
+      location: {
+        title: 'Location | Location | Locations',
+        filterTitle: 'location',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
+        description: 'check one or more locations to filter results',
+        empty: 'There is no location available'
       },
       month: {
         title: 'Month | Month | Months',
         optionsTitle: 'Month of publication',
         optionsDescription: 'Total number of articles per month'
       },
-      day: {
-        title: 'Day | Day | Days',
-        optionsTitle: 'Day of publication',
-        optionsDescription: 'Total number of articles per day'
+      newspaper: {
+        title: 'Newspaper | Newspaper | Newspapers',
+        filterTitle: 'newspaper titles',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
+        description: 'check one or more newspaper to filter results',
+        empty: '(no results)'
+      },
+      partner: {
+        title: 'Data Provider | Data Provider | Data Providers',
+        filterTitle: 'archive',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
+        description: 'check one or more data provider to filter results',
+        empty: '(no results)'
+      },
+      person: {
+        title: 'Person | Person | Persons',
+        filterTitle: 'person',
+        filterBy: 'filter by person mentioned (experimental)',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
+        description: 'check one or more persons to filter results',
+        empty: 'No person has been recognized in results'
+      },
+      range: {
+        title: 'filter by {label}',
+        item: '{label} between {start} and {end}'
+      },
+      string: {
+        title: 'article text'
+      },
+      textReuseClusterSize: {
+        title: 'filter by text reuse cluster size',
+        item: 'Cluster size',
+        filterTitle: 'Cluster size'
+      },
+      textReuseClusterLexicalOverlap: {
+        title: 'filter by text reuse cluster lexical overlap',
+        item: 'Lexical overlap',
+        filterTitle: 'Lexical overlap'
+      },
+      textReuseClusterDayDelta: {
+        title: 'filter by text reuse time span in days',
+        item: 'Text reuse time span',
+        filterTitle: 'Time span in days'
+      },
+      textReuseCluster: {
+        filterBy: 'filter by text reuse cluster',
+        item: 'Text reuse cluster id',
+        title: 'Text reuse clusters',
+        description: 'check one or more text reuse cluster to filter results',
+        selected: 'filter results if <b>one of {count} selected</b> text reuse cluster applies',
+        filterTitle: 'text reuse clusters',
+        filtered: 'results are filtered when:',
+        empty: '(no results)',
+        context: {
+          include: 'included in selected clusters',
+          exclude: '<b>NOT</b> included in selected clusters'
+        }
+      },
+      title: {
+        title: 'title'
       },
       type: {
         title: 'Item type | Item types | Item types',
@@ -305,106 +448,18 @@ export default {
       },
       topic: {
         title: 'Topic | Topic | Topics',
+        filterBy: 'filter by topic',
         filterTitle: 'topic',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> topic applies',
         description: 'check one or more topics to filter results',
         empty: 'There is no topic available'
       },
-      person: {
-        title: 'Person | Person | Persons',
-        filterTitle: 'person',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> people are mentioned',
-        description: 'check one or more persons to filter results',
-        empty: 'No person has been recognized in results'
-      },
-      location: {
-        title: 'Location | Location | Locations',
-        filterTitle: 'location',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> locations are mentioned',
-        description: 'check one or more locations to filter results',
-        empty: 'There is no location available'
-      },
-      collection: {
-        title: 'Collection | Collection | Collections',
-        filterTitle: 'collection',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> collection applies',
-        description: 'check one or more collection to filter results',
-        // eslint-disable-next-line quotes
-        empty: "... you haven't saved any result item in your collection"
-      },
-      newspaper: {
-        title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper titles',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
-        description: 'check one or more newspaper to filter results',
-        empty: '(no results)'
-      },
-      language: {
-        title: 'Language | Language | Languages',
-        filterTitle: 'language of articles',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
-        description: 'check one or more language to filter results',
-        empty: '(no results)'
-      },
-      country: {
-        title: 'Country | Country | Countries',
-        filterTitle: 'country of publication',
-        filtered: 'results are filtered when:',
-        selected:
-          'filter results if they are published in <b>one of {count} selected</b> countries',
-        description: 'check one or more countries to filter results',
-        empty: '(no results)'
-      },
-      accessRight: {
-        title: 'Access right | Access right | Access Rights',
-        filterTitle: 'access right',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if their access right is <b>one of {count} selected</b>',
-        description: 'filter results based on access right',
-        empty: '(no results)',
-        context: {
-          include: 'content available as',
-          exclude: 'content <b>NOT</b> available as'
-        }
-      },
-      partner: {
-        title: 'Data Provider | Data Provider | Data Providers',
-        filterTitle: 'archive',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
-        description: 'check one or more data provider to filter results',
-        empty: '(no results)'
-      },
-      contentLength: {
-        title: 'Content Length | Content Length | Content Lengths',
-        filterTitle: 'content length',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they are within the range',
-        description: 'total number of articles per content length',
-        empty: '(no results)'
-      },
-      textReuseClusterDayDelta: {
-        filterTitle: 'Time span in days'
-      },
-      textReuseClusterSize: { filterTitle: 'Cluster size' },
-      textReuseClusterLexicalOverlap: { filterTitle: 'Lexical overlap' },
-      textReuseCluster: {
-        title: 'Text reuse clusters',
-        description: 'check one or more text reuse cluster to filter results',
-        selected: 'filter results if <b>one of {count} selected</b> text reuse cluster applies',
-        filterTitle: 'text reuse clusters',
-        filtered: 'results are filtered when:',
-        empty: '(no results)',
-        context: {
-          include: 'included in selected clusters',
-          exclude: '<b>NOT</b> included in selected clusters'
-        }
+      useCurrentSearch: 'consider only results matching current search',
+      year: {
+        title: 'Year | Year | Years',
+        optionsTitle: 'Year of publication',
+        optionsDescription: 'Total number of articles per year'
       }
     },
     tabs: {
