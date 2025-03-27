@@ -6,7 +6,6 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { ref, watch } from 'vue'
-import markdown from '@/filters/markdown'
 import LoadingBlock from './LoadingBlock.vue'
 import { marked } from 'marked'
 
