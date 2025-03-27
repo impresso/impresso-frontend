@@ -125,7 +125,8 @@ export default {
     types: {
       location: 'location',
       person: 'person',
-      human: 'human'
+      human: 'human',
+      newsagency: 'news agency'
     },
     groupBy: {
       images: 'images',
