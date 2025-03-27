@@ -1,68 +1,63 @@
 <template>
   <i-layout id="IssuePage" class="bg-light" ref="issuePage">
     <i-layout-section width="350px">
-
       <template v-slot:header>
-      <div class="border-bottom border-tertiary">
-        <b-tabs pills class="mx-2 pt-2">
-          <template v-slot:tabs-end>
-            <b-nav-item
-              class="pl-2"
-              @click="switchTab('toc')"
-              :class="{ active: !isTabSearch }"
-              active-class="none"
-              >{{ $t('table_of_contents') }}</b-nav-item
-            >
-            <b-nav-item
-              class="pl-2"
-              @click="switchTab('search')"
-              :class="{ active: isTabSearch }"
-              active-class="none"
-              >{{ $t('search_and_find') }}</b-nav-item
-            >
-          </template>
-        </b-tabs>
-        <div class="py-2 px-3">
-          <div v-if="issue" class="mb-2">
-            <span v-if="isTabSearch">
+        <div class="border-bottom border-tertiary">
+          <b-tabs pills class="mx-2 pt-2">
+            <template v-slot:tabs-end>
+              <b-nav-item
+                class="pl-2"
+                @click="switchTab('toc')"
+                :class="{ active: !isTabSearch }"
+                active-class="none"
+                >{{ $t('table_of_contents') }}</b-nav-item
+              >
+              <b-nav-item
+                class="pl-2"
+                @click="switchTab('search')"
+                :class="{ active: isTabSearch }"
+                active-class="none"
+                >{{ $t('search_and_find') }}</b-nav-item
+              >
+            </template>
+          </b-tabs>
+          <div class="py-2 px-3">
+            <div v-if="issue" class="mb-2">
+              <span v-if="isTabSearch">
+                <span
+                  v-if="q.length"
+                  v-html="
+                    $tc('numbers.articlesMatching', matchesTotalRows, {
+                      n: $n(matchesTotalRows),
+                      q
+                    })
+                  "
+                />
+                <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
+              </span>
               <span
-                v-if="q.length"
+                v-else
+                class="small-caps"
                 v-html="
-                  $tc('numbers.articlesMatching', matchesTotalRows, {
-                    n: $n(matchesTotalRows),
-                    q,
+                  $t('stats', {
+                    countPages: issue.countPages,
+                    countArticles: issue.countArticles
                   })
                 "
               />
-              <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
-            </span>
-            <span
-              v-else
-              class="small-caps"
-              v-html="
-                $t('stats', {
-                  countPages: issue.countPages,
-                  countArticles: issue.countArticles,
-                })
-              "
-            />
-          </div>
-          <div v-if="isTabSearch">
-            <search-pills
-              :filters="filters"
-              @changed="handleFiltersChanged"
-              :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
-            />
-            <div class="input-group">
-              <b-form-input
-                placeholder="search for ..."
-                v-model.trim="q"
-                v-on:change="search"
+            </div>
+            <div v-if="isTabSearch">
+              <search-pills
+                :filters="filters"
+                @changed="handleFiltersChanged"
+                :excluded-types="['hasTextContents', 'isFront', 'issue', 'newspaper']"
               />
+              <div class="input-group">
+                <b-form-input placeholder="search for ..." v-model.trim="q" v-on:change="search" />
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </template>
       <!--  ToC -->
       <table-of-contents
@@ -97,97 +92,100 @@
     <!--  page openseadragon or article -->
     <i-layout-section main>
       <template v-slot:header>
-      <div class="border-bottom">
-        <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
-          <section class="p-2 pl-3">
-            <h3 v-if="issue" class="m-0">
-              {{ issue.newspaper.name }} &mdash;
-              <span class="date small">
-                {{ $d(issue.date, 'long') }}
-              </span>
-            </h3>
-          </section>
-          <b-navbar-nav v-if="issue" class=" border">
-            <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
-            <b-button
-              variant="light"
-              size="sm"
-              v-bind:disabled="currentPageIndex === 0"
-              v-on:click="gotoPageIndex(currentPageIndex - 1)"
-            >
-              <div class="dripicons dripicons-media-previous pt-1"></div>
-            </b-button>
-            <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
-            <b-button
-              variant="light"
-              size="sm"
-              v-bind:disabled="currentPageIndex + 1 === issue.pages.length"
-              v-on:click="gotoPageIndex(currentPageIndex + 1)"
-            >
-              <div class="dripicons dripicons-media-next pt-1"></div>
-            </b-button>
-          </b-navbar-nav>
-        </b-navbar>
-        <b-navbar type="light" variant="light" class="px-0 py-0">
-          <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
-            <div v-if="article">
-              <span class="badge bg-accent-secondary text-clr-white">{{
-                $t(`buckets.type.${article.type}`)
-              }}</span>
-              <span class="badge">
-                <span class="small-caps" id="selected-article-language">{{
-                  article.language
+        <div class="border-bottom">
+          <b-navbar type="light" variant="light" class="px-0 py-0 border-bottom">
+            <section class="p-2 pl-3">
+              <h3 v-if="issue" class="m-0">
+                {{ issue.newspaper.name }} &mdash;
+                <span class="date small">
+                  {{ $d(issue.date, 'long') }}
+                </span>
+              </h3>
+            </section>
+            <b-navbar-nav v-if="issue" class="border">
+              <!-- {{ currentPageIndex}} / {{issue.pages.length}} {{ page.num}} -->
+              <b-button
+                variant="light"
+                size="sm"
+                v-bind:disabled="currentPageIndex === 0"
+                v-on:click="gotoPageIndex(currentPageIndex - 1)"
+              >
+                <div class="dripicons dripicons-media-previous pt-1"></div>
+              </b-button>
+              <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+              <b-button
+                variant="light"
+                size="sm"
+                v-bind:disabled="currentPageIndex + 1 === issue.pages.length"
+                v-on:click="gotoPageIndex(currentPageIndex + 1)"
+              >
+                <div class="dripicons dripicons-media-next pt-1"></div>
+              </b-button>
+            </b-navbar-nav>
+          </b-navbar>
+          <b-navbar type="light" variant="light" class="px-0 py-0">
+            <b-navbar-nav v-if="article" class="px-3 py-2 border-right">
+              <div v-if="article">
+                <span class="badge bg-accent-secondary text-clr-white">{{
+                  $t(`buckets.type.${article.type}`)
                 }}</span>
-                |
-                <span>{{ articlePages }}</span>
-                <div :title="$t(`buckets.language.${article.language}`)"></div>
-              </span>
-            </div>
-          </b-navbar-nav>
-          <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
-            <radio-group
-              :modelValue="mode"
-              @update:modelValue="mode = $event"
-              :options="modeOptions"
-              type="button"
-            />
-            <small>
-              <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
-            </small>
-          </b-navbar-nav>
+                <span class="badge">
+                  <span class="small-caps" id="selected-article-language">{{
+                    article.language
+                  }}</span>
+                  |
+                  <span>{{ articlePages }}</span>
+                  <div :title="$t(`buckets.language.${article.language}`)"></div>
+                </span>
+              </div>
+            </b-navbar-nav>
+            <b-navbar-nav v-if="article && article.type" class="px-3 py-2 border-right">
+              <radio-group
+                :modelValue="mode"
+                @update:modelValue="mode = $event"
+                :options="modeOptions"
+                type="button"
+              />
+              <small>
+                <info-button name="What-OCR" class="ml-2 mt-1 d-block" />
+              </small>
+            </b-navbar-nav>
 
-          <b-navbar-nav class="py-2 px-3">
-            <b-button
-              v-show="mode === 'image'"
-              class="mr-2"
-              :variant="showOutlines !== '' ? 'primary' : 'outline-primary'"
-              size="sm"
-              @click="showOutlines = showOutlines === '' ? 'show-outlines' : ''"
-            >
-              <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-preview mr-2" />
-                <div v-if="showOutlines">{{ $t('toggle_outlines_on') }}</div>
-                <div v-else>{{ $t('toggle_outlines_off') }}</div>
-              </div>
-            </b-button>
-            <b-button
-              :variant="isFullscreen ? 'primary' : 'outline-primary'"
-              size="sm"
-              @click="toggleFullscreen"
-              class="mr-3"
-            >
-              <div class="d-flex flex-row align-items-center">
-                <div
-                  class="mr-2 d-flex dripicons"
-                  :class="{ 'dripicons-contract': isFullscreen, 'dripicons-expand': !isFullscreen }"
-                />
-                <div v-if="isFullscreen">{{ $t('toggle_fullscreen_on') }}</div>
-                <div v-else>{{ $t('toggle_fullscreen_off') }}</div>
-              </div>
-            </b-button>
-          </b-navbar-nav>
-        </b-navbar>
-      </div>
+            <b-navbar-nav class="py-2 px-3">
+              <b-button
+                v-show="mode === 'image'"
+                class="mr-2"
+                :variant="showOutlines !== '' ? 'primary' : 'outline-primary'"
+                size="sm"
+                @click="showOutlines = showOutlines === '' ? 'show-outlines' : ''"
+              >
+                <div class="d-flex flex-row align-items-center">
+                  <div class="d-flex dripicons dripicons-preview mr-2" />
+                  <div v-if="showOutlines">{{ $t('toggle_outlines_on') }}</div>
+                  <div v-else>{{ $t('toggle_outlines_off') }}</div>
+                </div>
+              </b-button>
+              <b-button
+                :variant="isFullscreen ? 'primary' : 'outline-primary'"
+                size="sm"
+                @click="toggleFullscreen"
+                class="mr-3"
+              >
+                <div class="d-flex flex-row align-items-center">
+                  <div
+                    class="mr-2 d-flex dripicons"
+                    :class="{
+                      'dripicons-contract': isFullscreen,
+                      'dripicons-expand': !isFullscreen
+                    }"
+                  />
+                  <div v-if="isFullscreen">{{ $t('toggle_fullscreen_on') }}</div>
+                  <div v-else>{{ $t('toggle_fullscreen_off') }}</div>
+                </div>
+              </b-button>
+            </b-navbar-nav>
+          </b-navbar>
+        </div>
       </template>
       <div class="d-flex h-100 justify-content-center" v-if="!isContentAvailable && issue">
         <div class="align-self-center">
@@ -232,13 +230,13 @@ import Pagination from './modules/Pagination.vue'
 import InfoButton from './base/InfoButton.vue'
 import { toCanonicalFilter, SupportedFiltersByContext } from '../logic/filters'
 import { mapSearchQuery } from '@/logic/queryParams'
-import RadioGroup from '@/components/layout/RadioGroup.vue';
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useIssueStore } from '@/stores/issue'
 import { useUserStore } from '@/stores/user'
 import { search as searchService } from '@/services'
-import Article from '@/models/Article';
+import Article from '@/models/Article'
 import { renderMetaTags } from '@/plugins/MetaTags'
 
 export default {
@@ -271,7 +269,7 @@ export default {
     //
     matches: [],
     tocArticles: [],
-    issueFilters: [],
+    issueFilters: []
   }),
   created() {
     window.addEventListener('fullscreenchange', this.fullscreenChange)
@@ -290,14 +288,14 @@ export default {
           value: 'text',
           text: this.$t('closeReadingView'),
           iconName: 'align-left',
-          disabled: !this.article,
-        },
+          disabled: !this.article
+        }
       ]
     },
     searchQuery: mapSearchQuery(),
     currentSearchFilters() {
       return this.searchQuery.filters.filter(filter =>
-        SupportedFiltersByContext.search.includes(filter.type),
+        SupportedFiltersByContext.search.includes(filter.type)
       )
     },
     isContentAvailable() {
@@ -335,7 +333,7 @@ export default {
         if (idx !== -1) {
           results.push({
             ...article,
-            matches: this.matches[idx].matches,
+            matches: this.matches[idx].matches
           })
         }
       })
@@ -346,28 +344,26 @@ export default {
         return ''
       }
       return this.$tc('pp', this.article.nbPages, {
-        pages: this.article.pages.map(d => d.num).join(','),
+        pages: this.article.pages.map(d => d.num).join(',')
       })
     },
     mode: {
       get() {
         // no article°uid? image without a doubt
-        return this.$route.params.article_uid ?
-          this.issueStore.viewerMode :
-          'image';
+        return this.$route.params.article_uid ? this.issueStore.viewerMode : 'image'
       },
       set(mode) {
         this.issueStore.updateViewerMode(mode)
-        this.init();
-      },
+        this.init()
+      }
     },
     showOutlines: {
       get() {
-        return this.issueStore.showOutlines;
+        return this.issueStore.showOutlines
       },
       set(showOutlines) {
         this.issueStore.updateOutlines(showOutlines)
-      },
+      }
     },
     filters: {
       get() {
@@ -375,15 +371,15 @@ export default {
         if (this.issue != null) {
           filters.push({
             type: 'issue',
-            q: this.issue.uid,
+            q: this.issue.uid
           })
         }
         return filters
       },
       set(filters) {
         this.issueFilters = filters.filter(({ type }) => type !== 'issue')
-      },
-    },
+      }
+    }
   },
   methods: {
     async init() {
@@ -396,7 +392,7 @@ export default {
       }
       if (!this.issue || this.issue.uid !== this.$route.params.issue_uid) {
         await this.loadIssue({
-          uid: this.$route.params.issue_uid,
+          uid: this.$route.params.issue_uid
         })
         this.isTocLoaded = false
       }
@@ -410,7 +406,7 @@ export default {
 
       if (!this.page || this.page.uid !== pageUid) {
         this.page = await this.loadPage({
-          uid: pageUid,
+          uid: pageUid
         })
         this.currentPageIndex = this.issue.pages.findIndex(p => p.uid === this.page.uid)
 
@@ -428,7 +424,7 @@ export default {
       if (this.$route.params.article_uid) {
         if (!this.article || this.article.uid !== this.$route.params.article_uid) {
           this.article = await this.loadArticle({
-            uid: this.$route.params.article_uid,
+            uid: this.$route.params.article_uid
           })
         }
       } else if (this.article) {
@@ -485,26 +481,23 @@ export default {
             'DC.language': this.article.language,
             'DC.publication': 'impresso',
             'DC.isPartOf': this.issue.newspaper.name,
-            'DCTERMS.issued': this.issue.date
-              .toISOString()
-              .split('T')
-              .shift(),
-            'DCTERMS.publisher': this.issue.newspaper.name,
+            'DCTERMS.issued': this.issue.date.toISOString().split('T').shift(),
+            'DCTERMS.publisher': this.issue.newspaper.name
           },
           og: {
-            'og:site_name': this.issue.newspaper.name,
+            'og:site_name': this.issue.newspaper.name
           },
           meta: {
             citation_newspaper_title: this.issue.newspaper.name,
-            description: this.article.excerpt,
-          },
+            description: this.article.excerpt
+          }
         }
       }
 
       renderMetaTags({
         title: titleParts.join(' · '),
         ...tags,
-        updateZotero: true,
+        updateZotero: true
       })
     },
     switchTab(tab) {
@@ -514,8 +507,8 @@ export default {
         name: this.$route.name,
         params: this.$route.params,
         query: {
-          tab,
-        },
+          tab
+        }
       })
     },
     updateMarginalia() {
@@ -527,12 +520,12 @@ export default {
           this.$tc(`label.${type}.title`, items.length),
           '</h4><ul>',
           items.map(listMapper(type)).join(''),
-          '</ul></section>',
+          '</ul></section>'
         ].join('')
       this.marginaliaLeft.innerHTML = sectionFormatter(this.pageTopics, 'topic')
       this.marginaliaRight.innerHTML = [
         sectionFormatter(this.pagePersons, 'person'),
-        sectionFormatter(this.pageLocations, 'location'),
+        sectionFormatter(this.pageLocations, 'location')
       ].join('')
       this.isMarginaliaUpdated = true
     },
@@ -549,9 +542,9 @@ export default {
         minZoomImageRatio: 0.5,
         gestureSettingsMouse: {
           clickToZoom: false,
-          dblClickToZoom: true,
+          dblClickToZoom: true
         },
-        visibilityRatio: 0.5,
+        visibilityRatio: 0.5
       })
       this.handler.emit('dispatch', viewer => {
         viewer.addHandler('animation', () => {
@@ -584,7 +577,7 @@ export default {
           self.marginaliaLeft.setAttribute('class', 'marginalia left')
           viewer.addOverlay(
             self.marginaliaLeft,
-            viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000),
+            viewer.viewport.imageToViewportRectangle(-4000, 0, 4000, 10000)
           )
           // create or reset marginalia right
           self.marginaliaRight = window.document.createElement('div')
@@ -595,8 +588,8 @@ export default {
               viewer.world.getItemAt(0).getContentSize().x,
               0,
               4000,
-              10000,
-            ),
+              10000
+            )
           )
           if (self.isMarginaliaLoaded) {
             self.updateMarginalia()
@@ -638,8 +631,8 @@ export default {
                   this.$router.push({
                     name: 'article',
                     params: {
-                      article_uid: articleUid,
-                    },
+                      article_uid: articleUid
+                    }
                   })
                 }
               })
@@ -658,7 +651,7 @@ export default {
                 region.coords.x,
                 region.coords.y,
                 region.coords.w,
-                region.coords.h,
+                region.coords.h
               )
               viewer.addOverlay(overlay, rect)
             })
@@ -671,7 +664,7 @@ export default {
                   y: match.coords[1],
                   w: match.coords[2],
                   h: match.coords[3],
-                  class: 'overlay-match',
+                  class: 'overlay-match'
                 }
                 this.handler.emit('add-overlay', overlay)
               }
@@ -685,37 +678,36 @@ export default {
     },
     loadIssue({ uid }) {
       // console.info('...loading issue', uid);
-      return this.issueStore.loadIssue(uid);
+      return this.issueStore.loadIssue(uid)
     },
     loadPage({ uid }) {
       // console.info('...loading page', uid);
-      return this.issueStore.loadPage(uid);
+      return this.issueStore.loadPage(uid)
     },
     loadPageTopics({ uid }) {
       // console.info('...loading marginalia topics', uid);
-      return this.entitiesStore.loadPageTopics(uid);
+      return this.entitiesStore.loadPageTopics(uid)
     },
     loadPageEntities({ uid }) {
       // console.info('...loading marginalia named entities', uid);
-      return this.entitiesStore.loadPageEntities(uid);
+      return this.entitiesStore.loadPageEntities(uid)
     },
     loadArticle({ uid }) {
       // console.info('...loading article', uid);
-      return this.issueStore.loadArticle(uid);
+      return this.issueStore.loadArticle(uid)
     },
     loadToC() {
       // console.info('...loading ToC', this.issue.uid);
-      return this.issueStore.loadTableOfContents()
-        .then((articles) => {
-          this.tocArticles = articles;
-          this.isTocLoaded = true;
-        });
+      return this.issueStore.loadTableOfContents().then(articles => {
+        this.tocArticles = articles
+        this.isTocLoaded = true
+      })
     },
     loadMarginalia() {
       // console.info('...loading marginalia:', this.page.uid);
       return Promise.all([
         this.loadPageTopics({ uid: this.page.uid }),
-        this.loadPageEntities({ uid: this.page.uid }),
+        this.loadPageEntities({ uid: this.page.uid })
       ]).then(([topicFacet, [locationFacet, personFacet]]) => {
         this.isMarginaliaLoaded = true
         this.pageTopics = topicFacet.buckets
@@ -739,7 +731,7 @@ export default {
       if (this.q.length > 0) {
         filters.push({
           type: 'string',
-          q: this.q,
+          q: this.q
         })
       }
 
@@ -754,22 +746,25 @@ export default {
         group_by: 'raw',
         page: this.matchesCurrentPage,
         limit: 12,
-        order_by: 'id',
+        order_by: 'id'
       }
 
-      searchService.find({
-        query,
-      }).then((res) => {
-        if (query.groupBy === 'articles') {
-          res.data = res.data.map(result => new Article(result));
-        }
-        return res;
-      }).then((result) => {
-        this.isSearchLoaded = true;
-        this.matches = result.data;
-        this.matchesTotalRows = result.total;
-        // console.info('-> search() success for q:', this.q);
-      })
+      searchService
+        .find({
+          query
+        })
+        .then(res => {
+          if (query.groupBy === 'articles') {
+            res.data = res.data.map(result => new Article(result))
+          }
+          return res
+        })
+        .then(result => {
+          this.isSearchLoaded = true
+          this.matches = result.data
+          this.matchesTotalRows = result.total
+          // console.info('-> search() success for q:', this.q);
+        })
     },
     selectArticle() {
       const self = this
@@ -794,8 +789,8 @@ export default {
         name: 'page',
         params: {
           issue_uid: this.issue.uid,
-          page_uid: page.uid,
-        },
+          page_uid: page.uid
+        }
       })
     },
     gotoArticle({ article }) {
@@ -805,11 +800,11 @@ export default {
         params: {
           issue_uid: this.issue.uid,
           article_uid: article.uid,
-          page_uid: article.pages[0]?.uid,
+          page_uid: article.pages[0]?.uid
         },
         query: {
-          tab: this.tab,
-        },
+          tab: this.tab
+        }
       })
     },
     keyDown(e) {
@@ -838,13 +833,13 @@ export default {
           .then(() => {})
           .catch(err => {
             console.info(
-              `Error attempting to enable full-screen mode: ${err.message} (${err.name})`,
+              `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
             )
           })
       } else {
         document.exitFullscreen()
       }
-    },
+    }
   },
   components: {
     OpenSeadragonViewer,
@@ -854,7 +849,7 @@ export default {
     SearchPills,
     Pagination,
     InfoButton,
-    RadioGroup,
+    RadioGroup
   },
   watch: {
     $route: {
@@ -862,14 +857,14 @@ export default {
       handler({ name, params, query }) {
         console.info('@$route changed:', name, params, query)
         this.init()
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 div.marginalia {
   // background: $clr-accent;

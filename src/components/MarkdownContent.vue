@@ -8,6 +8,7 @@ import axios from 'axios'
 import { ref, watch } from 'vue'
 import markdown from '@/filters/markdown'
 import LoadingBlock from './LoadingBlock.vue'
+import { marked } from 'marked'
 
 const props = defineProps<{
   url?: string
@@ -30,7 +31,7 @@ const loadContent = async () => {
     // remove front matter
     const frontMatterRegex = /^---[\s\S]*?---\n/
     data = data.replace(frontMatterRegex, '')
-    content.value = markdown(data)
+    content.value = await marked.parse(data)
     status.value = 'success'
     // get metadata values from frontMatter
     // title.value = response.data.match(/---\ntitle:\s?(.*)/)?.[1] || 'Terms oooOf Use'
