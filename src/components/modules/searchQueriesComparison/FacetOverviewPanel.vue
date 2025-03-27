@@ -5,14 +5,10 @@
       <div class="d-flex mb-3 ml-0 justify-content-between">
         <div class="col p-0 mr-auto">
           <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
-            {{
-              $tc(`label.${facet}.optionsTitle`)
-            }}
+            {{ $tc(`label.${facet}.optionsTitle`) }}
           </div>
           <span class="small">
-          {{
-            $tc(`label.${facet}.optionsDescription`)
-          }}
+            {{ $tc(`label.${facet}.optionsDescription`) }}
           </span>
         </div>
         <div class="col p-0 align-self-end">
@@ -22,7 +18,8 @@
                 :modelValue="displayStyle"
                 @update:modelValue="displayStyle = $event"
                 :options="displayStyleOptions"
-                type="button" />
+                type="button"
+              />
               <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
             </form>
           </li>
@@ -30,19 +27,28 @@
       </div>
       <div class="row mb-3">
         <timeline
-              :contrast="false"
-              :values="timelineValues"
-              @highlight="onHighlight"
-              @highlight-off="onHighlightOff"
-              :highlight="timelineHighlightValue"
-              :highlight-enabled-state="timelineHighlightEnabled"
-              :brushable="false">
+          :contrast="false"
+          :values="timelineValues"
+          @highlight="onHighlight"
+          @highlight-off="onHighlightOff"
+          :highlight="timelineHighlightValue"
+          :highlight-enabled-state="timelineHighlightEnabled"
+          :brushable="false"
+        >
           <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year', 'en') }} &middot;
-              <b v-html="$tc(displayStyle =='percent' ? 'numbers.resultsPercent' : 'numbers.results', tooltipScope.tooltip.item.w ?? 0, {
-                n: $n(tooltipScope.tooltip.item.w ?? 0),
-              })"/>
+              <b
+                v-html="
+                  $tc(
+                    displayStyle == 'percent' ? 'numbers.resultsPercent' : 'numbers.results',
+                    tooltipScope.tooltip.item.w ?? 0,
+                    {
+                      n: $n(tooltipScope.tooltip.item.w ?? 0)
+                    }
+                  )
+                "
+              />
             </div>
           </template>
         </timeline>
@@ -59,23 +65,31 @@
         :facet-type="facet"
         :default-click-action-disabled="true"
         @hovered="onHoverBar"
-        @barItemClick="param => $emit('facetItemClick', param)"/>
+        @barItemClick="param => $emit('facetItemClick', param)"
+      />
     </div>
 
     <b-button
       v-if="type === 'bars' && numberOfAvailableBucketsToLoad > 0"
-      size="sm" variant="outline-secondary" class="mt-2 mr-1"
-      @click="handleLoadMore">
+      size="sm"
+      variant="outline-secondary"
+      class="mt-2 mr-1"
+      @click="handleLoadMore"
+    >
       <span v-if="isLoading" v-html="$t('actions.loading')" />
       <span v-else>
         {{ $t('actions.more') }}
-        <span v-html="$tc('numbers.moreOptions', numberOfAvailableBucketsToLoad, {
-          n: $n(numberOfAvailableBucketsToLoad),
-        })"/>
+        <span
+          v-html="
+            $tc('numbers.moreOptions', numberOfAvailableBucketsToLoad, {
+              n: $n(numberOfAvailableBucketsToLoad)
+            })
+          "
+        />
       </span>
     </b-button>
 
-    <hr/>
+    <hr />
   </div>
 </template>
 
@@ -85,28 +99,30 @@ import Timeline from '@/components/modules/Timeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import Bucket from '@/models/Bucket'
 import { search } from '@/services'
-import RadioGroup from '@/components/layout/RadioGroup.vue';
+import RadioGroup from '@/components/layout/RadioGroup.vue'
 
 const DisplayStyles = ['percent', 'sum']
 
-const timelineValuesSorter = (a, b) => a.t - b.t;
+const timelineValuesSorter = (a, b) => a.t - b.t
 
 function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
-  if (!timelineRange) return timelineValues;
-  const [rangeMin, rangeMax] = timelineRange;
-  const presentYears = timelineValues.map(({ t }) => t);
+  if (!timelineRange) return timelineValues
+  const [rangeMin, rangeMax] = timelineRange
+  const presentYears = timelineValues.map(({ t }) => t)
 
-  const rangeSize = rangeMax - rangeMin;
-  if (isNaN(rangeSize)) return timelineValues;
+  const rangeSize = rangeMax - rangeMin
+  if (isNaN(rangeSize)) return timelineValues
 
-  const range = [...Array(rangeSize).keys()].map(i => rangeMin + i);
+  const range = [...Array(rangeSize).keys()].map(i => rangeMin + i)
 
-  return range.reduce((values, year) => {
-    if (presentYears.indexOf(year) === -1) {
-      values.push({ t: year, w: 0 });
-    }
-    return values;
-  }, timelineValues).sort(timelineValuesSorter);
+  return range
+    .reduce((values, year) => {
+      if (presentYears.indexOf(year) === -1) {
+        values.push({ t: year, w: 0 })
+      }
+      return values
+    }, timelineValues)
+    .sort(timelineValuesSorter)
 }
 
 export default {
@@ -126,13 +142,13 @@ export default {
     /** @type {import('vue').PropOptions<string>} */
     type: {
       type: String, // type of the visualisation component
-      validator: t => ['timeline', 'bars'].includes(t),
+      validator: t => ['timeline', 'bars'].includes(t)
     },
     /** @type {import('vue').PropOptions<Bucket[]>} */
     values: {
       type: Array, // array of `Bucket` objects.
       default: () => [],
-      validator: v => v.map(i => i instanceof Bucket).reduce((acc, v) => acc && v, true),
+      validator: v => v.map(i => i instanceof Bucket).reduce((acc, v) => acc && v, true)
     },
     /** @type {import('vue').PropOptions<{w: number, t: number}>} */
     timelineHighlightValue: {
@@ -146,7 +162,7 @@ export default {
     timelineDomain: {
       // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
       // type: Array,
-      validator: v => v.length === 0 || v.length === 2,
+      validator: v => v.length === 0 || v.length === 2
     },
     /** @type {import('vue').PropOptions<boolean>} */
     isLoading: {
@@ -154,66 +170,68 @@ export default {
     },
     /** @type {import('vue').PropOptions<number>} */
     numBuckets: {
-      type: Number,
+      type: Number
     }
   },
   components: {
     StackedBarsPanel,
     Timeline,
     InfoButton,
-    RadioGroup,
+    RadioGroup
   },
   computed: {
     /** @returns {string} */
     title() {
-      return this.$tc(`label.${this.facet}.title`, this.values.length || 1);
+      return this.$tc(`label.${this.facet}.title`, this.values.length || 1)
     },
     /** @returns {{w: number, t: number}[]} */
     timelineValues() {
       let v = this.values
         .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
-        .sort(timelineValuesSorter);
+        .sort(timelineValuesSorter)
 
       if (this.displayStyle === 'percent' && this.cachedUnfilteredCounts != null) {
         v = v.map(({ t, w }) => {
           // @ts-ignore
           const total = this.cachedUnfilteredCounts[t]
-          if (total > 0) return { t, w: (w / total) }
+          if (total > 0) return { t, w: w / total }
           return { t, w: 0 }
         })
       }
 
-      return fillEmptyYearsWithZeros(v, this.timelineDomainRange);
+      return fillEmptyYearsWithZeros(v, this.timelineDomainRange)
     },
     /** @returns {[string, string] | []} */
     timelineDomainRange() {
       if (this.timelineDomain.length === 2) {
-        return this.timelineDomain;
+        return this.timelineDomain
       }
-      const keys = this.values.map(({ val }) => val).sort();
-      return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : [];
+      const keys = this.values.map(({ val }) => val).sort()
+      return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : []
     },
     /** @returns {number} */
-    numberOfAvailableBucketsToLoad() { return this.numBuckets - this.values.length },
+    numberOfAvailableBucketsToLoad() {
+      return this.numBuckets - this.values.length
+    },
     /** @returns {any[]} */
     displayStyleOptions() {
       return DisplayStyles.map(value => ({
         text: this.$t(`label.display.${value}`),
-        value,
-      }));
+        value
+      }))
     }
   },
   methods: {
     /** @param {object} data */
     onHighlight(data) {
-      this.$emit('timeline-highlight', { facetId: this.facet, data });
+      this.$emit('timeline-highlight', { facetId: this.facet, data })
     },
     onHighlightOff() {
-      this.$emit('timeline-highlight-off', { facetId: this.facet });
+      this.$emit('timeline-highlight-off', { facetId: this.facet })
     },
     /** @param {object} val */
     onHoverBar(val) {
-      this.$emit('hovered', String(val));
+      this.$emit('hovered', String(val))
     },
     handleLoadMore() {
       this.$emit('load-more-items')
@@ -237,43 +255,43 @@ export default {
       }
     }
   }
-};
+}
 </script>
 
 <style lang="scss">
-  @import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-  @import "@/styles/variables.sass";
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/styles/variables.sass';
 
-  .facet-overview-panel{
-    &.left {
-      .viz-bar{
-        background-color: $inspect-compare-left-panel-color;
-      }
-      .d3-timeline g.context path.curve{
-        stroke: $inspect-compare-left-panel-color;
-      }
+.facet-overview-panel {
+  &.left {
+    .viz-bar {
+      background-color: $inspect-compare-left-panel-color;
     }
-    &.right {
-      .viz-bar{
-        background-color: $inspect-compare-right-panel-color;
-      }
-      .d3-timeline g.context path.curve{
-        stroke: $inspect-compare-right-panel-color;
-      }
-    }
-    &.middle {
-      .viz-bar{
-        background-color: $inspect-compare-middle-panel-color;
-      }
-      .d3-timeline g.context path.curve{
-        stroke: $inspect-compare-middle-panel-color;
-      }
-    }
-
-    .display-style {
-      float: right;
+    .d3-timeline g.context path.curve {
+      stroke: $inspect-compare-left-panel-color;
     }
   }
+  &.right {
+    .viz-bar {
+      background-color: $inspect-compare-right-panel-color;
+    }
+    .d3-timeline g.context path.curve {
+      stroke: $inspect-compare-right-panel-color;
+    }
+  }
+  &.middle {
+    .viz-bar {
+      background-color: $inspect-compare-middle-panel-color;
+    }
+    .d3-timeline g.context path.curve {
+      stroke: $inspect-compare-middle-panel-color;
+    }
+  }
+
+  .display-style {
+    float: right;
+  }
+}
 </style>
 
 <i18n lang="json">

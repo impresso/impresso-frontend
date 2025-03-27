@@ -314,6 +314,7 @@ label {
   border-radius: var(--border-radius-sm);
   white-space: nowrap;
 }
+
 .input-group .btn,
 .btn-group-sm > .btn {
   border-top-left-radius: 0;
@@ -349,6 +350,9 @@ label {
 .btn-outline-primary.disabled,
 .btn-outline-primary:disabled {
   background-color: var(--clr-grey-600) !important;
+}
+.btn-outline-primary:hover svg path {
+  stroke: currentColor;
 }
 
 .btn-outline-icon {

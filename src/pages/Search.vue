@@ -301,20 +301,24 @@ import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButto
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FACET_TYPES_DPFS = ['person', 'location', 'topic']
+const FacetTypesWithDPFS = ['person', 'location', 'topic']
 
-const FACET_TYPES_S = [
+const FacetTypesWithMultipleValues = [
   'language',
   'newspaper',
   'type',
   'country',
-  'accessRight',
   'partner',
   'year',
   'contentLength'
-]
+].concat(
+  // unsupported fields in new SOLR
+  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
+    ? ['dataDomain', 'copyright']
+    : ['accessRight']
+)
 
-const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS)
+const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
 export default {
   data: () => ({
@@ -490,7 +494,8 @@ export default {
     }
   },
   mounted() {
-    this.facets = buildEmptyFacets(FACET_TYPES)
+    console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
+    this.facets = buildEmptyFacets(FacetTypes)
   },
   methods: {
     isModalVisible(name) {
@@ -676,7 +681,7 @@ export default {
               page,
               limit,
               filters,
-              facets: FACET_TYPES_S,
+              facets: FacetTypesWithMultipleValues,
               order_by: orderBy,
               group_by: groupBy
             }
@@ -691,7 +696,7 @@ export default {
 
         this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
 
-        let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
+        let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
         // get remaining facets and enriched filters.
         const facetTypes = [
@@ -773,7 +778,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .navbar-nav {
   flex-direction: row;

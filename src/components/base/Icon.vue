@@ -31,8 +31,8 @@ interface Polygon {
 }
 
 interface IconData {
-  width: number
-  height: number
+  width?: number
+  height?: number
   paths: Path[]
   polygons?: Polygon[]
 }
@@ -83,8 +83,6 @@ const Icons: Record<string, IconData> = {
     ]
   },
   search: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `fill:transparent;stroke-width:${props.strokeWidth}px;`,
@@ -97,18 +95,14 @@ const Icons: Record<string, IconData> = {
     ]
   },
   play: {
-    width: 24,
-    height: 24,
     paths: [
       {
-        style: `fill:white; stroke:black; stroke-width:${props.strokeWidth}px;`,
+        style: `fill:white;stroke-width:${props.strokeWidth}px;`,
         d: 'M6.90588 4.53682C6.50592 4.2998 6 4.58808 6 5.05299V18.947C6 19.4119 6.50592 19.7002 6.90588 19.4632L18.629 12.5162C19.0211 12.2838 19.0211 11.7162 18.629 11.4838L6.90588 4.53682Z'
       }
     ]
   },
   edit: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
@@ -121,8 +115,6 @@ const Icons: Record<string, IconData> = {
     ]
   },
   check: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
@@ -135,8 +127,6 @@ const Icons: Record<string, IconData> = {
     ]
   },
   checkSquareSolid: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `fill:currentColor; stroke-width:${props.strokeWidth}px;`,
@@ -145,33 +135,41 @@ const Icons: Record<string, IconData> = {
     ]
   },
   chevron: {
-    width: 24,
-    height: 24,
     paths: [
       {
-        style: `fill:transparent; stroke:black; stroke-width:${props.strokeWidth}px;`,
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px;`,
         d: 'M6 9L12 15L18 9'
       }
     ]
   },
   copy: {
-    width: 24,
-    height: 24,
     // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M19.4 20H9.6C9.26863 20 9 19.7314 9 19.4V9.6C9 9.26863 9.26863 9 9.6 9H19.4C19.7314 9 20 9.26863 20 9.6V19.4C20 19.7314 19.7314 20 19.4 20Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M15 9V4.6C15 4.26863 14.7314 4 14.4 4H4.6C4.26863 4 4 4.26863 4 4.6V14.4C4 14.7314 4.26863 15 4.6 15H9" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M19.4 20H9.6C9.26863 20 9 19.7314 9 19.4V9.6C9 9.26863 9.26863 9 9.6 9H19.4C19.7314 9 20 9.26863 20 9.6V19.4C20 19.7314 19.7314 20 19.4 20Z'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M15 9V4.6C15 4.26863 14.7314 4 14.4 4H4.6C4.26863 4 4 4.26863 4 4.6V14.4C4 14.7314 4.26863 15 4.6 15H9'
       }
     ]
   },
+  copyright: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.5 9.17071C13.1872 9.06015 12.8506 9 12.5 9C10.8431 9 9.5 10.3431 9.5 12C9.5 13.6569 10.8431 15 12.5 15C12.8506 15 13.1872 14.9398 13.5 14.8293" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+    paths: [
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
+      },
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M13.5 9.17071C13.1872 9.06015 12.8506 9 12.5 9C10.8431 9 9.5 10.3431 9.5 12C9.5 13.6569 10.8431 15 12.5 15C12.8506 15 13.1872 14.9398 13.5 14.8293'
+      }
+    ]
+  },
   cross: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
@@ -183,50 +181,75 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
-  warningTriangle: {
-    width: 24,
-    height: 24,
+  text: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M19 7V5L5 5V7" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 5L12 19M12 19H10M12 19H14" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M19 7V5L5 5V7'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 5L12 19M12 19H10M12 19H14'
+      }
+    ]
+  },
+  textSquare: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 9V7L17 7V9" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 7V17M12 17H10M12 17H14" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M7 9V7L17 7V9'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 7V17M12 17H10M12 17H14'
+      }
+    ]
+  },
+  warningTriangle: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
         d: 'M20.0429 21H3.95705C2.41902 21 1.45658 19.3364 2.22324 18.0031L10.2662 4.01533C11.0352 2.67792 12.9648 2.67791 13.7338 4.01532L21.7768 18.0031C22.5434 19.3364 21.581 21 20.0429 21Z'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
         d: 'M12 9V13'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M12 17.01L12.01 16.9989'
       }
     ]
   },
   sendMail: {
     // <?xml version="1.0" encoding="UTF-8"?><svg width="30px" height="30px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M9 9L13.5 12L18 9" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 13.5H5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M1 10.5H5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 7.5V7C5 5.89543 5.89543 5 7 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H7C5.89543 19 5 18.1046 5 17V16.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"></path></svg>
-    width: 24,
-    height: 24,
+
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M9 9L13.5 12L18 9'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M3 13.5H5'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M1 10.5H5'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
         d: 'M5 7.5V7C5 5.89543 5.89543 5 7 5H20C21.1046 5 22 5.89543 22 7V17C22 18.1046 21.1046 19 20 19H7C5.89543 19 5 18.1046 5 17V16.5'
       }
     ]
   },
   info: {
-    width: 24,
-    height: 24,
     paths: [
       {
         style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;fill:transparent;`,
@@ -242,61 +265,155 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
-  // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z" stroke="#000000" stroke-width="1.5"></path><path d="M7 12.5L10 15.5L17 8.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-  checkSquare: {
-    width: 24,
-    height: 24,
+  language: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.5 9.17071C13.1872 9.06015 12.8506 9 12.5 9C10.8431 9 9.5 10.3431 9.5 12C9.5 13.6569 10.8431 15 12.5 15C12.8506 15 13.1872 14.9398 13.5 14.8293" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px;`,
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12Z'
+      },
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M13 2.04932C13 2.04932 16 5.99994 16 11.9999C16 17.9999 13 21.9506 13 21.9506'
+      },
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M11 21.9506C11 21.9506 8 17.9999 8 11.9999C8 5.99994 11 2.04932 11 2.04932'
+      },
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M2.62964 15.5H21.3704'
+      },
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M2.62964 8.5H21.3704'
+      }
+    ]
+  },
+  // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z" stroke="#000000" stroke-width="1.5"></path><path d="M7 12.5L10 15.5L17 8.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  checkSquare: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
         d: 'M3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4Z'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M7 12.5L10 15.5L17 8.5'
       }
     ]
   },
   square: {
-    width: 24,
-    height: 24,
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px;`,
+        style: `stroke-width:${props.strokeWidth}px;`,
         d: 'M3 3H21V21H3V3Z'
       }
     ]
   },
-  // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12 7L12 13" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 17.01L12.01 16.9989" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-  warningCircle: {
-    width: 24,
-    height: 24,
+  timer: {
     paths: [
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M9 2L15 2'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M12 10L12 14'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M12 22C16.4183 22 20 18.4183 20 14C20 9.58172 16.4183 6 12 6C7.58172 6 4 9.58172 4 14C4 18.4183 7.58172 22 12 22Z'
+      }
+    ]
+  },
+  journal: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M6 6L18 6'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M6 10H18'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M13 14L18 14'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M13 18L18 18'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M2 21.4V2.6C2 2.26863 2.26863 2 2.6 2H21.4C21.7314 2 22 2.26863 22 2.6V21.4C22 21.7314 21.7314 22 21.4 22H2.6C2.26863 22 2 21.7314 2 21.4Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px;`,
+        d: 'M6 18V14H9V18H6Z'
+      }
+    ]
+  },
+  warningCircle: {
+    paths: [
+      {
+        style: ` stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M12 7L12 13'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: ` stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M12 17.01L12.01 16.9989'
       },
       {
-        style: `fill:transparent; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        style: ` stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z'
       }
     ]
   }
 }
 
-const computedPaths = computed(() =>
-  props.paths.length ? (props.paths as any as Path[]) : Icons[props.name].paths
-)
-const computedPolygons = computed(() =>
-  props.polygons.length ? (props.polygons as Polygon[]) : Icons[props.name].polygons
-)
+const IconAliases: Record<string, string> = {
+  title: 'textSquare',
+  string: 'text',
+  daterange: 'timer',
+  year: 'timer',
+  month: 'timer',
+  newspaper: 'journal'
+}
+
+const computedPaths = computed(() => {
+  const icon = Icons[props.name] ?? Icons[IconAliases[props.name]]
+  if (!icon) {
+    console.warn(`Icon ${props.name} not found`)
+    return []
+  }
+  if (!icon.paths) {
+    return []
+  }
+  return props.paths.length ? (props.paths as Path[]) : icon.paths
+})
+
+const computedPolygons = computed(() => {
+  const icon = Icons[props.name] ?? Icons[IconAliases[props.name]]
+  if (!icon) {
+    console.warn(`Icon ${props.name} not found`)
+    return []
+  }
+  if (!icon.polygons) {
+    return []
+  }
+  return props.polygons.length ? (props.polygons as Polygon[]) : icon.polygons
+})
+
 const computedSvgViewbox = computed(() => {
-  const { width, height } = Icons[props.name]
-  return `0 0 ${width} ${height}`
+  const icon = Icons[props.name] ?? Icons[IconAliases[props.name]]
+  if (!icon) {
+    console.warn(`Icon ${props.name} not found`)
+    return '0 0 24 24'
+  }
+  const { width, height } = icon
+  return `0 0 ${width ?? 24} ${height ?? 24}`
 })
 
 const scaleValue = computed(() => {
@@ -307,5 +424,9 @@ const scaleValue = computed(() => {
 <style scoped>
 svg {
   fill: currentColor;
+}
+svg path {
+  fill: transparent;
+  stroke: currentColor;
 }
 </style>

@@ -7,17 +7,27 @@
             <b-nav-item
               @click="switchTab(TabBrowseList)"
               :active="tab === TabBrowseList"
-              active-class="active">
-              <span v-html="$t('tabs.entities.browseList', {
-                n: $n(paginationTotalRows)
-              })" />
+              active-class="active"
+            >
+              <span
+                v-html="
+                  $t('tabs.entities.browseList', {
+                    n: $n(paginationTotalRows)
+                  })
+                "
+              />
             </b-nav-item>
           </template>
           <template v-slot:default>
             <div class="p-2 px-3">
-              <b-input placeholder="filter entities" v-model.trim="suggestionQuery"/>
+              <b-input placeholder="filter entities" v-model.trim="suggestionQuery" />
               <div class="mt-2">
-                <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
+                <i-dropdown
+                  v-model="orderBy"
+                  v-bind:options="orderByOptions"
+                  size="sm"
+                  variant="outline-primary"
+                ></i-dropdown>
               </div>
             </div>
           </template>
@@ -41,16 +51,17 @@
           {{ $t('notFound') }}
         </div>
         <div class="p-4 text-center" v-else-if="isLoading">
-          {{ $t('actions.loading')}}
+          {{ $t('actions.loading') }}
         </div>
-        <entity-item v-for="(entity, i) in tabItems"
-            class="p-3 border-bottom"
-            v-bind:key="i"
-            v-bind:item="entity"
-            v-bind:active="entity.uid === selectedId"
-            show-link
-            :observed="observedItemIds.includes(entity.uid)"
-            @toggle-observed="handleToggleObserved"
+        <entity-item
+          v-for="(entity, i) in tabItems"
+          class="p-3 border-bottom"
+          v-bind:key="i"
+          v-bind:item="entity"
+          v-bind:active="entity.uid === selectedId"
+          show-link
+          :observed="observedItemIds.includes(entity.uid)"
+          @toggle-observed="handleToggleObserved"
         />
       </template>
     </list>
@@ -60,24 +71,20 @@
 </template>
 
 <script>
-import Entity from '@/models/Entity';
-import List from '@/components/modules/lists/List.vue';
-import EntityItem from '@/components/modules/lists/EntityItem.vue';
-import { entities as entitiesService } from '@/services';
-import { Navigation } from '@/plugins/Navigation';
+import Entity from '@/models/Entity'
+import List from '@/components/modules/lists/List.vue'
+import EntityItem from '@/components/modules/lists/EntityItem.vue'
+import { entities as entitiesService } from '@/services'
+import { Navigation } from '@/plugins/Navigation'
 
 const QueryParameters = Object.freeze({
-  SelectedEntitiesIds: 'items',
+  SelectedEntitiesIds: 'items'
 })
 
-const TabObservingList = 'obs';
-const TabBrowseList = 'list';
-const OrderByOptions = [
-  'name', '-name',
-  'count', '-count',
-  'count-mentions', '-count-mentions'
-];
-const OrderByDefault = '-count';
+const TabObservingList = 'obs'
+const TabBrowseList = 'list'
+const OrderByOptions = ['name', '-name', 'count', '-count', 'count-mentions', '-count-mentions']
+const OrderByDefault = '-count'
 
 export default {
   data: () => ({
@@ -88,7 +95,7 @@ export default {
     paginationTotalRows: 0,
     items: [],
     observedItems: [],
-    isLoading: false,
+    isLoading: false
   }),
   computed: {
     $navigation() {
@@ -98,15 +105,17 @@ export default {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
-        totalRows: this.paginationTotalRows,
-      };
+        totalRows: this.paginationTotalRows
+      }
     },
     observedItemIds: {
       /** @returns {string[]} */
       get() {
         try {
           // @ts-ignore
-          const items = /** @type {string} */ (window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds]))
+          const items = /** @type {string} */ (
+            window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds])
+          )
           return items != null ? items.split(',') : []
         } catch (e) {
           return []
@@ -116,27 +125,25 @@ export default {
       set(items) {
         this.$navigation.updateQueryParameters({
           // @ts-ignore
-          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? window.btoa(items.join(',')) : undefined
+          [QueryParameters.SelectedEntitiesIds]:
+            items.length > 0 ? window.btoa(items.join(',')) : undefined
         })
-      },
+      }
     },
     tabItems() {
-      return this.tab === TabObservingList ? this.observedItems : this.items;
+      return this.tab === TabObservingList ? this.observedItems : this.items
     },
     tab: {
       get() {
-        return [
-          TabObservingList,
-          TabBrowseList,
-        ].includes(this.$route.query.tab)
+        return [TabObservingList, TabBrowseList].includes(this.$route.query.tab)
           ? this.$route.query.tab
-          : TabBrowseList;
+          : TabBrowseList
       },
       set(tab) {
         this.$navigation.updateQueryParameters({
-          tab,
-        });
-      },
+          tab
+        })
+      }
     },
     serviceQuery: {
       get() {
@@ -144,42 +151,42 @@ export default {
           q: this.suggestionQuery,
           limit: this.paginationPerPage,
           page: this.paginationCurrentPage,
-          orderBy: this.orderBy,
-        };
-      },
+          orderBy: this.orderBy
+        }
+      }
     },
     selectedId() {
-      return this.$route.params.entity_id;
+      return this.$route.params.entity_id
     },
     orderByOptions() {
       return OrderByOptions.map(value => ({
         value,
-        text: this.$t(`sort_${value}`),
+        text: this.$t(`sort_${value}`)
       }))
     },
     orderBy: {
       get() {
         return OrderByOptions.includes(this.$route.query.orderBy)
           ? this.$route.query.orderBy
-          : OrderByDefault;
+          : OrderByDefault
       },
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          orderBy,
-        });
-      },
+          orderBy
+        })
+      }
     },
     suggestionQuery: {
       get() {
-        return this.$route.query.q ?? '';
+        return this.$route.query.q ?? ''
       },
       set(q) {
-        this.paginationCurrentPage = 1;
+        this.paginationCurrentPage = 1
         this.$navigation.updateQueryParametersWithHistory({
-          q,
-        });
-      },
-    },
+          q
+        })
+      }
+    }
   },
   methods: {
     switchTab(tab) {
@@ -187,44 +194,48 @@ export default {
         name: 'entities',
         query: {
           ...this.$route.query,
-          tab,
-        },
+          tab
+        }
       })
     },
     handleToggleObserved(item) {
       if (this.observedItemIds.includes(item.uid)) {
-        this.observedItemIds = this.observedItemIds.filter(uid => uid !== item.uid);
+        this.observedItemIds = this.observedItemIds.filter(uid => uid !== item.uid)
       } else {
-        this.observedItemIds = this.observedItemIds.concat(item.uid);
+        this.observedItemIds = this.observedItemIds.concat(item.uid)
       }
     },
     resetObservedItems() {
-      this.observedItemIds = [];
+      this.observedItemIds = []
     },
     changePage(page = 1) {
-      this.paginationCurrentPage = page;
-    },
+      this.paginationCurrentPage = page
+    }
   },
   watch: {
     observedItemIds: {
       handler(itemIds, previousItemsIds = []) {
         if (!itemIds.length) {
-          this.observedItems = [];
+          this.observedItems = []
         } else if (itemIds.join('-') !== previousItemsIds.join('-')) {
           // load items only if the list changed. That's a weird behaviour.
-          entitiesService.find({
-            query: {
-              filters: [{
-                type: 'uid',
-                q: itemIds,
-              }],
-            },
-          }).then(({ data }) => {
-            this.observedItems = data.map(d => new Entity(d));
-          });
+          entitiesService
+            .find({
+              query: {
+                filters: [
+                  {
+                    type: 'uid',
+                    q: itemIds
+                  }
+                ]
+              }
+            })
+            .then(({ data }) => {
+              this.observedItems = data.map(d => new Entity(d))
+            })
         }
       },
-      immediate:true,
+      immediate: true
     },
     serviceQuery: {
       async handler(params, oldParams) {
@@ -232,50 +243,52 @@ export default {
         const oldParamsStr = JSON.stringify(oldParams)
         if (newParamsStr === oldParamsStr) {
           // Params are the same: ${newParamsStr} ${oldParamsStr}`)
-          return;
+          return
         }
-        const { q, limit, page, orderBy } = params;
+        const { q, limit, page, orderBy } = params
         if (this.isLoading) {
-          console.warn('loading already... please try again later on');
-          return;
+          console.warn('loading already... please try again later on')
+          return
         }
-        this.isLoading = true;
+        this.isLoading = true
         const query = {
           page,
           limit,
-          order_by: orderBy,
-        };
-        if (q.length) {
-          query.q = q.split('*').concat(['*']).join('');
+          order_by: orderBy
         }
-        this.items = [];
-        return entitiesService.find({
-          query,
-        }).then(({ data, total }) => {
-          this.paginationTotalRows = total;
-          this.items = data.map(d => new Entity(d));
-          this.isLoading = false;
-        });
+        if (q.length) {
+          query.q = q.split('*').concat(['*']).join('')
+        }
+        this.items = []
+        return entitiesService
+          .find({
+            query
+          })
+          .then(({ data, total }) => {
+            this.paginationTotalRows = total
+            this.items = data.map(d => new Entity(d))
+            this.isLoading = false
+          })
       },
       deep: true,
-      immediate:true,
+      immediate: true
     }
   },
   components: {
     List,
-    EntityItem,
-  },
-};
+    EntityItem
+  }
+}
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 a.d-block:hover {
   text-decoration: none;
 }
 a.d-block.active {
-    background: $clr-accent-secondary;
+  background: $clr-accent-secondary;
 }
 </style>
 
