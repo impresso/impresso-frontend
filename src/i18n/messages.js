@@ -339,14 +339,13 @@ export default {
         optionsDescription: 'Total number of articles per day'
       },
       daterange: {
-        title: 'filter by date of publication',
+        title: 'Filter by date of publication',
         item: 'From {start} to {end}'
       },
       entity: {
         title: 'filter by entity mentioned (experimental)'
       },
       isFront: 'frontpage',
-      isFront: 'only results on the front page',
       language: {
         title: 'Language | Language | Languages',
         filterTitle: 'language of articles',

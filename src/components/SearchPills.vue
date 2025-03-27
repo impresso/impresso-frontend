@@ -2,16 +2,16 @@
   <div class="search-pills d-flex" :class="{ empty: isEmpty }" data-testid="search-pills">
     <div
       v-if="isFrontFilterEnabled"
-      class="search-pill front-filter mr-1 mb-1 d-flex align-items-center border-radius"
+      class="btn btn-sm btn-outline-primary py-0 pr-1 mr-1 mb-1 d-flex align-items-center"
     >
       <div class="label">{{ $t('label.isFront') }}</div>
-      <b-button
-        class="dripicons-cross"
+      <button
         @click="handleFrontpageFilterRemoved"
-        size="sm"
-        variant="transparent"
+        class="btn btn-sm btn-transparent p-0 m-0"
         data-testid="remove-frontpage-filter-button"
-      ></b-button>
+      >
+        <Icon name="cross" />
+      </button>
     </div>
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
       <b-dropdown
@@ -414,15 +414,22 @@ export default {
 @import '@/styles/variables.sass';
 
 .bg-dark .search-pills {
-  .front-filter,
-  .front-filter .btn {
-    border-color: #caccce;
-    color: #caccce;
-  }
-
   .search-pill button {
     border-color: #caccce;
     color: #caccce;
+  }
+  .btn-outline-primary {
+    color: white !important;
+    svg path {
+      stroke: white;
+    }
+  }
+  .btn-outline-primary:hover {
+    background-color: transparent !important;
+    color: #caccce !important;
+    svg path {
+      stroke: #caccce;
+    }
   }
 }
 
@@ -442,25 +449,10 @@ export default {
 .search-pills {
   display: flex;
   flex-flow: wrap;
-
-  .front-filter {
-    border: 1px solid;
-    font-size: 14px;
-    line-height: 25px;
-    padding-left: 0.5rem;
-
-    .btn {
-      line-height: 10px;
-      padding: 0;
-      border: 1px solid black;
-      border-radius: 20px;
-      margin: 0 0.25rem;
-      margin-left: 0.35rem;
-      width: 20px;
-      height: 20px;
-    }
+  .btn-outline-primary:hover {
+    background-color: transparent !important;
+    color: var(--impresso-color-black) !important;
   }
-
   .search-pill {
     span.label {
       font-variant: normal;
