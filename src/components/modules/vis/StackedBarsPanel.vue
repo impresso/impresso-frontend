@@ -48,28 +48,28 @@ export default {
       type: Array,
       default: () => [],
       validator: buckets =>
-        buckets.map(b => b instanceof BucketModel).reduce((acc, v) => v && acc, true),
+        buckets.map(b => b instanceof BucketModel).reduce((acc, v) => v && acc, true)
     },
     /** @type {import('vue').PropOptions<string>} */
     facetType: { type: String }, // type of facet to render
     /** @type {import('vue').PropOptions<boolean>} */
     defaultClickActionDisabled: {
       type: Boolean,
-      default: false,
+      default: false
     },
     searchIndex: {
       type: String,
-      default: 'search',
-    },
+      default: 'search'
+    }
   },
   components: {
-    VizBar,
+    VizBar
   },
   computed: {
     /** @returns {number} */
     maxValue() {
       return Math.max(...this.buckets.map(b => b.count))
-    },
+    }
   },
   methods: {
     /**
@@ -91,13 +91,13 @@ export default {
      */
     isHovered(bucket) {
       return this.hoverId === bucket?.item?.uid
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .wrapper {
   flex-direction: column;

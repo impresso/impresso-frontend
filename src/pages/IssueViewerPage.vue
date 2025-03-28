@@ -824,7 +824,7 @@ export default {
 </i18n>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 .IssueViewerPage_matchingArticles .number {
   font-weight: bold;
 }

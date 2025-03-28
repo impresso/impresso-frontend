@@ -19,21 +19,21 @@ export default {
   props: {
     smallCaps: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   computed: {
     getClasses() {
       return {
-        'with-options': !!this.$slots.options,
+        'with-options': !!this.$slots.options
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style scoped lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .tb {
   // padding-top:1px;

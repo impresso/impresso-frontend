@@ -120,8 +120,11 @@
         </span>
       </b-button>
     </div>
-    <div class="d-flex mt-2" v-if="selectedBucketsIds.length && !isFiltered">
-      <b-button size="sm" variant="outline-primary" class="w-100" @click="createFilter">
+    <div
+      class="d-flex mt-2 position-sticky bg-light bottom-0"
+      v-if="selectedBucketsIds.length && !isFiltered"
+    >
+      <b-button size="sm" variant="outline-primary" class="w-100 mt-1 mb-2" @click="createFilter">
         {{ $t(`actions.apply`) }}
       </b-button>
     </div>

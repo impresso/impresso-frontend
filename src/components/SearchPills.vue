@@ -2,16 +2,16 @@
   <div class="search-pills d-flex" :class="{ empty: isEmpty }" data-testid="search-pills">
     <div
       v-if="isFrontFilterEnabled"
-      class="search-pill front-filter mr-1 mb-1 d-flex align-items-center border-radius"
+      class="btn btn-sm btn-outline-primary py-0 pr-1 mr-1 mb-1 d-flex align-items-center"
     >
       <div class="label">{{ $t('label.isFront') }}</div>
-      <b-button
-        class="dripicons-cross"
+      <button
         @click="handleFrontpageFilterRemoved"
-        size="sm"
-        variant="transparent"
+        class="btn btn-sm btn-transparent p-0 m-0"
         data-testid="remove-frontpage-filter-button"
-      ></b-button>
+      >
+        <Icon name="cross" />
+      </button>
     </div>
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
       <b-dropdown
@@ -20,10 +20,21 @@
         class="mr-1 mb-1 search-pill"
         :data-testid="`search-pill-${filter.type}`"
       >
+        <!-- {{ filter.type }} -->
         <!--  button content -->
         <template v-slot:button-content>
           <!-- badge: initial type instead of icons -->
-          <span
+          <span class="position-relative mx-1" style="padding-left: 20px">
+            <Icon
+              class="m-0 position-absolute left-0"
+              style="top: -3px"
+              :height="20"
+              :width="20"
+              :stroke-width="1.5"
+              :name="filter.type"
+            ></Icon>
+          </span>
+          <!-- <span
             class="filter-icon"
             :class="[
               { 'dripicons-align-justify': filter.type === 'string' },
@@ -45,7 +56,7 @@
               { 'dripicons-scale': numericTypes.includes(filter.type) }
             ]"
             :title="$tc(`label.${filter.type}.title`, 0)"
-          />
+          /> -->
           <!--  type:string, type:title -->
           <span
             class="label sp-string sp-title"
@@ -76,7 +87,15 @@
           <span
             class="label sp-generic-item"
             v-if="
-              ['language', 'country', 'type', 'accessRight', 'partner'].indexOf(filter.type) !== -1
+              [
+                'language',
+                'country',
+                'type',
+                'accessRight',
+                'copyright',
+                'dataDomain',
+                'partner'
+              ].indexOf(filter.type) !== -1
             "
             v-html="
               labelByItems({
@@ -195,6 +214,7 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
+import Icon from './base/Icon.vue'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -384,7 +404,8 @@ export default {
   },
   components: {
     FilterMonitor,
-    Explorer
+    Explorer,
+    Icon
   }
 }
 </script>
@@ -393,15 +414,22 @@ export default {
 @import '@/styles/variables.sass';
 
 .bg-dark .search-pills {
-  .front-filter,
-  .front-filter .btn {
-    border-color: #caccce;
-    color: #caccce;
-  }
-
   .search-pill button {
     border-color: #caccce;
     color: #caccce;
+  }
+  .btn-outline-primary {
+    color: white !important;
+    svg path {
+      stroke: white;
+    }
+  }
+  .btn-outline-primary:hover {
+    background-color: transparent !important;
+    color: #caccce !important;
+    svg path {
+      stroke: #caccce;
+    }
   }
 }
 
@@ -421,25 +449,10 @@ export default {
 .search-pills {
   display: flex;
   flex-flow: wrap;
-
-  .front-filter {
-    border: 1px solid;
-    font-size: 14px;
-    line-height: 25px;
-    padding-left: 0.5rem;
-
-    .btn {
-      line-height: 10px;
-      padding: 0;
-      border: 1px solid black;
-      border-radius: 20px;
-      margin: 0 0.25rem;
-      margin-left: 0.35rem;
-      width: 20px;
-      height: 20px;
-    }
+  .btn-outline-primary:hover {
+    background-color: transparent !important;
+    color: var(--impresso-color-black) !important;
   }
-
   .search-pill {
     span.label {
       font-variant: normal;
@@ -542,64 +555,6 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "label": {
-      "string": {
-        "title": "article text"
-      },
-      "isFront": "frontpage",
-      "title": {
-        "title": "title"
-      },
-      "country": {
-        "title": "Country of publication"
-      },
-      "topic": {
-        "title": "filter by topic"
-      },
-      "person": {
-        "title": "filter by person mentioned (experimental)"
-      },
-      "location": {
-        "title": "filter by location (experimental)"
-      },
-      "entity": {
-        "title": "filter by entity mentioned (experimental)"
-      },
-      "collection": {
-        "title": "filter by collection"
-      },
-      "newspaper": {
-        "title": "filter by newspaper"
-      },
-      "daterange": {
-        "title": "filter by date of publication",
-        "item": "From {start} to {end}"
-      },
-      "range": {
-        "title": "filter by {label}",
-        "item": "{label} between {start} and {end}"
-      },
-      "textReuseClusterSize": {
-        "title": "filter by text reuse cluster size",
-        "item": "Cluster size"
-      },
-      "textReuseClusterLexicalOverlap": {
-        "title": "filter by text reuse cluster lexical overlap",
-        "item": "Lexical overlap"
-      },
-      "textReuseClusterDayDelta": {
-        "title": "filter by text reuse time span in days",
-        "item": "Text reuse time span"
-      },
-      "textReuseCluster": {
-        "title": "filter by text reuse cluster",
-        "item": "Text reuse cluster id"
-      },
-      "contentLength": {
-        "title": "filter by content length",
-        "item": "Content length"
-      }
-    },
     "items": {
       "hidden": "({count} more)"
     },

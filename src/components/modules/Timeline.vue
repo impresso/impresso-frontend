@@ -46,18 +46,18 @@ export default {
     highlightEnabledState: Boolean,
     brushable: {
       type: Boolean,
-      default: true,
+      default: true
     },
     height: {
       type: String,
-      default: '85px',
+      default: '85px'
     },
     resolution: {
       type: String,
       default: 'year',
       validator(value) {
         return [undefined, 'year', 'month', 'day'].includes(value)
-      },
+      }
     },
     dataTestid: {
       type: String,
@@ -70,26 +70,26 @@ export default {
       y: 0,
       isActive: false
     },
-    item: {},
+    item: {}
   }),
   computed: {
     heightVal() {
       if (typeof this.height === 'string') return this.height
       return 'auto'
-    },
+    }
   },
   methods: {
     moveTooltip(data) {
       this.tooltip = {
         isActive: true,
         x: data.pointer.x + 50,
-        y: data.pointer.y - 50,
+        y: data.pointer.y - 50
       }
       this.item = data.datum
     },
     onResize() {
       this.timeline.resize()
-    },
+    }
   },
   mounted() {
     if (this.contrast) {
@@ -98,10 +98,10 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 15,
+          top: 15
         },
         domain: this.domain,
-        format: getTimeFormatForResolution(this.resolution),
+        format: getTimeFormatForResolution(this.resolution)
       })
     } else {
       this.timeline = new Timeline({
@@ -109,11 +109,11 @@ export default {
         margin: {
           left: 10,
           right: 10,
-          top: 15,
+          top: 15
         },
         domain: this.domain,
         brushable: this.brushable,
-        format: getTimeFormatForResolution(this.resolution),
+        format: getTimeFormatForResolution(this.resolution)
       })
       setTimeout(() => this.timeline.resize(), 0)
     }
@@ -154,7 +154,7 @@ export default {
 
     if (this.values && this.values.length) {
       this.timeline.update({
-        data: this.values,
+        data: this.values
       })
 
       this.timeline.draw()
@@ -163,7 +163,7 @@ export default {
         const [min, max] = this.brush
         this.timeline.brushTo({
           min,
-          max,
+          max
         })
       }
 
@@ -181,23 +181,23 @@ export default {
         if (this.timeline) {
           this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w'
           this.timeline.update({
-            data: this.values,
+            data: this.values
           })
           this.timeline.draw()
         }
-      },
+      }
     },
     highlight: {
       immediate: false,
       handler(val) {
         this.timeline.highlight(val)
-      },
+      }
     },
     highlightEnabledState: {
       immediate: false,
       handler(val) {
         this.tooltip.isActive = val
-      },
+      }
     },
     brush: {
       immediate: false,
@@ -206,10 +206,10 @@ export default {
           const [min, max] = val
           this.timeline.brushTo({
             min,
-            max,
+            max
           })
         }
-      },
+      }
     },
     values: {
       immediate: true,
@@ -217,7 +217,7 @@ export default {
       handler(data) {
         if (this.timeline) {
           this.timeline.update({
-            data,
+            data
           })
           this.timeline.draw()
 
@@ -225,27 +225,27 @@ export default {
             const [min, max] = this.brush
             this.timeline.brushTo({
               min,
-              max,
+              max
             })
           }
         }
-      },
+      }
     },
     resolution: {
       handler(resolution) {
         this.timeline.updateTimeFormat(getTimeFormatForResolution(resolution))
         this.timeline.draw()
-      },
-    },
+      }
+    }
   },
   components: {
-    Tooltip,
-  },
+    Tooltip
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .d3-timeline {
   width: 100%;
@@ -297,7 +297,8 @@ export default {
       // fill: $clr-accent;
     }
 
-    rect.handle--e {}
+    rect.handle--e {
+    }
   }
 }
 </style>

@@ -488,7 +488,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 .wikibox {
   background: $clr-bg-secondary;
 }

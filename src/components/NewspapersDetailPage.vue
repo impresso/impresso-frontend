@@ -5,7 +5,9 @@
       <BNavbar>
         <section>
           <span class="label small-caps">
-            <router-link :to="getRoute({ name: 'newspapers' })">&larr; {{ $t('newspapers') }}</router-link>
+            <router-link :to="getRoute({ name: 'newspapers' })"
+              >&larr; {{ $t('newspapers') }}</router-link
+            >
           </span>
           <h3>
             {{ newspaper.name }}
@@ -20,7 +22,12 @@
 
       <BTabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <BNavItem :to="getRoute({ name: 'newspaper_metadata' })" exact active-class="active" class="pl-2">
+          <BNavItem
+            :to="getRoute({ name: 'newspaper_metadata' })"
+            exact
+            active-class="active"
+            class="pl-2"
+          >
             <span>{{ $t('route.newspaper_metadata') }}</span>
           </BNavItem>
           <BNavItem :to="getRoute({ name: 'newspaper' })" exact active-class="active" class="pl-2">
@@ -43,14 +50,18 @@
           </BNavItem>
         </BNavbarNav>
         <BNavbarNav v-if="$route.name === 'newspaper'" class="p-2">
-          <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm"
-            variant="outline-primary"></i-dropdown>
+          <i-dropdown
+            v-model="orderBy"
+            v-bind:options="orderByOptions"
+            size="sm"
+            variant="outline-primary"
+          ></i-dropdown>
         </BNavbarNav>
       </BNavbar>
     </template>
     <!-- eof:header  -->
 
-    <div class="px-3 py-2 " v-if="$route.name == 'newspaper_metadata'">
+    <div class="px-3 py-2" v-if="$route.name == 'newspaper_metadata'">
       <div class="pt-3">
         <h3 class="mx-2 tb-title small-caps font-weight-bold">articles per year</h3>
         <p class="mx-2 description small">
@@ -94,7 +105,12 @@
         <div class="col-lg-12 col-xl-6">
           <div class="row">
             <div class="col-lg-12 col-xl-6" v-for="(facet, idx) in facets" v-bind:key="idx">
-              <stacked-bars-panel class="" :label="facet.type" :buckets="facet.buckets" :facet-type="facet.type" />
+              <stacked-bars-panel
+                class=""
+                :label="facet.type"
+                :buckets="facet.buckets"
+                :facet-type="facet.type"
+              />
             </div>
           </div>
         </div>
@@ -103,14 +119,23 @@
     <div v-if="$route.name !== 'newspaper_metadata'">
       <div class="p-4">
         <div class="row">
-          <div class="col-sm-12 col-md-6 col-lg-4 col-xl-2 mb-4" v-for="(issue, i) in issues" :key="i">
+          <div
+            class="col-sm-12 col-md-6 col-lg-4 col-xl-2 mb-4"
+            v-for="(issue, i) in issues"
+            :key="i"
+          >
             <issue-item :item="issue" />
           </div>
         </div>
       </div>
       <div class="fixed-pagination-footer p-1 mb-2 m-0">
-        <pagination v-bind:perPage="limit" v-bind:currentPage="page" v-bind:totalRows="total"
-          v-on:change="onInputPagination" v-bind:showDescription="false" />
+        <pagination
+          v-bind:perPage="limit"
+          v-bind:currentPage="page"
+          v-bind:totalRows="total"
+          v-on:change="onInputPagination"
+          v-bind:showDescription="false"
+        />
       </div>
     </div>
   </i-layout-section>
@@ -136,11 +161,10 @@ import BTabs from './legacy/bootstrap/BTabs.vue'
 import {
   issues as IssuesService,
   searchFacets as searchFacetsService,
-  newspapers as newspapersService,
+  newspapers as newspapersService
 } from '@/services'
-import Helpers from '@/plugins/Helpers';
+import Helpers from '@/plugins/Helpers'
 import { Navigation } from '@/plugins/Navigation'
-
 
 const OrderByOptions = ['-date', 'date']
 const OrderByDefault = '-date'
@@ -164,8 +188,8 @@ export default {
       'topic',
       'partner',
       'accessRight',
-      'collection',
-    ],
+      'collection'
+    ]
   }),
   computed: {
     filters: mapFilters(),
@@ -176,14 +200,14 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: 'newspaper', q: this.newspaper.uid }],
-        }),
+          filters: [{ type: 'newspaper', q: this.newspaper.uid }]
+        })
       }
     },
     orderByOptions() {
       return OrderByOptions.map(value => ({
         value,
-        text: this.$t(`sort_${value}`),
+        text: this.$t(`sort_${value}`)
       }))
     },
     orderBy: {
@@ -193,9 +217,9 @@ export default {
       },
       set(orderBy) {
         this.$navigation.updateQueryParametersWithHistory({
-          [CommonQueryParameters.OrderBy]: orderBy,
+          [CommonQueryParameters.OrderBy]: orderBy
         })
-      },
+      }
     },
     institution: {
       get() {
@@ -224,7 +248,7 @@ export default {
         }
         if (ret !== '') return ret
         return false
-      },
+      }
     },
     genealogy: {
       get() {
@@ -233,18 +257,18 @@ export default {
           return noteGenealogy.value
         }
         return false
-      },
+      }
     },
     publication: {
       get() {
         const notePublicationDates = this.newspaper.properties.find(
-          d => d.name === 'notePublicationDates',
+          d => d.name === 'notePublicationDates'
         )
         if (notePublicationDates) {
           return notePublicationDates.value
         }
         return false
-      },
+      }
     },
     startYear() {
       return window.impressoDocumentsYearSpan.firstYear
@@ -260,15 +284,15 @@ export default {
         filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
         page: this.page,
         order_by: this.orderBy,
-        limit: this.limit,
+        limit: this.limit
       }
-    },
+    }
   },
   methods: {
     applyFilter() {
       const newFilter = {
         type: 'newspaper',
-        q: this.newspaper.uid,
+        q: this.newspaper.uid
       }
 
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
@@ -278,20 +302,21 @@ export default {
         ...route,
         query: {
           ...this.$route.query,
-          ...route.query,
-        },
+          ...route.query
+        }
       }
     },
     onInputPagination(page) {
       this.page = page
     },
     loadTimeline() {
-      return searchFacetsService.get('year', {
-        query: {
-          filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
-          limit: 500,
-        },
-      })
+      return searchFacetsService
+        .get('year', {
+          query: {
+            filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+            limit: 500
+          }
+        })
         .then(res => Helpers.timeline.fromBuckets(res.buckets))
         .then(values => {
           this.timevalues = values
@@ -301,14 +326,14 @@ export default {
       this.facets = []
       const query = {
         facets: this.facetTypes,
-        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        filters: [{ type: 'newspaper', q: [this.newspaperUid] }]
         // group_by: 'articles',
       }
 
       this.facets = await searchFacetsService
         .find({ query })
         .then(result => result.data.map(item => new Facet(item)))
-    },
+    }
   },
   watch: {
     newspaperUid: {
@@ -320,7 +345,7 @@ export default {
           await this.loadFacets()
         }
       },
-      immediate: true,
+      immediate: true
     },
     issuesServiceQuery: {
       handler(query) {
@@ -333,8 +358,8 @@ export default {
           })
           .catch(console.error)
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   components: {
     Pagination,
@@ -343,13 +368,13 @@ export default {
     IssueItem,
     BNavbar,
     BNavItem,
-    BNavbarNav,
-  },
+    BNavbarNav
+  }
 }
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .newspaper-page {
   img.logo {
@@ -385,7 +410,8 @@ export default {
   .b-table {
     background-color: white;
 
-    th {}
+    th {
+    }
 
     td[aria-colindex='2'] {
       overflow-wrap: anywhere;
@@ -394,7 +420,8 @@ export default {
   }
 }
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "sort_date": "order by date ↑",
     "sort_-date": "order by date ↓",
@@ -409,4 +436,5 @@ export default {
       "countArticles": "Articles: "
     }
   }
-}</i18n>
+}
+</i18n>

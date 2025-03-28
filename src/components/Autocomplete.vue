@@ -400,7 +400,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .search-bar {
   position: relative;

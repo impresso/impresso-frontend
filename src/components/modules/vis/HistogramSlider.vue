@@ -332,8 +332,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 .histogram-slider {
   .slider {
     width: 100% !important;
@@ -363,7 +361,7 @@ export default {
       font-size: 12px;
 
       .point {
-        fill: $clr-primary;
+        fill: var(--impresso-color-black);
       }
     }
   }

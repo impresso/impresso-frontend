@@ -489,7 +489,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .IssueViewerText__region {
   cursor: pointer;
