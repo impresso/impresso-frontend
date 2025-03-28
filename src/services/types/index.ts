@@ -2,6 +2,7 @@ import type { ServiceMethods } from '@feathersjs/feathers'
 import { ImageService } from './images'
 import { EmbeddingsService } from './embeddings'
 import { DatalabSupportService } from './datalabSupport'
+import { BaristaService } from './barista'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -26,6 +27,7 @@ export interface Services extends UntypedServices {
   ['datalab-support']: DatalabSupportService
   images: ImageService
   embeddings: EmbeddingsService
+  ['barista-proxy']: BaristaService
 }
 
 export interface Group {

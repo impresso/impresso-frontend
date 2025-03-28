@@ -261,6 +261,10 @@
           />
         </div>
       </div>
+
+      <div>
+        <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
+      </div>
     </i-layout-section>
   </i-layout>
 </template>
@@ -298,6 +302,7 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import BaristaButton from '@/components/barista/BaristaButton.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -658,6 +663,16 @@ export default {
           })
         ])
       )
+    },
+    updateSearchFromBarista(filters) {
+      console.log('Barista suggests', filters)
+      this.$router.push({
+        name: 'search',
+        query: {
+          ...this.$route.query,
+          sq: filters
+        }
+      })
     }
   },
   watch: {
@@ -767,7 +782,8 @@ export default {
     SearchSidebar,
     InfoButton,
     Modal,
-    CopyToDatalabButton
+    CopyToDatalabButton,
+    BaristaButton
   }
 }
 </script>

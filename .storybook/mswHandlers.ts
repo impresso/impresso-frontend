@@ -49,9 +49,37 @@ const getImpressoPyFunction = http.get('/api/datalab-support/impresso-py-functio
   })
 })
 
+const sendBaristaMessage = http.post('/api/barista-proxy', () => {
+  console.log('xx')
+  return HttpResponse.json({
+    messages: [
+      {
+        content: '',
+        additional_kwargs: {
+          tool_calls: [
+            {
+              id: 'call_gfcb',
+              function: {
+                arguments:
+                  '{"filters": [{"type": "string", "context": "include", "op": "AND", "precision": "exact", "q": "Boom"}]}',
+                name: 'Filters'
+              },
+              type: 'function'
+            }
+          ]
+        },
+        type: 'ai',
+        name: null,
+        id: 'run-87678cbe-0a69-493f-9007-428f9d9da12e-0'
+      }
+    ]
+  })
+})
+
 export const handlers = {
   getYearFacetHandler,
   getEntity,
   getMe,
-  getImpressoPyFunction
+  getImpressoPyFunction,
+  sendBaristaMessage
 }
