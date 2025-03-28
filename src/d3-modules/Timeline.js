@@ -36,7 +36,9 @@ export default class Timeline extends Line {
           name: 'y',
           property: 'w',
           type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scaleLinear
+          scaleFn: d3.scalePow,
+          exponent: 4,
+          isScalePow: true
         })
       }
     })
@@ -168,6 +170,10 @@ export default class Timeline extends Line {
         ...d,
         t: d.t instanceof Date ? d.t : this.timeParse(d.t)
       }))
+    })
+    this.dimensions.y.setDomain({
+      domain: [0, this.dimensions.y.domain[1]],
+      fixed: true
     })
     // idx of this data where the y value is at its maximum
     const ymaxIdx = this.data.findIndex(

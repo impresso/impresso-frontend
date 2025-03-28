@@ -1,35 +1,29 @@
-import * as d3 from 'd3';
-import EventEmitter from 'events';
+import * as d3 from 'd3'
+import EventEmitter from 'events'
 
 export default class Basic extends EventEmitter {
-  constructor({
-    svg = null,
-    element = null,
-    dimensions = {},
-    margin = {},
-  } = {}) {
-    super();
-    this.dimensions = dimensions;
-    this.element = element;
+  constructor({ svg = null, element = null, dimensions = {}, margin = {} } = {}) {
+    super()
+    this.dimensions = dimensions
+    this.element = element
     this.margin = {
       top: 0,
       left: 0,
       bottom: 0,
       right: 0,
-      ...margin,
-    };
+      ...margin
+    }
     if (svg) {
-      this.svg = svg;
+      this.svg = svg
     } else {
-      this.svg = d3.select(element).append('svg')
-        .attr('preserveAspectRatio', 'none');
+      this.svg = d3.select(element).append('svg').attr('preserveAspectRatio', 'none')
     }
     this.svg.on('click', () => {
-      this.emit('svg.click');
-    });
+      this.emit('svg.click')
+    })
 
-    this.g = this.svg.append('g').attr('class', 'm');
-    this.emit('svg.init');
+    this.g = this.svg.append('g').attr('class', 'm')
+    this.emit('svg.init')
     // this.resize();
   }
 
@@ -44,9 +38,9 @@ export default class Basic extends EventEmitter {
     this.dimensions[name].update({
       property,
       values,
-      range,
-    });
-    this.emit('dimension.updated', this.dimensions[name]);
+      range
+    })
+    this.emit('dimension.updated', this.dimensions[name])
   }
 
   // getNearestValue(year) {
@@ -64,19 +58,17 @@ export default class Basic extends EventEmitter {
    * @return {null}
    */
   resize() {
-    let rect = {};
+    let rect = {}
     if (this.element) {
-      rect = this.element.getBoundingClientRect();
+      rect = this.element.getBoundingClientRect()
     } else {
-      rect = this.svg.node().parentNode.getBoundingClientRect();
+      rect = this.svg.node().parentNode.getBoundingClientRect()
     }
-    this.width = +rect.width;
-    this.height = +rect.height;
+    this.width = +rect.width
+    this.height = +rect.height
     // set svg properties directly
-    this.svg
-      .attr('width', this.width)
-      .attr('height', this.height);
+    this.svg.attr('width', this.width).attr('height', this.height)
 
-    this.emit('svg.resized');
+    this.emit('svg.resized')
   }
 }

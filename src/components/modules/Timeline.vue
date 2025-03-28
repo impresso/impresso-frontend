@@ -30,6 +30,7 @@
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
 import Tooltip from './tooltips/Tooltip.vue'
+import * as d3 from 'd3'
 
 const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
@@ -40,6 +41,10 @@ export default {
     values: Array,
     brush: Array, // brush values
     domain: Array,
+    exponent: {
+      type: Number,
+      default: 2
+    },
     highlight: Object,
     contrast: Boolean,
     percentage: Boolean,
@@ -149,6 +154,7 @@ export default {
     })
 
     if (this.percentage) {
+      this.timeline.dimensions.y.exponent = 1
       this.timeline.dimensions.y.property = 'p'
     }
 
@@ -175,11 +181,29 @@ export default {
     window.removeEventListener('resize', this.onResize)
   },
   watch: {
+    exponent: {
+      immediate: false,
+      handler(val) {
+        if (this.timeline) {
+          this.timeline.dimensions.y.exponent = val
+          this.timeline.update({
+            data: this.values
+          })
+          this.timeline.draw()
+        }
+      }
+    },
     percentage: {
       immediate: false,
       handler() {
         if (this.timeline) {
-          this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w'
+          if (this.percentage) {
+            this.timeline.dimensions.y.exponent = 1
+            this.timeline.dimensions.y.property = 'p'
+          } else {
+            this.timeline.dimensions.y.exponent = 2
+            this.timeline.dimensions.y.property = 'w'
+          }
           this.timeline.update({
             data: this.values
           })

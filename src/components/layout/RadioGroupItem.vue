@@ -11,7 +11,7 @@
       @change="handleChanged"
     />
     <Icon v-if="option.iconName != null && option.iconPosition == 'left'" :name="option.iconName" />
-    {{ option.text }}
+    <span v-html="option.text"></span>
     <Icon
       v-if="option.iconName != null && ['right', undefined].includes(option.iconPosition)"
       :name="option.iconName"
@@ -47,17 +47,17 @@ export interface Option {
 
 const props = defineProps({
   modelValue: {
-    type: Boolean,
+    type: Boolean
   },
   type: {
     type: String as PropType<'radio' | 'button'>,
     default: 'radio',
-    validator: (t: string) => ['radio', 'button'].includes(t),
+    validator: (t: string) => ['radio', 'button'].includes(t)
   },
   option: {
     type: Object as PropType<Option>,
-    required: true,
-  },
+    required: true
+  }
 })
 const emit = defineEmits(['update:modelValue'])
 const uid = computed(() => v4())

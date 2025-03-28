@@ -1,5 +1,5 @@
 <template>
-  <div class="filter-timeline">
+  <div class="FilterTimeline">
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
@@ -21,17 +21,22 @@
         <span v-else>
           {{ $t(`label.timelineDescription.${groupBy}.description.${displayStyle}`) }}
         </span>
-        <li v-if="!disableRelativeDisplayStyle" class="form-inline">
-          <form class="form-inline">
-            <radio-group
-              :modelValue="displayStyle"
-              @update:modelValue="displayStyle = $event"
-              :options="displayStyleOptions"
-              type="button"
-            />
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </form>
-        </li>
+        <form v-if="!disableRelativeDisplayStyle" class="form-inline m-2">
+          <radio-group
+            :modelValue="displayStyle"
+            @update:modelValue="displayStyle = $event"
+            :options="displayStyleOptions"
+            type="button"
+          />
+          <info-button name="relative-vs-absolute-year-graph" class="mx-2" />
+          <radio-group
+            :modelValue="exponent"
+            @update:modelValue="exponent = $event"
+            :options="exponentOptions"
+            type="button"
+          />
+          <info-button name="linear-vs-quadratic-year-graph" class="ml-2" />
+        </form>
       </template>
     </base-title-bar>
 
@@ -42,6 +47,7 @@
       :brushable="false"
       :brush="brush"
       @brush-end="onTimelineBrushEnd"
+      :exponent="exponent"
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
@@ -154,7 +160,8 @@ export default {
     temporaryFilter: null,
     selectedFilterBrush: [],
     selectedFilterIndex: -1,
-    displayStyle: 'sum'
+    displayStyle: 'sum',
+    exponent: 4
   }),
   components: {
     BaseTitleBar,
@@ -199,6 +206,12 @@ export default {
     displayStyleOptions() {
       return ['percent', 'sum'].map(value => ({
         text: this.$t(`label.display.${value}`),
+        value
+      }))
+    },
+    exponentOptions() {
+      return [1, 4].map(value => ({
+        text: this.$t(`label.exponent.${value}`),
         value
       }))
     },
@@ -314,7 +327,12 @@ export default {
 }
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css">
+.FilterTimeline .form-inline .btn {
+  padding: 4px 4px;
+  line-height: 1em;
+}
+</style>
 <i18n lang="json">
 {
   "en": {
@@ -359,6 +377,10 @@ export default {
       "display": {
         "sum": "sum",
         "percent": "%"
+      },
+      "exponent": {
+        "1": "linear",
+        "4": "quadratic"
       },
       "daterange": {
         "pick": "add new date filter ...",
