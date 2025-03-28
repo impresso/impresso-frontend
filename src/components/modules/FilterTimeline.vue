@@ -35,7 +35,8 @@
             :options="exponentOptions"
             type="button"
           />
-          <info-button name="linear-vs-quadratic-year-graph" class="ml-2" />
+          <info-button name="linear-vs-power-scale-year-graph" class="ml-2" />
+          {{ exponent }}
         </form>
       </template>
     </base-title-bar>
@@ -47,21 +48,23 @@
       :brushable="false"
       :brush="brush"
       @brush-end="onTimelineBrushEnd"
-      :exponent="exponent"
+      :exponent="parseInt(exponent, 10)"
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
       <template v-slot="tooltipScope">
-        <div v-if="tooltipScope.tooltip.item">
-          {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }}
-          &middot;
-          <b>{{ tooltipScope?.tooltip?.item?.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
-          {{ groupBy }}
-          <!-- <br />
-          <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-          &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-          ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-          </span> -->
+        <div v-if="tooltipScope.tooltip?.item?.t">
+          <div v-if="isPercentage">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+            &middot;
+            <b>{{ $n(tooltipScope.tooltip.item.p) }}%</b>
+          </div>
+          <div v-else>
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+            &middot;
+            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
+            {{ groupBy }}
+          </div>
         </div>
       </template>
     </timeline>
@@ -130,6 +133,11 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
 
+const DisplayStyleSum = 'sum'
+const DisplayStylePercent = 'percent'
+const ExponentLinear = '1'
+const ExponentPower = '4'
+
 export default {
   name: 'FilterTimeline',
   props: {
@@ -160,8 +168,8 @@ export default {
     temporaryFilter: null,
     selectedFilterBrush: [],
     selectedFilterIndex: -1,
-    displayStyle: 'sum',
-    exponent: 4
+    displayStyle: DisplayStylePercent,
+    exponent: ExponentLinear
   }),
   components: {
     BaseTitleBar,
@@ -201,23 +209,23 @@ export default {
       return d.split('T').shift()
     },
     isPercentage() {
-      return this.displayStyle === 'percent'
+      return this.displayStyle === DisplayStylePercent
+    },
+    // a string of min amd max date
+    dateRangeString() {
+      return `${this.startDaterange} - ${this.endDaterange}`
     },
     displayStyleOptions() {
-      return ['percent', 'sum'].map(value => ({
+      return [DisplayStylePercent, DisplayStyleSum].map(value => ({
         text: this.$t(`label.display.${value}`),
         value
       }))
     },
     exponentOptions() {
-      return [1, 4].map(value => ({
+      return [ExponentLinear, ExponentPower].map(value => ({
         text: this.$t(`label.exponent.${value}`),
         value
       }))
-    },
-    // a string of min amd max date
-    dateRangeString() {
-      return `${this.startDaterange} - ${this.endDaterange}`
     }
   },
   methods: {
@@ -380,7 +388,7 @@ export default {
       },
       "exponent": {
         "1": "linear",
-        "4": "quadratic"
+        "4": "power scale"
       },
       "daterange": {
         "pick": "add new date filter ...",

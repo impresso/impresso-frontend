@@ -10,7 +10,24 @@ export default class Timeline extends Line {
     format = '%Y',
     domain = [],
     brushable = false,
-    brushFormat = '%Y-%m-%d'
+    brushFormat = '%Y-%m-%d',
+    dimensions = {
+      x: new Dimension({
+        name: 'x',
+        property: 't',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleTime
+      }),
+      y: new Dimension({
+        name: 'y',
+        property: 'w',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scalePow,
+        exponent: 1,
+        isScalePow: true
+      })
+    },
+    contextPeakTextFn = d => d
   } = {}) {
     super({
       element,
@@ -25,22 +42,7 @@ export default class Timeline extends Line {
       ticks: {
         offset: 9
       },
-      dimensions: {
-        x: new Dimension({
-          name: 'x',
-          property: 't',
-          type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scaleTime
-        }),
-        y: new Dimension({
-          name: 'y',
-          property: 'w',
-          type: Dimension.TYPE_CONTINUOUS,
-          scaleFn: d3.scalePow,
-          exponent: 4,
-          isScalePow: true
-        })
-      }
+      dimensions
     })
 
     this.timeFormat = d3.timeFormat(format)
@@ -57,7 +59,7 @@ export default class Timeline extends Line {
       .append('text')
       .attr('text-anchor', 'middle')
       .attr('dy', -4)
-
+    this.contextPeakTextFn = contextPeakTextFn
     this.brushable = brushable
     if (brushable) {
       this.brushFormat = brushFormat
@@ -152,7 +154,7 @@ export default class Timeline extends Line {
     if (this.maxDatum) {
       const xmax = this.dimensions.x.scale(this.maxDatum[this.dimensions.x.property])
       this.contextPeak.attr('transform', `translate(${xmax},0)`)
-      this.contextPeakText.text(this.maxDatum[this.dimensions.y.property])
+      this.contextPeakText.text(this.contextPeakTextFn(this.maxDatum[this.dimensions.y.property]))
     }
     // this.contextPeak.attr('transform',
     //
@@ -162,6 +164,7 @@ export default class Timeline extends Line {
   /**
    * Ensure we deal with dates
    * @param  {Array}  [data=[]               } = {}] [description]
+   * @param {Array}  [domain=[]             } = {}] [description]
    * @return {[type]}          [description]
    */
   update({ data = [] } = {}) {
@@ -171,10 +174,7 @@ export default class Timeline extends Line {
         t: d.t instanceof Date ? d.t : this.timeParse(d.t)
       }))
     })
-    this.dimensions.y.setDomain({
-      domain: [0, this.dimensions.y.domain[1]],
-      fixed: true
-    })
+
     // idx of this data where the y value is at its maximum
     const ymaxIdx = this.data.findIndex(
       d => d[this.dimensions.y.property] >= this.dimensions.y.domain[1]
