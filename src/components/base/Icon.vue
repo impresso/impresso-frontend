@@ -181,8 +181,40 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  label: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round;`,
+        d: 'M3 17.4V6.6C3 6.26863 3.26863 6 3.6 6H16.6789C16.8795 6 17.0668 6.10026 17.1781 6.26718L20.7781 11.6672C20.9125 11.8687 20.9125 12.1313 20.7781 12.3328L17.1781 17.7328C17.0668 17.8997 16.8795 18 16.6789 18H3.6C3.26863 18 3 17.7314 3 17.4Z'
+      }
+    ]
+  },
+  position: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 19V21" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5 12H3" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 5V3" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M19 12H21" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 19V21'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M5 12H3'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 5V3'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M19 12H21'
+      }
+    ]
+  },
   text: {
-    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M19 7V5L5 5V7" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 5L12 19M12 19H10M12 19H14" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     paths: [
       {
         style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
@@ -379,7 +411,9 @@ const IconAliases: Record<string, string> = {
   daterange: 'timer',
   year: 'timer',
   month: 'timer',
-  newspaper: 'journal'
+  newspaper: 'journal',
+  type: 'label',
+  country: 'position'
 }
 
 const computedPaths = computed(() => {

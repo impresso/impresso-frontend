@@ -103,7 +103,6 @@ export default class Line extends Basic {
     const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property])
 
     this.contextPointer.attr('transform', `translate(${pointerX},${pointerY})`)
-    console.debug('mousemove', mouseX, mouseY, pointerX, pointerY, this.data[index])
     this.emit('mousemove', {
       mouse: {
         x: mouseX,

@@ -1,10 +1,9 @@
 <template>
   <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`" :data-testid="dataTestid">
     <tooltip :tooltip="tooltip">
-      <slot :tooltip="{ ...tooltip, item }">
-        <div v-if="item">
-          {{ item }}
-        </div>
+      <!-- "meta" tooltip -->
+      <slot :tooltip="tooltip">
+        <div v-if="tooltip.item">{{ tooltip.item }}</div>
       </slot>
     </tooltip>
   </div>
@@ -30,6 +29,8 @@
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
 import Tooltip from './tooltips/Tooltip.vue'
+import * as d3 from 'd3'
+import Dimension from '@/d3-modules/Dimension'
 
 const getTimeFormatForResolution = resolution =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
@@ -40,6 +41,10 @@ export default {
     values: Array,
     brush: Array, // brush values
     domain: Array,
+    exponent: {
+      type: Number,
+      default: 1
+    },
     highlight: Object,
     contrast: Boolean,
     percentage: Boolean,
@@ -83,15 +88,57 @@ export default {
       this.tooltip = {
         isActive: true,
         x: data.pointer.x + 50,
-        y: data.pointer.y - 50
+        y: data.pointer.y - 50,
+        item: data.datum
       }
-      this.item = data.datum
     },
     onResize() {
       this.timeline.resize()
+    },
+    forceTimelineUpdate() {
+      if (!this.timeline) {
+        console.warn('Timeline not initialized.')
+        return
+      }
+      if (!this.values || this.values.length === 0) {
+        console.warn('No values provided to the timeline.')
+        return
+      }
+      this.timeline.dimensions.y.domain[0] = 0
+      this.timeline.dimensions.y.domain[1] = d3.max(
+        this.values,
+        d => d[this.timeline.dimensions.y.property]
+      )
+      this.timeline.update({
+        data: this.values
+      })
+      this.timeline.draw()
     }
   },
   mounted() {
+    const dimensions = {
+      x: new Dimension({
+        name: 'x',
+        property: 't',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scaleTime
+      }),
+      y: new Dimension({
+        name: 'y',
+        property: this.percentage ? 'p' : 'w',
+        type: Dimension.TYPE_CONTINUOUS,
+        scaleFn: d3.scalePow,
+        autoCalculateDomain: false,
+        exponent: 1,
+        isScalePow: true
+      })
+    }
+    const contextPeakTextFn = v => {
+      if (this.percentage) {
+        return this.$n(v) + '%'
+      }
+      return this.$n(v)
+    }
     if (this.contrast) {
       this.timeline = new ContrastTimeline({
         element: this.$refs.timeline,
@@ -101,7 +148,9 @@ export default {
           top: 15
         },
         domain: this.domain,
-        format: getTimeFormatForResolution(this.resolution)
+        format: getTimeFormatForResolution(this.resolution),
+        dimensions,
+        contextPeakTextFn
       })
     } else {
       this.timeline = new Timeline({
@@ -113,9 +162,14 @@ export default {
         },
         domain: this.domain,
         brushable: this.brushable,
-        format: getTimeFormatForResolution(this.resolution)
+        format: getTimeFormatForResolution(this.resolution),
+        dimensions,
+        contextPeakTextFn
       })
-      setTimeout(() => this.timeline.resize(), 0)
+      setTimeout(() => {
+        this.forceTimelineUpdate()
+        this.timeline.resize()
+      }, 0)
     }
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false
@@ -148,42 +202,27 @@ export default {
       this.$emit('clear-selection')
     })
 
-    if (this.percentage) {
-      this.timeline.dimensions.y.property = 'p'
-    }
-
-    if (this.values && this.values.length) {
-      this.timeline.update({
-        data: this.values
-      })
-
-      this.timeline.draw()
-      // check brush
-      if (this.brush && this.brush.length) {
-        const [min, max] = this.brush
-        this.timeline.brushTo({
-          min,
-          max
-        })
-      }
-
-      setTimeout(this.onChangeDomain, 5000)
-    }
     window.addEventListener('resize', this.onResize)
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.onResize)
   },
   watch: {
+    exponent: {
+      immediate: false,
+      handler(val) {
+        if (this.timeline) {
+          this.timeline.dimensions.y.exponent = val
+          this.forceTimelineUpdate()
+        }
+      }
+    },
     percentage: {
       immediate: false,
       handler() {
         if (this.timeline) {
           this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w'
-          this.timeline.update({
-            data: this.values
-          })
-          this.timeline.draw()
+          this.forceTimelineUpdate()
         }
       }
     },
@@ -216,10 +255,7 @@ export default {
       deep: true,
       handler(data) {
         if (this.timeline) {
-          this.timeline.update({
-            data
-          })
-          this.timeline.draw()
+          this.forceTimelineUpdate()
 
           if (this.brush && this.brush.length) {
             const [min, max] = this.brush
@@ -291,13 +327,6 @@ export default {
     rect.selection {
       fill: $clr-accent;
       stroke: $clr-accent;
-    }
-
-    rect.handle {
-      // fill: $clr-accent;
-    }
-
-    rect.handle--e {
     }
   }
 }

@@ -245,6 +245,14 @@
             ]
           },
           {
+            "id": "linear-vs-power-scale-year-graph",
+            "title": "What is the difference between LINEAR and POWER scale?",
+            "summary": "A <b>LINEAR</b> scale increases by a constant amount each step (e.g., +10 articles per year: 10, 20, 30...). A <b>POWER</b> is a scale power (“pow”) scale, similar to linear scales, except an exponential transform is applied to the input domain value before the output range value is computed. ",
+            "description": [
+              "<p>This means the number of articles per year grows much faster over time compared to linear or quartic trends.</p> "
+            ]
+          },
+          {
             "id": "filter-range",
             "title": "How can I filter results by article length?",
             "summary": "Article length is measured by the number of tokens, which are essentially individual words or symbols in the article. The content length filter uses a histogram to display the distribution of articles according to their length, grouping them into intervals of similar length.",
