@@ -262,9 +262,11 @@
         </div>
       </div>
 
-      <div>
-        <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
-      </div>
+      <AuthGate v-if="isBaristaEnabled">
+        <template #authenticated>
+          <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
+        </template>
+      </AuthGate>
     </i-layout-section>
   </i-layout>
 </template>
@@ -303,6 +305,7 @@ import { Navigation } from '@/plugins/Navigation'
 import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import BaristaButton from '@/components/barista/BaristaButton.vue'
+import AuthGate from '@/components/AuthGate.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -496,6 +499,9 @@ export default {
     },
     base64Filters() {
       return this.searchQueryHash
+    },
+    isBaristaEnabled() {
+      return window.impressoFeatures?.barista?.enabled
     }
   },
   mounted() {
@@ -788,7 +794,8 @@ export default {
     InfoButton,
     Modal,
     CopyToDatalabButton,
-    BaristaButton
+    BaristaButton,
+    AuthGate
   }
 }
 </script>

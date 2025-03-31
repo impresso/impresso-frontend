@@ -50,7 +50,6 @@ const getImpressoPyFunction = http.get('/api/datalab-support/impresso-py-functio
 })
 
 const sendBaristaMessage = http.post('/api/barista-proxy', () => {
-  console.log('xx')
   return HttpResponse.json({
     messages: [
       {
@@ -76,10 +75,15 @@ const sendBaristaMessage = http.post('/api/barista-proxy', () => {
   })
 })
 
+const collectErrors = http.post('/api/errors-collector', () => {
+  return HttpResponse.json({})
+})
+
 export const handlers = {
   getYearFacetHandler,
   getEntity,
   getMe,
   getImpressoPyFunction,
-  sendBaristaMessage
+  sendBaristaMessage,
+  collectErrors
 }
