@@ -1,5 +1,4 @@
-import type { App } from 'vue'
-import { version as versionService, app as appService, me as meService } from '@/services'
+import { version as versionService, app as appService } from '@/services'
 import { useUserStore } from './stores/user'
 import { useNotificationsStore } from './stores/notifications'
 import { reducedTimeoutPromise } from './services/utils'

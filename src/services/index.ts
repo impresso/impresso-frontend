@@ -192,6 +192,7 @@ export const userRequests = app.service('user-requests')
 export const subscriptionDatasets = app.service('subscriptions')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
+export const barista = app.service('barista-proxy')
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH

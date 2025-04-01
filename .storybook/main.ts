@@ -10,9 +10,11 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: '@storybook/vue3-vite',
-    options: {}
+    options: {
+      docgen: 'vue-component-meta'
+    }
   },
-  env: (config) => ({
+  env: config => ({
     ...config,
     // use rest transport in storybook to make mocking easier
     VITE_API_TRANSPORT: 'rest',

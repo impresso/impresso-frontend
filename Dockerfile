@@ -21,8 +21,8 @@ COPY env.d.ts .prettierrc.json index.html ./
 COPY vite.config.ts vitest.config.ts ./
 COPY .env .env.production ./
 
-ENV PUBLIC_PATH /app/
-ENV NODE_ENV production
+ENV PUBLIC_PATH=/app/
+ENV NODE_ENV=production
 ENV VITE_GIT_TAG=${GIT_TAG}
 ENV VITE_GIT_BRANCH=${GIT_BRANCH}
 ENV VITE_GIT_REVISION=${GIT_REVISION}

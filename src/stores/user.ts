@@ -80,12 +80,20 @@ export const useUserStore = defineStore('user', {
         })
     },
     async refreshUser() {
-      return meService.find().then(d => {
-        console.info('[store/user]', d)
-        const user = new User(d)
-        this.userData = user
-        return user
-      })
+      return meService
+        .find()
+        .then(d => {
+          console.info('[store/user]', d)
+          const user = new User(d)
+          this.userData = user
+          return user
+        })
+        .catch(err => {
+          if (err.response?.status === 401) {
+            this.userData = false
+          }
+          throw err
+        })
     },
     async login({ email, password }: { email: string; password: string }) {
       const authResult = await app.authenticate({
