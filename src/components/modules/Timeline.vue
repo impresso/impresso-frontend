@@ -100,7 +100,7 @@ export default {
         console.warn('Timeline not initialized.')
         return
       }
-      if (!this.values || this.values.length === 0) {
+      if (!this.values) {
         console.warn('No values provided to the timeline.')
         return
       }
