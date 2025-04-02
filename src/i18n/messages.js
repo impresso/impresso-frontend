@@ -49,13 +49,22 @@ export default {
       },
       country: {
         CH: 'Switzerland',
-        LU: 'Luxembourg'
+        LU: 'Luxembourg',
+        FR: 'France',
+        DE: 'Germany',
+        AT: 'Austria',
+        IT: 'Italy',
+        BE: 'Belgium',
+        UK: 'United Kingdom'
       },
       dataProvider: {
         SNL: 'Swiss National Library',
         BNL: 'Luxembourg National Library',
         NZZ: 'NZZ',
-        Migros: 'Migros'
+        Migros: 'Migros',
+
+        BNF: 'Bibliothèque nationale de France',
+        SFA: 'Swiss Federal Archives'
       },
       partner: {
         SNL: 'Swiss National Library',
