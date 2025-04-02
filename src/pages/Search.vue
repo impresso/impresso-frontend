@@ -714,9 +714,10 @@ export default {
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false
-
-        this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
-
+        // @todo next tick
+        this.$nextTick(() => {
+          this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
+        })
         let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
         // get remaining facets and enriched filters.
