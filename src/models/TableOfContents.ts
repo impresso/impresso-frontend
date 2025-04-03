@@ -1,7 +1,26 @@
 import ArticleBase from './ArticleBase'
 
+interface Newspaper {
+  uid?: string
+  id?: string
+  type?: string
+}
+
+interface TableOfContentsConstructor {
+  articles?: any[]
+  images?: any[]
+  newspaper?: Newspaper
+}
+
 export default class TableOfContents {
-  constructor({ articles = [], images = [], newspaper = {} }) {
+  articles: ArticleBase[]
+  images: any[]
+  newspaper: {
+    id: string
+    type: string
+  }
+
+  constructor({ articles = [], images = [], newspaper = {}, ...rest }: TableOfContentsConstructor) {
     this.articles = articles
       .map(d => new ArticleBase(d))
       .filter(d => d.pages.length > 0)
@@ -13,7 +32,7 @@ export default class TableOfContents {
       })
     this.images = images
     this.newspaper = {
-      id: newspaper.uid,
+      id: newspaper.uid || '',
       type: 'newspaper'
     }
   }
