@@ -25,7 +25,9 @@
     "format": "prettier --write src/",
     "start": "npm run serve",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@feathersjs/authentication-client": "5.0.25",
