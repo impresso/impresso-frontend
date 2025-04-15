@@ -21,8 +21,12 @@ const meta: Meta<typeof OSViewer> = {
       description: 'Current page index (v-model capable)'
     },
     pages: {
-      control: 'array',
+      control: { type: 'object' },
       description: 'Array of page URLs'
+    },
+    pageRegions: {
+      control: { type: 'object' },
+      description: 'Array of page regions with coordinates'
     },
     gap: {
       control: { type: 'number', min: 0, step: 0.1 },
@@ -79,8 +83,9 @@ const meta: Meta<typeof OSViewer> = {
         </div>
         <OSViewer 
           :pages="pages" 
+          :pageRegions="pageRegions"
           v-model:pageIndex="currentPageIndex"
-          :gap="0.1"
+          :gap="gap"
         />
       </div>
     `

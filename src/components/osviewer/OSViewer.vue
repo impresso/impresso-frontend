@@ -7,7 +7,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import OpenSeadragon from 'openseadragon'
-import { getPageIndexFromCenterX } from './OSViewer.logic'
+import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
+import { createOpenSeadragon } from '@/services/openseadragon'
 
 export interface OSViewerProps {
   pages: string[]
@@ -25,13 +26,14 @@ export interface OSViewerProps {
   }[]
 }
 
+const pageIndex = defineModel<number>('pageIndex', { default: 0 })
+
 const props = withDefaults(defineProps<OSViewerProps>(), {
   gap: 0.1,
   margin: 0.5,
   pageRegions: () => []
 })
 
-const pageIndex = defineModel<number>('pageIndex', { default: 0 })
 const isMouseDragging = ref(false)
 // Add a debounce timer for updating the model
 const dragDebounceTimer = ref<number | null>(null)
@@ -41,6 +43,8 @@ const emit = defineEmits<{
 }>()
 
 const osdViewer = ref<HTMLDivElement | null>(null)
+const currentPageOverlay = ref<HTMLDivElement | null>(null)
+
 const dimensions = ref({ width: 0, height: 0, aspectRatio: 1 })
 let viewer: OpenSeadragon.Viewer | null = null
 let pageWidthWorld = 1
@@ -49,7 +53,11 @@ let lastEmittedPage = -1
 const loadedPagesRef = ref<Set<number>>(new Set())
 
 function loadPageAtIndex(i: number) {
-  highlightCurrentPage(i)
+  currentPageOverlay.value = highlightCurrentPage(viewer, i, currentPageOverlay.value, {
+    gap: props.gap,
+    pageWidthWorld,
+    aspectRatio: dimensions.value.aspectRatio
+  })
   if (!viewer || loadedPagesRef.value.has(i) || i < 0 || i >= props.pages.length) return
 
   loadedPagesRef.value.add(i)
@@ -71,7 +79,7 @@ function drawRegionsOnCurrentPage() {
   const regions = props.pageRegions
   const tiledImage = viewer.world.getItemAt(pageIndex.value)
 
-  console.info('[OSViewer] drawRegionsOnCurrentPage', regions, tiledImage)
+  console.info('[OSViewer] drawRegionsOnCurrentPage', regions, tiledImage !== undefined)
 
   if (!tiledImage) return
   for (const region of regions) {
@@ -82,7 +90,7 @@ function drawRegionsOnCurrentPage() {
       region.coords.h
     )
     const overlayElement = document.createElement('div') as HTMLDivElement
-    overlayElement.classList.add('overlay', 'rounded-sm', 'border')
+    overlayElement.classList.add('overlay', 'rounded-sm', 'pageRegion')
     viewer.addOverlay(overlayElement, viewportRect)
   }
 }
@@ -120,7 +128,8 @@ async function initializeViewer() {
     '\n - aspectRatio:',
     aspectRatio
   )
-  viewer = OpenSeadragon({
+  viewer = createOpenSeadragon({
+    immediateRender: true,
     element: osdViewer.value,
     prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
     showNavigationControl: true,
@@ -226,43 +235,6 @@ function bindPanTracking() {
   })
 }
 
-let currentPageOverlay: HTMLElement | null = null
-
-function highlightCurrentPage(index: number) {
-  if (!viewer || !viewer.viewport) return
-
-  const pageWidth = pageWidthWorld
-  const aspectRatio = dimensions.value.aspectRatio
-  const pageHeight = pageWidth / aspectRatio
-  const gap = props.gap || 0
-
-  const x = index * (pageWidth + gap)
-  const y = 0
-
-  // Remove the previous overlay if it exists
-  if (currentPageOverlay) {
-    viewer.removeOverlay(currentPageOverlay)
-    currentPageOverlay = null
-  }
-
-  // Create the new overlay element
-  const overlay = document.createElement('div')
-  overlay.classList.add('page-highlight')
-
-  overlay.style.boxSizing = 'border-box'
-  overlay.style.width = '100%'
-  overlay.style.height = '100%'
-
-  // Store it so we can remove later
-  currentPageOverlay = overlay
-
-  const bounds = new OpenSeadragon.Rect(x, y, pageWidth, pageHeight)
-  viewer.addOverlay({
-    element: overlay,
-    location: bounds
-  })
-}
-
 watch(
   () => props.pages,
   () => {
@@ -295,6 +267,10 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 100%;
 }
+.OSViewer .pageRegion {
+  border: 1px solid blue;
+  pointer-events: none;
+}
 .OSViewer .osd-viewer {
   width: 100%;
   height: 100%;
@@ -311,15 +287,15 @@ onBeforeUnmount(() => {
   animation: OSViewer_highlightFade 0.4s ease-in-out;
 
   /* Outer glow */
-  box-shadow: 0 0 25px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.5);
 }
 
 @keyframes OSViewer_highlightFade {
   0% {
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
   }
   100% {
-    box-shadow: 0 0 25px 4px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 25px 4px rgba(255, 255, 255, 0.5);
   }
 }
 </style>
