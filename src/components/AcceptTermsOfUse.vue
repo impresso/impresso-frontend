@@ -10,13 +10,26 @@
         :disabled="disabled"
       />
       <label class="form-check-label font-weight-bold" for="terms-of-use">
-        I HAVE READ and I AGREE to the Impresso Terms of Use
+        {{ $t('label_read_and_agree') }}
+        <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse">{{
+          $t('label_ToU_link')
+        }}</LinkToModal>
       </label>
     </div>
   </section>
 </template>
-
+<i18n lang="json">
+{
+  "en": {
+    "label_read_and_agree": "I HAVE READ and I AGREE to the ",
+    "label_ToU_link": "Impresso Terms of Use"
+  }
+}
+</i18n>
 <script setup lang="ts">
+import LinkToModal from '@/components/LinkToModal.vue'
+import { ViewTermsOfUse } from '@/constants'
+
 const props = defineProps<{
   onChange?: (event: Event) => void
   checked?: boolean
