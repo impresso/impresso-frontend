@@ -101,7 +101,7 @@
     "storybook": "^8.6.12",
     "storybook-vue3-router": "^5.0",
     "typescript": "~5.4.0",
-    "vite": "^6.2.3",
+    "vite": "^6.2.6",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.0.9",
     "vue-component-type-helpers": "^2.0.21",
