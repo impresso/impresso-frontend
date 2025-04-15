@@ -1,5 +1,5 @@
 <template>
-  <form :class="['ChangePlanRequestForm', props.className]" @submit="handleOnSubmit">
+  <form :class="['FeedbackForm', props.className]" @submit="handleOnSubmit">
     <FeathersErrorManager :error="props.error" v-if="error" />
 
     <h3 class="form-label font-size-inherit font-weight-bold mb-3">
@@ -28,10 +28,17 @@
         </div>
       </label>
     </section>
-    <label :for="uniqueId" class="form-label font-size-inherit font-weight-bold">{{
-      $t('label_additional_details')
-    }}</label>
-    <p class="text-muted small">{{ $t('label_additional_details_hint') }}</p>
+    <label :for="uniqueId" class="form-label font-size-inherit font-weight-bold"
+      ><slot name="additionalDetails">
+        {{ $t('label_additional_details') }}
+      </slot>
+    </label>
+
+    <p class="text-muted small">
+      <slot name="additionalDetailsHint">
+        {{ $t('label_additional_details_hint') }}
+      </slot>
+    </p>
     <textarea
       class="form-control shadow-sm rounded-sm border"
       :id="uniqueId"
@@ -86,7 +93,7 @@ const form = ref<FeedbackFormPayload>({
 // Validation rules
 const rules = computed(() => ({
   issue: { required: true, minLength: minLength(1) },
-  content: { maxLength: maxLength(500) }
+  content: { required: true, minLength: minLength(1), maxLength: maxLength(500) }
 }))
 // Use Vuelidate
 const v$ = useVuelidate(rules, form)
@@ -124,9 +131,10 @@ const handleOnSubmit = (event: Event) => {
     "label_DataIssue": "Data",
     "label_DataAvailabilityIssue": "Data availability",
     "label_TermsOfUseIssue": "Terms of use",
+    "label_UnknownIssue": "I don't know",
     "label_type_of_issue": "What type of issue are you experiencing?",
-    "label_additional_details": "Additional details (optional)",
-    "label_additional_details_hint": "(Provide any extra information that might help us understand the issue better.)",
+    "label_additional_details": "Additional details",
+    "label_additional_details_hint": "Please provide any extra information that might help us understand the issue better.",
     "label_max_length_exceeded": "The content exceeds the maximum length of 500 characters."
   }
 }

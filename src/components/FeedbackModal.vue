@@ -34,7 +34,7 @@
         </b-nav-item>
       </template>
     </b-tabs>
-    <div v-if="!feedbackFormError && errorMessages.length">
+    <div v-if="!feedbackFormError && errorMessages.length && mode === ReportProblemMode">
       <h3 class="form-label font-size-inherit font-weight-bold mb-3">
         Errors that will be reported
       </h3>
@@ -82,7 +82,8 @@ import {
   FeedbackOptionDataIssue,
   FeedbackOptionOtherIssue,
   FeedbackOptionDataAvailabilityIssue,
-  FeedbackOptionTermsOfUseIssue
+  FeedbackOptionTermsOfUseIssue,
+  FeedbackOptionUnkownIssue
 } from '@/constants'
 
 export interface FeedbackFormPayloadWithRoute extends FeedbackFormPayload {
@@ -127,9 +128,13 @@ const mode = ref(QuestionRemarksMode)
 
 const availableOptions = computed(() => {
   if (mode.value === ReportProblemMode) {
-    return [FeedbackOptionInterfaceIssue, FeedbackOptionDataIssue, FeedbackOptionOtherIssue]
+    return [FeedbackOptionInterfaceIssue, FeedbackOptionDataIssue, FeedbackOptionUnkownIssue]
   } else if (mode.value === QuestionRemarksMode) {
-    return [FeedbackOptionDataAvailabilityIssue, FeedbackOptionTermsOfUseIssue]
+    return [
+      FeedbackOptionDataAvailabilityIssue,
+      FeedbackOptionTermsOfUseIssue,
+      FeedbackOptionOtherIssue
+    ]
   }
   return []
 })
