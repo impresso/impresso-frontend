@@ -53,7 +53,7 @@
               class="mr-2"
               style="max-height: 16px"
             />
-            github:
+            GitHub:
             <a :href="impressoInfo.project.repoUrl" target="_blank">
               {{ impressoInfo.project.repoUrlLabel }}</a
             >
@@ -70,12 +70,7 @@
           </p>
           <!-- bsky -->
           <p class="mb-0">
-            <img
-              src="@/assets/img/Mastodon-logo-white.svg"
-              class="mr-2"
-              style="max-height: 16px"
-              alt="Mastodon"
-            />
+            <Icon name="bsky" class="text-white mr-2" :width="16" :stroke-width="2" />
             Bluesky:
             <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
               >impresso.bsky.social</a
@@ -83,12 +78,10 @@
           </p>
           <p>
             <Icon name="discord" class="text-white mr-2" :width="16" :stroke-width="2"></Icon>
-
             Discord:
-            <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
-              >impresso.bsky.social</a
-            >
+            <a :href="discussionChannelLink" target="_blank">Impresso</a>
           </p>
+
           <p>
             version:
             <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
@@ -249,7 +242,8 @@ const AllowedFilterTypes = [
 export default {
   data: () => ({
     impressoInfo: window.impressoInfo,
-    recipes: content.recipes
+    recipes: content.recipes,
+    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || ''
   }),
   props: {
     showLines: {
