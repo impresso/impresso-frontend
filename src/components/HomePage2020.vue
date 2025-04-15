@@ -45,6 +45,7 @@
             <br />
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
+          <!--  -->
           <p class="mb-0">
             <img
               src="@/assets/img/GitHub-Mark-Light-32px.png"
@@ -57,17 +58,8 @@
               {{ impressoInfo.project.repoUrlLabel }}</a
             >
           </p>
+          <!-- mastodon -->
           <p class="mb-0">
-            <img
-              src="@/assets/img/X-logo-white.svg"
-              class="mr-2"
-              style="max-height: 15px"
-              alt="X (former Twitter) icon"
-            />
-            X (former Twitter):
-            <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
-          </p>
-          <p>
             <img
               src="@/assets/img/Mastodon-logo-white.svg"
               class="mr-2"
@@ -75,6 +67,27 @@
               alt="Mastodon"
             />
             Mastodon: <a href="https://fedihum.org/@impresso" target="_blank">@impresso</a>
+          </p>
+          <!-- bsky -->
+          <p class="mb-0">
+            <img
+              src="@/assets/img/Mastodon-logo-white.svg"
+              class="mr-2"
+              style="max-height: 16px"
+              alt="Mastodon"
+            />
+            Bluesky:
+            <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
+              >impresso.bsky.social</a
+            >
+          </p>
+          <p>
+            <Icon name="discord" class="text-white mr-2" :width="16" :stroke-width="2"></Icon>
+
+            Discord:
+            <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
+              >impresso.bsky.social</a
+            >
           </p>
           <p>
             version:
@@ -163,47 +176,6 @@
               </div>
             </div>
           </a>
-          <!-- <b-row class="p-0 rounded" style="overflow: hidden">
-            <b-col lg="6" md="12" class="bg-white">
-              <img
-                src="./../assets/img/challenges-screenshot.png"
-                class="w-100 h-100"
-                style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
-                alt="impresso challenges"
-              />
-            </b-col>
-            <b-col lg="6" md="12">
-              <div class="py-3 pr-3">
-
-                <p>
-                  <b
-                    >How to explore the newspapers with persons or locations? <br />What are topics
-                    good for? <br />What elements can be compared?
-                  </b>
-                </p>
-                <p>
-                  Get a better understanding of this interfaces’ features and how they can interact
-                  with 3 challenges, starting with an initiation and leading to an expert level use
-                  of the interface.
-                </p>
-                <b-button
-                  :variant="darkMode ? 'primary' : 'outline-primary'"
-                  size="lg"
-                  href="./../assets/impresso-challenges-1.2.3.pdf"
-                  target="_blank"
-                  class="rounded border-0"
-                >
-                  <div class="d-flex flex-row align-items-center">
-                    <div class="d-flex dripicons dripicons-download mr-2" />
-                    <div class="small-caps">
-                      download challenges
-                      <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
-                    </div>
-                  </div>
-                </b-button>
-              </div>
-            </b-col>
-          </b-row> -->
         </div>
         <section class="HomePage__card">
           <h3>How can newspapers help understand the past? How to explore them?</h3>
@@ -252,6 +224,7 @@ import { optimizeFilters, serializeFilters } from '@/logic/filters'
 import content from '@/assets/homepage.json'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import Icon from './base/Icon.vue'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -344,6 +317,7 @@ export default {
   },
   components: {
     Autocomplete,
+    Icon,
     SearchTabs,
     HomePageFooter,
     SearchPills,
