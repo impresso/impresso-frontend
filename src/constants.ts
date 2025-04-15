@@ -48,7 +48,13 @@ const FeedbackOptionContentItemFacsimileIssue = 'ContentItemFacsimileIssue'
 const FeedbackOptionContentItemTranscriptionIssue = 'ContentItemTranscriptionIssue'
 const FeedbackOptionLayoutSegmentationIssue = 'LayoutSegmentationIssue'
 const FeedbackOptionDocumentLoadingIssue = 'DocumentLoadingIssue'
-const FeedbackOptionOtherIssue = 'OtherIssue'
+export const FeedbackOptionOtherIssue = 'OtherIssue'
+export const FeedbackOptionInterfaceIssue = 'InterfaceIssue'
+export const FeedbackOptionDataIssue = 'DataIssue'
+export const FeedbackOptionTermsOfUseIssue = 'TermsOfUseIssue'
+export const FeedbackOptionDataAvailabilityIssue = 'DataAvailabilityIssue'
+export const FeedbackOptionUnkownIssue = 'UnknownIssue'
+
 export const AvailableFeedbackOptions = [
   FeedbackOptionContentItemMetadataIssue,
   FeedbackOptionContentItemFacsimileIssue,
