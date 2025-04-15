@@ -1,8 +1,11 @@
 <template>
   <form :class="['ChangePlanRequestForm', props.className]" @submit="handleOnSubmit">
     <FeathersErrorManager :error="props.error" v-if="error" />
+
     <h3 class="form-label font-size-inherit font-weight-bold mb-3">
-      {{ $t('label_type_of_issue') }}
+      <slot name="optionsHeading">
+        {{ $t('label_type_of_issue') }}
+      </slot>
     </h3>
     <section class="mb-2 d-flex flex-wrap gap-2 align-items-center">
       <label
@@ -117,6 +120,10 @@ const handleOnSubmit = (event: Event) => {
     "label_LayoutSegmentationIssue": "Wrong Facsimile Layout segmentation",
     "label_DocumentLoadingIssue": "User interface issue",
     "label_OtherIssue": "Other issue",
+    "label_InterfaceIssue": "Interface",
+    "label_DataIssue": "Data",
+    "label_DataAvailabilityIssue": "Data availability",
+    "label_TermsOfUseIssue": "Terms of use",
     "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details (optional)",
     "label_additional_details_hint": "(Provide any extra information that might help us understand the issue better.)",
