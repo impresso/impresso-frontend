@@ -44,15 +44,20 @@
       :id="uniqueId"
       v-model="form.content"
       rows="3"
+      @input="handleContentInput"
       :class="{
         'is-invalid': v$.content.$error,
         'border-danger': v$.content.$error,
-        'border-success': !v$.content.$error
+        'border-success': v$.content.$dirty && !v$.content.$error
       }"
     >
     </textarea>
     <span v-if="v$.content.$error" class="text-danger">
-      {{ $t('label_max_length_exceeded') }}
+      {{
+        form.content.length < contentMinLength
+          ? $t('label_min_length', { min: props.contentMinLength })
+          : $t('label_max_length_exceeded', { max: props.contentMaxLength })
+      }}
     </span>
     <button
       type="submit"
@@ -66,12 +71,12 @@
 </template>
 <script setup lang="ts">
 import type { FeathersError } from '@feathersjs/errors'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import Icon from './base/Icon.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import { AvailableFeedbackOptions } from '@/constants'
 import useVuelidate from '@vuelidate/core'
-import { maxLength, minLength } from '@vuelidate/validators'
+import { required, maxLength, minLength } from '@vuelidate/validators'
 
 const uniqueId = ref<string>('feedbackform-' + Math.random().toString(36).substring(7))
 
@@ -79,6 +84,8 @@ export interface FeedbackFormProps {
   className?: string
   availableFeedbackOptions?: typeof AvailableFeedbackOptions
   error?: FeathersError | Error | null
+  contentMinLength?: number
+  contentMaxLength?: number
 }
 
 export interface FeedbackFormPayload {
@@ -90,19 +97,32 @@ const form = ref<FeedbackFormPayload>({
   issue: '',
   content: ''
 })
-// Validation rules
-const rules = computed(() => ({
-  issue: { required: true, minLength: minLength(1) },
-  content: { required: true, minLength: minLength(1), maxLength: maxLength(500) }
-}))
-// Use Vuelidate
-const v$ = useVuelidate(rules, form)
 
 const props = withDefaults(defineProps<FeedbackFormProps>(), {
   className: '',
   availableFeedbackOptions: () => [...AvailableFeedbackOptions],
-  error: null
+  error: null,
+  contentMinLength: 1,
+  contentMaxLength: 500
 })
+
+// Validation rules
+// Use Vuelidate
+const v$ = useVuelidate(
+  {
+    issue: { required, minLength: minLength(1) },
+    content: {
+      required,
+      minLength: minLength(props.contentMinLength),
+      maxLength: maxLength(props.contentMaxLength)
+    }
+  },
+  form
+)
+
+const handleContentInput = () => {
+  v$.value.content.$touch() // This triggers validation for this field
+}
 
 const emits = defineEmits(['submit'])
 
@@ -135,7 +155,8 @@ const handleOnSubmit = (event: Event) => {
     "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details",
     "label_additional_details_hint": "Please provide any extra information that might help us understand the issue better.",
-    "label_max_length_exceeded": "The content exceeds the maximum length of 500 characters."
+    "label_max_length_exceeded": "The content exceeds the maximum length of {max} characters.",
+    "label_min_length": "Please don't leave this blank :)"
   }
 }
 </i18n>
