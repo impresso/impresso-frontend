@@ -18,7 +18,7 @@
       <!--  body -->
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
-        <p class="small-caps mt-3">Impresso data rundown</p>
+        <p class="small-caps mt-3">Current Impresso data rundown</p>
         <p>
           <span class="number">76</span>
           newspapers, 2 countries<br />
