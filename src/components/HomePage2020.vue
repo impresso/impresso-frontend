@@ -19,20 +19,7 @@
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
         <p class="small-caps mt-3">Current Impresso data rundown</p>
-        <p>
-          <span class="number">76</span>
-          newspapers, 2 countries<br />
-          <span class="number"> 600,919</span>
-          issues,<br />
-          <span class="number">5,429,656</span>
-          pages,<br />
-          <span class="number">47,798,468</span>
-          content items,<br />
-          <span class="number"> 3,462,799</span>
-          images,<br />
-          <span class="number">12,493,358,703</span>
-          tokens.<br />
-        </p>
+        <DataRundown></DataRundown>
 
         <p>
           More? Check on our
@@ -212,6 +199,7 @@ import SearchPills from '@/components/SearchPills.vue'
 import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
+import DataRundown from './dataRundown/DataRundown.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
@@ -316,7 +304,8 @@ export default {
     HomePageFooter,
     SearchPills,
     Recipe,
-    TermsOfUseStatus
+    TermsOfUseStatus,
+    DataRundown
   }
 }
 </script>

@@ -1,0 +1,86 @@
+<template>
+  <div class="DataReleaseCard">
+    <span class="text-muted" v-html="$t('release_label')"></span>
+
+    <h3 class="font-size-inherit font-weight-medium">
+      {{ dataRelease.releaseName }}
+      <span class="text-muted">{{ dataRelease.releaseVersion }}</span>
+    </h3>
+    <ul class="list-unstyled d-flex-wrap">
+      <li v-for="(npsStat, index) in orderedNpsStats" :key="index" style="display: inline-block">
+        {{ $t(npsStat) }}
+        <span class="number">{{ dataRelease.impressoCorpusOverview?.npsStats[npsStat] }}</span>
+        <span v-if="index < orderedNpsStats.length - 1">;&nbsp;</span>
+        <span v-else-if="index === orderedNpsStats.length - 1">.</span>
+      </li>
+    </ul>
+  </div>
+</template>
+<script setup lang="ts">
+export type DataReleaseType = {
+  id: string
+  releaseVersion: string
+  releaseName: string
+  impressoCorpusOverview: {
+    npsStats: {
+      titles: number
+      issues: number
+      pages: number
+      contentItems: number
+      images: number
+      tokens: number
+    }
+  }
+}
+
+export interface DataReleaseCardProps {
+  dataRelease: DataReleaseType
+  isLoading: boolean
+  orderedNpsStats: string[]
+}
+
+withDefaults(defineProps<DataReleaseCardProps>(), {
+  isLoading: false,
+  orderedNpsStats: () => ['titles', 'issues', 'pages', 'contentItems', 'images', 'tokens'],
+  dataRelease: () => ({
+    id: '...',
+    releaseVersion: '...',
+    releaseName: '...',
+    impressoCorpusOverview: {
+      npsStats: {
+        titles: 0,
+        issues: 0,
+        pages: 0,
+        contentItems: 0,
+        images: 0,
+        tokens: 0
+      }
+    }
+  })
+})
+</script>
+<i18n lang="json">
+{
+  "en": {
+    "release_label": "Latest data release: ",
+    "titles": "Titles: ",
+    "issues": "Issues: ",
+    "pages": "Pages: ",
+    "contentItems": "Content items: ",
+    "images": "Images: ",
+    "tokens": "Tokens: "
+  },
+  "de": {
+    "release_label": "Neueste Veröffentlichung"
+  },
+  "fr": {
+    "release_label": "Dernière version"
+  },
+  "it": {
+    "release_label": "Ultima versione"
+  },
+  "es": {
+    "release_label": "Última versión"
+  }
+}
+</i18n>
