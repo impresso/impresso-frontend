@@ -32,6 +32,7 @@ export const ViewInfoModal = 'info-modal'
 export const ViewUserRequests = 'user-requests'
 export const ViewPlans = 'plans'
 export const ViewCorpusOverview = 'corpus-overview'
+export const ViewDataRundown = 'data-rundown'
 export const ViewFeedback = 'feedback'
 export const Views: string[] = [
   ViewTermsOfUse,
@@ -40,7 +41,8 @@ export const Views: string[] = [
   ViewUserRequests,
   ViewPlans,
   ViewCorpusOverview,
-  ViewFeedback
+  ViewFeedback,
+  ViewDataRundown
 ]
 
 const FeedbackOptionContentItemMetadataIssue = 'ContentItemMetadataIssue'
