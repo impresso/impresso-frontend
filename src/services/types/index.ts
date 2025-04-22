@@ -87,3 +87,38 @@ export interface UserRequest {
 }
 
 // new type from media endpoint
+
+export type DataRelease = {
+  id: string
+  releaseVersion: string
+  releaseName: string
+  impressoCorpusOverview: {
+    npsStats: {
+      titles: number
+      issues: number
+      pages: number
+      contentItems: number
+      images: number
+      tokens: number
+    }
+  }
+}
+export type DataReleaseModel = {
+  taskName: string
+  modelId: string
+  huggingFaceLink: string
+}
+
+export interface DataReleaseExtended extends DataRelease {
+  impressoEnrichments?: {
+    lingproc?: { models: DataReleaseModel[] }
+    langident?: { models: DataReleaseModel[] }
+    textreuse?: { models: DataReleaseModel[] }
+    entities?: { models: DataReleaseModel[] }
+    newsagencies?: { models: DataReleaseModel[] }
+    topics?: { models: DataReleaseModel[] }
+    ocrqa?: { models: DataReleaseModel[] }
+    embImages?: { models: DataReleaseModel[] }
+    embDocs?: { models: DataReleaseModel[] }
+  }
+}

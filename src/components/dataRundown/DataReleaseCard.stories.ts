@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import DataRelease from './DataReleaseCard.vue'
-import type { DataReleaseCardProps, DataReleaseType } from './DataReleaseCard.vue'
+import type { DataReleaseCardProps } from './DataReleaseCard.vue'
+import type { DataRelease as DataReleaseType } from '@/services/types'
 
 const meta = {
   title: 'DataRundown/DataRelease',

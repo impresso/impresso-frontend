@@ -6,7 +6,7 @@
       {{ dataRelease.releaseName }}
       <span class="text-muted">{{ dataRelease.releaseVersion }}</span>
     </h3>
-    <ul class="list-unstyled d-flex-wrap">
+    <ul class="list-unstyled d-flex-wrap mb-0">
       <li v-for="(npsStat, index) in orderedNpsStats" :key="index" style="display: inline-block">
         {{ $t(npsStat) }}
         <span class="number">{{ dataRelease.impressoCorpusOverview?.npsStats[npsStat] }}</span>
@@ -17,24 +17,10 @@
   </div>
 </template>
 <script setup lang="ts">
-export type DataReleaseType = {
-  id: string
-  releaseVersion: string
-  releaseName: string
-  impressoCorpusOverview: {
-    npsStats: {
-      titles: number
-      issues: number
-      pages: number
-      contentItems: number
-      images: number
-      tokens: number
-    }
-  }
-}
+import { DataRelease } from '@/services/types'
 
 export interface DataReleaseCardProps {
-  dataRelease: DataReleaseType
+  dataRelease: DataRelease
   isLoading: boolean
   orderedNpsStats: string[]
 }

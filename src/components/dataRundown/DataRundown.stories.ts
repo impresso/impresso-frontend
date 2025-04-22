@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import DataRundown from './DataRundown.vue'
-import type { DataReleaseType } from './DataReleaseCard.vue'
+import type { DataRelease } from '@/services/types'
 import { http, HttpResponse } from 'msw'
 
 const meta = {
@@ -28,7 +28,7 @@ const meta = {
   })
 } satisfies Meta<typeof DataRundown>
 
-const mockData: DataReleaseType[] = [
+const mockData: DataRelease[] = [
   {
     id: 'MOCKdata-release-2025-05/corpus_release_card.json',
     releaseName: 'Mock Polar Night',
