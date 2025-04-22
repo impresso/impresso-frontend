@@ -9,7 +9,7 @@
     <ul class="list-unstyled d-flex-wrap mb-0">
       <li v-for="(npsStat, index) in orderedNpsStats" :key="index" style="display: inline-block">
         {{ $t(npsStat) }}
-        <span class="number">{{ dataRelease.impressoCorpusOverview?.npsStats[npsStat] }}</span>
+        <span class="number">{{ $n(dataRelease.impressoCorpusOverview?.npsStats[npsStat]) }}</span>
         <span v-if="index < orderedNpsStats.length - 1">;&nbsp;</span>
         <span v-else-if="index === orderedNpsStats.length - 1">.</span>
       </li>
