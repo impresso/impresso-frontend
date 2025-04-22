@@ -18,26 +18,17 @@
       <!--  body -->
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
-        <p class="small-caps mt-3">Impresso data rundown</p>
-        <p>
-          <span class="number">76</span>
-          newspapers, 2 countries<br />
-          <span class="number"> 600,919</span>
-          issues,<br />
-          <span class="number">5,429,656</span>
-          pages,<br />
-          <span class="number">47,798,468</span>
-          content items,<br />
-          <span class="number"> 3,462,799</span>
-          images,<br />
-          <span class="number">12,493,358,703</span>
-          tokens.<br />
-        </p>
-
-        <p>
+        <p class="small-caps mt-3">Current Impresso data rundown</p>
+        <DataRundown></DataRundown>
+        <LinkToModal
+          class="text-decoration-underline"
+          :view="ViewDataRundown"
+          v-html="$t('actions.more')"
+        ></LinkToModal>
+        <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
-        </p>
+        </p> -->
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           <p>
@@ -212,12 +203,15 @@ import SearchPills from '@/components/SearchPills.vue'
 import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
+import DataRundown from './dataRundown/DataRundown.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
+import LinkToModal from './LinkToModal.vue'
+import { ViewDataRundown } from '@/constants'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -243,7 +237,8 @@ export default {
   data: () => ({
     impressoInfo: window.impressoInfo,
     recipes: content.recipes,
-    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || ''
+    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '',
+    ViewDataRundown
   }),
   props: {
     showLines: {
@@ -316,7 +311,9 @@ export default {
     HomePageFooter,
     SearchPills,
     Recipe,
-    TermsOfUseStatus
+    TermsOfUseStatus,
+    DataRundown,
+    LinkToModal
   }
 }
 </script>
