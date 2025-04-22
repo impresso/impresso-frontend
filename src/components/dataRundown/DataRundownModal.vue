@@ -118,7 +118,7 @@ const latestRelease = computed<DataReleaseExtended | null>(() => {
 
 const availableEnrichments = computed(() => {
   if (latestRelease.value) {
-    return Object.keys(latestRelease.value.impressoEnrichments)
+    return Object.keys(latestRelease.value.impressoEnrichments ?? {})
   }
   return []
 })
