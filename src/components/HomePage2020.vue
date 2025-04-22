@@ -20,11 +20,15 @@
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
         <p class="small-caps mt-3">Current Impresso data rundown</p>
         <DataRundown></DataRundown>
-
-        <p>
+        <LinkToModal
+          class="text-decoration-underline"
+          :view="ViewDataRundown"
+          v-html="$t('actions.more')"
+        ></LinkToModal>
+        <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
-        </p>
+        </p> -->
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           <p>
@@ -206,6 +210,8 @@ import content from '@/assets/homepage.json'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
+import LinkToModal from './LinkToModal.vue'
+import { ViewDataRundown } from '@/constants'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -231,7 +237,8 @@ export default {
   data: () => ({
     impressoInfo: window.impressoInfo,
     recipes: content.recipes,
-    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || ''
+    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '',
+    ViewDataRundown
   }),
   props: {
     showLines: {
@@ -305,7 +312,8 @@ export default {
     SearchPills,
     Recipe,
     TermsOfUseStatus,
-    DataRundown
+    DataRundown,
+    LinkToModal
   }
 }
 </script>
