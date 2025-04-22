@@ -29,6 +29,7 @@ export default ({ mode }: { mode: string }) => {
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
     '/proxy/'
   ].join('')
+  const AssetsProxyPath = `^${env.VITE_PROJECT_ASSETS_PATH}`
   if (mode === 'development') {
     console.log('SocketIoProxyPath', SocketIoProxyPath)
     console.log('ApiIiifProxyPath', ApiIiifProxyPath)
@@ -65,6 +66,11 @@ export default ({ mode }: { mode: string }) => {
         },
         [DatalabContentProxyPath]: {
           target: env.VITE_DATALAB_CONTENT_API_HOST,
+          ws: false,
+          changeOrigin: true
+        },
+        [AssetsProxyPath]: {
+          target: env.VITE_PROJECT_ASSETS_HOST,
           ws: false,
           changeOrigin: true
         },
