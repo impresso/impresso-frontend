@@ -47,6 +47,10 @@ export default {
         in_cpy: 'in copyright',
         pbl: 'public domain'
       },
+      dataDomain: {
+        prt: 'private',
+        pbl: 'public'
+      },
       country: {
         CH: 'Switzerland',
         LU: 'Luxembourg',
@@ -339,7 +343,7 @@ export default {
         item: 'Country of publication'
       },
       dataDomain: {
-        filterTitle: 'Data domain?',
+        filterTitle: 'Data domain',
         empty: '...'
       },
       day: {
