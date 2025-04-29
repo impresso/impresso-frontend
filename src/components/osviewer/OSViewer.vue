@@ -269,6 +269,15 @@ watch(
     })
   }
 )
+watch(
+  () => props.pageRegions,
+  () => {
+    if (viewer) {
+      drawRegionsOnPage(pageIndex.value)
+    }
+  },
+  { deep: true }
+)
 
 onMounted(initializeViewer)
 onBeforeUnmount(() => {
