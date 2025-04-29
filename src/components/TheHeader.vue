@@ -725,12 +725,7 @@ export default defineComponent({
     "label_current_search": "browse results ...",
     "label_faq": "Help",
     "label_terms": "Terms of Use",
-    "label_jobs": "Running tasks",
-    "label_terms_of_use": "Terms of Use",
-    "staff": "staff",
-    "researcher": "researcher",
-    "join_slack_channel": "Join us on <b>Slack!</b>",
-    "current_version": "frontend <span class='small-caps'>{version}</span>"
+    "label_jobs": "Running tasks"
   }
 }
 </i18n>

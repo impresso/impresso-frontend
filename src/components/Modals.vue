@@ -1,5 +1,10 @@
 <template>
   <div class="Modals position-fixed top-0 end-0" style="z-index: var(--z-index-modals)">
+    <DataRundownModal
+      :requestDelay="500"
+      :isVisible="view === ViewDataRundown"
+      @dismiss="() => resetView()"
+    ></DataRundownModal>
     <!--  -->
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()">
       <template v-slot:terms-of-use-status>
@@ -182,7 +187,8 @@ import {
   ViewConfirmChangePlanRequest,
   ViewInfoModal,
   ViewCorpusOverview,
-  ViewFeedback
+  ViewFeedback,
+  ViewDataRundown
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
@@ -208,6 +214,7 @@ import FeedbackModal from './FeedbackModal.vue'
 import { FeedbackFormPayload } from './FeedbackForm.vue'
 import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
+import DataRundownModal from './dataRundown/DataRundownModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()

@@ -58,12 +58,9 @@
     <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewFeedback">
       {{ $t('label_feedback') }}
     </LinkToModal>
-    <b-dropdown-item
-      target="_blank"
-      href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ"
-    >
-      <Icon name="slack" :scale="0.5" :strokeWidth="0.5" />&nbsp;
-      <span v-html="$t('join_slack_channel')"></span>
+    <b-dropdown-item target="_blank" :href="discussionChannelLink">
+      <Icon name="discord" class="text-white" :scale="0.5" :strokeWidth="1" />&nbsp;
+      <span v-html="$t('join_discussion_channel')"></span>
     </b-dropdown-item>
 
     <b-dropdown-item>
@@ -73,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import LinkToModal from './LinkToModal.vue'
 import {
   ViewTermsOfUse,
@@ -96,6 +93,8 @@ export interface UserAreaProps {
   user: User
   userPlanLabel: string
 }
+
+const discussionChannelLink = ref(import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '')
 
 const props = defineProps<UserAreaProps>()
 
@@ -141,7 +140,7 @@ const send_update_bitmap = async () => {
     "label_corpus_overview": "Corpus Overview",
     "label_feedback": "[staff only] Feedback",
     "logout": "Logout",
-    "join_slack_channel": "Join Slack Channel",
+    "join_discussion_channel": "Join our Discord channel",
     "current_version": "Current version: {version}",
     "send_test_job": "[staff only] Send test job",
     "send_update_bitmap":

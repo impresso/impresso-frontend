@@ -32,7 +32,7 @@
 import hljs from 'highlight.js'
 import python from 'highlight.js/lib/languages/python'
 import 'highlight.js/styles/color-brewer.css'
-import { defineProps, onBeforeMount, onUnmounted, ref, watchEffect } from 'vue'
+import { onBeforeMount, onUnmounted, ref, watchEffect } from 'vue'
 import Icon from '@/components/base/Icon.vue'
 
 interface Props {

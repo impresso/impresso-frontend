@@ -18,26 +18,17 @@
       <!--  body -->
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
-        <p class="small-caps mt-3">Impresso data rundown</p>
-        <p>
-          <span class="number">76</span>
-          newspapers, 2 countries<br />
-          <span class="number"> 600,919</span>
-          issues,<br />
-          <span class="number">5,429,656</span>
-          pages,<br />
-          <span class="number">47,798,468</span>
-          content items,<br />
-          <span class="number"> 3,462,799</span>
-          images,<br />
-          <span class="number">12,493,358,703</span>
-          tokens.<br />
-        </p>
-
-        <p>
+        <p class="small-caps mt-3">Current Impresso data rundown</p>
+        <DataRundown></DataRundown>
+        <LinkToModal
+          class="text-decoration-underline"
+          :view="ViewDataRundown"
+          v-html="$t('actions.more')"
+        ></LinkToModal>
+        <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
-        </p>
+        </p> -->
 
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           <p>
@@ -45,6 +36,7 @@
             <br />
             project website: <a href="/" target="_blank">impresso-project.ch</a>
           </p>
+          <!--  -->
           <p class="mb-0">
             <img
               src="@/assets/img/GitHub-Mark-Light-32px.png"
@@ -52,22 +44,13 @@
               class="mr-2"
               style="max-height: 16px"
             />
-            github:
+            GitHub:
             <a :href="impressoInfo.project.repoUrl" target="_blank">
               {{ impressoInfo.project.repoUrlLabel }}</a
             >
           </p>
+          <!-- mastodon -->
           <p class="mb-0">
-            <img
-              src="@/assets/img/X-logo-white.svg"
-              class="mr-2"
-              style="max-height: 15px"
-              alt="X (former Twitter) icon"
-            />
-            X (former Twitter):
-            <a href="https://twitter.com/ImpressoProject" target="_blank">@impressoproject</a>
-          </p>
-          <p>
             <img
               src="@/assets/img/Mastodon-logo-white.svg"
               class="mr-2"
@@ -76,6 +59,20 @@
             />
             Mastodon: <a href="https://fedihum.org/@impresso" target="_blank">@impresso</a>
           </p>
+          <!-- bsky -->
+          <p class="mb-0">
+            <Icon name="bsky" class="text-white mr-2" :width="16" :stroke-width="2" />
+            Bluesky:
+            <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
+              >impresso.bsky.social</a
+            >
+          </p>
+          <p>
+            <Icon name="discord" class="text-white mr-2" :width="16" :stroke-width="2"></Icon>
+            Discord:
+            <a :href="discussionChannelLink" target="_blank">Impresso</a>
+          </p>
+
           <p>
             version:
             <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
@@ -163,47 +160,6 @@
               </div>
             </div>
           </a>
-          <!-- <b-row class="p-0 rounded" style="overflow: hidden">
-            <b-col lg="6" md="12" class="bg-white">
-              <img
-                src="./../assets/img/challenges-screenshot.png"
-                class="w-100 h-100"
-                style="object-fit: contain; object-position: center; border-start-start-radius: var(--border-radius-md);border-end-start-radius: var(--border-radius-md);opacity:.8"
-                alt="impresso challenges"
-              />
-            </b-col>
-            <b-col lg="6" md="12">
-              <div class="py-3 pr-3">
-
-                <p>
-                  <b
-                    >How to explore the newspapers with persons or locations? <br />What are topics
-                    good for? <br />What elements can be compared?
-                  </b>
-                </p>
-                <p>
-                  Get a better understanding of this interfaces’ features and how they can interact
-                  with 3 challenges, starting with an initiation and leading to an expert level use
-                  of the interface.
-                </p>
-                <b-button
-                  :variant="darkMode ? 'primary' : 'outline-primary'"
-                  size="lg"
-                  href="./../assets/impresso-challenges-1.2.3.pdf"
-                  target="_blank"
-                  class="rounded border-0"
-                >
-                  <div class="d-flex flex-row align-items-center">
-                    <div class="d-flex dripicons dripicons-download mr-2" />
-                    <div class="small-caps">
-                      download challenges
-                      <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
-                    </div>
-                  </div>
-                </b-button>
-              </div>
-            </b-col>
-          </b-row> -->
         </div>
         <section class="HomePage__card">
           <h3>How can newspapers help understand the past? How to explore them?</h3>
@@ -247,11 +203,15 @@ import SearchPills from '@/components/SearchPills.vue'
 import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
+import DataRundown from './dataRundown/DataRundown.vue'
 import { optimizeFilters, serializeFilters } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
+import Icon from './base/Icon.vue'
+import LinkToModal from './LinkToModal.vue'
+import { ViewDataRundown } from '@/constants'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -276,7 +236,9 @@ const AllowedFilterTypes = [
 export default {
   data: () => ({
     impressoInfo: window.impressoInfo,
-    recipes: content.recipes
+    recipes: content.recipes,
+    discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '',
+    ViewDataRundown
   }),
   props: {
     showLines: {
@@ -344,11 +306,14 @@ export default {
   },
   components: {
     Autocomplete,
+    Icon,
     SearchTabs,
     HomePageFooter,
     SearchPills,
     Recipe,
-    TermsOfUseStatus
+    TermsOfUseStatus,
+    DataRundown,
+    LinkToModal
   }
 }
 </script>
