@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { createOpenSeadragon } from '@/services/openseadragon'
+import { createOpenSeadragon, getAuthOptions, isAuthRequired } from '@/services/openseadragon'
 import OpenSeadragon from 'openseadragon'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
@@ -73,7 +73,8 @@ function loadPageAtIndex(i: number): void {
     tileSource: props.pages[i],
     x: i * (pageWidthWorld + props.gap),
     y: 0,
-    width: pageWidthWorld
+    width: pageWidthWorld,
+    ...(isAuthRequired(props.pages[i]) ? getAuthOptions() : {})
   })
   viewer.world.addOnceHandler('add-item', () => {
     drawRegionsOnPage(pageIndex.value)
@@ -134,7 +135,14 @@ async function initializeViewer(): Promise<void> {
     viewer = null
   }
   // Load info.json for sizing
-  const infoRes = await fetch(props.pages[pageIndex.value])
+
+  const authIsRequired = isAuthRequired(props.pages[pageIndex.value])
+
+  const infoRes = await fetch(props.pages[pageIndex.value], {
+    headers: {
+      ...(authIsRequired ? getAuthOptions().ajaxHeaders : {})
+    }
+  })
   const info = await infoRes.json()
 
   dimensions.value = {
