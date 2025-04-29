@@ -5,25 +5,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
-import OpenSeadragon from 'openseadragon'
-import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
 import { createOpenSeadragon } from '@/services/openseadragon'
+import OpenSeadragon from 'openseadragon'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
 
-export interface OSViewerProps {
+interface PageRegion {
+  articleUid: string
+  pageUid: string
+  coords: {
+    x: number
+    y: number
+    w: number
+    h: number
+  }
+}
+
+interface OSViewerProps {
   pages: string[]
   gap?: number
   margin?: number
-  pageRegions?: {
-    articleUid: string
-    pageUid: string
-    coords: {
-      x: number
-      y: number
-      w: number
-      h: number
-    }
-  }[]
+  pageRegions?: PageRegion[]
 }
 
 const pageIndex = defineModel<number>('pageIndex', { default: 0 })
@@ -38,21 +40,26 @@ const isMouseDragging = ref(false)
 // Add a debounce timer for updating the model
 const dragDebounceTimer = ref<number | null>(null)
 
-const emit = defineEmits<{
-  (e: 'update:pageIndex', value: number): void
-}>()
+// const emit = defineEmits<{
+//   (e: 'update:pageIndex', value: number): void
+// }>()
 
 const osdViewer = ref<HTMLDivElement | null>(null)
 const currentPageOverlay = ref<HTMLDivElement | null>(null)
+const regionsOverlays = ref<HTMLDivElement[]>([])
 
 const dimensions = ref({ width: 0, height: 0, aspectRatio: 1 })
 let viewer: OpenSeadragon.Viewer | null = null
 let pageWidthWorld = 1
 let aspectRatio = 1
-let lastEmittedPage = -1
 const loadedPagesRef = ref<Set<number>>(new Set())
 
-function loadPageAtIndex(i: number) {
+/**
+ * Loads the tiled image for a specific page index if it hasn't been loaded yet.
+ * Also highlights the current page.
+ * @param {number} i - The index of the page to load.
+ */
+function loadPageAtIndex(i: number): void {
   currentPageOverlay.value = highlightCurrentPage(viewer, i, currentPageOverlay.value, {
     gap: props.gap,
     pageWidthWorld,
@@ -69,19 +76,29 @@ function loadPageAtIndex(i: number) {
     width: pageWidthWorld
   })
   viewer.world.addOnceHandler('add-item', () => {
-    console.info('[OSViewer] @add-item', i)
-    drawRegionsOnCurrentPage()
+    drawRegionsOnPage(pageIndex.value)
   })
 }
 
-function drawRegionsOnCurrentPage() {
+/**
+ * Draws the defined page regions as overlays on the page's tiled image.
+ */
+function drawRegionsOnPage(pageIndex: number): void {
   if (!viewer) return
-  const regions = props.pageRegions
-  const tiledImage = viewer.world.getItemAt(pageIndex.value)
 
-  console.info('[OSViewer] drawRegionsOnCurrentPage', regions, tiledImage !== undefined)
+  // 1. Remove existing overlays
+
+  regionsOverlays.value.forEach(overlay => {
+    viewer.removeOverlay(overlay)
+  })
+  regionsOverlays.value = []
+
+  // 2. Get the current page image
+  const regions = props.pageRegions
+  const tiledImage = viewer.world.getItemAt(pageIndex)
 
   if (!tiledImage) return
+
   for (const region of regions) {
     const viewportRect = tiledImage.imageToViewportRectangle(
       region.coords.x,
@@ -91,7 +108,9 @@ function drawRegionsOnCurrentPage() {
     )
     const overlayElement = document.createElement('div') as HTMLDivElement
     overlayElement.classList.add('overlay', 'rounded-sm', 'pageRegion')
+    overlayElement.dataset.articleUid = region.articleUid
     viewer.addOverlay(overlayElement, viewportRect)
+    regionsOverlays.value.push(overlayElement)
   }
 }
 
@@ -103,7 +122,11 @@ const blackTileSource = {
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM0sXJ4CgAC7QGV4Z7MDgAAAABJRU5ErkJggg=='
 }
 
-async function initializeViewer() {
+/**
+ * Initializes or re-initializes the OpenSeadragon viewer instance.
+ * Fetches initial page info, sets up the viewer configuration, and adds placeholders for all pages.
+ */
+async function initializeViewer(): Promise<void> {
   if (!osdViewer.value || props.pages.length === 0) return
   if (viewer) {
     viewer.destroy()
@@ -113,21 +136,13 @@ async function initializeViewer() {
   // Load info.json for sizing
   const infoRes = await fetch(props.pages[pageIndex.value])
   const info = await infoRes.json()
+
   dimensions.value = {
     width: info.width,
     height: info.height,
     aspectRatio: info.width / info.height
   }
   aspectRatio = info.width / info.height
-  console.info(
-    '[OSViewer] initializeViewer()',
-    '\n - width:',
-    info.width,
-    '\n - height:',
-    info.height,
-    '\n - aspectRatio:',
-    aspectRatio
-  )
   viewer = createOpenSeadragon({
     immediateRender: true,
     element: osdViewer.value,
@@ -143,11 +158,9 @@ async function initializeViewer() {
   })
   // Add mouse drag event handlers
   viewer.addHandler('canvas-drag', () => {
-    console.debug('[OSViewer] @canvas-drag')
     isMouseDragging.value = true
   })
   viewer.addHandler('canvas-drag-end', () => {
-    console.debug('[OSViewer] @canvas-drag-end')
     // Set a timer to reset the dragging state after a short delay
     setTimeout(() => {
       isMouseDragging.value = false
@@ -167,15 +180,17 @@ async function initializeViewer() {
     })
   }
 
-  console.info('[OSViewer] initializeViewer()', pageIndex.value)
   viewer.world.addOnceHandler('add-item', () => {
     panToPage(pageIndex.value)
     bindPanTracking()
   })
 }
 
-// Pan to a specific page
-function panToPage(index: number) {
+/**
+ * Pans and zooms the viewport to fit a specific page index.
+ * @param {number} index - The index of the page to navigate to.
+ */
+function panToPage(index: number): void {
   if (!viewer) return
 
   const coords = new OpenSeadragon.Rect(
@@ -184,7 +199,6 @@ function panToPage(index: number) {
     pageWidthWorld + props.gap * 2,
     pageWidthWorld / dimensions.value.aspectRatio + props.gap * 2
   )
-  console.info('[OSViewer] panToPage', index, coords)
   viewer.viewport.fitBounds(coords, true)
 
   // const centerX = index * (pageWidthWorld + props.gap) + pageWidthWorld / 2
@@ -192,8 +206,12 @@ function panToPage(index: number) {
   // viewer.viewport.panTo(center, true)
 }
 
-// Track pan and emit current page
-function bindPanTracking() {
+/**
+ * Binds an event handler to the viewer's viewport-change event to track panning
+ * and update the current page index based on the viewport center.
+ * Uses debouncing when the user is dragging.
+ */
+function bindPanTracking(): void {
   if (!viewer) return
 
   viewer.addHandler('viewport-change', () => {
@@ -205,16 +223,15 @@ function bindPanTracking() {
       0,
       props.pages.length
     )
-    if (index !== lastEmittedPage && index >= 0 && index < props.pages.length) {
-      console.info(
-        '[OSViewer] bindPanTracking @viewport-change, index:',
-        index,
-        'iiif',
-        props.pages[index]
-      )
-      loadPageAtIndex(index)
 
-      lastEmittedPage = index
+    if (index !== pageIndex.value) {
+      pageIndex.value = index
+    }
+
+    drawRegionsOnPage(index)
+
+    if (index >= 0 && index < props.pages.length) {
+      loadPageAtIndex(index)
 
       // If we're dragging, use a debounce to update the model
       if (isMouseDragging.value) {
@@ -237,10 +254,7 @@ function bindPanTracking() {
 
 watch(
   () => props.pages,
-  () => {
-    console.info('[OSViewer] @pages changed')
-    initializeViewer()
-  },
+  initializeViewer,
   { deep: true } // Add deep option to detect changes within the array
 )
 watch(
