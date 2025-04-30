@@ -12,7 +12,7 @@
           <template v-slot:tabs-start>
             <b-nav-item active-class="active" active>
               <a aria-current="page" class="none router-link-exact-active nav-link active">
-                <span v-html="$t('table_of_contents')" />
+                <span v-html="$t('table_of_contents')"></span>
               </a>
             </b-nav-item>
           </template>
@@ -109,7 +109,7 @@
           :filtersWithItems="filtersWithItems"
           :issue="issue"
           :article="selectedArticle"
-          :mediaSource="tableOfContents?.newspaper"
+          :mediaSource="mediaSource"
           :page="page"
         >
           <template v-slot:label>
@@ -206,7 +206,7 @@
             }}</b-button>
           </div>
         </div>
-        <!-- <open-seadragon-article-viewer
+        <open-seadragon-article-viewer
           :class="{ 'show-outlines': outlinesVisible }"
           :style="isContentAvailable && mode === FacsimileMode ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
@@ -218,14 +218,15 @@
           "
           @page-changed="changeCurrentPageIndex"
           @article-selected="handleArticleIdSelectedInViewer"
-        /> -->
+        />
 
-        <OSViewer
+        <!-- <OSViewer
+          :style="isContentAvailable && mode === FacsimileMode ? {} : { display: 'none' }"
           :pages="pagesIIIFUrls"
           :pageRegions="regions"
           :pageIndex="currentPageIndex"
           @update:pageIndex="changeCurrentPageIndex"
-        />
+        /> -->
 
         <issue-viewer-text
           v-if="isContentAvailable && articleId != null && mode !== FacsimileMode"
@@ -240,15 +241,14 @@
           :visible="mode === FacsimileMode"
         />
 
-        <div
-          class="position-absolute d-flex drop-shadow bg-dark border-radius"
-          style="bottom: 1rem"
+        <thumbnail-navigator
           v-if="mode === FacsimileMode"
-        >
-          <div v-for="(item, i) in issue.pages" :key="i" @click="() => changePageNum(item.num)">
-            <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
-          </div>
-        </div>
+          class="position-absolute"
+          style="bottom: 1rem"
+          :pages="issue.pages"
+          :current-page-uid="pageId"
+          @update:current-page-uid="pageThumbnailSelected"
+        />
       </div>
     </i-layout-section>
   </i-layout>
@@ -258,8 +258,7 @@
 import { defineComponent, PropType, ComponentPublicInstance } from 'vue'
 
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
-import OSViewer from '@/components/osviewer/OSViewer.vue'
-import PageItem from '@/components/modules/lists/PageItem.vue'
+import OSViewer, { PageRegion } from '@/components/osviewer/OSViewer.vue'
 import List from '@/components/modules/lists/List.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
@@ -284,13 +283,14 @@ import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import WithTooltip from '@/components/base/WithTooltip.vue'
+import ThumbnailNavigator from '@/components/thumbnailNavigator/ThumbnailNavigator.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
-import type { Filter } from '@/models'
+import type { Filter, IImage, MediaSource } from '@/models'
 import type ArticleBase from '@/models/ArticleBase'
 import type Page from '@/models/Page'
 import type Image from '@/models/Image'
@@ -316,12 +316,6 @@ interface MarginaliaSections {
   items: string[]
 }
 
-interface ArticleRegion {
-  articleUid: string
-  pageUid?: string
-  coords: number[]
-}
-
 // Viewer modes
 const FacsimileMode = '0'
 const RegionTranscriptMode = '1'
@@ -345,8 +339,8 @@ export default defineComponent({
 
       issue: undefined as Issue | undefined,
       tableOfContents: undefined as TableOfContents | undefined,
-      issueImages: [] as Image[],
-      issueImagesIndex: {} as Record<string, Image[]>,
+      issueImages: [] as IImage[],
+      issueImagesIndex: {} as Record<string, IImage[]>,
       pagesArticles: {} as Record<string, Article[]>,
       pagesMarginalia: {} as Record<string, MarginaliaSections[]>,
 
@@ -364,7 +358,6 @@ export default defineComponent({
   components: {
     OpenSeadragonArticleViewer,
     OSViewer,
-    PageItem,
     List,
     IssueViewerText,
     SearchPills,
@@ -372,7 +365,8 @@ export default defineComponent({
     IssueViewerTableOfContents,
     CollectionAddTo,
     WithTooltip,
-    IssueViewerPageHeading
+    IssueViewerPageHeading,
+    ThumbnailNavigator
   },
   props: {
     filters: {
@@ -475,7 +469,7 @@ export default defineComponent({
       if (this.issue == null) return undefined
       return this.issue.pages.map(page => page.iiif)
     },
-    regions(): ArticleRegion[] {
+    regions(): PageRegion[] {
       const articles = this.pagesArticles[this.currentPageIndex]
       if (articles == null) return []
 
@@ -485,7 +479,7 @@ export default defineComponent({
           .map(region => ({
             articleUid: article.uid,
             pageUid: this.pageId,
-            coords: region.coords
+            coords: region.coords as PageRegion['coords']
           }))
       )
 
@@ -562,7 +556,7 @@ export default defineComponent({
       }
     },
     currentUser() {
-      return this.userStore.user
+      return this.userStore.user === false ? undefined : this.userStore.user
     },
     isContentAvailable(): boolean {
       if (this.issue == null) return false
@@ -572,6 +566,15 @@ export default defineComponent({
     },
     marginaliaSections(): MarginaliaSections[] {
       return this.pagesMarginalia[this.currentPageIndex] ?? []
+    },
+    mediaSource() {
+      const newspaper = this.tableOfContents?.newspaper
+      if (!newspaper) return undefined
+      return {
+        id: newspaper.id,
+        name: newspaper.type,
+        type: 'newspaper'
+      } satisfies MediaSource
     }
   },
   watch: {
@@ -599,7 +602,7 @@ export default defineComponent({
           .then(({ data }) => data)
         // remap images by article property
         this.issueImagesIndex = this.issueImages.reduce(
-          (acc: Record<string, Image[]>, d: Image) => {
+          (acc: Record<string, IImage[]>, d: IImage) => {
             if (d.contentItemUid != null) {
               if (!Array.isArray(acc[d.contentItemUid])) {
                 acc[d.contentItemUid] = [d]
@@ -666,6 +669,12 @@ export default defineComponent({
     }
   },
   methods: {
+    pageThumbnailSelected(pageUid: string) {
+      const pageIndex = this.issue?.pages.findIndex(p => p.uid === pageUid)
+      if (pageIndex != null && pageIndex >= 0) {
+        this.changeCurrentPageIndex(pageIndex)
+      }
+    },
     handleLoginClick() {
       this.userStore.setRedirectionRoute({
         path: this.$route.path,
@@ -722,13 +731,6 @@ export default defineComponent({
     },
     changeCurrentPageIndex(pageIndex: number) {
       this.currentPageIndex = pageIndex
-    },
-    changePageNum(pageNum: number) {
-      console.debug('[IssueViewerPage] changePageNum to:', pageNum)
-      this.$navigation.updateQueryParameters({
-        [QueryParams.ArticleId]: undefined,
-        [QueryParams.PageNumber]: pageNum
-      })
     },
     handleRemoveSelection() {
       this.$navigation.updateQueryParameters({

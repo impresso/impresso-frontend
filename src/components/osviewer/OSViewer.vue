@@ -10,7 +10,7 @@ import OpenSeadragon from 'openseadragon'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
 
-interface PageRegion {
+export interface PageRegion {
   articleUid: string
   pageUid: string
   coords: {

@@ -3,6 +3,7 @@ import Entity from './Entity'
 import Match from './Match'
 
 interface Page {
+  uid: string
   num: number
   // Add other page properties as needed
 }
