@@ -6,7 +6,7 @@
         :key="i"
         @click="updatePage(item.uid)"
         class="page-item d-inline-block"
-        :ref="el => setActiveItemRef(el, item.uid)"
+        :ref="el => setActiveItemRef(el as HTMLElement, item.uid)"
       >
         <page-item
           class="thumbnail bg-dark p-2"
