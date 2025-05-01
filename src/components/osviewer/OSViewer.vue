@@ -1,10 +1,21 @@
+<!-- 
+  @deprecated This component was an experiment and should not be used.
+  Use OpenSeadragonArticleViewer component instead.
+-->
 <template>
   <div class="OSViewer">
+    <div class="deprecation-warning">
+      ⚠️ DEPRECATED: This component is experimental. Please use OpenSeadragonArticleViewer instead.
+    </div>
     <div ref="osdViewer" class="osd-viewer"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * @deprecated This component was an experimental implementation.
+ * Please use OpenSeadragonArticleViewer component instead.
+ */
 import { createOpenSeadragon, getAuthOptions, isAuthRequired } from '@/services/openseadragon'
 import OpenSeadragon from 'openseadragon'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -287,7 +298,13 @@ watch(
   { deep: true }
 )
 
-onMounted(initializeViewer)
+onMounted(() => {
+  console.warn(
+    'DEPRECATED: OSViewer component is experimental and should not be used. ' +
+      'Please use OpenSeadragonArticleViewer component instead.'
+  )
+  initializeViewer()
+})
 onBeforeUnmount(() => {
   viewer?.destroy()
 })
@@ -297,7 +314,22 @@ onBeforeUnmount(() => {
 .OSViewer {
   width: 100%;
   height: 100%;
+  position: relative;
 }
+
+.OSViewer .deprecation-warning {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffe082;
+  color: #b71c1c;
+  padding: 8px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 1000;
+}
+
 .OSViewer .pageRegion {
   border: 1px solid blue;
   pointer-events: none;

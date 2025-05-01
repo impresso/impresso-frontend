@@ -6,6 +6,7 @@
         :key="i"
         @click="updatePage(item.uid)"
         class="page-item d-inline-block"
+        :ref="el => setActiveItemRef(el, item.uid)"
       >
         <page-item
           class="thumbnail bg-dark p-2"
@@ -18,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { IPage } from '@/models/Page'
 import PageItem from '../modules/lists/PageItem.vue'
 
@@ -35,10 +36,53 @@ withDefaults(
 
 const currentPageUid = defineModel<string | undefined>('currentPageUid', {})
 const containerRef = ref<HTMLElement | null>(null)
+const activeItemRef = ref<HTMLElement | null>(null)
+
+// Function to set the active item reference
+const setActiveItemRef = (el: HTMLElement | null, uid: string) => {
+  if (uid === currentPageUid.value) {
+    activeItemRef.value = el
+  }
+}
 
 const updatePage = (uid: string) => {
   currentPageUid.value = uid
 }
+
+// Scroll the active thumbnail into view
+const scrollToActive = () => {
+  if (!containerRef.value || !activeItemRef.value || !currentPageUid.value) return
+
+  const container = containerRef.value
+  const activeItem = activeItemRef.value
+
+  // Get container's dimensions
+  const containerRect = container.getBoundingClientRect()
+  const itemRect = activeItem.getBoundingClientRect()
+
+  // Check if the active item is outside of view
+  const isInView = itemRect.left >= containerRect.left && itemRect.right <= containerRect.right
+
+  if (!isInView) {
+    // Calculate the scroll position to center the item
+    const scrollPos = activeItem.offsetLeft - container.clientWidth / 2 + activeItem.offsetWidth / 2
+
+    container.scrollTo({
+      left: scrollPos,
+      behavior: 'smooth'
+    })
+  }
+}
+
+// Watch for changes to the current page
+watch(
+  () => currentPageUid.value,
+  () => {
+    // Use nextTick to ensure the DOM is updated
+    setTimeout(scrollToActive, 0)
+  },
+  { immediate: true }
+)
 
 // Drag to scroll functionality
 let isMouseDown = false
@@ -96,6 +140,8 @@ onMounted(() => {
     window.addEventListener('mouseup', handleMouseUp)
     window.addEventListener('mousemove', handleMouseMove)
   }
+  // Initial scroll to active item
+  setTimeout(scrollToActive, 100)
 })
 
 onUnmounted(() => {

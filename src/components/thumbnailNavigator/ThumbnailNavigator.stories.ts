@@ -66,3 +66,18 @@ export const Long: Story = {
     )
   }
 }
+
+export const LongWithSelection: Story = {
+  args: {
+    pages: Array.from(
+      { length: 100 },
+      (_, i) =>
+        ({
+          uid: `page-${i}`,
+          num: i,
+          iiif: `https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f1/info.json`
+        }) satisfies IPageItem
+    ),
+    currentPageUid: 'page-50'
+  }
+}
