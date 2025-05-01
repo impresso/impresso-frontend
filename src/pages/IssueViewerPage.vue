@@ -12,7 +12,7 @@
           <template v-slot:tabs-start>
             <b-nav-item active-class="active" active>
               <a aria-current="page" class="none router-link-exact-active nav-link active">
-                <span v-html="$t('table_of_contents')" />
+                <span v-html="$t('table_of_contents')"></span>
               </a>
             </b-nav-item>
           </template>
@@ -66,7 +66,7 @@
                       q: suggestionQuery
                     })
                   "
-                />
+                ></div>
                 <div
                   v-else-if="applyCurrentSearchFilters"
                   v-html="
@@ -75,7 +75,7 @@
                       q: suggestionQuery
                     })
                   "
-                />
+                ></div>
                 <div
                   v-else
                   v-html="
@@ -84,7 +84,7 @@
                       q: suggestionQuery
                     })
                   "
-                />
+                ></div>
               </div>
             </div>
           </template>
@@ -109,7 +109,7 @@
           :filtersWithItems="filtersWithItems"
           :issue="issue"
           :article="selectedArticle"
-          :mediaSource="tableOfContents?.newspaper"
+          :mediaSource="mediaSource"
           :page="page"
         >
           <template v-slot:label>
@@ -220,6 +220,14 @@
           @article-selected="handleArticleIdSelectedInViewer"
         />
 
+        <!-- <OSViewer
+          :style="isContentAvailable && mode === FacsimileMode ? {} : { display: 'none' }"
+          :pages="pagesIIIFUrls"
+          :pageRegions="regions"
+          :pageIndex="currentPageIndex"
+          @update:pageIndex="changeCurrentPageIndex"
+        /> -->
+
         <issue-viewer-text
           v-if="isContentAvailable && articleId != null && mode !== FacsimileMode"
           :article_uid="articleId"
@@ -233,23 +241,24 @@
           :visible="mode === FacsimileMode"
         />
 
-        <div
-          class="position-absolute d-flex drop-shadow bg-dark border-radius"
-          style="bottom: 1rem"
+        <thumbnail-navigator
           v-if="mode === FacsimileMode"
-        >
-          <div v-for="(item, i) in issue.pages" :key="i" @click="() => changePageNum(item.num)">
-            <page-item class="bg-dark p-2" :active="pageId === item.uid" :item="item" />
-          </div>
-        </div>
+          class="position-absolute"
+          style="bottom: 1rem"
+          :pages="issue.pages"
+          :current-page-uid="pageId"
+          @update:current-page-uid="pageThumbnailSelected"
+        />
       </div>
     </i-layout-section>
   </i-layout>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, PropType, ComponentPublicInstance } from 'vue'
+
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
-import PageItem from '@/components/modules/lists/PageItem.vue'
+import OSViewer, { PageRegion } from '@/components/osviewer/OSViewer.vue'
 import List from '@/components/modules/lists/List.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
@@ -274,18 +283,45 @@ import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import IssueViewerTableOfContents from '@/components/IssueViewerTableOfContents.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import WithTooltip from '@/components/base/WithTooltip.vue'
+import ThumbnailNavigator from '@/components/thumbnailNavigator/ThumbnailNavigator.vue'
 import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
+import type { Filter, IImage, MediaSource } from '@/models'
+import type ArticleBase from '@/models/ArticleBase'
+import type Page from '@/models/Page'
+import type Image from '@/models/Image'
 
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models/ArticleBase').default} ArticleBase
- */
+// Define types for service queries and responses
+interface ServiceQuery {
+  q: string
+  limit: number
+  page: number
+  issueUid?: string
+  filters: Record<string, any>[]
+}
 
+interface PaginationList {
+  perPage: number
+  currentPage: number
+  totalRows: number
+}
+
+interface MarginaliaSections {
+  title: string
+  isLeft: boolean
+  items: string[]
+}
+
+// Viewer modes
+const FacsimileMode = '0'
+const RegionTranscriptMode = '1'
+const IIIFViewerTranscriptMode = '2'
+
+// Route parameters
 const Params = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
   PageNumber: 'p',
@@ -294,35 +330,34 @@ const QueryParams = Object.freeze({
 })
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FacsimileMode = '0'
-const RegionTranscriptMode = '1'
-const IIIFViewerTranscriptMode = '2'
+export default defineComponent({
+  data() {
+    return {
+      FacsimileMode,
+      RegionTranscriptMode,
+      IIIFViewerTranscriptMode,
 
-export default {
-  data: () => ({
-    FacsimileMode,
-    RegionTranscriptMode,
-    IIIFViewerTranscriptMode,
-    //
-    issue: /** @type {Issue|undefined} */ (undefined),
-    tableOfContents: /** @type {TableOfContents|undefined} */ (undefined),
-    issueImages: /** @type {Image[]} */ ([]),
-    issueImagesIndex: /** @type {{[key: string] : Image[] }} */ ({}),
-    pagesArticles: /** @type {{[key: string] : Article[] }} */ ({}),
-    pagesMarginalia: /** @type {{[key: string] : any[] }} */ ({}),
-    // left panel
-    paginationPerPage: 20,
-    paginationCurrentPage: 1,
-    paginationTotalRows: 0,
-    matchingArticles: /** @type {Article[]} */ [],
-    outlinesVisible: false,
-    isFullscreen: false,
-    isLoadingServiceQuery: false,
-    displayOnlyMatchingArticles: false
-  }),
+      issue: undefined as Issue | undefined,
+      tableOfContents: undefined as TableOfContents | undefined,
+      issueImages: [] as IImage[],
+      issueImagesIndex: {} as Record<string, IImage[]>,
+      pagesArticles: {} as Record<string, Article[]>,
+      pagesMarginalia: {} as Record<string, MarginaliaSections[]>,
+
+      // left panel
+      paginationPerPage: 20,
+      paginationCurrentPage: 1,
+      paginationTotalRows: 0,
+      matchingArticles: [] as Article[],
+      outlinesVisible: false,
+      isFullscreen: false,
+      isLoadingServiceQuery: false,
+      displayOnlyMatchingArticles: false
+    }
+  },
   components: {
     OpenSeadragonArticleViewer,
-    PageItem,
+    OSViewer,
     List,
     IssueViewerText,
     SearchPills,
@@ -330,15 +365,16 @@ export default {
     IssueViewerTableOfContents,
     CollectionAddTo,
     WithTooltip,
-    IssueViewerPageHeading
+    IssueViewerPageHeading,
+    ThumbnailNavigator
   },
   props: {
     filters: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     },
     filtersWithItems: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
   },
@@ -360,7 +396,8 @@ export default {
     window.removeEventListener('keydown', this.keyDown)
   },
   computed: {
-    ...mapStores(useEntitiesStore, useUserStore),
+    ...mapStores(useEntitiesStore),
+    ...mapStores(useUserStore),
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     searchQuery: {
       ...searchQueryGetter(),
@@ -370,60 +407,47 @@ export default {
         }
       })
     },
-    isLoading() {
+    isLoading(): boolean {
       return this.issue == null
     },
-    $navigation() {
+    $navigation(): Navigation {
       return new Navigation(this)
     },
-    /** @returns {Filter[]} */
-    allowedFilters() {
+    allowedFilters(): Filter[] {
       // filter by type
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
-    ignoredFilters() {
+    ignoredFilters(): Filter[] {
       return this.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
-    /** @returns {number} */
-    countActiveFilters() {
+    countActiveFilters(): number {
       return this.filters.length
     },
-    /** @returns {boolean} */
-    hasMatchingArticles() {
+    hasMatchingArticles(): boolean {
       return (
         this.suggestionQuery.length > 0 ||
         (this.applyCurrentSearchFilters && this.countActiveFilters > 0)
       )
     },
-    /** @returns {string} */
-    issueId() {
-      return this.$route.params[Params.IssueId]
+    issueId(): string {
+      return this.$route.params[Params.IssueId] as string
     },
-    /** @returns {string|undefined} */
-    pageId: {
-      /** @return {string|undefined} */
-      get() {
-        return getPageId(this.issueId, this.currentPageIndex)
-      }
+    pageId(): string | undefined {
+      return getPageId(this.issueId, this.currentPageIndex)
     },
-    /** @returns {string|undefined} */
-    articleId() {
+    articleId(): string | undefined {
       const shortArticleId = getQueryParameter(this, QueryParams.ArticleId)
       if (shortArticleId == null) return undefined
       return getLongArticleId(this.issueId, shortArticleId)
     },
-    /**
-     * @returns {ArticleBase|undefined}
-     */
-    selectedArticle() {
+    selectedArticle(): ArticleBase | undefined {
       if (!this.tableOfContents) {
         return undefined
       }
       return this.tableOfContents.articles.find(d => d.uid === this.articleId)
     },
     mode: {
-      get() {
+      get(): string {
         if (!this.selectedArticle) return FacsimileMode
         const textMode = getQueryParameter(this, QueryParams.TextMode)
         if ([FacsimileMode, RegionTranscriptMode, IIIFViewerTranscriptMode].includes(textMode)) {
@@ -431,38 +455,38 @@ export default {
         }
         return IIIFViewerTranscriptMode
       },
-      set(q) {
+      set(q: string) {
         this.$navigation.updateQueryParametersWithHistory({
           [QueryParams.TextMode]: q
         })
       }
     },
-    /** @returns {import('@/models/Page').default|undefined} */
-    page() {
+    page(): Page | undefined {
       if (this.currentPageIndex === -1) return undefined
       return this.issue?.pages[this.currentPageIndex]
     },
-    /** @returns {string[]|undefined} */
-    pagesIIIFUrls() {
+    pagesIIIFUrls(): string[] | undefined {
       if (this.issue == null) return undefined
       return this.issue.pages.map(page => page.iiif)
     },
-    /** @returns {any[]} */
-    regions() {
+    regions(): PageRegion[] {
       const articles = this.pagesArticles[this.currentPageIndex]
       if (articles == null) return []
 
-      return articles.flatMap(article =>
-        article.regions.map(region => ({
-          articleUid: article.uid,
-          pageUid: this.pageId,
-          coords: region.coords
-        }))
+      const regions = articles.flatMap(article =>
+        article.regions
+          .filter(region => region.pageUid === this.pageId)
+          .map(region => ({
+            articleUid: article.uid,
+            pageUid: this.pageId,
+            coords: region.coords as PageRegion['coords']
+          }))
       )
+
+      return regions
     },
-    /** @returns {import('@/models/ArticleBase').default[]} */
-    tableOfContentsArticles() {
-      let items = []
+    tableOfContentsArticles(): ArticleBase[] {
+      let items: ArticleBase[] = []
       if (this.hasMatchingArticles) {
         items = this.matchingArticles
       } else if (this.tableOfContents) {
@@ -481,20 +505,17 @@ export default {
       })
     },
     suggestionQuery: {
-      /** @returns {string} */
-      get() {
+      get(): string {
         return getQueryParameter(this, 'q', '') ?? ''
       },
-      /** @param {string} q */
-      set(q) {
+      set(q: string) {
         this.paginationCurrentPage = 1
         this.$navigation.updateQueryParametersWithHistory({
           q
         })
       }
     },
-    /** @returns {{ q: string, limit: number, page: number, issueUid?: string, filters: Filter[] }} */
-    serviceQuery() {
+    serviceQuery(): ServiceQuery {
       const sq = {
         q: this.suggestionQuery,
         limit: this.paginationPerPage,
@@ -506,8 +527,7 @@ export default {
       console.debug('[IssueViewerPage] computed serviceQuery', sq)
       return sq
     },
-    /** @returns {any} */
-    paginationList() {
+    paginationList(): PaginationList {
       return {
         perPage: this.paginationPerPage,
         currentPage: this.paginationCurrentPage,
@@ -515,50 +535,51 @@ export default {
       }
     },
     currentPageIndex: {
-      /** @returns {number} */
-      get() {
+      get(): number {
         if (!this.issue) return -1
         if (this.selectedArticle) {
           const articlePage = this.selectedArticle.pages[0]
           return this.issue.pages.findIndex(p => p.uid === articlePage.uid)
         }
-        const pageNumber = parseInt(
-          /** @type {string} */ (getQueryParameter(this, QueryParams.PageNumber)),
-          10
-        )
+        const pageNumber = parseInt(getQueryParameter(this, QueryParams.PageNumber) as string, 10)
         if (isNaN(pageNumber)) return 0
         // handle missing pages.
         return this.issue.pages.findIndex(p => p.num === pageNumber)
       },
-      /** @param {number} index */
-      set(index) {
+      set(index: number) {
         // set page num in query fro the page corresponding to the right currentPageIndex
         const pageNumber = this.issue?.pages[index]?.num
         this.$navigation.updateQueryParameters({
-          [QueryParams.PageNumber]: pageNumber
+          [QueryParams.ArticleId]: undefined,
+          [QueryParams.PageNumber]: String(pageNumber)
         })
       }
     },
-    /** @returns {import('@/models/User')} */
     currentUser() {
-      return this.userStore.user
+      return this.userStore.user === false ? undefined : this.userStore.user
     },
-    /** @returns {boolean} */
-    isContentAvailable() {
+    isContentAvailable(): boolean {
       if (this.issue == null) return false
       const isPublic = this?.issue?.accessRights === 'OpenPublic'
       const isLoggedIn = this.currentUser?.isActive ?? false
       return isPublic || isLoggedIn
     },
-    /** @returns {any[]} */
-    marginaliaSections() {
+    marginaliaSections(): MarginaliaSections[] {
       return this.pagesMarginalia[this.currentPageIndex] ?? []
+    },
+    mediaSource() {
+      const newspaper = this.tableOfContents?.newspaper
+      if (!newspaper) return undefined
+      return {
+        id: newspaper.id,
+        name: newspaper.type,
+        type: 'newspaper'
+      } satisfies MediaSource
     }
   },
   watch: {
     issueId: {
-      /** @param {string} id */
-      async handler(id) {
+      async handler(id: string) {
         this.issue = await issuesService.get(id).then(data => {
           console.debug('[IssueViewerPage] issue', data)
           return new Issue(data)
@@ -580,33 +601,30 @@ export default {
           })
           .then(({ data }) => data)
         // remap images by article property
-        this.issueImagesIndex = this.issueImages.reduce((acc, d) => {
-          if (d.contentItemUid != null) {
-            if (!Array.isArray(acc[d.contentItemUid])) {
-              acc[d.contentItemUid] = [d]
-            } else {
-              acc[d.contentItemUid].push(d)
+        this.issueImagesIndex = this.issueImages.reduce(
+          (acc: Record<string, IImage[]>, d: IImage) => {
+            if (d.contentItemUid != null) {
+              if (!Array.isArray(acc[d.contentItemUid])) {
+                acc[d.contentItemUid] = [d]
+              } else {
+                acc[d.contentItemUid].push(d)
+              }
             }
-          }
-          return acc
-        }, {})
+            return acc
+          },
+          {}
+        )
       },
       immediate: true
     },
     currentPageIndex: {
-      /** @param {number} pageIndex */
-      async handler(pageIndex) {
+      async handler(pageIndex: number) {
         await Promise.all([this.loadRegions(pageIndex), this.loadMarginalia(pageIndex)])
       },
       immediate: true
     },
     serviceQuery: {
-      /**
-       * @param {any} params
-       * @param {any} oldParams
-       * @returns {undefined}
-       */
-      handler(params, oldParams) {
+      handler(params: ServiceQuery, oldParams: ServiceQuery) {
         // this get called twice becaues of the suggestionQuery
         const newParamsStr = JSON.stringify(params)
         const oldParamsStr = JSON.stringify(oldParams)
@@ -651,6 +669,12 @@ export default {
     }
   },
   methods: {
+    pageThumbnailSelected(pageUid: string) {
+      const pageIndex = this.issue?.pages.findIndex(p => p.uid === pageUid)
+      if (pageIndex != null && pageIndex >= 0) {
+        this.changeCurrentPageIndex(pageIndex)
+      }
+    },
     handleLoginClick() {
       this.userStore.setRedirectionRoute({
         path: this.$route.path,
@@ -662,7 +686,7 @@ export default {
         name: 'login'
       })
     },
-    keyDown(e) {
+    keyDown(e: KeyboardEvent) {
       if (e.shiftKey) {
         switch (e.key) {
           case 'ArrowLeft':
@@ -683,10 +707,10 @@ export default {
     },
     toggleFullscreen() {
       if (!document.fullscreenElement) {
-        this.$refs.issuePageViewer.$el
+        ;(this.$refs.issuePageViewer as ComponentPublicInstance).$el
           .requestFullscreen()
           .then(() => {})
-          .catch(err => {
+          .catch((err: Error) => {
             console.info(
               `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
             )
@@ -695,55 +719,38 @@ export default {
         document.exitFullscreen()
       }
     },
-    handleFiltersChanged(filters) {
+    handleFiltersChanged(filters: Filter[]) {
       this.displayOnlyMatchingArticles = true
       // add back ignored filters so that we can reuse them in other views
       this.searchQuery = new SearchQuery({
         filters: filters.concat(this.ignoredFilters)
       })
     },
-    handleMatchingArticlesChangePage(page) {
+    handleMatchingArticlesChangePage(page: number) {
       this.paginationCurrentPage = page
     },
-    /** @param {number} pageIndex */
-    changeCurrentPageIndex(pageIndex) {
+    changeCurrentPageIndex(pageIndex: number) {
       this.currentPageIndex = pageIndex
-      // this.$navigation.updateQueryParameters({
-      //   [QueryParams.ArticleId]: undefined,
-      //   [QueryParams.PageNumber]: String(this.issue.pages[pageIndex]?.num)
-      // })
-    },
-    changePageNum(pageNum) {
-      console.debug('[IssueViewerPage] changePageNum to:', pageNum)
-      this.$navigation.updateQueryParameters({
-        [QueryParams.ArticleId]: undefined,
-        [QueryParams.PageNumber]: pageNum
-      })
     },
     handleRemoveSelection() {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: undefined
       })
     },
-    handleArticleSelected(article) {
+    handleArticleSelected(article: ArticleBase) {
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(article.uid),
         [QueryParams.PageNumber]: String(article.pages[0]?.num)
       })
     },
-    /**
-     * @param {string} articleUid
-     * @param {number} pageNumber (optional)
-     */
-    handleArticleIdSelectedInViewer(articleUid) {
+    handleArticleIdSelectedInViewer(articleUid: string) {
       // display the whole table of contents
       this.displayOnlyMatchingArticles = false
       this.$navigation.updateQueryParameters({
         [QueryParams.ArticleId]: getShortArticleId(articleUid)
       })
     },
-    /** @param {number} pageIndex */
-    async loadRegions(pageIndex) {
+    async loadRegions(pageIndex: number) {
       if (this.issue == null) return
       if (this.pagesArticles[pageIndex] == null) {
         const pageId = getPageId(this.issueId, pageIndex)
@@ -760,12 +767,12 @@ export default {
         this.pagesArticles[pageIndex] = articles
       }
     },
-    async loadMarginalia(pageIndex) {
+    async loadMarginalia(pageIndex: number) {
       if (this.issue == null) return
       if (this.pagesMarginalia[pageIndex] == null) {
         const results = await Promise.all([
-          this.entitiesStore.loadPageTopics(this.pageId),
-          this.entitiesStore.loadPageEntities(this.pageId)
+          this.entitiesStore.loadPageTopics(this.pageId as string),
+          this.entitiesStore.loadPageEntities(this.pageId as string)
         ])
 
         const topicsSection = {
@@ -784,8 +791,7 @@ export default {
         this.pagesMarginalia[pageIndex] = entitySections.concat([topicsSection])
       }
     },
-    /** @param {string} articleUid */
-    showArticleText(articleUid) {
+    showArticleText(articleUid: string) {
       const params = {
         [QueryParams.ArticleId]: articleUid == null ? undefined : getShortArticleId(articleUid),
         [QueryParams.TextMode]: '1'
@@ -799,7 +805,7 @@ export default {
       this.$navigation.updateQueryParameters(params)
     }
   }
-}
+})
 </script>
 
 <i18n lang="json">
