@@ -117,13 +117,18 @@
           </div>
 
           <p>
-            For legal reasons not all content is available.
+            Due to copyright restrictions, not all content within the Impresso corpus is publicly
+            accessible.
             <br />
-            To gain access to the <b class="text-white">full impresso corpus</b> please
-            <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
-            and sign our Non-Disclosure-Agreement.
+            Access to protected materials requires registration through one of our plans: the
+            <b>Basic Plan</b>, the <b>Student User Plan</b>, or the <b>Academic User Plan</b>.
+            <br />
+            Please
+            <router-link class="text-white" :to="{ name: 'register' }">register</router-link> by
+            selecting the Plan that corresponds to your current institutional enrolment status.
+            Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
           </p>
-          <a
+          <!-- <a
             class="btn btn-lg btn-primary border-primary rounded shadow-sm"
             href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
             target="_self"
@@ -138,7 +143,7 @@
             <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">
               info@impresso-project.ch
             </a>
-          </p>
+          </p> -->
         </section>
 
         <div class="HomePage__card">
@@ -178,7 +183,7 @@
         />
 
         <h3 class="p-3 m-3 HomePage__card">
-          Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and
+          Take a moment to familiarise yourself with <em>Impresso</em>'s <b>advanced search</b> and
           <b> exploration workflows</b>
         </h3>
         <Recipe
@@ -211,7 +216,7 @@ import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewDataRundown } from '@/constants'
+import { ViewDataRundown, ViewPlans } from '@/constants'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -238,7 +243,8 @@ export default {
     impressoInfo: window.impressoInfo,
     recipes: content.recipes,
     discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '',
-    ViewDataRundown
+    ViewDataRundown,
+    ViewPlans
   }),
   props: {
     showLines: {
