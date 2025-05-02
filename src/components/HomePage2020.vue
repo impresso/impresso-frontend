@@ -115,19 +115,33 @@
               </div>
             </div>
           </div>
-
+          <h3>Register NOW!</h3>
           <p>
             Due to copyright restrictions, not all content within the Impresso corpus is publicly
             accessible.
-            <br />
+          </p>
+          <p>
             Access to protected materials requires registration through one of our plans: the
             <b>Basic Plan</b>, the <b>Student User Plan</b>, or the <b>Academic User Plan</b>.
             <br />
-            Please
-            <router-link class="text-white" :to="{ name: 'register' }">register</router-link> by
-            selecting the Plan that corresponds to your current institutional enrolment status.
             Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
           </p>
+
+          <p>
+            Please register by selecting the Plan that corresponds to your current institutional
+            enrolment status.
+          </p>
+          <RouterLink
+            class="btn btn-lg btn-primary border-primary rounded-lg shadow-md"
+            :to="{ name: 'register' }"
+            target="_self"
+          >
+            <div class="d-flex flex-row align-items-center gap-2">
+              <Icon name="copyright" />
+              <div class="small-caps">{{ $t('actions.register') }}</div>
+            </div>
+          </RouterLink>
+
           <!-- <a
             class="btn btn-lg btn-primary border-primary rounded shadow-sm"
             href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
@@ -155,11 +169,11 @@
           <a
             href="./../assets/impresso-challenges-1.2.3.pdf"
             target="_blank"
-            class="btn btn-primary btn-lg rounded border"
+            class="btn btn-sm btn-outline-secondary rounded border"
           >
             <div class="d-flex flex-row w-100 align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
-              <div class="small-caps">
+              <div>
                 download challenges
                 <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
               </div>
