@@ -29,7 +29,7 @@
       <b-row v-if="isCreated">
         <div class="col-12 col-lg-8 offset-lg-2">
           <p>
-            Thank you for completing the first step of the registration.
+            Thank you for completing the registration.
             <br /><br />
             <b>Action required</b>
             <br /><br />
@@ -66,15 +66,16 @@
             :show-submit-button="false"
           />
           <h3 class="mb-3 font-weight-bold font-size-inherit">Complete the registration form</h3>
-          <p class="text-muted">
-            Please use your <em>institution email address</em> if student or academic user.
-          </p>
+          <!-- errors vuelidate -->
+          <div class="alert alert-danger" v-if="v$.$error">
+            Please check the form for errors and try again.
+          </div>
           <form @submit.prevent="onSubmit">
             <b-row>
               <div class="col">
                 <b-form-group
                   id="input-group-1"
-                  label="Email address"
+                  label="Email (please use institution email if available) *"
                   label-for="email"
                   :description="v$.user.email.$errors[0]?.$message"
                 >
@@ -84,12 +85,21 @@
                     type="email"
                     required
                     autocomplete="email"
-                    :class="{ 'border-danger': v$.user.email.$error }"
+                    :class="{
+                      'border-danger': v$.user.email.$error,
+                      'border-success': !v$.user.email.$error && v$.user.email.$dirty
+                    }"
+                    :description="v$.user.email.$errors[0]?.$message"
+                    class="rounded-sm shadow-sm"
                     v-model.trim="user.email"
                   ></b-form-input>
+                  <p class="text-muted very-small pt-2 px-3">
+                    For Student or Academic User plans, your institution email address is required.
+                  </p>
                 </b-form-group>
               </div>
-              <div class="col">
+
+              <!-- <div class="col">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
@@ -106,10 +116,61 @@
                     :class="{ 'border-danger': v$.user.username.$error }"
                   />
                 </b-form-group>
-              </div>
+              </div> -->
             </b-row>
             <b-row>
               <div class="col">
+                <b-form-group
+                  id="input-group-5"
+                  :label="$t('form_affiliation')"
+                  label-for="affiliation"
+                  :description="v$.user.affiliation?.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="affiliation"
+                    name="affiliation"
+                    type="text"
+                    autocomplete="organization"
+                    v-model.trim="user.affiliation"
+                    :required="doesPlanRequireAffiliation"
+                    :class="{
+                      'border-danger': v$.user.affiliation?.$error,
+                      'border-success': !v$.user.affiliation?.$error && v$.user.affiliation?.$dirty
+                    }"
+                    :description="v$.user.affiliation?.$errors[0]?.$message"
+                    class="rounded-sm shadow-sm"
+                    :placeholder="$t('form_affiliation_placeholder')"
+                  ></b-form-input>
+                </b-form-group>
+              </div>
+              <div class="col">
+                <b-form-group
+                  id="input-group-6"
+                  :label="$t('form_institutional_url')"
+                  label-for="institutional-url"
+                  :description="v$.user.institutionalUrl?.$errors[0]?.$message"
+                >
+                  <b-form-input
+                    id="institutional-url"
+                    name="institutional-url"
+                    type="url"
+                    :required="doesPlanRequireAffiliation"
+                    autocomplete="url"
+                    v-model.trim="user.institutionalUrl"
+                    :class="{
+                      'border-danger': v$.user.institutionalUrl?.$error,
+                      'border-success':
+                        !v$.user.institutionalUrl?.$error && v$.user.institutionalUrl?.$dirty
+                    }"
+                    :description="v$.user.institutionalUrl?.$errors[0]?.$message"
+                    class="rounded-sm shadow-sm"
+                    :placeholder="$t('form_institutional_url_placeholder')"
+                  ></b-form-input>
+                </b-form-group>
+              </div>
+            </b-row>
+            <b-row>
+              <div class="col-md-6">
                 <b-form-group
                   id="input-group-2"
                   :label="$t('form_firstname')"
@@ -122,12 +183,17 @@
                     v-model.trim="user.firstname"
                     maxlength="20"
                     required
+                    :class="{
+                      'border-danger': v$.user.firstname.$error,
+                      'border-success': !v$.user.firstname.$error && v$.user.firstname.$dirty
+                    }"
+                    :description="v$.user.firstname.$errors[0]?.$message"
+                    class="rounded-sm shadow-sm"
+                    :placeholder="$t('form_firstname')"
                   ></b-form-input>
                 </b-form-group>
               </div>
-            </b-row>
-            <b-row>
-              <div class="col">
+              <div class="col-md-6">
                 <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
                   <b-form-input
                     id="lastname"
@@ -136,11 +202,19 @@
                     v-model.trim="user.lastname"
                     maxlength="20"
                     required
+                    :class="{
+                      'border-danger': v$.user.lastname.$error,
+                      'border-success': !v$.user.lastname.$error && v$.user.lastname.$dirty
+                    }"
+                    :description="v$.user.lastname.$errors[0]?.$message"
+                    class="rounded-sm shadow-sm"
+                    :placeholder="$t('form_lastname')"
                   ></b-form-input>
                 </b-form-group>
               </div>
             </b-row>
             <!-- password -->
+
             <b-row>
               <div class="col">
                 <b-form-group
@@ -156,7 +230,11 @@
                     type="password"
                     maxlength="80"
                     required
-                    :class="{ 'border-danger': v$.user.password.$error }"
+                    class="rounded-sm shadow-sm"
+                    :class="{
+                      'border-danger': v$.user.password.$error,
+                      'border-success': !v$.user.password.$error && v$.user.password.$dirty
+                    }"
                   ></b-form-input>
                 </b-form-group>
               </div>
@@ -173,13 +251,19 @@
                     v-model.trim="repeatPassword"
                     maxlength="80"
                     required
-                    :class="{ 'border-danger': v$.repeatPassword.$error }"
+                    class="rounded-sm shadow-sm"
+                    :class="{
+                      'border-danger': v$.repeatPassword.$error,
+                      'border-success': !v$.repeatPassword.$error && v$.repeatPassword.$dirty
+                    }"
                     type="password"
                   />
                 </b-form-group>
               </div>
             </b-row>
-
+            <h3 class="mb-3 font-weight-bold font-size-inherit">
+              Pick a color pattern for your profile (optional)
+            </h3>
             <div
               id="input-group-4"
               :label="$t('form_pattern')"
@@ -255,7 +339,7 @@ import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
 import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
 import { useUserStore } from '@/stores/user'
 import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/ChangePlanForm.vue'
-import { AvailablePlans, PlanLabels } from '@/constants'
+import { AvailablePlans, PlanLabels, PlanEducational, PlanResearcher } from '@/constants'
 import { mapStores } from 'pinia'
 import Sunset from '@/components/base/Sunset.vue'
 
@@ -296,9 +380,11 @@ export default defineComponent({
       password: '',
       firstname: '',
       lastname: '',
-      displayName: 'Researcher',
+      displayName: '',
+      affiliation: '',
+      institutionalUrl: '',
       pattern: Array()
-    } as User & { password: string },
+    } as User & { password: string; affiliation: string; institutionalUrl: string },
     isCreated: false,
     isLoading: false,
     nda: null,
@@ -352,6 +438,9 @@ export default defineComponent({
       }
       return this.availablePlansLabels[this.selectedPlan]
     },
+    doesPlanRequireAffiliation() {
+      return this.selectedPlan === PlanEducational || this.selectedPlan === PlanResearcher
+    },
     patternAsText: {
       get() {
         if (this.user) {
@@ -395,6 +484,13 @@ export default defineComponent({
       }
       this.featherError = null
       this.isLoading = true
+      // check vuelidate form
+      this.v$.$touch()
+      if (this.v$.$error) {
+        this.scrollToError()
+        return
+      }
+
       usersService
         .create({
           ...this.user,
@@ -445,9 +541,19 @@ export default defineComponent({
   validations() {
     return {
       user: {
-        username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
+        // username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
+        firstname: { required, minLength: minLength(2), $autoDirty: true }, // required|min:2
+        lastname: { required, minLength: minLength(2), $autoDirty: true }, // required|min:2
         email: { required, minLength: minLength(4), email, $autoDirty: true }, // required|email
-        password: { minLength: minLength(8), complexPassword, $autoDirty: true } // min: 8, regex: passwordRegex
+        password: { minLength: minLength(8), complexPassword, $autoDirty: true }, // min: 8, regex: passwordRegex
+        institutionalUrl: {
+          $autoDirty: true,
+          urlRegex: helpers.withMessage('Please enter a valid URL', (value: string) => {
+            const urlPattern =
+              /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/
+            return urlPattern.test(value)
+          })
+        }
       },
       repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true } // required|confirmed:repeatPassword
     }
@@ -485,14 +591,18 @@ export default defineComponent({
 <i18n lang="json">
 {
   "en": {
-    "form_firstname": "First name",
-    "form_lastname": "Last name",
+    "form_firstname": "First name *",
+    "form_lastname": "Last name *",
     "form_pattern": "Pattern",
     "form_displayname": "User label",
     "form_change_password": "Change Password",
     "form_oldpassword": "Current Password",
-    "form_password": "Password",
-    "form_password_repeat": "Password (again)",
+    "form_password": "Password *",
+    "form_password_repeat": "Verify Password *",
+    "form_affiliation": "Affiliation",
+    "form_affiliation_placeholder": "University, Company, etc.",
+    "form_institutional_url": "Institutional URL",
+    "form_institutional_url_placeholder": "https://...",
     "signUp": "(sign up)"
   }
 }
