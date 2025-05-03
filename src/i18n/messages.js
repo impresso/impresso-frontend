@@ -83,6 +83,7 @@ export default {
     },
     actions: {
       search: 'Search',
+      register: 'Create account',
       addFilter: 'Add filter ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
