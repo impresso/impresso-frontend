@@ -1,105 +1,103 @@
 <template>
-  <main id="UserDashboard">
-    <b-container class="mb-5">
-      <b-row>
-        <div class="col-12 col-lg-8 offset-lg-2">
-          <div class="d-flex align-items-center my-5">
-            <div class="colors-wrapper flex-shrink-1">
-              <Sunset :colors="user.pattern" :radius="40"></Sunset>
-            </div>
-            <div class="ml-4">
-              <h1 class="user-fullname m-0 sans font-weight-bold">
-                {{ userLabel }}
-              </h1>
-              <div class="user-displayname small-caps">
-                {{ userPlanLabel }}
-              </div>
+  <b-container class="mb-5 UserRegister">
+    <b-row>
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <div class="d-flex align-items-center my-5">
+          <div class="colors-wrapper flex-shrink-1">
+            <Sunset :colors="user.pattern" :radius="40"></Sunset>
+          </div>
+          <div class="ml-4">
+            <h1 class="user-fullname m-0 sans font-weight-bold">
+              {{ userLabel }}
+            </h1>
+            <div class="user-displayname small-caps">
+              {{ userPlanLabel }}
             </div>
           </div>
         </div>
-        <div class="col-12 col-lg-8 offset-lg-2">
-          <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
-        </div>
-      </b-row>
-      <b-row>
-        <div class="col-12 col-lg-8 offset-lg-2" ref="errorManager">
-          <FeathersErrorManager :error="featherError" />
-        </div>
-      </b-row>
-      <b-row v-if="isCreated">
-        <div class="col-12 col-lg-8 offset-lg-2">
-          <p>
-            Thank you for completing the registration.
-            <br /><br />
-            <b>Action required</b>
-            <br /><br />
-            Next, please download this
-            <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download
-              >Non-Disclosure Agreement (NDA)</a
-            >, sign it and email it to
-            <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br /><br />
-            Once we have received the signed NDA, your account will be activated within two working
-            days.
-          </p>
-        </div>
-      </b-row>
-      <b-row v-else>
-        <div class="col-12 col-lg-8 offset-lg-2">
-          <p>
-            Create your Impresso account to explore the full potential of our Web App and Datalab.
-            Be careful to select the User Plan which best describes your current status and be
-            prepared to provide evidence for Student user and Academic User registrations. Select
-            the User Plan which fits your profile and be ready to <b>provide evidence</b> for
-            Student User and Academic User registrations.
-          </p>
-        </div>
-        <div class="col-12 col-lg-8 offset-lg-2">
-          <h3 class="mb-3 font-weight-bold font-size-inherit">
-            Select the User Plan which fits your profile
-          </h3>
-          <ChangePlanForm
-            allowAllPlans
-            :availablePlansLabels="availablePlansLabels"
-            :availablePlans="availablePlans"
-            :error="null"
-            @change="onChangePlan"
-            :show-submit-button="false"
-          />
-          <h3 class="mb-3 font-weight-bold font-size-inherit">Complete the registration form</h3>
-          <!-- errors vuelidate -->
-          <div class="alert alert-danger" v-if="v$.$error">
-            Please check the form for errors and try again.
-          </div>
-          <form @submit.prevent="onSubmit">
-            <b-row>
-              <div class="col">
-                <b-form-group
-                  id="input-group-1"
-                  label="Email (please use institution email if available) *"
-                  label-for="email"
-                  :description="v$.user.email.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    autocomplete="email"
-                    :class="{
-                      'border-danger': v$.user.email.$error,
-                      'border-success': !v$.user.email.$error && v$.user.email.$dirty
-                    }"
-                    :description="v$.user.email.$errors[0]?.$message"
-                    class="rounded-sm shadow-sm"
-                    v-model.trim="user.email"
-                  ></b-form-input>
-                  <p class="text-muted very-small pt-2 px-3">
-                    For Student or Academic User plans, your institution email address is required.
-                  </p>
-                </b-form-group>
-              </div>
+      </div>
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
+      </div>
+    </b-row>
+    <b-row>
+      <div class="col-12 col-lg-8 offset-lg-2" ref="errorManager">
+        <FeathersErrorManager :error="featherError" />
+      </div>
+    </b-row>
+    <b-row v-if="isCreated">
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <p>
+          Thank you for completing the registration.
+          <br /><br />
+          <b>Action required</b>
+          <br /><br />
+          Next, please download this
+          <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download
+            >Non-Disclosure Agreement (NDA)</a
+          >, sign it and email it to
+          <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br /><br />
+          Once we have received the signed NDA, your account will be activated within two working
+          days.
+        </p>
+      </div>
+    </b-row>
+    <b-row v-else>
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <p>
+          Create your Impresso account to explore the full potential of our Web App and Datalab.
+        </p>
+      </div>
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <h3 class="mb-3 font-weight-bold font-size-inherit">
+          Select the User Plan which fits your profile
+        </h3>
+        <p>
+          Select the User Plan which best describes your current status be ready to provide evidence
+          for <em>Student User</em> and <em>Academic User</em> registrations.
+          <br />
+          Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
+        </p>
+        <ChangePlanForm
+          allowAllPlans
+          :availablePlansLabels="availablePlansLabels"
+          :availablePlans="availablePlans"
+          :error="null"
+          @change="onChangePlan"
+          :show-submit-button="false"
+        />
+        <h3 class="mb-3 font-weight-bold font-size-inherit">Complete the registration form</h3>
 
-              <!-- <div class="col">
+        <form @submit.prevent="onSubmit">
+          <b-row>
+            <div class="col">
+              <b-form-group
+                id="input-group-1"
+                label="Email (please use institution email if available) *"
+                label-for="email"
+                :description="v$.user.email.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  :class="{
+                    'border-danger': v$.user.email.$error,
+                    'border-success': !v$.user.email.$error && v$.user.email.$dirty
+                  }"
+                  class="rounded-sm shadow-sm"
+                  v-model.trim="user.email"
+                ></b-form-input>
+              </b-form-group>
+              <p class="text-muted very-small pt-0 px-3">
+                Note: for Student User or Academic User plans, your institution email address is
+                <b>required</b>.
+              </p>
+            </div>
+
+            <!-- <div class="col">
                 <b-form-group
                   id="input-group-0"
                   label="User Name"
@@ -117,215 +115,217 @@
                   />
                 </b-form-group>
               </div> -->
-            </b-row>
-            <b-row>
-              <div class="col">
-                <b-form-group
-                  id="input-group-5"
-                  :label="$t('form_affiliation')"
-                  label-for="affiliation"
-                  :description="v$.user.affiliation?.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="affiliation"
-                    name="affiliation"
-                    type="text"
-                    autocomplete="organization"
-                    v-model.trim="user.affiliation"
-                    :required="doesPlanRequireAffiliation"
-                    :class="{
-                      'border-danger': v$.user.affiliation?.$error,
-                      'border-success': !v$.user.affiliation?.$error && v$.user.affiliation?.$dirty
-                    }"
-                    :description="v$.user.affiliation?.$errors[0]?.$message"
-                    class="rounded-sm shadow-sm"
-                    :placeholder="$t('form_affiliation_placeholder')"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col">
-                <b-form-group
-                  id="input-group-6"
-                  :label="$t('form_institutional_url')"
-                  label-for="institutional-url"
-                  :description="v$.user.institutionalUrl?.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="institutional-url"
-                    name="institutional-url"
-                    type="url"
-                    :required="doesPlanRequireAffiliation"
-                    autocomplete="url"
-                    v-model.trim="user.institutionalUrl"
-                    :class="{
-                      'border-danger': v$.user.institutionalUrl?.$error,
-                      'border-success':
-                        !v$.user.institutionalUrl?.$error && v$.user.institutionalUrl?.$dirty
-                    }"
-                    :description="v$.user.institutionalUrl?.$errors[0]?.$message"
-                    class="rounded-sm shadow-sm"
-                    :placeholder="$t('form_institutional_url_placeholder')"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-            </b-row>
-            <b-row>
-              <div class="col-md-6">
-                <b-form-group
-                  id="input-group-2"
-                  :label="$t('form_firstname')"
-                  label-for="firstname"
-                >
-                  <b-form-input
-                    id="firstname"
-                    name="firstname"
-                    autocomplete="firstname"
-                    v-model.trim="user.firstname"
-                    maxlength="20"
-                    required
-                    :class="{
-                      'border-danger': v$.user.firstname.$error,
-                      'border-success': !v$.user.firstname.$error && v$.user.firstname.$dirty
-                    }"
-                    :description="v$.user.firstname.$errors[0]?.$message"
-                    class="rounded-sm shadow-sm"
-                    :placeholder="$t('form_firstname')"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col-md-6">
-                <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
-                  <b-form-input
-                    id="lastname"
-                    name="lastname"
-                    autocomplete="lastname"
-                    v-model.trim="user.lastname"
-                    maxlength="20"
-                    required
-                    :class="{
-                      'border-danger': v$.user.lastname.$error,
-                      'border-success': !v$.user.lastname.$error && v$.user.lastname.$dirty
-                    }"
-                    :description="v$.user.lastname.$errors[0]?.$message"
-                    class="rounded-sm shadow-sm"
-                    :placeholder="$t('form_lastname')"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-            </b-row>
-            <!-- password -->
-
-            <b-row>
-              <div class="col">
-                <b-form-group
-                  id="input-group-changepwd-2"
-                  :label="$t('form_password')"
-                  label-for="password"
-                  :description="v$.user.password.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="password"
-                    name="password"
-                    v-model.trim="user.password"
-                    type="password"
-                    maxlength="80"
-                    required
-                    class="rounded-sm shadow-sm"
-                    :class="{
-                      'border-danger': v$.user.password.$error,
-                      'border-success': !v$.user.password.$error && v$.user.password.$dirty
-                    }"
-                  ></b-form-input>
-                </b-form-group>
-              </div>
-              <div class="col">
-                <b-form-group
-                  id="input-group-changepwd-3"
-                  :label="$t('form_password_repeat')"
-                  label-for="repeat-password"
-                  :description="v$.repeatPassword.$errors[0]?.$message"
-                >
-                  <b-form-input
-                    id="repeat-password"
-                    name="repeat-password"
-                    v-model.trim="repeatPassword"
-                    maxlength="80"
-                    required
-                    class="rounded-sm shadow-sm"
-                    :class="{
-                      'border-danger': v$.repeatPassword.$error,
-                      'border-success': !v$.repeatPassword.$error && v$.repeatPassword.$dirty
-                    }"
-                    type="password"
-                  />
-                </b-form-group>
-              </div>
-            </b-row>
-            <h3 class="mb-3 font-weight-bold font-size-inherit">
-              Pick a color pattern for your profile (optional)
-            </h3>
-            <div
-              id="input-group-4"
-              :label="$t('form_pattern')"
-              label-for="pattern"
-              class="input-group mb-4"
-            >
-              <b-form-input id="pattern" v-model="patternAsText" maxlength="70"> </b-form-input>
-              <div class="input-group-append">
-                <b-form-input
-                  id="numcolors"
-                  type="number"
-                  v-model="numColors"
-                  min="2"
-                  max="10"
-                ></b-form-input>
-                <b-button
-                  size="sm"
-                  class="text-nowrap"
-                  variant="outline-primary"
-                  @click="onGeneratePattern"
-                >
-                  {{ $t('actions.generatePattern') }}
-                </b-button>
-              </div>
-            </div>
-
-            <div class="d-flex w-100 mb-3">
-              <div
-                class="color py-3"
-                v-for="(color, k) in user.pattern"
-                v-bind:key="k"
-                :style="getColorBandStyle(color)"
-              ></div>
-            </div>
-
-            <AcceptTermsOfUse
-              localStorageOnly
-              :checked="isTermsOfUseAccepted"
-              v-on:change="
-                (event: Event) => {
-                  const isChecked = (event.target as HTMLInputElement).checked
-                  console.debug('[UserRegister] AcceptTermsOfUse@onChange', isChecked)
-                  toggleAcceptTermsDate(isChecked)
-                }
-              "
-            />
-
-            <div class="text-center">
-              <b-button
-                size="lg"
-                type="submit"
-                class="mt-2"
-                variant="outline-primary"
-                :disabled="!selectedPlan || !isTermsOfUseAccepted || v$.$error || !v$.$anyDirty"
-                >{{ $t('actions.requestAccount') }}</b-button
+          </b-row>
+          <b-row>
+            <div class="col">
+              <b-form-group
+                id="input-group-5"
+                :label="$t('form_affiliation')"
+                label-for="affiliation"
+                :description="v$.user.affiliation?.$errors[0]?.$message"
               >
+                <b-form-input
+                  id="affiliation"
+                  name="affiliation"
+                  type="text"
+                  autocomplete="organization"
+                  v-model.trim="user.affiliation"
+                  :required="doesPlanRequireAffiliation"
+                  :class="{
+                    'border-danger': v$.user.affiliation?.$error,
+                    'border-success': !v$.user.affiliation?.$error && v$.user.affiliation?.$dirty
+                  }"
+                  class="rounded-sm shadow-sm"
+                  :placeholder="$t('form_affiliation_placeholder')"
+                ></b-form-input>
+              </b-form-group>
             </div>
-          </form>
-        </div>
-      </b-row>
-    </b-container>
-  </main>
+            <div class="col">
+              <b-form-group
+                id="input-group-6"
+                :label="$t('form_institutional_url')"
+                label-for="institutional-url"
+                :description="v$.user.institutionalUrl?.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="institutional-url"
+                  name="institutional-url"
+                  type="url"
+                  :required="doesPlanRequireAffiliation"
+                  autocomplete="url"
+                  v-model.trim="user.institutionalUrl"
+                  :class="{
+                    'border-danger': v$.user.institutionalUrl?.$error,
+                    'border-success':
+                      !v$.user.institutionalUrl?.$error && v$.user.institutionalUrl?.$dirty
+                  }"
+                  class="rounded-sm shadow-sm"
+                  :placeholder="$t('form_institutional_url_placeholder')"
+                ></b-form-input>
+              </b-form-group>
+            </div>
+          </b-row>
+          <b-row>
+            <div class="col-md-6">
+              <b-form-group
+                id="input-group-2"
+                :label="$t('form_firstname')"
+                label-for="firstname"
+                :description="v$.user.firstname.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="firstname"
+                  name="firstname"
+                  autocomplete="firstname"
+                  v-model.trim="user.firstname"
+                  maxlength="20"
+                  required
+                  :class="{
+                    'border-danger': v$.user.firstname.$error,
+                    'border-success': !v$.user.firstname.$error && v$.user.firstname.$dirty
+                  }"
+                  class="rounded-sm shadow-sm"
+                  :placeholder="$t('form_firstname')"
+                ></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-md-6">
+              <b-form-group
+                id="input-group-3"
+                :label="$t('form_lastname')"
+                label-for="lastname"
+                :description="v$.user.lastname.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="lastname"
+                  name="lastname"
+                  autocomplete="lastname"
+                  v-model.trim="user.lastname"
+                  maxlength="20"
+                  required
+                  :class="{
+                    'border-danger': v$.user.lastname.$error,
+                    'border-success': !v$.user.lastname.$error && v$.user.lastname.$dirty
+                  }"
+                  class="rounded-sm shadow-sm"
+                  :placeholder="$t('form_lastname')"
+                ></b-form-input>
+              </b-form-group>
+            </div>
+          </b-row>
+          <!-- password -->
+
+          <b-row>
+            <div class="col">
+              <b-form-group
+                id="input-group-changepwd-2"
+                :label="$t('form_password')"
+                label-for="password"
+                :description="v$.user.password.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="password"
+                  name="password"
+                  v-model.trim="user.password"
+                  type="password"
+                  maxlength="80"
+                  required
+                  class="rounded-sm shadow-sm"
+                  :class="{
+                    'border-danger': v$.user.password.$error,
+                    'border-success': !v$.user.password.$error && v$.user.password.$dirty
+                  }"
+                ></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col">
+              <b-form-group
+                id="input-group-changepwd-3"
+                :label="$t('form_password_repeat')"
+                label-for="repeat-password"
+                :description="v$.repeatPassword.$errors[0]?.$message"
+              >
+                <b-form-input
+                  id="repeat-password"
+                  name="repeat-password"
+                  v-model.trim="repeatPassword"
+                  maxlength="80"
+                  required
+                  class="rounded-sm shadow-sm"
+                  :class="{
+                    'border-danger': v$.repeatPassword.$error,
+                    'border-success': !v$.repeatPassword.$error && v$.repeatPassword.$dirty
+                  }"
+                  type="password"
+                />
+              </b-form-group>
+            </div>
+          </b-row>
+          <h3 class="mb-3 font-weight-bold font-size-inherit">
+            Pick a color pattern for your profile (optional)
+          </h3>
+          <div
+            id="input-group-4"
+            :label="$t('form_pattern')"
+            label-for="pattern"
+            class="input-group mb-4"
+          >
+            <b-form-input id="pattern" v-model="patternAsText" maxlength="70" class="border-0">
+            </b-form-input>
+            <div class="input-group-append">
+              <b-form-input
+                id="numcolors"
+                type="number"
+                v-model="numColors"
+                min="2"
+                max="10"
+              ></b-form-input>
+              <b-button
+                size="sm"
+                class="text-nowrap"
+                variant="outline-primary"
+                @click="onGeneratePattern"
+              >
+                {{ $t('actions.generatePattern') }}
+              </b-button>
+            </div>
+          </div>
+
+          <div class="d-flex w-100 mb-3">
+            <div
+              class="color py-3"
+              v-for="(color, k) in user.pattern"
+              v-bind:key="k"
+              :style="getColorBandStyle(color)"
+            ></div>
+          </div>
+
+          <AcceptTermsOfUse
+            localStorageOnly
+            :checked="isTermsOfUseAccepted"
+            v-on:change="
+              (event: Event) => {
+                const isChecked = (event.target as HTMLInputElement).checked
+                console.debug('[UserRegister] AcceptTermsOfUse@onChange', isChecked)
+                toggleAcceptTermsDate(isChecked)
+              }
+            "
+          />
+
+          <div class="text-center">
+            <b-button
+              size="lg"
+              type="submit"
+              class="mt-2"
+              variant="outline-primary"
+              :disabled="!selectedPlan || !isTermsOfUseAccepted"
+              >{{ $t('actions.requestAccount') }}</b-button
+            >
+          </div>
+        </form>
+      </div>
+    </b-row>
+  </b-container>
 </template>
 
 <script lang="ts">
@@ -342,6 +342,8 @@ import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/Chang
 import { AvailablePlans, PlanLabels, PlanEducational, PlanResearcher } from '@/constants'
 import { mapStores } from 'pinia'
 import Sunset from '@/components/base/Sunset.vue'
+import LinkToModal from '@/components/LinkToModal.vue'
+import { ViewPlans } from '../constants'
 
 const userRegex = helpers.withMessage(
   'Please use only lowercase alpha-numeric characters',
@@ -366,7 +368,8 @@ export default defineComponent({
     FeathersErrorManager,
     AcceptTermsOfUse,
     ChangePlanForm,
-    Sunset
+    Sunset,
+    LinkToModal
   },
   data: () => ({
     availablePlansLabels: PlanLabels,
@@ -422,7 +425,8 @@ export default defineComponent({
       '#FA003F',
       '#00916E'
     ],
-    numColors: 5
+    numColors: 5,
+    ViewPlans
   }),
   computed: {
     ...mapStores(useUserStore),
@@ -470,6 +474,15 @@ export default defineComponent({
       }
     },
     onSubmit() {
+      // check vuelidate form
+      this.v$.$touch()
+      if (this.v$.$error) {
+        console.warn('UserRegister#onSubmit() form is invalid', this.v$.$error)
+        this.featherError = new Error('Whaaaat')
+
+        this.scrollToError()
+        return
+      }
       // console.info('UserRegister#onSubmit()', this.user, this.nda);
       // to be checked for validity...
       if (!this.isTermsOfUseAccepted) {
@@ -484,12 +497,6 @@ export default defineComponent({
       }
       this.featherError = null
       this.isLoading = true
-      // check vuelidate form
-      this.v$.$touch()
-      if (this.v$.$error) {
-        this.scrollToError()
-        return
-      }
 
       usersService
         .create({
@@ -542,17 +549,30 @@ export default defineComponent({
     return {
       user: {
         // username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
-        firstname: { required, minLength: minLength(2), $autoDirty: true }, // required|min:2
+        firstname: {
+          required,
+          minLength: minLength(2),
+          $autoDirty: true
+        }, // required|min:2
         lastname: { required, minLength: minLength(2), $autoDirty: true }, // required|min:2
         email: { required, minLength: minLength(4), email, $autoDirty: true }, // required|email
         password: { minLength: minLength(8), complexPassword, $autoDirty: true }, // min: 8, regex: passwordRegex
         institutionalUrl: {
           $autoDirty: true,
+          required: false,
           urlRegex: helpers.withMessage('Please enter a valid URL', (value: string) => {
+            if (!value || value.length === 0) {
+              return true
+            }
             const urlPattern =
               /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/
             return urlPattern.test(value)
           })
+        },
+        affiliation: {
+          $autoDirty: true,
+          required: false,
+          minLength: minLength(2)
         }
       },
       repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true } // required|confirmed:repeatPassword
@@ -562,6 +582,14 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+.UserRegister {
+  counter-reset: h3-counter;
+}
+h3::before {
+  content: counter(h3-counter) '. ';
+  counter-increment: h3-counter;
+}
+
 .colors-wrapper {
   background-color: transparent;
   width: 80px;
