@@ -17,7 +17,9 @@
         </div>
       </div>
       <div class="col-12 col-lg-8 offset-lg-2">
-        <h1 class="border-bottom border-dark my-3 pb-3 sans">{{ $t('Register') }}</h1>
+        <h1 class="border-bottom border-dark my-3 pb-3 sans">
+          {{ $t(isCreated ? 'registration_successful' : 'register') }}
+        </h1>
       </div>
     </b-row>
     <b-row>
@@ -27,19 +29,14 @@
     </b-row>
     <b-row v-if="isCreated">
       <div class="col-12 col-lg-8 offset-lg-2">
+        <p>Thank you for completing the registration.</p>
         <p>
-          Thank you for completing the registration.
-          <br /><br />
-          <b>Action required</b>
-          <br /><br />
-          Next, please download this
-          <a href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf" download
-            >Non-Disclosure Agreement (NDA)</a
-          >, sign it and email it to
-          <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>. <br /><br />
-          Once we have received the signed NDA, your account will be activated within two working
-          days.
+          Your account has been created, and we've received your information. Since activation is a
+          manual process, one of our team members will review your details and get your account up
+          and running as soon as possible. You'll receive a confirmation email once your account is
+          activated.
         </p>
+        <p>We appreciate your patience and look forward to welcoming you!</p>
       </div>
     </b-row>
     <b-row v-else>
@@ -268,21 +265,33 @@
             id="input-group-4"
             :label="$t('form_pattern')"
             label-for="pattern"
-            class="input-group mb-4"
+            class="input-group mb-4 shadow-sm rounded-sm border"
           >
-            <b-form-input id="pattern" v-model="patternAsText" maxlength="70" class="border-0">
+            <b-form-input
+              id="pattern"
+              v-model="patternAsText"
+              maxlength="70"
+              class="border-0"
+              style="
+                border-right: 1px solid var(--clr-grey-500) !important;
+                border-top-left-radius: var(--border-radius-sm) !important;
+                border-bottom-left-radius: var(--border-radius-sm) !important;
+              "
+            >
             </b-form-input>
             <div class="input-group-append">
               <b-form-input
+                class="border-0"
                 id="numcolors"
                 type="number"
                 v-model="numColors"
+                style="border-right: 1px solid var(--clr-grey-500) !important"
                 min="2"
                 max="10"
               ></b-form-input>
               <b-button
                 size="sm"
-                class="text-nowrap"
+                class="text-nowrap border-0 shadow-none"
                 variant="outline-primary"
                 @click="onGeneratePattern"
               >
@@ -316,7 +325,7 @@
             <b-button
               size="lg"
               type="submit"
-              class="mt-2"
+              class="mt-2 rounded-md"
               variant="outline-primary"
               :disabled="!selectedPlan || !isTermsOfUseAccepted"
               >{{ $t('actions.requestAccount') }}</b-button
@@ -497,10 +506,17 @@ export default defineComponent({
       }
       this.featherError = null
       this.isLoading = true
-
+      const username = this.user.email.replace(/[^a-z]/g, '')
+      console.info(
+        '[UserRegister] onSubmit calling service...',
+        'patten:',
+        this.user.pattern.join(',')
+      )
       usersService
         .create({
           ...this.user,
+          username: this.user.email.replace(/[^a-z]/g, ''),
+          pattern: this.user.pattern.join(','),
           plan: this.selectedPlan
         })
         .then(res => {
@@ -631,6 +647,8 @@ h3::before {
     "form_affiliation_placeholder": "University, Company, etc.",
     "form_institutional_url": "Institutional URL",
     "form_institutional_url_placeholder": "https://...",
+    "registration_successful": "Registration successful",
+    "register": "Register",
     "signUp": "(sign up)"
   }
 }
