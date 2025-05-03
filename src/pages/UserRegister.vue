@@ -487,8 +487,9 @@ export default defineComponent({
       this.v$.$touch()
       if (this.v$.$error) {
         console.warn('UserRegister#onSubmit() form is invalid', this.v$.$error)
-        this.featherError = new Error('Whaaaat')
-
+        this.featherError = new Error(
+          'Form submission failed: Please correct the highlighted errors and try again.'
+        )
         this.scrollToError()
         return
       }
@@ -506,12 +507,8 @@ export default defineComponent({
       }
       this.featherError = null
       this.isLoading = true
-      const username = this.user.email.replace(/[^a-z]/g, '')
-      console.info(
-        '[UserRegister] onSubmit calling service...',
-        'patten:',
-        this.user.pattern.join(',')
-      )
+      this.user.username = this.user.email.replace(/[^a-z]/g, '')
+      console.info('[UserRegister] onSubmit calling service...')
       usersService
         .create({
           ...this.user,
