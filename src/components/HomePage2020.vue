@@ -137,7 +137,7 @@
             target="_self"
           >
             <div class="d-flex flex-row align-items-center gap-2">
-              <Icon name="copyright" />
+              <Icon name="profileCircle" />
               <div class="small-caps">{{ $t('actions.register') }}</div>
             </div>
           </RouterLink>
