@@ -3,9 +3,9 @@
     <i-layout-section class="section">
       <div class="login-form">
         <form v-on:submit.prevent="authenticate" class="form-signin">
-          <div class="header p-3">
+          <h3 class="header p-3">
             {{ $t('login_title') }}
-          </div>
+          </h3>
           <div class="body py-4 px-3">
             <div class="alert alert-danger" v-show="error" role="alert">
               {{ error }}
@@ -122,8 +122,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 #UserLoginPage a {
   text-decoration: underline;
 }
@@ -148,13 +146,9 @@ export default {
   width: 100%;
   max-width: 350px;
   margin: 40px auto;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
-
-  .header {
-    background: $clr-accent-light;
-    font-weight: bold;
-    font-size: larger;
-  }
+  box-shadow: var(--bs-box-shadow-lg-darker);
+  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-md);
 
   .footer {
     background: #f4f5f6;
@@ -163,6 +157,17 @@ export default {
   form {
     border-radius: 2px;
   }
+}
+
+.login-form .header {
+  border-top-left-radius: var(--border-radius-md);
+  border-top-right-radius: var(--border-radius-md);
+  background-color: var(--impresso-color-yellow);
+}
+
+.login-form .footer {
+  border-bottom-left-radius: var(--border-radius-md);
+  border-bottom-right-radius: var(--border-radius-md);
 }
 
 .form-signin {
@@ -183,16 +188,10 @@ export default {
 {
   "en": {
     "Invalid login": "Invalid login",
-    "login_title": "Please sign in",
+    "login_title": "Login",
     "login_remember": "Remember me",
     "login_button": "Sign in",
-    "signup_button": "Sign up!"
-  },
-  "nl": {
-    "Invalid login": "Onjuiste login",
-    "login_title": "Inloggen",
-    "login_remember": "Onthouden",
-    "login_button": "Inloggen"
+    "signup_button": "Register"
   }
 }
 </i18n>
