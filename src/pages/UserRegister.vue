@@ -50,8 +50,8 @@
           Select the User Plan which fits your profile
         </h3>
         <p>
-          Select the User Plan which best describes your current status be ready to provide evidence
-          for <em>Student User</em> and <em>Academic User</em> registrations.
+          Select the User Plan which best describes your current status and be ready to provide
+          evidence for <em>Student User</em> and <em>Academic User</em> registrations.
           <br />
           Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
         </p>

@@ -121,8 +121,8 @@
             accessible.
           </p>
           <p>
-            Access to protected materials requires registration through one of our plans: the
-            <b>Basic Plan</b>, the <b>Student User Plan</b>, or the <b>Academic User Plan</b>.
+            Access to protected materials requires registration through one of our user plans: the
+            <b>Basic Plan</b>, the <b>Student Plan</b>, or the <b>Academic Plan</b>.
             <br />
             Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
           </p>
