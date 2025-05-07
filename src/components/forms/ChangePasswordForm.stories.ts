@@ -3,7 +3,7 @@ import ChangePaswordForm from './ChangePasswordForm.vue'
 import type { ChangePasswordFormProps } from './ChangePasswordForm.vue'
 
 const meta = {
-  title: 'forms/ChangePaswordForm',
+  title: 'forms/ChangePasswordForm',
   component: ChangePaswordForm,
   parameters: {
     layout: 'centered',
