@@ -324,10 +324,10 @@ export default defineComponent({
       return this.userStore.user
     },
     userPlan() {
-      return this.userStore.userPlan || PlanGuest
+      return this.userStore.userPlan
     },
     userPlanLabel() {
-      return PlanLabels[this.userPlan]
+      return PlanLabels[this.userPlan] || '...'
     },
 
     connectivityStatus() {
