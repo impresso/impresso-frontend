@@ -12,7 +12,11 @@
     <ChangePasswordForm
       class="pt-3 px-3"
       @submit="(payload: PasswordChangePayload) => emit('submit', payload)"
-    />
+    >
+      <template #form-errors>
+        <slot name="form-errors"></slot>
+      </template>
+    </ChangePasswordForm>
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>
