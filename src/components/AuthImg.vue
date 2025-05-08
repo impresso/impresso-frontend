@@ -33,6 +33,11 @@ const loadImage = async () => {
     const authCondition = props.authCondition ?? defaultAuthCondition
     const headers = authCondition(props.src) ? getAuthHeaders(getAuthenticationToken()) : {}
 
+    if (Object.keys(headers).length === 0) {
+      imageSrc.value = props.src
+      return
+    }
+
     const res = await fetch(props.src, { headers })
     if (!res.ok) {
       const err = new Error(res.statusText)
