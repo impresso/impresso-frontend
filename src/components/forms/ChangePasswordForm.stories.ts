@@ -15,7 +15,7 @@ const meta = {
   },
   tags: ['autodocs'],
   render: args => ({
-    components: { ChangePaswordForm },
+    components: { ChangePasswordForm },
     setup() {
       return { args }
     },
@@ -25,7 +25,7 @@ const meta = {
       </div>
     `
   })
-} satisfies Meta<typeof ChangePaswordForm>
+} satisfies Meta<typeof ChangePasswordForm>
 
 export default meta
 type Story = StoryObj<typeof meta>
