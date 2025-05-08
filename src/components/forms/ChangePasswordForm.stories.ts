@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import ChangePaswordForm from './ChangePasswordForm.vue'
+import ChangePasswordForm from './ChangePasswordForm.vue'
 import type { ChangePasswordFormProps } from './ChangePasswordForm.vue'
 
 const meta = {
   title: 'forms/ChangePasswordForm',
-  component: ChangePaswordForm,
+  component: ChangePasswordForm,
   parameters: {
     layout: 'centered',
     docs: {
