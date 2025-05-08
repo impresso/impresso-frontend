@@ -175,10 +175,11 @@ interface PasswordFormData {
 export interface PasswordChangePayload {
   currentPassword: string
   newPassword: string
+  repeatNewPassword: string
 }
 
 export interface ChangePasswordFormProps {
-  isLoading: boolean
+  isLoading?: boolean
 }
 
 withDefaults(defineProps<ChangePasswordFormProps>(), {
@@ -247,7 +248,8 @@ const submitForm = async () => {
     // Form is valid, emit event with password data
     emit('submit', {
       currentPassword: formData.currentPassword,
-      newPassword: formData.newPassword
+      newPassword: formData.newPassword,
+      repeatNewPassword: formData.repeatNewPassword
     })
 
     // Reset form after successful submission
