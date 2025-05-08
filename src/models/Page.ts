@@ -134,5 +134,5 @@ export default class Page implements IPage {
 
 export const getIiifThumbnail = (iiif: string, { dim = 150 }) => {
   const iiifUrl = iiif.replace('/info.json', '')
-  return `${iiifUrl}/full/${dim},/0/default.png`
+  return `${iiifUrl}/full/${dim},/0/default.jpg`
 }
