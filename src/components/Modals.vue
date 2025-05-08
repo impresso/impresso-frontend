@@ -5,6 +5,25 @@
       :isVisible="view === ViewDataRundown"
       @dismiss="() => resetView()"
     ></DataRundownModal>
+    <ChangePasswordModalWrapper
+      :isVisible="view === ViewChangePassword"
+      @dismiss="() => resetView()"
+      @success="
+        () => {
+          store.view = ViewChangePasswordSuccess
+        }
+      "
+    />
+    <!-- generic message Modal -->
+    <InfoModal
+      :isVisible="[ViewChangePasswordSuccess].includes(view as any)"
+      :modalTitle="$t('view_' + view + '_modalTitle')"
+      :title="$t('view_' + view + '_title')"
+      dialogClass="modal-md modal-dialog-centered"
+      @dismiss="() => resetView()"
+    >
+      <p v-html="$t('view_' + view + '_content')"></p>
+    </InfoModal>
     <!--  -->
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()">
       <template v-slot:terms-of-use-status>
@@ -172,6 +191,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
+import ChangePasswordModalWrapper from './modals/ChangePasswordModalWrapper.vue'
 import type {
   SubscriptionDataset,
   TermsOfUse,
@@ -188,7 +208,9 @@ import {
   ViewInfoModal,
   ViewCorpusOverview,
   ViewFeedback,
-  ViewDataRundown
+  ViewDataRundown,
+  ViewChangePassword,
+  ViewChangePasswordSuccess
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
@@ -589,6 +611,9 @@ onMounted(() => {
       "not_accepted_on_db_label": "Not accepted on the server",
       "label_feedback_modal": "Help us improve Impresso",
       "label_trigger_feedback_modal": "Send feedback",
+      "view_change-password-success_modalTitle": "Password changed",
+      "view_change-password-success_title": "Password changed",
+      "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
     }
   }
 </i18n>
