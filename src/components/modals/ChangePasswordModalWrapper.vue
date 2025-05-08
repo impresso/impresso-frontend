@@ -38,7 +38,6 @@ const ChangePasswordModal = defineAsyncComponent(async () => {
   return import('./ChangePasswordModal.vue')
 })
 const onSubmit = (payload: PasswordChangePayload) => {
-  debugger
 
   changePasswordService
     .create(
