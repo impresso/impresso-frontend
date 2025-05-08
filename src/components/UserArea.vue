@@ -15,9 +15,10 @@
       <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-    <!-- <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
-      {{ $t('label_terms_of_use') }}
-    </b-dropdown-item> -->
+
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewChangePassword">
+      {{ $t('label_change_password') }}
+    </LinkToModal>
 
     <LinkToModal
       v-if="user && isViewPlansFeatureEnabled"
@@ -27,26 +28,17 @@
       {{ $t('label_change_plan_request') }}
     </LinkToModal>
 
-    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
-      {{ $t('label_terms_of_use') }}
-    </LinkToModal>
-
     <b-dropdown-item v-on:click="logout">{{ $t('logout') }}</b-dropdown-item>
+
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
     <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
       {{ $t('label_user_requests') }}
     </LinkToModal> -->
+
     <LinkToModal
-      v-if="user && isViewPlansFeatureEnabled"
-      class="dropdown-item"
-      :view="ViewCorpusOverview"
-    >
-      {{ $t('label_corpus_overview') }}
-    </LinkToModal>
-    <LinkToModal
-      v-if="user && isViewPlansFeatureEnabled"
+      v-if="user && user.isStaff && isViewPlansFeatureEnabled"
       class="dropdown-item"
       :view="ViewInfoModal"
     >
@@ -58,6 +50,22 @@
     <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewFeedback">
       {{ $t('label_feedback') }}
     </LinkToModal>
+
+    <li class="mx-3">
+      <hr class="dropdown-divider" />
+    </li>
+
+    <LinkToModal
+      v-if="user && isViewPlansFeatureEnabled"
+      class="dropdown-item"
+      :view="ViewCorpusOverview"
+    >
+      {{ $t('label_corpus_overview') }}
+    </LinkToModal>
+    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
+      {{ $t('label_terms_of_use') }}
+    </LinkToModal>
+    <li class="mx-3"><hr class="dropdown-divider" /></li>
     <b-dropdown-item target="_blank" :href="discussionChannelLink">
       <Icon name="discord" class="text-white" :scale="0.5" :strokeWidth="1" />&nbsp;
       <span v-html="$t('join_discussion_channel')"></span>
@@ -79,7 +87,8 @@ import {
   // ViewUserRequests,
   // ViewPlans
   ViewCorpusOverview,
-  ViewFeedback
+  ViewFeedback,
+  ViewChangePassword
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
@@ -128,14 +137,14 @@ const send_update_bitmap = async () => {
   })
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
-    "label_change_plan_request": "Change Plan Request",
+    "label_change_plan_request": "Request change of plan",
     "label_user_requests": "Your requests for data domains",
-    "label_verbose_info": "Settings",
+    "label_verbose_info": "[staff only] Settings",
     "label_plans": "Plans",
     "label_corpus_overview": "Corpus Overview",
     "label_feedback": "[staff only] Feedback",
@@ -143,9 +152,8 @@ const send_update_bitmap = async () => {
     "join_discussion_channel": "Join our Discord channel",
     "current_version": "Current version: {version}",
     "send_test_job": "[staff only] Send test job",
-    "send_update_bitmap":
-      "[staff only] Test update bitmap"
-    
+    "send_update_bitmap": "[staff only] Test update bitmap",
+    "label_change_password": "Change Password"
   }
 }
 </i18n>

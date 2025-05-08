@@ -27,6 +27,8 @@ export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher
 
 export const ViewTermsOfUse = 'terms-of-use'
 export const ViewChangePlanRequest = 'change-plan-request'
+export const ViewChangePassword = 'change-password'
+export const ViewChangePasswordSuccess = 'change-password-success'
 export const ViewConfirmChangePlanRequest = 'confirm-change-plan-request'
 export const ViewInfoModal = 'info-modal'
 export const ViewUserRequests = 'user-requests'
@@ -37,6 +39,8 @@ export const ViewFeedback = 'feedback'
 export const Views: string[] = [
   ViewTermsOfUse,
   ViewChangePlanRequest,
+  ViewChangePassword,
+  ViewChangePasswordSuccess,
   ViewConfirmChangePlanRequest,
   ViewUserRequests,
   ViewPlans,
