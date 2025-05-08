@@ -6,11 +6,16 @@
           <div class="d-flex align-items-center my-5">
             <div class="colors-wrapper flex-shrink-1">
               <div v-if="user">
-                <div class="color" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
+                <div
+                  class="color"
+                  v-for="(color, k) in user.colors"
+                  v-bind:key="k"
+                  :style="getColorBandStyle(color)"
+                ></div>
               </div>
             </div>
             <div class="ml-4">
-              <h1 class="user-fullname  m-0 sans font-weight-bold">
+              <h1 class="user-fullname m-0 sans font-weight-bold">
                 {{ user.firstname }} {{ user.lastname }}
               </h1>
               <div class="user-displayname small-caps">
@@ -20,7 +25,9 @@
           </div>
 
           <div v-if="userSubmitted">
-            <b-alert v-if="userSubmittedSuccess" variant="success" show dismissible>{{ $t('form_user_changed') }}</b-alert>
+            <b-alert v-if="userSubmittedSuccess" variant="success" show dismissible>{{
+              $t('form_user_changed')
+            }}</b-alert>
             <b-alert v-else variant="danger" show dismissible>
               <!-- <b>{{ $t(`errors.changeUser.${userSubmittedError}`)}}</b>
               <br> -->
@@ -28,161 +35,123 @@
             </b-alert>
           </div>
 
-            <form @submit.prevent="onSubmit" v-if="user.uid">
+          <form @submit.prevent="onSubmit" v-if="user.uid">
+            <b-form-group
+              id="input-group-1"
+              label="Email address"
+              label-for="email"
+              :description="v$.user.email.$errors[0]?.$message"
+            >
+              <b-form-input
+                id="email"
+                name="email"
+                autocomplete="home email"
+                v-model.trim="user.email"
+              ></b-form-input>
+            </b-form-group>
 
+            <b-row>
+              <b-col>
                 <b-form-group
-                  id="input-group-1"
-                  label="Email address"
-                  label-for="email"
-                  :description="v$.user.email.$errors[0]?.$message">
+                  id="input-group-2"
+                  :label="$t('form_firstname')"
+                  label-for="firstname"
+                >
                   <b-form-input
-                    id="email" name="email" autocomplete="home email"
-                    v-model.trim="user.email"
+                    id="firstname"
+                    name="firstname"
+                    autocomplete="firstname"
+                    v-model="user.firstname"
+                    required
+                    maxlength="20"
                   ></b-form-input>
                 </b-form-group>
+              </b-col>
+              <b-col>
+                <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
+                  <b-form-input
+                    id="lastname"
+                    name="lastname"
+                    autocomplete="lastname"
+                    v-model="user.lastname"
+                    required
+                    maxlength="20"
+                  ></b-form-input>
+                </b-form-group>
+              </b-col>
+            </b-row>
 
-              <b-row>
-                <b-col>
-                  <b-form-group id="input-group-2" :label="$t('form_firstname')" label-for="firstname">
-                    <b-form-input
-                      id="firstname" name="firstname" autocomplete="firstname"
-                      v-model="user.firstname"
-                      required
-                      maxlength="20"></b-form-input>
-                  </b-form-group>
-                </b-col>
-                <b-col>
-                  <b-form-group id="input-group-3" :label="$t('form_lastname')" label-for="lastname">
-                    <b-form-input
-                      id="lastname" name="lastname" autocomplete="lastname"
-                      v-model="user.lastname"
-                      required
-                      maxlength="20"
-                    ></b-form-input>
-                  </b-form-group>
-                </b-col>
-              </b-row>
+            <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="input-4">
+              <b-form-input id="input-4" v-model="user.displayName" maxlength="20"></b-form-input>
+            </b-form-group>
 
-              <b-form-group id="input-group-5" :label="$t('form_displayname')" label-for="input-4">
+            <div
+              id="input-group-4"
+              :label="$t('form_pattern')"
+              label-for="pattern"
+              class="input-group mb-4"
+            >
+              <b-form-input id="pattern" v-model="patternAsText" maxlength="70"> </b-form-input>
+              <div class="input-group-append">
                 <b-form-input
-                  id="input-4"
-                  v-model="user.displayName"
-                  maxlength="20"></b-form-input>
-              </b-form-group>
-
-              <div id="input-group-4" :label="$t('form_pattern')" label-for="pattern" class="input-group mb-4">
-                <b-form-input
-                  id="pattern"
-                  v-model="patternAsText"
-                  maxlength="70">
-                </b-form-input>
-                <div class="input-group-append">
-                  <b-form-input id="numcolors" type="number" v-model="numColors" min="2" max="8"></b-form-input>
-                  <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
-                    {{$t('actions.generatePattern')}}
-                  </b-button>
-                </div>
+                  id="numcolors"
+                  type="number"
+                  v-model="numColors"
+                  min="2"
+                  max="8"
+                ></b-form-input>
+                <b-button size="sm" variant="outline-primary" @click="onGeneratePattern">
+                  {{ $t('actions.generatePattern') }}
+                </b-button>
               </div>
+            </div>
 
-              <div v-if="user" class="d-flex w-100 mb-3">
-                  <div class="color py-3" v-for="(color, k) in user.colors" v-bind:key="k" :style="getColorBandStyle(color)"></div>
-              </div>
+            <div v-if="user" class="d-flex w-100 mb-3">
+              <div
+                class="color py-3"
+                v-for="(color, k) in user.colors"
+                v-bind:key="k"
+                :style="getColorBandStyle(color)"
+              ></div>
+            </div>
 
-              <b-button size="sm" type='submit' variant="outline-primary" :disabled="v$.user.$error">{{$t('actions.applyChanges')}}</b-button>
-              <!-- (TODO)
+            <b-button
+              size="sm"
+              type="submit"
+              variant="outline-primary"
+              :disabled="v$.user.$error"
+              >{{ $t('actions.applyChanges') }}</b-button
+            >
+            <!-- (TODO)
                 <b-button size="sm" variant="danger" class="float-right" @click="confirmDelete">{{ $t('actions.removeAccount') }}</b-button>
               -->
-
-            </form>
-
-        </b-col>
-      </b-row>
-
-      <h2 class="border-bottom mt-5 mb-3 pb-3">{{ $t('form_change_password') }}</h2>
-      <b-row class="mb-5">
-        <b-col md="6" offset-md="3">
-            <form @submit.prevent="onSubmitChangePassword">
-              <div v-if="passwordSubmitted">
-                <b-alert v-if="passwordSubmittedSuccess" variant="success" show dismissible>{{ $t('form_password_changed') }}</b-alert>
-                <b-alert v-else variant="danger" show dismissible>
-                  <b>{{ $t(`errors.changePassword.${passwordSubmittedError}`)}}</b>
-                  <br>
-                  {{ $t('form_password_changed_failed') }}
-                </b-alert>
-              </div>
-              <!-- current password -->
-                <b-form-group
-                  id="input-group-changepwd-1"
-                  :label="$t('form_oldpassword')"
-                  label-for="current-password"
-                  :description="v$.previousPassword.$errors[0]?.$message"
-                  >
-                  <b-form-input
-                    id="current-password" name="current-password"
-                    v-model="previousPassword"
-                    type="password" />
-                </b-form-group>
-              <!-- new password -->
-                <!-- dd rule:
-                  Use the following Regex to satisfy the below conditions:
-
-                  Conditions: 1] Min 1 uppercase letter.
-                              2] Min 1 lowercase letter.
-                              3] Min 1 special character.
-                              4] Min 1 number.
-                              5] Min 12 characters.
-                              6] Max 42 characters.
-
-                  Regex: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{12,42}$/
-                -->
-                <b-form-group
-                  id="input-group-changepwd-2"
-                  :label="$t('form_newpassword')"
-                  label-for="password"
-                  :description="v$.newPassword.$errors[0]?.$message">
-                  <b-form-input
-                    id="password" name="password"
-                    v-model="newPassword"
-                    type="password"
-                    maxlength="80"
-                  ></b-form-input>
-                </b-form-group>
-
-                  <b-form-group
-                    id="input-group-changepwd-3"
-                    :label="$t('form_newpassword_repeat')"
-                    label-for="repeat-password"
-                    :description="v$.repeatPassword.$errors[0]?.$message">
-                    <b-form-input
-                      id="repeat-password" name="repeat-password"
-                      v-model="repeatPassword"
-                      maxlength="80"
-                      type="password" />
-                  </b-form-group>
-              <b-button size="sm" type='submit' :disabled="!canUpdatePassword" variant="outline-primary">{{ $t('actions.requestNewPassword') }}</b-button>
-            </form>
+          </form>
         </b-col>
       </b-row>
     </b-container>
-    <Modal :show="isDeleteConfirmationDialogVisible" @close="hideDeleteConfirmationDialog" @ok="handleDeleteUserAfterConfirmation">
+    <Modal
+      :show="isDeleteConfirmationDialogVisible"
+      @close="hideDeleteConfirmationDialog"
+      @ok="handleDeleteUserAfterConfirmation"
+    >
       {{ $t('Are you sure you want to permanently delete your profile?') }}
     </Modal>
   </main>
 </template>
 
 <script lang="ts">
-import Modal from '@/components/base/Modal.vue';
-import { PasswordRegex } from '@/logic/user';
-import User from '@/models/User';
-import { useUserStore } from '@/stores/user';
-import useVuelidate from '@vuelidate/core';
-import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators';
-import { mapStores } from 'pinia';
-import { defineComponent } from 'vue';
+import Modal from '@/components/base/Modal.vue'
+import { PasswordRegex } from '@/logic/user'
+import User from '@/models/User'
+import { useUserStore } from '@/stores/user'
+import useVuelidate from '@vuelidate/core'
+import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
+import { mapStores } from 'pinia'
+import { defineComponent } from 'vue'
 
 const complexPassword = helpers.withMessage(
   'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
-  (value: string) => PasswordRegex.exec(value) !=  null
+  (value: string) => PasswordRegex.exec(value) != null
 )
 
 export default defineComponent({
@@ -204,114 +173,145 @@ export default defineComponent({
     userSubmittedSuccess: false,
     userSubmittedError: '',
     errors: [],
-    palettes:
-    [
-      '#96ceb4', '#ffeead', '#ffcc5c', '#ff6f69', '#588c7e', '#f2e394', '#f2ae72', '#d96459',
-      '#a9bdc8', '#677e96', '#4a9bb1', '#ccd6e6', '#4f615b', '#3d95a6', '#d3deec', '#3c4b54',
-      '#3e8696', '#dce5f4', '#45535f', '#4a818a', '#b2bdcc', '#2e4051', '#62797d'
+    palettes: [
+      '#96ceb4',
+      '#ffeead',
+      '#ffcc5c',
+      '#ff6f69',
+      '#588c7e',
+      '#f2e394',
+      '#f2ae72',
+      '#d96459',
+      '#a9bdc8',
+      '#677e96',
+      '#4a9bb1',
+      '#ccd6e6',
+      '#4f615b',
+      '#3d95a6',
+      '#d3deec',
+      '#3c4b54',
+      '#3e8696',
+      '#dce5f4',
+      '#45535f',
+      '#4a818a',
+      '#b2bdcc',
+      '#2e4051',
+      '#62797d'
     ],
     numColors: 5,
-    isDeleteConfirmationDialogVisible: false,
+    isDeleteConfirmationDialogVisible: false
   }),
   components: {
-    Modal,
+    Modal
   },
   methods: {
     showDeleteConfirmationDialog() {
-      this.isDeleteConfirmationDialogVisible = true;
+      this.isDeleteConfirmationDialogVisible = true
     },
     hideDeleteConfirmationDialog() {
-      this.isDeleteConfirmationDialogVisible = false;
+      this.isDeleteConfirmationDialogVisible = false
     },
     onSubmitChangePassword() {
-      this.passwordSubmitted = false;
-      this.passwordSubmittedError = '';
-      this.userStore.changePassword({
-        uid: this.user?.uid,
-        previousPassword: this.previousPassword,
-        newPassword: this.newPassword,
-      }).then(() => {
-        this.passwordSubmitted = true;
-        this.passwordSubmittedSuccess = true;
-        console.info('UserPage.onSubmitChangePassword() SUCCESS, Password changed!');
-      }).catch((err) => {
-        this.passwordSubmitted = true;
-        this.passwordSubmittedSuccess = false;
-        if (err.data && err.data.newPassword) {
-          this.passwordSubmittedError = err.data.newPassword.code;
-        } else {
-          this.passwordSubmittedError = err.message.toLowerCase().split(' ').join('');
-        }
-        console.warn('UserPage.onSubmitChangePassword() failed, error: ', err);
-      });
+      this.passwordSubmitted = false
+      this.passwordSubmittedError = ''
+      this.userStore
+        .changePassword({
+          uid: this.user?.uid,
+          previousPassword: this.previousPassword,
+          newPassword: this.newPassword
+        })
+        .then(() => {
+          this.passwordSubmitted = true
+          this.passwordSubmittedSuccess = true
+          console.info('UserPage.onSubmitChangePassword() SUCCESS, Password changed!')
+        })
+        .catch(err => {
+          this.passwordSubmitted = true
+          this.passwordSubmittedSuccess = false
+          if (err.data && err.data.newPassword) {
+            this.passwordSubmittedError = err.data.newPassword.code
+          } else {
+            this.passwordSubmittedError = err.message.toLowerCase().split(' ').join('')
+          }
+          console.warn('UserPage.onSubmitChangePassword() failed, error: ', err)
+        })
     },
     onSubmit() {
-      this.userSubmitted = false;
-      this.userStore.updateCurrentUser(this.user).then((user) => {
-        this.userSubmittedSuccess = true;
-        this.user = user;
-      }).catch((err) => {
-        this.userSubmittedSuccess = false;
-        this.userSubmittedError = err;
-      }).then(() => {
-        this.userSubmitted = true;
-      });
+      this.userSubmitted = false
+      this.userStore
+        .updateCurrentUser(this.user)
+        .then(user => {
+          this.userSubmittedSuccess = true
+          this.user = user
+        })
+        .catch(err => {
+          this.userSubmittedSuccess = false
+          this.userSubmittedError = err
+        })
+        .then(() => {
+          this.userSubmitted = true
+        })
     },
     confirmDelete() {
-      this.showDeleteConfirmationDialog();
+      this.showDeleteConfirmationDialog()
     },
     handleDeleteUserAfterConfirmation() {
       console.error('TODO: Implement user deletion')
     },
     onGeneratePattern() {
-      this.user.colors = [];
+      this.user.colors = []
       // let palette = Math.floor(Math.random()*this.palettes.length);
-      for (let i = 0; i < this.numColors; i ++) {
-        const mycolor = this.palettes[Math.floor(Math.random()*this.palettes.length)];
-        this.user.colors.push(mycolor);
+      for (let i = 0; i < this.numColors; i++) {
+        const mycolor = this.palettes[Math.floor(Math.random() * this.palettes.length)]
+        this.user.colors.push(mycolor)
       }
-      this.user.pattern = this.user.colors;
+      this.user.pattern = this.user.colors
     },
     getColorBandStyle(color: string) {
-      const width = this.user.colors.length ? `${(100 / this.user.colors.length)}%` : '0%';
+      const width = this.user.colors.length ? `${100 / this.user.colors.length}%` : '0%'
       return {
         'background-color': color,
-        width,
-      };
-    },
+        width
+      }
+    }
   },
   computed: {
     ...mapStores(useUserStore),
     canUpdatePassword() {
-      return this.v$.previousPassword.$dirty && !this.v$.previousPassword.$invalid
-        && this.v$.newPassword.$dirty && !this.v$.newPassword.$invalid
-        && this.v$.repeatPassword.$dirty && !this.v$.repeatPassword.$invalid;
+      return (
+        this.v$.previousPassword.$dirty &&
+        !this.v$.previousPassword.$invalid &&
+        this.v$.newPassword.$dirty &&
+        !this.v$.newPassword.$invalid &&
+        this.v$.repeatPassword.$dirty &&
+        !this.v$.repeatPassword.$invalid
+      )
     },
     patternAsText: {
       get() {
         if (this.user) {
-          return this.user.pattern.join(', ');
+          return this.user.pattern.join(', ')
         }
-        return '';
+        return ''
       },
       set(v: string) {
-        this.user.setPattern(v);
+        this.user.setPattern(v)
       }
-    },
+    }
   },
   async mounted() {
     this.user = await this.userStore.getCurrentUser()
-    console.info('UserPage mounted.',  this.user);
-    if (this.user && this.user.pattern.length === 0) this.onGeneratePattern();
+    console.info('UserPage mounted.', this.user)
+    if (this.user && this.user.pattern.length === 0) this.onGeneratePattern()
   },
   validations() {
     return {
       user: {
-        email: { required, email, $autoDirty: true },
+        email: { required, email, $autoDirty: true }
       },
       previousPassword: { required, minLength: minLength(8), $autoDirty: true },
       newPassword: { required, minLength: minLength(8), complexPassword, $autoDirty: true },
-      repeatPassword: { required, sameAsPassword: sameAs(this.newPassword), $autoDirty: true },
+      repeatPassword: { required, sameAsPassword: sameAs(this.newPassword), $autoDirty: true }
     }
   }
 })
@@ -336,11 +336,11 @@ export default defineComponent({
   }
 }
 
-.user-fullname{
-  font-size:1.5rem;
+.user-fullname {
+  font-size: 1.5rem;
 }
-.user-displayname{
-  font-size:1.25rem;
+.user-displayname {
+  font-size: 1.25rem;
 }
 </style>
 
