@@ -144,7 +144,8 @@ export default {
       location: 'location',
       person: 'person',
       human: 'human',
-      newsagency: 'news agency'
+      newsagency: 'news agency',
+      organisation: 'organisation'
     },
     groupBy: {
       images: 'images',
