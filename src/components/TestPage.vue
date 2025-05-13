@@ -1,11 +1,11 @@
-<template lang="html">
+<template>
+  <alert type="info">This is an info alert</alert>
   <i-layout id="SearchPage">
     <i-layout-section width="400px" class="border-right p-2">
       <template v-slot:header>
         <autocomplete v-on:submit="submit" />
       </template>
-      <div class="p-4">
-      </div>
+      <div class="p-4"></div>
     </i-layout-section>
     <i-layout-section class="pt-2">
       <!-- {{submitted}} -->
@@ -22,41 +22,47 @@
         :regions="testRegions"
         :defaultCurrentPageIndex="19"
         @page-changed="handlePageChanged"
-        @article-selected="handleArticleSelected"/>
+        @article-selected="handleArticleSelected"
+      />
     </i-layout-section>
   </i-layout>
 </template>
 
 <script>
 import * as d3 from 'd3'
-import Autocomplete from './Autocomplete.vue';
+import Autocomplete from './Autocomplete.vue'
 // import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue';
 // import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue';
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
+import { Alert } from 'impresso-ui-components'
 
 export default {
   data: () => ({
     submitted: false,
     testChartData: /** @type {import('@/d3-modules/TimePunchcardChart').ChartData} */ ({
-      categories: [...Array(6).keys()].map((categoryIndex) => {
+      categories: [...Array(6).keys()].map(categoryIndex => {
         const minDate = new Date('2010-01-01')
         const maxDate = new Date('2012-01-01')
-        let startTime = new Date(minDate.getTime() + Math.random() * (maxDate.getTime() - minDate.getTime()))
+        let startTime = new Date(
+          minDate.getTime() + Math.random() * (maxDate.getTime() - minDate.getTime())
+        )
         const OneMonth = 1000 * 60 * 60 * 24 * 30
         startTime = d3.timeMonth.floor(startTime)
 
         return {
-          dataPoints: [...Array(10).keys()].map((_, index) => {
-            const value = index === 0 ? 100 : 20 + Math.random() * 80
-            const time = d3.timeMonth.round(new Date(startTime.getTime() + (OneMonth * index)))
-            if (time.getTime() > maxDate.getTime()) return undefined
-            return { time, value }
-          }).filter(v => v != null),
-          isSubcategory : categoryIndex % 2 === 1
+          dataPoints: [...Array(10).keys()]
+            .map((_, index) => {
+              const value = index === 0 ? 100 : 20 + Math.random() * 80
+              const time = d3.timeMonth.round(new Date(startTime.getTime() + OneMonth * index))
+              if (time.getTime() > maxDate.getTime()) return undefined
+              return { time, value }
+            })
+            .filter(v => v != null),
+          isSubcategory: categoryIndex % 2 === 1
         }
       })
     }),
-    sliderBuckets: Array.from({length: 50}, (_, i) =>  ({ val: i, count: Math.random() * 1000 })),
+    sliderBuckets: Array.from({ length: 50 }, (_, i) => ({ val: i, count: Math.random() * 1000 })),
     testArticlePages: [
       'https://impresso-project.ch/api/proxy/iiif/EXP-1973-08-27-a-p0001',
       'https://impresso-project.ch/api/proxy/iiif/EXP-1973-08-27-a-p0002',
@@ -504,7 +510,7 @@ export default {
   }),
   methods: {
     submit(suggestion) {
-      this.submitted = suggestion;
+      this.submitted = suggestion
     },
     onSliderValueChanged(/* value */) {
       // console.info(`Slider value changed: ${value}`);
@@ -519,16 +525,17 @@ export default {
   components: {
     Autocomplete,
     OpenSeadragonArticleViewer,
+    Alert
     // TimePunchcardChart,
     // HistogramSlider
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .histo-slider {
-    width: 300px;
-    // border: 1px dashed red;
-    margin: 0;
-  }
+.histo-slider {
+  width: 300px;
+  // border: 1px dashed red;
+  margin: 0;
+}
 </style>
