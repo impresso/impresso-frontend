@@ -18,9 +18,14 @@ import '../src/styles/style.css'
  */
 const worker = initialize({
   onUnhandledRequest: ({ url, method }) => {
-    const pathname = new URL(url).pathname
-    if (pathname.startsWith('/api/')) {
-      throw new Error(`Please add a request handler for ${method} ${pathname}`)
+    const urlObject = new URL(url)
+    if (urlObject.hostname === 'localhost') {
+      const pathname = urlObject.pathname
+      if (pathname.startsWith('/api/')) {
+        throw new Error(`Please add a request handler for ${method} ${pathname}`)
+      }
+    } else {
+      return 'bypass'
     }
   }
 })
