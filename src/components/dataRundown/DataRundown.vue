@@ -2,7 +2,13 @@
   <DataReleaseCard
     :data-release="latestRelease"
     :is-loading="dataReleaseResponse.status === 'loading'"
-  ></DataReleaseCard>
+  >
+    <template #header="{ dataRelease }">
+      <slot name="header" :dataRelease="dataRelease">
+        {{ dataRelease?.releaseName }}
+      </slot>
+    </template>
+  </DataReleaseCard>
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
