@@ -62,7 +62,7 @@
           <div v-else>
             {{ $d(tooltipScope.tooltip.item.t, 'year') }}
             &middot;
-            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
+            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '0' }}</b>
             {{ groupBy }}
           </div>
         </div>
