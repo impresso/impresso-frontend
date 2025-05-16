@@ -375,13 +375,9 @@ export default {
   .input-group > .form-control,
   .input-group > .custom-select,
   .input-group > .custom-file {
-    color: var(--clr-white);
+    // color: var(--clr-grey-500);
     background-color: #343a40;
-    border-color: var(--clr-white) !important;
-
-    &::placeholder {
-      color: var(--clr-white);
-    }
+    border-color: var(--clr-grey-500);
 
     &:hover {
       background-color: var(--clr-dark);
