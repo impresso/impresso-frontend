@@ -19,17 +19,21 @@
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
         <p class="small-caps mt-3">Current Impresso data rundown</p>
-        <DataRundown></DataRundown>
-        <LinkToModal
-          class="text-decoration-underline"
-          :view="ViewDataRundown"
-          v-html="$t('actions.more')"
-        ></LinkToModal>
+        <DataRundown>
+          <template #header="{ dataRelease }">
+            <span class="text-muted" v-html="$t('release_label')"></span>
+            <LinkToModal
+              v-if="dataRelease"
+              class="text-decoration-underline"
+              :view="ViewDataRundown"
+              v-html="dataRelease.releaseVersion"
+            ></LinkToModal>
+          </template>
+        </DataRundown>
         <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p> -->
-
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           <p>
             info @ impresso-project [dot] ch
@@ -602,6 +606,7 @@ h1.HomePage__hugeHeading {
 <i18n lang="json">
 {
   "en": {
+    "release_label": "Latest data release: ",
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",
     "toggle_darkmode_off": "dark mode: off",
