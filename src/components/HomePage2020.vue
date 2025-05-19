@@ -1,5 +1,5 @@
 <template>
-  <i-layout id="HomePage2020" class="HomePage bg-dark">
+  <i-layout id="HomePage2020" class="HomePage">
     <i-layout-section
       class="HomePage__sidebar"
       :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
@@ -9,8 +9,16 @@
         <div :class="{ 'border-bottom border-secondary': showLines }">
           <search-tabs focusOnSearch />
           <div class="py-3 px-3">
-            <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
-            <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+            <search-pills
+              class="bg-dark"
+              :filters="enrichedFilters"
+              @changed="handleFiltersChanged"
+            />
+            <autocomplete
+              body-class="bg-dark"
+              @submitEmpty="onSubmitEmpty"
+              v-on:submit="onSuggestion"
+            />
           </div>
         </div>
       </template>
@@ -343,8 +351,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 .HomePage__card {
   max-width: 420px;
   margin: var(--spacing-3);
@@ -355,69 +361,19 @@ export default {
   min-width: 400px;
 }
 
-.HomePage.bg-dark {
+.HomePage {
   color: var(--clr-grey-500);
-}
-
-.HomePage h3 {
-  font-family: var(--bs-font-sans-serif);
-  color: var(--clr-grey-700);
-}
-
-#HomePage2020.bg-dark {
-  ul.nav.nav-pills .nav-item.active .nav-link {
-    color: var(--clr-white);
-    border-color: $clr-secondary;
-    border-bottom-color: #343a40; // theme-color("dark")
-  }
-
-  .btn-primary,
-  .input-group > .form-control,
-  .input-group > .custom-select,
-  .input-group > .custom-file {
-    // color: var(--clr-grey-500);
-    background-color: #343a40;
-    border-color: var(--clr-grey-500);
-
-    &:hover {
-      background-color: var(--clr-dark);
-    }
-  }
-
-  .btn-outline-primary {
-    border-color: var(--clr-grey-500);
-    color: var(--clr-grey-500);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--clr-white);
-    }
-  }
-
-  ul.nav.nav-pills {
-    border-color: $clr-secondary;
-
-    .nav-item .nav-link {
-      color: #bec0c2;
-    }
-  }
-
-  .search-pill span.label.sp-string,
-  .search-pill span.label > .sp-string {
-    color: black;
-  }
-
-  .stats a {
-    color: var(--clr-white);
-
-    &:hover {
-      color: var(--impresso-color-yellow);
-    }
-  }
-
-  a {
-    color: var(--light);
-  }
+  background: var(--impresso-color-black); /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  );
 }
 
 h1.HomePage__hugeHeading {
@@ -428,43 +384,50 @@ h1.HomePage__hugeHeading {
   font-size: calc(1.525rem + 3.3vw);
 }
 
-.stats span.number {
-  color: #343a40;
+h1.HomePage__hugeHeading,
+.HomePage h2 {
+  color: var(--clr-white);
+}
+.HomePage h3 {
+  font-family: var(--bs-font-sans-serif);
+  color: var(--clr-grey-700);
 }
 
-.bg-dark {
-  // h1.HomePage__hugeHeading {
-  //   text-shadow: 1px 1px 1px #17191c;
-  // }
+.HomePage .border-tertiary {
+  border-color: #ffffff47 !important;
+}
+.HomePage .DataReleaseCard .number {
+  color: var(--impresso-color-white-alpha-80);
+}
+.HomePage .enhance-contents {
+  background-color: #3e454c47;
+  font-size: 1em;
+  border-left: 2px solid #f4d062;
+}
+// Pills
 
-  h1.HomePage__hugeHeading,
-  h2 {
-    color: var(--clr-white);
-  }
+.HomePage ul.nav.nav-pills .nav-item .nav-link {
+  color: #bec0c2;
 
-  .stats span.number {
-    color: var(--clr-white);
-  }
-
-  &.border-tertiary,
-  .border-tertiary {
-    border-color: #ffffff47 !important;
-  }
-
-  .enhance-contents {
-    background-color: #3e454c;
-    font-size: 1em;
-    border-left: 2px solid #f4d062;
-  }
+  border-bottom-color: #343a40; // theme-color("dark")
+}
+.HomePage ul.nav.nav-pills .nav-item:hover .nav-link {
+  color: var(--impresso-color-yellow);
+  border-bottom-color: var(--impresso-color-yellow);
 }
 
-.arrow-down {
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
+.HomePage ul.nav.nav-pills .nav-item.active .nav-link {
+  color: var(--clr-white);
+  border-color: var(--clr-white);
+  box-shadow: none;
+}
+.HomePage a {
+  color: var(--clr-white);
+}
 
-  border-top: 20px solid #fff;
+.HomePage .search-pill span.label.sp-string,
+.search-pill span.label > .sp-string {
+  color: black;
 }
 
 .starburst {

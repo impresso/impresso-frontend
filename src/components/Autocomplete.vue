@@ -1,9 +1,6 @@
 <template>
   <section
-    class="search-bar Autocomplete"
-    :class="{
-      show: showSuggestions
-    }"
+    :class="`search-bar Autocomplete ${bodyClass} ${showSuggestions ? 'show' : ''}`"
     ref="autocomplete"
   >
     <div class="input-group">
@@ -64,57 +61,50 @@
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box">
         <div :title="$t(`label.${type}.title`)">
-          <div class="" v-if="type !== 'mention'">
-            <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
+          <div class="small font-style-italic p-3" v-if="type !== 'mention'">
+            {{ $tc('label.' + type + '.title', suggestionIndex[type].length) }}
           </div>
-          <div>
-            <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div
-              v-for="(s, j) in suggestionIndex[type]"
-              :key="j"
-              @click="submit(s)"
-              @mouseover="select(s)"
-              :data-idx="s.idx"
-              class="suggestion pr-1 pl-2 py-1"
-              :class="{
-                selected: selectedIndex === s.idx
-              }"
-            >
-              <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-                <span class="small"
-                  >... <b>{{ q }}</b></span
-                >
-                <b-badge variant="light" class="border border-medium">
-                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
-                >
-              </div>
-              <div v-else :class="`${type} small`">
-                <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                <span
-                  v-if="['collection', 'newspaper'].indexOf(type) !== -1"
-                  v-html="s.item.name"
-                />
-                <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="s.type === 'daterange'"
-                  >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
-                >
-              </div>
+          <div
+            v-for="(s, j) in suggestionIndex[type]"
+            :key="j"
+            @click="submit(s)"
+            @mouseover="select(s)"
+            :data-idx="s.idx"
+            class="suggestion pr-1 pl-2 py-1"
+            :class="{
+              selected: selectedIndex === s.idx
+            }"
+          >
+            <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
+              <span class="small"
+                >... <b>{{ q }}</b></span
+              >
+              <b-badge variant="light" class="border border-medium">
+                {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
+              >
+            </div>
+            <div v-else :class="`${type} small`">
+              <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+              <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+              <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+              <span v-if="s.type === 'daterange'"
+                >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <explorer
-      v-model="explorerFilters"
-      :is-visible="explorerVisible"
-      @onHide="handleExplorerHide"
-      :searching-enabled="true"
-      :initial-search-query="q"
-      :initial-type="explorerInitialType"
-      :included-types="explorerIncludedTypes"
-    />
   </section>
+  <explorer
+    v-model="explorerFilters"
+    :is-visible="explorerVisible"
+    @onHide="handleExplorerHide"
+    :searching-enabled="true"
+    :initial-search-query="q"
+    :initial-type="explorerInitialType"
+    :included-types="explorerIncludedTypes"
+  />
 </template>
 
 <script>
@@ -153,6 +143,10 @@ export default {
   }),
   emits: ['submit', 'submitEmpty', 'input-focus'],
   props: {
+    bodyClass: {
+      type: String,
+      default: ''
+    },
     variant: {
       type: String,
       default: 'primary'
@@ -429,6 +423,9 @@ export default {
 .Autocomplete .search-input:focus {
   background-color: var(--clr-white-rgba-90);
 }
+.Autocomplete .search-input::placeholder {
+  color: var(--clr-grey-500);
+}
 .Autocomplete.show .search-input {
   border-bottom-left-radius: 0;
 }
@@ -443,7 +440,7 @@ export default {
   border: 1px solid var(--impresso-color-black);
   border-top: 0px solid transparent;
 }
-.bg-dark .Autocomplete .suggestion .badge-light {
+.bg-dark.Autocomplete .suggestion .badge-light {
   background: transparent;
   color: var(--clr-grey-500);
   border-color: var(--clr-grey-500) !important;
@@ -458,25 +455,40 @@ export default {
   border-top-left-radius: 0;
 }
 
-.bg-dark .Autocomplete .suggestions {
+.bg-dark.Autocomplete .suggestions {
   background: #3e454c;
   border: 1px solid var(--impresso-color-yellow);
   border-top: 0px solid transparent;
 }
-.bg-dark .Autocomplete.show .search-input,
-.bg-dark .Autocomplete.show .search-input:focus {
+.bg-dark.Autocomplete.show .search-input,
+.bg-dark.Autocomplete.show .search-input:focus {
   border-color: var(--impresso-color-yellow) !important;
   background-color: #3e454c !important;
   color: var(--impresso-color-white);
 }
-.bg-dark .Autocomplete .search-input {
+.bg-dark.Autocomplete .search-input:hover::placeholder {
   color: var(--impresso-color-white);
 }
-.bg-dark .Autocomplete.show,
-.bg-dark .Autocomplete.show .suggestions {
+.bg-dark.Autocomplete .search-input {
+  color: var(--impresso-color-white);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
+  border-color: var(--clr-grey-500);
+}
+
+.bg-dark.Autocomplete .input-group-append button {
+  border-color: var(--clr-grey-500) !important;
+  color: var(--clr-grey-500);
+  background-color: transparent;
+}
+.bg-dark.Autocomplete .input-group-append button:hover {
+  color: var(--impresso-color-white);
+}
+.bg-dark.Autocomplete.show,
+.bg-dark.Autocomplete.show .suggestions {
   box-shadow: var(--bs-box-shadow-md-darker);
 }
-.bg-dark .Autocomplete.show .input-group-append button {
+.bg-dark.Autocomplete.show .input-group-append button {
   border-color: var(--impresso-color-yellow) !important;
   color: var(--impresso-color-yellow);
 }
@@ -518,7 +530,7 @@ export default {
         "moreLikeThis": "More Collections ..."
       },
       "newspaper": {
-        "title": "suggested newspaper",
+        "title": "suggested newspapers",
         "moreLikeThis": "More Newspapers ..."
       },
       "daterange": {

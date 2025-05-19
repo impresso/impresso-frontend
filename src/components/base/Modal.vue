@@ -12,7 +12,7 @@
     >
       <div class="modal-dialog" :class="dialogClass">
         <div class="modal-content" :class="contentClass">
-          <div class="modal-header d-flex align-items-center">
+          <div class="modal-header align-items-center">
             <slot name="modal-header" v-bind:title-id="`${id}-title`" v-bind:close="() => close()">
               <h5 class="modal-title small-caps" :id="`${id}-title`">{{ props.title }}</h5>
               <button
@@ -26,6 +26,7 @@
               </button>
             </slot>
           </div>
+          <slot name="modal-header-extra" />
           <div :class="`modal-body ${bodyClass ?? ''}`">
             <slot> </slot>
           </div>
