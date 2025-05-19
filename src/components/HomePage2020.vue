@@ -136,7 +136,8 @@
             Access to protected materials requires registration through one of our user plans: the
             <b>Basic Plan</b>, the <b>Student Plan</b>, or the <b>Academic Plan</b>.
             <br />
-            Visit the <LinkToModal :view="ViewPlans">plans page</LinkToModal> for more information.
+            Have a look at the <LinkToModal :view="ViewPlans">Impresso Plans</LinkToModal> for more
+            information.
           </p>
 
           <p>

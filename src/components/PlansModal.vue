@@ -14,9 +14,12 @@
         <div class="row my-3">
           {{ content }}
           <br />
+          Explore the data available in the
+
           <LinkToModal class="text-decoration-underline" :view="ViewCorpusOverview"
-            >See what's available to which plan</LinkToModal
+            >Impresso Corpus Catalogue</LinkToModal
           >
+          for each plan.
         </div>
       </div>
       <slot name="terms-of-use-status"></slot>
@@ -91,7 +94,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <h3 class="font-size-inherit font-weight-medium mt-2">Data accessibility</h3>
+            <h3 class="font-size-inherit font-weight-medium mt-2">Data Accessibility</h3>
           </div>
           <div class="col d-flex" v-for="plan in plans" :key="plan.id">
             <div class="w-50 border-right very-small mt-2 text-center">Access</div>
