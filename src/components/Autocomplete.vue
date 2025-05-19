@@ -167,7 +167,6 @@ export default {
     useClickOutside(
       autocomplete,
       e => {
-        console.log('[Autocomplete] target:', e.target)
         if (e.target.classList.contains('search-input')) {
           this.showSuggestions = true
         } else {
