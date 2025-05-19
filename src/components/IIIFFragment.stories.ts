@@ -41,12 +41,7 @@ const meta: Meta<typeof IIIFFragment> = {
       description: 'Minimum area of coordinates in square pixels'
     },
     authCondition: {
-      control: 'function',
       description: 'Function to determine if authentication is required'
-    },
-    selected: {
-      action: 'selected',
-      description: 'Event emitted when a region is selected'
     }
   },
   parameters: {
