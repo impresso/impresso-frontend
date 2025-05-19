@@ -2,7 +2,7 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue'
 
 export function useClickOutside(
   component: Ref,
-  callback: () => void,
+  callback: (event?: any) => void,
   excludeComponent: Ref
 ) {
   // fail early if any of the required params is missing
@@ -14,7 +14,7 @@ export function useClickOutside(
     throw new Error('A callback has to be provided.')
   }
 
-  const listener = (event) => {
+  const listener = (event: MouseEvent) => {
     if (
       event.target === component.value ||
       event.composedPath().includes(component.value) ||
@@ -24,7 +24,7 @@ export function useClickOutside(
       return
     }
     if (typeof callback === 'function') {
-      callback()
+      callback(event)
     }
   }
 

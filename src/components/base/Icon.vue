@@ -93,7 +93,7 @@ const Icons: Record<string, IconData> = {
   search: {
     paths: [
       {
-        style: `fill:transparent;stroke-width:${props.strokeWidth}px;`,
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px;stroke:currentColor`,
         d: 'M17 17L21 21'
       },
       {
