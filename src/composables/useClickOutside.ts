@@ -14,7 +14,7 @@ export function useClickOutside(
     throw new Error('A callback has to be provided.')
   }
 
-  const listener = (event: any) => {
+  const listener = (event: MouseEvent) => {
     if (
       event.target === component.value ||
       event.composedPath().includes(component.value) ||
