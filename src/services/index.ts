@@ -198,6 +198,7 @@ export const barista = app.service('barista-proxy')
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
+export const MEDIA_COOKIE_NAME = 'impresso_jwt'
 
 export const getAuthenticationToken = (): string | undefined =>
   app.authentication.options.storage['feathers-jwt']

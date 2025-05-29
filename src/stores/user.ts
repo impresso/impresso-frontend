@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { app, me as meService } from '@/services'
+import { app, MEDIA_COOKIE_NAME, me as meService, MIDDLELAYER_MEDIA_PATH } from '@/services'
 import User from '@/models/User'
 import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
+import { removeCookie, setCookie } from '@/util/cookies'
 
 export interface State {
   userData: User | false
@@ -70,10 +71,9 @@ export const useUserStore = defineStore('user', {
           console.error(err)
         })
         .finally(() => {
-          const expiredDate = new Date(-1)
-          document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/'
           // remove from localstorage
           localStorage.removeItem('feathers-jwt')
+          removeCookie(MEDIA_COOKIE_NAME, MIDDLELAYER_MEDIA_PATH)
           // clean terms date and bitmap
           this.userData = false
           this.acceptTermsDate = null
@@ -102,7 +102,7 @@ export const useUserStore = defineStore('user', {
         password
       })
 
-      const { /* accessToken, authentication, */ user } = authResult as IAuthResult
+      const { accessToken, authentication, user } = authResult as IAuthResult
 
       console.info('[store/user] Authentication response:', Object.keys(authResult))
       if (user && user.bitmap) {
@@ -110,6 +110,15 @@ export const useUserStore = defineStore('user', {
         this.bitmap = user.bitmap
       }
       console.info('LOGIN: user', user.username, 'logged in!')
+
+      // Set the access token in a cookie on the media path only.
+      // It is used to authorize the use of media files: images, audio.
+      setCookie(MEDIA_COOKIE_NAME, accessToken, {
+        expires: new Date(authentication?.payload?.exp * 1000),
+        sameSite: 'Lax',
+        secure: window.location.hostname !== 'localhost', // allow non-secure cookie on localhost
+        path: MIDDLELAYER_MEDIA_PATH
+      })
 
       // Not using cookies to exclude CSRF attacks (https://feathersjs.com/guides/security)
       // const expiredDate = new Date(authentication?.payload?.exp * 1000)
