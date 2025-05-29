@@ -398,6 +398,7 @@ export default defineComponent({
       usersService
         .create({
           ...this.user,
+          pattern: this.user.pattern.join(','),
           plan: this.selectedPlan
         })
         .then(res => {
