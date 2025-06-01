@@ -6,15 +6,13 @@
     :dialogClass="props.dialogClass"
     bodyClass="p-0"
     @close="dismiss"
-    @confirm="confirm"
     hideBackdrop
   >
-    <ChangePasswordForm
-      class="pt-3 px-3"
-      @submit="(payload: PasswordChangePayload) => emit('submit', payload)"
-    >
-      <template #form-errors>
-        <slot name="form-errors"></slot>
+    <ChangePasswordForm :is-loading="isLoading" class="pt-3 px-3" @submit="handleOnSubmit">
+      <template #form-errors v-if="error">
+        <Alert type="warning" class="mb-3 p-3" role="alert">
+          <p class="m-0">{{ error.message }}</p>
+        </Alert>
       </template>
     </ChangePasswordForm>
     <template v-slot:modal-footer>
@@ -24,10 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import ChangePasswordForm from '../forms/ChangePasswordForm.vue'
-import type { PasswordChangePayload } from '../forms/ChangePasswordForm.vue'
-import Modal from '@/components/base/Modal.vue'
-
+import { ref } from 'vue'
+import ChangePasswordForm from 'impresso-ui-components/components/ChangePasswordForm.vue'
+import type { PasswordChangePayload } from 'impresso-ui-components/components/ChangePasswordForm.vue'
+import type { FeathersError } from '@feathersjs/errors'
+import Alert from 'impresso-ui-components/components/Alert.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import { changePassword as changePasswordService } from '@/services'
 export type ChangePasswordModalProps = {
   dialogClass?: string
   title?: string
@@ -36,20 +37,38 @@ export type ChangePasswordModalProps = {
   isLoading?: boolean
 }
 
+const isLoading = ref(false)
+const error = ref<FeathersError | null>(null)
+
 const props = withDefaults(defineProps<ChangePasswordModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-md p-0',
   title: 'Change Password'
 })
 
-const emit = defineEmits(['dismiss', 'confirm', 'submit'])
+function handleOnSubmit(payload: PasswordChangePayload) {
+  isLoading.value = true
+  console.debug('[ChangePasswordModal] handleOnSubmit', payload)
+  changePasswordService
+    .create(payload, {
+      ignoreErrors: true
+    })
+    .then((res: any) => {
+      console.debug('[ChangePasswordModal] Password changed successfully', res)
+      emit('success')
+    })
+    .catch((err: FeathersError) => {
+      error.value = err
+      console.error('[ChangePasswordModal] Error changing password:', err)
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+const emit = defineEmits(['dismiss', 'success'])
 
 const dismiss = () => {
   console.debug('[ChangePasswordModal] dismiss')
   emit('dismiss')
-}
-const confirm = () => {
-  console.debug('[ChangePasswordModal] confirm')
-  emit('confirm')
 }
 </script>
 

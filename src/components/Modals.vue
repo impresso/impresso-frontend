@@ -5,7 +5,7 @@
       :isVisible="view === ViewDataRundown"
       @dismiss="() => resetView()"
     ></DataRundownModal>
-    <ChangePasswordModalWrapper
+    <ChangePasswordModal
       :isVisible="view === ViewChangePassword"
       @dismiss="() => resetView()"
       @success="
@@ -191,7 +191,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
-import ChangePasswordModalWrapper from './modals/ChangePasswordModalWrapper.vue'
+import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
   SubscriptionDataset,
   TermsOfUse,
