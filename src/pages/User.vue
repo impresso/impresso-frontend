@@ -211,31 +211,7 @@ export default defineComponent({
     hideDeleteConfirmationDialog() {
       this.isDeleteConfirmationDialogVisible = false
     },
-    onSubmitChangePassword() {
-      this.passwordSubmitted = false
-      this.passwordSubmittedError = ''
-      this.userStore
-        .changePassword({
-          uid: this.user?.uid,
-          previousPassword: this.previousPassword,
-          newPassword: this.newPassword
-        })
-        .then(() => {
-          this.passwordSubmitted = true
-          this.passwordSubmittedSuccess = true
-          console.info('UserPage.onSubmitChangePassword() SUCCESS, Password changed!')
-        })
-        .catch(err => {
-          this.passwordSubmitted = true
-          this.passwordSubmittedSuccess = false
-          if (err.data && err.data.newPassword) {
-            this.passwordSubmittedError = err.data.newPassword.code
-          } else {
-            this.passwordSubmittedError = err.message.toLowerCase().split(' ').join('')
-          }
-          console.warn('UserPage.onSubmitChangePassword() failed, error: ', err)
-        })
-    },
+
     onSubmit() {
       this.userSubmitted = false
       this.userStore
