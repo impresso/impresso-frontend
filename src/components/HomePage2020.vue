@@ -109,7 +109,7 @@
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
           <h2>
-            <em> Mining 200 years <br />of historical newspapers, and radio.</em>
+            <em> Mining 200 years <br />of historical newspapers and radio.</em>
           </h2>
         </section>
         <section
@@ -274,22 +274,10 @@ export default {
     ViewPlans
   }),
   props: {
-    showLines: {
-      type: Boolean,
-      default: false
-    },
-    darkMode: {
-      type: Boolean,
-      default: true
-    },
-    filters: {
-      type: Array,
-      default: () => []
-    },
-    filtersWithItems: {
-      type: Array,
-      default: () => []
-    }
+    showLines: { type: Boolean, default: false },
+    darkMode: { type: Boolean, default: true },
+    filters: { type: Array, default: () => [] },
+    filtersWithItems: { type: Array, default: () => [] }
   },
   computed: {
     ...mapStores(useUserStore),
@@ -322,12 +310,7 @@ export default {
   methods: {
     handleFiltersChanged(filters) {
       const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters))
-      this.$router.push({
-        name: 'search',
-        query: {
-          sq
-        }
-      })
+      this.$router.push({ name: 'search', query: { sq } })
     },
     onSuggestion(filter) {
       console.info('on suggestion')
