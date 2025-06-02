@@ -79,6 +79,13 @@ export const useUserStore = defineStore('user', {
           this.acceptTermsDate = null
         })
     },
+    setUserData(user: User | false) {
+      if (user) {
+        this.userData = new User({ ...user })
+      } else {
+        this.userData = false
+      }
+    },
     async refreshUser() {
       return meService
         .find()
@@ -96,11 +103,7 @@ export const useUserStore = defineStore('user', {
         })
     },
     async login({ email, password }: { email: string; password: string }) {
-      const authResult = await app.authenticate({
-        strategy: 'local',
-        email,
-        password
-      })
+      const authResult = await app.authenticate({ strategy: 'local', email, password })
 
       const { /* accessToken, authentication, */ user } = authResult as IAuthResult
 
@@ -129,30 +132,10 @@ export const useUserStore = defineStore('user', {
     getCurrentUser() {
       return meService.find().then(d => new User(d))
     },
-    changePassword({
-      uid,
-      previousPassword,
-      newPassword
-    }: {
-      uid: string
-      previousPassword: string
-      newPassword: string
-    }) {
-      return meService.patch(uid, { previousPassword, newPassword }, {})
-    },
-    updateCurrentUser(user: User) {
-      return meService.update(user.uid, user, {}).then(d => {
-        const user = new User(d)
-        this.userData = user
-        return user
-      })
-    },
     setRedirectionRoute(params) {
       console.debug('[tores/user] setRedirectionRoute params:', params)
       this.redirectionParams = params
     }
   },
-  persist: {
-    paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage']
-  }
+  persist: { paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage'] }
 })
