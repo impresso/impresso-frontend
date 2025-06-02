@@ -17,6 +17,7 @@
         </div>
 
         <ProfileForm
+          v-if="!isLoading"
           :mode="'edit'"
           @submit="handleOnSubmit"
           :initialValues="signUpFormInitialValues"

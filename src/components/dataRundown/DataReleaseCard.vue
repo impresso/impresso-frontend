@@ -22,8 +22,8 @@ import { DataRelease } from '@/services/types'
 
 export interface DataReleaseCardProps {
   dataRelease: DataRelease
-  isLoading: boolean
-  orderedNpsStats: string[]
+  isLoading?: boolean
+  orderedNpsStats?: string[]
 }
 
 withDefaults(defineProps<DataReleaseCardProps>(), {
@@ -34,14 +34,7 @@ withDefaults(defineProps<DataReleaseCardProps>(), {
     releaseVersion: '...',
     releaseName: '...',
     impressoCorpusOverview: {
-      npsStats: {
-        titles: 0,
-        issues: 0,
-        pages: 0,
-        contentItems: 0,
-        images: 0,
-        tokens: 0
-      }
+      npsStats: { titles: 0, issues: 0, pages: 0, contentItems: 0, images: 0, tokens: 0 }
     }
   })
 })
@@ -57,17 +50,9 @@ withDefaults(defineProps<DataReleaseCardProps>(), {
     "images": "Images: ",
     "tokens": "Tokens: "
   },
-  "de": {
-    "release_label": "Neueste Veröffentlichung"
-  },
-  "fr": {
-    "release_label": "Dernière version"
-  },
-  "it": {
-    "release_label": "Ultima versione"
-  },
-  "es": {
-    "release_label": "Última versión"
-  }
+  "de": { "release_label": "Neueste Veröffentlichung" },
+  "fr": { "release_label": "Dernière version" },
+  "it": { "release_label": "Ultima versione" },
+  "es": { "release_label": "Última versión" }
 }
 </i18n>
