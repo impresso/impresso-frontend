@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import ChangePlanModal from '@/components/ChangePlanModal.vue'
+import ChangePlanModal from './ChangePlanModal.vue'
 import { AvailablePlans, PlanLabels } from '@/constants'
 import { UserChangePlanRequest } from '@/services/types'
 
 const meta: Meta<typeof ChangePlanModal> = {
-  title: 'Components/ChangePlanModal',
+  title: 'Modals/ChangePlanModal',
   component: ChangePlanModal,
   tags: ['autodocs'],
   render: args => {
@@ -14,7 +14,7 @@ const meta: Meta<typeof ChangePlanModal> = {
       },
       components: { ChangePlanModal },
       template:
-        '<div style="height: 400px; width: 100%"><ChangePlanModal v-bind="args"></ChangePlanModal></div>'
+        '<div style="height: 600px; width: 100%"><ChangePlanModal v-bind="args"></ChangePlanModal></div>'
     }
   }
 }
@@ -25,7 +25,6 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    availablePlans: AvailablePlans,
     availablePlansLabels: PlanLabels,
     userPlan: AvailablePlans[0],
     isVisible: true,
@@ -35,7 +34,6 @@ export const Default: Story = {
 }
 export const WithPendingRequest: Story = {
   args: {
-    availablePlans: AvailablePlans,
     availablePlansLabels: PlanLabels,
     userPlan: AvailablePlans[0],
     isVisible: true,
@@ -57,7 +55,6 @@ export const WithPendingRequest: Story = {
 
 export const WithRejectedRequest: Story = {
   args: {
-    availablePlans: AvailablePlans,
     availablePlansLabels: PlanLabels,
     userPlan: AvailablePlans[0],
     isVisible: true,
@@ -79,7 +76,6 @@ export const WithRejectedRequest: Story = {
 
 export const WithApprovedRequest: Story = {
   args: {
-    availablePlans: AvailablePlans,
     availablePlansLabels: PlanLabels,
     userPlan: AvailablePlans[1],
     isVisible: true,

@@ -190,7 +190,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
-import ChangePlanModal from './ChangePlanModal.vue'
+import ChangePlanModal from './modals/ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
   SubscriptionDataset,
