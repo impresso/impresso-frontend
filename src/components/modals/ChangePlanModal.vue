@@ -4,6 +4,7 @@
     :title="title"
     modalClass="ChangePlanModal"
     :dialogClass="props.dialogClass"
+    bodyClass="px-4 pt-4 pb-0"
     @close="dismiss"
     @confirm="confirm"
     hideBackdrop
@@ -26,9 +27,10 @@
 
     <p>
       You can request to change your plan any time if your situation changed. More information about
-      the plans can be found in the <a href="/plans">Plans page</a>.
+      the plans can be found in the <a href="/plans">Plans page</a>.<br />
+      For any further questions, please contact us at
+      <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
     </p>
-
     <p v-if="!isLoading && !userChangePlanRequest">
       Your current plan is
       <b> {{ availablePlansLabels[userPlan] }} </b>. <br />
@@ -52,11 +54,6 @@
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
     </template>
-
-    <p class="mt-2 mb-0">
-      Any Questions? <br />
-      Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
-    </p>
   </Modal>
 </template>
 
