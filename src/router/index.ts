@@ -61,6 +61,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/search/radio',
+      name: 'searchRadio',
+      component: () => import('@/pages/SearchRadio.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/faq',
       name: 'faq',
       component: FaqPage,
