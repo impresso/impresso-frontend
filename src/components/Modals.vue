@@ -195,7 +195,6 @@ import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
   SubscriptionDataset,
   TermsOfUse,
-  UserChangePlanRequest,
   UserRequest
 } from '@/services/types'
 import {
@@ -267,13 +266,6 @@ const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOn
 // date of accepting the ToU on current store (sort of cached value)
 const acceptTermsDate = computed(() => userStore.acceptTermsDate)
 
-const userChangePlanRequestResponse = ref<{
-  data: UserChangePlanRequest | null
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: null
-})
 
 const feedbackCollectorResponse = ref<{
   data: any
@@ -515,20 +507,6 @@ const fetchUserPlanChangeRequest = async () => {
     })
 }
 
-const patchCurrentPlanChangeRequest = async ({ plan }) => {
-  console.debug('[ChangePlanModal] @patchCurrentPlanChangeRequest', plan)
-  await userChangePlanRequestService
-    .create({
-      plan
-    })
-    .then(data => {
-      console.info('[ChangePlanModal] Password changed successfully. data:', data)
-      store.view = ViewConfirmChangePlanRequest
-    })
-    .catch((err: FeathersError) => {
-      console.error('[ChangePlanModal] create', err.message, err.data)
-    })
-}
 
 const createFeedback = async (payload: FeedbackFormPayload) => {
   console.debug('[FeedbackModal] @createFeedback', payload)
