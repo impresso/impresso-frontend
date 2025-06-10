@@ -364,6 +364,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/audio-content-item/:content_item_uid',
+      component: import('@/pages/AudioContentItem.vue'),
+      meta: {
+        requiresAuth: true,
+        realm: 'contentItem'
+      }
+    },
+    {
       path: '/compare',
       component: () => import('@/pages/SearchQueriesComparison.vue'),
       name: 'compare',

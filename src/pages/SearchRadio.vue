@@ -15,20 +15,60 @@
     <i-layout-section main>
       <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
+          <b-navbar-nav class="px-3 pt-3 flex-grow-1 border-right">
             <PageHeading :label="$t('label_group')" :title="$t('pages.searchRadio')"></PageHeading>
           </b-navbar-nav>
         </b-navbar>
+        <b-tabs pills class="mx-3">
+          <template v-slot:tabs-end>
+            <li class="nav-item pl-2 active">
+              <RouterLink class="nav-link" :to="{ name: 'searchRadio' }"
+                ><span
+                  v-html="
+                    $tc('audioContentItems', 3, {
+                      n: isLoading ? '...' : $n(3)
+                    })
+                  "
+                ></span>
+              </RouterLink>
+            </li>
+          </template>
+        </b-tabs>
       </template>
-      <ul class="list-unstyled" v-if="!isLoading">
-        <li class="list-item">
-          <AudioItem :item="fetchAudioItemResponse.data"></AudioItem>
+      <ul class="list-unstyled py-3" v-if="!isLoading && fetchAudioItemsResponse.data">
+        <li
+          class="list-item p-3 mb-3 border-bottom"
+          v-for="(item, index) in fetchAudioItemsResponse.data"
+          :key="index"
+        >
+          <AudioItem :item="item"></AudioItem>
         </li>
       </ul>
     </i-layout-section>
   </i-layout>
 </template>
-
+<i18n lang="json">
+{
+  "en": {
+    "audioContentItems": "listen to <span class='number'>{n} </span> audio items",
+    "pages": {
+      "searchRadio": "Search Radio"
+    },
+    "radio_broadcast": "Radio Broadcast",
+    "label_group": "Radio",
+    "actions": {
+      "loading": "Loading"
+    },
+    "contentItem": {
+      "reducedReadingTime": "Reduced Reading Time",
+      "type": {
+        "radio_broadcast_episode": "Radio Broadcast Episode"
+      }
+    },
+    "readingTime": "{min} min read"
+  }
+}
+</i18n>
 <script setup lang="ts">
 import PageHeading from '@/components/base/PageHeading.vue'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
@@ -58,30 +98,30 @@ export interface AudioContentItem extends ContentItem {
   startTime: number
 }
 
-const itemUrl =
-  'https://raw.githubusercontent.com/impresso/impresso-ui-components/2d1ad9707bbec310f9d6f731a78669e1c685eebc/src/assets/CFCE-1996-09-08-a-i0001-mock.json'
-const fetchAudioItemResponse = ref<{
+const itemsUrl =
+  'https://raw.githubusercontent.com/impresso/impresso-ui-components/refs/heads/feature/audio-transcript-player/src/assets/mock-data/audio-content-items.json'
+const fetchAudioItemsResponse = ref<{
   status: 'loading' | 'success' | 'error'
-  data: AudioContentItem | null
+  data: AudioContentItem[] | null
 }>({
   status: 'loading',
   data: null
 })
 
-const isLoading = computed(() => fetchAudioItemResponse.value?.status === 'loading')
+const isLoading = computed(() => fetchAudioItemsResponse.value?.status === 'loading')
 
 onMounted(() => {
-  fetch(itemUrl)
+  fetch(itemsUrl)
     .then(response => response.json())
-    .then((data: AudioContentItem) => {
-      fetchAudioItemResponse.value = {
+    .then(({ results }: { results: AudioContentItem[] }) => {
+      fetchAudioItemsResponse.value = {
         status: 'success',
-        data
+        data: results
       }
     })
     .catch(error => {
       console.error('Error fetching audio item:', error)
-      fetchAudioItemResponse.value = {
+      fetchAudioItemsResponse.value = {
         status: 'error',
         data: null
       }

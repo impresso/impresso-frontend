@@ -311,6 +311,11 @@ label {
 .font-size-inherit {
   font-size: inherit;
 }
+.font-size-bigger {
+  font-size: 1.2em;
+  font-weight: var(--impresso-wght);
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 
 .btn-sm,
 .btn-group-sm > .btn {
