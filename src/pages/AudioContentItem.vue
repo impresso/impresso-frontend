@@ -59,7 +59,8 @@ import { computed, ref } from 'vue'
 
 const route = useRoute()
 const ContentItemAudioSrcs = {
-  'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3'
+  'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3',
+  'CFCE-1996-09-15-a-i0001': '/mock-media/CFCE-1996-09-15-a-r0001.MP3'
 }
 const itemAudioSrc = computed(() => {
   const contentItemUid = route.params.content_item_uid as string
@@ -69,6 +70,8 @@ const itemAudioSrc = computed(() => {
   return 'https://gilberttrausch.uni.lu/audio/ch3-3fkl01junckertrauschbechdupong.mp3'
 })
 const ContentItemJsonUrls = {
+  'CFCE-1996-09-15-a-i0001':
+    'https://gist.githubusercontent.com/danieleguido/5ab7d5c5d9c02d09010283e9aee22e4b/raw/88d2333c289d63441cc484fbf892a41e00ce3204/CFCE-1996-09-15-a-i0001.json',
   'CFCE-1996-09-08-a-i0001':
     'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/7aa93892ed6a5b4b5c83fa347fdc869c8f7f5500/CFCE-1996-09-08-a-i0001.json'
 }

@@ -107,7 +107,7 @@ export interface AudioContentItem extends ContentItem {
 }
 
 const itemsUrl =
-  'https://gist.githubusercontent.com/danieleguido/450b77a714b6f45a408bb6719666068c/raw/2653798667217b75e7cd21e87afd0786367616de/audio-items.json'
+  'https://gist.githubusercontent.com/danieleguido/450b77a714b6f45a408bb6719666068c/raw/d1e032b9422c620beb5cf7b27fd0ac60cd36ba87/audio-items.json'
 const fetchAudioItemsResponse = ref<{
   status: 'loading' | 'success' | 'error'
   data: AudioContentItem[] | null
