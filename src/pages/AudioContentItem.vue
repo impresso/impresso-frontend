@@ -3,8 +3,8 @@
     <i-layout-section main>
       <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="w-100 pt-2">
-            <div class="container mb-2">
+          <b-navbar-nav class="w-100 my-2">
+            <div class="container">
               <section class="py-1">
                 <div class="label small-caps">
                   <RouterLink :to="{ name: 'searchRadio' }">Radio</RouterLink>

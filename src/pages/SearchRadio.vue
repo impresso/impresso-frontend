@@ -15,14 +15,14 @@
     <i-layout-section main>
       <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <div class="container">
-            <b-navbar-nav class="px-3 pt-3 flex-grow-1">
+          <b-navbar-nav class="w-100">
+            <div class="container mt-2">
               <PageHeading
                 :label="$t('label_group')"
                 :title="$t('pages.searchRadio')"
               ></PageHeading>
-            </b-navbar-nav>
-          </div>
+            </div>
+          </b-navbar-nav>
         </b-navbar>
         <div class="container">
           <b-tabs pills class="m-0" style="margin: 0 !important">
