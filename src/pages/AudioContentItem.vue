@@ -33,10 +33,6 @@
           :current-time="currentTime"
           @click="onTranscriptViewerClick"
         ></TranscriptViewer>
-        {{ currentTime }}
-        <pre
-          >{{ JSON.stringify(fetchAudioItemResponse.data, null, 2) }}
-        </pre>
       </div>
     </i-layout-section>
   </i-layout>
@@ -52,6 +48,7 @@
 }
 </i18n>
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import PageHeading from '@/components/base/PageHeading.vue'
 import type { AudioContentItem, Rrreb } from '@/models'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
@@ -60,13 +57,22 @@ import TranscriptViewer from 'impresso-ui-components/components/audioPlayer/Tran
 import { watch } from 'vue'
 import { computed, ref } from 'vue'
 
-const itemUrl = computed(() => {
-  // CFCE-1996-09-08-a-i0001
-  return 'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/7aa93892ed6a5b4b5c83fa347fdc869c8f7f5500/CFCE-1996-09-08-a-i0001.json'
-})
+const route = useRoute()
+const ContentItemAudioSrcs = {
+  'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3'
+}
 const itemAudioSrc = computed(() => {
+  const contentItemUid = route.params.content_item_uid as string
+  if (ContentItemAudioSrcs[contentItemUid]) {
+    return ContentItemAudioSrcs[contentItemUid]
+  }
   return 'https://gilberttrausch.uni.lu/audio/ch3-3fkl01junckertrauschbechdupong.mp3'
 })
+const ContentItemJsonUrls = {
+  'CFCE-1996-09-08-a-i0001':
+    'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/7aa93892ed6a5b4b5c83fa347fdc869c8f7f5500/CFCE-1996-09-08-a-i0001.json'
+}
+
 const fetchAudioItemResponse = ref<{
   status: 'loading' | 'success' | 'error'
   data: AudioContentItem | null
@@ -85,8 +91,16 @@ const onTranscriptViewerClick = (rrreb: Rrreb): void => {
   currentTime.value = rrreb.startTime
 }
 
-function fetchAudioItem(): void {
-  fetch(itemUrl.value)
+function fetchAudioItem(id: string): void {
+  if (!ContentItemJsonUrls[id]) {
+    console.error('No URL found for audio item with id:', id)
+    fetchAudioItemResponse.value = {
+      status: 'error',
+      data: null
+    }
+    return
+  }
+  fetch(ContentItemJsonUrls[id])
     .then(response => response.json())
     .then((data: AudioContentItem) => {
       fetchAudioItemResponse.value = {
@@ -103,17 +117,13 @@ function fetchAudioItem(): void {
     })
 }
 
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
 watch(
   () => route.params.content_item_uid,
   (newId, oldId) => {
     // react to route changes...
     if (newId !== oldId) {
       console.debug('[AudioContentItem] Route changed, fetching new audio item...')
-      fetchAudioItem()
+      fetchAudioItem(route.params.content_item_uid)
     }
   },
   { immediate: true }

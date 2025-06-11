@@ -41,7 +41,15 @@
           v-for="(item, index) in fetchAudioItemsResponse.data"
           :key="index"
         >
-          <AudioItem :item="item"></AudioItem>
+          <AudioItem
+            :item="item"
+            :routerLinkUrl="{
+              name: 'audioContentItem',
+              params: {
+                content_item_uid: item.uid
+              }
+            }"
+          ></AudioItem>
         </li>
       </ul>
     </i-layout-section>
@@ -99,7 +107,7 @@ export interface AudioContentItem extends ContentItem {
 }
 
 const itemsUrl =
-  'https://raw.githubusercontent.com/impresso/impresso-ui-components/refs/heads/feature/audio-transcript-player/src/assets/mock-data/audio-content-items.json'
+  'https://gist.githubusercontent.com/danieleguido/450b77a714b6f45a408bb6719666068c/raw/2653798667217b75e7cd21e87afd0786367616de/audio-items.json'
 const fetchAudioItemsResponse = ref<{
   status: 'loading' | 'success' | 'error'
   data: AudioContentItem[] | null
