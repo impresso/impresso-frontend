@@ -3,8 +3,89 @@
     <i-layout-section main>
       <template v-slot:header>
         <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 pt-3 flex-grow-1 border-right">
-            <PageHeading :label="$t('label_group')" :title="$t('pages.searchRadio')"></PageHeading>
+          <b-navbar-nav class="w-100 pt-2">
+            <div class="container mb-2">
+              <section class="py-1">
+                <div class="label small-caps">
+                  <RouterLink :to="{ name: 'searchRadio' }">Radio</RouterLink>
+                </div>
+                <h3 class="mb-1" v-if="fetchAudioItemResponse.data">
+                  <div class="MediaSourceLabel d-inline-block">
+                    <a href="" class="">
+                      <span class="">{{ fetchAudioItemResponse.data.mediaSource.name }}</span>
+                      <span class="small-caps"> Radio broadcast</span>
+                    </a>
+                  </div>
+                  <span class="date"
+                    >&nbsp;—&nbsp;{{
+                      $d(new Date(fetchAudioItemResponse.data.publicationDate), 'long')
+                    }}</span
+                  >
+                  <br />
+                  <b>{{ fetchAudioItemResponse.data.title }}</b>
+                </h3>
+                <div class="d-flex align-items-center">
+                  <div class="textbox-fancy text-serif">
+                    <span style="text-transform: capitalize">Episode</span>
+                  </div>
+                  <div class="ml-auto" style="min-width: 200px">
+                    <div class="dropdown b-dropdown btn-group position-relative">
+                      <button
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        type="button"
+                        class="btn dropdown-toggle btn-sm btn-outline-primary"
+                      >
+                        Add to Collection ...<svg
+                          data-v-1278d3c6=""
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          class="Icon Icon_chevron"
+                        >
+                          <g data-v-1278d3c6="">
+                            <path
+                              data-v-1278d3c6=""
+                              d="M6 9L12 15L18 9"
+                              style="fill: transparent; stroke-width: 1px"
+                              strokeWidth="1"
+                            ></path>
+                          </g>
+                        </svg>
+                      </button>
+                      <ul role="menu" tabindex="-1" class="dropdown-menu dropdown-menu-right">
+                        <div class="CollectionAddToList">
+                          <div class="header bg-light p-2 border-bottom">
+                            <div class="input-group">
+                              <input
+                                type="text"
+                                class="form-control form-control-sm"
+                                placeholder="... type or pick a collection name"
+                              />
+                              <div class="input-group-append">
+                                <button
+                                  type="button"
+                                  class="btn btn-outline-primary btn-sm disabled float-right float-right"
+                                  disabled=""
+                                >
+                                  Create New
+                                </button>
+                              </div>
+                            </div>
+                            <!--v-if-->
+                          </div>
+                          <ul class="p-0">
+                            <li>
+                              <div class="spinner text-center p-5"><span></span></div>
+                            </li>
+                          </ul>
+                        </div>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
           </b-navbar-nav>
         </b-navbar>
         <b-navbar class="w-100 border-bottom">
@@ -27,6 +108,7 @@
         ></AudioItem>
 
         <TranscriptViewer
+          class="mt-3"
           v-if="fetchAudioItemResponse.data"
           :rrrebs="fetchAudioItemResponse.data.rrrebs"
           :utterances="fetchAudioItemResponse.data.utterances"
@@ -60,7 +142,8 @@ import { computed, ref } from 'vue'
 const route = useRoute()
 const ContentItemAudioSrcs = {
   'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3',
-  'CFCE-1996-09-15-a-i0001': '/mock-media/CFCE-1996-09-15-a-r0001.MP3'
+  'CFCE-1996-09-15-a-i0001': '/mock-media/CFCE-1996-09-15-a-r0001.MP3',
+  'RDN-1950-01-12-a-i0001': '/mock-media/RDN-1950-01-12-a-r0001.MP3'
 }
 const itemAudioSrc = computed(() => {
   const contentItemUid = route.params.content_item_uid as string
@@ -71,9 +154,11 @@ const itemAudioSrc = computed(() => {
 })
 const ContentItemJsonUrls = {
   'CFCE-1996-09-15-a-i0001':
-    'https://gist.githubusercontent.com/danieleguido/5ab7d5c5d9c02d09010283e9aee22e4b/raw/88d2333c289d63441cc484fbf892a41e00ce3204/CFCE-1996-09-15-a-i0001.json',
+    'https://gist.githubusercontent.com/danieleguido/5ab7d5c5d9c02d09010283e9aee22e4b/raw/17d304e12b994c480bef08723cf67dc3dd7200ce/CFCE-1996-09-15-a-i0001.json',
   'CFCE-1996-09-08-a-i0001':
-    'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/7aa93892ed6a5b4b5c83fa347fdc869c8f7f5500/CFCE-1996-09-08-a-i0001.json'
+    'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/1afe0813772a5fc5b7049db1b9d4d9fa473a427e/CFCE-1996-09-08-a-i0001.json',
+  'RDN-1950-01-12-a-i0001':
+    'https://gist.githubusercontent.com/danieleguido/93bae33a202e442eea622970cbf065a0/raw/8890f58cb6deb245ef8211666e9c2f47ea88d358/RDN-1950-01-12-a-i0001.json'
 }
 
 const fetchAudioItemResponse = ref<{
