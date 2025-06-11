@@ -149,20 +149,40 @@ export interface FindResponse<T> {
   }
 }
 
+export interface Utterance {
+  startTime: number
+  endTime: number
+  indices: number[] // indices of TranscriptPartialText contained in this utterance
+}
+
+export interface Rrreb {
+  idx: number
+  text: string
+  startTime: number
+  endTime: number
+}
 export interface ContentItem {
   uid: string
-  type: 'audio' | 'ar'
+  type: 'audio' | 'ar' | 'radio_broadcast_episode'
   publicationDate: string
   title?: string
   excerpt?: string
-  transcript: string
+  transcript?: string
   transcriptLength: number
+
   href?: string
   link?: string
   mediaSource: MediaSource
+  dataProvider?: string
+  copyright?: string
 }
 
 export interface AudioContentItem extends ContentItem {
   duration: number
   startTime: number
+  audioSrc?: string
+  audioSrcType?: 'mp3' | 'ogg' | 'wav'
+  radioChannel?: string
+  rrrebs: Rrreb[]
+  utterances: Utterance[]
 }
