@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import {
   issues as issuesService,
   pages as pagesService,
-  articles as articlesService,
+  contentItems as contentItemsService,
   tableOfContents as tableOfContentsService,
   images as imagesService
 } from '@/services'
@@ -54,7 +54,7 @@ export const useIssueStore = defineStore('issue', {
           console.error('Error in `store/issue/LOAD_PAGE` pages.get(', uid, ')', err.name)
           throw err
         }),
-        articlesService.find({
+        contentItemsService.find({
           query: {
             filters: [
               {
@@ -67,10 +67,10 @@ export const useIssueStore = defineStore('issue', {
         })
       ])
         .then(
-          ([page, articles]) =>
+          ([page, contentItems]) =>
             new Page({
               ...page,
-              articles: articles.data.map(article => new Article(article)),
+              articles: contentItems.data.map(ci => Article.fromContentItem(ci)),
               articlesEntities: page.articlesEntities,
               articlesTags: page.articlesTags
             })
@@ -80,7 +80,7 @@ export const useIssueStore = defineStore('issue', {
         })
     },
     loadArticle(uid: string) {
-      return articlesService.get(uid).then(d => new Article(d))
+      return contentItemsService.get(uid).then(d => Article.fromContentItem(d))
     },
     loadTableOfContents() {
       if (this.issue == null) {

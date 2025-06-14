@@ -9,7 +9,7 @@ interface Entity {
   id?: string
 }
 
-interface Child {
+export interface Child {
   entity: Entity
   children: (Child | string)[]
   isContinuation?: boolean

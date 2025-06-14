@@ -10,7 +10,7 @@ interface HookErrorMixin {
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
 const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated'] // error to avoid loopholes
 
-interface Notification {
+export interface Notification {
   title: string
   message: string
   type: 'success' | 'error'
@@ -49,7 +49,7 @@ interface State {
   processingStatus: boolean
 }
 
-interface DisplayErrorPayload {
+export interface DisplayErrorPayload {
   error: Error
   origin?: string
 }

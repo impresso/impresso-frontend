@@ -111,7 +111,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
 import ArticleItem from './lists/ArticleItem.vue'
@@ -119,23 +119,32 @@ import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { defineComponent, PropType } from 'vue'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
+import Article from '@/models/Article'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
 
-export default {
-  data: () => ({
-    showModalShare: false,
-    coordsFromArticleRegion: null
-  }),
+export interface IData {
+  showModalShare: boolean
+  coordsFromArticleRegion?: { x: number; y: number; w: number; h: number } | null
+}
+
+export default defineComponent({
+  data(): IData {
+    return {
+      showModalShare: false,
+      coordsFromArticleRegion: undefined
+    } satisfies IData
+  },
   props: {
     modelValue: {
-      type: Object,
-      default: () => ({})
+      type: Object as PropType<ContentItem>
+      // default: () => ({})
     },
     checkbox: {
       type: Boolean,
-
       default: false
     },
     checked: {
@@ -149,12 +158,15 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
-    article() {
+    contentItem(): ContentItem {
       return this.modelValue
+    },
+    article() {
+      return Article.fromContentItem(this.contentItem)
     },
     pageViewerOptions() {
       return {
-        tileSources: [this.article.pages[0]?.iiif],
+        tileSources: [this.article?.pages[0]?.iiif],
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',
@@ -287,7 +299,7 @@ export default {
     CopyToClipboard,
     IIIFFragment
   }
-}
+})
 </script>
 
 <style lang="scss">

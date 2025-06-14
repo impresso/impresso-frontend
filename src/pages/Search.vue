@@ -27,7 +27,7 @@
           />
         </button>
         <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
-          <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
+          <b-form-checkbox v-model="isFront" switch>
             {{ $t('label_isFront') }}
           </b-form-checkbox>
         </b-form-group>
@@ -172,7 +172,7 @@
         :title="$t('query_add_to_collection')"
         :show="isModalVisible('nameCollection')"
         :okDisabled="nameCollectionOkDisabled"
-        @close="hideModal('nameCollection')"
+        @close="hideModal()"
         @ok="createQueryCollection()"
         @shown="nameCollectionOnShown()"
       >
@@ -183,7 +183,7 @@
             type="text"
             v-bind:placeholder="$t('Collection_Name')"
             name="inputName"
-            ref="inputName"
+            ref="inputNameRef"
             v-model="inputName"
           />
           <label for="inputDescription" class="mt-3">Description</label>
@@ -208,19 +208,19 @@
         id="embeddings"
         :title="$t('label_embeddings')"
         :show="isModalVisible('embeddings')"
-        @close="hideModal('embeddings')"
+        @close="hideModal()"
       >
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
       </Modal>
 
       <div class="p-1">
         <b-container fluid>
-          <div ref="searchResultsFirstElement" />
+          <div ref="searchResultsFirstElementRef" />
           <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.uid"
+              v-bind:key="searchResult.id"
             >
               <search-results-list-item
                 v-bind:checkbox="false"
@@ -237,7 +237,7 @@
               md="6"
               lg="4"
               v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.article_uid"
+              v-bind:key="searchResult.id"
             >
               <search-results-tiles-item
                 checkbox="true"
@@ -271,7 +271,7 @@
   </i-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import Autocomplete from '@/components/Autocomplete.vue'
 import Pagination from '@/components/modules/Pagination.vue'
@@ -294,6 +294,7 @@ import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
   search as searchService,
+  contentItems as contentItemsService,
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
@@ -306,6 +307,10 @@ import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import BaristaButton from '@/components/barista/BaristaButton.vue'
 import AuthGate from '@/components/AuthGate.vue'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { Facet, Filter } from '@/models'
+import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
+import { Features } from '@/init'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -328,29 +333,48 @@ const FacetTypesWithMultipleValues = [
 
 const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
-export default {
-  data: () => ({
-    selectedItems: [],
-    allIndeterminate: false,
-    allSelected: false,
-    inputName: '',
-    inputDescription: 'All of Impresso',
-    nameCollectionOkDisabled: true,
-    inputEmbeddings: '',
-    searchResults: [],
-    paginationTotalRows: 0,
-    /** @type {Facet[]} */
-    facets: [],
-    /** @type {Filter[]} */
-    // filtersWithItems: [],
-    visibleModal: null,
-    isLoadingResults: false
-  }),
+interface IData {
+  selectedItems: ContentItem[]
+  allIndeterminate: boolean
+  allSelected: boolean
+  inputName: string
+  inputDescription: string
+  nameCollectionOkDisabled: boolean
+  inputEmbeddings: string
+  searchResults: ContentItem[]
+  paginationTotalRows: number
+  facets: Facet[]
+  visibleModal?: string
+  isLoadingResults: boolean
+}
+
+export default defineComponent({
+  data(): IData {
+    return {
+      selectedItems: [],
+      allIndeterminate: false,
+      allSelected: false,
+      inputName: '',
+      inputDescription: 'All of Impresso',
+      nameCollectionOkDisabled: true,
+      inputEmbeddings: '',
+      searchResults: [],
+      paginationTotalRows: 0,
+      facets: [],
+      visibleModal: null,
+      isLoadingResults: false
+    } satisfies IData
+  },
   props: {
     filtersWithItems: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
+  },
+  setup() {
+    const inputNameRef = ref<ComponentPublicInstance | undefined>()
+    const searchResultsFirstElementRef = ref<ComponentPublicInstance | undefined>()
+    return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
@@ -386,7 +410,7 @@ export default {
       get() {
         return this.filters.some(({ type }) => type === 'isFront')
       },
-      set(val) {
+      set(val: boolean) {
         this.handleFiltersChanged(
           this.filters
             .filter(d => d.type !== 'isFront')
@@ -395,13 +419,13 @@ export default {
       }
     },
     isLoggedIn() {
-      return this.userStore.userData
+      return !!this.userStore.userData
     },
     orderBy: {
       get() {
-        return this.$route.query.orderBy ?? '-relevance'
+        return (this.$route.query.orderBy as string) ?? '-relevance'
       },
-      set(orderBy) {
+      set(orderBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
           orderBy
         })
@@ -409,9 +433,9 @@ export default {
     },
     groupBy: {
       get() {
-        return this.$route.query.groupBy ?? 'articles'
+        return (this.$route.query.groupBy as string) ?? 'articles'
       },
-      set(groupBy) {
+      set(groupBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
           groupBy
         })
@@ -419,9 +443,9 @@ export default {
     },
     displayStyle: {
       get() {
-        return this.$route.query.displayStyle ?? 'list'
+        return (this.$route.query.displayStyle as string) ?? 'list'
       },
-      set(displayStyle) {
+      set(displayStyle: string) {
         this.$navigation.updateQueryParametersWithHistory({
           displayStyle
         })
@@ -429,9 +453,9 @@ export default {
     },
     paginationCurrentPage: {
       get() {
-        return parseInt(this.$route.query.p ?? 1, 10)
+        return parseInt((this.$route.query.p as string) ?? '1', 10)
       },
-      set(p) {
+      set(p: number) {
         this.$navigation.updateQueryParametersWithHistory({
           p
         })
@@ -439,9 +463,10 @@ export default {
     },
     paginationPerPage: {
       get() {
-        return Math.min(25, Math.max(this.$route.query.limit ?? 1, 50))
+        const limit = parseInt((this.$route.query.limit as string) ?? '1')
+        return Math.min(25, Math.max(limit, 50))
       },
-      set(limit) {
+      set(limit: number) {
         this.$navigation.updateQueryParametersWithHistory({
           limit
         })
@@ -450,16 +475,13 @@ export default {
     allowedFiltersWithItems() {
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
     enrichedFilters() {
       return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters
     },
-    /** @returns {Filter[]} */
     ignoredFilters() {
       return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
-    filters() {
+    filters(): Filter[] {
       // filter by type
       return (
         this.searchQuery.filters
@@ -468,22 +490,18 @@ export default {
           .concat([FilterFactory.create({ type: 'hasTextContents' })])
       )
     },
-    filtersIndex: {
-      get() {
-        return this.searchQuery.filtersIndex
-      }
+    filtersIndex() {
+      return this.searchQuery.filtersIndex
     },
-    searchServiceQuery: {
-      get() {
-        const query = {
-          filters: this.filters.map(getFilterQuery),
-          groupBy: this.groupBy,
-          orderBy: this.orderBy,
-          limit: this.paginationPerPage,
-          page: this.paginationCurrentPage
-        }
-        return query
+    searchServiceQuery() {
+      const query = {
+        filters: this.filters.map(getFilterQuery),
+        groupBy: this.groupBy,
+        orderBy: this.orderBy,
+        limit: this.paginationPerPage,
+        page: this.paginationCurrentPage
       }
+      return query
     },
     paginationData() {
       return {
@@ -495,13 +513,13 @@ export default {
     searchQueryHash() {
       return new SearchQuery({
         filters: this.filters
-      }).getSerialized({ serializer: 'protobuf' })
+      }).getSerialized({ serializer: 'protobuf' }) as string
     },
     base64Filters() {
       return this.searchQueryHash
     },
     isBaristaEnabled() {
-      return window.impressoFeatures?.barista?.enabled
+      return (window as any as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
     }
   },
   mounted() {
@@ -535,25 +553,25 @@ export default {
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
     },
-    itemSelected(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+    itemSelected(item: ContentItem) {
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     addSelectedItem(item) {
       if (!this.itemSelected(item)) {
         this.selectedItems.push(item)
       }
     },
-    removeSelectedItem(item) {
+    removeSelectedItem(item: ContentItem) {
       if (this.itemSelected(item)) {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
-    toggleSelected(item) {
+    toggleSelected(item: ContentItem) {
       if (!this.itemSelected(item)) {
         this.selectedItems.push(item)
       } else {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
@@ -568,8 +586,8 @@ export default {
         })
       }
     },
-    isChecked(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+    isChecked(item: ContentItem) {
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     onClearSelection() {
       this.selectedItems = []
@@ -587,7 +605,7 @@ export default {
     },
     createQueryCollection() {
       if (!this.nameCollectionOkDisabled) {
-        this.hideModal('nameCollection')
+        this.hideModal()
         return this.collectionsStore
           .addCollection({
             name: this.inputName,
@@ -617,7 +635,7 @@ export default {
       )
     },
     exportSelectedCsv() {
-      const uids = this.selectedItems.map(a => a.uid)
+      const uids = this.selectedItems.map(a => a.id)
       exporterService.create(
         {},
         {
@@ -636,7 +654,7 @@ export default {
     },
     nameCollectionOnShown() {
       this.inputName = ''
-      this.$refs.inputName.$el.focus()
+      this.inputNameRef.$el.focus()
     },
     nameCollectionOnInput() {
       this.inputName.trim()
@@ -696,15 +714,15 @@ export default {
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
         this.isLoadingResults = true
-        const { total, data, info } = await searchService
+        const { data, total } = await contentItemsService
           .find({
             query: {
-              page,
+              offset: (page - 1) * limit,
               limit,
               filters,
-              facets: FacetTypesWithMultipleValues,
-              order_by: orderBy,
-              group_by: groupBy
+              // facets: FacetTypesWithMultipleValues,
+              order_by: orderBy
+              // group_by: groupBy
             }
           })
           .then(response => {
@@ -712,21 +730,22 @@ export default {
             return response
           })
         this.paginationTotalRows = total
-        this.searchResults = data.map(d => new Article(d))
+        this.searchResults = data
         this.isLoadingResults = false
         // @todo next tick
         this.$nextTick(() => {
-          this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
+          this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
         })
-        let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
+        let facets = [] // searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
         // get remaining facets and enriched filters.
         const facetTypes = [
+          ...FacetTypesWithMultipleValues,
           ...['person', 'location', 'topic'],
           ...(this.isLoggedIn ? ['collection'] : [])
         ]
 
-        const [extraFacets, collectionsItemsIndex] = await Promise.all([
+        const [extraFacets /* collectionsItemsIndex */] = await Promise.all([
           searchFacetsService
             .find({
               query: {
@@ -735,7 +754,7 @@ export default {
                 // group_by: groupBy,
               }
             })
-            .then(response => response.data),
+            .then(response => response.data)
           // filtersItemsService
           //   .find({
           //     query: {
@@ -743,34 +762,36 @@ export default {
           //     },
           //   })
           //   .then(joinFiltersWithItems),
-          this.isLoggedIn
-            ? collectionsItemsService
-                .find({
-                  query: {
-                    item_uids: this.searchResults.map(d => d.uid),
-                    limit: 100
-                  }
-                })
-                .then(({ data }) =>
-                  data.reduce((acc, d) => {
-                    acc[d.itemId] = d
-                    return acc
-                  }, {})
-                )
-            : {}
+          // this.isLoggedIn
+          //   ? collectionsItemsService
+          //       .find({
+          //         query: {
+          //           item_uids: this.searchResults.map(d => d.id),
+          //           limit: 100
+          //         }
+          //       })
+          //       .then(({ data }) =>
+          //         data.reduce((acc, d) => {
+          //           acc[d.itemId] = d
+          //           return acc
+          //         }, {})
+          //       )
+          //   : {}
         ])
         facets = facets.concat(extraFacets)
         // TODO sort facets based on the right order
         this.facets = facets.map(f => new FacetModel(f))
-        if (this.isLoggedIn) {
-          // add collections.
-          this.searchResults = this.searchResults.map(article => {
-            if (collectionsItemsIndex[article.uid]) {
-              article.collections = collectionsItemsIndex[article.uid].collections
-            }
-            return article
-          })
-        }
+
+        // already added in IML
+        // if (this.isLoggedIn) {
+        //   // add collections.
+        //   this.searchResults = this.searchResults.map(contentItem => {
+        //     if (collectionsItemsIndex[contentItem.id]) {
+        //       article.collections = collectionsItemsIndex[article.uid].collections
+        //     }
+        //     return article
+        //   })
+        // }
       },
       immediate: true
     },
@@ -798,7 +819,7 @@ export default {
     BaristaButton,
     AuthGate
   }
-}
+})
 </script>
 
 <style lang="scss">

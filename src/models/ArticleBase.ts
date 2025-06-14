@@ -1,11 +1,27 @@
 import Collection from './Collection'
 import Entity from './Entity'
 import Match from './Match'
+import { IPage } from './Page'
 
-interface Page {
+export interface ArticleBaseInterface {
   uid: string
-  num: number
-  // Add other page properties as needed
+  type: string
+  title: string
+  excerpt: string
+  isCC: boolean
+  size: number
+  nbPages: number
+  pages: any[]
+  persons: any[]
+  locations: any[]
+  collections: any[]
+  accessRight: string
+  matches: any[]
+  images: any[]
+  contentLineBreaks: any[]
+  regionBreaks: any[]
+  mentions: any[]
+  content: string
 }
 
 interface ArticleBaseConstructorParams {
@@ -16,7 +32,7 @@ interface ArticleBaseConstructorParams {
   isCC?: boolean
   size?: number
   nbPages?: number
-  pages?: Page[]
+  pages?: IPage[]
   persons?: Entity[] | any[]
   locations?: Entity[] | any[]
   collections?: Collection[] | any[]
@@ -33,7 +49,7 @@ interface ArticleBaseConstructorParams {
  * ArticleBase is an object representing a newspaper article in
  * issue Table of contents. that 's why it is simplified.
  */
-export default class ArticleBase {
+export default class ArticleBase implements ArticleBaseInterface {
   uid: string
   type: string
   title: string
@@ -41,7 +57,7 @@ export default class ArticleBase {
   isCC: boolean
   size: number
   nbPages: number
-  pages: Page[]
+  pages: IPage[]
   accessRight: string
   images: any[]
   contentLineBreaks: any[]
