@@ -1,7 +1,7 @@
 <script lang="tsx">
 import { defineComponent, PropType } from 'vue'
 
-interface Entity {
+export interface Entity {
   kind: string
   offset: { start: number; end: number }
   clusterId?: string
@@ -9,7 +9,7 @@ interface Entity {
   id?: string
 }
 
-interface Child {
+export interface Child {
   entity: Entity
   children: (Child | string)[]
   isContinuation?: boolean
