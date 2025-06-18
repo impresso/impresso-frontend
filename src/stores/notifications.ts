@@ -47,6 +47,7 @@ interface State {
   processingActivitiesIndex: string[]
   _processingTimer?: NodeJS.Timeout
   processingStatus: boolean
+  _lockTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
 interface DisplayErrorPayload {
@@ -76,7 +77,8 @@ export const useNotificationsStore = defineStore('notifications', {
     processingLocked: false,
     processingActivities: [],
     processingActivitiesIndex: [],
-    processingStatus: false
+    processingStatus: false,
+    _lockTimeoutId: null
   }),
   getters: {},
   actions: {
@@ -102,6 +104,7 @@ export const useNotificationsStore = defineStore('notifications', {
       }
 
       const errorCode = isFeathersError(error) ? error.code : 0
+      console.error(error)
 
       console.error(
         `[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
@@ -168,8 +171,29 @@ export const useNotificationsStore = defineStore('notifications', {
     displayConnectivityStatus(status: boolean) {
       this.connectivityStatus = status
     },
-    lockScreen(status: boolean) {
-      this.processingLocked = status
+    lockScreen(lock: boolean, duration = 10000) {
+      if (lock) {
+        this.processingLocked = true
+
+        // Clear any previous timeout
+        if (this._lockTimeoutId) {
+          clearTimeout(this._lockTimeoutId)
+        }
+
+        // Set up new timeout to unlock screen
+        this._lockTimeoutId = setTimeout(() => {
+          this.processingLocked = false
+          this._lockTimeoutId = null
+        }, duration)
+      } else {
+        this.processingLocked = false
+
+        // Clear any timeout if manually unlocking
+        if (this._lockTimeoutId) {
+          clearTimeout(this._lockTimeoutId)
+          this._lockTimeoutId = null
+        }
+      }
     },
     updateProcessingActivity({
       route,
