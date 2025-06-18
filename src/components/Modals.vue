@@ -126,20 +126,13 @@
       </div>
     </InfoModal>
     <!--  -->
-    <ChangePlanModal
-      :available-plans="AvailablePlans"
-      :available-plans-labels="PlanLabels"
-      :userPlan="userPlan"
-      :isVisible="view === ViewChangePlanRequest"
+    <ChangePlanRequestModal
       :title="$t('Change Plan')"
-      @dismiss="() => resetView()"
-      :userChangePlanRequest="userChangePlanRequestResponse.data"
-      :isLoading="
-        userChangePlanRequestResponse.status === 'loading' ||
-        userChangePlanRequestResponse.status === 'idle'
-      "
-      @submit="patchCurrentPlanChangeRequest"
+      @success="() => changeView(ViewConfirmChangePlanRequest)"
+      @close="resetView"
+      :show="view === ViewChangePlanRequest"
     />
+
     <UserRequestsModal
       :title="$t('User Requests')"
       :isVisible="view === ViewUserRequests"
@@ -190,7 +183,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
-import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
   SubscriptionDataset,
@@ -214,7 +206,6 @@ import {
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
-  userChangePlanRequest as userChangePlanRequestService,
   termsOfUse as termsOfUseService,
   userRequests as userRequestsService,
   subscriptionDatasets as subscriptionDatasetsService,
@@ -228,6 +219,7 @@ import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
 import UserRequestsModal from './UserRequestsModal.vue'
+import ChangePlanRequestModal from './ChangePlanRequestModal.vue'
 import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
@@ -349,15 +341,16 @@ const fetchPlansResponse = ref<{
 const resetView = () => {
   store.view = null
 }
+const changeView = (view: (typeof Views)[number]) => {
+  console.debug('[Modals] changeView', view)
+  store.view = view
+}
 
 watch(
   () => store.view,
   _view => {
     view.value = _view
-    if (_view === ViewChangePlanRequest) {
-      console.debug('[Modals] @watch view = ViewChangePlanRequest')
-      fetchUserPlanChangeRequest()
-    } else if (_view === ViewPlans) {
+    if (_view === ViewPlans) {
       ;``
       console.debug('[Modals] @watch view = ViewPlans')
       fetchPlansContent()
@@ -482,51 +475,6 @@ const patchAcceptTermsDate = async () => {
     })
     .finally(() => {
       isLoading.value = false
-    })
-}
-const fetchUserPlanChangeRequest = async () => {
-  /**
-   * Fetches the current user plan change request.
-   *
-   * This method updates the `userChangePlanRequestResponse` ref with the status of the request.
-   * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
-   *
-   * @returns {Promise<void>}
-   */
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  userChangePlanRequestResponse.value = { data: null, status: 'loading' }
-  await userChangePlanRequestService
-    .find()
-    .then(data => {
-      console.info('[ChangePlanModal] @useEffect - userChangePlanRequestService', data)
-      userChangePlanRequestResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] @useEffect - userChangePlanRequestService',
-        err.message,
-        err.data,
-        err.code
-      )
-      userChangePlanRequestResponse.value = { data: null, status: 'error' }
-    })
-}
-
-const patchCurrentPlanChangeRequest = async ({ plan }) => {
-  console.debug('[ChangePlanModal] @patchCurrentPlanChangeRequest', plan)
-  await userChangePlanRequestService
-    .create({
-      plan
-    })
-    .then(data => {
-      console.info('[ChangePlanModal] Password changed successfully. data:', data)
-      store.view = ViewConfirmChangePlanRequest
-    })
-    .catch((err: FeathersError) => {
-      console.error('[ChangePlanModal] create', err.message, err.data)
     })
 }
 
