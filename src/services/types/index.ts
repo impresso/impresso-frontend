@@ -75,6 +75,23 @@ export interface SubscriptionDataset {
   metadata?: object
 }
 
+export type User = {
+  username: string
+  isStaff: boolean
+  firstname: string
+  lastname: string
+  pattern: string
+  email: string
+  profile?: {
+    pattern: string[]
+  }
+  bitmap?: string
+  groups?: Group[]
+  agreedToTerms?: boolean
+  affiliation?: string
+  institutionalUrl?: string
+}
+
 export interface UserRequest {
   id: number
   reviewerId: number | null
