@@ -31,12 +31,14 @@
       </template>
       <div v-if="issue" class="d-flex h-100 justify-content-center position-relative">
         <OpenSeadragonArticleViewer
-          v-if="viewMode === FacsimileMode && contentItem"
+          v-if="viewMode === FacsimileMode"
           :pages="pagesIIIFUrls"
-          :regions="[]"
+          :regions="pageRegions"
           :defaultCurrentPageIndex="pageIndex"
           :article="{ uid: contentItemId }"
           :marginaliaSections="[]"
+          @page-changed="changePageFromViewer"
+          class="show-outlines"
         />
         <ThumbnailNavigator
           v-if="viewMode === FacsimileMode"
@@ -44,12 +46,14 @@
           style="bottom: 1rem"
           :pages="issue.pages"
           :current-page-uid="page?.uid"
+          @update:current-page-uid="changePageFromNavigator"
         />
         <IssueViewerText
           v-if="viewMode === IIIFViewerTranscriptMode"
           :article_uid="contentItemId"
           withIIIFViewer
         />
+        <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_uid="contentItemId" />
       </div>
     </i-layout-section>
   </i-layout>
@@ -63,14 +67,19 @@ import { useRoute, useRouter } from 'vue-router'
 import Issue from '@/models/Issue'
 import TableOfContents from '@/models/TableOfContents'
 import type { Filter, MediaSource } from '@/models'
-import { issues as issuesService, tableOfContents as tableOfContentsService } from '@/services'
+import {
+  issues as issuesService,
+  search,
+  tableOfContents as tableOfContentsService
+} from '@/services'
 import type ArticleBase from '@/models/ArticleBase'
-import { table } from 'console'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
 import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import OpenSeadragonArticleViewer from '@/components/modules/OpenSeadragonArticleViewer.vue'
 import { PageRegion } from '@/components/osviewer/OSViewer.vue'
 import ThumbnailNavigator from '@/components/thumbnailNavigator/ThumbnailNavigator.vue'
+import Page from '@/models/Page'
+import Article from '@/models/Article'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -85,7 +94,7 @@ const QueryParams = Object.freeze({
 const route = useRoute()
 const router = useRouter()
 
-const suggestionQuery = computed(() => route.query[CommonQueryParameters.SuggestionQuery] || '')
+// const suggestionQuery = computed(() => route.query[CommonQueryParameters.SuggestionQuery] || '')
 const pageNumber = computed<number>(() => {
   const page = route.query[CommonQueryParameters.PageNumber]
   if (typeof page === 'string') {
@@ -96,6 +105,8 @@ const pageNumber = computed<number>(() => {
     return 1
   }
 })
+
+const pageRegions = ref<PageRegion[]>([])
 
 const viewMode = computed(() => {
   if (!contentItemId.value) {
@@ -130,8 +141,7 @@ const isLoading = ref(false)
 const issue = ref<Issue | null>()
 const tableOfContents = ref<TableOfContents | null>(null)
 const pageIndex = ref(0)
-const page = ref(null)
-const pageRegions = ref<PageRegion[]>([])
+const page = ref<Page | null>(null)
 const pagesIIIFUrls = ref<string[]>([])
 const mediaSource = ref(null)
 const contentItem = ref<ArticleBase | null>(null)
@@ -158,15 +168,29 @@ const props = withDefaults(defineProps<IssueViewerPageProps>(), {
 async function fetchIssueAndTableOfContents(id: string): Promise<void> {
   isLoading.value = true
   console.debug('[IssueViewerPage] fetchIssueAndTableOfContents arg:', id)
-  issue.value = await issuesService.get(id).then(data => {
-    console.debug('[IssueViewerPage] fetchIssueAndTableOfContents issue OK')
-    return new Issue(data)
-  })
+  await issuesService
+    .get(id, {
+      ignoreErrors: true
+    })
+    .then(data => {
+      console.debug('[IssueViewerPage] fetchIssueAndTableOfContents issue OK', data)
+      issue.value = new Issue(data)
+    })
+    .catch(err => {
+      console.error(err)
+    })
 
-  tableOfContents.value = await tableOfContentsService.get(id).then(data => {
-    console.debug('[IssueViewerPage] fetchIssueAndTableOfContents tableOfContents OK')
-    return new TableOfContents(data)
-  })
+  await tableOfContentsService
+    .get(id, {
+      ignoreErrors: true
+    })
+    .then(data => {
+      console.debug('[IssueViewerPage] fetchIssueAndTableOfContents tableOfContents OK', data)
+      tableOfContents.value = new TableOfContents(data)
+    })
+    .catch(err => {
+      console.error(err)
+    })
 
   isLoading.value = false
 
@@ -205,12 +229,58 @@ function fetchPage(pageNumber: number): void {
   page.value = issue.value.pages[pageIndex.value]
 }
 
+async function fetchPageRegions() {
+  console.debug('[IssueViewerPage] fetchPageRegions() ...')
+  // Add artificial delay using setTimeout
+  await new Promise(resolve => setTimeout(resolve, 500)) // 500ms delay
+
+  const articles = await search
+    .find({
+      query: {
+        filters: [{ type: 'page', q: page.value.uid }],
+        limit: 500
+      }
+    })
+    .then(response => {
+      return response.data.map((d: any) => new Article(d))
+    })
+  const regions = articles.flatMap((article: Article) =>
+    article.regions
+      .filter(region => region.pageUid === page.value.uid)
+      .map(region => ({
+        articleUid: article.uid,
+        pageUid: page.value.uid,
+        coords: region.coords as PageRegion['coords']
+      }))
+  )
+  console.debug('[IssueViewerPage] fetchPageRegions() success, regions:', regions)
+  pageRegions.value = regions
+}
+
 function changeViewMode(mode: string): void {
   if (!AvailableViewModes.includes(mode)) {
     console.warn('[IssueViewerPage] changeViewMode: Invalid mode:', mode)
     return
   }
+
   const query = { ...route.query, [QueryParams.ViewMode]: mode }
+  router.replace({ query })
+}
+
+function changePageFromViewer(pageIndex: number) {
+  if (!issue.value) return
+  const pageNum = issue.value.pages[pageIndex]?.num
+  console.debug('[IssueViewerPage] changePageFromViewer idx:', pageIndex, 'num:', pageNum)
+
+  const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
+  router.replace({ query })
+}
+
+function changePageFromNavigator(pageUid: string) {
+  // get page number
+  const pageNum = issue.value.pages.find(d => d.uid === pageUid)?.num
+  console.debug('[IssueViewerPage] changePageFromNavigator uid:', pageUid, 'num:', pageNum)
+  const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
   router.replace({ query })
 }
 
@@ -227,6 +297,7 @@ watch(
       }
       if (pageNumber.value) {
         fetchPage(pageNumber.value as number)
+        fetchPageRegions()
       }
     }
   },
@@ -236,6 +307,19 @@ watch(
 watch(contentItemId, newId => {
   fetchContentItem(newId)
 })
+
+watch(
+  () => route.query[CommonQueryParameters.PageNumber],
+  v => {
+    if (!v) {
+      return
+    }
+    const pageNum = parseInt(v as string, 10)
+
+    fetchPage(pageNum)
+    fetchPageRegions()
+  }
+)
 </script>
 
 <style lang="scss">
