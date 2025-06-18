@@ -26,5 +26,6 @@ export const CommonQueryParameters = Object.freeze({
   OrderBy: 'sort',
   PageNumber: 'p',
   VisualisationType: 'vis',
-  VisualisationOrderBy: 'vis_sort'
+  VisualisationOrderBy: 'vis_sort',
+  LegacyArticleId: 'articleId'
 })
