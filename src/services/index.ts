@@ -46,6 +46,9 @@ app.hooks({
         notificationsStore.updateProcessingActivity({ route, status: 'LOADING' })
         if (needsLockScreen(route) && context.params.lock !== false) {
           notificationsStore.lockScreen(true)
+          setTimeout(() => {
+            notificationsStore.lockScreen(false)
+          }, 10000)
         }
       }
     ]
