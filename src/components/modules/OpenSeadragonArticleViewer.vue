@@ -31,7 +31,7 @@ import {
 import { TiledImage, MouseTracker } from 'openseadragon'
 import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
-interface Region {
+export interface Region {
   articleUid: string
   pageUid: string
   coords: { x: number; y: number; w: number; h: number }
@@ -140,13 +140,13 @@ const getCurrentItemIndex = (viewer: Viewer) => {
 const DefaultZoomLevel = 0.0008
 const MaxFontSizePc = 100
 
-interface MarginaliaSection {
+export interface MarginaliaSection {
   title: string
   items: string[]
   isLeft: boolean
 }
 
-interface Data {
+export interface Data {
   viewer?: Viewer
   currentPageIndex: number
   initialFitCompleted: boolean

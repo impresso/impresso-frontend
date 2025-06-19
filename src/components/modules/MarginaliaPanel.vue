@@ -1,28 +1,28 @@
 <template>
   <div :class="['marginalia-panel', isLeft ? 'left' : '']">
     <section class="p-3" v-for="(section, index) in sections" :key="index">
-      <h4 class="small-caps border-bottom">{{section.title}}</h4>
+      <h4 class="small-caps border-bottom">{{ section.title }}</h4>
       <ul>
-        <li v-for="(item, itemIndex) in section.items" :key="itemIndex">{{item}}</li>
+        <li v-for="(item, itemIndex) in section.items" :key="itemIndex">{{ item }}</li>
       </ul>
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
+import type { PropType } from 'vue'
+import { defineComponent } from 'vue'
 
-interface Section {
-  title: string;
-  items: string[];
+export interface Section {
+  title: string
+  items: string[]
 }
 
 export default defineComponent({
   props: {
     /** @type {import('vue').PropOptions<Section[]>} */
     sections: {
-      type: Array as PropType<Section[]>,
+      type: Array as PropType<Section[]>
     },
     isLeft: Boolean
   }
@@ -30,7 +30,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-
 .marginalia-panel {
   &.left {
     text-align: right;
@@ -49,7 +48,7 @@ export default defineComponent({
   &.left section {
     right: 1em;
   }
-  h4{
+  h4 {
     font-weight: bold;
     padding-bottom: 1rem;
   }
@@ -62,5 +61,4 @@ export default defineComponent({
     padding: 0.5em 0;
   }
 }
-
 </style>

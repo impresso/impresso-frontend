@@ -60,17 +60,17 @@ import { mapStores } from 'pinia'
 import { useEmbeddingsStore } from '@/stores/embeddings'
 import { WordMatch } from '@/services/types/embeddings'
 
-interface EmbeddingsFilter {
+export interface EmbeddingsFilter {
   q?: string[]
 }
 
-interface ServiceQuery {
+export interface ServiceQuery {
   term: string
   language: string
   limit: number
 }
 
-interface SelectOption {
+export interface SelectOption {
   value: string | number
   text: string
 }
