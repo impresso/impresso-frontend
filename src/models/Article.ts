@@ -139,7 +139,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
       semanticEnrichments?.topics?.map(
         topic =>
           new ArticleTopic({
-            articleUid: topic.id,
+            topicUid: topic.id,
+            articleUid: contentItem.id,
             relevance: topic.relevance
           })
       ) ?? []
@@ -187,14 +188,14 @@ export default class Article extends ArticleBase implements ArticleInterface {
     // Map named entities
     const persons =
       semanticEnrichments?.namedEntities?.persons?.map(person => ({
-        id: person.id,
+        uid: person.id,
         name: person.label,
         count: person.count
       })) ?? []
 
     const locations =
       semanticEnrichments?.namedEntities?.locations?.map(location => ({
-        id: location.id,
+        uid: location.id,
         name: location.label,
         count: location.count
       })) ?? []

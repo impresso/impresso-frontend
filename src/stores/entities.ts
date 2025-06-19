@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import {
-  search as searchService,
+  contentItems as contentItemsService,
   mentions as mentionsService,
   entities as entitiesService,
   searchFacets as searchFacetsService
@@ -10,6 +10,7 @@ import Mention from '@/models/Mention'
 import Entity from '@/models/Entity'
 import Facet from '@/models/Facet'
 import Helpers from '@/plugins/Helpers'
+import { FindQuery } from '@/services/types/conntentItems'
 
 export interface State {}
 
@@ -30,14 +31,14 @@ export const useEntitiesStore = defineStore('entities', {
         filters,
         order_by: orderBy,
         group_by: 'articles'
-      }
-      return searchService
+      } as FindQuery
+      return contentItemsService
         .find({
           query
         })
         .then(res => ({
           ...res,
-          data: res.data.map(d => new Article(d))
+          data: res.data.map(d => new Article.fromContentItem(d))
         }))
     },
     loadEntityMentions({

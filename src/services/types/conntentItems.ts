@@ -3,12 +3,16 @@ import { ClientService } from '@feathersjs/feathers'
 import { Filter } from '../../models/index.d'
 import { BaseFind } from '../../models/generated/schemas'
 
+type OrderBy = 'date' | 'relevance' | 'uid' | 'issue' | 'page' | 'newspaper' | 'hasTextContents'
+type ReverseOrderBy = `-${OrderBy}`
+type FullOrderBy = OrderBy | ReverseOrderBy
+
 interface FindResponse<T> extends Omit<BaseFind, 'data'> {
   data: T[]
 }
 
-interface FindQuery {
-  order_by?: 'uid' | 'issue' | 'page' | 'newspaper' | 'hasTextContents'
+export interface FindQuery {
+  order_by?: FullOrderBy
   filters?: Filter[]
   limit?: number
   offset?: number

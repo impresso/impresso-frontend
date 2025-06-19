@@ -264,7 +264,7 @@ import IssueViewerText from '@/components/modules/IssueViewerText.vue'
 import {
   issues as issuesService,
   tableOfContents as tableOfContentsService,
-  search as searchService,
+  contentItems as contentItemsService,
   images as imagesService
 } from '@/services'
 import { getQueryParameter } from '@/router/util'
@@ -296,21 +296,21 @@ import type Page from '@/models/Page'
 import type Image from '@/models/Image'
 
 // Define types for service queries and responses
-interface ServiceQuery {
+export interface ServiceQuery {
   q: string
   limit: number
   page: number
   issueUid?: string
-  filters: Record<string, any>[]
+  filters: Filter[]
 }
 
-interface PaginationList {
+export interface PaginationList {
   perPage: number
   currentPage: number
   totalRows: number
 }
 
-interface MarginaliaSections {
+export interface MarginaliaSections {
   title: string
   isLeft: boolean
   items: string[]
@@ -644,19 +644,19 @@ export default defineComponent({
             additionalFilters.push({ type: 'string', q: (q + '*').replace(regex, '*') })
           }
           this.isLoadingServiceQuery = true
-          searchService
+          contentItemsService
             .find({
-              lock: false,
+              // lock: false,
               query: {
                 filters: filters.concat(additionalFilters),
-                page,
-                limit,
-                group_by: 'articles'
+                offset: (page - 1) * limit,
+                limit
+                // group_by: 'articles'
               }
             })
             .then(({ data, total }) => {
               this.paginationTotalRows = total
-              this.matchingArticles = data.map(article => new Article(article))
+              this.matchingArticles = data.map(ci => Article.fromContentItem(ci))
               this.isLoadingServiceQuery = false
             })
             .catch(err => {
@@ -755,14 +755,14 @@ export default defineComponent({
       if (this.pagesArticles[pageIndex] == null) {
         const pageId = getPageId(this.issueId, pageIndex)
         console.debug('[IssueViewerPage] loadRegions', pageId)
-        const articles = await searchService
+        const articles = await contentItemsService
           .find({
             query: {
               filters: [{ type: 'page', q: pageId }]
             }
           })
           .then(response => {
-            return response.data.map(d => new Article(d))
+            return response.data.map(d => Article.fromContentItem(d))
           })
         this.pagesArticles[pageIndex] = articles
       }

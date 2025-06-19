@@ -288,7 +288,7 @@ export default {
       this.showSuggestions = false
     },
     search() {
-      console.log('searching')
+      // console.log('searching')
       this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {

@@ -109,7 +109,7 @@ export const MetricsByFacetType = {
   }
 }
 
-interface Data {
+export interface Data {
   meta: any
   items: any
   itemsDictionary: Record<string, any>

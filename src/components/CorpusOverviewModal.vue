@@ -272,7 +272,7 @@ const filteredDatasets = computed<Dataset[]>(() => {
   if (filterBy.value === 'all') return props.datasets
   const filterIdx = props.filterByOptions.findIndex(opt => opt.value === filterBy.value)
   if (filterIdx === -1) return props.datasets
-  console.log('filtering datasets', filterBy.value)
+  // console.log('filtering datasets', filterBy.value)
   return props.datasets.filter(
     props.filterByOptions[filterIdx].accessor({
       userPlan: props.userPlan
@@ -282,7 +282,7 @@ const filteredDatasets = computed<Dataset[]>(() => {
 
 const sortedDatasets = computed(() => {
   if (!props.datasets) return []
-  console.log('sorting datasets', sortOrder.value)
+  // console.log('sorting datasets', sortOrder.value)
   return [...filteredDatasets.value].sort((a, b) => {
     if (sortOrder.value === 'timePeriod') {
       return a.startYear - b.startYear

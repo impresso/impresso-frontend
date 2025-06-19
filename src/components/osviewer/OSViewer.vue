@@ -32,7 +32,7 @@ export interface PageRegion {
   }
 }
 
-interface OSViewerProps {
+export interface OSViewerProps {
   pages: string[]
   gap?: number
   margin?: number

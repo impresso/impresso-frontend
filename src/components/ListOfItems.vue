@@ -5,8 +5,14 @@
     <slot v-bind:items="items">
       {{ items }}
     </slot>
-    <pagination size="sm" v-bind:perPage="limit" v-bind:currentPage="page" v-bind:totalRows="totalItems"
-      v-on:change="handlePaginationChange" class="my-3 d-flex justify-content-center" />
+    <pagination
+      size="sm"
+      v-bind:perPage="limit"
+      v-bind:currentPage="page"
+      v-bind:totalRows="totalItems"
+      v-on:change="handlePaginationChange"
+      class="my-3 d-flex justify-content-center"
+    />
   </div>
 </template>
 
@@ -15,11 +21,15 @@ import Pagination from './modules/Pagination.vue'
 import Spinner from './layout/Spinner.vue'
 import { optimizeFilters } from '@/logic/filters'
 import { defineComponent } from 'vue'
-import { search as searchService, textReusePassages as textReusePassagesService } from '@/services'
+import {
+  contentItems as contentItemsService,
+  textReusePassages as textReusePassagesService
+} from '@/services'
 
 const SearchIndexToService = {
-  search: searchService,
-  tr_passages: textReusePassagesService,
+  // search: searchService,
+  search: contentItemsService,
+  tr_passages: textReusePassagesService
 }
 
 /** THis component will load the desired items according the the search filters and the service specified in props.
@@ -31,35 +41,35 @@ export default defineComponent({
   name: 'ListOfItems',
   components: {
     Spinner,
-    Pagination,
+    Pagination
   },
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     searchIndex: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     limit: {
       type: Number,
-      default: 1,
+      default: 1
     },
     enabled: {
       type: Boolean,
-      default: true,
+      default: true
     },
     params: {
       type: Object,
-      default: () => ({}),
-    },
+      default: () => ({})
+    }
   },
   data: () => ({
     isLoading: false,
     items: [],
     totalItems: 0,
-    page: 1,
+    page: 1
   }),
   computed: {
     service() {
@@ -73,18 +83,15 @@ export default defineComponent({
           ...this.params,
           limit: this.limit,
           page: this.page,
-          filters: optimizeFilters(this.filters),
-        },
+          filters: optimizeFilters(this.filters)
+        }
       }
       // add hash
       return {
         request,
-        hash: JSON.stringify(request)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(request).split('').sort().join('')
       }
-    },
+    }
   },
   watch: {
     apiRequestConfig: {
@@ -99,8 +106,8 @@ export default defineComponent({
         console.debug('[ListOfItems] @apiRequestConfig \n request:', request)
         await this.loadItems(request.query)
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   methods: {
     handlePaginationChange(page = 1) {
@@ -111,13 +118,13 @@ export default defineComponent({
       const { items, total } = await this.service
         .find(
           {
-            query,
+            query
           },
-          { ignoreErrors: true },
+          { ignoreErrors: true }
         )
         .then(res => ({
           items: res.data,
-          total: res.total,
+          total: res.total
         }))
         .catch(err => {
           console.error(err)
@@ -126,7 +133,7 @@ export default defineComponent({
       this.items = items
       this.totalItems = total
       this.isLoading = false
-    },
-  },
+    }
+  }
 })
 </script>

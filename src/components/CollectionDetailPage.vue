@@ -310,7 +310,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
-  search as searchService,
+  contentItems as contentItemsService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
@@ -550,7 +550,7 @@ export default {
         return acc
       }, {})
 
-      const articles = await searchService
+      const articles = await contentItemsService
         .find({
           query: {
             filters: [
@@ -559,18 +559,18 @@ export default {
                 q: collectionsItems.map(d => d.itemId)
               }
             ],
-
             group_by: 'articles'
           }
         })
         .then(({ data }) =>
           data.map(d => {
-            return new Article({
+            return Article.fromContentItem({
               ...d,
-              collections: collectionsItemsById[d.uid].collections
+              collections: collectionsItemsById[d.id]?.collections ?? []
             })
           })
         )
+
       this.articles = articles
       this.fetching = false
     },
