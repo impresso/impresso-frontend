@@ -44,7 +44,6 @@ const emit = defineEmits<{
 const active = ref(false)
 const title = ref('')
 const timeoutId = ref<number | undefined>()
-
 const articleId = computed(() => props.article?.uid)
 
 function show(delay = 600) {
@@ -60,15 +59,9 @@ function show(delay = 600) {
   }, delay)
 }
 
-onMounted(() => {
-  if (props.visible) {
-    show()
-  }
-})
-
 watch(articleId, uid => {
   active.value = false
-  if (uid) show()
+  if (uid && props.visible) show()
 })
 watch(
   () => props.visible,
@@ -82,7 +75,8 @@ watch(
         timeoutId.value = undefined
       }
     }
-  }
+  },
+  { immediate: true }
 )
 
 onUnmounted(() => {
