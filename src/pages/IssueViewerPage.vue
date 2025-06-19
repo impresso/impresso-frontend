@@ -1,5 +1,13 @@
 <template>
   <i-layout id="IssuePageViewer" ref="issuePageViewer">
+    <IssueViewerSidebar
+      :issue="issue"
+      :content-items="tableOfContents?.articles || []"
+      :selected-content-item-uid="contentItemId"
+      :allowed-filters="allowedFilters"
+      :ignored-filters="ignoredFilters"
+      :current-filters="props.filtersWithItems"
+    />
     <i-layout-section main>
       <template v-slot:header>
         <IssueViewerPageHeading
@@ -80,6 +88,9 @@ import { PageRegion } from '@/components/osviewer/OSViewer.vue'
 import ThumbnailNavigator from '@/components/thumbnailNavigator/ThumbnailNavigator.vue'
 import Page from '@/models/Page'
 import Article from '@/models/Article'
+import IssueViewerSidebar from '@/components/IssueViewerSidebar.vue'
+import { SupportedFiltersByContext } from '@/logic/filters'
+import { all } from 'node_modules/axios/index.cjs'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -94,7 +105,6 @@ const QueryParams = Object.freeze({
 const route = useRoute()
 const router = useRouter()
 
-// const suggestionQuery = computed(() => route.query[CommonQueryParameters.SuggestionQuery] || '')
 const pageNumber = computed<number>(() => {
   const page = route.query[CommonQueryParameters.PageNumber]
   if (typeof page === 'string') {
@@ -149,6 +159,14 @@ const isViewerReady = computed(() => {
   return pagesIIIFUrls.value.length > 0 && tableOfContents.value
 })
 
+const AllowedFilterTypes = SupportedFiltersByContext.search
+const ignoredFilters = computed<Filter[]>(() => {
+  return props.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
+})
+const allowedFilters = computed<Filter[]>(() => {
+  return props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+})
+
 export interface IssueViewerPageProps {
   filtersWithItems: Filter[]
 }
@@ -156,6 +174,7 @@ export interface IssueViewerPageProps {
 const props = withDefaults(defineProps<IssueViewerPageProps>(), {
   filtersWithItems: () => []
 })
+
 /**
  * Fetches issue details and its table of contents from the server.
  *
