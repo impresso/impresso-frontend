@@ -100,7 +100,7 @@
       </b-row>
     </div>
     <div v-if="showMatches">
-      <ul v-if="item.matches.length" class="article-matches d-flex flex-wrap mt-1 p-0">
+      <ul v-if="item.matches?.length" class="article-matches d-flex flex-wrap mt-1 p-0">
         <li
           class="p-1 mb-2 mr-2 me-2 rounded"
           v-for="(match, i) in item.matches"

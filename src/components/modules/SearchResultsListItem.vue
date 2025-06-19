@@ -140,7 +140,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Object as PropType<Article>
+      type: Object as PropType<ContentItem>
       // default: () => ({})
     },
     checkbox: {
@@ -158,8 +158,11 @@ export default defineComponent({
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
-    article() {
+    contentItem(): ContentItem {
       return this.modelValue
+    },
+    article() {
+      return Article.fromContentItem(this.contentItem)
     },
     pageViewerOptions() {
       return {
