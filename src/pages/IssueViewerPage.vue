@@ -31,11 +31,10 @@
       </template>
       <div v-if="issue" class="d-flex h-100 justify-content-center position-relative">
         <OpenSeadragonArticleViewer
-          v-if="viewMode === FacsimileMode"
+          v-if="tableOfContents && viewMode === FacsimileMode"
           :pages="pagesIIIFUrls"
           :regions="pageRegions"
           :defaultCurrentPageIndex="pageIndex"
-          :article="{ uid: contentItemId }"
           :marginaliaSections="[]"
           @page-changed="changePageFromViewer"
           class="show-outlines"
@@ -267,11 +266,12 @@ function changeViewMode(mode: string): void {
   router.replace({ query })
 }
 
-function changePageFromViewer(pageIndex: number) {
-  if (!issue.value) return
-  const pageNum = issue.value.pages[pageIndex]?.num
+function changePageFromViewer(idx: number) {
+  if (!tableOfContents.value) return
+  if (idx === pageIndex.value) return
+  const pageNum = issue.value.pages[idx]?.num
   console.debug('[IssueViewerPage] changePageFromViewer idx:', pageIndex, 'num:', pageNum)
-
+  debugger
   const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
   router.replace({ query })
 }
