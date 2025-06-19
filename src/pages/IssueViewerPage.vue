@@ -49,6 +49,7 @@
           :marginaliaSections="[]"
           @page-changed="changePageFromViewer"
           class="show-outlines"
+          @article-selected="handleContentItemUidSelected"
         />
         <ThumbnailNavigator
           v-if="viewMode === FacsimileMode"
@@ -298,7 +299,6 @@ function changePageFromViewer(idx: number) {
   if (idx === pageIndex.value) return
   const pageNum = issue.value.pages[idx]?.num
   console.debug('[IssueViewerPage] changePageFromViewer idx:', pageIndex, 'num:', pageNum)
-  debugger
   const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
   router.replace({ query })
 }
@@ -317,12 +317,34 @@ function handleContentItemSelected(contentItem: ArticleBase): void {
     console.warn('[IssueViewerPage] No issue available to handle content item selection.')
     return
   }
+
+  const pageNum = contentItem.pages[0]?.num
+  if (!pageNum) {
+    console.warn('[IssueViewerPage] No page number found for content item:', contentItem.uid)
+    return
+  }
+  // get page number
+  // const pageNum = issue.value.pages.find(d => d.uid === contentItem.uid)?.num
   const query = {
     ...route.query,
     [CommonQueryParameters.ContentItemId]: getShortArticleId(contentItem.uid),
-    [CommonQueryParameters.LegacyArticleId]: getShortArticleId(contentItem.uid)
+    [CommonQueryParameters.LegacyArticleId]: getShortArticleId(contentItem.uid),
+    [CommonQueryParameters.PageNumber]: pageNum
   }
   router.replace({ query })
+}
+
+function handleContentItemUidSelected(contentItemUid: string): void {
+  // get contentUId
+  const contentItem = tableOfContents.value?.articles.find(d => d.uid === contentItemUid)
+  if (!contentItem) {
+    console.warn(
+      '[IssueViewerPage] handleContentItemUidSelected No content item found for UID:',
+      contentItemUid
+    )
+    return
+  }
+  handleContentItemSelected(contentItem)
 }
 
 watch(
