@@ -260,7 +260,6 @@ function fetchPage(pageNumber: number): void {
     return
   }
   page.value = issue.value.pages[pageIndex.value]
-  pagesIIIFUrls.value = issue.value.pages.map(p => p.iiif)
 }
 
 async function fetchPageRegions() {
@@ -365,8 +364,11 @@ watch(
       if (contentItemId.value) {
         fetchContentItem(contentItemId.value)
       }
+
+      pagesIIIFUrls.value = issue.value.pages.map(p => p.iiif)
       if (pageNumber.value) {
         fetchPage(pageNumber.value as number)
+
         fetchPageRegions()
       }
     }
