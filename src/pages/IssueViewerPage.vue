@@ -31,10 +31,11 @@
       </template>
       <div v-if="issue" class="d-flex h-100 justify-content-center position-relative">
         <OpenSeadragonArticleViewer
-          v-if="tableOfContents && viewMode === FacsimileMode"
+          v-if="isViewerReady && viewMode === FacsimileMode"
           :pages="pagesIIIFUrls"
           :regions="pageRegions"
           :defaultCurrentPageIndex="pageIndex"
+          :article="{ uid: contentItemId }"
           :marginaliaSections="[]"
           @page-changed="changePageFromViewer"
           class="show-outlines"
@@ -144,6 +145,9 @@ const page = ref<Page | null>(null)
 const pagesIIIFUrls = ref<string[]>([])
 const mediaSource = ref(null)
 const contentItem = ref<ArticleBase | null>(null)
+const isViewerReady = computed(() => {
+  return pagesIIIFUrls.value.length > 0 && tableOfContents.value
+})
 
 export interface IssueViewerPageProps {
   filtersWithItems: Filter[]
@@ -193,8 +197,6 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
 
   isLoading.value = false
 
-  pagesIIIFUrls.value = issue.value.pages.map(p => p.iiif)
-
   if (!tableOfContents.value.newspaper) return
 
   mediaSource.value = {
@@ -226,6 +228,7 @@ function fetchPage(pageNumber: number): void {
     return
   }
   page.value = issue.value.pages[pageIndex.value]
+  pagesIIIFUrls.value = issue.value.pages.map(p => p.iiif)
 }
 
 async function fetchPageRegions() {
