@@ -65,6 +65,12 @@
           withIIIFViewer
         />
         <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_uid="contentItemId" />
+
+        <IssueViewerBookmarker
+          :article="contentItem"
+          :visible="viewMode === FacsimileMode"
+          @click-full-text="changeViewMode(RegionTranscriptMode)"
+        />
       </div>
     </i-layout-section>
   </i-layout>
@@ -94,6 +100,7 @@ import Article from '@/models/Article'
 import IssueViewerSidebar from '@/components/IssueViewerSidebar.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
+import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 
 // Viewer modes
 const FacsimileMode = '0'

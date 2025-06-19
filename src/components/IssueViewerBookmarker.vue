@@ -1,80 +1,105 @@
-<template lang="html">
-  <div class="issue-viewer-bookmarker" :class="{ active, visible }">
+<template>
+  <div
+    class="issue-viewer-bookmarker d-flex align-items-center justify-content-center"
+    :class="{ active, visible }"
+  >
     <div
-      class="bg-dark p-2 drop-shadow d-flex align-items-center"
+      class="bg-dark p-2 drop-shadow d-flex align-items-center justify-content-center"
       style="background: black !important"
     >
       <div class="mr-2">
         {{ $t('label_selected_article') }}
       </div>
-      <div class="text-white font-weight-bold mr-2 text-ellipsis">{{ title }}</div>
-      <b-button
-        size="sm"
-        class="mx-2 text-white"
-        variant="outline-primary"
-        @click="$emit('click-full-text')"
+      <div class="text-white font-weight-bold mr-2 text-ellipsis">
+        {{ title }}
+      </div>
+      <button
+        class="btn btn-sm btn-online-primary border border-white mx-2 text-white d-flex align-items-center"
+        @click="emit('click-full-text')"
       >
-        <div class="d-flex align-items-center">
+        <span>
           {{ $t('closeReadingView') }}
-          <div class="d-flex dripicons dripicons-align-justify ml-2" />
-        </div>
-      </b-button>
-      <b-button
-        pill
-        class="dripicons-cross p-0"
-        style="width: 1.5em; height: 1.5em; line-height: 1.75em"
-        @click="handleRemoveSelection"
-        variant="outline-primary"
-      >
-      </b-button>
+        </span>
+        <Icon name="textBox" class="ml-1" />
+      </button>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data: () => ({
-    active: false,
-    title: ''
-  }),
-  props: {
-    article: Object,
-    visible: Boolean
-  },
-  mounted() {
-    if (this.visible) {
-      this.show()
-    }
-  },
-  computed: {
-    articleId() {
-      return this.article?.uid
-    }
-  },
-  watch: {
-    articleId: {
-      handler(uid) {
-        this.active = false
-        if (uid) this.show()
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import Icon from './base/Icon.vue'
+
+export interface Props {
+  article?: { uid?: string; title?: string }
+  visible: boolean
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  (e: 'click-full-text'): void
+  (e: 'remove-selection'): void
+}>()
+
+const active = ref(false)
+const title = ref('')
+const timeoutId = ref<number | undefined>()
+
+const articleId = computed(() => props.article?.uid)
+
+function show(delay = 600) {
+  if (!articleId.value) return
+  // Clear previous timeout if any
+  if (timeoutId.value) {
+    clearTimeout(timeoutId.value)
+  }
+  timeoutId.value = window.setTimeout(() => {
+    active.value = true
+    title.value = props.article?.title || ''
+    timeoutId.value = undefined
+  }, delay)
+}
+
+onMounted(() => {
+  if (props.visible) {
+    show()
+  }
+})
+
+watch(articleId, uid => {
+  active.value = false
+  if (uid) show()
+})
+watch(
+  () => props.visible,
+  visible => {
+    if (visible) {
+      show()
+    } else {
+      active.value = false
+      if (timeoutId.value) {
+        clearTimeout(timeoutId.value)
+        timeoutId.value = undefined
       }
     }
-  },
-  methods: {
-    show(delay = 600) {
-      if (!this.articleId) return
-      setTimeout(() => {
-        this.active = true
-        this.title = this.article?.title
-      }, delay)
-    },
-    handleRemoveSelection() {
-      this.active = false
-      this.$emit('remove-selection')
-    }
   }
-}
+)
+
+onUnmounted(() => {
+  if (timeoutId.value) {
+    clearTimeout(timeoutId.value)
+  }
+})
 </script>
 
+<i18n lang="json">
+{
+  "en": {
+    "label_selected_article": "Selected:",
+    "closeReadingView": "Read Transcript"
+  }
+}
+</i18n>
 <style lang="scss" scoped>
 .issue-viewer-bookmarker {
   position: absolute;
@@ -88,6 +113,7 @@ export default {
   overflow: hidden;
   display: none;
   z-index: 100;
+
   & > div {
     background: #343b3f;
     border-radius: 5px;
@@ -97,19 +123,13 @@ export default {
     transform: translateY(-70px);
     transition: transform 0.6s cubic-bezier(0.8, -0.5, 0.2, 1.4);
   }
+
   &.active > div {
     transform: translateY(0);
   }
+
   &.visible {
     display: flex;
   }
 }
 </style>
-<i18n lang="json">
-{
-  "en": {
-    "label_selected_article": "Selected article: ",
-    "label_full_text": "read full text"
-  }
-}
-</i18n>
