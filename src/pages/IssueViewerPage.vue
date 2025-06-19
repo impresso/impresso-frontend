@@ -7,6 +7,8 @@
       :allowed-filters="allowedFilters"
       :ignored-filters="ignoredFilters"
       :current-filters="props.filtersWithItems"
+      @content-item-selected="handleContentItemSelected"
+      @filters-changed="$emit('filters-changed', $event)"
     />
     <i-layout-section main>
       <template v-slot:header>
@@ -90,7 +92,7 @@ import Page from '@/models/Page'
 import Article from '@/models/Article'
 import IssueViewerSidebar from '@/components/IssueViewerSidebar.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
-import { all } from 'node_modules/axios/index.cjs'
+import { getShortArticleId } from '@/logic/ids'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -175,6 +177,9 @@ const props = withDefaults(defineProps<IssueViewerPageProps>(), {
   filtersWithItems: () => []
 })
 
+defineEmits<{
+  'filters-changed': [filters: Filter[]]
+}>()
 /**
  * Fetches issue details and its table of contents from the server.
  *
@@ -303,6 +308,20 @@ function changePageFromNavigator(pageUid: string) {
   const pageNum = issue.value.pages.find(d => d.uid === pageUid)?.num
   console.debug('[IssueViewerPage] changePageFromNavigator uid:', pageUid, 'num:', pageNum)
   const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
+  router.replace({ query })
+}
+
+function handleContentItemSelected(contentItem: ArticleBase): void {
+  console.debug('[IssueViewerPage] handleContentItemSelected id:', contentItem.uid)
+  if (!issue.value) {
+    console.warn('[IssueViewerPage] No issue available to handle content item selection.')
+    return
+  }
+  const query = {
+    ...route.query,
+    [CommonQueryParameters.ContentItemId]: getShortArticleId(contentItem.uid),
+    [CommonQueryParameters.LegacyArticleId]: getShortArticleId(contentItem.uid)
+  }
   router.replace({ query })
 }
 

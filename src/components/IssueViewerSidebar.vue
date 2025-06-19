@@ -124,7 +124,7 @@ export interface IssueViewerSidebarProps {
 const props = defineProps<IssueViewerSidebarProps>()
 
 const emit = defineEmits<{
-  'content-item-selected': [selectedContentItemUid: string]
+  'content-item-selected': [selectedContentItem: ArticleBase]
   'change-page': [page: number]
   'filters-changed': [filters: Filter[]]
 }>()
@@ -163,7 +163,9 @@ const serviceQuery = computed<{
   if (suggestionQuery.value.length > 0) {
     sq.filters.push({
       type: 'string',
-      q: suggestionQuery.value
+      q: suggestionQuery.value,
+      context: 'include',
+      precision: 'exact'
     })
   }
   if (props.issue) {
@@ -250,7 +252,7 @@ onUnmounted(() => {
     "numbers.ignoredFilters": "{n} ignored filter(s)",
     "label_filter_articles": "... search in current issue",
     "actions.loading": "Loading...",
-    "numbers.articlesMatchingSearchFilters": "No content item found. | 1 content item  matching search filters | {n} articles matching search filters",
+    "numbers.articlesMatchingSearchFilters": "No content item found in this issue. | 1 content item  matching search filters in this issue. | {n} articles matching search filters in this issue.",
     "numbers.articlesMatchingWithinSearch": "{n} article(s) matching within search: {q}",
     "numbers.articlesMatching": "{n} article(s) matching: {q}"
   }
