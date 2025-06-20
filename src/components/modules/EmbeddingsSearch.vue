@@ -64,7 +64,7 @@ export interface EmbeddingsFilter {
   q?: string[]
 }
 
-interface ServiceQuery {
+export interface ServiceQuery {
   term: string
   language: string
   limit: number

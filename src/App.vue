@@ -4,7 +4,11 @@
       <the-header />
     </div>
     <div id="app-content">
-      <router-view :filters="filters" :filters-with-items="filtersWithItems" />
+      <router-view
+        :filters="filters"
+        :filters-with-items="filtersWithItems"
+        @filters-changed="handleChangeFilters"
+      />
     </div>
     <div id="app-monitor" class="fullscreen">
       <monitor />

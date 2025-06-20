@@ -16,13 +16,13 @@ import { reducedTimeoutPromise } from './services/utils'
 
 const app = createApp(App)
 
-app.config.errorHandler = error => {
-  const notificationsStore = useNotificationsStore()
-  notificationsStore.displayError({
-    error: error as any,
-    origin: 'Vue.config.errorHandler'
-  })
-}
+// app.config.errorHandler = error => {
+//   const notificationsStore = useNotificationsStore()
+//   notificationsStore.displayError({
+//     error: error as any,
+//     origin: 'Vue.config.errorHandler'
+//   })
+// }
 
 app.use(pinia)
 app.use(router)
