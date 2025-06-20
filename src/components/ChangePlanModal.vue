@@ -22,6 +22,7 @@
       :currentInstitutionalUrl="currentInstitutionalUrl"
       :currentEmail="currentEmail"
       enableAdditionalFields
+      :submitLabel="submitLabel"
       inline
     >
       <template #form-errors v-if="error">
@@ -30,17 +31,6 @@
         </Alert>
       </template>
     </ChangePlanForm>
-
-    <template v-slot:modal-footer>
-      <button type="button" class="btn btn-sm btn-outline-secondary" @click="$emit('dismiss')">
-        close
-      </button>
-    </template>
-
-    <p class="mt-2 mb-0">
-      Any Questions? <br />
-      Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
-    </p>
   </Modal>
 </template>
 
@@ -48,32 +38,32 @@
 import ChangePlanForm from 'impresso-ui-components/components/ChangePlanForm.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
-import UserChangePlanRequestLabel from './UserChangePlanRequestLabel.vue'
 import { computed, ref, watch } from 'vue'
 
 import type { FeathersError } from '@feathersjs/errors'
 import type { UserChangePlanRequest } from '@/services/types/index'
 import LoadingBlock from './LoadingBlock.vue'
-import { AvailablePlansWithLabels, PlanLabels, ViewPlans } from '@/constants'
+import { AvailablePlansWithLabels } from '@/constants'
 import {
   userChangePlanRequest as userChangePlanRequestService,
   me as userService
 } from '../services'
 import type { User } from '@/models'
 import { useUserStore } from '@/stores/user'
-import LinkToModal from './LinkToModal.vue'
 
 const props = withDefaults(
   defineProps<{
     show: boolean
     title: string
+    submitLabel?: string
   }>(),
   {
     show: false,
     title: 'Change Plan',
     dialogClass: 'modal-lg modal-dialog-centered modal-dialog-scrollable',
     userChangePlanRequest: null,
-    onSubmit: null
+    onSubmit: null,
+    submitLabel: 'Confirm your plan selection'
   }
 )
 

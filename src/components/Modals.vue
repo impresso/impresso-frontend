@@ -127,6 +127,7 @@
       :title="$t(userPlan === PlanNone ? 'Select a plan' : 'Change Plan')"
       @dismiss="resetView"
       @success="() => changeView(ViewConfirmChangePlanRequest)"
+      :submitLabel="$t('Confirm your plan selection')"
     >
       <div v-if="userPlan !== PlanGuest && userPlan !== PlanNone">
         <p>
