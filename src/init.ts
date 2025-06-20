@@ -122,6 +122,8 @@ export const loadVersion = async () => {
 export const initSequence = async () => {
   await loadVersion()
   const userStore = useUserStore()
+  let shouldRefreshUser = false
+
   await Promise.race([
     appService.reAuthenticate(true),
     reducedTimeoutPromise({ ms: 2000, service: 'app.reAuthenticate' })
@@ -158,14 +160,18 @@ export const initSequence = async () => {
       // eslint-disable-next-line
       console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
-        '[init:initSequence] - username:',
-        res.user.username,
+        '[init:initSequence] from JWT - uid:',
+        res.user.uid,
         '- bitmap:',
         res.user.bitmap,
         '- groups:',
         res.user.groups
       )
-      userStore.refreshUser()
+      shouldRefreshUser = true
     })
-  return
+  if (!shouldRefreshUser) {
+    return
+  }
+  console.debug('[init:initSequence] refreshUser()')
+  await userStore.refreshUser()
 }

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { app, MEDIA_COOKIE_NAME, me as meService, MIDDLELAYER_MEDIA_PATH } from '@/services'
 import User from '@/models/User'
-import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
+import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
 import { removeCookie, setCookie } from '@/util/cookies'
 
 export interface State {
@@ -43,11 +43,12 @@ export const useUserStore = defineStore('user', {
       if (!state.acceptTermsDate) {
         return PlanGuest
       }
-      let userPlan = state.userData !== null ? PlanImpressoUser : PlanGuest
+      let userPlan = state.userData !== null ? PlanNone : PlanGuest
       if (state.userData && Array.isArray(state.userData?.groups)) {
-        for (const group of state.userData.groups) {
-          if (group.name === PlanEducational || group.name === PlanResearcher) {
-            userPlan = group.name
+        const SortedAvailablePlans = [PlanResearcher, PlanEducational, PlanImpressoUser]
+        for (const planName of SortedAvailablePlans) {
+          if (state.userData.groups.some(g => g.name === planName)) {
+            userPlan = planName
             break
           }
         }

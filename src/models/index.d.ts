@@ -101,15 +101,21 @@ export interface IImage {
   date?: Date
 }
 
-export interface User {
-  uid: string
+export type User = {
   username: string
-  isActive: boolean
   isStaff: boolean
-  email: string
   firstname: string
   lastname: string
-  pattern: string[]
+  pattern: string
+  email: string
+  profile?: {
+    pattern: string[]
+  }
+  bitmap?: string
+  groups?: Group[]
+  agreedToTerms?: boolean
+  affiliation?: string
+  institutionalUrl?: string
 }
 
 export interface CollectionItem {
