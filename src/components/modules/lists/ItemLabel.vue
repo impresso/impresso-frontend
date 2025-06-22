@@ -18,8 +18,10 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, PropType } from 'vue'
+
+export default defineComponent({
   name: 'ItemLabel',
   props: {
     item: {
@@ -27,7 +29,17 @@ export default {
       required: true
     },
     type: {
-      type: String,
+      type: String as PropType<
+        | 'topic'
+        | 'textReuseCluster'
+        | 'textReusePassage'
+        | 'collection'
+        | 'year'
+        | 'type'
+        | 'country'
+        | 'language'
+        | 'newspaper'
+      >,
       required: true
     },
     detailed: {
@@ -67,7 +79,7 @@ export default {
           t = this.item.uid
         }
       } else if (this.type === 'year') {
-        t = this.item ? this.item.y : this.val
+        t = this.item ? this.item.y : this.item.val
       } else if (['type', 'country', 'language', 'copyright', 'dataDomain'].includes(this.type)) {
         t = this.$t(`buckets.${this.type}.${this.item.uid}`)
         if (t.startsWith('buckets.')) {
@@ -152,7 +164,7 @@ export default {
       ].join(' ')
     }
   }
-}
+})
 </script>
 
 <style lang="css"></style>

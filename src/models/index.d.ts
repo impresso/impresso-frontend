@@ -69,7 +69,7 @@ export interface TextReuseCluster {
 export interface MediaSource {
   id: string
   name: string
-  type: 'newspaper' | 'radio'
+  type: ContentItemMeta['sourceType']
   acronym?: string
   startYear?: number
   endYear?: number
@@ -116,13 +116,9 @@ export interface CollectionItem {
   //   collectionIds: Array [ "local-dg-dk0t_7Rv" ]
 
   // collections: Array []
-  // ​
   // contentType: "A"
-  // ​​
   // itemId: "tageblatt-1923-07-06-a-i0031"
-  // ​​
   // latestDateAdded: "2024-11-09T15:28:26.274Z"
-  // ​​
   // searchQueries: Array []
   itemId: string
   latestDateAdded: Date

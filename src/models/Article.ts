@@ -6,6 +6,8 @@ import ArticleTopic from './ArticleTopic'
 import Tag from './Tag'
 import ArticleBase, { ArticleBaseInterface } from './ArticleBase'
 import { ContentItem } from './generated/schemas/contentItem'
+import { MediaSource } from './index'
+import Topic from './Topic'
 
 /**
  * @deprecated use `ContentItem` instead.
@@ -44,7 +46,7 @@ export interface ArticleInterface extends ArticleBaseInterface {
   labels: string[]
   dataProvider: string
   newspaper: Newspaper
-  MediaSource: { name: string; type: string; id: string } | null
+  mediaSource: MediaSource
   regions: Region[]
   tags: Tag[]
   topics: ArticleTopic[]
@@ -69,8 +71,8 @@ export interface ArticleConstructorParams {
   matches?: any[]
   nbPages?: number
   dataProvider?: string
-  newspaper?: Newspaper | any
-  MediaSource?: { name: string; type: string; id: string } | null
+  newspaper?: Newspaper
+  mediaSource?: MediaSource
   pages?: IPage[] | any[]
   regions?: Region[] | any[]
   size?: number
@@ -105,7 +107,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
   labels: string[]
   dataProvider: string
   newspaper: Newspaper
-  MediaSource: { name: string; type: string; id: string } | null
+  mediaSource: MediaSource
   regions: Region[]
   tags: Tag[]
   topics: ArticleTopic[]
@@ -141,7 +143,12 @@ export default class Article extends ArticleBase implements ArticleInterface {
           new ArticleTopic({
             topicUid: topic.id,
             articleUid: contentItem.id,
-            relevance: topic.relevance
+            relevance: topic.relevance,
+            topic: new Topic({
+              uid: topic.id,
+              language: topic.languageCode,
+              label: topic.label
+            })
           })
       ) ?? []
 
@@ -253,7 +260,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       contentLineBreaks,
       regionBreaks,
       mentions,
-      MediaSource: {
+      mediaSource: {
         name: meta?.mediaId ?? '',
         type: meta?.sourceType ?? 'newspaper',
         id: meta?.mediaId ?? ''
@@ -292,7 +299,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
     nbPages = 0,
     dataProvider = '',
     newspaper = new Newspaper(),
-    MediaSource = null,
+    mediaSource = undefined,
     pages = [],
     regions = [],
     size = 0,
@@ -361,8 +368,9 @@ export default class Article extends ArticleBase implements ArticleInterface {
       this.newspaper = new Newspaper(newspaper)
     }
     // temporary hack
-    if (!this.MediaSource && this.newspaper) {
-      this.MediaSource = {
+    this.mediaSource = mediaSource
+    if (!this.mediaSource && this.newspaper) {
+      this.mediaSource = {
         name: this.newspaper.acronym,
         type: 'newspaper',
         id: this.newspaper.uid
