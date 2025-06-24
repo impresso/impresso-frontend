@@ -285,10 +285,21 @@ const acceptTermsDate = computed(() => userStore.acceptTermsDate)
 const showChangePlanToLegacyUsers = computed(() => {
   // if the user is logged in and has a plan, show the change plan modal
   return (
+    view.value === null &&
     notificationsStore.initSequenceDone &&
     isLoggedIn.value &&
     userPlan.value === PlanNone &&
-    userStore.hasPendingChangePlanRequest
+    !userStore.hasPendingChangePlanRequest
+  )
+})
+
+const showTermsOfUse = computed(() => {
+  // if the user is logged in and has a plan, show the change plan modal
+  return (
+    view.value === null &&
+    notificationsStore.initSequenceDone &&
+    isLoggedIn.value &&
+    userPlan.value === PlanGuest
   )
 })
 
@@ -523,6 +534,19 @@ watch(
     console.debug('[Modals] @watch showChangePlanToLegacyUsers', showChangePlanToLegacyUsers.value)
     if (showChangePlanToLegacyUsers.value) {
       changeView(ViewChangePlanRequest)
+    }
+  },
+  {
+    immediate: true
+  }
+)
+
+watch(
+  showTermsOfUse,
+  () => {
+    console.debug('[Modals] @watch showTermsOfUse', showTermsOfUse.value)
+    if (showTermsOfUse.value) {
+      changeView(ViewTermsOfUse)
     }
   },
   {
