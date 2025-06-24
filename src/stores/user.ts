@@ -11,6 +11,7 @@ export interface State {
   redirectionParams: any
   acceptTermsDate: string | null
   acceptTermsDateOnLocalStorage: string | null
+  hasPendingChangePlanRequest: boolean
 }
 
 interface IAuthResult {
@@ -32,7 +33,9 @@ export const useUserStore = defineStore('user', {
     // this is not stored on localStorage, and if it is not null is a ISO date string
     acceptTermsDate: null,
     // this is stored on localStorage
-    acceptTermsDateOnLocalStorage: null
+    acceptTermsDateOnLocalStorage: null,
+    //
+    hasPendingChangePlanRequest: false
   }),
   getters: {
     user(state) {
@@ -57,9 +60,12 @@ export const useUserStore = defineStore('user', {
     }
   },
   actions: {
-    setAcceptTermsDate(date: string) {
+    setAcceptTermsDate(date: string | null) {
       this.acceptTermsDate = date
       this.acceptTermsDateOnLocalStorage = date
+    },
+    setPendingChangePlanRequest(v: boolean) {
+      this.hasPendingChangePlanRequest = v
     },
     setBitmap(bitmap: string) {
       this.bitmap = bitmap
