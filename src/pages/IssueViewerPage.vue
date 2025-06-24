@@ -86,7 +86,7 @@ import TableOfContents from '@/models/TableOfContents'
 import type { Filter, MediaSource } from '@/models'
 import {
   issues as issuesService,
-  search,
+  contentItems as contentItemsService,
   tableOfContents as tableOfContentsService
 } from '@/services'
 import type ArticleBase from '@/models/ArticleBase'
@@ -267,7 +267,7 @@ async function fetchPageRegions() {
   // Add artificial delay using setTimeout
   await new Promise(resolve => setTimeout(resolve, 500)) // 500ms delay
 
-  const articles = await search
+  const articles = await contentItemsService
     .find({
       query: {
         filters: [{ type: 'page', q: page.value.uid }],
@@ -275,7 +275,7 @@ async function fetchPageRegions() {
       }
     })
     .then(response => {
-      return response.data.map((d: any) => new Article(d))
+      return response.data.map((d: any) => Article.fromContentItem(d))
     })
   const regions = articles.flatMap((article: Article) =>
     article.regions

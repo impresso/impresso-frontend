@@ -4,6 +4,7 @@ import { EmbeddingsService } from './embeddings'
 import { DatalabSupportService } from './datalabSupport'
 import { BaristaService } from './barista'
 import { ContentItemsService } from './conntentItems'
+import { SearchFacetsService } from './searchFacets'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -30,6 +31,7 @@ export interface Services extends UntypedServices {
   embeddings: EmbeddingsService
   ['barista-proxy']: BaristaService
   ['content-items']: ContentItemsService
+  ['search-facets/search']: SearchFacetsService
 }
 
 export interface Group {

@@ -1,9 +1,11 @@
+import { Filter, SearchQuery } from '@/models'
 
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models').SearchQuery} SearchQuery
- * @typedef {{ type: string, query?: SearchQuery, id?: string, filters?: Filter[] }} Comparable
- */
+export interface Comparable {
+  type: string
+  query?: SearchQuery
+  id?: string
+  filters?: Filter[]
+}
 
 export const ComparableTypes = Object.freeze({
   Intersection: 'intersection',
@@ -11,12 +13,8 @@ export const ComparableTypes = Object.freeze({
   Query: 'query'
 })
 
-/**
- * @param {Comparable} comparable
- * @returns {SearchQuery | undefined}
- */
-export function comparableToQuery(comparable) {
-  if (comparable?.type === ComparableTypes.Collection){
+export const comparableToQuery = (comparable: Comparable): SearchQuery | undefined => {
+  if (comparable?.type === ComparableTypes.Collection) {
     if (comparable?.id == null || comparable?.id === '') return undefined
     return { filters: [{ type: 'collection', q: comparable.id }] }
   }
