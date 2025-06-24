@@ -13,7 +13,7 @@ import ArticleBase from '@/models/ArticleBase'
 
 type ViewerMode = 'text' | 'image'
 
-interface State {
+export interface State {
   showOutlines: boolean
   viewerMode: ViewerMode
   pagesIndex: Record<string, number>

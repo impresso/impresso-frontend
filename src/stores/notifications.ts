@@ -34,7 +34,7 @@ interface ProcessingActivity {
   c: number
 }
 
-interface State {
+export interface State {
   notifications: StoredNotification[]
   // error message handling,
   errorMessages: ErrorMessage[]
