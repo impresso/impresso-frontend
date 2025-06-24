@@ -56,6 +56,9 @@ export const useUserStore = defineStore('user', {
           }
         }
       }
+      if (userPlan === PlanNone && state.hasPendingChangePlanRequest) {
+        userPlan = PlanImpressoUser // default to Impresso User if no plan is set but there is a pending request
+      }
       return userPlan
     }
   },
