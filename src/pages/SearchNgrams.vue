@@ -175,11 +175,7 @@ import TagsInput from '@/components/base/TagsInput.vue'
 import PageHeading from '@/components/base/PageHeading.vue'
 
 import { ngramTrends as ngramTrendsService, searchFacets as searchFacetsService } from '@/services'
-import {
-  DefaultFacetTypesForIndex,
-  searchResponseToFacetsExtractor,
-  buildEmptyFacets
-} from '@/logic/facets'
+import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 

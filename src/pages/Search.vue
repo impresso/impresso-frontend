@@ -289,7 +289,6 @@ import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from '@/components/base/Modal.vue'
-import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -736,7 +735,7 @@ export default defineComponent({
         this.$nextTick(() => {
           this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
         })
-        let facets = [] // searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
+        let facets = []
 
         // get remaining facets and enriched filters.
         const facetTypes = [

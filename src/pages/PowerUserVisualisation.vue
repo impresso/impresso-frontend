@@ -91,7 +91,7 @@
   </i-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { schemeCategory10, schemeAccent } from 'd3'
 
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -99,7 +99,7 @@ import Autocomplete from '@/components/Autocomplete.vue'
 import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
 import Modal from '@/components/base/Modal.vue'
 
-import { search, filtersItems, stats } from '@/services'
+import { searchFacets, filtersItems, stats } from '@/services'
 import {
   serializeFilters,
   deserializeFilters,
@@ -107,11 +107,7 @@ import {
   optimizeFilters,
   joinFiltersWithItems
 } from '../logic/filters'
-import {
-  DefaultFacetTypesForIndex,
-  searchResponseToFacetsExtractor,
-  buildEmptyFacets
-} from '@/logic/facets'
+import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
 import { getQueryParameter, CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 
@@ -352,7 +348,7 @@ export default {
     /** @return {{ id: string, label: string | undefined, color: string }[]} */
     statsLegendItems() {
       // if (this.chart == null) return []
-      const { meta, itemsDictionary = {} } = this.stats
+      const { meta, itemsDictionary = {} } = this.stats as any
       if (meta == null) return []
 
       const isColorEnabled = colorInLegendEnabled(meta.domain, meta.facetType)
@@ -384,12 +380,12 @@ export default {
       async handler(filters) {
         const query = {
           filters: filters.map(toCanonicalFilter),
-          limit: 0,
-          facets: this.facetTypes,
-          group_by: 'articles'
+          limit: 10,
+          facets: this.facetTypes
+          // group_by: 'articles'
         }
         const [facets, filtersWithItems] = await Promise.all([
-          search.find({ query }).then(searchResponseToFacetsExtractor(this.facetTypes)),
+          searchFacets.find({ query }).then(response => response.data),
           filtersItems
             .find({ query: { filters: serializeFilters(filters) } })
             .then(joinFiltersWithItems)
