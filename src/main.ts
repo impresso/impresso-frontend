@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { initSequence } from './init'
+import { initSequence, initUserTermsOfUse, initUserPlan } from './init'
 
 import 'dripicons/webfont/webfont.css'
 import './assets/legacy/bootstrap-impresso-theme.css'
@@ -68,6 +68,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     app.mount('#app-container')
     loadingElement.classList.add('dismissed')
     // Proceed with actions that require network connectivity
+    await initUserTermsOfUse()
+    //
+    await initUserPlan()
   } catch (error) {
     console.error('[main.ts] Failed to establish connectivity.', error)
   }
