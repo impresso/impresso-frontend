@@ -251,6 +251,7 @@ import { FeedbackFormPayload } from './FeedbackForm.vue'
 import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
+import LinkToModal from './LinkToModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -280,6 +281,16 @@ const errorMessages = computed(() => {
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
 const acceptTermsDate = computed(() => userStore.acceptTermsDate)
+
+const showChangePlanToLegacyUsers = computed(() => {
+  // if the user is logged in and has a plan, show the change plan modal
+  return (
+    notificationsStore.initSequenceDone &&
+    isLoggedIn.value &&
+    userPlan.value === PlanNone &&
+    userStore.hasPendingChangePlanRequest
+  )
+})
 
 const feedbackCollectorResponse = ref<{
   data: any
@@ -377,17 +388,6 @@ watch(
   }
 )
 
-watch(
-  () => isLoggedIn.value,
-  async () => {
-    console.debug('[Modals] @watch isLoggedIn.value is logged in:', isLoggedIn.value)
-    if (isLoggedIn.value) {
-      isLoading.value = true
-      await fetchAcceptTermsDate()
-      isLoading.value = false
-    }
-  }
-)
 /**
  * Fetches the plans content from a JSON URL specified in the environment variables.
  *
@@ -427,44 +427,6 @@ const fetchCorpusOverview = async (): Promise<void> => {
     return response
   })
   fetchCorpusOverviewResponse.value = { data: response.data, status: 'success' }
-}
-
-/**
- * Fetches the date when the user accepted the terms of use.
- *
- * This method updates the `acceptTermsDateResponse` ref with the status of the request.
- * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
- *@async
- * @function fetchAcceptTermsDate
- * @returns {Promise<void>}
- */
-const fetchAcceptTermsDate = async (): Promise<void> => {
-  console.debug('[Modals] fetchAcceptTermsDate is user logged in:', isLoggedIn.value)
-  if (!isLoggedIn.value) {
-    return
-  }
-  return termsOfUseService
-    .find()
-    .then((data: TermsOfUse) => {
-      console.debug('[Modals] fetchAcceptTermsDate call termsOfUseService.find() success:', data)
-      termsOfUseResponse.value = { data, status: 'success' }
-      userStore.setAcceptTermsDate(
-        data.dateAcceptedTerms ? new Date(data.dateAcceptedTerms).toISOString() : null
-      )
-      userStore.setBitmap(data.bitmap)
-      if (!data.dateAcceptedTerms) {
-        store.view = ViewTermsOfUse
-      }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] fetchAcceptTermsDate call termsOfUseService.find() error:',
-        err.message,
-        err.data,
-        err.code
-      )
-      termsOfUseResponse.value = { data: null, status: 'error' }
-    })
 }
 
 const patchAcceptTermsDate = async () => {
@@ -556,12 +518,10 @@ const fetchSubscriptionDatasets = async () => {
 }
 
 watch(
-  userPlan,
+  showChangePlanToLegacyUsers,
   () => {
-    console.debug('[Modals] @watch userPlan', userPlan.value)
-    if (userPlan.value === PlanGuest) {
-      fetchAcceptTermsDate()
-    } else if (userPlan.value === PlanNone) {
+    console.debug('[Modals] @watch showChangePlanToLegacyUsers', showChangePlanToLegacyUsers.value)
+    if (showChangePlanToLegacyUsers.value) {
       changeView(ViewChangePlanRequest)
     }
   },
