@@ -299,6 +299,7 @@ const showTermsOfUse = computed(() => {
     view.value === null &&
     notificationsStore.initSequenceDone &&
     isLoggedIn.value &&
+    acceptTermsDate.value === null &&
     userPlan.value === PlanGuest
   )
 })
