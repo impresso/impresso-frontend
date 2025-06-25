@@ -93,8 +93,8 @@ import {
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
-import { type User } from '@/models'
-import Sunset from './base/Sunset.vue'
+import User from '@/models/User'
+import Sunset from 'impresso-ui-components/components/Sunset.vue'
 
 const userStore = useUserStore()
 

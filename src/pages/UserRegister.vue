@@ -350,7 +350,7 @@ import { useUserStore } from '@/stores/user'
 import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/ChangePlanForm.vue'
 import { AvailablePlans, PlanLabels, PlanEducational, PlanResearcher } from '@/constants'
 import { mapStores } from 'pinia'
-import Sunset from '@/components/base/Sunset.vue'
+import Sunset from 'impresso-ui-components/components/Sunset.vue'
 import LinkToModal from '@/components/LinkToModal.vue'
 import { ViewPlans } from '../constants'
 

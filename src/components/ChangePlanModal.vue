@@ -51,21 +51,18 @@ import {
 import type { User } from '@/models'
 import { useUserStore } from '@/stores/user'
 
-const props = withDefaults(
-  defineProps<{
-    show: boolean
-    title: string
-    submitLabel?: string
-  }>(),
-  {
-    show: false,
-    title: 'Change Plan',
-    dialogClass: 'modal-lg modal-dialog-centered modal-dialog-scrollable',
-    userChangePlanRequest: null,
-    onSubmit: null,
-    submitLabel: 'Confirm your plan selection'
-  }
-)
+export interface ChangePlanModalProps {
+  show?: boolean
+  title?: string
+  submitLabel?: string
+}
+
+const props = withDefaults(defineProps<ChangePlanModalProps>(), {
+  show: false,
+  title: 'Change Plan',
+  dialogClass: 'modal-lg modal-dialog-centered modal-dialog-scrollable',
+  submitLabel: 'Confirm your plan selection'
+})
 
 // refs
 const rejectedPlan = ref<string | null>(null)
