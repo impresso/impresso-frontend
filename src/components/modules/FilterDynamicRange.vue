@@ -82,6 +82,7 @@ interface FacetSearchQueryParameters {
   rangeEnd: number
   rangeGap: number
   rangeInclude?: string
+  limit: number
 }
 
 type FacetSearchResponse = Facet
