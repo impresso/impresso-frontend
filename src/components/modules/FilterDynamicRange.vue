@@ -26,6 +26,7 @@
         :scale-type="'symlog'"
         :sliderValue="value"
         @mousemove="handleMouseMove"
+        :valueLabel="isPercentage ? 'valueAsPercentageLabel' : 'valueLabel'"
         @click="handleClick"
       />
       <tooltip :tooltip="tooltip">
@@ -226,7 +227,8 @@ export default defineComponent({
           lower: this.$n(bucket.lower)
         })
       // 2. values are the same
-      return this.$t(this.valueLabel, { val: this.$n(parseInt(bucket?.val) ?? 0) })
+      const value: number = typeof bucket.val === 'number' ? bucket.val : parseInt(bucket.val, 10)
+      return this.$t(this.valueLabel, { val: this.$n(value) })
     },
     handleMouseMove(value) {
       if (!value) {
@@ -313,7 +315,7 @@ export default defineComponent({
             this.sliderValue = [this.start, this.end]
             const range = this.end - this.start
             this.gap = Math.max(1, Math.round(range / (this.maxExpectedBuckets + 1)))
-            this.numBuckets = Math.floor(range / this.gap)
+            this.numBuckets = this.isPercentage ? 100 : Math.floor(range / this.gap)
 
             console.debug('[FilterDynamicRange] stats', this.facetType, {
               range: range,
@@ -339,7 +341,7 @@ export default defineComponent({
             rangeStart: this.start,
             rangeEnd: this.end + 1,
             rangeGap: this.gap,
-            limit: this.numBuckets
+            limit: this.numBuckets || 1
             // rangeInclude: 'edge',
           }
         })
@@ -350,6 +352,7 @@ export default defineComponent({
               })
               .map((bucket, i, arr) => {
                 return {
+                  // calculate upper and lower bounds based on value if they're not set
                   lower: bucket.val,
                   upper: Math.max(
                     (arr[i + 1]?.val as any as number) - 1,
