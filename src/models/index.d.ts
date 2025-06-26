@@ -34,7 +34,7 @@ export interface FilterInterface extends Filter {
 }
 
 export interface Bucket {
-  val: string
+  val: string | number
   count: number
   item?: Entity
 
