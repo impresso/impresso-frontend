@@ -114,6 +114,7 @@ export default defineComponent({
       start: 0,
       end: 0,
       gap: 1,
+      numBuckets: 0,
       value: /** @type {number[]} */ [],
       sliderValue: [],
       buckets: [],
@@ -311,6 +312,17 @@ export default defineComponent({
             this.sliderValue = [this.start, this.end]
             const range = this.end - this.start
             this.gap = Math.max(1, Math.round(range / (this.maxExpectedBuckets + 1)))
+            this.numBuckets = Math.floor(range / this.gap)
+
+            console.debug('[FilterDynamicRange] stats', this.facetType, {
+              range: range,
+              start: this.start,
+              end: this.end,
+              gap: this.gap,
+              total: this.total,
+              numBuckets: this.numBuckets,
+              maxExpectedBuckets: this.maxExpectedBuckets
+            })
           })
           .catch(error => {
             // eslint-disable-next-line
@@ -325,13 +337,37 @@ export default defineComponent({
             group_by: query.groupby,
             rangeStart: this.start,
             rangeEnd: this.end + 1,
-            rangeGap: this.gap
+            rangeGap: this.gap,
+            limit: this.numBuckets
             // rangeInclude: 'edge',
           }
         })
           .then(response => {
-            // console.debug('[FilterDynamicRange] loadFacet', response)
             this.buckets = response.buckets
+              .sort((a, b) => {
+                return (a.val as number) - (b.val as number)
+              })
+              .map((bucket, i, arr) => {
+                return {
+                  lower: bucket.val,
+                  upper: Math.max(
+                    (arr[i + 1]?.val as any as number) - 1,
+                    bucket.val as any as number
+                  ),
+                  ...bucket
+                }
+              })
+            console.debug('[FilterDynamicRange] loadFacet', this.facetType, this.buckets)
+            // artificially add upper and lower bounds
+
+            // .map(bucket => {
+            //   // convert to number
+            //   bucket.val = parseFloat(bucket.val)
+            //   bucket.lower = parseFloat(bucket.lower)
+            //   bucket.upper = parseFloat(bucket.upper)
+            //   bucket.label = this.getTooltipLabel(bucket)
+            //   return bucket
+            // })
           })
           .catch(error => {
             // eslint-disable-next-line
