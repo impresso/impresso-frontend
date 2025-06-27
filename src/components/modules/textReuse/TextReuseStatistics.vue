@@ -3,40 +3,42 @@
     <!-- start -->
     <b-navbar-nav class="border-bottom d-flex flex-row flex-shrink-1">
       <li class="navbar-text ml-3 mr-2 py-3">
-        <label>{{ $t('visualisationType') }}</label></li>
+        <label>{{ $t('visualisationType') }}</label>
+      </li>
       <li class="navbar-text mr-1 py-3">
         <i-dropdown
           v-model="visualisation"
           :options="
             visualisationTypes.map(value => ({
               value,
-              text: $t(`use_${value}`),
+              text: $t(`use_${value}`)
             }))
           "
           class="mr-auto"
           size="sm"
           variant="dark"
-        ></i-dropdown
-      ></li>
+        ></i-dropdown>
+      </li>
       <li
         v-if="visualisationOrderByOptions.length > 0"
         class="navbar-text border-left ml-3 pl-3 mr-2 py-3"
       >
-        <label>{{ $t('visualisationOrderBy') }}</label></li>
+        <label>{{ $t('visualisationOrderBy') }}</label>
+      </li>
       <li v-if="visualisationOrderByOptions.length > 0" class="navbar-text py-3">
         <i-dropdown
           v-model="visualisationOrderBy"
           :options="
             visualisationOrderByOptions.map((value: string) => ({
               value,
-              text: $t(`use_orderby_${value}`),
+              text: $t(`use_orderby_${value}`)
             }))
           "
           class="mr-auto"
           size="sm"
           variant="outline-primary"
-        ></i-dropdown
-      ></li>
+        ></i-dropdown>
+      </li>
     </b-navbar-nav>
     <!-- end navbar -->
     <PowerVisBase
@@ -61,7 +63,7 @@
                 class="border-bottom d-block my-1 pb-2"
                 v-html="
                   $tc('numbers.results', tooltip.item.point.value.count, {
-                    n: $n(tooltip.item.point.value.count),
+                    n: $n(tooltip.item.point.value.count)
                   })
                 "
               />
@@ -92,7 +94,7 @@
         </div>
       </template>
       <template v-slot:footer>
-        <div class="p-3 " v-html="$t(`use_${visualisation}_description`)" />
+        <div class="p-3" v-html="$t(`use_${visualisation}_description`)" />
       </template>
     </PowerVisBase>
   </div>
@@ -116,7 +118,7 @@ interface DomainValueItem {
   value: { count: number; items: { term: string; count: number }[] }
 }
 
-interface Data {
+export interface Data {
   meta?: any
   items?: DomainValueItem[]
   itemsDictionary?: Record<string, string>
@@ -131,7 +133,7 @@ const newspaperTermSorter = (data: Data) => {
   const domainOrder = Object.fromEntries(
     items?.map((item, index) => {
       return [item.domain.value, index] as [string, number]
-    }) ?? [],
+    }) ?? []
   )
 
   // iterate over the items and sort the value items to match the domain order
@@ -163,7 +165,7 @@ interface FilterLike {
 const NoFacetFilters = {
   search: ['string'],
   tr_clusters: [],
-  tr_passages: [],
+  tr_passages: []
 }
 
 interface QParams {
@@ -180,13 +182,13 @@ const StatsQueryParams = {
     index: 'tr_passages',
     domain: 'time',
     groupby: 'textReuseCluster',
-    unit: 'numbers.clusters',
+    unit: 'numbers.clusters'
   },
   tr_vs_newspapers: {
     facet: 'newspaper',
     index: 'tr_passages',
     domain: 'time',
-    unit: 'numbers.passages',
+    unit: 'numbers.passages'
   },
   // tr_vs_collections: {
   //   facet: 'collection',
@@ -196,7 +198,7 @@ const StatsQueryParams = {
   trcsize_vs_time: {
     facet: 'textReuseClusterSize',
     index: 'tr_passages',
-    domain: 'time',
+    domain: 'time'
   },
   trcsize_vs_newspaper: {
     facet: 'textReuseClusterSize',
@@ -208,8 +210,8 @@ const StatsQueryParams = {
       transformLabels: '',
       margin: { left: 150 },
       truncateLabelsAtLength: 20,
-      floatingPointPrecision: 0,
-    },
+      floatingPointPrecision: 0
+    }
   },
   troverlap_vs_newspapers: {
     facet: 'textReuseClusterLexicalOverlap',
@@ -221,20 +223,20 @@ const StatsQueryParams = {
       transformLabels: '',
       margin: { left: 150 },
       truncateLabelsAtLength: 20,
-      floatingPointPrecision: 2,
-    },
+      floatingPointPrecision: 2
+    }
   },
   troverlap_vs_time: {
     facet: 'textReuseClusterLexicalOverlap',
     index: 'tr_passages',
-    domain: 'time',
+    domain: 'time'
   },
   trnewspapers_vs_newspapers: {
     facet: 'textReuseClusterNewspapers',
     index: 'tr_passages',
     domain: 'newspaper',
-    groupby: 'textReuseCluster',
-  },
+    groupby: 'textReuseCluster'
+  }
   // troverlap_vs_newspapers: {},
   // trdelta_vs_newspapers: {},
   // trcount_vs_newspapers: {},
@@ -246,17 +248,17 @@ export default defineComponent({
   name: 'TextReuseStatistics',
   components: {
     PowerVisBase,
-    Tooltip,
+    Tooltip
   },
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     loading: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data: () => ({
     items: [],
@@ -269,9 +271,9 @@ export default defineComponent({
       isActive: false,
       item: {
         term: null,
-        count: 0,
-      } as Record<string, any>,
-    },
+        count: 0
+      } as Record<string, any>
+    }
   }),
   setup() {
     const itemClicked = () => {}
@@ -298,8 +300,8 @@ export default defineComponent({
           ...event.point.closestItem,
           term,
           valueKey: event.point.closestValueKey,
-          point: event.point.closestPoint,
-        },
+          point: event.point.closestPoint
+        }
       }
     },
     handleMouseleave() {
@@ -310,8 +312,8 @@ export default defineComponent({
         isActive: false,
         item: {
           term: null,
-          count: 0,
-        },
+          count: 0
+        }
       }
     },
     handleItemClicked({ item }: { item: any }) {
@@ -320,12 +322,12 @@ export default defineComponent({
       this.selectionMonitorStore.show({
         item: {
           name: item.term,
-          uid: item.term,
+          uid: item.term
         },
         searchIndex: 'tr_passages',
-        type: 'newspaper',
+        type: 'newspaper'
       })
-    },
+    }
   },
   computed: {
     ...mapStores(useSelectionMonitorStore),
@@ -335,7 +337,8 @@ export default defineComponent({
     // get visualisation type from URL parameters
     visualisation: {
       get(): keyof typeof StatsQueryParams {
-        const { [CommonQueryParameters.VisualisationType]: visualisation } = this.$route?.query ?? {}
+        const { [CommonQueryParameters.VisualisationType]: visualisation } =
+          this.$route?.query ?? {}
         // if visualisation type is undefined or not in the list of options, return the first option
         if (typeof visualisation !== 'string' || !VisualisationTypes.includes(visualisation)) {
           return VisualisationTypes[0] as keyof typeof StatsQueryParams
@@ -344,9 +347,9 @@ export default defineComponent({
       },
       set(visualisation: string) {
         this.$navigation.updateQueryParameters({
-          [CommonQueryParameters.VisualisationType]: visualisation,
+          [CommonQueryParameters.VisualisationType]: visualisation
         })
-      },
+      }
     },
     visualisationOrderByOptions() {
       return (StatsQueryParams[this.visualisation] as any).orderByOptions || []
@@ -369,9 +372,8 @@ export default defineComponent({
     visualisationOrderBy: {
       get() {
         if (!this.visualisationOrderByOptions.length) return null
-        const {
-          [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy,
-        } = this.$route?.query ?? {}
+        const { [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy } =
+          this.$route?.query ?? {}
         // if visualisation order by is undefined or not in the list of options, return the first option
         if (
           typeof visualisationOrderBy !== 'string' ||
@@ -383,9 +385,9 @@ export default defineComponent({
       },
       set(visualisationOrderBy: string) {
         this.$navigation.updateQueryParameters({
-          [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy,
+          [CommonQueryParameters.VisualisationOrderBy]: visualisationOrderBy
         })
-      },
+      }
     },
     statsApiQueryParameters() {
       const { index, facet, domain, groupby } = StatsQueryParams[this.visualisation] as QParams
@@ -402,7 +404,7 @@ export default defineComponent({
         '\n - supportedFilterTypes:',
         supportedFilterTypes,
         '\n - supportedFilters:',
-        supportedFilters,
+        supportedFilters
       )
 
       const query: Record<string, any> = {
@@ -411,19 +413,16 @@ export default defineComponent({
         domain,
         stats: 'min,max,mean',
         sort: this.visualisationOrderBy,
-        filters: serializeFilters(supportedFilters),
+        filters: serializeFilters(supportedFilters)
       }
       if (groupby) {
         query['groupby'] = groupby
       }
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   watch: {
     statsApiQueryParameters: {
@@ -434,7 +433,7 @@ export default defineComponent({
         // eslint-disable-next-line
         console.debug(
           '[TextReuseOverview] @statsApiQueryParameters \n query:',
-          query,
+          query
           // hash,
           // previousValue,
         )
@@ -457,9 +456,9 @@ export default defineComponent({
           this.statsLoading = false
         }
       },
-      immediate: true,
-    },
-  },
+      immediate: true
+    }
+  }
 })
 </script>
 <i18n lang="json">
@@ -467,16 +466,16 @@ export default defineComponent({
   "en": {
     "visualisationType": "type of visualisation:",
     "visualisationOrderBy": "order By:",
-    "use_tr_vs_newspapers" :"Number of text reuse passages over time, by newspaper",
+    "use_tr_vs_newspapers": "Number of text reuse passages over time, by newspaper",
     "use_tr_vs_newspapers_description": "This graph shows the number of passages of text reuse per year. Each line represents text reuse passages in a single newspaper title.",
-    "use_trc_vs_newspapers" :"Number of text reuse clusters over time, by newspaper",
+    "use_trc_vs_newspapers": "Number of text reuse clusters over time, by newspaper",
     "use_trc_vs_newspapers_description": "This graph shows the number of clusters of text reuse passages per year. Each line represents text reuse clusters in a single newspaper title.",
     "use_tr_vs_time": "Text Reuse over Time",
     "use_trcsize_vs_newspaper": "Median, min and max cluster size, by newspaper",
     "use_trcsize_vs_newspaper_description": "This graph shows the <b class='color-label min'>minimum</b> (blue), <b class='color-label min'>mean</b> (green) and <b class='color-label min'>maximum</b> (orange) number of text reuse passages per cluster in a given newspaper title.",
     "use_trcsize_vs_time": "Median, Min and Max cluster size over Time",
     "use_trcsize_vs_time_description": "This graph shows the <b class='color-label min'>minimum</b> (blue), <b class='color-label min'>mean</b> (green) and <b class='color-label min'>maximum</b> (orange) number of text reuse passages per cluster over time.",
-    "use_troverlap_vs_newspapers" :"Text Reuse lexical Overlap between Newspaper Titles",
+    "use_troverlap_vs_newspapers": "Text Reuse lexical Overlap between Newspaper Titles",
     "use_troverlap_vs_time": "Median, Min and Max lexical Overlap over Time",
     "use_troverlap_vs_time_description": "This graph shows the <b class='color-label min'>minimum</b> (blue), <b class='color-label min'>mean</b> (green) and <b class='color-label min'>maximum</b> (orange) lexical overlap between text reuse passages over time.",
     "use_trdelta_vs_newspapers": "Publication Time Delta per Newspaper Title",

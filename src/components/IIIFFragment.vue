@@ -45,7 +45,7 @@ import { defaultAuthCondition } from '@/util/imageAuth'
 import axios from 'axios'
 import { defineComponent, PropType } from 'vue'
 
-interface IParsedSize {
+export interface IParsedSize {
   type: 'max' | 'exact' | 'bestfit' | 'width' | 'height' | 'percentage' | 'unknown'
   upscale: boolean
   width?: number
@@ -55,14 +55,14 @@ interface IParsedSize {
 }
 
 // IIIF v3 spec level1 profile interface
-interface IIIIFProfile {
+export interface IIIIFProfile {
   width: number
   height: number
   sizes: { width: number; height: number }[]
   profile: 'level1'
 }
 
-interface ICoords {
+export interface ICoords {
   x: number
   y: number
   w: number

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { jobs as jobsService } from '@/services'
 import Job from '@/models/Job'
 
-interface State {
+export interface State {
   items: Job[]
   totalItems: number
 }

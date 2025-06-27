@@ -174,16 +174,8 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import TagsInput from '@/components/base/TagsInput.vue'
 import PageHeading from '@/components/base/PageHeading.vue'
 
-import {
-  search as searchService,
-  ngramTrends as ngramTrendsService,
-  searchFacets as searchFacetsService
-} from '@/services'
-import {
-  DefaultFacetTypesForIndex,
-  searchResponseToFacetsExtractor,
-  buildEmptyFacets
-} from '@/logic/facets'
+import { ngramTrends as ngramTrendsService, searchFacets as searchFacetsService } from '@/services'
+import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 
@@ -302,13 +294,13 @@ export default {
       async handler(filters) {
         const query = {
           filters: filters.map(toCanonicalFilter),
-          limit: 0,
-          facets: SupportedFacetTypes,
-          group_by: 'articles'
+          limit: 25,
+          facets: SupportedFacetTypes
+          // group_by: 'articles'
         }
-        const facets = await searchService
-          .find({ query })
-          .then(searchResponseToFacetsExtractor(SupportedFacetTypes))
+        const facets = await searchFacetsService.find({ query }).then(result => {
+          return result.data || []
+        })
 
         this.facets = facets.map(f => new FacetModel(f))
         if (this.isLoggedIn) {

@@ -10,8 +10,8 @@
               :mode-options="['inspect', 'compare']"
               :mode="mode"
               :comparable="comparableForQuery(queryIdx)"
-              :total="queryResult.total"
-              :title="queryResult.title"
+              :total="queryResult?.total"
+              :title="queryResult?.title"
               :collections="collections"
               @mode-changed="onModeUpdated"
               @comparable-changed="comparable => onComparableUpdated(queryIdx, comparable)"
@@ -81,17 +81,19 @@
   </i-layout>
 </template>
 
-<script>
+<script lang="ts">
 import Collection from '@/models/Collection'
 import {
-  search,
   collections,
   searchQueriesComparison,
   searchFacets,
+  contentItems as contentItemsService,
   filtersItems as filtersItemsService
 } from '@/services'
 import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/QueryHeaderPanel.vue'
-import DivergingBarsChartPanel from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
+import DivergingBarsChartPanel, {
+  FacetItem
+} from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
 import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
 import Spinner from '@/components/layout/Spinner.vue'
 import Bucket from '@/models/Bucket'
@@ -104,41 +106,26 @@ import {
 } from '@/logic/filters'
 import { getQueryParameter } from '../router/util'
 import { getBucketLabel } from '../logic/facets'
-import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
+import { ComparableTypes, comparableToQuery, Comparable } from '../logic/queryComparison'
 import { getLatestFilters } from '../logic/storage'
 import { Navigation } from '@/plugins/Navigation'
+import { Filter, SearchQuery } from '@/models'
+import { SearchFacet, SearchFacetBucket, SearchFacetRangeBucket } from '@/models/generated/schemas'
 
-/**
- * @param {import('@/models').Filter} filter
- * @returns {boolean}
- */
-const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
+type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models').SearchQuery} SearchQuery
- * @typedef {import('@/logic/queryComparison').Comparable} Comparable
- * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
- */
-
-function prepareFacets(responseFacets = {}) {
-  const types = Object.keys(responseFacets).filter(k => k !== 'count')
-  return types.map(type => {
-    const buckets = responseFacets[type].buckets || []
-    const numBuckets = responseFacets[type].numBuckets ?? buckets.length
-    return {
-      id: type,
-      buckets: buckets.map(bucket => new Bucket({ ...bucket, type })),
-      numBuckets
-    }
-  })
+export interface QueryResult {
+  id: string
+  type: string
+  title: string
+  facets: SearchFacet[]
+  total: number
 }
 
-/**
- * @param {Comparable} comparable
- * @returns {boolean}
- */
-function comparableIsEmpty(comparable) {
+const supportedSearchIndexFilters = (filter: Filter) =>
+  SupportedFiltersByContext.search.includes(filter.type)
+
+function comparableIsEmpty(comparable: Comparable) {
   const type = comparable?.type
 
   if (type === ComparableTypes.Query) {
@@ -160,10 +147,8 @@ function comparableIsEmpty(comparable) {
 /**
  * Merge filters with a rule that all single item (`q`) filters operator
  * is set to `AND`. Then the standard merge is applied.
- * @param {Filter[][]} filtersSets
- * @returns {Filter[]}
  */
-function mergeFilters(filtersSets) {
+function mergeFilters(filtersSets: Filter[][]): Filter[] {
   return optimizeFilters(
     filtersSets.flat().map(filter => {
       const op =
@@ -181,28 +166,22 @@ function mergeFilters(filtersSets) {
 const SortingMethods = Object.freeze({
   /**
    * Sort items by highest cumulative overlap in percents.
-   * @param {FacetItem} itemA
-   * @param {FacetItem} itemB
    */
-  HighestTotalIntersectionInPercents: (itemA, itemB) => {
-    const totalPc = item => item.intersection / item.left + item.intersection / item.right
+  HighestTotalIntersectionInPercents: (itemA: FacetItem, itemB: FacetItem) => {
+    const totalPc = (item: FacetItem) =>
+      item.intersection / item.left + item.intersection / item.right
     return totalPc(itemB) - totalPc(itemA)
   },
   /**
    * Sort items by highest absolute value of intersection.
-   * @param {FacetItem} itemA
-   * @param {FacetItem} itemB
    */
-  HighestAbsoluteIntersection: (itemA, itemB) => itemB.intersection - itemA.intersection
+  HighestAbsoluteIntersection: (itemA: FacetItem, itemB: FacetItem) =>
+    itemB.intersection - itemA.intersection
 })
 
 const CollectionRegex = /c:(.*)/
 
-/**
- * @param {string | undefined} value
- * @returns {Comparable}
- */
-function queryParameterToComparable(value) {
+function queryParameterToComparable(value: string | undefined): Comparable {
   if (typeof value != 'string') return { type: ComparableTypes.Query }
   // previous method /c:(.*)/
   const collectionMatch = value.match(CollectionRegex)
@@ -227,11 +206,7 @@ function queryParameterToComparable(value) {
   }
 }
 
-/**
- * @param {Comparable} comparable
- * @returns {string | undefined}
- */
-function serializeComparable(comparable) {
+function serializeComparable(comparable: Comparable): string | undefined {
   const type = comparable?.type
 
   if (type === ComparableTypes.Collection) {
@@ -273,54 +248,72 @@ const Scales = Object.freeze(['linear', 'sqrt'])
 
 const deepEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
+export interface IData {
+  /**
+   * Loading flags indicate that comparable at flag's index is loading data
+   * from the API.
+   */
+  loadingFlags: boolean[]
+  compareDataIsLoading: boolean
+  /**
+   * [<facet id>, <facet visualisation method>]
+   */
+  facets: [string, string][]
+  queriesResults: [QueryResult | undefined, QueryResult | undefined, QueryResult | undefined]
+  additionalBuckets: { [key: string]: IBucket[] }[]
+  comparisonResult?: any
+  /**
+   * list of available collections
+   */
+  collections: Collection[]
+  modes: typeof Mode
+  sortingMethods: string[]
+  scales: readonly string[]
+  filtersWithItems: (Filter[] | undefined)[]
+}
+
+interface ComparableItem {
+  buckets: IBucket[]
+  isLoaded: boolean
+  numBuckets: number
+}
+
+interface SideBySideFacetContainer {
+  id: string
+  visualisationType: string
+  comparableItems: ComparableItem[]
+}
+
 export default {
-  data: () => ({
-    /**
-     * Loading flags indicate that comparable at flag's index is loading data
-     * from the API.
-     * @type {boolean[]}
-     */
-    loadingFlags: [...Array(3).keys()].map(() => false),
-    compareDataIsLoading: false,
-    /**
-     * [<facet id>, <facet visualisation method>]
-     */
-    facets: /** @type {[string, string][]} */ ([
-      // lightweight
-      ['year', 'timeline'],
-      ['newspaper', 'bars'],
-      ['country', 'bars'],
-      ['language', 'bars'],
-      ['type', 'bars'],
-      // heavyweight
-      ['topic', 'bars'],
-      ['person', 'bars'],
-      ['location', 'bars']
-    ]),
-    /** @type {any[]} */
-    queriesResults: [{}, { type: 'intersection' }, {}],
-    /** @type {{ [key:string]: Bucket[] }[]} */
-    additionalBuckets: [{}, {}, {}],
-    /** @type {any} */
-    comparisonResult: undefined,
-    /**
-     * list of available collections
-     * @type {Collection[]}
-     */
-    collections: [],
-    modes: Mode,
-    sortingMethods: Object.keys(SortingMethods),
-    scales: Scales,
-    /** @type {Filter[][]|undefined[]} */
-    filtersWithItems: [undefined, undefined, undefined]
-  }),
+  data: (): IData => {
+    return {
+      loadingFlags: [...Array(3).keys()].map(() => false),
+      compareDataIsLoading: false,
+      facets: [
+        // lightweight
+        ['year', 'timeline'],
+        ['newspaper', 'bars'],
+        ['country', 'bars'],
+        ['language', 'bars'],
+        ['type', 'bars'],
+        // heavyweight
+        ['topic', 'bars'],
+        ['person', 'bars'],
+        ['location', 'bars']
+      ],
+      queriesResults: [undefined, undefined /*{ type: 'intersection' }*/, undefined],
+      additionalBuckets: [{}, {}, {}],
+      comparisonResult: undefined,
+      collections: [],
+      modes: Mode,
+      sortingMethods: Object.keys(SortingMethods),
+      scales: Scales,
+      filtersWithItems: [undefined, undefined, undefined]
+    } satisfies IData
+  },
   watch: {
     leftComparable: {
-      /**
-       * @param {Comparable} newValue
-       * @param {Comparable} oldValue
-       */
-      async handler(newValue, oldValue) {
+      async handler(newValue: Comparable, oldValue: Comparable) {
         if (deepEqual(newValue, oldValue)) return
         try {
           this.loadingFlags[QueryIndex.Left] = true
@@ -343,11 +336,7 @@ export default {
       immediate: true
     },
     rightComparable: {
-      /**
-       * @param {Comparable} newValue
-       * @param {Comparable} oldValue
-       */
-      async handler(newValue, oldValue) {
+      async handler(newValue: Comparable, oldValue: Comparable) {
         if (deepEqual(newValue, oldValue)) return
         try {
           this.loadingFlags[QueryIndex.Right] = true
@@ -370,11 +359,7 @@ export default {
       immediate: true
     },
     intersection: {
-      /**
-       * @param {Comparable} newValue
-       * @param {Comparable} oldValue
-       */
-      async handler(newValue, oldValue) {
+      async handler(newValue: Comparable, oldValue: Comparable) {
         if (deepEqual(newValue, oldValue)) return
 
         this.updateCompareData()
@@ -405,20 +390,17 @@ export default {
       return new Navigation(this)
     },
     leftComparable: {
-      /** @returns {Comparable} */
-      get() {
+      get(): Comparable {
         return queryParameterToComparable(getQueryParameter(this, QueryParameters.Left))
       },
-      /** @param {Comparable} comparable */
-      set(comparable) {
+      set(comparable: Comparable) {
         const serializedComparable = serializeComparable(comparable)
         this.$navigation.updateQueryParametersWithHistory({
           [QueryParameters.Left]: serializedComparable
         })
       }
     },
-    /** @returns {Comparable} */
-    leftComparableEnriched() {
+    leftComparableEnriched(): Comparable {
       // add additional filters if any to the original left comparable query
       // e.g. this.leftComparable must be can be smthing like { type: "query", query: {filters:[]} }:
       // Before, it was { type: "collection", id: "local-xzy" } but we integrated
@@ -429,46 +411,43 @@ export default {
       ) {
         return {
           type: this.leftComparable.type,
-          query: /** @type {SearchQuery} */ ({
+          query: /** @type {SearchQuery} */ {
             ...this.leftComparable.query,
             filters: this.filtersWithItems[QueryIndex.Left]
-          })
+          }
         }
       }
       return this.leftComparable
     },
     rightComparable: {
-      /** @returns {Comparable} */
-      get() {
+      get(): Comparable {
         return queryParameterToComparable(getQueryParameter(this, QueryParameters.Right))
       },
-      /** @param {Comparable} comparable */
-      set(comparable) {
+      set(comparable: Comparable) {
         const serializedComparable = serializeComparable(comparable)
         this.$navigation.updateQueryParametersWithHistory({
           [QueryParameters.Right]: serializedComparable
         })
       }
     },
-    /** @returns {Comparable} */
-    rightComparableEnriched() {
+    rightComparableEnriched(): Comparable {
       if (
         this.rightComparable?.query?.filters != null &&
         this.filtersWithItems[QueryIndex.Right] != null
       ) {
         return {
           type: this.rightComparable.type,
-          query: /** @type {SearchQuery} */ ({
+          query: {
             ...this.rightComparable.query,
             filters: this.filtersWithItems[QueryIndex.Right]
-          })
+          }
         }
       }
       return this.rightComparable
     },
-    /** @returns {Comparable} */
-    intersection() {
-      const comparablesFilters = [this.leftComparable, this.rightComparable]
+    intersection(): Comparable {
+      const bothComparables: Comparable[] = [this.leftComparable, this.rightComparable]
+      const comparablesFilters = bothComparables
         .filter(comparable => !comparableIsEmpty(comparable))
         .map(comparableToQuery)
         .filter(query => query != null)
@@ -531,29 +510,23 @@ export default {
         }
       })
     },
-    /**
-     * @typedef {import('../models').Bucket} BucketItem
-     * @typedef {{ buckets: BucketItem[], isLoaded: boolean, numBuckets: number }} ComparableItem
-     * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} SideBySideFacetContainer
-     * @returns {SideBySideFacetContainer[]}
-     */
-    sideBySideFacets() {
+    sideBySideFacets(): SideBySideFacetContainer[] {
       return this.facets.map(([facetId, visualisationType]) => {
         return {
           id: facetId,
           visualisationType,
           comparableItems: this.queriesResults.map((result, comparableIndex) => {
-            const item = (result?.facets ?? []).find(({ id }) => id === facetId)
-            const buckets = item?.buckets ?? []
+            const item = (result?.facets ?? []).find(({ type }) => type === facetId)
+            const buckets: IBucket[] = item?.buckets ?? []
             const additionalBuckets = this.additionalBuckets[comparableIndex][facetId] ?? []
 
             return {
-              isLoaded: result.facets != null,
+              isLoaded: result?.facets != null,
               buckets: buckets.concat(additionalBuckets),
               numBuckets: item?.numBuckets ?? item?.buckets?.length ?? 0
-            }
+            } satisfies ComparableItem
           })
-        }
+        } satisfies SideBySideFacetContainer
       })
     },
     /**
@@ -618,29 +591,34 @@ export default {
     Spinner
   },
   methods: {
-    /**
-     * @param {Comparable} comparable
-     * @returns {Promise<any>}
-     */
-    async getQueryResult(comparable) {
-      if (comparableIsEmpty(comparable)) return {}
+    async getQueryResult(comparable: Comparable): Promise<QueryResult | undefined> {
+      if (comparableIsEmpty(comparable)) return
 
       const query = {
         ...comparableToQuery(comparable),
-        limit: 0,
-        facets: this.facets.map(([facetType]) => facetType),
-        group_by: 'articles'
+        limit: 25,
+        facets: this.facets.map(([facetType]) => facetType)
+        // group_by: 'articles'
       }
 
       const { type, id } = comparable
 
-      const resultPromise = search.find({ query }).then(result => ({
+      const resultPromise = searchFacets.find({ query }).then(result => ({
         id,
         type,
         title: '',
-        facets: prepareFacets(result.info.facets),
+        facets: result.data,
         total: result.total
       }))
+      const totalPromise = contentItemsService
+        .find({
+          query: {
+            ...comparableToQuery(comparable),
+            limit: 0
+          }
+        })
+        .then(result => result.total)
+
       const collectionTitlePromise =
         type === ComparableTypes.Collection
           ? collections
@@ -652,22 +630,24 @@ export default {
               })
           : Promise.resolve('')
 
-      const [result, collectionTitle] = await Promise.all([resultPromise, collectionTitlePromise])
+      const [result, collectionTitle, total] = await Promise.all([
+        resultPromise,
+        collectionTitlePromise,
+        totalPromise
+      ])
 
       if (type === ComparableTypes.Collection) result.title = collectionTitle
 
-      return result
+      return { ...result, total } satisfies QueryResult
     },
-    /**
-     * @param {Comparable} comparable
-     * @param {number} comparableIndex
-     * @param {string} facetId
-     * @returns {Promise<Bucket[]>}
-     */
-    async getAdditionalFacets(comparable, comparableIndex, facetId) {
+    async getAdditionalFacets(
+      comparable: Comparable,
+      comparableIndex: number,
+      facetId: string
+    ): Promise<IBucket[]> {
       if (comparableIsEmpty(comparable)) return []
 
-      const offset =
+      const offset: number =
         this.sideBySideFacets.find(({ id }) => id === facetId)?.comparableItems[comparableIndex]
           ?.buckets?.length ?? 0
 
@@ -681,7 +661,7 @@ export default {
         this.loadingFlags[comparableIndex] = true
         const result = await searchFacets.get(facetId, { query })
         const buckets = result != null ? result.buckets : []
-        return buckets.map(bucket => new Bucket({ ...bucket, type: facetId }))
+        return buckets.map(bucket => new Bucket({ ...bucket, type: facetId })) as IBucket[]
       } finally {
         this.loadingFlags[comparableIndex] = false
       }
@@ -769,13 +749,15 @@ export default {
     /**
      * @param {number} queryIdx
      */
-    handleInsertRecentSearchQuery(queryIdx) {
+    handleInsertRecentSearchQuery(queryIdx: number) {
       const filtersLeft = serializeFilters(this.leftComparable.query?.filters ?? [])
       const filtersRight = serializeFilters(this.rightComparable.query?.filters ?? [])
 
       const filters = getLatestFilters().filter(supportedSearchIndexFilters)
       const recentQuery = serializeFilters(filters)
-      const query = { ...this.$router.currentRoute.query }
+      const query = {
+        ...((this.$router.currentRoute as any).query as object)
+      } as { left?: string; right?: string; mode?: string }
       if (queryIdx === 0) {
         query.left = recentQuery
         query.right = filtersRight

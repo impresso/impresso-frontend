@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { app, MEDIA_COOKIE_NAME, me as meService, MIDDLELAYER_MEDIA_PATH } from '@/services'
 import User from '@/models/User'
-import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
+import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
 import { removeCookie, setCookie } from '@/util/cookies'
 
 export interface State {
@@ -11,6 +11,7 @@ export interface State {
   redirectionParams: any
   acceptTermsDate: string | null
   acceptTermsDateOnLocalStorage: string | null
+  hasPendingChangePlanRequest: boolean
 }
 
 interface IAuthResult {
@@ -32,7 +33,9 @@ export const useUserStore = defineStore('user', {
     // this is not stored on localStorage, and if it is not null is a ISO date string
     acceptTermsDate: null,
     // this is stored on localStorage
-    acceptTermsDateOnLocalStorage: null
+    acceptTermsDateOnLocalStorage: null,
+    //
+    hasPendingChangePlanRequest: false
   }),
   getters: {
     user(state) {
@@ -43,22 +46,29 @@ export const useUserStore = defineStore('user', {
       if (!state.acceptTermsDate) {
         return PlanGuest
       }
-      let userPlan = state.userData !== null ? PlanImpressoUser : PlanGuest
+      let userPlan = state.userData !== null ? PlanNone : PlanGuest
       if (state.userData && Array.isArray(state.userData?.groups)) {
-        for (const group of state.userData.groups) {
-          if (group.name === PlanEducational || group.name === PlanResearcher) {
-            userPlan = group.name
+        const SortedAvailablePlans = [PlanResearcher, PlanEducational, PlanImpressoUser]
+        for (const planName of SortedAvailablePlans) {
+          if (state.userData.groups.some(g => g.name === planName)) {
+            userPlan = planName
             break
           }
         }
+      }
+      if (userPlan === PlanNone && state.hasPendingChangePlanRequest) {
+        userPlan = PlanImpressoUser // default to Impresso User if no plan is set but there is a pending request
       }
       return userPlan
     }
   },
   actions: {
-    setAcceptTermsDate(date: string) {
+    setAcceptTermsDate(date: string | null) {
       this.acceptTermsDate = date
       this.acceptTermsDateOnLocalStorage = date
+    },
+    setPendingChangePlanRequest(v: boolean) {
+      this.hasPendingChangePlanRequest = v
     },
     setBitmap(bitmap: string) {
       this.bitmap = bitmap

@@ -349,15 +349,15 @@ const router = createRouter({
       path: '/article/:article_uid',
       component: () => null,
       beforeEnter: async to => {
-        const res = await services.articles.get(to.params.article_uid as string)
+        const ci = await services.contentItems.get(to.params.article_uid as string)
         return {
           name: 'issue-viewer',
           params: {
-            issue_uid: res.issue.uid
+            issue_uid: ci.issueId
           },
           query: {
-            p: res.pages[0]?.num,
-            articleId: getShortArticleId(res.uid),
+            p: ci.image?.pages?.[0]?.number,
+            articleId: getShortArticleId(ci.id),
             text: '1'
           }
         }

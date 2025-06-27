@@ -1,114 +1,183 @@
 <template>
   <Modal
-    :show="isVisible"
+    :show="show"
     :title="title"
     modalClass="ChangePlanModal"
-    :dialogClass="props.dialogClass"
-    @close="dismiss"
-    @confirm="confirm"
+    dialogClass="modal-dialog-centered modal-dialog-scrollable modal-md-lg"
+    @close="() => emit('dismiss')"
     hideBackdrop
+    hideFooter
   >
-    <h1>{{ title }}</h1>
-    <p>
-      You can request to change your plan any time if your situation changed. More information about
-      the plans can be found in the <a href="/plans">Plans page</a>.
-    </p>
-    <p v-if="!isLoading && !userChangePlanRequest">
-      Your current plan is
-      <b> {{ availablePlansLabels[userPlan] }} </b>. <br />
-      Please select the plan you want to change to:
-    </p>
-    <div v-if="!isLoading && userChangePlanRequest">
-      <Alert
-        class="mb-3"
-        :type="alertType"
-        :class="userChangePlanRequest.status"
-        style="position: sticky; top: 0"
-      >
-        <UserChangePlanRequestLabel
-          :item="userChangePlanRequest"
-          :plansLabels="availablePlansLabels"
-        />
-      </Alert>
-    </div>
+    <slot> </slot>
     <LoadingBlock :height="200" v-if="isLoading" label="please wait ...."> </LoadingBlock>
     <ChangePlanForm
       v-if="!isLoading"
-      :availablePlansLabels="availablePlansLabels"
-      :availablePlans="availablePlans"
-      :error="null"
-      :current-plan="props.userPlan"
-      :userChangePlanRequest="userChangePlanRequest"
-      :allow-all-plans="!userChangePlanRequest"
-      @submit="submit"
-    />
-
-    <template v-slot:modal-footer>
-      <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
-    </template>
-
-    <p class="mt-2 mb-0">
-      Any Questions? <br />
-      Contact us at <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
-    </p>
+      :availablePlans="AvailablePlansWithLabels"
+      @submit="handleOnSubmit"
+      :is-loading="isLoading"
+      :currentPlan="userPlan"
+      :rejectedPlan="rejectedPlan"
+      :pendingPlan="pendingPlan"
+      :currentAffiliation="currentAffiliation"
+      :currentInstitutionalUrl="currentInstitutionalUrl"
+      :currentEmail="currentEmail"
+      enableAdditionalFields
+      :submitLabel="submitLabel"
+      inline
+    >
+      <template #form-errors v-if="error">
+        <Alert type="warning" class="mb-3 p-3" role="alert">
+          <p class="m-0">{{ error.message }}</p>
+        </Alert>
+      </template>
+    </ChangePlanForm>
   </Modal>
 </template>
 
 <script setup lang="ts">
-import ChangePlanForm from './ChangePlanForm.vue'
-import UserChangePlanRequestLabel from './UserChangePlanRequestLabel.vue'
-import { computed, ref } from 'vue'
-import Modal from './base/Modal.vue'
-import Alert from './Alert.vue'
+import ChangePlanForm from 'impresso-ui-components/components/ChangePlanForm.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import Alert from 'impresso-ui-components/components/Alert.vue'
+import { computed, ref, watch } from 'vue'
+
+import type { FeathersError } from '@feathersjs/errors'
 import type { UserChangePlanRequest } from '@/services/types/index'
 import LoadingBlock from './LoadingBlock.vue'
+import { AvailablePlansWithLabels } from '@/constants'
+import {
+  userChangePlanRequest as userChangePlanRequestService,
+  me as userService
+} from '../services'
+import type { User } from '@/models'
+import { useUserStore } from '@/stores/user'
 
-const selectedPlan = ref<string>('')
+export interface ChangePlanModalProps {
+  show?: boolean
+  title?: string
+  submitLabel?: string
+}
 
-const props = withDefaults(
-  defineProps<{
-    dialogClass?: string
-    title?: string
-    isVisible?: boolean
-    userChangePlanRequest: UserChangePlanRequest | null
-    isLoading?: boolean
-    userPlan: string
-    availablePlans: string[]
-    availablePlansLabels: Record<string, string>
-    onSubmit?: ({ plan }: { plan: string }) => void
-  }>(),
-  {
-    dialogClass: 'modal-dialog-scrollable modal-md',
-    isLoading: false
-  }
-)
-
-const alertType = computed(() => {
-  if (!props.userChangePlanRequest) {
-    return 'info'
-  }
-  if (props.userChangePlanRequest.status === 'pending') {
-    return 'info'
-  }
-  return props.userChangePlanRequest.status === 'rejected' ? 'warning' : 'success'
+const props = withDefaults(defineProps<ChangePlanModalProps>(), {
+  show: false,
+  title: 'Change Plan',
+  dialogClass: 'modal-lg modal-dialog-centered modal-dialog-scrollable',
+  submitLabel: 'Confirm your plan selection'
 })
 
-const emit = defineEmits(['dismiss', 'confirm'])
+// refs
+const rejectedPlan = ref<string | null>(null)
+const pendingPlan = ref<string | null>(null)
+const currentAffiliation = ref<string>('')
+const currentInstitutionalUrl = ref<string>('')
+const currentEmail = ref<string>('')
+const isLoading = ref(true)
+const error = ref<FeathersError | null>(null)
 
-const dismiss = () => {
-  console.debug('[ChangePlanModal] dismiss')
-  emit('dismiss')
-}
-const confirm = () => {
-  console.debug('[ChangePlanModal] confirm', selectedPlan.value)
-  emit('confirm')
-}
-const submit = ({ plan }: { plan: string }) => {
-  console.debug('[ChangePlanModal] submit', plan)
-  if (typeof props.onSubmit === 'function') {
-    props.onSubmit({ plan })
+const userStore = useUserStore()
+const userPlan = computed(() => userStore.userPlan)
+
+const emit = defineEmits<{
+  dismiss: []
+  success: []
+}>()
+
+async function handleOnSubmit(payload: {
+  plan: string
+  email?: string
+  affiliation?: string
+  institutionalUrl?: string
+}) {
+  // Emit success event to notify parent component
+  console.info('[ChangePlanModal] handleOnSubmit', payload)
+  if (payload.email || payload.affiliation || payload.institutionalUrl) {
+    // If any of the optional fields are provided, update the user service
+    await userService
+      .patch(null, {
+        affiliation: payload.affiliation || currentAffiliation.value,
+        institutionalUrl: payload.institutionalUrl || currentInstitutionalUrl.value,
+        email: payload.email || currentEmail.value
+      })
+      .then(data => {
+        console.info('[ChangePlanModal] User updated successfully:', data)
+      })
+      .catch((err: FeathersError) => {
+        error.value = err
+        console.error('[ChangePlanModal] Error updating user:', err.message, err.data)
+      })
   }
+
+  await userChangePlanRequestService
+    .create({
+      plan: payload.plan
+    })
+    .then(data => {
+      console.info('[ChangePlanModal] Plan-change request created successfully. data:', data)
+      emit('success')
+    })
+    .catch((err: FeathersError) => {
+      error.value = err
+      console.error('[ChangePlanModal] create', err.message, err.data)
+    })
+  // emit("success")
 }
+
+const fetchUser = async () => {
+  isLoading.value = true
+  // get user plan from store
+  // get affiliation adn insitutionalUrl from user service
+  await userService
+    .find()
+    .then((data: User) => {
+      currentAffiliation.value = data.affiliation || ''
+      currentInstitutionalUrl.value = data.institutionalUrl || ''
+      currentEmail.value = data.email || ''
+      console.debug(
+        '[ChangePlanRequestModal] fetchUser success:',
+        currentAffiliation.value,
+        currentInstitutionalUrl.value,
+        currentEmail.value
+      )
+    })
+    .catch((err: FeathersError) => {
+      error.value = err
+      console.warn('[ChangePlanRequestModal] fetchUser error ', err, err.message, err.data)
+    })
+  await userChangePlanRequestService
+    .find()
+    .then((data: UserChangePlanRequest) => {
+      console.info('[ChangePlanRequestModal] @useEffect - userChangePlanRequestService', data)
+      rejectedPlan.value = data.status === 'rejected' ? data.plan.name : null
+      pendingPlan.value = data.status === 'pending' ? data.plan.name : null
+    })
+    .catch((err: FeathersError) => {
+      if (err.code === 404) {
+        // If no change plan request exists, we can ignore this error
+        console.warn('[ChangePlanModal] No change plan request found, ignoring error:', err.message)
+        rejectedPlan.value = null
+        pendingPlan.value = null
+        return
+      }
+      error.value = err
+
+      console.error(
+        '[ChangePlanModal] @useEffect - userChangePlanRequestService',
+        err.message,
+        err.data,
+        err.code
+      )
+    })
+  isLoading.value = false
+}
+
+watch(
+  () => props.show,
+  newShow => {
+    if (newShow) {
+      fetchUser()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style>

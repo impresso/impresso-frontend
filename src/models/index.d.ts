@@ -34,7 +34,7 @@ export interface FilterInterface extends Filter {
 }
 
 export interface Bucket {
-  val: string
+  val: string | number
   count: number
   item?: Entity
 
@@ -70,7 +70,7 @@ export interface MediaSource {
   id: string
   uid: string
   name: string
-  type: 'newspaper' | 'radio' | 'radio_broadcast'
+  type: ContentItemMeta['sourceType']
   acronym?: string
   startYear?: number
   endYear?: number
@@ -102,28 +102,30 @@ export interface IImage {
   date?: Date
 }
 
-export interface User {
-  uid: string
+export type User = {
   username: string
-  isActive: boolean
   isStaff: boolean
-  email: string
   firstname: string
   lastname: string
-  pattern: string[]
+  pattern: string
+  email: string
+  profile?: {
+    pattern: string[]
+  }
+  bitmap?: string
+  groups?: Group[]
+  agreedToTerms?: boolean
+  affiliation?: string
+  institutionalUrl?: string
 }
 
 export interface CollectionItem {
   //   collectionIds: Array [ "local-dg-dk0t_7Rv" ]
 
   // collections: Array []
-  // ​
   // contentType: "A"
-  // ​​
   // itemId: "tageblatt-1923-07-06-a-i0031"
-  // ​​
   // latestDateAdded: "2024-11-09T15:28:26.274Z"
-  // ​​
   // searchQueries: Array []
   itemId: string
   latestDateAdded: Date

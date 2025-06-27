@@ -1,24 +1,29 @@
-import Helpers from '@/plugins/Helpers';
+import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
-import Topic from '@/models/Topic';
+import Topic from '@/models/Topic'
+import { Facet, Bucket } from '../models'
 
-/**
- * @typedef {import('../models').Facet} Facet
- * @typedef {import('../models').Bucket} Bucket
- */
+export interface TimelineValue {
+  val: string
+  count: number
+  w: number
+  w1: number
+  p: number
+  t: number
+}
 
-/**
- * @param {Facet} facet
- * @returns {{ val: string, count: number, w: number, w1: number, p: number, t: number }[]}
- */
-export function facetToTimelineValues(facet) {
-  const values = facet.buckets.map(d => ({
-    ...d,
-    w: d.count,
-    w1: 0,
-    p: d.item.normalize(d.count),
-    t: parseInt(d.val, 10),
-  })).sort((a , b) => a.t - b.t);
+export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[] {
+  const buckets = facet instanceof FacetModel ? facet.buckets : new FacetModel(facet).buckets
+
+  const values = buckets
+    .map(d => ({
+      ...d,
+      w: d.count,
+      w1: 0,
+      p: d.item.normalize(d.count),
+      t: parseInt(d.val, 10)
+    }))
+    .sort((a, b) => a.t - b.t)
   return Helpers.timeline.addEmptyIntervals(values)
 }
 
@@ -45,30 +50,28 @@ export const DefaultFacetTypesForIndex = Object.freeze({
     'location',
     'year'
   ]),
-  tr_clusters: Object.freeze([
-    'newspaper'
-  ]),
-  tr_passages: Object.freeze([
-    'newspaper'
-  ])
+  tr_clusters: Object.freeze(['newspaper']),
+  tr_passages: Object.freeze(['newspaper'])
 })
 
+export interface BucketData {
+  val: string
+  count: number
+  item?: any
+}
 
-/**
- * @typedef {{ val: string, count: number, item?: any }} BucketData
- * @typedef {{ type: String, numBuckets: number, buckets: BucketData[] }} FacetData
- */
+export interface FacetData {
+  type: string
+  numBuckets: number
+  buckets: BucketData[]
+}
 
-
-/**
- * @param {FacetData} facetData
- * @returns {Facet}
- */
-export const facetDataToFacet = facetData => new FacetModel({
-  numBuckets: 0,
-  buckets: [],
-  ...facetData
-})
+export const facetDataToFacet = (facetData: FacetData) =>
+  new FacetModel({
+    numBuckets: 0,
+    buckets: [],
+    ...facetData
+  })
 
 /**
  * Given a list of facet types returns an extractor function that parses
@@ -80,7 +83,7 @@ export const facetDataToFacet = facetData => new FacetModel({
  * @param {readonly string[]} facetTypes
  * @returns {(response: SearchServiceResponse) => Facet[]}
  */
-export const searchResponseToFacetsExtractor = facetTypes => response => {
+const searchResponseToFacetsExtractor = facetTypes => response => {
   const { facets: responseFacets = {} } = response.info
 
   /**
@@ -88,7 +91,8 @@ export const searchResponseToFacetsExtractor = facetTypes => response => {
    * @returns {FacetData}
    */
   const getFacetData = type => {
-    if (typeof responseFacets[type] === 'object') return /** @type {FacetData} */ (responseFacets[type])
+    if (typeof responseFacets[type] === 'object')
+      return /** @type {FacetData} */ responseFacets[type]
     return { type, buckets: [], numBuckets: 0 }
   }
   const facetDataSet = facetTypes.map(type => ({
@@ -101,9 +105,8 @@ export const searchResponseToFacetsExtractor = facetTypes => response => {
 
 const DefaultEmptyApiResponse = { info: { facets: {} } }
 
-export function buildEmptyFacets(facetTypes) {
-  return searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
-}
+export const buildEmptyFacets = facetTypes =>
+  searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
 
 const LabelExtractors = {
   /** @param {Bucket} bucket */
@@ -111,9 +114,7 @@ const LabelExtractors = {
   /** @param {Bucket} bucket */
   topic: bucket => {
     const item = bucket?.item != null ? new Topic(bucket.item) : bucket?.item
-    return item != null
-      ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}`
-      : undefined
+    return item != null ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}` : undefined
   },
   /** @param {Bucket} bucket */
   year: bucket => bucket?.item?.y ?? bucket.val,
@@ -138,14 +139,15 @@ const LabelExtractors = {
  * @returns {string}
  */
 export function getBucketLabel(bucket, type, vueInstance) {
-  const extractor = {
-    location: LabelExtractors.name,
-    person: LabelExtractors.name,
-    newspaper: LabelExtractors.name,
-    topic: LabelExtractors.topic,
-    collection: LabelExtractors.name,
-    year: LabelExtractors.year
-  }[type] ?? LabelExtractors.translated
+  const extractor =
+    {
+      location: LabelExtractors.name,
+      person: LabelExtractors.name,
+      newspaper: LabelExtractors.name,
+      topic: LabelExtractors.topic,
+      collection: LabelExtractors.name,
+      year: LabelExtractors.year
+    }[type] ?? LabelExtractors.translated
 
   return extractor(bucket, type, vueInstance) ?? bucket.val
 }

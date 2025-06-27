@@ -1,8 +1,9 @@
 <template>
   <div
-    :class="{ tooltip: true, active: isActive }"
+    class="Tooltip"
+    :class="{ active: isActive }"
     :style="{
-      transform: `translate(${x}px, ${y}px)`,
+      transform: `translate(${x}px, ${y}px)`
     }"
   >
     <div class="tooltip-wrapper" ref="wrapper">
@@ -28,21 +29,23 @@ export default {
       default: () => ({
         x: 0,
         y: 0,
-        isActive: false,
-      }),
+        isActive: false
+      })
     },
     maxWidth: {
       type: Number,
-      default: 200,
+      default: 200
     },
     /* calculate Y value instead of taking it from tooltip. */
     calculateY: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   computed: {
-    isActive() { return this.tooltip.isActive },
+    isActive() {
+      return this.tooltip.isActive
+    },
     /** @returns {number} */
     x() {
       const { width = null } =
@@ -50,7 +53,8 @@ export default {
 
       if (width == null) return this.tooltip.x
 
-      const { width: tooltipWidth = this.maxWidth } = this.$refs.wrapper?.getBoundingClientRect?.() ?? {}
+      const { width: tooltipWidth = this.maxWidth } =
+        this.$refs.wrapper?.getBoundingClientRect?.() ?? {}
 
       const halfTooltipWidth = tooltipWidth / 2
 
@@ -67,17 +71,19 @@ export default {
       const { height = 0 } = this.$refs.wrapper?.getBoundingClientRect() ?? {}
 
       return this.tooltip.y + top - height * 2
-    },
-  },
+    }
+  }
 }
 </script>
 
-<style scoped lang="less">
-.tooltip {
+<style lang="less">
+.Tooltip {
   position: absolute;
   top: 0;
   pointer-events: none;
   z-index: 1071;
+  opacity: 0;
+  font-size: var(--impresso-font-size-smaller);
 
   &.active.fadeOut,
   &.fadeOut {
@@ -96,8 +102,8 @@ export default {
     color: white;
     text-align: left;
     display: inline-block;
-
-  border-radius: 2px;
+    padding: var(--spacing-2) var(--spacing-2-5);
+    border-radius: var(--impresso-border-radius-xs);
   }
 
   p {

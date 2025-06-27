@@ -1,16 +1,17 @@
 <template>
   <i-layout>
     <!-- sidebar -->
-    <search-sidebar width="400px"
+    <search-sidebar
+      width="400px"
       :filters="enrichedFilters"
       :facets="facets"
       contextTag="powerUserVis"
-      @changed="handleFiltersChanged">
+      @changed="handleFiltersChanged"
+    >
       <template v-slot:tabs>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
-            <b-nav-item class="active"><span v-html="$t('tabs.powervis')"/>
-            </b-nav-item>
+            <b-nav-item class="active"><span v-html="$t('tabs.powervis')" /> </b-nav-item>
           </template>
         </b-tabs>
       </template>
@@ -25,37 +26,49 @@
         <template v-slot:header>
           <b-navbar>
             <section>
-              <h3 class='mb-1'>{{ $t('pages.powervis.title') }}</h3>
+              <h3 class="mb-1">{{ $t('pages.powervis.title') }}</h3>
             </section>
           </b-navbar>
 
           <b-navbar class="border-top border-bottom py-0 px-3">
             <b-navbar-nav class="pl-0 pr-2 py-2 border-right">
-              <label class="mr-2">{{$t('yvalue')}}</label>
-              <i-dropdown v-model="statsFacetModel"
-                      :options="availableStatsFacets"
-                      size="sm"
-                      variant="outline-primary"/>
+              <label class="mr-2">{{ $t('yvalue') }}</label>
+              <i-dropdown
+                v-model="statsFacetModel"
+                :options="availableStatsFacets"
+                size="sm"
+                variant="outline-primary"
+              />
             </b-navbar-nav>
             <b-navbar-nav class="p-2 border-right">
-              <label  class="mr-2">{{$t('xvalue')}}</label>
-              <i-dropdown v-model="statsDomain"
-                        :options="statsDomainsOptions"
-                        size="sm"
-                        variant="outline-primary"/>
+              <label class="mr-2">{{ $t('xvalue') }}</label>
+              <i-dropdown
+                v-model="statsDomain"
+                :options="statsDomainsOptions"
+                size="sm"
+                variant="outline-primary"
+              />
             </b-navbar-nav>
           </b-navbar>
         </template>
 
         <template v-slot:footer>
-          <div class="border-top p-2 pb-3" style='max-height: 180px;overflow:scroll'>
-            <div class="d-inline-flex mx-1 align-items-center" v-for="item in statsLegendItems" :key="item.id">
+          <div class="border-top p-2 pb-3" style="max-height: 180px; overflow: scroll">
+            <div
+              class="d-inline-flex mx-1 align-items-center"
+              v-for="item in statsLegendItems"
+              :key="item.id"
+            >
               <b-form-checkbox
                 :modelValue="selectedItems[item.id]"
-                @update:modelValue="v => handleItemChanged(item.id, v)">
+                @update:modelValue="v => handleItemChanged(item.id, v)"
+              >
                 <div
                   class="pl-1 pr-1 d-flex"
-                  :style="{'background-color': item.color.length > 7 ? item.color : `${item.color}77`}">
+                  :style="{
+                    'background-color': item.color.length > 7 ? item.color : `${item.color}77`
+                  }"
+                >
                   {{ item.label }}
                 </div>
               </b-form-checkbox>
@@ -65,20 +78,20 @@
       </PowerVisBase>
     </i-layout-section>
 
-    <Modal hide-footer
+    <Modal
+      hide-footer
       body-class="m-0 p-0"
       id="itemClickedActionModal"
       :title="'TODO'"
       :show="isItemModalVisible"
-      @close="hideItemModal()">
+      @close="hideItemModal()"
+    >
       <b>{{ JSON.stringify(itemEvent, null, 2) }}</b>
     </Modal>
-
   </i-layout>
 </template>
 
-
-<script>
+<script lang="ts">
 import { schemeCategory10, schemeAccent } from 'd3'
 
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -86,11 +99,7 @@ import Autocomplete from '@/components/Autocomplete.vue'
 import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
 import Modal from '@/components/base/Modal.vue'
 
-import {
-  search,
-  filtersItems,
-  stats
-} from '@/services';
+import { searchFacets, filtersItems, stats } from '@/services'
 import {
   serializeFilters,
   deserializeFilters,
@@ -98,11 +107,7 @@ import {
   optimizeFilters,
   joinFiltersWithItems
 } from '../logic/filters'
-import {
-  DefaultFacetTypesForIndex,
-  searchResponseToFacetsExtractor,
-  buildEmptyFacets
-} from '@/logic/facets'
+import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
 import { getQueryParameter, CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 
@@ -149,37 +154,18 @@ const QueryParameters = Object.freeze({
 /** @type {{[key: string]: StringArrayMap}} */
 const StatsFacets = {
   search: {
-    term: [
-      'newspaper',
-      'country',
-      'type',
-      'topic',
-      'language',
-      'person',
-      'location'
-    ],
-    numeric: [
-      'contentLength',
-      'pagesCount'
-    ],
+    term: ['newspaper', 'country', 'type', 'topic', 'language', 'person', 'location'],
+    numeric: ['contentLength', 'pagesCount'],
     temporal: ['time']
   },
   tr_clusters: {
     term: ['newspaper'],
-    numeric: [
-      'textReuseClusterSize',
-      'textReuseClusterLexicalOverlap',
-      'textReuseClusterDayDelta'
-    ],
+    numeric: ['textReuseClusterSize', 'textReuseClusterLexicalOverlap', 'textReuseClusterDayDelta'],
     temporal: []
   },
   tr_passages: {
     term: ['newspaper'],
-    numeric: [
-      'textReuseClusterSize',
-      'textReuseClusterLexicalOverlap',
-      'textReuseClusterDayDelta'
-    ],
+    numeric: ['textReuseClusterSize', 'textReuseClusterLexicalOverlap', 'textReuseClusterDayDelta'],
     temporal: ['time']
   }
 }
@@ -247,7 +233,7 @@ export default {
     SearchSidebar,
     Autocomplete,
     PowerVisBase,
-    Modal,
+    Modal
   },
   mounted() {
     this.facets = buildEmptyFacets(this.facetTypes)
@@ -268,7 +254,9 @@ export default {
         : Object.keys(StatsFacets).filter(index => !['tr_clusters', 'tr_passages'].includes(index))
 
       return indexes.flatMap(index => {
-        const facets = Object.values(StatsFacets[index]).flat().filter(v => v !== 'time')
+        const facets = Object.values(StatsFacets[index])
+          .flat()
+          .filter(v => v !== 'time')
         return facets.map(facet => {
           const key = `${index}.${facet}`
           return { value: key, text: this.$t(key).toString() }
@@ -276,11 +264,17 @@ export default {
       })
     },
     /** @returns {Filter[]} */
-    filters() { return deserializeFilters(getQueryParameter(this, QueryParameters.SearchFilters)) },
+    filters() {
+      return deserializeFilters(getQueryParameter(this, QueryParameters.SearchFilters))
+    },
     /** @returns {Filter[]} */
-    enrichedFilters() { return this.filtersWithItems ?? this.filters },
+    enrichedFilters() {
+      return this.filtersWithItems ?? this.filters
+    },
     /** @returns {string[]} */
-    facetTypes() { return DefaultFacetTypesForIndex[this.statsIndex] },
+    facetTypes() {
+      return DefaultFacetTypesForIndex[this.statsIndex]
+    },
     /** @return {object} */
     statsRequest() {
       return {
@@ -291,16 +285,24 @@ export default {
       }
     },
     /** @returns {string} */
-    statsFacet() { return getQueryParameter(this, QueryParameters.Facet) ?? 'contentLength' },
+    statsFacet() {
+      return getQueryParameter(this, QueryParameters.Facet) ?? 'contentLength'
+    },
     /** @returns {string} */
-    statsIndex() { return getQueryParameter(this, QueryParameters.Index) ?? 'search' },
+    statsIndex() {
+      return getQueryParameter(this, QueryParameters.Index) ?? 'search'
+    },
     statsFacetModel: {
       /** @returns {string} */
-      get() { return `${this.statsIndex}.${this.statsFacet}` },
+      get() {
+        return `${this.statsIndex}.${this.statsFacet}`
+      },
       /** @param {string} value */
       set(value) {
         const [index, facet] = value.split('.')
-        const supportedFilters = this.filters.filter(({ type }) => this.isFilterTypeSupporedInIndex(this.statsIndex, type))
+        const supportedFilters = this.filters.filter(({ type }) =>
+          this.isFilterTypeSupporedInIndex(this.statsIndex, type)
+        )
 
         this.$navigation.updateQueryParameters({
           [QueryParameters.Index]: index,
@@ -328,10 +330,14 @@ export default {
     },
     /** @returns {{ value: string, text: string }[]} */
     statsDomainsOptions() {
-      const options = (StatsFacets[this.statsIndex].term || [])
-        .map(key => ({ value: key, text: key }))
-      const temporalOptions = (StatsFacets[this.statsIndex].temporal || [])
-        .map(key => ({ value: key, text: key }))
+      const options = (StatsFacets[this.statsIndex].term || []).map(key => ({
+        value: key,
+        text: key
+      }))
+      const temporalOptions = (StatsFacets[this.statsIndex].temporal || []).map(key => ({
+        value: key,
+        text: key
+      }))
       return temporalOptions.concat(options)
     },
     /** @return {string} */
@@ -342,7 +348,7 @@ export default {
     /** @return {{ id: string, label: string | undefined, color: string }[]} */
     statsLegendItems() {
       // if (this.chart == null) return []
-      const { meta, itemsDictionary = {} } = this.stats
+      const { meta, itemsDictionary = {} } = this.stats as any
       if (meta == null) return []
 
       const isColorEnabled = colorInLegendEnabled(meta.domain, meta.facetType)
@@ -366,7 +372,7 @@ export default {
       })
 
       return lineItems.concat(areaItems)
-    },
+    }
   },
   watch: {
     filters: {
@@ -374,14 +380,16 @@ export default {
       async handler(filters) {
         const query = {
           filters: filters.map(toCanonicalFilter),
-          limit: 0,
-          facets: this.facetTypes,
-          group_by: 'articles',
+          limit: 10,
+          facets: this.facetTypes
+          // group_by: 'articles'
         }
         const [facets, filtersWithItems] = await Promise.all([
-          search.find({ query }).then(searchResponseToFacetsExtractor(this.facetTypes)),
-          filtersItems.find({ query: { filters: serializeFilters(filters) }}).then(joinFiltersWithItems)
-        ]);
+          searchFacets.find({ query }).then(response => response.data),
+          filtersItems
+            .find({ query: { filters: serializeFilters(filters) } })
+            .then(joinFiltersWithItems)
+        ])
         this.facets = facets
         this.filtersWithItems = filtersWithItems
       },
@@ -407,7 +415,8 @@ export default {
       const lineMetrics = metrics.line(this.stats)
       const areaMetrics = metrics.area(this.stats)
 
-      this.selectedItems = lineMetrics.map(({ id }) => id)
+      this.selectedItems = lineMetrics
+        .map(({ id }) => id)
         .concat(areaMetrics.map(({ id }) => id))
         .reduce((acc, id, index) => {
           if (index > DefaultNumberOfItemsInChart) return acc
@@ -418,7 +427,9 @@ export default {
     facetTypes() {
       // when facet types change we want to go through our active filters
       // and remove those, that are not supported.
-      const supportedFilters = this.filters.filter(({ type }) => this.isFilterTypeSupporedInIndex(this.statsIndex, type))
+      const supportedFilters = this.filters.filter(({ type }) =>
+        this.isFilterTypeSupporedInIndex(this.statsIndex, type)
+      )
       this.handleFiltersChanged(supportedFilters)
     },
     statsDomain() {
@@ -435,9 +446,9 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  .chart{
-    display: block;
-  }
+.chart {
+  display: block;
+}
 </style>
 
 <i18n lang="json">
@@ -461,8 +472,8 @@ export default {
       "newspaper": "number of articles published, per newspaper",
       "country": "number of articles published, per newspaper",
       "type": "number of articles published, per type",
-      "topic":  "number of articles published, by topic",
-      "language":  "number of articles published, by language",
+      "topic": "number of articles published, by topic",
+      "language": "number of articles published, by language",
       "person": "number of articles published per entity (person)",
       "location": "number of articles published per entity (location)",
       "contentLength": "article length (n of tokens, average)",
