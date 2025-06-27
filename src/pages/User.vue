@@ -89,7 +89,7 @@ function handleOnSubmit(payload: ProfileFormPayload): void {
     })
 }
 const colouredPattern = computed(() => {
-  return signUpFormInitialValues.value.pattern
+  return typeof signUpFormInitialValues?.value?.pattern === 'string'
     ? signUpFormInitialValues.value.pattern.split(',')
     : ['#000000', '#FFFFFF']
 })

@@ -47,6 +47,9 @@ export interface State {
   processingActivitiesIndex: string[]
   _processingTimer?: NodeJS.Timeout
   processingStatus: boolean
+  // init sequence
+  initSequenceDone: boolean
+  // lock screen
   _lockTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
@@ -78,10 +81,14 @@ export const useNotificationsStore = defineStore('notifications', {
     processingActivities: [],
     processingActivitiesIndex: [],
     processingStatus: false,
+    initSequenceDone: false,
     _lockTimeoutId: null
   }),
   getters: {},
   actions: {
+    setInitSequenceDone() {
+      this.initSequenceDone = true
+    },
     addNotification(notification: Notification) {
       const id = v4()
       this.notifications = [...this.notifications, { ...notification, id }]

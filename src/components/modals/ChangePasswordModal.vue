@@ -41,7 +41,7 @@ const isLoading = ref(false)
 const error = ref<FeathersError | null>(null)
 
 const props = withDefaults(defineProps<ChangePasswordModalProps>(), {
-  dialogClass: 'modal-dialog-scrollable modal-md p-0',
+  dialogClass: 'modal-dialog-scrollable modal-md p-0 modal-dialog-centered',
   title: 'Change Password'
 })
 

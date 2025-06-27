@@ -725,7 +725,7 @@ export default defineComponent({
     "label_current_search": "browse results ...",
     "label_faq": "Help",
     "label_terms": "Terms of Use",
-    "label_jobs": "Running tasks"
+    "label_jobs": "Tasks"
   }
 }
 </i18n>
