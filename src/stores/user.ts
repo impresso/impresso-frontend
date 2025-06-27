@@ -141,7 +141,12 @@ export const useUserStore = defineStore('user', {
           )
           return null
         })
-      this.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
+      if (termsOfuse && termsOfuse.dateAcceptedTerms) {
+        this.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
+      } else {
+        console.warn('[store/user] termsOfuse is null or dateAcceptedTerms is undefined.')
+        this.setAcceptTermsDate(null)
+      }
 
       if (user && user.bitmap) {
         console.info(' - bitmap:', user.bitmap)
