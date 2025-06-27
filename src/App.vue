@@ -558,7 +558,6 @@ input[type='range']:active::-ms-thumb {
 .ngram-highlight {
   background-color: #17191c;
   color: white;
-  font-family: 'questa-sans', sans-serif;
 
   &::after {
     content: '"';
