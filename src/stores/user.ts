@@ -1,8 +1,15 @@
 import { defineStore } from 'pinia'
-import { app, MEDIA_COOKIE_NAME, me as meService, MIDDLELAYER_MEDIA_PATH } from '@/services'
+import {
+  app,
+  MEDIA_COOKIE_NAME,
+  me as meService,
+  termsOfUse as termsOfUseService,
+  MIDDLELAYER_MEDIA_PATH
+} from '@/services'
 import User from '@/models/User'
 import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
 import { removeCookie, setCookie } from '@/util/cookies'
+import { TermsOfUse } from '@/services/types'
 
 export interface State {
   userData: User | false
@@ -118,6 +125,24 @@ export const useUserStore = defineStore('user', {
       const { accessToken, authentication, user } = authResult as IAuthResult
 
       console.info('[store/user] Authentication response:', Object.keys(authResult))
+
+      const termsOfuse: TermsOfUse | null = await termsOfUseService
+        .find()
+        .then((data: TermsOfUse) => {
+          console.debug('[store/user] call termsOfUseService.find() success:', data)
+          return data
+        })
+        .catch(err => {
+          console.error(
+            '[store/user] call termsOfUseService.find() error:',
+            err.message,
+            err.data,
+            err.code
+          )
+          return null
+        })
+      this.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
+
       if (user && user.bitmap) {
         console.info(' - bitmap:', user.bitmap)
         this.bitmap = user.bitmap
