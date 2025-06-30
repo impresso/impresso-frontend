@@ -21,7 +21,7 @@
         data-testid="article-access-rights"
         v-if="item.dataProvider != null && item.dataProvider.length"
       >
-        {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
+        {{ $t(`buckets.copyright.${item.copyright}`) }} &mdash; {{ $t('providedBy') }}
         <ItemSelector
           :uid="item.dataProvider"
           :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
