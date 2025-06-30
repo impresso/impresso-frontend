@@ -321,9 +321,7 @@ const FacetTypesWithMultipleValues = [
   'contentLength'
 ].concat(
   // unsupported fields in new SOLR
-  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
-    ? ['dataDomain', 'copyright']
-    : ['accessRight']
+  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
 )
 
 const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
