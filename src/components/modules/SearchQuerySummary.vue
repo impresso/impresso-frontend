@@ -31,7 +31,8 @@ export default {
         'language',
         'country',
         'year',
-        'accessRight'
+        'accessRight',
+        'copyright'
       ]
     }
   },
@@ -330,6 +331,7 @@ export default {
   span.item.person,
   span.item.topic,
   span.item.location,
+  span.item.copyright,
   span.item.daterange > span.date {
     text-transform: uppercase;
     font-family: var(--bs-font-sans-serif);
@@ -339,7 +341,6 @@ export default {
     font-weight: var(--impresso-wght-smallcaps);
     font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
   }
-
   span.item.collection {
     font-family: var(--bs-font-sans-serif);
     color: #049dae;
@@ -382,6 +383,7 @@ export default {
     "isFront": "appearing on the <em>front page</em>",
     "include": {
       "accessRight": "available as",
+      "copyright": "available as",
       "topic": "with topic",
       "pub": {
         "newspaper": "published in",
@@ -402,7 +404,6 @@ export default {
       "language": "written in",
       "country": "printed in",
       "type": "- tagged as",
-      "year": "in year",
       "textReuseCluster": "showing up in clusters",
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
@@ -410,6 +411,7 @@ export default {
     },
     "exclude": {
       "accessRight": "not available as",
+      "copyright": "not available as",
       "topic": "without topic",
       "pub": {
         "newspaper": "not published in",
@@ -429,7 +431,6 @@ export default {
       "language": "not written in",
       "country": "not printed in",
       "type": "- not tagged as",
-      "year": "not in year",
       "textReuseCluster": "not in clusters",
       "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
