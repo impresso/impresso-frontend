@@ -9,20 +9,18 @@
                 <div class="label small-caps">
                   <RouterLink :to="{ name: 'searchRadio' }">Radio</RouterLink>
                 </div>
-                <h3 class="mb-1" v-if="fetchAudioItemResponse.data">
+                <h3 class="mb-1" v-if="contentItem">
                   <div class="MediaSourceLabel d-inline-block">
                     <a href="" class="">
-                      <span class="">{{ fetchAudioItemResponse.data.mediaSource.name }}</span>
-                      <span class="small-caps"> Radio broadcast</span>
+                      <span class="">{{ contentItem?.meta?.mediaId }}</span>
+                      <span class="small-caps"> {{ contentItem?.meta?.sourceType }}</span>
                     </a>
                   </div>
                   <span class="date"
-                    >&nbsp;—&nbsp;{{
-                      $d(new Date(fetchAudioItemResponse.data.publicationDate), 'long')
-                    }}</span
+                    >&nbsp;—&nbsp;{{ $d(new Date(contentItem?.meta?.date), 'long') }}</span
                   >
                   <br />
-                  <b>{{ fetchAudioItemResponse.data.title }}</b>
+                  <b>{{ contentItem?.text?.title }}</b>
                 </h3>
                 <div class="d-flex align-items-center">
                   <div class="textbox-fancy text-serif">
@@ -66,7 +64,7 @@
                                 <button
                                   type="button"
                                   class="btn btn-outline-primary btn-sm disabled float-right float-right"
-                                  disabled=""
+                                  disabled="false"
                                 >
                                   Create New
                                 </button>
@@ -90,31 +88,44 @@
         </b-navbar>
         <b-navbar class="w-100 border-bottom">
           <div class="container">
-            <AudioPlayer
+            <!-- <AudioPlayer
               class="w-100 me-5 mr-5"
               :src="itemAudioSrc"
-              :is-loading="isLoading"
+              :is-loading="status === 'loading'"
               :current-time="currentTime"
               @timeupdate="currentTime = $event"
-            ></AudioPlayer>
+            ></AudioPlayer> -->
           </div>
         </b-navbar>
       </template>
       <div class="container">
-        <AudioItem
-          v-if="fetchAudioItemResponse.data"
-          :item="fetchAudioItemResponse.data"
-          :is-loading="isLoading"
-        ></AudioItem>
+        <div v-for="(record, idx) in contentItem?.audio?.records ?? []" :key="idx">
+          <AudioItem
+            :audio-url="getAudioRecordUrl(record.id)"
+            :title="'TODO'"
+            :duration="contentItem?.audio?.duration"
+            :data-provider="contentItem?.meta?.partnerId"
+            :access-rights="contentItem?.access?.copyright!"
+            :item-type="contentItem?.text?.itemType!"
+            :media-source="mediaSource"
+            :publication-date="contentItem?.meta?.date"
+            :transcript-length="contentItem?.text?.contentLength"
+            :is-loading="status === 'loading'"
+            :excerpt="contentItem?.text?.snippet"
+            :enable-player="true"
+            :current-time="currentTime"
+            @timeupdate="currentTime = $event"
+          ></AudioItem>
 
-        <TranscriptViewer
-          class="mt-3"
-          v-if="fetchAudioItemResponse.data"
-          :rrrebs="fetchAudioItemResponse.data.rrrebs"
-          :utterances="fetchAudioItemResponse.data.utterances"
-          :current-time="currentTime"
-          @click="onTranscriptViewerClick"
-        ></TranscriptViewer>
+          <TranscriptViewer
+            class="mt-3"
+            v-if="contentItem?.text"
+            :content="contentItem?.text?.content"
+            :audio-segments-locators="record.audioSegmentsLocators ?? []"
+            :current-time="currentTime"
+            @click="onTranscriptViewerClick"
+          ></TranscriptViewer>
+        </div>
       </div>
     </i-layout-section>
   </i-layout>
@@ -130,16 +141,38 @@
 }
 </i18n>
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
-import PageHeading from '@/components/base/PageHeading.vue'
-import type { AudioContentItem, Rrreb } from '@/models'
+import { MediaSource } from '@/models'
+import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import { contentItems as contentItemsService } from '@/services'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
-import AudioPlayer from 'impresso-ui-components/components/audioPlayer/AudioPlayer.vue'
+// import AudioPlayer from 'impresso-ui-components/components/audioPlayer/AudioPlayer.vue'
 import TranscriptViewer from 'impresso-ui-components/components/audioPlayer/TranscriptViewer.vue'
-import { watch } from 'vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
+
+type Status = 'noContentItemId' | 'loading' | 'loaded' | 'error' | 'unsupportedContentItemType'
+
+const status = ref<Status>('noContentItemId')
+const contentItem = ref<ContentItem | null>(null)
+
+const mediaSource = computed<MediaSource | null>(() => {
+  if (contentItem.value) {
+    return {
+      id: contentItem.value.meta?.mediaId!,
+      uid: contentItem.value.meta?.mediaId!,
+      type: contentItem.value?.meta?.sourceType!,
+      name: contentItem.value.meta?.mediaId!
+    } satisfies MediaSource
+  }
+  return null
+})
+
+const isContentItemSupported = (item: ContentItem) => {
+  return item?.meta?.sourceMedium === 'audio'
+}
+
 const ContentItemAudioSrcs = {
   'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3',
   'CFCE-1996-09-15-a-i0001': '/mock-media/CFCE-1996-09-15-a-r0001.MP3',
@@ -161,57 +194,46 @@ const ContentItemJsonUrls = {
     'https://gist.githubusercontent.com/danieleguido/93bae33a202e442eea622970cbf065a0/raw/8890f58cb6deb245ef8211666e9c2f47ea88d358/RDN-1950-01-12-a-i0001.json'
 }
 
-const fetchAudioItemResponse = ref<{
-  status: 'loading' | 'success' | 'error'
-  data: AudioContentItem | null
-}>({
-  status: 'loading',
-  data: null
-})
-
 const currentTime = ref(0)
-const isLoading = computed(() => fetchAudioItemResponse.value?.status === 'loading')
 
-const onTranscriptViewerClick = (rrreb: Rrreb): void => {
+const onTranscriptViewerClick = (rrreb: any): void => {
   console.debug('[AudioContentItem] onTranscriptViewerClick', rrreb)
   // Here you can handle the click event on the transcript viewer
   // For example, you might want to update the current time of the audio player
   currentTime.value = rrreb.startTime
 }
 
-function fetchAudioItem(id: string): void {
-  if (!ContentItemJsonUrls[id]) {
-    console.error('No URL found for audio item with id:', id)
-    fetchAudioItemResponse.value = {
-      status: 'error',
-      data: null
+const loadContentItem = async (id: string) => {
+  try {
+    status.value = 'loading'
+    const response = await contentItemsService.get(id)
+    console.log('RRR', response)
+    contentItem.value = response
+
+    if (contentItem.value == null) {
+      status.value = 'noContentItemId'
+      return
+    } else if (isContentItemSupported(contentItem.value)) {
+      status.value = 'loaded'
+    } else {
+      status.value = 'unsupportedContentItemType'
     }
-    return
+  } catch (e) {
+    status.value = 'error'
+    throw e
   }
-  fetch(ContentItemJsonUrls[id])
-    .then(response => response.json())
-    .then((data: AudioContentItem) => {
-      fetchAudioItemResponse.value = {
-        status: 'success',
-        data
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching audio item:', error)
-      fetchAudioItemResponse.value = {
-        status: 'error',
-        data: null
-      }
-    })
+}
+
+const getAudioRecordUrl = (id: string) => {
+  return ContentItemAudioSrcs[id] ?? null
 }
 
 watch(
-  () => route.params.content_item_uid,
-  (newId, oldId) => {
+  () => route.params.content_item_uid as string,
+  async (newId, oldId) => {
     // react to route changes...
     if (newId !== oldId) {
-      console.debug('[AudioContentItem] Route changed, fetching new audio item...')
-      fetchAudioItem(route.params.content_item_uid)
+      await loadContentItem(newId)
     }
   },
   { immediate: true }

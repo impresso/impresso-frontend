@@ -366,7 +366,7 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_uid',
-      component: import('@/pages/AudioContentItem.vue'),
+      component: () => import('@/pages/AudioContentItem.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
