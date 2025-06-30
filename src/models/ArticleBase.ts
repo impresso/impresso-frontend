@@ -27,6 +27,8 @@ interface ArticleBaseConstructorParams {
   regionBreaks?: any[]
   mentions?: any[]
   content?: string
+  dataDomain?: string
+  copyright?: string
 }
 
 /**
@@ -52,6 +54,8 @@ export default class ArticleBase {
   matches: Match[]
   locations: Entity[]
   persons: Entity[]
+  dataDomain?: string
+  copyright?: string
 
   constructor({
     uid = '',
@@ -72,7 +76,9 @@ export default class ArticleBase {
     contentLineBreaks = [],
     regionBreaks = [],
     mentions = [],
-    content = ''
+    content = '',
+    copyright,
+    dataDomain
   }: ArticleBaseConstructorParams = {}) {
     this.uid = String(uid)
     this.type = String(type)
@@ -83,6 +89,11 @@ export default class ArticleBase {
     this.nbPages = typeof nbPages === 'string' ? parseInt(nbPages, 10) : nbPages
     this.pages = pages
     this.accessRight = accessRight
+    if (accessRight === 'na') {
+      this.accessRight = copyright ?? 'na'
+    }
+    this.copyright = copyright
+    this.dataDomain = dataDomain
     this.images = images
     this.contentLineBreaks = contentLineBreaks
     this.regionBreaks = regionBreaks
