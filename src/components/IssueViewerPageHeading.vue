@@ -47,7 +47,9 @@
                 })
               "
             ></span>
-            <span v-if="article"> {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}</span>
+            <span v-if="article && article.copyright">
+              {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}</span
+            >
             <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
           </div>
           <div class="ml-auto" style="min-width: 200px">
