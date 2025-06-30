@@ -169,7 +169,7 @@ export const getSearchFacetsService = (index: string) => {
       throw new Error(`Unknown search facet index: ${index}`)
   }
 }
-
+export const contentItems = app.service('content-items')
 export const tableOfContents = app.service('table-of-contents')
 export const searchQueriesComparison = app.service('search-queries-comparison')
 export const errorCollector = app.service('errors-collector')
