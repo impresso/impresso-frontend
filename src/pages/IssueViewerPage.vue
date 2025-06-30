@@ -110,7 +110,6 @@ import IssueViewerSidebar from '@/components/IssueViewerSidebar.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
-import DataProviderLabel from '@/components/modules/lists/DataProviderLabel.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 
 // Viewer modes
@@ -261,15 +260,15 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
  * @returns {Promise<void>} A promise that resolves when the content item has been fetched and updated.
  */
 async function fetchContentItem(id: string): Promise<void> {
-  console.debug('[IssueViewerPage] fetchContentItem id:', contentItemId.value)
+  console.debug('[IssueViewerPage] fetchContentItem id:', id)
 
   if (tableOfContents.value) {
     // partial content item
-    contentItem.value = tableOfContents.value.articles.find(d => d.uid === contentItemId.value)
+    contentItem.value = tableOfContents.value.articles.find(d => d.uid === id)
   }
 
   await contentItemsService
-    .get(contentItemId.value, { ignoreErrors: true })
+    .get(id, { ignoreErrors: true })
     .then(data => {
       console.debug('[IssueViewerPage] fetchContentItem contentItem OK', data)
       contentItem.value = new Article(data)
