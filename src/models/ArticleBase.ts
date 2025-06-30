@@ -28,6 +28,7 @@ interface ArticleBaseConstructorParams {
   mentions?: any[]
   content?: string
   dataDomain?: string
+  dataProvider?: string
   copyright?: string
 }
 
@@ -55,6 +56,7 @@ export default class ArticleBase {
   locations: Entity[]
   persons: Entity[]
   dataDomain?: string
+  dataProvider?: string
   copyright?: string
 
   constructor({
@@ -78,7 +80,8 @@ export default class ArticleBase {
     mentions = [],
     content = '',
     copyright,
-    dataDomain
+    dataDomain,
+    dataProvider
   }: ArticleBaseConstructorParams = {}) {
     this.uid = String(uid)
     this.type = String(type)
@@ -91,6 +94,7 @@ export default class ArticleBase {
     this.accessRight = accessRight
     this.copyright = copyright
     this.dataDomain = dataDomain
+    this.dataProvider = dataProvider
     this.images = images
     this.contentLineBreaks = contentLineBreaks
     this.regionBreaks = regionBreaks
