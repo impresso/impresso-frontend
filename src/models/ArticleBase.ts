@@ -89,9 +89,6 @@ export default class ArticleBase {
     this.nbPages = typeof nbPages === 'string' ? parseInt(nbPages, 10) : nbPages
     this.pages = pages
     this.accessRight = accessRight
-    if (accessRight === 'na') {
-      this.accessRight = copyright ?? 'na'
-    }
     this.copyright = copyright
     this.dataDomain = dataDomain
     this.images = images
