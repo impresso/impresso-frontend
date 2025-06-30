@@ -64,7 +64,9 @@ export default class Article extends ArticleBase {
     contentLineBreaks = [],
     regionBreaks = [],
     mentions = [],
-    content = ''
+    content = '',
+    copyright,
+    dataDomain
   } = {}) {
     super({
       uid,
@@ -85,7 +87,9 @@ export default class Article extends ArticleBase {
       contentLineBreaks,
       regionBreaks,
       mentions,
-      content
+      content,
+      copyright,
+      dataDomain
     })
     // missing data from ArticleBase
     this.country = String(country)
