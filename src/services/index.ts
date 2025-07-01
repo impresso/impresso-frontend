@@ -169,7 +169,7 @@ export const getSearchFacetsService = (index: string) => {
       throw new Error(`Unknown search facet index: ${index}`)
   }
 }
-
+export const contentItems = app.service('content-items')
 export const tableOfContents = app.service('table-of-contents')
 export const searchQueriesComparison = app.service('search-queries-comparison')
 export const errorCollector = app.service('errors-collector')
@@ -186,6 +186,7 @@ export const articlesSearch = app.service('articles-search')
 export const entityMentionsTimeline = app.service('entity-mentions-timeline')
 export const textReuseConnectedClusters = app.service('text-reuse-connected-clusters')
 export const passwordReset = app.service('password-reset')
+export const changePassword = app.service('change-password')
 export const termsOfUse = app.service('terms-of-use')
 export const userChangePlanRequest = app.service('user-change-plan-request')
 export const userRequests = app.service('user-requests')
@@ -197,6 +198,7 @@ export const barista = app.service('barista-proxy')
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
+export const MEDIA_COOKIE_NAME = 'impresso_jwt'
 
 export const getAuthenticationToken = (): string | undefined =>
   app.authentication.options.storage['feathers-jwt']

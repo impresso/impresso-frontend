@@ -81,6 +81,36 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  //
+  cubeDots: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12.4961 19.7165L18.4961 16.2879C18.8077 16.1099 19 15.7785 19 15.4197V9.58032C19 9.22147 18.8077 8.89012 18.4961 8.71208L12.4961 5.28351C12.1887 5.10783 11.8113 5.10783 11.5039 5.28351L5.50386 8.71208C5.19229 8.89012 5 9.22147 5 9.58032V15.4197C5 15.7785 5.19229 16.1099 5.50386 16.2879L11.5039 19.7165C11.8113 19.8922 12.1887 19.8922 12.4961 19.7165Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.5 9.5L12 13M12 13L18.5 9.5M12 13V19.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 3.01013L3.01 2.99902" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 21.0101L3.01 20.999" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 3.01013L21.01 2.99902" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 21.0101L21.01 20.999" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12.4961 19.7165L18.4961 16.2879C18.8077 16.1099 19 15.7785 19 15.4197V9.58032C19 9.22147 18.8077 8.89012 18.4961 8.71208L12.4961 5.28351C12.1887 5.10783 11.8113 5.10783 11.5039 5.28351L5.50386 8.71208C5.19229 8.89012 5 9.22147 5 9.58032V15.4197C5 15.7785 5.19229 16.1099 5.50386 16.2879L11.5039 19.7165C11.8113 19.8922 12.1887 19.8922 12.4961 19.7165Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M5.5 9.5L12 13M12 13L18.5 9.5M12 13V19.5'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M3 3.01013L3.01 2.99902'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M3 21.0101L3.01 20.999'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M21 3.01013L21.01 2.99902'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M21 21.0101L21.01 20.999'
+      }
+    ]
+  },
   slack: {
     width: 1664,
     height: 1792,
@@ -93,7 +123,7 @@ const Icons: Record<string, IconData> = {
   search: {
     paths: [
       {
-        style: `fill:transparent;stroke-width:${props.strokeWidth}px;`,
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px;stroke:currentColor`,
         d: 'M17 17L21 21'
       },
       {
@@ -212,6 +242,19 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  key: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M10 12C10 14.2091 8.20914 16 6 16C3.79086 16 2 14.2091 2 12C2 9.79086 3.79086 8 6 8C8.20914 8 10 9.79086 10 12ZM10 12H22V15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18 12V15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M10 12C10 14.2091 8.20914 16 6 16C3.79086 16 2 14.2091 2 12C2 9.79086 3.79086 8 6 8C8.20914 8 10 9.79086 10 12ZM10 12H22V15'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M18 12V15'
+      }
+    ]
+  },
   label: {
     paths: [
       {
@@ -242,6 +285,22 @@ const Icons: Record<string, IconData> = {
       {
         style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
         d: 'M19 12H21'
+      }
+    ]
+  },
+  profileCircle: {
+    paths: [
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M4.271 18.3457C4.271 18.3457 6.50002 15.5 12 15.5C17.5 15.5 19.7291 18.3457 19.7291 18.3457'
+      },
+      {
+        style: `stroke: currentColor; stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12Z'
       }
     ]
   },
@@ -374,6 +433,27 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  textBox: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12 8L12 16M12 8H8M12 8H16" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 13.5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13.5M21 10.5V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V10.5" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"></path><path d="M19.5 13.5V10.5H22.5V13.5H19.5Z" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"></path><path d="M1.5 13.5V10.5H4.5V13.5H1.5Z" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 8L12 16M12 8H8M12 8H16'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linejoin:round;`,
+        d: 'M21 13.5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13.5M21 10.5V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V10.5'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linejoin:round;`,
+        d: 'M19.5 13.5V10.5H22.5V13.5H19.5Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linejoin:round;`,
+        d: 'M1.5 13.5V10.5H4.5V13.5H1.5Z'
+      }
+    ]
+  },
   timer: {
     paths: [
       {
@@ -444,7 +524,8 @@ const IconAliases: Record<string, string> = {
   month: 'timer',
   newspaper: 'journal',
   type: 'label',
-  country: 'position'
+  country: 'position',
+  person: 'cubeDots'
 }
 
 const computedPaths = computed(() => {

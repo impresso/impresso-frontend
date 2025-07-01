@@ -321,9 +321,7 @@ const FacetTypesWithMultipleValues = [
   'contentLength'
 ].concat(
   // unsupported fields in new SOLR
-  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
-    ? ['dataDomain', 'copyright']
-    : ['accessRight']
+  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
 )
 
 const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
@@ -722,7 +720,7 @@ export default {
 
         // get remaining facets and enriched filters.
         const facetTypes = [
-          ...['person', 'location', 'topic', 'partner'],
+          ...['person', 'location', 'topic'],
           ...(this.isLoggedIn ? ['collection'] : [])
         ]
 

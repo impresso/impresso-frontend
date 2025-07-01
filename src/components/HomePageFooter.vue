@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-dark m-xl-3">
+  <footer class="m-xl-3">
     <div class="container-fluid">
       <div class="line double my-4"></div>
       <h3 class="mb-3">Partners</h3>

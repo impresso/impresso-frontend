@@ -1,17 +1,17 @@
-/**
- * @param {import('vue/types/vue').Vue} vueInstance
- * @param {string} parameter
- * @param {string | undefined} defaultValue
- * @returns {string | undefined}
- */
-export function getQueryParameter(vueInstance, parameter, defaultValue = undefined) {
+import type { RouteLocationNormalizedLoaded } from 'vue-router'
+
+export function getQueryParameter(
+  vueInstance: { $route: RouteLocationNormalizedLoaded },
+  parameter: string,
+  defaultValue: string | undefined = undefined
+): string | undefined {
   const value = vueInstance.$route.query[parameter]
   if (value == null) return defaultValue
   if (Array.isArray(value)) {
     console.warn(`"${parameter}" is listed multiple times: ${value}`)
-    return /** @type {string | undefined} */ (value[0])
+    return value[0] as string | undefined
   }
-  return value
+  return value as string | undefined
 }
 
 export const CommonQueryParameters = Object.freeze({
@@ -26,5 +26,7 @@ export const CommonQueryParameters = Object.freeze({
   OrderBy: 'sort',
   PageNumber: 'p',
   VisualisationType: 'vis',
-  VisualisationOrderBy: 'vis_sort'
+  VisualisationOrderBy: 'vis_sort',
+  LegacyArticleId: 'articleId',
+  ContentItemId: 'contentItemId'
 })

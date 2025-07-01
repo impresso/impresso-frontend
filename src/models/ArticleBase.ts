@@ -3,6 +3,7 @@ import Entity from './Entity'
 import Match from './Match'
 
 interface Page {
+  uid: string
   num: number
   // Add other page properties as needed
 }
@@ -26,6 +27,9 @@ interface ArticleBaseConstructorParams {
   regionBreaks?: any[]
   mentions?: any[]
   content?: string
+  dataDomain?: string
+  dataProvider?: string
+  copyright?: string
 }
 
 /**
@@ -51,6 +55,9 @@ export default class ArticleBase {
   matches: Match[]
   locations: Entity[]
   persons: Entity[]
+  dataDomain?: string
+  dataProvider?: string
+  copyright?: string
 
   constructor({
     uid = '',
@@ -71,7 +78,10 @@ export default class ArticleBase {
     contentLineBreaks = [],
     regionBreaks = [],
     mentions = [],
-    content = ''
+    content = '',
+    copyright,
+    dataDomain,
+    dataProvider
   }: ArticleBaseConstructorParams = {}) {
     this.uid = String(uid)
     this.type = String(type)
@@ -82,6 +92,9 @@ export default class ArticleBase {
     this.nbPages = typeof nbPages === 'string' ? parseInt(nbPages, 10) : nbPages
     this.pages = pages
     this.accessRight = accessRight
+    this.copyright = copyright
+    this.dataDomain = dataDomain
+    this.dataProvider = dataProvider
     this.images = images
     this.contentLineBreaks = contentLineBreaks
     this.regionBreaks = regionBreaks

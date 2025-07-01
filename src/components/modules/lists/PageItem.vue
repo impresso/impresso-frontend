@@ -1,15 +1,18 @@
 <template>
   <div class="page-item" :class="{ active: props.active }">
     <div class="number text-center position-absolute">{{ props.item.num }}</div>
-    <AuthImg :src="props.item.getIiifThumbnail({ dim: 30 })" width="100%" />
+    <AuthImg :src="getIiifThumbnail(props.item.iiif, { dim: 30 })" width="100%" />
   </div>
 </template>
 
 <script setup lang="ts">
 import AuthImg from '@/components/AuthImg.vue'
-import Page from '@/models/Page'
+import type { IPage } from '@/models/Page'
+import { getIiifThumbnail } from '@/models/Page'
 
-const props = defineProps<{ active: boolean; item: Page }>()
+export type IPageItem = Pick<IPage, 'num' | 'iiif'>
+
+const props = defineProps<{ active: boolean; item: IPageItem }>()
 </script>
 
 <style lang="scss" scoped>

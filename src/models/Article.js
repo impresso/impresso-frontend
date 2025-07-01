@@ -64,7 +64,9 @@ export default class Article extends ArticleBase {
     contentLineBreaks = [],
     regionBreaks = [],
     mentions = [],
-    content = ''
+    content = '',
+    copyright,
+    dataDomain
   } = {}) {
     super({
       uid,
@@ -85,7 +87,10 @@ export default class Article extends ArticleBase {
       contentLineBreaks,
       regionBreaks,
       mentions,
-      content
+      content,
+      copyright,
+      dataDomain,
+      dataProvider
     })
     // missing data from ArticleBase
     this.country = String(country)
@@ -109,7 +114,6 @@ export default class Article extends ArticleBase {
 
     this.labels = labels.map(label => String(label))
 
-    this.dataProvider = dataProvider
     if (newspaper instanceof Newspaper) {
       this.newspaper = newspaper
     } else {

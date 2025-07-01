@@ -2,44 +2,49 @@
   <form :class="['ChangePlanRequestForm', props.className]" @submit="handleOnSubmit">
     <FeathersErrorManager :error="props.error" />
 
-    <section class="mb-3 d-flex flex-wrap gap-2 align-items-center justify-content-center">
-      <label
+    <section class="py-1 my-3 border rounded-lg shadow-sm">
+      <div
         v-for="availablePlan in props.availablePlans"
         :key="availablePlan"
-        :class="[
-          'border rounded-md shadow-sm d-block py-2 pr-3 pl-2 d-flex ',
-          { active: selectedPlan === availablePlan },
-          { current: props.currentPlan === availablePlan },
-          { pending: pendingPlan === availablePlan }
-        ]"
+        class="d-flex align-items-center gap-2 m-2 p-1"
       >
-        <input
-          type="radio"
-          :name="'plan'"
-          :id="`ChangePlanRequestForm.${availablePlan}`"
-          :checked="selectedPlan === availablePlan"
-          @change="selectedPlan = availablePlan"
-          :disabled="
-            allowAllPlans
-              ? false
-              : userChangePlanRequest?.status !== 'pending' ||
-                props.currentPlan === availablePlan ||
-                availablePlan === userChangePlanRequest?.plan.name
-          "
-        />
-        <div class="ml-2">
-          {{ props.availablePlansLabels[availablePlan] }}
-          <div v-if="props.currentPlan === availablePlan">
-            <span class="badge bg-primary text-white small-caps">Your plan</span>
+        <label
+          :class="[
+            'border rounded-md shadow-sm d-block py-2 pr-3 pl-2 d-flex m-0',
+            { active: selectedPlan === availablePlan },
+            { current: props.currentPlan === availablePlan },
+            { pending: pendingPlan === availablePlan }
+          ]"
+        >
+          <input
+            type="radio"
+            :name="'plan'"
+            :id="`ChangePlanRequestForm.${availablePlan}`"
+            :checked="selectedPlan === availablePlan"
+            @change="selectedPlan = availablePlan"
+            :disabled="
+              allowAllPlans
+                ? false
+                : userChangePlanRequest?.status !== 'pending' ||
+                  props.currentPlan === availablePlan ||
+                  availablePlan === userChangePlanRequest?.plan.name
+            "
+          />
+          <div class="ml-2">
+            {{ props.availablePlansLabels[availablePlan] }}
+            <div v-if="props.currentPlan === availablePlan">
+              <span class="badge bg-primary text-white small-caps">Your plan</span>
+            </div>
+            <div v-if="pendingPlan === availablePlan">
+              <span class="badge bg-info text-dark small-caps">Pending change</span>
+            </div>
+            <div v-if="rejectedPlan === availablePlan">
+              <span class="badge bg-warning text-dark small-caps">rejected change</span>
+            </div>
           </div>
-          <div v-if="pendingPlan === availablePlan">
-            <span class="badge bg-info text-dark small-caps">Pending change</span>
-          </div>
-          <div v-if="rejectedPlan === availablePlan">
-            <span class="badge bg-warning text-dark small-caps">rejected change</span>
-          </div>
-        </div>
-      </label>
+        </label>
+        <p class="m-0 small" v-html="$t('description_' + availablePlan)" />
+      </div>
     </section>
 
     <button
@@ -53,7 +58,15 @@
     </button>
   </form>
 </template>
-
+<i18n type="json">
+{
+  "en": {
+    "description_plan-basic": "Select if not enrolled in an academic institution",
+    "description_plan-educational": "Select if you are enrolled as a <b>student</b> in an academic institution",
+    "description_plan-researcher": "Select if you are <b>research staff</b> in an academic institution"
+  }
+}
+</i18n>
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import type { FeathersError } from '@feathersjs/errors'

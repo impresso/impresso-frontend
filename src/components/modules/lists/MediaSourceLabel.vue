@@ -17,7 +17,7 @@ import type { MediaSource } from '@/models'
 import { RouterLink } from 'vue-router'
 import { computed } from 'vue'
 
-interface MediaSourceLabelProps {
+export interface MediaSourceLabelProps {
   item: MediaSource
   showLink?: boolean
   showType?: boolean

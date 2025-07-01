@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import { PlanEducational } from '../src/constants'
 
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
@@ -79,11 +80,26 @@ const collectErrors = http.post('/api/errors-collector', () => {
   return HttpResponse.json({})
 })
 
+const userChangePlanRequest = http.get('/api/user-change-plan-request', () => {
+  return HttpResponse.json({
+    id: 1,
+    plan: {
+      id: 2,
+      name: PlanEducational
+    },
+    status: 'pending',
+    dateCreated: new Date().toISOString(),
+    dateLastModified: new Date().toISOString(),
+    changelog: []
+  })
+})
+
 export const handlers = {
   getYearFacetHandler,
   getEntity,
   getMe,
   getImpressoPyFunction,
   sendBaristaMessage,
-  collectErrors
+  collectErrors,
+  userChangePlanRequest
 }

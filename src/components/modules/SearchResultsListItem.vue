@@ -3,7 +3,7 @@
     class="media py-3 border-bottom search-result-list-item SearchResultListItem"
     data-testid="search-results-list-item"
   >
-    <div class="media-aside align-self-start">
+    <div class="media-aside align-self-start overflow-hidden">
       <div v-if="isAvailable()" class="thumbnail">
         <IIIFFragment
           @selected="goToArticle"

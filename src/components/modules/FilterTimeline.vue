@@ -36,7 +36,6 @@
             type="button"
           />
           <info-button name="linear-vs-power-scale-year-graph" class="ml-2" />
-          {{ exponent }}
         </form>
       </template>
     </base-title-bar>
@@ -62,7 +61,7 @@
           <div v-else>
             {{ $d(tooltipScope.tooltip.item.t, 'year') }}
             &middot;
-            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
+            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '0' }}</b>
             {{ groupBy }}
           </div>
         </div>
@@ -168,7 +167,7 @@ export default {
     temporaryFilter: null,
     selectedFilterBrush: [],
     selectedFilterIndex: -1,
-    displayStyle: DisplayStylePercent,
+    displayStyle: DisplayStyleSum,
     exponent: ExponentLinear
   }),
   components: {

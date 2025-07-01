@@ -3,10 +3,25 @@
     <DataRundownModal
       :requestDelay="500"
       :isVisible="view === ViewDataRundown"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
     ></DataRundownModal>
+    <ChangePasswordModal
+      :isVisible="view === ViewChangePassword"
+      @dismiss="resetView"
+      @success="changeView(ViewChangePasswordSuccess)"
+    />
+    <!-- generic message Modal -->
+    <InfoModal
+      :isVisible="[ViewChangePasswordSuccess].includes(view as any)"
+      :modalTitle="$t('view_' + view + '_modalTitle')"
+      :title="$t('view_' + view + '_title')"
+      dialogClass="modal-md modal-dialog-centered"
+      @dismiss="resetView"
+    >
+      <p v-html="$t('view_' + view + '_content')"></p>
+    </InfoModal>
     <!--  -->
-    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="() => resetView()">
+    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
       <template v-slot:terms-of-use-status>
         <Alert
           :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
@@ -37,7 +52,7 @@
     </TermsOfUseModal>
     <PlansModal
       :isVisible="view === ViewPlans"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
       :modalTitle="$t('User plans overview')"
       :title="$t('Impresso User Plans')"
       :content="fetchPlansResponse.data?.planContent.body || ''"
@@ -61,7 +76,7 @@
     <InfoModal
       :isVisible="view === ViewInfoModal"
       :title="$t('User settings')"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
     >
       <div class="d-flex justify-content-between border-bottom p-2">
         <div>
@@ -108,23 +123,39 @@
     </InfoModal>
     <!--  -->
     <ChangePlanModal
-      :available-plans="AvailablePlans"
-      :available-plans-labels="PlanLabels"
-      :userPlan="userPlan"
-      :isVisible="view === ViewChangePlanRequest"
-      :title="$t('Change Plan')"
-      @dismiss="() => resetView()"
-      :userChangePlanRequest="userChangePlanRequestResponse.data"
-      :isLoading="
-        userChangePlanRequestResponse.status === 'loading' ||
-        userChangePlanRequestResponse.status === 'idle'
-      "
-      @submit="patchCurrentPlanChangeRequest"
-    />
+      :show="view === ViewChangePlanRequest"
+      :title="$t(userPlan === PlanNone ? 'Select a plan' : 'Change Plan')"
+      @dismiss="resetView"
+      @success="() => changeView(ViewConfirmChangePlanRequest)"
+      :submitLabel="$t('Confirm your plan selection')"
+    >
+      <div v-if="userPlan !== PlanGuest && userPlan !== PlanNone">
+        <p>
+          You can request to change your plan any time if your situation changed. More information
+          about the plans can be found in the
+          <LinkToModal :view="ViewPlans">Plans page</LinkToModal>.
+        </p>
+        <p v-if="userPlan !== PlanNone">
+          Your current plan is <b> {{ PlanLabels[userPlan] }} </b>. <br />
+          Please select the plan you want to change to:
+        </p>
+      </div>
+      <div v-if="userPlan === PlanNone">
+        <h4>Important Update: Please Select Your Plan</h4>
+        <p>
+          We've recently updated our website's architecture and Terms of Use to improve how you
+          access transcripts, facsimiles, and audio files.
+        </p>
+        <p>
+          To ensure continued access to these features, please take a moment to select the plan that
+          best reflects your status (Student or Academic Staff).
+        </p>
+      </div>
+    </ChangePlanModal>
     <UserRequestsModal
       :title="$t('User Requests')"
       :isVisible="view === ViewUserRequests"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
       :userRequests="userRequestResponse.data"
       :isLoadingUserRequests="userRequestResponse.status === 'loading'"
       :subscriptionDatasets="subscriptionDatasetResponse.data"
@@ -139,7 +170,7 @@
       :userPlan="userPlan"
       :plansLabels="PlanLabels"
       :datasets="fetchCorpusOverviewResponse.data"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
       showLink
       :isLoading="
         fetchCorpusOverviewResponse.status === 'loading' ||
@@ -149,7 +180,7 @@
     <FeedbackModal
       :title="$t('label_feedback_modal')"
       :isVisible="view === ViewFeedback"
-      @dismiss="() => resetView()"
+      @dismiss="resetView"
       @submit="createFeedback"
       :errorMessages="errorMessages as ErrorMessage[]"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
@@ -172,6 +203,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
+import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
   SubscriptionDataset,
   TermsOfUse,
@@ -188,7 +220,11 @@ import {
   ViewInfoModal,
   ViewCorpusOverview,
   ViewFeedback,
-  ViewDataRundown
+  ViewDataRundown,
+  ViewChangePassword,
+  ViewChangePasswordSuccess,
+  PlanGuest,
+  PlanNone
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
@@ -200,7 +236,7 @@ import {
 } from '@/services'
 import { BadRequest, type FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
-import { AvailablePlans, PlanLabels } from '@/constants'
+import { PlanLabels } from '@/constants'
 import TermsOfUseStatus from './TermsOfUseStatus.vue'
 import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
@@ -215,6 +251,7 @@ import { FeedbackFormPayload } from './FeedbackForm.vue'
 import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
+import LinkToModal from './LinkToModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -245,12 +282,26 @@ const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOn
 // date of accepting the ToU on current store (sort of cached value)
 const acceptTermsDate = computed(() => userStore.acceptTermsDate)
 
-const userChangePlanRequestResponse = ref<{
-  data: UserChangePlanRequest | null
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: null
+const showChangePlanToLegacyUsers = computed(() => {
+  // if the user is logged in and has a plan, show the change plan modal
+  return (
+    view.value === null &&
+    notificationsStore.initSequenceDone &&
+    isLoggedIn.value &&
+    userPlan.value === PlanNone &&
+    !userStore.hasPendingChangePlanRequest
+  )
+})
+
+const showTermsOfUse = computed(() => {
+  // if the user is logged in and has a plan, show the change plan modal
+  return (
+    view.value === null &&
+    notificationsStore.initSequenceDone &&
+    isLoggedIn.value &&
+    acceptTermsDate.value === null &&
+    userPlan.value === PlanGuest
+  )
 })
 
 const feedbackCollectorResponse = ref<{
@@ -327,16 +378,15 @@ const fetchPlansResponse = ref<{
 const resetView = () => {
   store.view = null
 }
-
+const changeView = (view: (typeof Views)[number]) => {
+  console.debug('[Modals] changeView', view)
+  store.view = view
+}
 watch(
   () => store.view,
   _view => {
     view.value = _view
-    if (_view === ViewChangePlanRequest) {
-      console.debug('[Modals] @watch view = ViewChangePlanRequest')
-      fetchUserPlanChangeRequest()
-    } else if (_view === ViewPlans) {
-      ;``
+    if (_view === ViewPlans) {
       console.debug('[Modals] @watch view = ViewPlans')
       fetchPlansContent()
     } else if (_view === ViewUserRequests) {
@@ -350,17 +400,6 @@ watch(
   }
 )
 
-watch(
-  () => isLoggedIn.value,
-  async () => {
-    console.debug('[Modals] @watch isLoggedIn.value is logged in:', isLoggedIn.value)
-    if (isLoggedIn.value) {
-      isLoading.value = true
-      await fetchAcceptTermsDate()
-      isLoading.value = false
-    }
-  }
-)
 /**
  * Fetches the plans content from a JSON URL specified in the environment variables.
  *
@@ -402,44 +441,6 @@ const fetchCorpusOverview = async (): Promise<void> => {
   fetchCorpusOverviewResponse.value = { data: response.data, status: 'success' }
 }
 
-/**
- * Fetches the date when the user accepted the terms of use.
- *
- * This method updates the `acceptTermsDateResponse` ref with the status of the request.
- * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
- *@async
- * @function fetchAcceptTermsDate
- * @returns {Promise<void>}
- */
-const fetchAcceptTermsDate = async (): Promise<void> => {
-  console.debug('[Modals] fetchAcceptTermsDate is user logged in:', isLoggedIn.value)
-  if (!isLoggedIn.value) {
-    return
-  }
-  return termsOfUseService
-    .find()
-    .then((data: TermsOfUse) => {
-      console.debug('[Modals] fetchAcceptTermsDate call termsOfUseService.find() success:', data)
-      termsOfUseResponse.value = { data, status: 'success' }
-      userStore.setAcceptTermsDate(
-        data.dateAcceptedTerms ? new Date(data.dateAcceptedTerms).toISOString() : null
-      )
-      userStore.setBitmap(data.bitmap)
-      if (!data.dateAcceptedTerms) {
-        store.view = ViewTermsOfUse
-      }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] fetchAcceptTermsDate call termsOfUseService.find() error:',
-        err.message,
-        err.data,
-        err.code
-      )
-      termsOfUseResponse.value = { data: null, status: 'error' }
-    })
-}
-
 const patchAcceptTermsDate = async () => {
   if (!isLoggedIn.value) {
     console.debug('[Modals] patchAcceptTermsDate not authenticated')
@@ -460,51 +461,6 @@ const patchAcceptTermsDate = async () => {
     })
     .finally(() => {
       isLoading.value = false
-    })
-}
-const fetchUserPlanChangeRequest = async () => {
-  /**
-   * Fetches the current user plan change request.
-   *
-   * This method updates the `userChangePlanRequestResponse` ref with the status of the request.
-   * It sets the status to 'loading' before making the request, and updates it to 'success' or 'error' based on the outcome.
-   *
-   * @returns {Promise<void>}
-   */
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  userChangePlanRequestResponse.value = { data: null, status: 'loading' }
-  await userChangePlanRequestService
-    .find()
-    .then(data => {
-      console.info('[ChangePlanModal] @useEffect - userChangePlanRequestService', data)
-      userChangePlanRequestResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] @useEffect - userChangePlanRequestService',
-        err.message,
-        err.data,
-        err.code
-      )
-      userChangePlanRequestResponse.value = { data: null, status: 'error' }
-    })
-}
-
-const patchCurrentPlanChangeRequest = async ({ plan }) => {
-  console.debug('[ChangePlanModal] @patchCurrentPlanChangeRequest', plan)
-  await userChangePlanRequestService
-    .create({
-      plan
-    })
-    .then(data => {
-      console.info('[ChangePlanModal] Password changed successfully. data:', data)
-      store.view = ViewConfirmChangePlanRequest
-    })
-    .catch((err: FeathersError) => {
-      console.error('[ChangePlanModal] create', err.message, err.data)
     })
 }
 
@@ -572,10 +528,32 @@ const fetchSubscriptionDatasets = async () => {
       subscriptionDatasetResponse.value = { data: [], status: 'error' }
     })
 }
-onMounted(() => {
-  console.debug('[Modals] @mounted')
-  fetchAcceptTermsDate()
-})
+
+watch(
+  showChangePlanToLegacyUsers,
+  () => {
+    console.debug('[Modals] @watch showChangePlanToLegacyUsers', showChangePlanToLegacyUsers.value)
+    if (showChangePlanToLegacyUsers.value) {
+      changeView(ViewChangePlanRequest)
+    }
+  },
+  {
+    immediate: true
+  }
+)
+
+watch(
+  showTermsOfUse,
+  () => {
+    console.debug('[Modals] @watch showTermsOfUse', showTermsOfUse.value)
+    if (showTermsOfUse.value) {
+      changeView(ViewTermsOfUse)
+    }
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 <i18n>
   {
@@ -589,6 +567,9 @@ onMounted(() => {
       "not_accepted_on_db_label": "Not accepted on the server",
       "label_feedback_modal": "Help us improve Impresso",
       "label_trigger_feedback_modal": "Send feedback",
+      "view_change-password-success_modalTitle": "Password changed",
+      "view_change-password-success_title": "Password changed",
+      "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
     }
   }
 </i18n>

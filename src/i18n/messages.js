@@ -22,7 +22,7 @@ export default {
         tb: 'tables',
         section: 'section',
         uc: 'unclassified items',
-        page: 'no article segmentation',
+        page: 'Page',
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
@@ -33,6 +33,26 @@ export default {
         fr: 'French',
         en: 'English',
         lb: 'Luxembourgish',
+        it: 'Italian',
+        es: 'Spanish',
+        et: 'Estonian',
+        pl: 'Polish',
+        no: 'Norwegian',
+        ca: 'Catalan',
+        da: 'Danish',
+        pt: 'Portuguese',
+        fi: 'Finnish',
+        el: 'Greek',
+        la: 'Latin',
+        hr: 'Croatian',
+        ro: 'Romanian',
+        hu: 'Hungarian',
+        lt: 'Lithuanian',
+        sl: 'Slovenian',
+        tr: 'Turkish',
+        cs: 'Czech',
+        ja: 'Japanese',
+        sw: 'Swedish',
         'n/a': 'Undefined language',
         nl: 'Dutch',
         undefined: 'Undefined language'
@@ -46,6 +66,10 @@ export default {
       copyright: {
         in_cpy: 'in copyright',
         pbl: 'public domain'
+      },
+      dataDomain: {
+        prt: 'private',
+        pbl: 'public'
       },
       country: {
         CH: 'Switzerland',
@@ -79,6 +103,7 @@ export default {
     },
     actions: {
       search: 'Search',
+      register: 'Create account',
       addFilter: 'Add filter ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
@@ -139,7 +164,8 @@ export default {
       location: 'location',
       person: 'person',
       human: 'human',
-      newsagency: 'news agency'
+      newsagency: 'news agency',
+      organisation: 'organisation'
     },
     groupBy: {
       images: 'images',
@@ -339,7 +365,7 @@ export default {
         item: 'Country of publication'
       },
       dataDomain: {
-        filterTitle: 'Data domain?',
+        filterTitle: 'Data domain',
         empty: '...'
       },
       day: {

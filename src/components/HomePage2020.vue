@@ -1,5 +1,5 @@
 <template>
-  <i-layout id="HomePage2020" class="HomePage bg-dark">
+  <i-layout id="HomePage2020" class="HomePage">
     <i-layout-section
       class="HomePage__sidebar"
       :class="{ ' mr-1px border-top border-right': showLines, 'border-tertiary': darkMode }"
@@ -9,8 +9,16 @@
         <div :class="{ 'border-bottom border-secondary': showLines }">
           <search-tabs focusOnSearch />
           <div class="py-3 px-3">
-            <search-pills :filters="enrichedFilters" @changed="handleFiltersChanged" />
-            <autocomplete @submitEmpty="onSubmitEmpty" v-on:submit="onSuggestion" />
+            <search-pills
+              class="bg-dark"
+              :filters="enrichedFilters"
+              @changed="handleFiltersChanged"
+            />
+            <autocomplete
+              body-class="bg-dark"
+              @submitEmpty="onSubmitEmpty"
+              v-on:submit="onSuggestion"
+            />
           </div>
         </div>
       </template>
@@ -19,17 +27,21 @@
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
         <p class="small-caps mt-3">Current Impresso data rundown</p>
-        <DataRundown></DataRundown>
-        <LinkToModal
-          class="text-decoration-underline"
-          :view="ViewDataRundown"
-          v-html="$t('actions.more')"
-        ></LinkToModal>
+        <DataRundown>
+          <template #header="{ dataRelease }">
+            <span class="text-muted" v-html="$t('release_label')"></span>
+            <LinkToModal
+              v-if="dataRelease"
+              class="text-decoration-underline"
+              :view="ViewDataRundown"
+              v-html="dataRelease.releaseVersion"
+            ></LinkToModal>
+          </template>
+        </DataRundown>
         <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p> -->
-
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
           <p>
             info @ impresso-project [dot] ch
@@ -97,7 +109,7 @@
             Media Monitoring <br />of the <span class="text-accent">Past</span>
           </h1>
           <h2>
-            <em> Mining 200 years <br />of historical newspapers, and radio.</em>
+            <em> Mining 200 years <br />of historical newspapers and radio.</em>
           </h2>
         </section>
         <section
@@ -115,15 +127,35 @@
               </div>
             </div>
           </div>
+          <h3>Register NOW!</h3>
+          <p>
+            Due to copyright restrictions, not all content within the Impresso corpus is publicly
+            accessible.
+          </p>
+          <p>
+            Access to protected materials requires registration through one of our user plans: the
+            <b>Basic Plan</b>, the <b>Student Plan</b>, or the <b>Academic Plan</b>.
+            <br />
+            Have a look at the <LinkToModal :view="ViewPlans">Impresso Plans</LinkToModal> for more
+            information.
+          </p>
 
           <p>
-            For legal reasons not all content is available.
-            <br />
-            To gain access to the <b class="text-white">full impresso corpus</b> please
-            <router-link class="text-white" :to="{ name: 'register' }">register</router-link>
-            and sign our Non-Disclosure-Agreement.
+            Please register by selecting the Plan that corresponds to your current institutional
+            enrolment status.
           </p>
-          <a
+          <RouterLink
+            class="btn btn-lg btn-primary border-primary rounded-lg shadow-md"
+            :to="{ name: 'register' }"
+            target="_self"
+          >
+            <div class="d-flex flex-row align-items-center gap-2">
+              <Icon name="profileCircle" />
+              <div class="small-caps">{{ $t('actions.register') }}</div>
+            </div>
+          </RouterLink>
+
+          <!-- <a
             class="btn btn-lg btn-primary border-primary rounded shadow-sm"
             href="https://impresso-project.ch/assets/documents/impresso_NDA.pdf"
             target="_self"
@@ -138,7 +170,7 @@
             <a class="text-white" href="mailto:info@impresso-project.ch" target="_self">
               info@impresso-project.ch
             </a>
-          </p>
+          </p> -->
         </section>
 
         <div class="HomePage__card">
@@ -150,11 +182,11 @@
           <a
             href="./../assets/impresso-challenges-1.2.3.pdf"
             target="_blank"
-            class="btn btn-primary btn-lg rounded border"
+            class="btn btn-sm btn-outline-secondary rounded border"
           >
             <div class="d-flex flex-row w-100 align-items-center">
               <div class="d-flex dripicons dripicons-download mr-2" />
-              <div class="small-caps">
+              <div>
                 download challenges
                 <b-badge pill variant="accent" class="ml-1">PDF</b-badge>
               </div>
@@ -178,7 +210,7 @@
         />
 
         <h3 class="p-3 m-3 HomePage__card">
-          Take a moment to familiarise yourself with <em>impresso</em>'s <b>advanced search</b> and
+          Take a moment to familiarise yourself with <em>Impresso</em>'s <b>advanced search</b> and
           <b> exploration workflows</b>
         </h3>
         <Recipe
@@ -211,7 +243,7 @@ import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewDataRundown } from '@/constants'
+import { ViewDataRundown, ViewPlans } from '@/constants'
 
 const AllowedFilterTypes = [
   'accessRight',
@@ -238,25 +270,14 @@ export default {
     impressoInfo: window.impressoInfo,
     recipes: content.recipes,
     discussionChannelLink: import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '',
-    ViewDataRundown
+    ViewDataRundown,
+    ViewPlans
   }),
   props: {
-    showLines: {
-      type: Boolean,
-      default: false
-    },
-    darkMode: {
-      type: Boolean,
-      default: true
-    },
-    filters: {
-      type: Array,
-      default: () => []
-    },
-    filtersWithItems: {
-      type: Array,
-      default: () => []
-    }
+    showLines: { type: Boolean, default: false },
+    darkMode: { type: Boolean, default: true },
+    filters: { type: Array, default: () => [] },
+    filtersWithItems: { type: Array, default: () => [] }
   },
   computed: {
     ...mapStores(useUserStore),
@@ -289,12 +310,7 @@ export default {
   methods: {
     handleFiltersChanged(filters) {
       const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters))
-      this.$router.push({
-        name: 'search',
-        query: {
-          sq
-        }
-      })
+      this.$router.push({ name: 'search', query: { sq } })
     },
     onSuggestion(filter) {
       console.info('on suggestion')
@@ -319,8 +335,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 .HomePage__card {
   max-width: 420px;
   margin: var(--spacing-3);
@@ -331,73 +345,19 @@ export default {
   min-width: 400px;
 }
 
-.HomePage.bg-dark {
+.HomePage {
   color: var(--clr-grey-500);
-}
-
-.HomePage h3 {
-  font-family: var(--bs-font-sans-serif);
-  color: var(--clr-grey-700);
-}
-
-#HomePage2020.bg-dark {
-  ul.nav.nav-pills .nav-item.active .nav-link {
-    color: var(--clr-white);
-    border-color: $clr-secondary;
-    border-bottom-color: #343a40; // theme-color("dark")
-  }
-
-  .btn-primary,
-  .input-group > .form-control,
-  .input-group > .custom-select,
-  .input-group > .custom-file {
-    color: var(--clr-white);
-    background-color: #343a40;
-    border-color: var(--clr-white) !important;
-
-    &::placeholder {
-      color: var(--clr-white);
-    }
-
-    &:hover {
-      background-color: var(--clr-dark);
-    }
-  }
-
-  .btn-outline-primary {
-    border-color: var(--clr-grey-500);
-    color: var(--clr-grey-500);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--clr-white);
-    }
-  }
-
-  ul.nav.nav-pills {
-    border-color: $clr-secondary;
-
-    .nav-item .nav-link {
-      color: #bec0c2;
-    }
-  }
-
-  .search-pill span.label.sp-string,
-  .search-pill span.label > .sp-string {
-    color: black;
-  }
-
-  .stats a {
-    color: var(--clr-white);
-
-    &:hover {
-      color: var(--impresso-color-yellow);
-    }
-  }
-
-  a {
-    color: var(--light);
-  }
+  background: var(--impresso-color-black); /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  );
 }
 
 h1.HomePage__hugeHeading {
@@ -408,43 +368,50 @@ h1.HomePage__hugeHeading {
   font-size: calc(1.525rem + 3.3vw);
 }
 
-.stats span.number {
-  color: #343a40;
+h1.HomePage__hugeHeading,
+.HomePage h2 {
+  color: var(--clr-white);
+}
+.HomePage h3 {
+  font-family: var(--bs-font-sans-serif);
+  color: var(--clr-grey-700);
 }
 
-.bg-dark {
-  // h1.HomePage__hugeHeading {
-  //   text-shadow: 1px 1px 1px #17191c;
-  // }
+.HomePage .border-tertiary {
+  border-color: #ffffff47 !important;
+}
+.HomePage .DataReleaseCard .number {
+  color: var(--impresso-color-white-alpha-80);
+}
+.HomePage .enhance-contents {
+  background-color: #3e454c47;
+  font-size: 1em;
+  border-left: 2px solid #f4d062;
+}
+// Pills
 
-  h1.HomePage__hugeHeading,
-  h2 {
-    color: var(--clr-white);
-  }
+.HomePage ul.nav.nav-pills .nav-item .nav-link {
+  color: #bec0c2;
 
-  .stats span.number {
-    color: var(--clr-white);
-  }
-
-  &.border-tertiary,
-  .border-tertiary {
-    border-color: #ffffff47 !important;
-  }
-
-  .enhance-contents {
-    background-color: #3e454c;
-    font-size: 1em;
-    border-left: 2px solid #f4d062;
-  }
+  border-bottom-color: #343a40; // theme-color("dark")
+}
+.HomePage ul.nav.nav-pills .nav-item:hover .nav-link {
+  color: var(--impresso-color-yellow);
+  border-bottom-color: var(--impresso-color-yellow);
 }
 
-.arrow-down {
-  width: 0;
-  height: 0;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
+.HomePage ul.nav.nav-pills .nav-item.active .nav-link {
+  color: var(--clr-white);
+  border-color: var(--clr-white);
+  box-shadow: none;
+}
+.HomePage a {
+  color: var(--clr-white);
+}
 
-  border-top: 20px solid #fff;
+.HomePage .search-pill span.label.sp-string,
+.search-pill span.label > .sp-string {
+  color: black;
 }
 
 .starburst {
@@ -582,6 +549,7 @@ h1.HomePage__hugeHeading {
 <i18n lang="json">
 {
   "en": {
+    "release_label": "Latest data release: ",
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",
     "toggle_darkmode_off": "dark mode: off",

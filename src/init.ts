@@ -1,7 +1,15 @@
-import { version as versionService, app as appService } from '@/services'
+import {
+  version as versionService,
+  app as appService,
+  termsOfUse as termsOfUseService,
+  userChangePlanRequest as userChangePlanRequestService
+} from '@/services'
 import { useUserStore } from './stores/user'
 import { useNotificationsStore } from './stores/notifications'
 import { reducedTimeoutPromise } from './services/utils'
+
+import type { TermsOfUse, UserChangePlanRequest } from './services/types'
+import { PlanNone } from './constants'
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
@@ -87,8 +95,10 @@ export const loadVersion = async () => {
   glob.impressoDataProviders = {
     SNL: 'Swiss National Library',
     BNL: 'Luxembourg National Library',
-    NZZ: 'NZZ',
-    Migros: 'Migros'
+    NZZ: 'Neue Zürcher Zeitung',
+    Migros: 'Migros',
+    BCUL: 'Bibliothèque cantonale et universitaire Lausanne',
+    'BCU Fribourg': 'Bibliothèque cantonale et universitaire Fribourg'
   }
   glob.impressoFeatures = { ...DefaultImpressoFeatures, ...res.features }
   glob.impressoDocumentsYearSpan = {
@@ -122,6 +132,8 @@ export const loadVersion = async () => {
 export const initSequence = async () => {
   await loadVersion()
   const userStore = useUserStore()
+  let shouldRefreshUser = false
+
   await Promise.race([
     appService.reAuthenticate(true),
     reducedTimeoutPromise({ ms: 2000, service: 'app.reAuthenticate' })
@@ -158,14 +170,103 @@ export const initSequence = async () => {
       // eslint-disable-next-line
       console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
-        '[init:initSequence] - username:',
-        res.user.username,
+        '[init:initSequence] from JWT - uid:',
+        res.user.uid,
         '- bitmap:',
         res.user.bitmap,
         '- groups:',
         res.user.groups
       )
-      userStore.refreshUser()
+      shouldRefreshUser = true
     })
-  return
+  if (!shouldRefreshUser) {
+    return
+  }
+  console.debug('[init:initSequence] refreshUser()')
+  await userStore.refreshUser()
+
+  // check legacy user
+  console.debug('[init:initSequence] check legacy user', userStore.userPlan)
+}
+
+export const initUserTermsOfUse = async () => {
+  const userStore = useUserStore()
+  if (!userStore.user) {
+    console.debug('[init:initUserTermsOfUse] No user data available, skipping eligibility check.')
+    return
+  }
+  // check terms of use acceptance
+  const termsOfuse: TermsOfUse | null = await termsOfUseService
+    .find()
+    .then((data: TermsOfUse) => {
+      console.debug('[init:initUserTermsOfUse] call termsOfUseService.find() success:', data)
+      return data
+    })
+    .catch(err => {
+      console.error(
+        '[init:initUserTermsOfUse] call termsOfUseService.find() error:',
+        err.message,
+        err.data,
+        err.code
+      )
+      return null
+    })
+  if (!termsOfuse.dateAcceptedTerms) {
+    console.debug('[init:initUserTermsOfUse] No terms of use accepted date found.')
+    userStore.setAcceptTermsDate(null)
+    return
+  } else {
+    userStore.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
+    userStore.setBitmap(termsOfuse.bitmap)
+  }
+}
+
+export const initUserPlan = async () => {
+  const userStore = useUserStore()
+  if (!userStore.user) {
+    console.debug('[init:initUserPlan] No user data available, skipping plan check.')
+    return
+  }
+  console.debug('[init:initUserPlan] Checking user plan...', userStore.userPlan)
+
+  if (userStore.userPlan !== PlanNone) {
+    console.debug('[init:initUserPlan] User has a valid plan:', userStore.userPlan)
+    // user has a valid plan, no need to check further
+    return
+  }
+
+  console.debug(
+    '[init:initUserPlan] User has no plan, check igf there is a pending plan change request.'
+  )
+  const userChangePlanRequest: UserChangePlanRequest | null = await userChangePlanRequestService
+    .find()
+    .then((data: UserChangePlanRequest) => {
+      console.info('[init:initUserPlan] @useEffect - userChangePlanRequestService', data)
+      return data
+    })
+    .catch(err => {
+      if (err.code === 404) {
+        // If no change plan request exists, we can ignore this error
+        console.warn(
+          '[init:initUserPlan] No change plan request found, ignoring error:',
+          err.message
+        )
+      } else {
+        console.error('[init:initUserPlan] Error fetching change plan request:', err)
+      }
+      return null
+    })
+  if (userChangePlanRequest && userChangePlanRequest.status === 'pending') {
+    console.debug('[init:initUserPlan] User has a pending change plan request!')
+    userStore.setPendingChangePlanRequest(true)
+  } else {
+    console.debug('[init:initUserPlan] No pending change plan request found.')
+    userStore.setPendingChangePlanRequest(false)
+  }
+}
+
+export const initSequenceDone = () => {
+  const notificationsStore = useNotificationsStore()
+  notificationsStore.setInitSequenceDone()
+  console.debug('[init:initSequenceDone] Init sequence done.')
 }

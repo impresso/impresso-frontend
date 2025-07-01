@@ -4,7 +4,11 @@
       <the-header />
     </div>
     <div id="app-content">
-      <router-view :filters="filters" :filters-with-items="filtersWithItems" />
+      <router-view
+        :filters="filters"
+        :filters-with-items="filtersWithItems"
+        @filters-changed="handleChangeFilters"
+      />
     </div>
     <div id="app-monitor" class="fullscreen">
       <monitor />
@@ -554,7 +558,6 @@ input[type='range']:active::-ms-thumb {
 .ngram-highlight {
   background-color: #17191c;
   color: white;
-  font-family: 'questa-sans', sans-serif;
 
   &::after {
     content: '"';

@@ -9,11 +9,14 @@ $clr-secondary: lighten($clr-primary, 25);
 $clr-tertiary: lighten($clr-primary, 60);
 $clr-quaternary: lighten($clr-primary, 80);
 
-$clr-accent: #F4D062;
-$clr-accent-light: #FFEB78;
-$clr-accent-secondary: #56CCF2;
+$clr-accent: #f4d062;
+$clr-accent-light: #ffeb78;
+$clr-accent-secondary: #56ccf2;
 
-$theme-colors: ( primary: $clr-primary, secondary: $clr-secondary );
+$theme-colors: (
+  primary: $clr-primary,
+  secondary: $clr-secondary
+);
 
 // colors with names
 $clr-white: #ffffff;
@@ -24,7 +27,7 @@ $clr-grey-800: #c6ccd2;
 
 $link-color: $clr-primary;
 $link-hover-color: $clr-primary;
-$link-hover-bg: rgba( $clr-accent-secondary, 0.4 );
+$link-hover-bg: rgba($clr-accent-secondary, 0.4);
 $link-active-bg: $clr-accent-secondary;
 $body-bg: $clr-bg-primary;
 $text-color: $clr-primary;
@@ -34,7 +37,7 @@ $input-focus-border-color: $clr-bg-secondary;
 $dropdown-link-active-color: $clr-primary;
 $dropdown-link-active-bg: $clr-accent-secondary;
 $dropdown-link-hover-color: $clr-primary;
-$dropdown-link-hover-bg: rgba( $clr-accent-secondary, 0.4 );
+$dropdown-link-hover-bg: rgba($clr-accent-secondary, 0.4);
 
 $code-color: darken($clr-accent-secondary, 30);
 $code-bg: $clr-bg-secondary;
@@ -42,8 +45,8 @@ $code-bg: $clr-bg-secondary;
 //
 // typography
 //
-$font-family-serif: 'questa', serif;
-$font-family-sans-serif: 'questa-sans',sans-serif;
+$font-family-serif: 'Satoshi-Variable', sans-serif;
+$font-family-sans-serif: 'Satoshi-Variable', sans-serif;
 $headings-font-family: $font-family-serif;
 $font-family-base: $font-family-sans-serif;
 
@@ -55,6 +58,6 @@ $spacer: 1rem;
 $enable-caret: true;
 $enable-shadows: false;
 $enable-gradients: false;
-$enable-transitions	: true;
+$enable-transitions: true;
 $enable-grid-classes: true;
 $enable-print-styles: true;
