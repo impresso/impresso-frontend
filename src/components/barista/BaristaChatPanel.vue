@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 
 interface Action {
   type: 'search'
