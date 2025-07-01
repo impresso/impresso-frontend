@@ -95,8 +95,10 @@ export const loadVersion = async () => {
   glob.impressoDataProviders = {
     SNL: 'Swiss National Library',
     BNL: 'Luxembourg National Library',
-    NZZ: 'NZZ',
-    Migros: 'Migros'
+    NZZ: 'Neue Zürcher Zeitung',
+    Migros: 'Migros',
+    BCUL: 'Bibliothèque cantonale et universitaire Lausanne',
+    'BCU Fribourg': 'Bibliothèque cantonale et universitaire Fribourg'
   }
   glob.impressoFeatures = { ...DefaultImpressoFeatures, ...res.features }
   glob.impressoDocumentsYearSpan = {

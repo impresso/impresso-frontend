@@ -48,14 +48,49 @@
               @changed="handleFiltersChanged"
               class="pb-1"
             />
-            <b-input
-              class="mb-2"
-              v-model.trim="suggestionQuery"
-              debounce="500"
-              :placeholder="$t('label_filter_articles')"
-            />
-            <div class="mb-2 IssueViewerPage_matchingContentItems" v-if="serviceQuery.enabled">
+            <form @submit.prevent="handleSubmitSuggestionQuery">
+              <div class="input-group">
+                <b-form-input
+                  class="border border-dark"
+                  :style="{
+                    'border-top-left-radius': 'var(--border-radius-sm)',
+                    'border-bottom-left-radius': 'var(--border-radius-sm)',
+                    'background-color': 'transparent',
+                    'box-shadow': 'var(--bs-box-shadow-sm)',
+                    color: 'var(--impresso-color-black)'
+                  }"
+                  @input="showMatchingContentItems = false"
+                  v-model.trim="suggestionQuery"
+                  :placeholder="$t('label_filter_articles')"
+                />
+                <div class="input-group-append">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :title="$t('placeholder.search')"
+                    @click="handleSubmitSuggestionQuery"
+                    :disabled="isLoadingServiceQuery"
+                  >
+                    search
+                  </button>
+                </div>
+              </div>
+            </form>
+            <div
+              class="mt-2 IssueViewerPage_matchingContentItems text-small text-muted px-2"
+              v-if="!serviceQuery.enabled || !showMatchingContentItems"
+              v-html="
+                $tc('numbers.contentItems', contentItems.length, {
+                  n: $n(contentItems.length)
+                })
+              "
+            ></div>
+            <div
+              class="mt-2 IssueViewerPage_matchingContentItems text-small text-muted px-2"
+              v-else-if="showMatchingContentItems"
+            >
               <div v-if="isLoadingServiceQuery">{{ $t('actions.loading') }}</div>
+
               <div
                 v-else-if="applyCurrentSearchFilters && !suggestionQuery.length"
                 v-html="
@@ -90,7 +125,7 @@
     </template>
     <template v-slot:default>
       <IssueViewerTableOfContents
-        :items="serviceQuery.enabled ? matchingContentItems : contentItems"
+        :items="showMatchingContentItems ? matchingContentItems : contentItems"
         :selected-article-id="selectedContentItemUid"
         @article-selected="$emit('content-item-selected', $event)"
       />
@@ -103,17 +138,14 @@ import type { Issue, Filter } from '@/models'
 import IssueViewerTableOfContents from './IssueViewerTableOfContents.vue'
 import List from './modules/lists/List.vue'
 import ArticleBase from '@/models/ArticleBase'
-import { CommonQueryParameters } from '@/router/util'
-import { useRoute, useRouter } from 'vue-router'
-import { computed, onUnmounted } from 'vue'
+import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import SearchPills from './SearchPills.vue'
-import { watch } from 'vue'
 import { getFilterQuery } from '@/models/SearchQuery'
 import { search } from '@/services'
 
 export interface IssueViewerSidebarProps {
-  issue: Issue | null
+  issue?: Issue | null
   selectedContentItemUid: string
   contentItems: ArticleBase[]
   allowedFilters: Filter[]
@@ -137,6 +169,7 @@ const paginationCurrentPage = ref(1)
 const paginationTotalRows = ref(0)
 const isLoadingServiceQuery = ref(false)
 const suggestionQuery = ref('')
+const showMatchingContentItems = ref(false)
 
 const paginationList = computed<{
   perPage: number
@@ -215,32 +248,23 @@ async function fetchMatchingContentItems({
     })
 }
 
-/**
- * Fetch matching content items based on the current service query.
- * This function performs an API call to fetch articles based on the provided filters and query.
- */
-let debounceTimeout: ReturnType<typeof setTimeout>
-watch(serviceQuery, sq => {
-  console.debug('[IssueViewerSidebar] serviceQuery changed:', sq)
-  clearTimeout(debounceTimeout)
-  debounceTimeout = setTimeout(async () => {
-    if (sq.enabled) {
-      // Simulate fetching data from a service
-      isLoadingServiceQuery.value = true
-      matchingContentItems.value = await fetchMatchingContentItems({
-        filters: sq.filters,
-        limit: sq.limit,
-        offset: sq.offset
-      }) // Update total rows based on fetched data
-    } else {
-      matchingContentItems.value = []
-      paginationTotalRows.value = 0
-    }
-    isLoadingServiceQuery.value = false
-  }, 500) // Adjust debounce time as needed
-})
-onUnmounted(() => {
-  clearTimeout(debounceTimeout)
+const handleSubmitSuggestionQuery = async () => {
+  isLoadingServiceQuery.value = true
+  showMatchingContentItems.value = true
+
+  const sq = serviceQuery.value
+  matchingContentItems.value = await fetchMatchingContentItems({
+    filters: sq.filters,
+    limit: sq.limit,
+    offset: sq.offset
+  })
+  isLoadingServiceQuery.value = false
+}
+
+watch(applyCurrentSearchFilters, v => {
+  if (v) {
+    handleSubmitSuggestionQuery()
+  }
 })
 </script>
 <i18n lang="json">
@@ -253,8 +277,8 @@ onUnmounted(() => {
     "label_filter_articles": "... search in current issue",
     "actions.loading": "Loading...",
     "numbers.articlesMatchingSearchFilters": "No content item found in this issue. | 1 content item  matching search filters in this issue. | {n} articles matching search filters in this issue.",
-    "numbers.articlesMatchingWithinSearch": "{n} article(s) matching within search: {q}",
-    "numbers.articlesMatching": "{n} article(s) matching: {q}"
+    "numbers.articlesMatchingWithinSearch": "{n} article(s) matching within search: <b>{q}</b>",
+    "numbers.articlesMatching": "{n} article(s) matching: <b>{q}</b>"
   }
 }
 </i18n>
