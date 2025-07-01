@@ -15,6 +15,7 @@
               :item="mediaSource"
               showLink
           /></span>
+
           <span class="date" v-if="issue">&nbsp;&mdash;&nbsp;{{ $d(issue.date, 'long') }}</span>
           <span class="pages" v-if="article?.pages"
             >&nbsp;&mdash;
@@ -30,15 +31,13 @@
           >
           <br />
           <b v-if="article"> {{ article.title }}</b>
-
-          <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
         </h3>
         <InfoButton v-if="infoButtonRef" :name="infoButtonRef" />
         <div class="d-flex align-items-center">
-          <div class="textbox-fancy text-serif">
-            <span v-if="article" style="text-transform: capitalize">{{
-              $t('buckets.type.' + article.type)
-            }}</span>
+          <div class="">
+            <span v-if="article" class="small-caps"
+              >{{ $t('buckets.type.' + article.type) }} &nbsp;</span
+            >
             <span
               v-else-if="issue"
               v-html="
@@ -48,6 +47,10 @@
                 })
               "
             ></span>
+            <span v-if="article && article.copyright">
+              {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}</span
+            >
+            <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
           </div>
           <div class="ml-auto" style="min-width: 200px">
             <slot name="actions"></slot>

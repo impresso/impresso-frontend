@@ -38,13 +38,17 @@
           <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year', 'en') }} &middot;
-              <b
+              <div
+                v-if="tooltipScope.tooltip.item.w"
                 v-html="
                   $tc(
                     displayStyle == 'percent' ? 'numbers.resultsPercent' : 'numbers.results',
-                    tooltipScope.tooltip.item.w ?? 0,
+                    tooltipScope.tooltip.item.w,
                     {
-                      n: $n(tooltipScope.tooltip.item.w ?? 0)
+                      n: $n(tooltipScope.tooltip.item.w, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 7
+                      })
                     }
                   )
                 "

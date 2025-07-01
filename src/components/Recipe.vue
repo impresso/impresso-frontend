@@ -7,18 +7,18 @@
     <a v-if="!query || showVideo" v-bind:href="video" target="_blank" class="Recipe__videoWrapper">
       <div class="position-absolute">
         <img v-bind:src="img_src" alt="video previe" class="img-fluid rounded" />
-        <div class="Recipe__videoBackground "></div>
+        <div class="Recipe__videoBackground"></div>
         <icon
           name="play"
           scale="3"
           class="position-absolute"
-          style="top:50%; left:50%;margin-left: -40px; margin-top: -30px"
+          style="top: 50%; left: 50%; margin-left: -40px; margin-top: -30px"
         />
       </div>
     </a>
     <a
       v-bind:href="query"
-      class="btn btn-md btn-outline-primary border btn-block  mt-3"
+      class="btn btn-md btn-outline-primary border btn-block mt-3"
       v-if="query"
       >{{ $t('perform_query') }}</a
     >
@@ -31,7 +31,7 @@ import Icon from '@/components/base/Icon.vue'
 export default {
   name: 'Recipe',
   components: {
-    Icon,
+    Icon
   },
   props: {
     darkMode: Boolean,
@@ -40,16 +40,16 @@ export default {
     video: String,
     img_src: String,
     query: String,
-    showVideo: Boolean,
+    showVideo: Boolean
   },
 
-  data: () => ({}),
+  data: () => ({})
 }
 </script>
 
 <style lang="css">
 .Recipe {
-  background: var(--clr-grey-100);
+  background: var(--clr-grey-100-rgba-20);
   border-radius: var(--impresso-border-radius-md);
 }
 

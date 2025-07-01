@@ -18,8 +18,16 @@
           :issue="issue"
           :article="contentItem"
           :mediaSource="mediaSource"
+          :dataProvider="dataProvider"
           :page="page"
         >
+          <template v-slot:actions>
+            <CollectionAddTo
+              right
+              v-if="contentItem"
+              :item="contentItem"
+              :text="$t('add_to_collection')"
+          /></template>
         </IssueViewerPageHeading>
         <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
           <b-tabs pills>
@@ -83,7 +91,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import Issue from '@/models/Issue'
 import TableOfContents from '@/models/TableOfContents'
-import type { Filter, MediaSource } from '@/models'
+import type { DataProvider, Filter, MediaSource } from '@/models'
 import {
   issues as issuesService,
   contentItems as contentItemsService,
@@ -101,6 +109,7 @@ import IssueViewerSidebar from '@/components/IssueViewerSidebar.vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -164,6 +173,7 @@ const pageIndex = ref(0)
 const page = ref<Page | null>(null)
 const pagesIIIFUrls = ref<string[]>([])
 const mediaSource = ref(null)
+const dataProvider = ref(null)
 const contentItem = ref<ArticleBase | null>(null)
 const isViewerReady = computed(() => {
   return pagesIIIFUrls.value.length > 0 && tableOfContents.value
@@ -238,14 +248,42 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
   } satisfies MediaSource
 }
 
-function fetchContentItem(id: string): ArticleBase | null {
-  console.debug('[IssueViewerPage] fetchContentItem id:', contentItemId.value)
+/**
+ * Fetches a content item by its ID.
+ *
+ * This function attempts to find a partial content item from the table of contents,
+ * then fetches the full content item data from the contentItemsService.
+ * Updates the `contentItem` reactive reference with the fetched data or sets it to null on error.
+ *
+ * @param {string} id - The unique identifier of the content item to fetch.
+ * @returns {Promise<void>} A promise that resolves when the content item has been fetched and updated.
+ */
+async function fetchContentItem(id: string): Promise<void> {
+  console.debug('[IssueViewerPage] fetchContentItem id:', id)
 
-  if (!tableOfContents.value) {
-    console.warn('[IssueViewerPage] ; No table of contents available to fetch content item id:', id)
-    return null
+  if (tableOfContents.value) {
+    // partial content item
+    contentItem.value = tableOfContents.value.articles.find(d => d.uid === id)
   }
-  contentItem.value = tableOfContents.value.articles.find(d => d.uid === contentItemId.value)
+
+  await contentItemsService
+    .get(id, { ignoreErrors: true })
+    .then(data => {
+      console.debug('[IssueViewerPage] fetchContentItem contentItem OK', data)
+      contentItem.value = new Article(data)
+    })
+    .catch(err => {
+      console.error('[IssueViewerPage] fetchContentItem error:', err)
+      contentItem.value = null
+    })
+  if (contentItem.value?.dataProvider) {
+    dataProvider.value = {
+      id: contentItem.value?.dataProvider
+    } satisfies DataProvider
+  } else {
+    dataProvider.value = null
+  }
+  return
 }
 
 function fetchPage(pageNumber: number): void {
@@ -421,14 +459,16 @@ watch(
       "0": "Facsimile",
       "1": "Region Transcript",
       "2": "Facsimile + Transcript"
-    }
+    },
+    "add_to_collection": "Add to collection"
   },
   "de": {
     "viewModes": {
       "0": "Faksimile",
       "1": "Region Transkript",
       "2": "Faksimile + Transkript"
-    }
+    },
+    "add_to_collection": "Zur Sammlung hinzufügen"
   }
 }
 </i18n>
