@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import MarkdownContent from './MarkdownContent.vue'
 
 const props = withDefaults(

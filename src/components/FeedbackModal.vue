@@ -69,7 +69,7 @@
   </Modal>
 </template>
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeedbackForm from './FeedbackForm.vue'
 import type { FeedbackFormPayload } from './FeedbackForm.vue'
