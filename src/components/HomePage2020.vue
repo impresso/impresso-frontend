@@ -102,7 +102,7 @@
         <TermsOfUseStatus withCallToAction />
       </div>
     </i-layout-section>
-    <i-layout-section>
+    <i-layout-section main>
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
           <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
