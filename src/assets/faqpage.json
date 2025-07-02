@@ -128,7 +128,7 @@
             ]
           },
           {
-            "id": "How-OCR-quality",
+            "id": "What-OCR",
             "title": "How did you estimate the quality of OCR?",
             "summary": "The OCR quality in the Impresso dataset varies widely because the data comes from multiple providers using different OCR systems, some of which are more than 20 years old. As a result, OCR outputs range from fairly good to very poor, depending on the source and processing method.",
             "description": [
