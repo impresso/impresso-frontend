@@ -48,7 +48,7 @@
           </div>
 
           <div v-for="(paragraph, j) in section.paragraphs" :key="j" class="row mb-3">
-            <a :id="paragraph.id" class="col-12" style="scroll-margin-top: 100px" />
+            <a :id="paragraph.id" class="col-12" style="scroll-margin-top: 100px"></a>
             <div class="col-12">
               <h3 class="sans pt-4 font-size-inherit font-weight-bold">
                 {{ paragraph.title }}
@@ -69,7 +69,6 @@ import { useRoute } from 'vue-router'
 import content from '@/assets/faqpage.json'
 import { useSettingsStore } from '@/stores/settings'
 import { CollapsibleParagraph as Paragraph } from '@/models/CollapsibleParagraph'
-import { useI18n } from 'vue-i18n'
 
 // Types
 interface FAQ {
