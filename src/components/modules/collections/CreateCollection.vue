@@ -1,13 +1,14 @@
 <template>
-    <Modal
-      :show="show"
-      :id="id"
-      :title="title"
-      class="rounded"
-      no-fade
-      hide-backdrop
-      modal-class="CreateCollection"
-      dialog-class="drop-shadow rounded">
+  <Modal
+    :show="show"
+    :id="id"
+    :title="title"
+    class="rounded"
+    no-fade
+    hide-backdrop
+    modal-class="CreateCollection"
+    dialog-class="drop-shadow rounded"
+  >
     <div class="mt-3">
       <p>
         {{ $t('describeCollectionLimits') }}
@@ -19,7 +20,7 @@
       <p class="text-danger" v-if="inputNameError.length" v-html="inputNameError" />
       <b-form-input
         :class="{
-          'is-invalid': inputNameError.length,
+          'is-invalid': inputNameError.length
         }"
         type="text"
         aria-required="true"
@@ -60,7 +61,7 @@
 </template>
 
 <script>
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { collections } from '@/services'
 
@@ -69,37 +70,37 @@ export default {
   props: {
     show: {
       type: Boolean,
-      required: true,
+      required: true
     },
     filters: {
       type: Array,
-      required: true,
+      required: true
     },
     title: {
       type: String,
-      required: true,
+      required: true
     },
     description: {
       type: String,
-      required: true,
+      required: true
     },
     // description name used to generate the id
     name: {
       type: String,
-      required: false,
+      required: false
     },
     index: {
       type: String,
-      default: 'search',
+      default: 'search'
     },
     id: {
       type: String,
-      required: true,
+      required: true
     },
     infoButtonId: {
       type: String,
-      default: 'why-collections-are-limited',
-    },
+      default: 'why-collections-are-limited'
+    }
   },
   data() {
     return {
@@ -108,14 +109,14 @@ export default {
       inputNameError: '',
       inputDescriptionError: '',
       errorByInputField: {},
-      formValidated: false,
+      formValidated: false
     }
   },
   emits: ['collection:created', 'close'],
   computed: {
     metadata() {
       return [String(this.name).trim(), String(this.description).replace(/(<([^>]+)>)/gi, '')]
-    },
+    }
   },
   methods: {
     submitHandler(e) {
@@ -131,7 +132,7 @@ export default {
       collections
         .create(
           { name: this.inputName, description: this.inputDescription },
-          { ignoreErrors: true },
+          { ignoreErrors: true }
         )
         .then(res => {
           console.debug('[CreateCollection] @submitHandler, collection.create OK', res)
@@ -141,13 +142,13 @@ export default {
           console.debug('[CreateCollection] @submitHandler, collection.create ERROR', {
             message,
             code,
-            name,
+            name
           })
           if (code === 409) {
             this.inputNameError = this.$t('CollectionNameExists')
           }
         })
-    },
+    }
   },
   watch: {
     metadata: {
@@ -155,10 +156,10 @@ export default {
         this.inputDescription = description
         this.inputName = name
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
-  components: { InfoButton, Modal },
+  components: { InfoButton, Modal }
 }
 </script>
 <style lang="scss">
@@ -178,17 +179,17 @@ export default {
 }
 </style>
 <i18n lang="json">
-  {
-    "en": {
-      "Collection_Name": "Collection Name",
-      "describeCollectionLimits": "Please note: Collections are currently limited to 10.000 items.",
-      "describeCollectionLimitsMore": "If your search returned more results, only the 10.000 most relevant items will be stored. If you need to create a collection with more items, please contact us.",
-      "actions": {
-        "cancel": "Cancel",
-        "create": "Create"
-      },
-      "CollectionNameRequired": "Please enter a name for your collection.",
-      "CollectionNameExists": "A collection with this name already exists."
-    }
+{
+  "en": {
+    "Collection_Name": "Collection Name",
+    "describeCollectionLimits": "Please note: Collections are currently limited to 10.000 items.",
+    "describeCollectionLimitsMore": "If your search returned more results, only the 10.000 most relevant items will be stored. If you need to create a collection with more items, please contact us.",
+    "actions": {
+      "cancel": "Cancel",
+      "create": "Create"
+    },
+    "CollectionNameRequired": "Please enter a name for your collection.",
+    "CollectionNameExists": "A collection with this name already exists."
   }
+}
 </i18n>

@@ -1,5 +1,5 @@
 <template>
-  <i-layout-section>
+  <i-layout-section main>
     <template v-slot:header>
       <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
         <section>
@@ -314,7 +314,7 @@ import {
   collectionsItems as collectionsItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation'
