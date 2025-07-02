@@ -55,7 +55,12 @@
       @dismiss="resetView"
       :modalTitle="$t('User plans overview')"
       :title="$t('Impresso User Plans')"
-      :content="fetchPlansResponse.data?.planContent.body || ''"
+      :content="
+        fetchPlansResponse.data?.planContent.body.replace(
+          '[Impresso Corpus](/datalab/corpus-overview)',
+          'Impresso Corpus'
+        ) || ''
+      "
       :userPlan="userPlan"
       :plans="fetchPlansResponse.data?.plans || []"
       :dataFeatureLabels="fetchPlansResponse.data?.DataFeatureLabels || {}"
