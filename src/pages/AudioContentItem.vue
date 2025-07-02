@@ -101,11 +101,11 @@
       <div class="container">
         <div v-for="(record, idx) in contentItem?.audio?.records ?? []" :key="idx">
           <AudioItem
-            :audio-url="getAudioRecordUrl(record.id)"
+            :audio-url="record.audioFileUrl"
             :title="'TODO'"
             :duration="contentItem?.audio?.duration"
             :data-provider="contentItem?.meta?.partnerId"
-            :access-rights="contentItem?.access?.copyright!"
+            :access-rights="contentItem?.access?.copyright"
             :item-type="contentItem?.text?.itemType!"
             :media-source="mediaSource"
             :publication-date="contentItem?.meta?.date"
@@ -142,10 +142,9 @@
 </i18n>
 <script setup lang="ts">
 import { MediaSource } from '@/models'
-import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import type { ContentItem, ContentItemAudioLocator } from '@/models/generated/schemas/contentItem'
 import { contentItems as contentItemsService } from '@/services'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
-// import AudioPlayer from 'impresso-ui-components/components/audioPlayer/AudioPlayer.vue'
 import TranscriptViewer from 'impresso-ui-components/components/audioPlayer/TranscriptViewer.vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -173,41 +172,19 @@ const isContentItemSupported = (item: ContentItem) => {
   return item?.meta?.sourceMedium === 'audio'
 }
 
-const ContentItemAudioSrcs = {
-  'CFCE-1996-09-08-a-i0001': '/mock-media/CFCE-1996-09-08-a-r0001.MP3',
-  'CFCE-1996-09-15-a-i0001': '/mock-media/CFCE-1996-09-15-a-r0001.MP3',
-  'RDN-1950-01-12-a-i0001': '/mock-media/RDN-1950-01-12-a-r0001.MP3'
-}
-const itemAudioSrc = computed(() => {
-  const contentItemUid = route.params.content_item_uid as string
-  if (ContentItemAudioSrcs[contentItemUid]) {
-    return ContentItemAudioSrcs[contentItemUid]
-  }
-  return 'https://gilberttrausch.uni.lu/audio/ch3-3fkl01junckertrauschbechdupong.mp3'
-})
-const ContentItemJsonUrls = {
-  'CFCE-1996-09-15-a-i0001':
-    'https://gist.githubusercontent.com/danieleguido/5ab7d5c5d9c02d09010283e9aee22e4b/raw/17d304e12b994c480bef08723cf67dc3dd7200ce/CFCE-1996-09-15-a-i0001.json',
-  'CFCE-1996-09-08-a-i0001':
-    'https://gist.githubusercontent.com/danieleguido/d3e76a1f8f3ba494f3da367b8349271a/raw/1afe0813772a5fc5b7049db1b9d4d9fa473a427e/CFCE-1996-09-08-a-i0001.json',
-  'RDN-1950-01-12-a-i0001':
-    'https://gist.githubusercontent.com/danieleguido/93bae33a202e442eea622970cbf065a0/raw/8890f58cb6deb245ef8211666e9c2f47ea88d358/RDN-1950-01-12-a-i0001.json'
-}
-
 const currentTime = ref(0)
 
-const onTranscriptViewerClick = (rrreb: any): void => {
-  console.debug('[AudioContentItem] onTranscriptViewerClick', rrreb)
-  // Here you can handle the click event on the transcript viewer
-  // For example, you might want to update the current time of the audio player
-  currentTime.value = rrreb.startTime
+const onTranscriptViewerClick = (locator: ContentItemAudioLocator): void => {
+  const startTime = locator.timeCode?.[0]
+  if (startTime != null) {
+    currentTime.value = startTime
+  }
 }
 
 const loadContentItem = async (id: string) => {
   try {
     status.value = 'loading'
     const response = await contentItemsService.get(id)
-    console.log('RRR', response)
     contentItem.value = response
 
     if (contentItem.value == null) {
@@ -224,9 +201,9 @@ const loadContentItem = async (id: string) => {
   }
 }
 
-const getAudioRecordUrl = (id: string) => {
-  return ContentItemAudioSrcs[id] ?? null
-}
+// const getAudioRecordUrl = (id: string) => {
+//   // return ContentItemAudioSrcs[id] ?? null
+// }
 
 watch(
   () => route.params.content_item_uid as string,

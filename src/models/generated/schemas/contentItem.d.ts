@@ -351,6 +351,10 @@ export interface ContentItemAudioRecord {
    * A list of audio segments locators.
    */
   audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
  * Content item audio locator. Links location of a segement in text with location in audio.
@@ -506,6 +510,10 @@ export interface ContentItemAudioRecord {
    * A list of audio segments locators.
    */
   audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
  * Content item audio locator. Links location of a segement in text with location in audio.
@@ -561,6 +569,10 @@ export interface ContentItemAudioRecord {
    * A list of audio segments locators.
    */
   audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
  * Content item audio locator. Links location of a segement in text with location in audio.
