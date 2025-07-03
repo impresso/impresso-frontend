@@ -348,22 +348,30 @@ export interface ContentItemAudioRecord {
    */
   number?: number;
   /**
-   * List of audio timestamps.
+   * A list of audio segments locators.
    */
-  audioTimestamps?: ContentItemAudioTimestamp[];
+  audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
- * Content item audio timestamp
+ * Content item audio locator. Links location of a segement in text with location in audio.
  */
-export interface ContentItemAudioTimestamp {
+export interface ContentItemAudioLocator {
   /**
-   * Array of time codes representing the start offset and length of the audio segment in seconds.
+   * Represents the start offset and the length of the audio segment in seconds.
    */
   timeCode?: number[];
   /**
-   * Array of text locations representing the character ofset and length of the audio segment in the content item text.
+   * Represents the character offset and length of the audio segment in the content item text.
    */
   textLocation?: number[];
+  /**
+   * Represents the index of the utterance in the audio file this audio segment belongs to. May not be provided if no utterance information is available.
+   */
+  utteranceIndex?: number;
 }
 /**
  * Access rights information
@@ -499,22 +507,49 @@ export interface ContentItemAudioRecord {
    */
   number?: number;
   /**
-   * List of audio timestamps.
+   * A list of audio segments locators.
    */
-  audioTimestamps?: ContentItemAudioTimestamp[];
+  audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
- * Content item audio timestamp
+ * Content item audio locator. Links location of a segement in text with location in audio.
  */
-export interface ContentItemAudioTimestamp {
+export interface ContentItemAudioLocator {
   /**
-   * Array of time codes representing the start offset and length of the audio segment in seconds.
+   * Represents the start offset and the length of the audio segment in seconds.
    */
   timeCode?: number[];
   /**
-   * Array of text locations representing the character ofset and length of the audio segment in the content item text.
+   * Represents the character offset and length of the audio segment in the content item text.
    */
   textLocation?: number[];
+  /**
+   * Represents the index of the utterance in the audio file this audio segment belongs to. May not be provided if no utterance information is available.
+   */
+  utteranceIndex?: number;
+}
+
+
+/**
+ * Content item audio locator. Links location of a segement in text with location in audio.
+ */
+export interface ContentItemAudioLocator {
+  /**
+   * Represents the start offset and the length of the audio segment in seconds.
+   */
+  timeCode?: number[];
+  /**
+   * Represents the character offset and length of the audio segment in the content item text.
+   */
+  textLocation?: number[];
+  /**
+   * Represents the index of the utterance in the audio file this audio segment belongs to. May not be provided if no utterance information is available.
+   */
+  utteranceIndex?: number;
 }
 
 
@@ -531,37 +566,30 @@ export interface ContentItemAudioRecord {
    */
   number?: number;
   /**
-   * List of audio timestamps.
+   * A list of audio segments locators.
    */
-  audioTimestamps?: ContentItemAudioTimestamp[];
+  audioSegmentsLocators?: ContentItemAudioLocator[];
+  /**
+   * The URL of the audio file.
+   */
+  audioFileUrl?: string;
 }
 /**
- * Content item audio timestamp
+ * Content item audio locator. Links location of a segement in text with location in audio.
  */
-export interface ContentItemAudioTimestamp {
+export interface ContentItemAudioLocator {
   /**
-   * Array of time codes representing the start offset and length of the audio segment in seconds.
+   * Represents the start offset and the length of the audio segment in seconds.
    */
   timeCode?: number[];
   /**
-   * Array of text locations representing the character ofset and length of the audio segment in the content item text.
+   * Represents the character offset and length of the audio segment in the content item text.
    */
   textLocation?: number[];
-}
-
-
-/**
- * Content item audio timestamp
- */
-export interface ContentItemAudioTimestamp {
   /**
-   * Array of time codes representing the start offset and length of the audio segment in seconds.
+   * Represents the index of the utterance in the audio file this audio segment belongs to. May not be provided if no utterance information is available.
    */
-  timeCode?: number[];
-  /**
-   * Array of text locations representing the character ofset and length of the audio segment in the content item text.
-   */
-  textLocation?: number[];
+  utteranceIndex?: number;
 }
 
 

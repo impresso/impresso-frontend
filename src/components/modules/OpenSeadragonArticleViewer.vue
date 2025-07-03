@@ -161,6 +161,9 @@ export interface Data {
 
   /** How many neighbour pages load left and right of the current page. */
   neighboursToLoad: number
+
+  /** A local variable that indicates dragging is active, preventing LISTENING on page change events while dragging.*/
+  isDragging: boolean
 }
 
 export default defineComponent({
@@ -172,7 +175,8 @@ export default defineComponent({
     currentZoomLevel: DefaultZoomLevel,
     loadedPages: new Set(),
     realPages: new Set(),
-    neighboursToLoad: 2
+    neighboursToLoad: 2,
+    isDragging: false
   }),
   setup() {
     const container = ref<HTMLElement | undefined>()
@@ -253,6 +257,16 @@ export default defineComponent({
         if (zoom == null) return
         this.currentZoomLevel = zoom
       })
+
+      const onCanvasDrag = () => {
+        this.isDragging = true
+      }
+      const onAnimationFinish = () => {
+        console.debug('[OpenSeadragonArticleViewer] Animation finished')
+        this.isDragging = false
+      }
+      this.viewer.addHandler('canvas-drag', onCanvasDrag)
+      this.viewer.addHandler('animation-finish', onAnimationFinish)
 
       this.viewer.world.addHandler('add-item', async evt => {
         const image = evt.item
@@ -397,7 +411,10 @@ export default defineComponent({
     currentPageIndex: {
       async handler(newIndex: number) {
         if (this.viewer == null) return
-
+        if (this.isDragging) {
+          console.debug('[OpenSeadragonArticleViewer] Skipping page change while dragging')
+          return
+        }
         const image = this.viewer.world.getItemAt(newIndex)
         const currentItemIndex = getCurrentItemIndex(this.viewer)
 
@@ -436,6 +453,17 @@ export default defineComponent({
           this.realPages.add(idx)
         })
       }
+    },
+    regions: {
+      async handler() {
+        console.debug('[OpenSeadragonArticleViewer] Regions changed, updating overlays')
+        if (this.viewer == null) return
+        const image = this.viewer.world.getItemAt(this.currentPageIndex)
+        if (image == null) return
+        await this.applyMarginaliaAndOverlay(this.viewer, image)
+      },
+      immediate: true,
+      deep: true
     }
   },
   components: {

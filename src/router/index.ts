@@ -61,6 +61,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/search/radio',
+      name: 'searchRadio',
+      component: () => import('@/pages/SearchRadio.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/faq',
       name: 'faq',
       component: FaqPage,
@@ -353,6 +361,15 @@ const router = createRouter({
             text: '1'
           }
         }
+      }
+    },
+    {
+      name: 'audioContentItem',
+      path: '/audio-content-item/:content_item_uid',
+      component: () => import('@/pages/AudioContentItem.vue'),
+      meta: {
+        requiresAuth: true,
+        realm: 'contentItem'
       }
     },
     {

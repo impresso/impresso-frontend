@@ -40,7 +40,7 @@ const props = withDefaults(defineProps<DataProviderLabelProps>(), {
 const title = computed(() => {
   if (typeof glob.impressoDataProviders === 'object') {
     try {
-      return glob.impressoDataProviders[props.item.id].name
+      return glob.impressoDataProviders[props.item.id]
     } catch (e) {
       return props.item.name || props.item.id
     }
