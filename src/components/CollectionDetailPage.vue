@@ -17,8 +17,8 @@
             >
           </span>
 
-          <h3>{{ collection.name }}</h3>
-          <p>{{ collection.description }}</p>
+          <h3>{{ collection?.name }}</h3>
+          <p>{{ collection?.description }}</p>
         </section>
 
         <section class="ml-auto py-3 text-right">
@@ -36,6 +36,7 @@
             </button>
           </router-link>
           <b-dropdown
+            v-if="collection"
             class="m-1"
             size="sm"
             variant="outline-primary"
@@ -226,27 +227,9 @@
     </div>
 
     <div v-else-if="tab.name === TAB_OVERVIEW" class="p-3">
-      <div class="mx-3">
-        <div class="tb-title label small-caps font-weight-bold">
-          {{ $t('label.year.optionsTitle') }}
-        </div>
-        <div class="small">{{ $t('label.year.optionsDescription') }}</div>
-      </div>
+      <CollectionDetailPageOverviewTab :collection="collection" :isLoading="!collection" />
 
-      <timeline
-        :class="{ loading: isTimelineLoading }"
-        :domain="[startYear, endYear]"
-        :values="timevalues"
-      >
-        <template v-slot="tooltipScope">
-          <div v-if="tooltipScope.tooltip.item">
-            {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
-            <b>{{ tooltipScope.tooltip.item.w ?? 0 }}</b>
-          </div>
-        </template>
-      </timeline>
-
-      <b-container fluid class="my-3">
+      <b-container class="my-3 ml-0">
         <b-row>
           <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
             <stacked-bars-panel
@@ -318,6 +301,7 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation'
+import CollectionDetailPageOverviewTab from '@/components/CollectionDetailPageOverviewTab.vue'
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -332,7 +316,7 @@ export default {
   data: () => ({
     tab: {},
     articles: [],
-    collection: new Collection(),
+    collection: null,
     fetching: false,
     isTimelineLoading: false,
     paginationPerPage: 10,
@@ -365,7 +349,8 @@ export default {
     CollectionRecommendationsPanel,
     InfoButton,
     RadioGroup,
-    Modal
+    Modal,
+    CollectionDetailPageOverviewTab
   },
   computed: {
     ...mapStores(useCollectionsStore, useSettingsStore),
