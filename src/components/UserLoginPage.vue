@@ -1,6 +1,6 @@
 <template>
   <i-layout id="UserLoginPage">
-    <i-layout-section class="section">
+    <i-layout-section main class="section">
       <div class="login-form">
         <form v-on:submit.prevent="authenticate" class="form-signin">
           <h3 class="header p-3">

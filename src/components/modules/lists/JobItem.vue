@@ -118,7 +118,10 @@ const onExport = () => {
   const anchor = document.createElement('a')
   document.body.appendChild(anchor)
   const headers = new Headers(getAuthHeaders(getAuthenticationToken()))
-  fetch(`${MIDDLELAYER_MEDIA_URL}/jobs/${props.item.id}`, { headers })
+  fetch(
+    `${import.meta.env.VITE_MIDDLELAYER_API}${import.meta.env.VITE_MIDDLELAYER_API_PATH}/media/jobs/${props.item.id}`,
+    { headers }
+  )
     .then(res => res.blob())
     .then(blobby => {
       const objectUrl = window.URL.createObjectURL(blobby)

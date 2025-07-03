@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
 export type InfoModalProps = {
   dialogClass?: string

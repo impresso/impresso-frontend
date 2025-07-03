@@ -269,7 +269,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 import Partner from '@/models/Partner'
 import { newspapers as NewspapersService } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
 export default {
   data: () => ({

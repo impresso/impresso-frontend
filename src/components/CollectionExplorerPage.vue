@@ -1,5 +1,5 @@
 <template>
-  <i-layout-section>
+  <i-layout-section main>
     <template v-slot:header>
       <b-navbar>
         <section class="pt-2 pb-1">

@@ -105,7 +105,7 @@
 
 <script>
 import { entities, topics, newspapers, collections, getSearchFacetsService } from '@/services'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Icon from '@/components/base/Icon.vue'
 import FacetExplorer from './modules/FacetExplorer.vue'
 import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'

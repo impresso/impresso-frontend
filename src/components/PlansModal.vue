@@ -13,13 +13,13 @@
       <div class="container">
         <div class="row my-3">
           {{ content }}
-          <br />
-          Explore the data available in the
-
-          <LinkToModal class="text-decoration-underline" :view="ViewCorpusOverview"
-            >Impresso Corpus Catalogue</LinkToModal
-          >
-          for each plan.
+          <p>
+            Explore the data available in the
+            <LinkToModal class="text-decoration-underline d-inline" :view="ViewCorpusOverview"
+              >Impresso Corpus Catalogue
+            </LinkToModal>
+            {{ ' ' }} for each plan.
+          </p>
         </div>
       </div>
       <slot name="terms-of-use-status"></slot>
@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Icon from './base/Icon.vue'
 import PlansModalFeatureRow from './modules/PlansModalFeatureRow.vue'
 import type { Plan } from './modules/PlansModalFeatureRow.vue'

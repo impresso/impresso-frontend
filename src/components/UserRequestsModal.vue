@@ -109,7 +109,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import type { UserRequest, SubscriptionDataset } from '@/services/types'
 import Alert from './Alert.vue'
 import SubscriptionDatasetItem from './modules/lists/SubscriptionDatasetItem.vue'

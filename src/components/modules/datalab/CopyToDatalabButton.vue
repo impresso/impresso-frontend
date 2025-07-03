@@ -9,6 +9,7 @@
       v-model:show="isModalOpen"
       :title="$t('try_in_datalab')"
       @close="closeModal"
+      dialogClass="modal-dialog-centered "
       hide-footer
     >
       <p v-html="$t('try_in_datalab_description_html')" />
@@ -40,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { datalabSupport } from '@/services'
 import { useSettingsStore } from '@/stores/settings'
 import { v4 } from 'uuid'

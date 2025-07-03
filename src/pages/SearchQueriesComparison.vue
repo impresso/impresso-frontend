@@ -1,6 +1,6 @@
 <template>
   <i-layout id="SearchQueriesComparisonPage">
-    <i-layout-section class="border-top">
+    <i-layout-section main class="border-top">
       <template v-slot:header>
         <div class="header row pm-fixer bg-light">
           <div class="one-third" v-for="(queryResult, queryIdx) in queriesResults" :key="queryIdx">

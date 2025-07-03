@@ -76,7 +76,7 @@
 </template>
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import Modal from '../base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import LoadingBlock from '../LoadingBlock.vue'
 import { fetchJsonData } from '@/services/data'
 import type { DataReleaseExtended } from '@/services/types'

@@ -288,7 +288,8 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -662,24 +663,6 @@ export default defineComponent({
         filters: this.ignoredFilters
       })
     },
-    updateselectAll() {
-      let count = 0
-      this.searchResults.forEach(item => {
-        if (this.itemSelected(item)) {
-          count += 1
-        }
-      })
-      if (count === 0) {
-        this.allSelected = false
-        this.allIndeterminate = false
-      } else if (count < this.searchResults.length) {
-        this.allSelected = false
-        this.allIndeterminate = true
-      } else {
-        this.allSelected = true
-        this.allIndeterminate = false
-      }
-    },
     addFilterFromEmbedding(embedding) {
       this.handleFiltersChanged(
         this.filters.concat([
@@ -702,14 +685,10 @@ export default defineComponent({
     }
   },
   watch: {
-    searchResults() {
-      this.updateselectAll()
-    },
-    selectedItems() {
-      this.updateselectAll()
-    },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
+        console.debug('[Search] @searchServiceQuery')
+        const startTime = new Date()
         this.isLoadingResults = true
         const { data, total } = await contentItemsService
           .find({
@@ -729,6 +708,13 @@ export default defineComponent({
         this.paginationTotalRows = total
         this.searchResults = data
         this.isLoadingResults = false
+        this.searchInfo = info
+        console.debug(
+          '[Search] @searchServiceQuery: took',
+          new Date() - startTime,
+          'ms. Total results:',
+          total
+        )
         // @todo next tick
         this.$nextTick(() => {
           this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
@@ -747,8 +733,7 @@ export default defineComponent({
             .find({
               query: {
                 facets: facetTypes,
-                filters
-                // group_by: groupBy,
+                filters: this.searchServiceQuery.filters
               }
             })
             .then(response => response.data)
@@ -790,7 +775,7 @@ export default defineComponent({
         //   })
         // }
       },
-      immediate: true
+      deep: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return

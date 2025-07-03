@@ -97,7 +97,7 @@ import { schemeCategory10, schemeAccent } from 'd3'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import Autocomplete from '@/components/Autocomplete.vue'
 import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
 import { searchFacets, filtersItems, stats } from '@/services'
 import {

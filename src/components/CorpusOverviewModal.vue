@@ -161,7 +161,7 @@
 </i18n>
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Icon from './base/Icon.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import Dropdown from './layout/Dropdown.vue'
