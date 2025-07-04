@@ -10,7 +10,7 @@ const meta: Meta<typeof TermsOfUseStatus> = {
   tags: ['autodocs'],
   render: args => {
     const userStore = useUserStore()
-
+    userStore.$reset() // 👈 resets to initial state
     return {
       setup() {
         return { args }

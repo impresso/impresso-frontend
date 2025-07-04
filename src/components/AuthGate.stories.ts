@@ -60,6 +60,7 @@ export const Unauthenticated: Story = {
   render: () => ({
     setup() {
       const userStore = useUserStore()
+      userStore.$reset() // 👈 resets to initial state
       userStore.refreshUser().catch(() => {})
       return {}
     },
