@@ -47,6 +47,7 @@ app.hooks({
         if (needsLockScreen(route) && context.params.lock !== false) {
           notificationsStore.lockScreen(true)
         }
+        context.params._startTime = Date.now()
       }
     ]
   },
@@ -58,6 +59,10 @@ app.hooks({
         notificationsStore.updateProcessingActivity({ route, status: 'DONE' })
         if (needsLockScreen(route)) {
           notificationsStore.lockScreen(false)
+        }
+        if (context.params._startTime) {
+          const duration = Date.now() - context.params._startTime
+          console.debug('[@hooks->after.all]', route, 'took', duration, 'ms')
         }
       }
     ]
