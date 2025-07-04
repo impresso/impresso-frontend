@@ -205,16 +205,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
-import type {
-  SubscriptionDataset,
-  TermsOfUse,
-  UserChangePlanRequest,
-  UserRequest
-} from '@/services/types'
+import type { SubscriptionDataset, TermsOfUse, UserRequest } from '@/services/types'
 import {
   Views,
   ViewTermsOfUse,
@@ -233,7 +228,6 @@ import {
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import {
-  userChangePlanRequest as userChangePlanRequestService,
   termsOfUse as termsOfUseService,
   userRequests as userRequestsService,
   subscriptionDatasets as subscriptionDatasetsService,
