@@ -342,7 +342,8 @@ export default {
     /** @type {Filter[]} */
     // filtersWithItems: [],
     visibleModal: null,
-    isLoadingResults: false
+    isLoadingResults: false,
+    searchInfo: null
   }),
   props: {
     filtersWithItems: {
@@ -645,24 +646,6 @@ export default {
         filters: this.ignoredFilters
       })
     },
-    updateselectAll() {
-      let count = 0
-      this.searchResults.forEach(item => {
-        if (this.itemSelected(item)) {
-          count += 1
-        }
-      })
-      if (count === 0) {
-        this.allSelected = false
-        this.allIndeterminate = false
-      } else if (count < this.searchResults.length) {
-        this.allSelected = false
-        this.allIndeterminate = true
-      } else {
-        this.allSelected = true
-        this.allIndeterminate = false
-      }
-    },
     addFilterFromEmbedding(embedding) {
       this.handleFiltersChanged(
         this.filters.concat([
@@ -685,62 +668,64 @@ export default {
     }
   },
   watch: {
-    searchResults() {
-      this.updateselectAll()
-    },
-    selectedItems() {
-      this.updateselectAll()
-    },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
+        console.debug('[Search] @searchServiceQuery')
+        const startTime = new Date()
         this.isLoadingResults = true
-        const { total, data, info } = await searchService
-          .find({
-            query: {
-              page,
-              limit,
-              filters,
-              facets: FacetTypesWithMultipleValues,
-              order_by: orderBy,
-              group_by: groupBy
-            }
-          })
-          .then(response => {
-            console.log('[Search] data:', response.data)
-            return response
-          })
+        const { total, data, info } = await searchService.find({
+          query: {
+            page,
+            limit,
+            filters,
+            facets: FacetTypesWithMultipleValues,
+            order_by: orderBy,
+            group_by: groupBy
+          }
+        })
+
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false
+        this.searchInfo = info
+        console.debug(
+          '[Search] @searchServiceQuery: took',
+          new Date() - startTime,
+          'ms. Total results:',
+          total
+        )
         // @todo next tick
         this.$nextTick(() => {
           this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
         })
+      },
+      immediate: true
+    },
+    searchInfo: {
+      async handler(info) {
+        if (!info) {
+          return
+        }
+        // console.debug(
+        //   '[Search] @searchInfo, responseTime:',
+        //   +info.responseTime.solr,
+        //   'ms. Total results:',
+        //   +info.facets.count
+        // )
         let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
         // get remaining facets and enriched filters.
-        const facetTypes = [
-          ...['person', 'location', 'topic'],
-          ...(this.isLoggedIn ? ['collection'] : [])
-        ]
+        const facetTypes = [...['person', 'location', 'topic']]
 
         const [extraFacets, collectionsItemsIndex] = await Promise.all([
           searchFacetsService
             .find({
               query: {
                 facets: facetTypes,
-                filters
-                // group_by: groupBy,
+                filters: this.searchServiceQuery.filters
               }
             })
             .then(response => response.data),
-          // filtersItemsService
-          //   .find({
-          //     query: {
-          //       filters: this.searchQueryHash,
-          //     },
-          //   })
-          //   .then(joinFiltersWithItems),
           this.isLoggedIn
             ? collectionsItemsService
                 .find({
@@ -770,7 +755,7 @@ export default {
           })
         }
       },
-      immediate: true
+      deep: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return
