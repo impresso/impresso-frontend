@@ -173,7 +173,6 @@
         :show="visibleModal === 'nameCollection'"
         @close="hideModal('nameCollection')"
         hide-footer
-        hide-backdrop
         dialog-class="modal-dialog-centered"
       >
         <CreateCollectionForm
