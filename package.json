@@ -47,7 +47,7 @@
     "filepond-plugin-file-validate-type": "1.2.4",
     "highlight.js": "^11.11.1",
     "impresso-jscommons": "github:impresso/impresso-jscommons#v1.7.0",
-    "impresso-ui-components": "github:impresso/impresso-ui-components#fix/errors-in-form-collection-modal",
+    "impresso-ui-components": "github:impresso/impresso-ui-components#main",
     "marked": "^15.0.7",
     "mitt": "^3.0.1",
     "openseadragon": "^5.0.1",
