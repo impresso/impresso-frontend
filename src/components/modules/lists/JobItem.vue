@@ -1,6 +1,6 @@
 <template>
   <div class="JobItem" :class="className">
-    <h2 class="sans mt-2 mb-1 font-weight-medium font-size-inherit">
+    <h2 class="sans mt-2 mb-1 font-weight-medium font-size-inherit text-white">
       <span
         v-html="
           $t(`jobs_type_${item.type}`, {

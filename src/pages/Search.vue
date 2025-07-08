@@ -161,7 +161,7 @@
         hide-footer
         body-class="m-0 p-0"
         :title="$tc('add_n_to_collection', selectedItems.length)"
-        :show="isModalVisible('nameSelectionCollection')"
+        :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
         <collection-add-to-list :items="selectedItems" />
@@ -170,37 +170,37 @@
       <Modal
         id="nameCollection"
         :title="$t('query_add_to_collection')"
-        :show="isModalVisible('nameCollection')"
-        :okDisabled="nameCollectionOkDisabled"
+        :show="visibleModal === 'nameCollection'"
         @close="hideModal('nameCollection')"
-        @ok="createQueryCollection()"
-        @shown="nameCollectionOnShown()"
+        hide-footer
+        dialog-class="modal-dialog-centered"
       >
-        <form v-on:submit.stop.prevent="createQueryCollection()">
-          <label for="inputName">Name</label>
-          <b-form-input
-            @update:modelValue="nameCollectionOnInput"
-            type="text"
-            v-bind:placeholder="$t('Collection_Name')"
-            name="inputName"
-            ref="inputName"
-            v-model="inputName"
-          />
-          <label for="inputDescription" class="mt-3">Description</label>
-          <textarea
-            type="text"
-            name="inputDescription"
-            class="form-control"
-            v-model="inputDescription"
-          />
-        </form>
-        <div class="mt-3 small-caps">
-          <p>Please note: Collections are currently limited to 10.000 items.</p>
-          <p class="mb-0">
-            If your search returned more results, only the 10.000 most relevant items will be
-            stored.
-          </p>
-        </div>
+        <CreateCollectionForm
+          @submit="createQueryCollection"
+          :autofocus="visibleModal === 'nameCollection'"
+          :initial-payload="{
+            name: inputName,
+            description: inputDescription
+          }"
+        >
+          <template #form-errors>
+            <Alert v-if="createCollectionError" type="warning" class="mb-3 p-3" role="alert">
+              <p class="m-0" v-if="createCollectionError.code === 409">
+                A collection with this name already exists. Please choose a different name.
+              </p>
+              <p class="m-0" v-else-if="createCollectionError.code === 501">
+                A collection creation is already in progress. Please complete or cancel it before
+                starting a new one.
+                <br />
+                If this message continues to appear or you're unable to proceed, please contact us —
+                we're happy to assist.
+              </p>
+              <p class="m-0" v-else>
+                {{ createCollectionError.message }} ({{ createCollectionError.code }})
+              </p>
+            </Alert>
+          </template>
+        </CreateCollectionForm>
       </Modal>
 
       <Modal
@@ -289,6 +289,8 @@ import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import Alert from 'impresso-ui-components/components/Alert.vue'
+import CreateCollectionForm from 'impresso-ui-components/components/CreateCollectionForm.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -297,6 +299,7 @@ import {
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
+  collections as collectionsService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
@@ -343,7 +346,8 @@ export default {
     // filtersWithItems: [],
     visibleModal: null,
     isLoadingResults: false,
-    searchInfo: null
+    searchInfo: null,
+    createCollectionError: null
   }),
   props: {
     filtersWithItems: {
@@ -527,9 +531,13 @@ export default {
       return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
-      this.inputDescription = msg
+      const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
+      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
+        total: this.paginationTotalRows,
+        inputDescription: searchQueryDescription
+      })
     },
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
@@ -584,22 +592,39 @@ export default {
         }
       })
     },
-    createQueryCollection() {
-      if (!this.nameCollectionOkDisabled) {
-        this.hideModal('nameCollection')
-        return this.collectionsStore
-          .addCollection({
-            name: this.inputName,
-            description: this.inputDescription
-          })
-          .then(collection => {
-            return searchService.create({
-              group_by: 'articles',
-              filters: this.filters.map(getFilterQuery),
-              collection_uid: collection.uid
-            })
-          })
+    async createQueryCollection({ name, description }) {
+      const collection = await collectionsService
+        .create({
+          name,
+          description
+        })
+        .catch(error => {
+          this.createCollectionError = error
+          console.error('Error creating collection:', error)
+        })
+
+      if (!collection) {
+        // edd simple error handling
+        return
       }
+      await searchService
+        .create(
+          {
+            group_by: 'articles',
+            filters: this.filters.map(getFilterQuery),
+            collection_uid: collection.uid
+          },
+          {
+            ignoreErrors: true
+          }
+        )
+        .then(() => {
+          this.hideModal('nameCollection')
+        })
+        .catch(error => {
+          this.createCollectionError = error
+          console.error('Error creating collection:', error)
+        })
     },
     exportQueryCsv() {
       exporterService.create(
@@ -633,14 +658,7 @@ export default {
         }
       )
     },
-    nameCollectionOnShown() {
-      this.inputName = ''
-      this.$refs.inputName.$el.focus()
-    },
-    nameCollectionOnInput() {
-      this.inputName.trim()
-      this.nameCollectionOkDisabled = this.inputName.length < 3 || this.inputName.length > 50
-    },
+
     reset() {
       this.searchQuery = new SearchQuery({
         filters: this.ignoredFilters
@@ -765,6 +783,7 @@ export default {
     }
   },
   components: {
+    Alert,
     Autocomplete,
     Pagination,
     SearchResultsListItem,
@@ -779,7 +798,8 @@ export default {
     Modal,
     CopyToDatalabButton,
     BaristaButton,
-    AuthGate
+    AuthGate,
+    CreateCollectionForm
   }
 }
 </script>
@@ -848,24 +868,8 @@ export default {
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
-    "Based on search query with": "Based on search query with"
-  },
-  "nl": {
-    "label_display": "Toon Als",
-    "label_order": "Sorteer Op",
-    "label_group": "Rangschikken Per",
-    "label_isFront": "Voorpagina",
-    "label_hasTextContents": "Bevat tekst",
-    "sort_asc": "Oplopend",
-    "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_relevance": "Relavantie",
-    "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels",
-    "order_issues": "Uitgave",
-    "order_pages": "Pagina",
-    "order_articles": "Artikel",
-    "order_sentences": "Zin"
+    "Based on search query with": "Based on search query with",
+    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
   }
 }
 </i18n>
