@@ -81,10 +81,10 @@
           </p>
           <!-- linkedin -->
           <p class="mb-0">
-            <Icon name="bsky" class="text-white mr-2" :width="16" :stroke-width="2" />
-            Bluesky:
-            <a href="https://bsky.app/profile/impresso.bsky.social" target="_blank"
-              >impresso.bsky.social</a
+            <Icon name="linkedin" class="text-white mr-2" :width="16" :stroke-width="2" />
+            LinkedIn:
+            <a href="https://ch.linkedin.com/company/impressoproject" target="_blank"
+              >impressoproject</a
             >
           </p>
           <p>
