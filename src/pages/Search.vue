@@ -11,7 +11,6 @@
         <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
       </template>
       <div>
-        {{ visibleModal }}
         <button
           class="float-right mx-3 btn btn-sm btn-outline-secondary"
           @click="showModal('embeddings')"
@@ -174,10 +173,16 @@
         :show="visibleModal === 'nameCollection'"
         @close="hideModal('nameCollection')"
         hide-footer
+        hide-backdrop
+        dialog-class="modal-dialog-centered"
       >
         <CreateCollectionForm
           @submit="createQueryCollection"
           :autofocus="visibleModal === 'nameCollection'"
+          :initial-payload="{
+            name: inputName,
+            description: inputDescription
+          }"
         >
           <template #form-errors>
             <Alert v-if="createCollectionError" type="warning" class="mb-3 p-3" role="alert">
@@ -527,9 +532,13 @@ export default {
       return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
-      this.inputDescription = msg
+      const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
+      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
+        total: this.paginationTotalRows,
+        inputDescription: searchQueryDescription
+      })
     },
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
@@ -860,24 +869,8 @@ export default {
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
-    "Based on search query with": "Based on search query with"
-  },
-  "nl": {
-    "label_display": "Toon Als",
-    "label_order": "Sorteer Op",
-    "label_group": "Rangschikken Per",
-    "label_isFront": "Voorpagina",
-    "label_hasTextContents": "Bevat tekst",
-    "sort_asc": "Oplopend",
-    "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_relevance": "Relavantie",
-    "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels",
-    "order_issues": "Uitgave",
-    "order_pages": "Pagina",
-    "order_articles": "Artikel",
-    "order_sentences": "Zin"
+    "Based on search query with": "Based on search query with",
+    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
   }
 }
 </i18n>
