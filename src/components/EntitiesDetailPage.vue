@@ -43,7 +43,7 @@
           <b-navbar v-if="tab.name === 'overview'">
             <div v-if="description">"<span v-html="description" />" (wikidata)</div>
           </b-navbar>
-          <b-navbar-nav v-if="tab.name === 'articles' || tab.name === 'mentions'" class="px-2">
+          <b-navbar-nav v-if="tab.name === TabArticles || tab.name === 'mentions'" class="px-2">
             <li>
               <i-dropdown
                 v-model="orderBy"
@@ -59,7 +59,7 @@
 
     <!-- BODY ILayout-->
     <div class="items p-3">
-      <div v-if="tab.name === 'articles'">
+      <div v-if="tab.name === TabArticles">
         <div v-for="(item, index) in items" :key="index">
           <article-item
             :item="item"
@@ -74,8 +74,8 @@
       </div>
 
       <div v-if="tab.name === 'overview'">
-        <b-navbar class="wikibox border-bottom py-3">
-          <section class="d-flex flex-row w-100" v-if="entity.wikidata">
+        <b-navbar class="wikibox border-bottom pb-3" v-if="entity.wikidata?.id">
+          <section class="d-flex flex-row w-100">
             <div class="w-25" v-if="preferredImage">
               <!-- <iframe
                       v-if="entity.wikidata.coordinates"
@@ -138,14 +138,22 @@
             <!-- <pre class="small">{{ entity}}</pre> -->
           </section>
         </b-navbar>
-        <timeline :domain="[startYear, endYear]" :contrast="false" :values="timevalues">
-          <template v-slot="tooltipScope">
-            <div v-if="tooltipScope.tooltip.item">
-              {{ $d(tooltipScope.tooltip.item?.t ?? 0, 'year') }} &middot;
-              <b>{{ tooltipScope.tooltip.item?.w ?? 0 }}</b>
-            </div>
-          </template>
-        </timeline>
+        <div class="position-relative mt-4">
+          <timeline :domain="[startYear, endYear]" :contrast="false" :values="timevalues">
+            <template v-slot="tooltipScope">
+              <div v-if="tooltipScope.tooltip.item">
+                {{ $d(tooltipScope.tooltip.item?.t ?? 0, 'year') }} &middot;
+                <span
+                  v-html="
+                    $tc('numbers.contentItems', tooltipScope.tooltip.item?.w ?? 0, {
+                      n: $n(tooltipScope.tooltip.item?.w ?? 0)
+                    })
+                  "
+                ></span>
+              </div>
+            </template>
+          </timeline>
+        </div>
         <b-container fluid class="my-3">
           <!-- <h2>Facets – top ten buckets</h2> -->
           <b-row>
@@ -176,7 +184,7 @@
       </div>
     </div>
 
-    <template v-slot:footer>
+    <template v-slot:footer v-if="tab.name === TabArticles || tab.name === 'mentions'">
       <div class="fixed-pagination-footer p-1 m-0 mb-2">
         <pagination
           v-bind:perPage="paginationList.perPage"
@@ -204,9 +212,9 @@ import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 
-const TAB_ARTICLES = 'articles'
-const TAB_MENTIONS = 'mentions'
-const TAB_OVERVIEW = 'overview'
+const TabArticles = 'articles'
+const TabMentions = 'mentions'
+const TabOverview = 'overview'
 
 export default {
   props: {
@@ -237,7 +245,10 @@ export default {
     },
     currentOrderBy: '-relevance',
     items: [],
-    facets: []
+    facets: [],
+    TabArticles,
+    TabMentions,
+    TabOverview
   }),
   components: {
     Timeline,
@@ -301,7 +312,7 @@ export default {
         }
       ]
 
-      if (this.tab.name === TAB_ARTICLES) {
+      if (this.tab.name === TabArticles) {
         return [
           {
             value: 'relevance',
@@ -330,19 +341,19 @@ export default {
       return [
         {
           label: this.$t('tabs.overview'),
-          name: TAB_OVERVIEW
+          name: TabOverview
         },
         {
           label: this.$tc('tabs.articles', this.entity.countItems, {
             count: this.$n(this.entity.countItems)
           }),
-          name: TAB_ARTICLES
+          name: TabArticles
         },
         {
           label: this.$tc('tabs.mentions', this.entity.countMentions, {
             count: this.$n(this.entity.countMentions)
           }),
-          name: TAB_MENTIONS
+          name: TabMentions
         }
       ]
     },
@@ -382,7 +393,6 @@ export default {
             q: [this.$route.params.entity_id]
           }
         ]
-        // group_by: 'articles',
       }
 
       this.facets = await searchFacetsService
@@ -390,9 +400,9 @@ export default {
         .then(response => response.data.map(item => new Facet(item)))
     },
     loadItems(page = 1) {
-      if (this.tab.name === TAB_ARTICLES) {
+      if (this.tab.name === TabArticles) {
         return this.loadArticles(page)
-      } else if (this.tab.name === TAB_MENTIONS) {
+      } else if (this.tab.name === TabMentions) {
         return this.loadMentions(page)
       }
       return this.loadFacets()
@@ -473,9 +483,9 @@ export default {
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab)
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0]
 
-        if (this.tab.name === TAB_ARTICLES) {
+        if (this.tab.name === TabArticles) {
           this.currentOrderBy = '-relevance'
-        } else if (this.tab.name === TAB_MENTIONS) {
+        } else if (this.tab.name === TabMentions) {
           this.currentOrderBy = 'id'
         }
         // reset item list
