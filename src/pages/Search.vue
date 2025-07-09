@@ -170,6 +170,7 @@
       <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
         @dismiss="hideModal('nameCollection')"
+        @success="hideModal('nameCollection')"
         :filters="searchServiceQuery.filters"
         :initial-payload="{
           name: inputName,
@@ -189,7 +190,6 @@
 
       <div class="p-1">
         <b-container fluid>
-          {{ visibleModal }}
           <div ref="searchResultsFirstElement" />
           <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
