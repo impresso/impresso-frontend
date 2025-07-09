@@ -167,41 +167,15 @@
         <collection-add-to-list :items="selectedItems" />
       </Modal>
 
-      <Modal
-        id="nameCollection"
-        :title="$t('query_add_to_collection')"
+      <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
-        @close="hideModal('nameCollection')"
-        hide-footer
-        dialog-class="modal-dialog-centered"
-      >
-        <CreateCollectionForm
-          @submit="createQueryCollection"
-          :autofocus="visibleModal === 'nameCollection'"
-          :initial-payload="{
-            name: inputName,
-            description: inputDescription
-          }"
-        >
-          <template #form-errors>
-            <Alert v-if="createCollectionError" type="warning" class="mb-3 p-3" role="alert">
-              <p class="m-0" v-if="createCollectionError.code === 409">
-                A collection with this name already exists. Please choose a different name.
-              </p>
-              <p class="m-0" v-else-if="createCollectionError.code === 501">
-                A collection creation is already in progress. Please complete or cancel it before
-                starting a new one.
-                <br />
-                If this message continues to appear or you're unable to proceed, please contact us —
-                we're happy to assist.
-              </p>
-              <p class="m-0" v-else>
-                {{ createCollectionError.message }} ({{ createCollectionError.code }})
-              </p>
-            </Alert>
-          </template>
-        </CreateCollectionForm>
-      </Modal>
+        @dismiss="hideModal('nameCollection')"
+        :filters="searchServiceQuery.filters"
+        :initial-payload="{
+          name: inputName,
+          description: inputDescription
+        }"
+      />
 
       <Modal
         hide-footer
@@ -215,6 +189,7 @@
 
       <div class="p-1">
         <b-container fluid>
+          {{ visibleModal }}
           <div ref="searchResultsFirstElement" />
           <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
@@ -290,7 +265,6 @@ import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
-import CreateCollectionForm from 'impresso-ui-components/components/CreateCollectionForm.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -309,6 +283,7 @@ import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import BaristaButton from '@/components/barista/BaristaButton.vue'
 import AuthGate from '@/components/AuthGate.vue'
+import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -346,8 +321,7 @@ export default {
     // filtersWithItems: [],
     visibleModal: null,
     isLoadingResults: false,
-    searchInfo: null,
-    createCollectionError: null
+    searchInfo: null
   }),
   props: {
     filtersWithItems: {
@@ -592,40 +566,7 @@ export default {
         }
       })
     },
-    async createQueryCollection({ name, description }) {
-      const collection = await collectionsService
-        .create({
-          name,
-          description
-        })
-        .catch(error => {
-          this.createCollectionError = error
-          console.error('Error creating collection:', error)
-        })
 
-      if (!collection) {
-        // edd simple error handling
-        return
-      }
-      await searchService
-        .create(
-          {
-            group_by: 'articles',
-            filters: this.filters.map(getFilterQuery),
-            collection_uid: collection.uid
-          },
-          {
-            ignoreErrors: true
-          }
-        )
-        .then(() => {
-          this.hideModal('nameCollection')
-        })
-        .catch(error => {
-          this.createCollectionError = error
-          console.error('Error creating collection:', error)
-        })
-    },
     exportQueryCsv() {
       exporterService.create(
         {
@@ -785,6 +726,7 @@ export default {
   components: {
     Alert,
     Autocomplete,
+    CreateCollectionModal,
     Pagination,
     SearchResultsListItem,
     SearchResultsTilesItem,
@@ -798,8 +740,7 @@ export default {
     Modal,
     CopyToDatalabButton,
     BaristaButton,
-    AuthGate,
-    CreateCollectionForm
+    AuthGate
   }
 }
 </script>
