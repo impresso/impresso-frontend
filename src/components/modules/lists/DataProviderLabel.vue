@@ -25,7 +25,7 @@ import type { DataProvider } from '@/models'
 import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
 
-interface DataProviderLabelProps {
+export interface DataProviderLabelProps {
   item: DataProvider
   showLink?: boolean
   titleClass?: string
