@@ -6,7 +6,6 @@
     :dialogClass="props.dialogClass"
     @close="dismiss"
     @confirm="confirm"
-    hideBackdrop
   >
     <LoadingBlock :height="100" v-if="isLoading" label="please wait ...."> </LoadingBlock>
 
@@ -106,7 +105,7 @@ const props = withDefaults(
     errorMessages?: ErrorMessage[]
   }>(),
   {
-    dialogClass: 'modal-dialog-scrollable modal-md',
+    dialogClass: 'modal-dialog-scrollable modal-dialog-centered modal-md',
     isLoading: false,
     errorMessages: () => []
   }
