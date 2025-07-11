@@ -93,6 +93,7 @@
               :base64Filters="base64Filters"
               resource="search"
               functionName="find"
+              :public-api-url="publicApiUrl"
             />
             <RouterLink
               class="mr-1 btn btn-sm btn-outline-primary"
@@ -302,6 +303,10 @@ const FacetTypesWithMultipleValues = [
   import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
 )
 
+const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  : ''
+
 const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
 export default {
@@ -321,7 +326,8 @@ export default {
     // filtersWithItems: [],
     visibleModal: null,
     isLoadingResults: false,
-    searchInfo: null
+    searchInfo: null,
+    publicApiUrl
   }),
   props: {
     filtersWithItems: {
