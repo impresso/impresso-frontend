@@ -261,16 +261,13 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
-import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import Alert from 'impresso-ui-components/components/Alert.vue'
 import { buildEmptyFacets } from '@/logic/facets'
-import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
+import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
-  search as searchService,
   contentItems as contentItemsService,
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
@@ -672,10 +669,10 @@ export default defineComponent({
         this.paginationTotalRows = total
         this.searchResults = data
         this.isLoadingResults = false
-        this.searchInfo = info
+        // this.searchInfo = info
         console.debug(
           '[Search] @searchServiceQuery: took',
-          new Date() - startTime,
+          new Date().getTime() - startTime.getTime(),
           'ms. Total results:',
           total
         )
@@ -739,7 +736,8 @@ export default defineComponent({
         //   })
         // }
       },
-      deep: true
+      deep: true,
+      immediate: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return
@@ -749,7 +747,6 @@ export default defineComponent({
     }
   },
   components: {
-    Alert,
     Autocomplete,
     CreateCollectionModal,
     Pagination,
