@@ -13,7 +13,8 @@
       hide-footer
     >
       <p v-html="$t('try_in_datalab_description_html')" />
-      <CopyToDatalabPanel :code="displayedCode" @copy="closeModal">
+
+      <CopyToDatalabPanel :code="displayedCode">
         <template #description>
           <p
             v-if="isExtendedCode"
@@ -55,6 +56,7 @@ const props = defineProps<{
   resource: string
   functionName: string
   localstoreToggleVariable?: string
+  publicApiUrl?: string
 }>()
 
 const code = ref('')
@@ -70,10 +72,15 @@ const isExtendedCode = computed({
   }
 })
 
+// Compute the public API URL as a Python argument
+const publicApiUrlAsPythonArg = computed<string>(() => {
+  return props.publicApiUrl && props.publicApiUrl.length > 0 ? `"${props.publicApiUrl}"` : ''
+})
+
 const initialCode = `from impresso import connect
 
-# Connect to the API
-impresso = connect()
+# Connect to the Impresso Public API
+impresso = connect(${publicApiUrlAsPythonArg.value})
 
 `
 
@@ -91,7 +98,23 @@ watchEffect(async () => {
       functionName: props.functionName
     }
   })
-  code.value = result.code
+  if (!result || !result.code) {
+    console.error('Error fetching code from datalabSupport:', result)
+    return
+  }
+  // @todo add this import to the datalabSupport service
+  const logical_ops_required = []
+  if (result.code.indexOf('AND(') > 0) logical_ops_required.push('AND')
+  if (result.code.indexOf('OR(') > 0) logical_ops_required.push('OR')
+  if (result.code.indexOf('NOT(') > 0) logical_ops_required.push('NOT')
+  const initialCode = result.code
+  let reducedCode = '' + initialCode
+  if (logical_ops_required.length > 1) {
+    reducedCode = `from impresso import (${logical_ops_required.join(', ')})\n\n${initialCode}`
+  } else if (logical_ops_required.length === 1) {
+    reducedCode = `from impresso import ${logical_ops_required[0]}\n\n${initialCode}`
+  }
+  code.value = reducedCode
 })
 
 const openModal = () => {

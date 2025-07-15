@@ -94,6 +94,7 @@ export const loadVersion = async () => {
   glob.impressoNewspapers = res.newspapers
   glob.impressoDataProviders = {
     SNL: 'Swiss National Library',
+    BNF: 'Bibliothèque nationale de France',
     BNL: 'Luxembourg National Library',
     NZZ: 'Neue Zürcher Zeitung',
     Migros: 'Migros',

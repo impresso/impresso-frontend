@@ -93,6 +93,7 @@
               :base64Filters="base64Filters"
               resource="search"
               functionName="find"
+              :public-api-url="publicApiUrl"
             />
             <RouterLink
               class="mr-1 btn btn-sm btn-outline-primary"
@@ -161,47 +162,22 @@
         hide-footer
         body-class="m-0 p-0"
         :title="$tc('add_n_to_collection', selectedItems.length)"
-        :show="isModalVisible('nameSelectionCollection')"
+        :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
         <collection-add-to-list :items="selectedItems" />
       </Modal>
 
-      <Modal
-        id="nameCollection"
-        :title="$t('query_add_to_collection')"
-        :show="isModalVisible('nameCollection')"
-        :okDisabled="nameCollectionOkDisabled"
-        @close="hideModal()"
-        @ok="createQueryCollection()"
-        @shown="nameCollectionOnShown()"
-      >
-        <form v-on:submit.stop.prevent="createQueryCollection()">
-          <label for="inputName">Name</label>
-          <b-form-input
-            @update:modelValue="nameCollectionOnInput"
-            type="text"
-            v-bind:placeholder="$t('Collection_Name')"
-            name="inputName"
-            ref="inputNameRef"
-            v-model="inputName"
-          />
-          <label for="inputDescription" class="mt-3">Description</label>
-          <textarea
-            type="text"
-            name="inputDescription"
-            class="form-control"
-            v-model="inputDescription"
-          />
-        </form>
-        <div class="mt-3 small-caps">
-          <p>Please note: Collections are currently limited to 10.000 items.</p>
-          <p class="mb-0">
-            If your search returned more results, only the 10.000 most relevant items will be
-            stored.
-          </p>
-        </div>
-      </Modal>
+      <CreateCollectionModal
+        :show="visibleModal === 'nameCollection'"
+        @dismiss="hideModal('nameCollection')"
+        @success="hideModal('nameCollection')"
+        :filters="searchServiceQuery.filters"
+        :initial-payload="{
+          name: inputName,
+          description: inputDescription
+        }"
+      />
 
       <Modal
         hide-footer
@@ -289,7 +265,8 @@ import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
+import Alert from 'impresso-ui-components/components/Alert.vue'
+import { buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -298,12 +275,12 @@ import {
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
+  collections as collectionsService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
-import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import BaristaButton from '@/components/barista/BaristaButton.vue'
 import AuthGate from '@/components/AuthGate.vue'
@@ -311,6 +288,7 @@ import { ContentItem } from '@/models/generated/schemas/contentItem'
 import { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
+import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -329,9 +307,13 @@ const FacetTypesWithMultipleValues = [
   import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
 )
 
+const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  : ''
+
 const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
-interface IData {
+export interface IData {
   selectedItems: ContentItem[]
   allIndeterminate: boolean
   allSelected: boolean
@@ -386,6 +368,9 @@ export default defineComponent({
           p: '1'
         }
       })
+    },
+    publicApiUrl() {
+      return publicApiUrl
     },
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map(value => ({
@@ -531,7 +516,7 @@ export default defineComponent({
     showModal(name) {
       this.visibleModal = name
     },
-    hideModal() {
+    hideModal(name = null) {
       this.visibleModal = null
     },
     handleFiltersChanged(filters) {
@@ -544,9 +529,13 @@ export default defineComponent({
       return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
-      this.inputDescription = msg
+      const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
+      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
+        total: this.paginationTotalRows,
+        inputDescription: searchQueryDescription
+      })
     },
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
@@ -601,23 +590,6 @@ export default defineComponent({
         }
       })
     },
-    createQueryCollection() {
-      if (!this.nameCollectionOkDisabled) {
-        this.hideModal()
-        return this.collectionsStore
-          .addCollection({
-            name: this.inputName,
-            description: this.inputDescription
-          })
-          .then(collection => {
-            return searchService.create({
-              group_by: 'articles',
-              filters: this.filters.map(getFilterQuery),
-              collection_uid: collection.uid
-            })
-          })
-      }
-    },
     exportQueryCsv() {
       exporterService.create(
         {
@@ -649,14 +621,6 @@ export default defineComponent({
           }
         }
       )
-    },
-    nameCollectionOnShown() {
-      this.inputName = ''
-      this.inputNameRef.$el.focus()
-    },
-    nameCollectionOnInput() {
-      this.inputName.trim()
-      this.nameCollectionOkDisabled = this.inputName.length < 3 || this.inputName.length > 50
     },
     reset() {
       this.searchQuery = new SearchQuery({
@@ -785,7 +749,9 @@ export default defineComponent({
     }
   },
   components: {
+    Alert,
     Autocomplete,
+    CreateCollectionModal,
     Pagination,
     SearchResultsListItem,
     SearchResultsTilesItem,
@@ -868,24 +834,8 @@ export default defineComponent({
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
-    "Based on search query with": "Based on search query with"
-  },
-  "nl": {
-    "label_display": "Toon Als",
-    "label_order": "Sorteer Op",
-    "label_group": "Rangschikken Per",
-    "label_isFront": "Voorpagina",
-    "label_hasTextContents": "Bevat tekst",
-    "sort_asc": "Oplopend",
-    "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_relevance": "Relavantie",
-    "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels",
-    "order_issues": "Uitgave",
-    "order_pages": "Pagina",
-    "order_articles": "Artikel",
-    "order_sentences": "Zin"
+    "Based on search query with": "Based on search query with",
+    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
   }
 }
 </i18n>

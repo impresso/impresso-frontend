@@ -79,6 +79,14 @@
               >impresso.bsky.social</a
             >
           </p>
+          <!-- linkedin -->
+          <p class="mb-0">
+            <Icon name="linkedin" class="text-white mr-2" :width="16" :stroke-width="2" />
+            LinkedIn:
+            <a href="https://ch.linkedin.com/company/impressoproject" target="_blank"
+              >impressoproject</a
+            >
+          </p>
           <p>
             <Icon name="discord" class="text-white mr-2" :width="16" :stroke-width="2"></Icon>
             Discord:

@@ -195,7 +195,7 @@
         type="button"
         class="btn btn-primary rounded-md Modals__feedback-button"
         @click="() => (store.view = ViewFeedback)"
-        style="z-index: var(--z-index-modals)"
+        style=""
       >
         <Icon name="sendMail" />
         <span class="ml-2">{{ $t('label_trigger_feedback_modal') }}</span>
