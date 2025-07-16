@@ -10,7 +10,7 @@ interface HookErrorMixin {
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
 const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated'] // error to avoid loopholes
 
-interface Notification {
+export interface Notification {
   title: string
   message: string
   type: 'success' | 'error'
@@ -34,7 +34,7 @@ interface ProcessingActivity {
   c: number
 }
 
-interface State {
+export interface State {
   notifications: StoredNotification[]
   // error message handling,
   errorMessages: ErrorMessage[]
@@ -53,7 +53,7 @@ interface State {
   _lockTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
-interface DisplayErrorPayload {
+export interface DisplayErrorPayload {
   error: Error
   origin?: string
 }

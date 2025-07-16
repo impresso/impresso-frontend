@@ -68,8 +68,9 @@ export interface TextReuseCluster {
 
 export interface MediaSource {
   id: string
+  uid: string
   name: string
-  type: 'newspaper' | 'radio'
+  type: ContentItemMeta['sourceType']
   acronym?: string
   startYear?: number
   endYear?: number
@@ -122,13 +123,9 @@ export interface CollectionItem {
   //   collectionIds: Array [ "local-dg-dk0t_7Rv" ]
 
   // collections: Array []
-  // ​
   // contentType: "A"
-  // ​​
   // itemId: "tageblatt-1923-07-06-a-i0031"
-  // ​​
   // latestDateAdded: "2024-11-09T15:28:26.274Z"
-  // ​​
   // searchQueries: Array []
   itemId: string
   latestDateAdded: Date
@@ -152,4 +149,42 @@ export interface FindResponse<T> {
      */
     offset: number
   }
+}
+
+export interface Utterance {
+  startTime: number
+  endTime: number
+  indices: number[] // indices of TranscriptPartialText contained in this utterance
+}
+
+export interface Rrreb {
+  idx: number
+  text: string
+  startTime: number
+  endTime: number
+}
+export interface ContentItem {
+  uid: string
+  type: 'audio' | 'ar' | 'radio_broadcast_episode'
+  publicationDate: string
+  title?: string
+  excerpt?: string
+  transcript?: string
+  transcriptLength: number
+
+  href?: string
+  link?: string
+  mediaSource: MediaSource
+  dataProvider?: string
+  copyright?: string
+}
+
+export interface AudioContentItem extends ContentItem {
+  duration: number
+  startTime: number
+  audioSrc?: string
+  audioSrcType?: 'mp3' | 'ogg' | 'wav'
+  radioChannel?: string
+  rrrebs: Rrreb[]
+  utterances: Utterance[]
 }

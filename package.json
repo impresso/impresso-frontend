@@ -27,7 +27,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "generate-types": "node src/scripts/generateTypes.ts"
   },
   "dependencies": {
     "@feathersjs/authentication-client": "5.0.25",
@@ -94,6 +95,7 @@
     "eslint-plugin-storybook": "^0.12.0",
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.0.0",
+    "json-schema-to-typescript": "15.0.4",
     "less": "4.2.0",
     "msw": "^2.3.1",
     "msw-storybook-addon": "^2.0",

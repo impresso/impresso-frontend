@@ -47,7 +47,7 @@ function colorForAreaMetric(index: number) {
   return `${schemeAccent[index % schemeAccent.length]}33`
 }
 
-interface LineMetricExtractor {
+export interface LineMetricExtractor {
   id: string
   extractor: (any: any) => number
 }
@@ -109,7 +109,7 @@ export const MetricsByFacetType = {
   }
 }
 
-interface Data {
+export interface Data {
   meta: any
   items: any
   itemsDictionary: Record<string, any>

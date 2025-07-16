@@ -97,19 +97,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
 import Timeline from '@/components/modules/Timeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import Bucket from '@/models/Bucket'
+import { Bucket } from '@/models'
 import { search } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
+import { PropType } from 'vue'
+import { isBucket } from '@/models/typeGuards'
 
 const DisplayStyles = ['percent', 'sum']
 
 const timelineValuesSorter = (a, b) => a.t - b.t
 
-function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
+function fillEmptyYearsWithZeros(timelineValues, timelineRange: [number, number] | []) {
   if (!timelineRange) return timelineValues
   const [rangeMin, rangeMax] = timelineRange
   const presentYears = timelineValues.map(({ t }) => t)
@@ -129,50 +131,54 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange) {
     .sort(timelineValuesSorter)
 }
 
+export interface IData {
+  displayStyle: string
+  cachedUnfilteredCounts?: { [key: string]: number }
+}
+
 export default {
-  data: () => ({
-    displayStyle: 'sum',
-    cachedUnfilteredCounts: /** @type {{[key: string]: number}|undefined} */ (undefined)
+  data: (): IData => ({
+    displayStyle: 'sum'
   }),
   props: {
-    /** @type {import('vue').PropOptions<string>} */
     hoverId: {
       type: String
     },
-    /** @type {import('vue').PropOptions<string>} */
     facet: {
-      type: String
+      type: String as PropType<
+        | 'topic'
+        | 'textReuseCluster'
+        | 'textReusePassage'
+        | 'collection'
+        | 'year'
+        | 'type'
+        | 'country'
+        | 'language'
+        | 'newspaper'
+      >
     }, // any of the common facet types: newspaper, language, etc.
-    /** @type {import('vue').PropOptions<string>} */
     type: {
-      type: String, // type of the visualisation component
-      validator: t => ['timeline', 'bars'].includes(t)
+      type: String as PropType<'timeline' | 'bars'>, // type of the visualisation component
+      validator: (t: string) => ['timeline', 'bars'].includes(t)
     },
-    /** @type {import('vue').PropOptions<Bucket[]>} */
     values: {
-      type: Array, // array of `Bucket` objects.
+      type: Array as PropType<Bucket[]>,
       default: () => [],
-      validator: v => v.map(i => i instanceof Bucket).reduce((acc, v) => acc && v, true)
+      validator: (v: any[]) => v.map(isBucket).reduce((acc, v) => acc && v, true)
     },
-    /** @type {import('vue').PropOptions<{w: number, t: number}>} */
     timelineHighlightValue: {
-      type: Object
+      type: Object as PropType<{ w: number; t: number }>
     }, // a `{ w, t }` object (see Timeline.js)
-    /** @type {import('vue').PropOptions<boolean>} */
     timelineHighlightEnabled: {
       type: Boolean
     },
-    /** @type {import('vue').PropOptions<[string, string] | []>} */
     timelineDomain: {
-      // a tuple of the extent of the timeline in time values (e.g. years): `[1904, 1925]`
-      // type: Array,
-      validator: v => v.length === 0 || v.length === 2
+      type: Array as PropType<number[]>,
+      validator: (v: any[]) => v.length === 0 || v.length === 2
     },
-    /** @type {import('vue').PropOptions<boolean>} */
     isLoading: {
       type: Boolean
     },
-    /** @type {import('vue').PropOptions<number>} */
     numBuckets: {
       type: Number
     }
@@ -205,12 +211,11 @@ export default {
 
       return fillEmptyYearsWithZeros(v, this.timelineDomainRange)
     },
-    /** @returns {[string, string] | []} */
-    timelineDomainRange() {
+    timelineDomainRange(): [number, number] | [] {
       if (this.timelineDomain.length === 2) {
-        return this.timelineDomain
+        return this.timelineDomain as [number, number]
       }
-      const keys = this.values.map(({ val }) => val).sort()
+      const keys = this.values.map(({ val }) => parseFloat(val)).sort()
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : []
     },
     /** @returns {number} */

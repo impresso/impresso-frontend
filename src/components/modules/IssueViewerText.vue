@@ -163,7 +163,7 @@ import { mapStores } from 'pinia'
 import {
   articlesSuggestions,
   articleTextReusePassages,
-  articles as articlesService
+  contentItems as contentItemsService
 } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 import ArticleItem from './lists/ArticleItem.vue'
@@ -181,7 +181,6 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import Ellipsis from './Ellipsis.vue'
 
 const colourScheme = [
   '#8dd3c7',
@@ -210,8 +209,7 @@ export default {
       availableOffsetHeight: 500,
       iiifViewerMarginTop: 20
     } as {
-      article: any
-
+      article: Article
       textReusePassages: any[]
       articlesSuggestions: any[]
       selectedPassageId: string | number | undefined
@@ -271,15 +269,13 @@ export default {
         return acc
       }, {})
 
-      const overlays = this.article.pages
-        .sort(d => d.pageUid)
-        .map((page: any, j: number) => {
-          return {
-            id: page.uid,
-            manifestUrls: page.iiif,
-            regions: regionsByPageIndex[page.uid] || []
-          }
-        })
+      const overlays = this.article.pages.map(page => {
+        return {
+          id: page.uid,
+          manifestUrls: page.iiif,
+          regions: regionsByPageIndex[page.uid] || []
+        }
+      })
       console.debug('[IssueViewerText] @computedIIIFViewerOverlays', overlays)
       return overlays
     },
@@ -470,9 +466,9 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          articlesService.get(articleUid).then(d => {
+          contentItemsService.get(articleUid).then(d => {
             console.debug(['[IssueViewerText] @article_uid', d])
-            return new Article(d)
+            return Article.fromContentItem(d)
           }),
           trPromise
         ])

@@ -2,7 +2,7 @@ import type { Filter } from '@/models'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Helpers from '@/plugins/Helpers'
-import { entities as entitiesService, search as searchService } from '@/services'
+import { entities as entitiesService, searchFacets as searchFacetsService } from '@/services'
 import { defineStore } from 'pinia'
 
 export interface ActivateParameters {
@@ -69,20 +69,17 @@ export const useMonitorStore = defineStore('monitor', {
         filters = filters.concat(this.filters)
       }
       // fetch article timeline related to the given type
-      return searchService
-        .find({
+      return searchFacetsService
+        .get('year', {
           query: {
-            group_by: this.groupBy,
+            // group_by: this.groupBy,
             filters,
-            facets: 'year',
-            limit: 0
+            limit: 10000
           }
         })
         .then(res => {
-          this.itemCountRelated = res.total
-          if (res.info.facets && res.info.facets.year) {
-            this.timeline = Helpers.timeline.fromBuckets(res.info.facets.year.buckets)
-          }
+          this.itemCountRelated = res.numBuckets
+          this.timeline = Helpers.timeline.fromBuckets(res.buckets ?? [])
         })
         .finally(() => {
           this.isPendingTimeline = false

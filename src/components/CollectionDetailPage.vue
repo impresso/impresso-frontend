@@ -93,7 +93,7 @@
           "
           @close="hideConfirmDeleteModal"
         >
-          {{ this.$t('confirm_delete', [collection.name]) }}
+          {{ $t('confirm_delete', [collection.name]) }}
         </Modal>
       </b-navbar>
 
@@ -114,7 +114,7 @@
             active-class="none"
             :to="updateCurrentRoute({ query: { tab: tabItem.name } })"
           >
-            <span v-html="tabItem.label" />
+            <span v-html="tabItem.label"></span>
           </b-nav-item>
         </template>
       </b-tabs>
@@ -175,10 +175,10 @@
         <b-row v-if="displayStyle === 'list'">
           <b-col
             cols="12"
-            v-for="(article, index) in articles"
-            v-bind:key="`${index}-${article.uid}`"
+            v-for="(contentItem, index) in contentItems"
+            v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-list-item v-model="articles[index]" />
+            <search-results-list-item :modelValue="contentItem" />
           </b-col>
         </b-row>
 
@@ -188,16 +188,21 @@
             sm="12"
             md="4"
             lg="3"
-            v-for="(article, index) in articles"
-            v-bind:key="`${index}-${article.uid}`"
+            v-for="(contentItem, index) in contentItems"
+            v-bind:key="`${index}-${contentItem.id}`"
           >
-            <!-- {{article}} -->
-            <search-results-tiles-item v-if="article.type === 'ar'" v-model="articles[index]" />
-            <search-results-image-item
+            <search-results-tiles-item :modelValue="contentItem" />
+            <!-- 
+              v-if="contentItem.text?.itemType === 'ar'"
+
+            TODO: add support for other content types.
+              The image type below does not work.
+             -->
+            <!-- <search-results-image-item
               v-if="article.type !== 'ar'"
               v-bind:searchResult="article"
               v-model="articles[index]"
-            />
+            /> -->
           </b-col>
         </b-row>
       </b-container>
@@ -288,14 +293,14 @@
   </i-layout-section>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import { protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
-import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
-import Article from '@/models/Article'
+// import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
+// import Article from '@/models/Article'
 import Pagination from '@/components/modules/Pagination.vue'
 import SearchQuery from '@/models/SearchQuery'
 import Facet from '@/models/Facet'
@@ -310,7 +315,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
-  search as searchService,
+  contentItems as contentItemsService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
@@ -318,6 +323,8 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation'
+import { defineComponent } from 'vue'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -328,37 +335,59 @@ const TAB_ARTICLES = 'articles'
 const TAB_OVERVIEW = 'overview'
 const TAB_RECOMMENDATIONS = 'recommendations'
 
-export default {
-  data: () => ({
-    tab: {},
-    articles: [],
-    collection: new Collection(),
-    fetching: false,
-    isTimelineLoading: false,
-    paginationPerPage: 10,
-    paginationTotalRows: 0,
-    TAB_ARTICLES,
-    TAB_OVERVIEW,
-    TAB_RECOMMENDATIONS,
-    timevalues: [],
-    facets: [],
-    facetTypes: [
-      'newspaper',
-      'country',
-      'type',
-      'language',
-      'person',
-      'location',
-      'topic',
-      'partner',
-      'accessRight'
-    ],
-    isConfirmDeleteModalVisible: false
-  }),
+export interface ITab {
+  name: string
+}
+
+export interface IData {
+  tab?: ITab
+  contentItems: ContentItem[]
+  collection: Collection
+  fetching: boolean
+  isTimelineLoading: boolean
+  paginationPerPage: number
+  paginationTotalRows: number
+  timevalues: any[]
+  facets: Facet[]
+  isConfirmDeleteModalVisible: boolean
+  facetTypes: string[]
+  TAB_ARTICLES: string
+  TAB_OVERVIEW: string
+  TAB_RECOMMENDATIONS: string
+}
+
+export default defineComponent({
+  data: () =>
+    ({
+      tab: undefined,
+      contentItems: [],
+      collection: new Collection(),
+      fetching: false,
+      isTimelineLoading: false,
+      paginationPerPage: 10,
+      paginationTotalRows: 0,
+      TAB_ARTICLES,
+      TAB_OVERVIEW,
+      TAB_RECOMMENDATIONS,
+      timevalues: [],
+      facets: [],
+      facetTypes: [
+        'newspaper',
+        'country',
+        'type',
+        'language',
+        'person',
+        'location',
+        'topic',
+        'partner',
+        'accessRight'
+      ],
+      isConfirmDeleteModalVisible: false
+    }) as IData,
   components: {
     SearchResultsListItem,
     SearchResultsTilesItem,
-    SearchResultsImageItem,
+    // SearchResultsImageItem,
     Pagination,
     Timeline,
     StackedBarsPanel,
@@ -379,16 +408,16 @@ export default {
       ]
     },
     collectionUid() {
-      return this.$route.params.collection_uid
+      return this.$route.params.collection_uid as string
     },
     paginationCurrentPage() {
-      return parseInt(this.$route.query[QueryParameters.PaginationCurrentPage], 10) || 1
+      return parseInt(this.$route.query[QueryParameters.PaginationCurrentPage] as string, 10) || 1
     },
     startYear() {
-      return window.impressoDocumentsYearSpan.firstYear
+      return (window as any).impressoDocumentsYearSpan.firstYear
     },
     endYear() {
-      return window.impressoDocumentsYearSpan.lastYear
+      return (window as any).impressoDocumentsYearSpan.lastYear
     },
     filters: mapFilters(),
     searchPageLink() {
@@ -397,20 +426,18 @@ export default {
           name: 'search',
           query: SearchQuery.serialize({
             filters: [{ type: 'collection', q: 'local-dg-*' }]
-          })
+          }) as Record<string, string>
         }
       }
       return {
         name: 'search',
         query: SearchQuery.serialize({
           filters: [{ type: 'collection', q: this.collection.uid }]
-        })
+        }) as Record<string, string>
       }
     },
-    collections: {
-      get() {
-        return this.collectionsStore.collections
-      }
+    collections() {
+      return this.collectionsStore.collections
     },
     displayStyle: {
       get() {
@@ -529,12 +556,14 @@ export default {
       const query = {
         resolve: 'item',
         page: this.paginationCurrentPage,
-        limit: this.paginationPerPage
+        limit: this.paginationPerPage,
+        ...(this.collectionUid
+          ? {
+              collection_uids: [this.collectionUid]
+            }
+          : {})
         // TODO Uncomment the following line when service is ready
         // order_by: context.state.orderBy,
-      }
-      if (this.collectionUid) {
-        query.collection_uids = [this.collectionUid]
       }
 
       const collectionsItems = await collectionsItemsService
@@ -545,12 +574,12 @@ export default {
           return data
         })
 
-      const collectionsItemsById = collectionsItems.reduce((acc, item) => {
-        acc[item.itemId] = item
-        return acc
-      }, {})
+      // const collectionsItemsById = collectionsItems.reduce((acc, item) => {
+      //   acc[item.itemId] = item
+      //   return acc
+      // }, {})
 
-      const articles = await searchService
+      const contentItems = await contentItemsService
         .find({
           query: {
             filters: [
@@ -558,20 +587,21 @@ export default {
                 type: 'uid',
                 q: collectionsItems.map(d => d.itemId)
               }
-            ],
-
-            group_by: 'articles'
+            ]
+            // group_by: 'articles'
           }
         })
-        .then(({ data }) =>
-          data.map(d => {
-            return new Article({
-              ...d,
-              collections: collectionsItemsById[d.uid].collections
-            })
-          })
-        )
-      this.articles = articles
+        .then(({ data }) => data)
+      // .then(({ data }) =>
+      //   data.map(d => {
+      //     return Article.fromContentItem({
+      //       ...d,
+      //       collections: collectionsItemsById[d.id]?.collections ?? []
+      //     })
+      //   })
+      // )
+
+      this.contentItems = contentItems
       this.fetching = false
     },
     gotoArticle(article) {
@@ -621,12 +651,13 @@ export default {
             description: collection.description
           })
           .then(res => {
-            this.fetch().then(() => {
-              this.select(new Collection(res.data)) // select the newly created item
-            })
+            // TODO: what is this? `fetch` is not defined in this context
+            // this.fetch().then(() => {
+            //   this.select(new Collection(res.data)) // select the newly created item
+            // })
           })
       }
-      this.$refs.edit_collection.hide(true)
+      ;(this.$refs.edit_collection as any).hide(true)
     },
     sortBy(data, field) {
       data.sort((a, b) => {
@@ -653,10 +684,12 @@ export default {
     },
     loadTimeline() {
       this.isTimelineLoading = true
-      return this.collectionsStore.loadTimeline(this.$route.params.collection_uid).then(values => {
-        this.timevalues = values
-        this.isTimelineLoading = false
-      })
+      return this.collectionsStore
+        .loadTimeline(this.$route.params.collec as string)
+        .then(values => {
+          this.timevalues = values
+          this.isTimelineLoading = false
+        })
     },
     loadFacets(type) {
       return searchFacetsService
@@ -674,7 +707,7 @@ export default {
         .then(type => new Facet(type))
     }
   }
-}
+})
 </script>
 
 <style lang="scss">

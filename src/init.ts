@@ -8,13 +8,18 @@ import { useUserStore } from './stores/user'
 import { useNotificationsStore } from './stores/notifications'
 import { reducedTimeoutPromise } from './services/utils'
 
+export interface Features {
+  textReuse?: { enabled: boolean }
+  viewPlans?: { enabled: boolean }
+  barista?: { enabled: boolean }
+}
 import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { PlanNone } from './constants'
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
   viewPlans: { enabled: true }
-}
+} satisfies Features
 
 type ApiVersion = {
   version: string
@@ -25,11 +30,6 @@ type ApiVersion = {
 type DocumentsDateSpan = {
   firstDate: string
   lastDate: string
-}
-
-type Features = {
-  textReuse: { enabled: boolean }
-  viewPlans: { enabled: boolean }
 }
 
 type VersionResponse = {

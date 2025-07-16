@@ -34,3 +34,7 @@ tmp/
 impresso-frontend.code-workspace
 
 *storybook.log
+public/mock-media/CFCE-1996-09-15-a-r0001.MP3
+public/mock-media/CFCE-1996-09-08-a-r0001.MP3
+public/mock-media/RDN-1950-01-12-a-r0001.MP3
+public/mock-media/index.html

@@ -13,7 +13,7 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <MediaSourceLabel :item="item.MediaSource" show-link class="d-inline-block" />
+      <MediaSourceLabel :item="item.mediaSource" show-link class="d-inline-block" />
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
@@ -41,9 +41,7 @@
     >
       <blockquote class="text-muted">{{ item.excerpt }}</blockquote>
       <b-badge v-if="showSize" variant="light" class="mr-1 pt-1">
-        <span v-if="item.size > 1200">{{
-          $t('readingTime', { min: parseInt(item.size / 1200) })
-        }}</span>
+        <span v-if="item.size > 1200">{{ $t('readingTime', { min: item.size / 1200 }) }}</span>
         <span v-else>{{ $t('reducedReadingTime') }}</span>
       </b-badge>
     </div>
@@ -101,7 +99,7 @@
       </b-row>
     </div>
     <div v-if="showMatches">
-      <ul v-if="item.matches.length" class="article-matches d-flex flex-wrap mt-1 p-0">
+      <ul v-if="item.matches?.length" class="article-matches d-flex flex-wrap mt-1 p-0">
         <li
           class="p-1 mb-2 mr-2 me-2 rounded"
           v-for="(match, i) in item.matches"
@@ -115,33 +113,81 @@
   </article>
 </template>
 
-<script>
+<script lang="ts">
 import ItemSelector from '../ItemSelector.vue'
 import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import Ellipsis from '../Ellipsis.vue'
+import { defineComponent, PropType } from 'vue'
+import { ArticleInterface } from '@/models/Article'
+import { RouterLink } from 'vue-router'
 import DataProviderLabel from './DataProviderLabel.vue'
 
-export default {
+export interface LinkParams {
+  article_uid: string
+  page_uid: string
+  issue_uid: string
+}
+
+export default defineComponent({
   props: {
     item: {
-      type: Object,
+      type: Object as PropType<ArticleInterface>,
       required: true
     },
-    showExcerpt: Boolean,
-    showMatches: Boolean,
-    showPages: Boolean,
-    showSize: Boolean,
-    showLink: Boolean,
-    showHref: Boolean,
-    showMeta: Boolean,
-    showType: Boolean,
-    showEntities: Boolean,
-    showTopics: Boolean,
-    asReference: Boolean,
-    minTopicRelevance: Number
+    showExcerpt: {
+      type: Boolean,
+      default: false
+    },
+    showMatches: {
+      type: Boolean,
+      default: false
+    },
+    showPages: {
+      type: Boolean,
+      default: false
+    },
+    showSize: {
+      type: Boolean,
+      default: false
+    },
+    showLink: {
+      type: Boolean,
+      default: false
+    },
+    showHref: {
+      type: Boolean,
+      default: false
+    },
+    showMeta: {
+      type: Boolean,
+      default: false
+    },
+    showType: {
+      type: Boolean,
+      default: false
+    },
+    showEntities: {
+      type: Boolean,
+      default: false
+    },
+    showTopics: {
+      type: Boolean,
+      default: false
+    },
+    asReference: {
+      type: Boolean,
+      default: false,
+      description: 'Render as reference style'
+    },
+    minTopicRelevance: {
+      type: Number,
+      default: 0,
+      description: 'Minimum topic relevance to show topics'
+    }
   },
+  emits: ['click:title'],
   computed: {
     pages() {
       return this.$tc('pp', this.item.nbPages, {
@@ -166,17 +212,12 @@ export default {
         }
       }
     },
-    routerLinkParams() {
-      const params = {
+    routerLinkParams(): LinkParams {
+      return {
         article_uid: this.item.uid,
-        page_uid: this.item.pages[0]?.uid
+        page_uid: this.item.pages[0]?.uid,
+        issue_uid: this.item.issue?.uid ?? this.item.uid.match(/(^.+)-i/)[1]
       }
-      if (this.item.issue) {
-        params.issue_uid = this.item.issue.uid
-      } else {
-        params.issue_uid = this.item.uid.match(/(^.+)-i/)[1]
-      }
-      return params
     }
   },
   methods: {
@@ -192,9 +233,10 @@ export default {
     VizBar,
     MediaSourceLabel,
     Ellipsis,
+    RouterLink,
     DataProviderLabel
   }
-}
+})
 </script>
 
 <style lang="scss">

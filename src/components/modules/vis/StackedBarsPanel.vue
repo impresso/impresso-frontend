@@ -16,7 +16,7 @@
             class="w-100"
             :percent="toScaledValue(bucket.count) * 100"
             :count="bucket.count"
-            :uid="bucket.item ? bucket.item.uid : null"
+            :uid="bucket.item ? bucket.item.uid : ''"
             :item="bucket.item"
             :type="facetType"
             :default-click-action-disabled="defaultClickActionDisabled"
@@ -29,30 +29,34 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { PropType } from 'vue'
 import VizBar from '../../base/VizBar.vue'
-import BucketModel from '../../../models/Bucket'
-
-/**
- * @typedef {import('@/models').Bucket} Bucket
- */
+import { Bucket } from '@/models'
+import { isBucket } from '@/models/typeGuards'
 
 export default {
   props: {
-    /** @type {import('vue').PropOptions<string>} */
     label: { type: String }, // label of the chart
-    /** @type {import('vue').PropOptions<string>} */
     hoverId: { type: String }, // TODO: what is this?
-    /** @type {import('vue').PropOptions<Bucket[]>} */
     buckets: {
-      type: Array,
+      type: Array as PropType<Bucket[]>,
       default: () => [],
-      validator: buckets =>
-        buckets.map(b => b instanceof BucketModel).reduce((acc, v) => v && acc, true)
+      validator: (buckets: any[]) => buckets.map(isBucket).reduce((acc, v) => v && acc, true)
     },
-    /** @type {import('vue').PropOptions<string>} */
-    facetType: { type: String }, // type of facet to render
-    /** @type {import('vue').PropOptions<boolean>} */
+    facetType: {
+      type: String as PropType<
+        | 'topic'
+        | 'textReuseCluster'
+        | 'textReusePassage'
+        | 'collection'
+        | 'year'
+        | 'type'
+        | 'country'
+        | 'language'
+        | 'newspaper'
+      >
+    }, // type of facet to render
     defaultClickActionDisabled: {
       type: Boolean,
       default: false
