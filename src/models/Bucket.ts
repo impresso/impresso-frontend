@@ -1,10 +1,11 @@
+import type { Bucket as IBucket, Entity as IEntity } from '.'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Newspaper from '@/models/Newspaper'
 import Year from '@/models/Year'
 import Collection from '@/models/Collection'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import { fromPartnerFacet } from '@/models/Partner'
+import Partner, { fromPartnerFacet } from '@/models/Partner'
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -13,18 +14,25 @@ import { fromPartnerFacet } from '@/models/Partner'
  * @param {Number} count Number of matched results for this value
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
-export default class Bucket {
+export default class Bucket implements IBucket {
+  val: string | number
+  count: number
+  item: IEntity | Entity | Topic | Newspaper | Year | Collection | TextReuseCluster | Partner
+  included: boolean
+  upper?: number
+  lower?: number
+
   constructor({
     val = '',
     count = -1,
-    item = {},
+    item,
     included = true,
     type = '',
     upper = undefined,
     lower = undefined
-  } = {}) {
+  }) {
     this.val = String(val)
-    this.count = parseInt(count, 10)
+    this.count = count
     this.included = included
     this.upper = upper
     this.lower = lower
@@ -54,7 +62,7 @@ export default class Bucket {
       default:
         this.item = {
           uid: this.val
-        }
+        } satisfies IEntity
         break
     }
 

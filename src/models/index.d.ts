@@ -15,8 +15,8 @@ export interface Entity {
   countArticles?: Number
   countIssues?: Number
 
-  start?: Number
-  end?: Number
+  start?: Number | Date
+  end?: Number | Date
 }
 
 export interface Filter {
@@ -67,7 +67,6 @@ export interface TextReuseCluster {
 }
 
 export interface MediaSource {
-  id: string
   uid: string
   name: string
   type: ContentItemMeta['sourceType']

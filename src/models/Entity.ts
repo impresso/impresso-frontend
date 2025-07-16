@@ -1,3 +1,4 @@
+import type { Entity as IEntity } from '.'
 /**
  * Entity is an object representing a Named Entity (NE) such as a location or person
  */
@@ -16,7 +17,7 @@ interface EntityConstructorParams {
   relevance?: number
 }
 
-export default class Entity {
+export default class Entity implements IEntity {
   uid: string
   name: string
   type: string
@@ -27,6 +28,8 @@ export default class Entity {
   impressoId: string
   wikidata: any[]
   relevance: number
+
+  checked?: boolean
 
   constructor({
     uid = '',

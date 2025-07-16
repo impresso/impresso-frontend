@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import TopicWord from '@/models/TopicWord'
+import type { Entity as IEntity } from '.'
 
 const wordMapper = token => d => {
   if (token) {
@@ -8,7 +9,22 @@ const wordMapper = token => d => {
   return d.h ? `<span class="h">${d.w}</span>` : d.w
 }
 
-export default class Topic {
+export default class Topic implements IEntity {
+  uid: string
+  language: string
+  model: string
+  words: TopicWord[]
+  excerpt: TopicWord[]
+  matches: string[]
+  countItems: number
+  relatedTopics: string[]
+  label?: string
+  hwp?: number
+  highlighted?: TopicWord[]
+  htmlExcerpt?: string
+
+  checked?: boolean
+
   constructor(
     {
       uid = '',

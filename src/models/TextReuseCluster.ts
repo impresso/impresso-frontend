@@ -1,3 +1,5 @@
+import type { Entity as IEntity } from '.'
+
 /**
  * @class TextReuseCluster is an object representing a Text Reuse cluster
  *
@@ -14,7 +16,22 @@
  * @param {Integer} startYear year of first issue
  * @param {String} uid Unique identifier for the newspaper
  */
-export default class TextReuseCluster {
+export default class TextReuseCluster implements IEntity {
+  uid: string
+  id: string
+  shortId: string
+  textSampleArticle: any
+  textSampleTitle: string
+  textSampleContent: string
+  textSampleExcerpt: string
+  textSampleDate: string
+  timeDifferenceDay: number
+  maxDate: Date
+  minDate: Date
+  clusterSize: number
+  lexicalOverlap: number
+  connectedClusters: any[]
+
   constructor({
     id = '',
     textSampleArticle = {},
@@ -30,6 +47,7 @@ export default class TextReuseCluster {
     connectedClusters = []
   } = {}) {
     this.id = String(id)
+    this.uid = this.id
     this.shortId = this.id.split('-').pop()
 
     this.textSampleArticle = textSampleArticle
@@ -41,7 +59,7 @@ export default class TextReuseCluster {
     this.minDate = minDate
     // recalculate timedifferencedya using dates
     const computedTimeDifferenceDay = Math.floor(
-      (this.maxDate - this.minDate) / (24 * 60 * 60 * 1000)
+      (this.maxDate.getTime() - this.minDate.getTime()) / (24 * 60 * 60 * 1000)
     )
     if (computedTimeDifferenceDay !== timeDifferenceDay) {
       console.warn('recalculating timeDifferenceDay', this.timeDifferenceDay, timeDifferenceDay)
@@ -49,9 +67,9 @@ export default class TextReuseCluster {
     } else {
       this.timeDifferenceDay = timeDifferenceDay
     }
-    this.clusterSize = parseInt(clusterSize, 10)
+    this.clusterSize = clusterSize
     this.connectedClusters = connectedClusters
-    this.lexicalOverlap = parseFloat(lexicalOverlap)
+    this.lexicalOverlap = lexicalOverlap
   }
 
   static fromSolrResponse(response) {

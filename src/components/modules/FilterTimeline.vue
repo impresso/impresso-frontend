@@ -121,7 +121,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Daterange from '@/models/Daterange'
 import FilterDaterange from '@/models/FilterDaterange'
 
@@ -131,13 +131,24 @@ import Timeline from '@/components/modules/Timeline.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
+import { defineComponent, PropType } from 'vue'
+import { Filter } from '@/models'
+import { TimelineValue } from '@/logic/facets'
 
 const DisplayStyleSum = 'sum'
 const DisplayStylePercent = 'percent'
 const ExponentLinear = '1'
 const ExponentPower = '4'
 
-export default {
+export interface IData {
+  temporaryFilter: FilterDaterange | null
+  selectedFilterBrush: Date[]
+  selectedFilterIndex: number
+  displayStyle: string
+  exponent: string
+}
+
+export default defineComponent({
   name: 'FilterTimeline',
   props: {
     infoButtonId: String,
@@ -150,12 +161,11 @@ export default {
       default: 'articles'
     },
     filters: {
-      /** @type {import('vue').PropType<import('@/models').Filter[]>} */
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     },
     values: {
-      type: Array,
+      type: Array as PropType<TimelineValue[]>,
       default: () => []
     },
     disableRelativeDisplayStyle: {
@@ -163,13 +173,15 @@ export default {
       default: false
     }
   },
-  data: () => ({
-    temporaryFilter: null,
-    selectedFilterBrush: [],
-    selectedFilterIndex: -1,
-    displayStyle: DisplayStyleSum,
-    exponent: ExponentLinear
-  }),
+  data(): IData {
+    return {
+      temporaryFilter: null,
+      selectedFilterBrush: [],
+      selectedFilterIndex: -1,
+      displayStyle: DisplayStyleSum,
+      exponent: ExponentLinear
+    }
+  },
   components: {
     BaseTitleBar,
     InfoButton,
@@ -194,18 +206,10 @@ export default {
       return new Date(`${this.endYear}-12-31`)
     },
     startDaterange() {
-      let d
-      if (this.selectedFilter) {
-        console.info('selectedFilter changed', this.selectedFilter)
-        d = this.minDate.toISOString()
-      } else {
-        d = this.minDate.toISOString()
-      }
-      return d.split('T').shift()
+      return this.minDate.toISOString().split('T').shift()
     },
     endDaterange() {
-      const d = this.maxDate.toISOString()
-      return d.split('T').shift()
+      return this.maxDate.toISOString().split('T').shift()
     },
     isPercentage() {
       return this.displayStyle === DisplayStylePercent
@@ -271,7 +275,7 @@ export default {
     removeTemporaryDaterangeFilter() {
       this.temporaryFilter = null
     },
-    addTemporaryDaterangeFilter({ start, end } = {}) {
+    addTemporaryDaterangeFilter({ start, end } = { start: null, end: null }) {
       if (this.temporaryFilter) {
         return
       }
@@ -331,7 +335,7 @@ export default {
       console.debug('[FilterTimeline] changed minDate', this.minDate)
     }
   }
-}
+})
 </script>
 
 <style lang="css">

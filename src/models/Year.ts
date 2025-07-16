@@ -1,11 +1,18 @@
+import type { Entity as IEntity } from '.'
+
 const NUMBER_OF_CONTENTITEMS = 'c'
-const NUMBER_OF_ARTICLES = 'a'
+// const NUMBER_OF_ARTICLES = 'a'
 // const NUMBER_OF_PAGES = 'p';
 // const NUMBER_OF_ISSUES = 'i';
-const NUMBER_OF_IMAGES = 'm'
+// const NUMBER_OF_IMAGES = 'm'
 
-export default class Year {
-  constructor({ y, refs = null } = {}) {
+export default class Year implements IEntity {
+  uid: string
+  y: string
+  refs: { [key: string]: number } | null
+
+  constructor({ y, refs = null }) {
+    this.uid = String(y)
     this.y = y
     this.refs = refs
   }
@@ -23,7 +30,3 @@ export default class Year {
     return value / this.refs[k]
   }
 }
-
-Year.NUMBER_OF_IMAGES = NUMBER_OF_IMAGES
-Year.NUMBER_OF_CONTENTITEMS = NUMBER_OF_CONTENTITEMS
-Year.NUMBER_OF_ARTICLES = NUMBER_OF_ARTICLES

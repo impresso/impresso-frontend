@@ -1,20 +1,21 @@
 import {
-  version as versionService,
   app as appService,
   termsOfUse as termsOfUseService,
-  userChangePlanRequest as userChangePlanRequestService
+  userChangePlanRequest as userChangePlanRequestService,
+  version as versionService
 } from '@/services'
-import { useUserStore } from './stores/user'
-import { useNotificationsStore } from './stores/notifications'
+import { PlanNone } from './constants'
+import type { ImpressoGlobalMetadata } from './models/ImpressoMetadata'
+import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { reducedTimeoutPromise } from './services/utils'
+import { useNotificationsStore } from './stores/notifications'
+import { useUserStore } from './stores/user'
 
 export interface Features {
   textReuse?: { enabled: boolean }
   viewPlans?: { enabled: boolean }
   barista?: { enabled: boolean }
 }
-import type { TermsOfUse, UserChangePlanRequest } from './services/types'
-import { PlanNone } from './constants'
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
@@ -84,7 +85,7 @@ export const loadVersion = async () => {
     '\n - features:',
     res.features
   )
-  const glob: any = window
+  const glob: ImpressoGlobalMetadata = window
   glob.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
   glob.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
   glob.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH

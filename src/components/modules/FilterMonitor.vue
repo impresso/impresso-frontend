@@ -311,7 +311,8 @@ export default {
       type: Date,
       required: false,
       default: () => {
-        const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
+        const defaultFirstYear = window.impressoDocumentsYearSpan?.firstYear ?? 1700
+        const date = new Date(defaultFirstYear + '-01-01')
         date.setUTCHours(0, 0, 0, 0)
         return date
       }
@@ -320,7 +321,9 @@ export default {
       type: Date,
       required: false,
       default: () => {
-        const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
+        const defaultLastYear =
+          window.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+        const date = new Date(defaultLastYear + '-12-31')
         date.setUTCHours(23, 59, 59, 0)
         return date
       }

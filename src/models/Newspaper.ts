@@ -1,3 +1,4 @@
+import type { Entity as IEntity } from '.'
 import Issue from './Issue'
 
 /**
@@ -11,7 +12,24 @@ import Issue from './Issue'
  * @param {Integer} startYear year of first issue
  * @param {String} uid Unique identifier for the newspaper
  */
-export default class Newspaper {
+export default class Newspaper implements IEntity {
+  acronym: string
+  countArticles: number
+  countIssues: number
+  countPages: number
+  deltaYear: number
+  endYear: number
+  name: string
+  startYear: number
+  uid: string
+  id: string
+  properties: string[]
+  firstIssue: Issue | null
+  lastIssue: Issue | null
+  included: boolean
+
+  checked?: boolean
+
   constructor({
     acronym = '',
     countArticles = 0,
@@ -29,13 +47,13 @@ export default class Newspaper {
     included = false
   } = {}) {
     this.acronym = String(acronym)
-    this.countArticles = parseInt(countArticles, 10)
-    this.countIssues = parseInt(countIssues, 10)
-    this.countPages = parseInt(countPages, 10)
-    this.deltaYear = parseInt(deltaYear, 10)
-    this.endYear = parseInt(endYear, 10)
+    this.countArticles = countArticles
+    this.countIssues = countIssues
+    this.countPages = countPages
+    this.deltaYear = deltaYear
+    this.endYear = endYear
     this.name = String(name)
-    this.startYear = parseInt(startYear, 10)
+    this.startYear = startYear
     this.uid = String(uid)
     this.id = id.length ? String(id) : this.uid
     this.properties = properties

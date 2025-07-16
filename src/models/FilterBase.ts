@@ -1,7 +1,22 @@
 import * as contexts from './Contexts'
+import type { Entity, Filter as IFilter } from '.'
 
-export default class Filter {
-  constructor({ q = '', context = contexts.INCLUDE, type = '', touched = false } = {}) {
+export default class Filter implements IFilter {
+  q?: string[] | string
+  type: string
+  context?: string
+  precision?: string
+  op?: string
+
+  items?: Entity[]
+  touched: boolean
+
+  constructor({
+    q = '',
+    context = contexts.INCLUDE,
+    type,
+    touched = false
+  }: IFilter & { touched?: boolean }) {
     if (this.getQuery === undefined && typeof this.getQuery !== 'function') {
       throw new TypeError('Subclass must implement getQuery() method')
     }

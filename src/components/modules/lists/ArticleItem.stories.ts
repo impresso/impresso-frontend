@@ -56,7 +56,7 @@ const mockArticle = {
   issue: new Issue({
     uid: 'gdl-1890-01-01-i'
   }),
-  mediaSource: { name: 'GDL', type: 'newspaper', id: 'gdl' },
+  mediaSource: { name: 'GDL', type: 'newspaper', uid: 'gdl' },
   dataProvider: 'SBC',
   accessRight: 'pdm',
   locations: [

@@ -131,16 +131,29 @@
   </div>
 </template>
 
-<script lang="js">
+<script lang="ts">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { toSerializedFilter } from '@/logic/filters'
-import Bucket from '@/models/Bucket'
+import BucketModel from '@/models/Bucket'
 import { getSearchFacetsService } from '@/services'
 import LazyObserver from '../LazyObserver.vue'
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+import type { Facet, Filter, Bucket } from '@/models'
+import FacetModel from '@/models/Facet'
+
+export interface IData {
+  isCollapsed: boolean
+  selectedBucketsIds: string[]
+  selectedBucketsItems: any[]
+  limit: number
+  offset: number
+  additionalBuckets: Bucket[]
+  isMoreLoading: boolean
+  lazyIsPristine: boolean
+}
 
 export default defineComponent({
   name: 'FilterFacet',
@@ -151,17 +164,18 @@ export default defineComponent({
    * - new filter is created (the model was an empty array before)
    * - filters were removed (the model contained at least one filter but became an empty array)
    */
-  data: () => ({
-    isCollapsed: true,
-    selectedBucketsIds: [],
-    selectedBucketsItems: [],
-    //
-    limit: 10,
-    offset: 0,
-    additionalBuckets: [],
-    isMoreLoading: false,
-    lazyIsPristine: true
-  }),
+  data: (): IData =>
+    ({
+      isCollapsed: true,
+      selectedBucketsIds: [],
+      selectedBucketsItems: [],
+      //
+      limit: 10,
+      offset: 0,
+      additionalBuckets: [],
+      isMoreLoading: false,
+      lazyIsPristine: true
+    }) satisfies IData,
   props: {
     lazy: Boolean,
     lazyDelay: {
@@ -172,15 +186,14 @@ export default defineComponent({
       type: String,
       default: 'search'
     },
-    facet: Object,
+    facet: Object as PropType<Facet>,
     facetFilters: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     },
     /* filters used to narrow down the search for new facet filters option in explorer */
     contextFilters: {
-      /** @type {import('vue').PropType<import('@/models').Filter[]>} */
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     },
     isLoading: Boolean,
@@ -273,7 +286,7 @@ export default defineComponent({
       if (this.selectedBucketsIds.length) {
         this.clearSelectedItems()
       } else {
-        this.selectedBucketsIds = this.unfilteredBuckets.map(b => b.val)
+        this.selectedBucketsIds = this.unfilteredBuckets.map(b => String(b.val))
         this.selectedBucketsItems = this.unfilteredBuckets.map(b => ({
           checked: true,
           ...b.item,
@@ -296,8 +309,6 @@ export default defineComponent({
             ...bucket.item,
             count: bucket.count
           })
-        } else {
-          this.selectedItems.push(bucket)
         }
       } // nothing else matters
     },
@@ -357,21 +368,21 @@ export default defineComponent({
           query: {
             filters: this.contextFilters,
             limit: this.limit,
-            offset: this.skip
+            offset: this.offset
           }
         })
         .then(({ numBuckets, buckets }) => {
-          console.info('loadMoreBuckets', buckets, this.skip)
+          console.info('loadMoreBuckets', buckets, this.offset)
           this.additionalBuckets = this.additionalBuckets.concat(
             buckets.map(
               d =>
-                new Bucket({
+                new BucketModel({
                   ...d,
                   type: this.facet.type
                 })
             )
           )
-          this.skip = this.additionalBuckets.length + this.facet.buckets.length
+          this.offset = this.additionalBuckets.length + this.facet.buckets.length
           // eslint-disable-next-line vue/no-mutating-props
           this.facet.numBuckets = numBuckets
         })
@@ -388,21 +399,22 @@ export default defineComponent({
         this.lazyIsPristine = false
         // load initial buckets
         getSearchFacetsService(this.searchIndex)
-          .get(
-            this.facet.type,
-            {
-              query: {
-                filters: this.contextFilters,
-                limit: this.limit,
-                offset: this.skip
-              }
-            },
-            { ignoreErrors: true }
-          )
+          .get(this.facet.type, {
+            query: {
+              filters: this.contextFilters,
+              limit: this.limit,
+              offset: this.offset
+            }
+          })
           .then(({ numBuckets, buckets }) => {
             // eslint-disable-next-line vue/no-mutating-props
             this.facet.numBuckets = numBuckets
-            this.facet.setBuckets(buckets)
+            if (this.facet instanceof FacetModel) {
+              this.facet.setBuckets(buckets)
+            } else {
+              // eslint-disable-next-line vue/no-mutating-props
+              this.facet.buckets = buckets as Bucket[]
+            }
           })
           .catch(err => {
             console.error(err)
@@ -416,7 +428,7 @@ export default defineComponent({
       immediate: true,
       handler({ buckets = [] } = {}) {
         // set or reset initial skip (it resets additionalBuckets lists)
-        this.skip = buckets.length
+        this.offset = buckets.length
         this.additionalBuckets = []
       }
     }

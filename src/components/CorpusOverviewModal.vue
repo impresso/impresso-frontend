@@ -101,7 +101,7 @@
           <div class="col-sm-4">
             <MediaSourceLabel
               :item="{
-                id: dataset.mediaId,
+                uid: dataset.mediaId,
                 acronym: dataset.mediaId,
                 name: dataset.mediaTitle,
                 type: 'newspaper'

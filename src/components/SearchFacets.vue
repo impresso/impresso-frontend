@@ -1,68 +1,97 @@
 <template>
   <div id="search-facets">
-    <filter-timeline v-if="containsTimelineFacets" class="border-top mx-3 py-2 mb-2" :filters="daterangeFilters"
-      :values="timelineValues" :min-date="minDate" :max-date="maxDate" :start-year="startYear" :end-year="endYear"
-      :group-by="groupBy" @reset-filters="resetFilters" @changed="updateDaterangeFilters" />
-    <filter-range v-for="(facet, index) in rangeFacets" class="border-top py-2 mx-3" :key="`r-${index}`" :facet="facet"
-      :facet-filters="getFacetFilters(facet.type)" @changed="filters => facetFiltersUpdated(facet.type, filters)" />
-    <filter-facet class="border-top py-2 mx-3" v-for="(facet, index) in standardFacets" :key="index" :facet="facet"
-      :context-filters="filters" :facet-filters="getFacetFilters(facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)" collapsible />
+    <filter-timeline
+      v-if="containsTimelineFacets"
+      class="border-top mx-3 py-2 mb-2"
+      :filters="daterangeFilters"
+      :values="timelineValues"
+      :min-date="minDate"
+      :max-date="maxDate"
+      :start-year="startYear"
+      :end-year="endYear"
+      :group-by="groupBy"
+      @reset-filters="resetFilters"
+      @changed="updateDaterangeFilters"
+    />
+    <filter-range
+      v-for="(facet, index) in rangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`r-${index}`"
+      :facet="facet"
+      :facet-filters="getFacetFilters(facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
+    />
+    <filter-facet
+      class="border-top py-2 mx-3"
+      v-for="(facet, index) in standardFacets"
+      :key="index"
+      :facet="facet"
+      :context-filters="filters"
+      :facet-filters="getFacetFilters(facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
+      collapsible
+    />
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FilterFacet from '@/components/modules/FilterFacet.vue'
-import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
+import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import { facetToTimelineValues } from '@/logic/facets'
+import { Facet, Filter } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
-
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models').Facet} Facet
- */
+import { getImpressoMetadata } from '@/models/ImpressoMetadata'
+import { PropType } from 'vue'
 
 const TimelineFacetTypes = ['year', 'daterange']
 const RangeFacetTypes = ['contentLength']
 
+export interface IData {
+  selectedFacet: boolean
+  selectedDaterangeFilter: Filter | null
+}
+
 export default {
   props: {
-    /** @type {import('vue').PropOptions<string>} */
     groupBy: {
-      type: String,
-      default: 'articles',
+      type: String as PropType<'articles' | 'images'>,
+      default: 'articles'
     },
-    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      type: Array,
-      default: () => [],
+      type: Array as PropType<Filter[]>,
+      default: () => []
     },
-    /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
-      type: Array,
-      default: () => [],
+      type: Array as PropType<Facet[]>,
+      default: () => []
     },
-    /** @type {import('vue').PropOptions<number>} */
     startYear: {
       type: Number,
-      default: 1737,
+      default: () => {
+        const defaultYear = getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700
+        return defaultYear
+      }
     },
-    /** @type {import('vue').PropOptions<number>} */
     endYear: {
       type: Number,
-      default: 2020,
-    },
+      default: () => {
+        const defaultYear =
+          getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+        return defaultYear
+      }
+    }
   },
-  data: () => ({
-    selectedFacet: false,
-    selectedDaterangeFilter: null,
-  }),
+  data: () =>
+    ({
+      selectedFacet: false,
+      selectedDaterangeFilter: null
+    }) satisfies IData,
   computed: {
     /** @returns {Facet[]} */
     standardFacets() {
       return this.facets.filter(
-        ({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type),
+        ({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type)
       )
     },
     /** @returns {Facet[]} */
@@ -78,12 +107,15 @@ export default {
       return this.filters.filter(({ type }) => type === 'daterange')
     },
     impressoMinDate() {
-      const date = new Date(window.impressoDocumentsYearSpan.firstYear + '-01-01')
+      const defaultYear = getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700
+      const date = new Date(defaultYear + '-01-01')
       date.setUTCHours(0, 0, 0, 0)
       return date
     },
     impressoMaxDate() {
-      const date = new Date(window.impressoDocumentsYearSpan.lastYear + '-12-31')
+      const defaultYear =
+        getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+      const date = new Date(defaultYear + '-12-31')
       date.setUTCHours(23, 59, 59, 0)
       return date
     },
@@ -92,7 +124,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-01-01`)
       }
@@ -103,7 +135,7 @@ export default {
       if (this.timelineValues.length) {
         const y = this.timelineValues.reduce(
           (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t,
+          this.timelineValues[0].t
         )
         return new Date(`${y}-12-31`)
       }
@@ -114,7 +146,7 @@ export default {
       const yearFacet = this.facets.find(({ type }) => type === 'year')
       if (!yearFacet || !yearFacet.buckets.length) return []
       return facetToTimelineValues(yearFacet)
-    },
+    }
   },
   methods: {
     /**
@@ -130,7 +162,7 @@ export default {
     resetFilters(type) {
       this.$emit(
         'changed',
-        this.filters.filter(d => d.type !== type),
+        this.filters.filter(d => d.type !== type)
       )
     },
     /**
@@ -139,7 +171,7 @@ export default {
     updateDaterangeFilters(daterangeFilters) {
       this.$emit(
         'changed',
-        this.filters.filter(({ type }) => type !== 'daterange').concat(daterangeFilters),
+        this.filters.filter(({ type }) => type !== 'daterange').concat(daterangeFilters)
       )
     },
     /**
@@ -164,13 +196,13 @@ export default {
       const remainingUpdatedFilters = updatedFilters.slice(updatedFiltersIndex)
 
       this.$emit('changed', mergedFilters.concat(remainingUpdatedFilters))
-    },
+    }
   },
   components: {
     FilterTimeline,
     FilterFacet,
-    FilterRange,
-  },
+    FilterRange
+  }
 }
 </script>
 
@@ -207,11 +239,13 @@ export default {
   box-shadow: 0.3em 0.3em 0 rgba(17, 17, 17, 0.2);
 }
 </style>
-<i18n lang="json">{
+<i18n lang="json">
+{
   "en": {
     "groupBy": {
       "articles": "articles",
       "images": "images"
     }
   }
-}</i18n>
+}
+</i18n>

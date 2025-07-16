@@ -1,3 +1,5 @@
+import type { Entity as IEntity } from '.'
+
 /**
  * Collection is an object representing a user generated collection of entityes, articles, etc.
  * @param {Integer} countArticles Number of articles in the collection
@@ -14,7 +16,25 @@
  * @param {String} name Name of collection set by the user
  * @param {String} uid Unique identifier for the Collection
  */
-export default class Collection {
+export default class Collection implements IEntity {
+  countItems: number
+  countArticles: number
+  countEntities: number
+  countIssues: number
+  countPages: number
+  creationDate: Date
+  creationTime: number
+  description: string
+  items: IEntity[]
+  labels: string[]
+  lastModifiedDate: Date
+  lastModifiedTime: number
+  name: string
+  uid: string
+  creator: { username?: string }
+
+  checked?: boolean
+
   constructor({
     countItems = 0,
     countArticles = 0,
@@ -30,22 +50,22 @@ export default class Collection {
     lastModifiedTime = 0,
     name = '',
     uid = '',
-    creator = {},
+    creator = {}
   } = {}) {
-    this.countItems = parseInt(countItems, 10);
-    this.countArticles = parseInt(countArticles, 10);
-    this.countEntities = parseInt(countEntities, 10);
-    this.countIssues = parseInt(countIssues, 10);
-    this.countPages = parseInt(countPages, 10);
-    this.creationDate = new Date(creationDate);
-    this.creationTime = parseInt(creationTime, 10);
-    this.description = String(description);
-    this.items = items.map(item => item); // todo here we have to use models
-    this.labels = labels.map(label => String(label));
-    this.lastModifiedDate = new Date(lastModifiedDate);
-    this.lastModifiedTime = parseInt(lastModifiedTime, 10);
-    this.name = String(name);
-    this.uid = String(uid);
-    this.creator = creator;
+    this.countItems = countItems
+    this.countArticles = countArticles
+    this.countEntities = countEntities
+    this.countIssues = countIssues
+    this.countPages = countPages
+    this.creationDate = new Date(creationDate)
+    this.creationTime = creationTime
+    this.description = String(description)
+    this.items = items.map(item => item) // todo here we have to use models
+    this.labels = labels.map(label => String(label))
+    this.lastModifiedDate = new Date(lastModifiedDate)
+    this.lastModifiedTime = lastModifiedTime
+    this.name = String(name)
+    this.uid = String(uid)
+    this.creator = creator
   }
 }

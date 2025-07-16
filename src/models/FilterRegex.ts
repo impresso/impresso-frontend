@@ -3,19 +3,19 @@
  * @param {String} query The search query
  */
 
-import Filter from '@/models/FilterBase';
+import Filter from '@/models/FilterBase'
 
 export default class FilterRegex extends Filter {
   constructor(args) {
-    super(args);
-    this.query = String(args.query);
+    super(args)
+    this.q = String(args.query)
   }
 
   getQuery() {
     return {
       type: this.type,
-      q: this.query,
-      context: this.context,
-    };
+      q: this.q,
+      context: this.context
+    }
   }
 }
