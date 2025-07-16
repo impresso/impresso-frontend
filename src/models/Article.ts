@@ -5,7 +5,7 @@ import Region from './Region'
 import ArticleTopic from './ArticleTopic'
 import Tag from './Tag'
 import ArticleBase, { ArticleBaseInterface } from './ArticleBase'
-import { ContentItem } from './generated/schemas/contentItem'
+import { ContentItem, ContentItemAccessRights } from './generated/schemas/contentItem'
 import { MediaSource } from './index'
 import Topic from './Topic'
 
@@ -51,6 +51,7 @@ export interface ArticleInterface extends ArticleBaseInterface {
   tags: Tag[]
   topics: ArticleTopic[]
   images: any[]
+  copyright?: ContentItemAccessRights['copyright']
 }
 
 /**
@@ -90,6 +91,7 @@ export interface ArticleConstructorParams {
   regionBreaks?: any[]
   mentions?: any[]
   content?: string
+  copyright?: ContentItemAccessRights['copyright']
 }
 
 /**
@@ -105,7 +107,6 @@ export default class Article extends ArticleBase implements ArticleInterface {
   date: Date
   issue: Issue
   labels: string[]
-  dataProvider: string
   newspaper: Newspaper
   mediaSource: MediaSource
   regions: Region[]
@@ -249,6 +250,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
         : 0,
       accessRight: access?.dataDomain ?? 'na',
       dataProvider: meta?.partnerId ?? '',
+      copyright: access?.copyright,
       newspaper,
       issue,
       topics,
@@ -263,7 +265,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       mediaSource: {
         name: meta?.mediaId ?? '',
         type: meta?.sourceType ?? 'newspaper',
-        id: meta?.mediaId ?? ''
+        uid: meta?.mediaId ?? ''
       },
       collections:
         semanticEnrichments?.collections?.map(c => ({
@@ -337,7 +339,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
       contentLineBreaks,
       regionBreaks,
       mentions,
-      content
+      content,
+      dataProvider
     })
     // missing data from ArticleBase
     this.country = String(country)
@@ -373,7 +376,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       this.mediaSource = {
         name: this.newspaper.acronym,
         type: 'newspaper',
-        id: this.newspaper.uid
+        uid: this.newspaper.uid
       }
     }
     this.pages = pages.map(page => {

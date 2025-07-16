@@ -1,3 +1,5 @@
+import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
+
 export interface Entity {
   uid: string
 
@@ -33,17 +35,25 @@ export interface FilterInterface extends Filter {
   getQuery(): object
 }
 
-export interface Bucket {
+// New code should use either SearchFacetBucket or SearchFacetRangeBucket
+export interface Bucket<T extends Entity = Entity>
+  extends SearchFacetBucket,
+    SearchFacetRangeBucket {
+  item?: T
   val: string | number
-  count: number
-  item?: Entity
-
-  upper?: number
-  lower?: number
 }
 
-export interface Facet {
-  type: string
+// export interface Bucket {
+//   val: string | number
+//   count: number
+//   item?: Entity
+
+//   upper?: number
+//   lower?: number
+// }
+
+export interface Facet<T extends string = FacetType> {
+  type: T
   buckets: Bucket[]
   operators?: string[]
   numBuckets?: number

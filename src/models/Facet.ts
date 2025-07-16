@@ -1,4 +1,52 @@
 import Bucket from './Bucket'
+import { SearchFacet } from './generated/schemas'
+
+/**
+ * All supported facet types.
+ * TODO: load from impresso-jscommons.
+ */
+export type FacetType =
+  | 'topic'
+  | 'textReuseCluster'
+  | 'textReusePassage'
+  | 'collection'
+  | 'year'
+  | 'type'
+  | 'country'
+  | 'language'
+  | 'newspaper'
+  | 'person'
+  | 'location'
+
+/**
+ * Read-only array of all supported facet types.
+ * TODO: load from impresso-jscommons.
+ */
+export const FacetTypes: ReadonlyArray<FacetType> = Object.freeze([
+  ...new Set<FacetType>([
+    'topic',
+    'textReuseCluster',
+    'textReusePassage',
+    'collection',
+    'year',
+    'type',
+    'country',
+    'language',
+    'newspaper',
+    'person',
+    'location'
+  ])
+] as const)
+
+// Type assertion to ensure all FacetType values are included exactly once
+type EnsureExhaustive<T extends readonly FacetType[]> = {
+  [K in FacetType]: T extends readonly [...infer Pre, K, ...infer Post]
+    ? Pre | Post extends readonly K[]
+      ? 'Duplicate type detected'
+      : unknown
+    : 'Missing type detected'
+}
+type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
 
 /**
  * @class todo: is an objctet represnting different occurences of a dimension based on the query
@@ -6,14 +54,24 @@ import Bucket from './Bucket'
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default class Facet {
-  type: string
+export default class Facet<T extends string = FacetType> {
+  type: T
   buckets: Bucket[]
   operators: string[]
   numBuckets: number
 
-  constructor({ type = '', buckets = [], operators = [], numBuckets = -1 } = {}) {
-    this.type = String(type)
+  constructor({
+    type,
+    buckets = [],
+    operators = [],
+    numBuckets = -1
+  }: {
+    type: T
+    buckets?: Bucket[]
+    operators?: string[]
+    numBuckets?: number
+  }) {
+    this.type = type
     if (!operators.length) {
       this.operators = ['OR']
     } else {
@@ -36,6 +94,14 @@ export default class Facet {
         ...bucket,
         type: this.type
       })
+    })
+  }
+
+  static fromSearchFacet(facet: SearchFacet) {
+    return new Facet({
+      type: facet.type as FacetType,
+      buckets: (facet.buckets || []).map(bucket => new Bucket(bucket)),
+      numBuckets: facet.numBuckets
     })
   }
 }

@@ -141,7 +141,7 @@ const ExponentLinear = '1'
 const ExponentPower = '4'
 
 export interface IData {
-  temporaryFilter: FilterDaterange | null
+  temporaryFilter: (FilterDaterange & { hash?: string }) | null
   selectedFilterBrush: Date[]
   selectedFilterIndex: number
   displayStyle: string
@@ -262,7 +262,8 @@ export default defineComponent({
       this.selectedFilterBrush = [daterange.start, daterange.end]
     },
     addDaterangeFilter() {
-      this.$emit('changed', [this.temporaryFilter].concat(this.filters))
+      const filters = this.filters.concat([this.temporaryFilter])
+      this.$emit('changed', filters)
       this.temporaryFilter = null
     },
     removeFilter(i) {
@@ -286,8 +287,7 @@ export default defineComponent({
       console.info('addDaterangeFilter() q:', daterange.getValue())
       this.temporaryFilter = new FilterDaterange({
         type: 'daterange',
-        q: [daterange.getValue()],
-        daterange: daterange.getValue()
+        q: [daterange.getValue()]
       })
       this.temporaryFilter.hash = getFilterHash(this.temporaryFilter)
       // set selectedIndex as first item.
@@ -323,10 +323,8 @@ export default defineComponent({
         this.temporaryFilter = new FilterDaterange({
           type: 'daterange',
           context: this.temporaryFilter.context,
-          q: [daterange.getValue()],
-          daterange: daterange.getValue()
+          q: [daterange.getValue()]
         })
-        this.temporaryFilter.hasChanges = true
       }
     }
   },

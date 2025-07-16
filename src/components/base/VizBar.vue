@@ -25,6 +25,7 @@
 import ItemLabel from '../modules/lists/ItemLabel.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
 import { defineComponent, PropType } from 'vue'
+import { FacetType } from '@/models/Facet'
 
 export default defineComponent({
   props: {
@@ -49,17 +50,7 @@ export default defineComponent({
       default: ''
     },
     type: {
-      type: String as PropType<
-        | 'topic'
-        | 'textReuseCluster'
-        | 'textReusePassage'
-        | 'collection'
-        | 'year'
-        | 'type'
-        | 'country'
-        | 'language'
-        | 'newspaper'
-      >
+      type: String as PropType<FacetType>
     },
     item: {
       type: Object,

@@ -25,7 +25,7 @@
         {{ $t(`buckets.copyright.${item.copyright}`) }}
         <DataProviderLabel
           v-if="item.dataProvider"
-          :item="{ id: item.dataProvider, name: item.dataProvider, type: 'partner' }"
+          :item="{ id: item.dataProvider, name: item.dataProvider }"
           show-link
           class="d-inline"
         ></DataProviderLabel>

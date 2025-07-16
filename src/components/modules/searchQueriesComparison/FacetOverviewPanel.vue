@@ -106,6 +106,7 @@ import { search } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { PropType } from 'vue'
 import { isBucket } from '@/models/typeGuards'
+import { FacetType } from '@/models/Facet'
 
 const DisplayStyles = ['percent', 'sum']
 
@@ -145,17 +146,7 @@ export default {
       type: String
     },
     facet: {
-      type: String as PropType<
-        | 'topic'
-        | 'textReuseCluster'
-        | 'textReusePassage'
-        | 'collection'
-        | 'year'
-        | 'type'
-        | 'country'
-        | 'language'
-        | 'newspaper'
-      >
+      type: String as PropType<FacetType>
     }, // any of the common facet types: newspaper, language, etc.
     type: {
       type: String as PropType<'timeline' | 'bars'>, // type of the visualisation component
@@ -197,7 +188,10 @@ export default {
     /** @returns {{w: number, t: number}[]} */
     timelineValues() {
       let v = this.values
-        .map(({ val, count }) => ({ t: parseInt(val, 10), w: count }))
+        .map(({ val, count }) => ({
+          t: typeof val === 'string' ? parseInt(val, 10) : val,
+          w: count
+        }))
         .sort(timelineValuesSorter)
 
       if (this.displayStyle === 'percent' && this.cachedUnfilteredCounts != null) {
@@ -215,7 +209,9 @@ export default {
       if (this.timelineDomain.length === 2) {
         return this.timelineDomain as [number, number]
       }
-      const keys = this.values.map(({ val }) => parseFloat(val)).sort()
+      const keys = this.values
+        .map(({ val }) => (typeof val === 'string' ? parseFloat(val) : val))
+        .sort()
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : []
     },
     /** @returns {number} */

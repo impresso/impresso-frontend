@@ -30,7 +30,7 @@
         <div class="mx-2">
           <!--  title -->
           <h2 class="mx-2">
-            <item-label :item="item" :type="type" />
+            <item-label :item="item" :type="labelFacetType" />
             <span class="small-caps pl-2">{{ type }}</span>
           </h2>
           <!--  timeline vis -->
@@ -99,7 +99,7 @@
               <!-- <div class="m-2" v-else>{{ item }}</div> -->
             </div>
             <div v-else class="m-2" style="max-height: 150px; overflow: scroll">
-              <item-label :item="item" :type="type" detailed />
+              <item-label :item="item" :type="labelFacetType" detailed />
             </div>
           </div>
 
@@ -129,6 +129,7 @@ import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import SearchQuery from '../models/SearchQuery'
 import { containsFilter } from '@/logic/filters'
 import type { Filter } from '@/models'
+import { FacetType, FacetTypes } from '@/models/Facet'
 
 /**
  * Display info about the current selected item.
@@ -214,6 +215,12 @@ export default defineComponent({
     ...mapState(useMonitorStore, {
       filterModificationsEnabled: state => !state.disableFilterModification
     }),
+    labelFacetType(): FacetType {
+      if (!FacetTypes.includes(this.type as FacetType)) {
+        console.error(`Unknown type: ${this.type}`)
+      }
+      return this.type as FacetType
+    },
     itemTimelineDomain(): [number, number] | [] {
       const { itemTimeline } = this
       if (!itemTimeline.length) {

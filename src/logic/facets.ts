@@ -1,7 +1,8 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
 import Topic from '@/models/Topic'
-import { Facet, Bucket } from '../models'
+import { Facet } from '../models'
+import Year from '@/models/Year'
 
 export interface TimelineValue {
   val: string
@@ -16,15 +17,15 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
   const buckets = facet instanceof FacetModel ? facet.buckets : new FacetModel(facet).buckets
 
   const values = buckets
-    .map(d => ({
-      ...d,
-      w: d.count,
+    .map(b => ({
+      ...b,
+      w: b.count,
       w1: 0,
-      p: d.item.normalize(d.count),
-      t: parseInt(d.val, 10)
+      p: (b.item as Year).normalize(b.count),
+      t: typeof b.val === 'string' ? parseInt(b.val, 10) : b.val
     }))
     .sort((a, b) => a.t - b.t)
-  return Helpers.timeline.addEmptyIntervals(values)
+  return Helpers.timeline.addEmptyIntervals(values) as TimelineValue[]
 }
 
 /**

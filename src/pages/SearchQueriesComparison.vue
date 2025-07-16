@@ -94,7 +94,10 @@ import QueryHeaderPanel from '@/components/modules/searchQueriesComparison/Query
 import DivergingBarsChartPanel, {
   FacetItem
 } from '@/components/modules/searchQueriesComparison/DivergingBarsChartPanel.vue'
-import SideBySideFacetsPanel from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
+import SideBySideFacetsPanel, {
+  ComparableItem,
+  FacetContainer
+} from '@/components/modules/searchQueriesComparison/SideBySideFacetsPanel.vue'
 import Spinner from '@/components/layout/Spinner.vue'
 import Bucket from '@/models/Bucket'
 import {
@@ -109,8 +112,9 @@ import { getBucketLabel } from '../logic/facets'
 import { ComparableTypes, comparableToQuery, Comparable } from '../logic/queryComparison'
 import { getLatestFilters } from '../logic/storage'
 import { Navigation } from '@/plugins/Navigation'
-import { Filter, SearchQuery } from '@/models'
+import { Filter } from '@/models'
 import { SearchFacet, SearchFacetBucket, SearchFacetRangeBucket } from '@/models/generated/schemas'
+import { isBucket, isTermOrRangeBucket } from '@/models/typeGuards'
 
 type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 
@@ -258,7 +262,7 @@ export interface IData {
   /**
    * [<facet id>, <facet visualisation method>]
    */
-  facets: [string, string][]
+  facets: [FacetContainer['id'], FacetContainer['visualisationType']][]
   queriesResults: [QueryResult | undefined, QueryResult | undefined, QueryResult | undefined]
   additionalBuckets: { [key: string]: IBucket[] }[]
   comparisonResult?: any
@@ -270,18 +274,6 @@ export interface IData {
   sortingMethods: string[]
   scales: readonly string[]
   filtersWithItems: (Filter[] | undefined)[]
-}
-
-interface ComparableItem {
-  buckets: IBucket[]
-  isLoaded: boolean
-  numBuckets: number
-}
-
-interface SideBySideFacetContainer {
-  id: string
-  visualisationType: string
-  comparableItems: ComparableItem[]
 }
 
 export default {
@@ -510,37 +502,37 @@ export default {
         }
       })
     },
-    sideBySideFacets(): SideBySideFacetContainer[] {
+    sideBySideFacets(): FacetContainer[] {
       return this.facets.map(([facetId, visualisationType]) => {
-        return {
-          id: facetId,
-          visualisationType,
-          comparableItems: this.queriesResults.map((result, comparableIndex) => {
+        const comparableItems: ComparableItem[] = this.queriesResults.map(
+          (result, comparableIndex) => {
             const item = (result?.facets ?? []).find(({ type }) => type === facetId)
-            const buckets: IBucket[] = item?.buckets ?? []
+            const itemBuckets: IBucket[] = item?.buckets ?? []
             const additionalBuckets = this.additionalBuckets[comparableIndex][facetId] ?? []
+
+            const buckets = itemBuckets.concat(additionalBuckets).filter(isBucket) as Bucket[]
 
             return {
               isLoaded: result?.facets != null,
-              buckets: buckets.concat(additionalBuckets),
+              buckets,
               numBuckets: item?.numBuckets ?? item?.buckets?.length ?? 0
             } satisfies ComparableItem
-          })
-        } satisfies SideBySideFacetContainer
+          }
+        )
+
+        return {
+          id: facetId,
+          visualisationType,
+          comparableItems
+        } satisfies FacetContainer
       })
     },
-    /**
-     * @returns {SideBySideFacetContainer[]}
-     */
-    sideBySideTimelineFacets() {
+    sideBySideTimelineFacets(): FacetContainer[] {
       return this.sideBySideFacets.filter(
         ({ visualisationType }) => visualisationType === 'timeline'
       )
     },
-    /**
-     * @returns {SideBySideFacetContainer[]}
-     */
-    sideBySideBarFacets() {
+    sideBySideBarFacets(): FacetContainer[] {
       return this.sideBySideFacets.filter(({ visualisationType }) => visualisationType === 'bars')
     },
     mode: {

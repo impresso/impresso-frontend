@@ -38,7 +38,7 @@ export const useEntitiesStore = defineStore('entities', {
         })
         .then(res => ({
           ...res,
-          data: res.data.map(d => new Article.fromContentItem(d))
+          data: res.data.map(d => Article.fromContentItem(d))
         }))
     },
     loadEntityMentions({
@@ -107,7 +107,7 @@ export const useEntitiesStore = defineStore('entities', {
         .get('topic', {
           query
         })
-        .then(topic => new Facet(topic))
+        .then(facet => Facet.fromSearchFacet(facet))
     },
     loadPageEntities(pageId: string) {
       const query = {
@@ -124,7 +124,9 @@ export const useEntitiesStore = defineStore('entities', {
         .find({
           query
         })
-        .then(response => [new Facet(response.data[0]), new Facet(response.data[1])])
+        .then(response => {
+          return [Facet.fromSearchFacet(response.data[0]), Facet.fromSearchFacet(response.data[1])]
+        })
     }
   },
   persist: {

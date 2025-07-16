@@ -159,7 +159,6 @@ const contentItem = ref<ContentItem | null>(null)
 const mediaSource = computed<MediaSource | null>(() => {
   if (contentItem.value) {
     return {
-      id: contentItem.value.meta?.mediaId!,
       uid: contentItem.value.meta?.mediaId!,
       type: contentItem.value?.meta?.sourceType!,
       name: contentItem.value.meta?.mediaId!

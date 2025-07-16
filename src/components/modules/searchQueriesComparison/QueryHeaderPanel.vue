@@ -123,6 +123,7 @@ import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { PropType } from 'vue'
 import { Comparable } from '@/logic/queryComparison'
+import { RouteLocationRaw } from 'vue-router'
 
 const SupportedFilterTypes = SupportedFiltersByContext.search
 
@@ -149,7 +150,7 @@ export default {
      * list of available collections
      */
     collections: {
-      type: Array as PropType<{ title: string; id: string }[]>,
+      type: Array as PropType<{ name: string; uid: string }[]>,
       default() {
         return []
       }
@@ -216,9 +217,12 @@ export default {
       this.$emit('comparable-changed', comparable)
     },
     /** @param {Comparable} c */
-    searchPageLink(comparable) {
+    searchPageLink(comparable): RouteLocationRaw {
       const searchQuery = comparableToQuery(comparable)
-      if (searchQuery == null) return searchQuery
+      if (searchQuery == null)
+        return {
+          query: searchQuery as Record<string, any>
+        }
       return {
         name: 'search',
         query: {

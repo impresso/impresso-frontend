@@ -93,32 +93,33 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="!withIIIFViewer"
-          class="row IssueViewerText__regions mt-1"
-          v-for="(region, i) in computedRegions"
-          v-bind:key="i"
-        >
-          <div v-if="article.isCC" class="col col-sm-5">
-            <div class="py-3">
-              <auth-img
-                v-bind:src="region.iiifFragment"
-                alt="..."
-                :style="{ width: `${region.nw * 100}%` }"
+        <div v-if="!withIIIFViewer">
+          <div
+            class="row IssueViewerText__regions mt-1"
+            v-for="(region, i) in computedRegions"
+            v-bind:key="i"
+          >
+            <div v-if="article.isCC" class="col col-sm-5">
+              <div class="py-3">
+                <auth-img
+                  v-bind:src="region.iiifFragment"
+                  alt="..."
+                  :style="{ width: `${region.nw * 100}%` }"
+                />
+              </div>
+            </div>
+            <div class="col col-sm-7 text-serif py-2">
+              <AnnotatedText
+                v-if="regionsAnnotationTree[i]"
+                :children="regionsAnnotationTree[i].children"
+                :cluster-colours="clusterColourMap"
+                :selected-cluster-id="selectedClusterId"
+                @clusterSelected="clusterSelectedHandler"
+                @passageClicked="passageSelectedHandler"
+                @passageMouseenter="mouseenterPassageHandler"
+                @passageMouseleave="mouseleavePassageHandler"
               />
             </div>
-          </div>
-          <div class="col col-sm-7 text-serif py-2">
-            <AnnotatedText
-              v-if="regionsAnnotationTree[i]"
-              :children="regionsAnnotationTree[i].children"
-              :cluster-colours="clusterColourMap"
-              :selected-cluster-id="selectedClusterId"
-              @clusterSelected="clusterSelectedHandler"
-              @passageClicked="passageSelectedHandler"
-              @passageMouseenter="mouseenterPassageHandler"
-              @passageMouseleave="mouseleavePassageHandler"
-            />
           </div>
         </div>
       </b-container>

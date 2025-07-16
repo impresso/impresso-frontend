@@ -1,5 +1,6 @@
 import Collection from './Collection'
 import Entity from './Entity'
+import { ContentItemAccessRights } from './generated/schemas/contentItem'
 import Match from './Match'
 import { IPage } from './Page'
 
@@ -22,6 +23,7 @@ export interface ArticleBaseInterface {
   regionBreaks: any[]
   mentions: any[]
   content: string
+  dataProvider: string
 }
 
 interface ArticleBaseConstructorParams {
@@ -44,8 +46,8 @@ interface ArticleBaseConstructorParams {
   mentions?: any[]
   content?: string
   dataDomain?: string
-  dataProvider?: string
-  copyright?: string
+  dataProvider: string
+  copyright?: ContentItemAccessRights['copyright']
 }
 
 /**
@@ -72,8 +74,8 @@ export default class ArticleBase implements ArticleBaseInterface {
   locations: Entity[]
   persons: Entity[]
   dataDomain?: string
-  dataProvider?: string
-  copyright?: string
+  dataProvider: string
+  copyright?: ContentItemAccessRights['copyright']
 
   constructor({
     uid = '',
@@ -98,7 +100,7 @@ export default class ArticleBase implements ArticleBaseInterface {
     copyright,
     dataDomain,
     dataProvider
-  }: ArticleBaseConstructorParams = {}) {
+  }: ArticleBaseConstructorParams) {
     this.uid = String(uid)
     this.type = String(type)
     this.title = String(title)

@@ -242,7 +242,7 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
   if (!tableOfContents.value.newspaper) return
 
   mediaSource.value = {
-    id: tableOfContents.value.newspaper.id,
+    uid: tableOfContents.value.newspaper.id,
     name: tableOfContents.value.newspaper.type,
     type: 'newspaper'
   } satisfies MediaSource
@@ -267,10 +267,10 @@ async function fetchContentItem(id: string): Promise<void> {
   }
 
   await contentItemsService
-    .get(id, { ignoreErrors: true })
+    .get(id)
     .then(data => {
       console.debug('[IssueViewerPage] fetchContentItem contentItem OK', data)
-      contentItem.value = new Article(data)
+      contentItem.value = Article.fromContentItem(data)
     })
     .catch(err => {
       console.error('[IssueViewerPage] fetchContentItem error:', err)

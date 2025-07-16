@@ -298,10 +298,9 @@ const fetchContentItems = async (query = {}) => {
   contentItemsResponse.value = {
     status: 'success',
     data: response.data.map(d => {
-      return Article.fromContentItem({
-        ...d,
-        collections: collectableItemsIndex[d.id]?.collections ?? []
-      })
+      const a = Article.fromContentItem(d)
+      a.collections = collectableItemsIndex[d.id]?.collections ?? []
+      return a
     }),
     total: response.total
   }

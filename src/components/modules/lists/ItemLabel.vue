@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts">
+import { FacetType } from '@/models/Facet'
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
@@ -29,17 +30,7 @@ export default defineComponent({
       required: true
     },
     type: {
-      type: String as PropType<
-        | 'topic'
-        | 'textReuseCluster'
-        | 'textReusePassage'
-        | 'collection'
-        | 'year'
-        | 'type'
-        | 'country'
-        | 'language'
-        | 'newspaper'
-      >,
+      type: String as PropType<FacetType>,
       required: true
     },
     detailed: {

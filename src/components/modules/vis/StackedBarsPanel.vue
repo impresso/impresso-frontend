@@ -34,6 +34,7 @@ import { PropType } from 'vue'
 import VizBar from '../../base/VizBar.vue'
 import { Bucket } from '@/models'
 import { isBucket } from '@/models/typeGuards'
+import { FacetType } from '@/models/Facet'
 
 export default {
   props: {
@@ -45,17 +46,7 @@ export default {
       validator: (buckets: any[]) => buckets.map(isBucket).reduce((acc, v) => v && acc, true)
     },
     facetType: {
-      type: String as PropType<
-        | 'topic'
-        | 'textReuseCluster'
-        | 'textReusePassage'
-        | 'collection'
-        | 'year'
-        | 'type'
-        | 'country'
-        | 'language'
-        | 'newspaper'
-      >
+      type: String as PropType<FacetType>
     }, // type of facet to render
     defaultClickActionDisabled: {
       type: Boolean,

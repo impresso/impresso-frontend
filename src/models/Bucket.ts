@@ -17,8 +17,8 @@ import Partner, { fromPartnerFacet } from '@/models/Partner'
 export default class Bucket implements IBucket {
   val: string | number
   count: number
-  item: IEntity | Entity | Topic | Newspaper | Year | Collection | TextReuseCluster | Partner
-  included: boolean
+  item?: IEntity | Entity | Topic | Newspaper | Year | Collection | TextReuseCluster | Partner
+  included?: boolean
   upper?: number
   lower?: number
 

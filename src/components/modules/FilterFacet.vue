@@ -289,7 +289,7 @@ export default defineComponent({
         this.selectedBucketsIds = this.unfilteredBuckets.map(b => String(b.val))
         this.selectedBucketsItems = this.unfilteredBuckets.map(b => ({
           checked: true,
-          ...b.item,
+          ...b,
           count: b.count
         }))
       }

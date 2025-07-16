@@ -84,6 +84,7 @@ import { ActivateParameters, useMonitorStore } from '@/stores/monitor'
 import { Bucket } from '@/models'
 import { PropType } from 'vue'
 import { Comparable } from '@/logic/queryComparison'
+import { FacetType } from '@/models/Facet'
 
 type HandleFacetItemClickedParams = Partial<Pick<ActivateParameters, 'item' | 'type'>>
 
@@ -94,16 +95,7 @@ export interface ComparableItem {
 }
 
 export interface FacetContainer {
-  id:
-    | 'topic'
-    | 'textReuseCluster'
-    | 'textReusePassage'
-    | 'collection'
-    | 'year'
-    | 'type'
-    | 'country'
-    | 'language'
-    | 'newspaper'
+  id: FacetType
   comparableItems: ComparableItem[]
   visualisationType: 'timeline' | 'bars'
 }
@@ -115,7 +107,7 @@ function getYearsSpan(facets: FacetContainer[]): [number, number] | [] {
   const years = [
     ...new Set(
       yearFacet.comparableItems.flatMap(({ buckets }) =>
-        buckets.map(({ val }) => parseInt(val, 10))
+        buckets.map(({ val }) => (typeof val === 'string' ? parseInt(val, 10) : val))
       )
     )
   ].sort()

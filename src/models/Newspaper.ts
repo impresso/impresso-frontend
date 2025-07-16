@@ -22,7 +22,6 @@ export default class Newspaper implements IEntity {
   name: string
   startYear: number
   uid: string
-  id: string
   properties: string[]
   firstIssue: Issue | null
   lastIssue: Issue | null
@@ -55,7 +54,6 @@ export default class Newspaper implements IEntity {
     this.name = String(name)
     this.startYear = startYear
     this.uid = String(uid)
-    this.id = id.length ? String(id) : this.uid
     this.properties = properties
     this.included = included
 

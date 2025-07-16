@@ -303,7 +303,7 @@ import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.
 // import Article from '@/models/Article'
 import Pagination from '@/components/modules/Pagination.vue'
 import SearchQuery from '@/models/SearchQuery'
-import Facet from '@/models/Facet'
+import Facet, { FacetType } from '@/models/Facet'
 import Timeline from '@/components/modules/Timeline.vue'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
 import { mapFilters } from '@/logic/queryParams'
@@ -325,6 +325,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
 import { ContentItem } from '@/models/generated/schemas/contentItem'
+import Bucket from '@/models/Bucket'
 
 const QueryParameters = Object.freeze({
   RecommendersSettings: 'rs',
@@ -350,7 +351,7 @@ export interface IData {
   timevalues: any[]
   facets: Facet[]
   isConfirmDeleteModalVisible: boolean
-  facetTypes: string[]
+  facetTypes: FacetType[]
   TAB_ARTICLES: string
   TAB_OVERVIEW: string
   TAB_RECOMMENDATIONS: string
@@ -691,7 +692,7 @@ export default defineComponent({
           this.isTimelineLoading = false
         })
     },
-    loadFacets(type) {
+    loadFacets(type: FacetType) {
       return searchFacetsService
         .get(type, {
           query: {
@@ -704,7 +705,14 @@ export default defineComponent({
             // group_by: 'articles',
           }
         })
-        .then(type => new Facet(type))
+        .then(
+          facet =>
+            new Facet({
+              type,
+              buckets: facet.buckets.map(b => new Bucket(b)),
+              numBuckets: facet.numBuckets
+            })
+        )
     }
   }
 })

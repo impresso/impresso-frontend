@@ -109,7 +109,7 @@ export default defineComponent({
       type: Object
     },
     regions: {
-      type: Array as PropType<{ coords: ICoords }[]>,
+      type: Array as PropType<{ coords?: ICoords }[]>,
       default: () => []
     },
     matches: {

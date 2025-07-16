@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
 
 const routerLinkUrl = computed(() => ({
   name: 'newspaper_metadata',
-  params: { newspaper_uid: props.item.id }
+  params: { newspaper_uid: props.item.uid }
 }))
 
 const glob = window as any
@@ -39,13 +39,13 @@ const glob = window as any
 const title = computed(() => {
   if (props.item.type === 'newspaper' && typeof glob.impressoNewspapers === 'object') {
     try {
-      return glob.impressoNewspapers[props.item.id].name
+      return glob.impressoNewspapers[props.item.uid].name
     } catch (e) {
       // debugger
-      return props.item.name || props.item.id
+      return props.item.name || props.item.uid
     }
   }
-  return props.item.name || props.item.id
+  return props.item.name || props.item.uid
 })
 </script>
 <i18n>
