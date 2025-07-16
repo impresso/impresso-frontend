@@ -34,7 +34,7 @@ export interface FilterInterface extends Filter {
 }
 
 export interface Bucket {
-  val: string
+  val: string | number
   count: number
   item?: Entity
 
@@ -101,15 +101,21 @@ export interface IImage {
   date?: Date
 }
 
-export interface User {
-  uid: string
+export type User = {
   username: string
-  isActive: boolean
   isStaff: boolean
-  email: string
   firstname: string
   lastname: string
-  pattern: string[]
+  pattern: string
+  email: string
+  profile?: {
+    pattern: string[]
+  }
+  bitmap?: string
+  groups?: Group[]
+  agreedToTerms?: boolean
+  affiliation?: string
+  institutionalUrl?: string
 }
 
 export interface CollectionItem {
@@ -128,4 +134,22 @@ export interface CollectionItem {
   latestDateAdded: Date
   searchQueries: SearchQuery[]
   collectionIds: string[]
+}
+
+export interface FindResponse<T> {
+  data: T[]
+  pagination: {
+    /**
+     * The total number of items matching the query
+     */
+    total: number
+    /**
+     * The number of items returned in this response
+     */
+    limit: number
+    /**
+     * Starting index of the items subset returned in this response
+     */
+    offset: number
+  }
 }

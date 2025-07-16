@@ -21,8 +21,8 @@
               { n: $n(bucket.count) }
             )
           "
-        />
-        {{ type }})
+        />)
+        <!-- {{ type }}-->
       </span>
     </item-selector>
   </div>

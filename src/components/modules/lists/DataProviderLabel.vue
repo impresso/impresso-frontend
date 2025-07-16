@@ -25,7 +25,7 @@ import type { DataProvider } from '@/models'
 import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
 
-interface DataProviderLabelProps {
+export interface DataProviderLabelProps {
   item: DataProvider
   showLink?: boolean
   titleClass?: string
@@ -39,11 +39,10 @@ const props = withDefaults(defineProps<DataProviderLabelProps>(), {
 
 const title = computed(() => {
   if (typeof glob.impressoDataProviders === 'object') {
-    try {
-      return glob.impressoDataProviders[props.item.id].name
-    } catch (e) {
-      return props.item.name || props.item.id
+    if (props.item.id in glob.impressoDataProviders) {
+      return glob.impressoDataProviders[props.item.id]
     }
+    return props.item.name || props.item.id
   }
   return props.item.name || props.item.id
 })

@@ -1,8 +1,11 @@
 <template>
-  <section class="search-bar" ref="autocomplete">
+  <section
+    :class="`search-bar Autocomplete ${bodyClass} ${showSuggestions ? 'show' : ''}`"
+    ref="autocomplete"
+  >
     <div class="input-group">
       <b-form-input
-        :class="`search-input ${showSuggestions ? 'has-suggestions' : ''}`"
+        class="search-input"
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
         @update:modelValue="search"
@@ -13,15 +16,14 @@
       />
       <div class="input-group-append">
         <button
-          type="button"
+          type="button pt-1"
           class="btn btn-outline-primary"
           ref="searchButton"
           :title="$tc('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
           data-testid="add-keyword-button"
         >
-          <div v-if="filterCount > 1" class="d-flex search-submit dripicons-search"></div>
-          <div v-else class="d-flex search-submit dripicons-search"></div>
+          <Icon name="search" :stroke-width="2.5" :height="16" :width="16" />
         </button>
         <button
           type="button"
@@ -35,11 +37,8 @@
       </div>
     </div>
 
-    <div
-      class="suggestions border-left border-right border-bottom border-primary drop-shadow"
-      v-show="showSuggestions"
-    >
-      <div class="border-bottom">
+    <div class="suggestions position-absolute" v-show="showSuggestions">
+      <div>
         <div
           class="suggestion p-1"
           v-for="(suggestion, index) in staticSuggestions"
@@ -54,65 +53,58 @@
             <span class="small" v-else
               >...<b>{{ q }}</b></span
             >
-            <b-badge variant="light" class="border border-medium">
+            <b-badge variant="light" class="border border-medium ml-2">
               {{ $t(`label.${suggestion.type}.title`) }}
             </b-badge>
           </div>
         </div>
       </div>
-      <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box border-bottom">
-        <div class="row no-gutters" :title="$t(`label.${type}.title`)">
-          <div class="col-1 border-right" v-if="type !== 'mention'">
-            <div class="icon filter-icon" :class="`dripicons-${typeIcon(type)}`"></div>
+      <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box">
+        <div :title="$t(`label.${type}.title`)">
+          <div class="small font-style-italic p-3" v-if="type !== 'mention'">
+            {{ $tc('label.' + type + '.title', suggestionIndex[type].length) }}
           </div>
-          <div class="col">
-            <!-- <span v-if="type !== 'mention'" class="small-caps px-2">{{$t(`label.${type}.title`)}}</span> -->
-            <div
-              v-for="(s, j) in suggestionIndex[type]"
-              :key="j"
-              @click="submit(s)"
-              @mouseover="select(s)"
-              :data-idx="s.idx"
-              class="suggestion pr-1 pl-2 py-1"
-              :class="{
-                selected: selectedIndex === s.idx
-              }"
-            >
-              <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-                <span class="small"
-                  >... <b>{{ q }}</b></span
-                >
-                <b-badge variant="light" class="border border-medium">
-                  {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
-                >
-              </div>
-              <div v-else :class="`${type} small`">
-                <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-                <span
-                  v-if="['collection', 'newspaper'].indexOf(type) !== -1"
-                  v-html="s.item.name"
-                />
-                <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-                <span v-if="s.type === 'daterange'"
-                  >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
-                >
-              </div>
+          <div
+            v-for="(s, j) in suggestionIndex[type]"
+            :key="j"
+            @click="submit(s)"
+            @mouseover="select(s)"
+            :data-idx="s.idx"
+            class="suggestion pr-1 pl-2 py-1"
+            :class="{
+              selected: selectedIndex === s.idx
+            }"
+          >
+            <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
+              <span class="small"
+                >... <b>{{ q }}</b></span
+              >
+              <b-badge variant="light" class="border border-medium">
+                {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
+              >
+            </div>
+            <div v-else :class="`${type} small`">
+              <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
+              <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
+              <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
+              <span v-if="s.type === 'daterange'"
+                >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <explorer
-      v-model="explorerFilters"
-      :is-visible="explorerVisible"
-      @onHide="handleExplorerHide"
-      :searching-enabled="true"
-      :initial-search-query="q"
-      :initial-type="explorerInitialType"
-      :included-types="explorerIncludedTypes"
-    />
   </section>
+  <explorer
+    v-model="explorerFilters"
+    :is-visible="explorerVisible"
+    @onHide="handleExplorerHide"
+    :searching-enabled="true"
+    :initial-search-query="q"
+    :initial-type="explorerInitialType"
+    :included-types="explorerIncludedTypes"
+  />
 </template>
 
 <script>
@@ -123,8 +115,9 @@ import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
 import Explorer from './Explorer.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
+import Icon from './base/Icon.vue'
 
-const AVAILABLE_TYPES = ['mention', 'newspaper', 'topic', 'location', 'person', 'collection']
+const AVAILABLE_TYPES = ['newspaper', 'topic', 'location', 'person', 'collection']
 
 export default {
   data: () => ({
@@ -150,6 +143,10 @@ export default {
   }),
   emits: ['submit', 'submitEmpty', 'input-focus'],
   props: {
+    bodyClass: {
+      type: String,
+      default: ''
+    },
     variant: {
       type: String,
       default: 'primary'
@@ -167,7 +164,17 @@ export default {
   beforeMount() {
     const autocomplete = ref(this.$refs.autocomplete)
     const button = ref(this.$refs.searchButton)
-    useClickOutside(autocomplete, () => this.hideSuggestions(), button)
+    useClickOutside(
+      autocomplete,
+      e => {
+        if (e.target.classList.contains('search-input')) {
+          this.showSuggestions = true
+        } else {
+          this.hideSuggestions()
+        }
+      },
+      button
+    )
   },
   computed: {
     ...mapStores(useAutocompleteStore, useUserStore),
@@ -394,138 +401,99 @@ export default {
     }
   },
   components: {
-    Explorer
+    Explorer,
+    Icon
   }
 }
 </script>
-
-<style scoped lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
-.search-bar {
+<style lang="css">
+.Autocomplete {
   position: relative;
-
-  input.form-control.search-input {
-    border-color: $clr-primary;
-    background: transparent;
-    position: relative;
-    color: black;
-
-    &:focus {
-      box-shadow: none;
-      background: white;
-      border: 1px solid $clr-secondary;
-    }
-
-    &:focus.has-suggestions {
-      // border: 1px solid $clr-secondary;
-      border-bottom: 0;
-    }
-  }
-
-  .suggestions {
-    position: absolute;
-    top: 38px;
-    width: 100%;
-    background: white;
-    z-index: 10;
-
-    .icon {
-      color: $clr-primary;
-      // border: 1px solid $clr-secondary;
-      text-align: center;
-      font-size: 14px;
-      height: 24px;
-      width: 24px;
-      line-height: 20px;
-      padding-top: 4px;
-      // border-radius: 50%;
-      top: 50%;
-      left: 0.25rem;
-      margin-top: -12px;
-      position: absolute;
-    }
-
-    .suggestion {
-      border: 1px solid transparent;
-      cursor: pointer;
-
-      > div {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-
-        span {
-          flex: 1;
-          flex-grow: 8;
-        }
-
-        .badge {
-          flex: 1;
-        }
-      }
-
-      &.selected {
-        background: rgba($clr-accent-secondary, 0.5);
-        border-color: rgba($clr-accent-secondary, 0.75);
-      }
-    }
-  }
+}
+.Autocomplete .search-input {
+  border: 1px solid var(--impresso-color-black);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
+  background-color: transparent;
+  box-shadow: var(--bs-box-shadow-sm);
+  color: var(--impresso-color-black);
 }
 
-.search-bar .input-group > .form-control {
-  border-top-width: 0;
-  border-left-width: 0;
-  border-right-width: 0;
-  z-index: 1;
+.Autocomplete .search-input:focus {
+  background-color: var(--clr-white-rgba-90);
+}
+.Autocomplete .search-input::placeholder {
+  color: var(--clr-grey-500);
+}
+.Autocomplete.show .search-input {
+  border-bottom-left-radius: 0;
 }
 
-.search-box .search-bar .input-group > .form-control {
-  background: white;
-
-  &:focus {
-    border-width: 0;
-  }
+.Autocomplete .suggestions {
+  width: 100%;
+  z-index: 10;
+  background: var(--clr-white-rgba-90);
+  border-bottom-right-radius: var(--border-radius-md);
+  border-bottom-left-radius: var(--border-radius-md);
+  padding-bottom: var(--spacing-2);
+  border: 1px solid var(--impresso-color-black);
+  border-top: 0px solid transparent;
+}
+.bg-dark.Autocomplete .suggestion .badge-light {
+  background: transparent;
+  color: var(--clr-grey-500);
+  border-color: var(--clr-grey-500) !important;
+}
+.Autocomplete .suggestion.selected {
+  background: var(--clr-grey-200);
+  cursor: pointer;
+  color: white;
+}
+.Autocomplete .input-group-append button:first-child {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
 }
 
-.bg-dark {
-  .search-bar .input-group > .form-control {
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-    background: transparent;
-
-    &:focus {
-      background: transparent;
-    }
-  }
+.bg-dark.Autocomplete .suggestions {
+  background: #3e454c;
+  border: 1px solid var(--impresso-color-yellow);
+  border-top: 0px solid transparent;
+}
+.bg-dark.Autocomplete.show .search-input,
+.bg-dark.Autocomplete.show .search-input:focus {
+  border-color: var(--impresso-color-yellow) !important;
+  background-color: #3e454c !important;
+  color: var(--impresso-color-white);
+}
+.bg-dark.Autocomplete .search-input:hover::placeholder {
+  color: var(--impresso-color-white);
+}
+.bg-dark.Autocomplete .search-input {
+  color: var(--impresso-color-white);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
+  border-color: var(--clr-grey-500);
 }
 
-// .search-bar .input-group > .form-control {
-//   color: white;
-// }
-// .bg-dark .search-bar.search-box .input-group > .form-control {
-//   color: white;
-//   border-left: 1px solid #aaa;
-//   border-color: #aaa !important;
-//
-//   &:focus{
-//       background-color: transparent;
-//       border-top-width: 0;
-//       outline: 0;
-//   }
-// }
-// .search-bar .input-group-append::before {
-//   content: '';
-//   position: absolute;
-//   left: 0.125rem;
-//   bottom: 0.25rem;
-//   top: 0.25rem;
-//   z-index: 0;
-//   background: rgb(253,233,119);
-//   background: linear-gradient(90deg, rgba(253,233,119,1) 0%, rgba(253,233,119,0) 100%);
-//   width: 100px;
-// }
+.bg-dark.Autocomplete .input-group-append button {
+  border-color: var(--clr-grey-500) !important;
+  color: var(--clr-grey-500);
+  background-color: transparent;
+}
+.bg-dark.Autocomplete .input-group-append button:hover {
+  color: var(--impresso-color-white);
+}
+.bg-dark.Autocomplete.show,
+.bg-dark.Autocomplete.show .suggestions {
+  box-shadow: var(--bs-box-shadow-md-darker);
+}
+.bg-dark.Autocomplete.show .input-group-append button {
+  border-color: var(--impresso-color-yellow) !important;
+  color: var(--impresso-color-yellow);
+}
+.Autocomplete.show .input-group-append button:last-child {
+  border-bottom-right-radius: 0;
+}
 </style>
 
 <i18n lang="json">
@@ -561,7 +529,7 @@ export default {
         "moreLikeThis": "More Collections ..."
       },
       "newspaper": {
-        "title": "suggested newspaper",
+        "title": "suggested newspapers",
         "moreLikeThis": "More Newspapers ..."
       },
       "daterange": {

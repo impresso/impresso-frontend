@@ -8,12 +8,10 @@ const meta: Meta<typeof OpenSeadragonArticleViewer> = {
   tags: ['autodocs'],
   argTypes: {},
   args: {
-    "onPage-changed": fn(),
-    "onArticle-selected": fn(),
+    'onPage-changed': fn(),
+    'onArticle-selected': fn()
   },
-  decorators: [
-    () => ({ template: '<div style="width: 800px; height:600px;"><story/></div>' })
-  ]
+  decorators: [() => ({ template: '<div style="width: 800px; height:600px;"><story/></div>' })]
 } satisfies Meta<typeof OpenSeadragonArticleViewer>
 
 export default meta
@@ -359,7 +357,7 @@ export const Default: Story = {
     pages: testPages,
     regions: testRegions,
     defaultCurrentPageIndex: testCurrentPageIndex,
-    article: { uid: testArticleId},
-    marginaliaSections: testMarginaliaSections,
+    article: { uid: testArticleId },
+    marginaliaSections: testMarginaliaSections
   }
 }

@@ -20,7 +20,12 @@
                 :search-query="{ filters: supportedFiltersWithItems }"
               />
             </Ellipsis>
-            <div class="ml-2">
+            <div class="d-flex ml-2 gap-2">
+              <CopyToDatalabButton
+                :base64Filters="base64Filters"
+                resource="text_reuse.clusters"
+                functionName="find"
+              />
               <AddToCollection
                 @item:click="handleAddToCollectionClick"
                 @create="handleAddToCollectionCreate"
@@ -243,6 +248,8 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import SearchQuery from '@/models/SearchQuery'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -273,7 +280,8 @@ export default {
     CreateCollection,
     AddToCollection,
     ConfirmModal,
-    ItemLabel
+    ItemLabel,
+    CopyToDatalabButton
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -579,6 +587,11 @@ export default {
         passages: passagesLabel,
         clusters: clustersLabel
       })
+    },
+    base64Filters() {
+      return new SearchQuery({
+        filters: this.filters
+      }).getSerialized({ serializer: 'protobuf' })
     }
   },
   watch: {

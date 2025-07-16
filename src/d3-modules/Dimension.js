@@ -12,7 +12,10 @@ class Dimension {
     domain = [0, 1],
     range = [0, 1],
     isRangeFixed = false,
-    discreteColorSchemeName = 'Warm'
+    exponent = 2, // only for scaleFn scalePow
+    isScalePow = false,
+    discreteColorSchemeName = 'Warm',
+    autoCalculateDomain = true
   } = {}) {
     this.name = name
     this.property = property
@@ -22,7 +25,9 @@ class Dimension {
     this.domain = domain
     this.range = range
     this.isRangeFixed = isRangeFixed
-
+    this.isScalePow = isScalePow
+    this.exponent = exponent
+    this.autoCalculateDomain = autoCalculateDomain
     if (this.type === TYPE_DISCRETE) {
       this.discreteColorsSchemeName = discreteColorSchemeName
       this.updateDiscreteColors(this.discreteColorsSchemeName)
@@ -89,8 +94,12 @@ class Dimension {
       return
     }
     this.domain = domain
-    this.isDomainFixed = fixed
-    this.scale = this.scaleFn().domain(this.domain).range(this.range)
+    this.autoCalculateDomain = !fixed
+    if (this.isScalePow) {
+      this.scale = this.scaleFn().domain(this.domain).range(this.range).exponent(this.exponent)
+    } else {
+      this.scale = this.scaleFn().domain(this.domain).range(this.range)
+    }
   }
   /**
    * If type is TYPE_CONTINUOUS, values should be a flattened array of values
@@ -100,16 +109,16 @@ class Dimension {
    * @param  {[type]} values   [description]
    * @return {[type]}          [description]
    */
-  update({ property, values, range }) {
-    this.values = values?.map?.(d => d[this.property]) ?? []
+  update({ property, values = [], range }) {
+    this.values = values.map(d => d[this.property])
     if (property) {
       this.property = property
     }
     if (this.range && range) {
       this.range = range
     }
-    if (!this.isDomainFixed) {
-      this.domain = []
+    if (this.autoCalculateDomain && Array.isArray(values)) {
+      this.domain = d3.extent(values, d => d[this.property])
     }
     this.legend = []
     // recalculate cat according to type
@@ -140,11 +149,11 @@ class Dimension {
         )
       }
     } else {
-      if (!this.isDomainFixed && Array.isArray(values)) {
-        this.domain = d3.extent(values, d => d[this.property])
-        // console.info(`[${this.name}:${this.property}]`, 'Dimension.update(), updated domain:', this.domain);
+      if (this.isScalePow) {
+        this.scale = this.scaleFn().domain(this.domain).range(this.range).exponent(this.exponent)
+      } else {
+        this.scale = this.scaleFn().domain(this.domain).range(this.range)
       }
-      this.scale = this.scaleFn().domain(this.domain).range(this.range)
     }
   }
 

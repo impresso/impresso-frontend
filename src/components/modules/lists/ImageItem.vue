@@ -4,19 +4,18 @@
       v-if="shouldForwardAuthentication"
       :height="height"
       class="image"
-      :src="srcCORSFriendly"
-      :headers="headers"
+      :src="item?.previewUrl"
     >
       <template v-slot:loading>
         <LoadingIndicator />
       </template>
     </img-authentified>
     <img
-      v-else-if="hasValidSrc"
+      v-else-if="item?.previewUrl"
       :height="height"
       class="image"
       :class="imageClass"
-      :src="srcCORSFriendly"
+      :src="item?.previewUrl"
     />
     <div v-else>{{ $t('iiif.missing') }}</div>
     <!-- v-if="showMeta" -->
@@ -49,6 +48,7 @@ import ItemSelector from '@/components/modules/ItemSelector.vue'
 import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
 import { IImage } from '@/models'
 import { defineComponent, PropType } from 'vue'
+import { defaultAuthCondition } from '@/util/imageAuth'
 
 export default defineComponent({
   props: {
@@ -58,9 +58,7 @@ export default defineComponent({
     fluidGrow: Boolean,
     item: Object as PropType<IImage>,
     showMeta: Boolean,
-    showArticle: Boolean,
-    // headers containing authentication, if any
-    headers: Object
+    showArticle: Boolean
   },
   computed: {
     imageClass() {
@@ -79,39 +77,8 @@ export default defineComponent({
     hasCaption() {
       return (this.item?.caption?.length ?? 0) > 0
     },
-    hasValidSrc() {
-      return this.item?.previewUrl != null
-      // if (!this.item) {
-      //   return false
-      // }
-      // return Array.isArray(this.item.regions) && this.item.regions.length > 0
-    },
-    srcCORSFriendly() {
-      if (
-        import.meta.env.NODE_ENV === 'production' &&
-        this.hasValidSrc &&
-        this.item?.previewUrl?.indexOf(import.meta.env.VITE_BASE_URL) === 0
-        // this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
-      ) {
-        return this.src.replace(import.meta.env.VITE_BASE_URL, window.location.origin)
-      } else if (import.meta.env.NODE_ENV !== 'production') {
-        console.debug(
-          '[ImageItem] Cannot test srcCORSFriendly in development mode :( for item:',
-          this.item.uid
-        )
-      }
-      return this.src
-    },
-    src() {
-      // return this.hasValidSrc ? this.item.regions[0].iiifFragment : null
-      return this.hasValidSrc ? this.item?.previewUrl : null
-    },
     shouldForwardAuthentication() {
-      if (this.hasValidSrc) {
-        // return this.item.regions[0].iiifFragment.indexOf(import.meta.env.VITE_BASE_URL) === 0
-        return this.item?.previewUrl?.indexOf(import.meta.env.VITE_BASE_URL) === 0
-      }
-      return false
+      return this.item?.previewUrl != null && defaultAuthCondition(this.item?.previewUrl)
     }
   },
   methods: {

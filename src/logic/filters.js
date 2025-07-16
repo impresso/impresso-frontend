@@ -155,7 +155,6 @@ export const SupportedFiltersByContext = Object.freeze({
     'title',
     'daterange',
     'uid',
-    'accessRight',
     'partner',
     'language',
     'page',
@@ -176,7 +175,12 @@ export const SupportedFiltersByContext = Object.freeze({
     'entity-type',
     'regex',
     'textReuseCluster'
-  ],
+  ].concat(
+    // unsupported fields in new SOLR
+    import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
+      ? ['dataDomain', 'copyright']
+      : ['accessRight']
+  ),
   textReuse: [
     'textReuseClusterSize',
     'textReuseClusterLexicalOverlap',

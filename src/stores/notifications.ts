@@ -20,7 +20,7 @@ export interface StoredNotification extends Notification {
   id: string
 }
 
-interface ErrorMessage {
+export interface ErrorMessage {
   id: string
   route: string[]
   message: string
@@ -47,6 +47,10 @@ interface State {
   processingActivitiesIndex: string[]
   _processingTimer?: NodeJS.Timeout
   processingStatus: boolean
+  // init sequence
+  initSequenceDone: boolean
+  // lock screen
+  _lockTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
 interface DisplayErrorPayload {
@@ -76,10 +80,15 @@ export const useNotificationsStore = defineStore('notifications', {
     processingLocked: false,
     processingActivities: [],
     processingActivitiesIndex: [],
-    processingStatus: false
+    processingStatus: false,
+    initSequenceDone: false,
+    _lockTimeoutId: null
   }),
   getters: {},
   actions: {
+    setInitSequenceDone() {
+      this.initSequenceDone = true
+    },
     addNotification(notification: Notification) {
       const id = v4()
       this.notifications = [...this.notifications, { ...notification, id }]
@@ -102,6 +111,7 @@ export const useNotificationsStore = defineStore('notifications', {
       }
 
       const errorCode = isFeathersError(error) ? error.code : 0
+      console.error(error)
 
       console.error(
         `[Unexpected error ${error.name}]: ${errorRoute.join('.')} (origin:${origin})`,
@@ -168,8 +178,29 @@ export const useNotificationsStore = defineStore('notifications', {
     displayConnectivityStatus(status: boolean) {
       this.connectivityStatus = status
     },
-    lockScreen(status: boolean) {
-      this.processingLocked = status
+    lockScreen(lock: boolean, duration = 10000) {
+      if (lock) {
+        this.processingLocked = true
+
+        // Clear any previous timeout
+        if (this._lockTimeoutId) {
+          clearTimeout(this._lockTimeoutId)
+        }
+
+        // Set up new timeout to unlock screen
+        this._lockTimeoutId = setTimeout(() => {
+          this.processingLocked = false
+          this._lockTimeoutId = null
+        }, duration)
+      } else {
+        this.processingLocked = false
+
+        // Clear any timeout if manually unlocking
+        if (this._lockTimeoutId) {
+          clearTimeout(this._lockTimeoutId)
+          this._lockTimeoutId = null
+        }
+      }
     },
     updateProcessingActivity({
       route,

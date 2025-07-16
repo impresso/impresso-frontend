@@ -43,51 +43,73 @@
       <a
         v-for="(word, i) in words"
         :key="i"
-        @click.prevent.stop="updateFilter(word)"
-        :title="$t('filter.add', { word })"
+        @click.prevent.stop="updateFilter(word.word)"
+        :title="$t('filter.add', { word: word.word })"
         class="mr-2 mt-2 border px-2 d-inline-block"
       >
-        {{ word }}
+        {{ word.word }}
       </a>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, PropType } from 'vue'
 import { embeddings as embeddingsService } from '@/services'
 import { mapStores } from 'pinia'
 import { useEmbeddingsStore } from '@/stores/embeddings'
+import { WordMatch } from '@/services/types/embeddings'
 
-export default {
+export interface EmbeddingsFilter {
+  q?: string[]
+}
+
+export interface ServiceQuery {
+  term: string
+  language: string
+  limit: number
+}
+
+export interface SelectOption {
+  value: string | number
+  text: string
+}
+
+export default defineComponent({
+  functional: true,
   data: () => ({
     languageEmbeddingsOptions: [
       { value: 'fr', text: 'French' },
       { value: 'de', text: 'German' },
       { value: 'lb', text: 'Luxembourgish' }
-    ],
+    ] as SelectOption[],
     limitEmbeddingsOptions: [
       { value: 25, text: '25' },
       { value: 50, text: '50' }
-    ],
-    errorType: null,
-    words: [],
-    observingWords: [],
-    isLoading: false,
-    isPristine: true,
-    query: ''
+    ] as SelectOption[],
+    errorType: null as string | null,
+    words: [] as WordMatch[],
+    observingWords: [] as string[],
+    isLoading: false as boolean,
+    isPristine: true as boolean,
+    query: '' as string
   }),
   props: {
-    filter: Object
+    filter: {
+      type: Object as PropType<EmbeddingsFilter>,
+      required: false,
+      default: () => ({}) as EmbeddingsFilter
+    }
   },
   computed: {
     ...mapStores(useEmbeddingsStore),
     filterQuery() {
       if (this.filter && Array.isArray(this.filter.q)) {
-        const q = this.filter.q
-          .join(' ')
-          .split(' ')
-          .pop()
-          .replace(/(\s|-).*/, '')
+        const q = this.filter?.q
+          ?.join(' ')
+          ?.split(' ')
+          ?.pop()
+          ?.replace(/(\s|-).*/, '')
         return q
       }
       return undefined
@@ -96,7 +118,7 @@ export default {
       get() {
         return this.embeddingsStore.limit
       },
-      set(limitEmbeddings) {
+      set(limitEmbeddings: number) {
         this.embeddingsStore.updateLimit(limitEmbeddings)
       }
     },
@@ -104,20 +126,20 @@ export default {
       get() {
         return this.embeddingsStore.language
       },
-      set(languageEmbeddings) {
+      set(languageEmbeddings: string) {
         this.embeddingsStore.updateLanguage(languageEmbeddings)
       }
     },
     serviceQuery() {
       return {
-        q: this.query,
+        term: this.query,
         language: this.languageEmbeddings,
         limit: this.limitEmbeddings
-      }
+      } satisfies ServiceQuery
     }
   },
   methods: {
-    updateFilter(embedding) {
+    updateFilter(embedding: string) {
       this.$emit('embdding-selected', embedding)
     }
   },
@@ -128,20 +150,28 @@ export default {
   },
   watch: {
     serviceQuery: {
-      handler({ q, language, limit }) {
+      handler({ term, language, limit }: ServiceQuery) {
         this.errorType = undefined
         this.words = []
-        if (q.length === 0) return
+        if (term.length < 2) {
+          this.words = []
+          return
+        }
+
         this.isLoading = true
         embeddingsService
           .find({
-            ignoreErrors: true,
-            query: { q, language, limit }
+            query: {
+              limit,
+              term,
+              language_code: language,
+              offset: 0
+            }
           })
           .then(({ data }) => {
-            this.words = data.filter(w => w !== q.toLowerCase())
+            this.words = data.filter(w => w.word !== term.toLowerCase())
           })
-          .catch(e => {
+          .catch((e: Error) => {
             console.warn('Error received from embeddings.find service:', e)
             this.errorType = e.name
           })
@@ -152,7 +182,7 @@ export default {
       immediate: true
     }
   }
-}
+})
 </script>
 
 <style lang="css" scoped>

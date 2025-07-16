@@ -24,6 +24,7 @@ export default ({ mode }: { mode: string }) => {
   }
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
   const DatalabContentProxyPath = `^${env.VITE_DATALAB_CONTENT_API_PATH}`
+  const AssetsProxyPath = `^${env.VITE_ASSETS_PATH}`
   const ApiIiifProxyPath = [
     '^',
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
@@ -60,11 +61,24 @@ export default ({ mode }: { mode: string }) => {
         [SocketIoProxyPath]: {
           target: env.VITE_MIDDLELAYER_API,
           ws: true,
+          secure: false,
           // not changing origin on localhost to allow iiif proxy get the address of the web app instead of the downstream service
           changeOrigin: !isLocalhost(env.VITE_MIDDLELAYER_API)
         },
         [DatalabContentProxyPath]: {
           target: env.VITE_DATALAB_CONTENT_API_HOST,
+          ws: false,
+          secure: false,
+          changeOrigin: true
+        },
+        [AssetsProxyPath]: {
+          target: env.VITE_PROJECT_ASSETS_HOST,
+          ws: false,
+          secure: false,
+          changeOrigin: true
+        },
+        [AssetsProxyPath]: {
+          target: env.VITE_ASSETS_HOST,
           ws: false,
           changeOrigin: true
         },
@@ -72,6 +86,7 @@ export default ({ mode }: { mode: string }) => {
         [ApiIiifProxyPath]: {
           target: env.VITE_MIDDLELAYER_API,
           ws: false,
+          secure: false,
           // not changing origin on localhost to allow iiif proxy get the address of the web app instead of the downstream service
           changeOrigin: !isLocalhost(env.VITE_MIDDLELAYER_API)
         }

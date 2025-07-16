@@ -1,6 +1,6 @@
 <template>
   <div class="JobItem" :class="className">
-    <h2 class="sans mt-2 mb-1 font-weight-medium font-size-inherit">
+    <h2 class="sans mt-2 mb-1 font-weight-medium font-size-inherit text-white">
       <span
         v-html="
           $t(`jobs_type_${item.type}`, {
@@ -75,10 +75,10 @@
 /**
  * Model value is used to control the visibility of the panel.
  */
-
+import { getAuthHeaders } from '@/util/auth'
 import Job from '@/models/Job'
 import Icon from '@/components/base/Icon.vue'
-import { MIDDLELAYER_MEDIA_URL, getAuthenticationBearer, jobs as jobsService } from '@/services'
+import { MIDDLELAYER_MEDIA_URL, getAuthenticationToken, jobs as jobsService } from '@/services'
 import { computed } from 'vue'
 import router from '@/router'
 import type { PropType } from 'vue'
@@ -117,9 +117,11 @@ const onExport = () => {
   const today = new Date().toISOString().split('T').shift()
   const anchor = document.createElement('a')
   document.body.appendChild(anchor)
-  const headers = new Headers()
-  headers.append('Authorization', `Bearer ${getAuthenticationBearer()}`)
-  fetch(`${MIDDLELAYER_MEDIA_URL}/jobs/${props.item.id}`, { headers })
+  const headers = new Headers(getAuthHeaders(getAuthenticationToken()))
+  fetch(
+    `${import.meta.env.VITE_MIDDLELAYER_API}${import.meta.env.VITE_MIDDLELAYER_API_PATH}/media/jobs/${props.item.id}`,
+    { headers }
+  )
     .then(res => res.blob())
     .then(blobby => {
       const objectUrl = window.URL.createObjectURL(blobby)

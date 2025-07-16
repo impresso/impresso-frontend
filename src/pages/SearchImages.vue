@@ -20,7 +20,7 @@
               style="max-height: 100px"
               v-bind:src="similarToImage.regions[0].iiifFragment"
             /> -->
-            <img
+            <auth-img
               v-if="similarToImage.previewUrl"
               style="max-height: 100px"
               v-bind:src="similarToImage.previewUrl"
@@ -127,7 +127,7 @@
               @toggleSelected="toggleSelected"
               :isChecked="isChecked(searchResult)"
               @click:search="onClickSearch"
-              :headers="headers"
+              :userPlan="userPlan"
             />
           </div>
         </div>
@@ -149,13 +149,13 @@
 </template>
 
 <script lang="ts">
+import AuthImg from '@/components/AuthImg.vue'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import { serializeFilters } from '@/logic/filters'
 import { buildEmptyFacets } from '@/logic/facets'
 import {
   images as imagesService,
-  searchFacetsImages as searchFacetsImagesService,
-  getAuthenticationBearer
+  searchFacetsImages as searchFacetsImagesService
 } from '@/services'
 import FilterImageUpload from '@/components/modules/FilterImageUpload.vue'
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
@@ -187,7 +187,6 @@ interface IData {
   searchResults: IImage[]
   paginationTotalRows: number
   facets: FacetModel[]
-  headers: Record<string, string> | null
 }
 
 export default defineComponent({
@@ -209,7 +208,8 @@ export default defineComponent({
     SearchResultsSummary,
     Ellipsis,
     FilterImageUpload,
-    SearchSidebar
+    SearchSidebar,
+    AuthImg
   },
   data(): IData {
     return {
@@ -222,24 +222,17 @@ export default defineComponent({
       searchResults: [],
       paginationTotalRows: 0,
       /** @type {Facet[]} */
-      facets: [],
-
-      headers: null
+      facets: []
     }
   },
   mounted() {
     this.facets = buildEmptyFacets(AllowedFacetTypes) as FacetModel[]
-    const token = getAuthenticationBearer()
-    if (token) {
-      this.headers = {
-        Authorization: 'Bearer ' + token
-      }
-    } else {
-      this.headers = null
-    }
   },
   computed: {
     ...mapStores(useUserStore),
+    userPlan() {
+      return this.userStore.userPlan
+    },
     $navigation() {
       return new Navigation(this)
     },
@@ -516,7 +509,7 @@ export default defineComponent({
         ])
         this.paginationTotalRows = res.pagination.total
         this.searchResults = res.data //.map(d => new Image(d))
-        this.paginationCurrentPage = Math.round(res.offset / res.limit) + 1
+        this.paginationCurrentPage = Math.round(res.pagination.offset / res.pagination.limit) + 1
 
         // const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res)
         this.facets = facets.data.map(f => new FacetModel(f))

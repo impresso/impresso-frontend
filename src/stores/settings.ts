@@ -1,10 +1,15 @@
 import { defineStore } from 'pinia'
 
-interface State {
+export interface State {
   lastNotificationDate: string
   language_code: string
   cookiesAccepted: boolean
   searchDisplayStyle: string
+  /**
+   * If true or not set - show extended datalab code in the
+   * 'try in datalab' modal.
+   */
+  showExtendedDatalabCode: boolean
 }
 
 export const useSettingsStore = defineStore('settings', {
@@ -12,7 +17,8 @@ export const useSettingsStore = defineStore('settings', {
     lastNotificationDate: new Date(0).toISOString(),
     language_code: 'en',
     cookiesAccepted: false,
-    searchDisplayStyle: 'list'
+    searchDisplayStyle: 'list',
+    showExtendedDatalabCode: true
   }),
   getters: {
     lastNotificationDateAsDate(state) {
@@ -31,6 +37,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     updateSearchDisplayStyle(style: string) {
       this.searchDisplayStyle = style
+    },
+    setShowExtendedDatalabCode(show: boolean) {
+      this.showExtendedDatalabCode = show
     }
   },
   persist: {
@@ -39,7 +48,8 @@ export const useSettingsStore = defineStore('settings', {
       'cookiesAccepted',
       'lastNotificationDate',
       'language_code',
-      'searchDisplayStyle'
+      'searchDisplayStyle',
+      'showExtendedDatalabCode'
     ]
   }
 })

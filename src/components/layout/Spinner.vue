@@ -5,7 +5,7 @@
 </template>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .spinner > span,
 .spinner:after,
@@ -30,10 +30,13 @@
   animation-delay: -0.8s;
 }
 @keyframes bouncedelay {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     transform: scale(0);
-  } 40% {
-    transform: scale(1.0);
+  }
+  40% {
+    transform: scale(1);
   }
 }
 </style>

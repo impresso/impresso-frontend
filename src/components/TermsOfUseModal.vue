@@ -8,8 +8,9 @@
   >
     <h1>{{ title }}</h1>
     <slot name="terms-of-use-status"></slot>
-
-    <MarkdownContent :url="isVisible ? url : undefined" style="min-height: 90vh" />
+    <div style="min-height: 90vh">
+      <MarkdownContent :url="isVisible ? url : undefined" />
+    </div>
     <slot name="accept-terms-of-use"></slot>
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
@@ -18,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import Modal from './base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import MarkdownContent from './MarkdownContent.vue'
 
 const props = withDefaults(

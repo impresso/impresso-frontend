@@ -1,7 +1,7 @@
 <template>
   <div class="IIIFFragment">
     <figure class="position-relative IIIFFragment overflow-hidden">
-      <img
+      <auth-img
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
@@ -9,6 +9,9 @@
           transform: `scale(${scale})`,
           'transform-origin': 'left top'
         }"
+        :auth-condition="authCondition"
+        @load="onImageLoad"
+        @error="onImageLoadError"
       />
       <div
         class="IIIFFragment__regions"
@@ -33,9 +36,38 @@
     </div>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import AuthImg from '@/components/AuthImg.vue'
+import { getAuthenticationToken } from '@/services'
+import { getAuthHeaders } from '@/util/auth'
+import { defaultAuthCondition } from '@/util/imageAuth'
 import axios from 'axios'
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
+
+interface IParsedSize {
+  type: 'max' | 'exact' | 'bestfit' | 'width' | 'height' | 'percentage' | 'unknown'
+  upscale: boolean
+  width?: number
+  height?: number
+  percentage?: number
+  maintain_aspect_ratio?: boolean
+}
+
+// IIIF v3 spec level1 profile interface
+interface IIIIFProfile {
+  width: number
+  height: number
+  sizes: { width: number; height: number }[]
+  profile: 'level1'
+}
+
+interface ICoords {
+  x: number
+  y: number
+  w: number
+  h: number
+}
 
 export default defineComponent({
   name: 'IIIFFragment',
@@ -45,15 +77,15 @@ export default defineComponent({
       height: 0,
       imageWidth: 0,
       imageHeight: 0,
-      image: null,
       isLoaded: false,
       isNotFound: false,
-      errorMessage: null
+      errorMessage: null,
+      adjustedSize: null
     }
   },
   props: {
     iiif: {
-      // IIIF root URL
+      // IIIF info URL
       type: String,
       required: true
     },
@@ -77,7 +109,7 @@ export default defineComponent({
       type: Object
     },
     regions: {
-      type: Array,
+      type: Array as PropType<{ coords: ICoords }[]>,
       default: () => []
     },
     matches: {
@@ -87,25 +119,104 @@ export default defineComponent({
     coordMinArea: {
       type: Number,
       default: 250 * 250
+    },
+    authCondition: {
+      type: Function as PropType<(imageUrl: string) => boolean>,
+      default: defaultAuthCondition
     }
   },
   computed: {
+    parsedSize() {
+      const size = this.size
+
+      // Return shape that contains parsed information
+      const result: IParsedSize = {
+        type: 'unknown',
+        upscale: false
+      }
+
+      // Handle max
+      if (size === 'max') {
+        result.type = 'max'
+        return result
+      }
+
+      // Handle ^max (upscaled max)
+      if (size === '^max') {
+        result.type = 'max'
+        result.upscale = true
+        return result
+      }
+
+      // Handle upscale prefix
+      const upscale = size.startsWith('^')
+      const sizeValue = upscale ? size.substring(1) : size
+      result.upscale = upscale
+
+      // Handle percentage
+      if (sizeValue.startsWith('pct:')) {
+        result.type = 'percentage'
+        result.percentage = parseFloat(sizeValue.substring(4))
+        return result
+      }
+
+      // Handle width only (w,)
+      if (sizeValue.match(/^\d+,$/)) {
+        result.type = 'width'
+        result.width = parseInt(sizeValue.replace(',', ''), 10)
+        return result
+      }
+
+      // Handle height only (,h)
+      if (sizeValue.match(/^,\d+$/)) {
+        result.type = 'height'
+        result.height = parseInt(sizeValue.substring(1), 10)
+        return result
+      }
+
+      // Handle best fit (!w,h)
+      if (sizeValue.startsWith('!')) {
+        const dimensions = sizeValue.substring(1).split(',')
+        if (dimensions.length === 2) {
+          result.type = 'bestfit'
+          result.width = parseInt(dimensions[0], 10)
+          result.height = parseInt(dimensions[1], 10)
+          result.maintain_aspect_ratio = true
+          return result
+        }
+      }
+
+      // Handle exact dimensions (w,h)
+      const dimensions = sizeValue.split(',')
+      if (dimensions.length === 2) {
+        result.type = 'exact'
+        result.width = parseInt(dimensions[0], 10)
+        result.height = parseInt(dimensions[1], 10)
+        return result
+      }
+
+      // Default fallback
+      return result
+    },
     computedImageUrl() {
       // remove inof.json from IIIF if any
       let iiif = this.iiif.replace('/info.json', '')
+
+      const size = this.adjustedSize ?? this.size
+
       if (this.regions.length && this.fitToRegions) {
         const coords = this.getCoordsFromArticleRegions()
         if (coords.w * coords.h < this.coordMinArea) {
-          return `${iiif}/full/${this.size}/0/default.jpg`
+          return `${iiif}/full/${size}/0/default.jpg`
         }
-        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${this.size}/0/default.jpg`
+        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${size}/0/default.jpg`
       }
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
         const { x, y, w, h } = this.coords
-        return `${iiif}/${x},${y},${w},${h}/${this.size}/0/default.jpg`
+        return `${iiif}/${x},${y},${w},${h}/${size}/0/default.jpg`
       }
-      return `${iiif}/full/${this.size}/0/default.jpg`
+      return `${iiif}/full/${size}/0/default.jpg`
     },
     computedRegionsStyle() {
       return {
@@ -142,6 +253,27 @@ export default defineComponent({
     }
   },
   methods: {
+    onImageLoad(e: Event) {
+      const target = e.target as HTMLImageElement
+      this.imageWidth = target.naturalWidth
+      this.imageHeight = target.naturalHeight
+      this.isLoaded = true
+    },
+    onImageLoadError(e: Error) {
+      this.isNotFound = e['status'] === 404
+      this.isLoaded = false
+      if (e['status'] !== 404) {
+        this.errorMessage = e.message
+      }
+    },
+    requiresAuth(url: string) {
+      const authCondition = this.authCondition ?? defaultAuthCondition
+      return authCondition(url)
+    },
+    getRequestHeaders(url: string) {
+      const headers = this.requiresAuth(url) ? getAuthHeaders(getAuthenticationToken()) : {}
+      return headers
+    },
     getCoordsFromArticleRegions() {
       let x0 = Infinity
       let x1 = 0
@@ -170,45 +302,156 @@ export default defineComponent({
       }
     },
     async getIIIFInfo() {
-      const iiif = this.iiif
-        .replace('/info.json', '')
-        .replace(String(import.meta.env.VITE_BASE_URL), '')
+      const iiif = this.iiif.replace('/info.json', '')
+      // .replace(String(import.meta.env.VITE_BASE_URL), '')
 
-      const status = await axios
-        .get(`${iiif}/info.json`)
-        .then(response => {
-          this.width = response.data.width
-          this.height = response.data.height
-          this.image = new Image()
-          // get actual size fo the image
-          this.image.onload = () => {
-            this.imageWidth = this.image.naturalWidth
-            this.imageHeight = this.image.naturalHeight
-            this.isLoaded = true
-          }
-          this.image.src = this.computedImageUrl
-          return 'success'
+      try {
+        const response = await axios.get(`${iiif}/info.json`, {
+          headers: this.getRequestHeaders(iiif)
         })
-        .catch(error => {
-          if (error?.response?.status !== 404) {
-            this.errorMessage = `${error.message}: ${iiif}`
-            return 'error'
-          }
-          console.warn(
-            '[IIIFFragment] Error catch on @mounted iiif',
-            iiif,
-            '\nerror:',
-            error.message,
-            error
-          )
+
+        this.width = response.data.width
+        this.height = response.data.height
+        this.adjustedSize = this.getBestSizeForProfile(this.parsedSize, response.data)
+      } catch (error) {
+        if (error?.response?.status !== 404) {
+          this.errorMessage = `${error.message}: ${iiif}`
+        } else {
           this.isLoaded = false
           this.isNotFound = true
-          return 'not found'
-        })
-      console.info('[IIIFFragment] \n - iiif:', iiif, '\n - status:', status)
+        }
+        this.adjustedSize = this.size
+      }
+    },
+    /**
+     * Determines the best possible IIIF size parameter based on parsed size and server capabilities
+     * @param parsedSize Parsed size object
+     * @param profile IIIF level1 profile object
+     * @returns A string representing the closest possible size parameter
+     */
+    getBestSizeForProfile(parsedSize: IParsedSize, profile: IIIIFProfile): string {
+      // Extract available image dimensions from profile
+      const { width, height, sizes = [], profile: iiifProfile } = profile
+
+      if (iiifProfile !== 'level1') {
+        return this.size // Fallback to original size if not level1
+      }
+
+      // Determine supported features based on profile level
+      // Level1 supports basic features by default
+      const supportsByW = true // Level1 supports width-based sizing
+      const supportsByH = true // Level1 supports height-based sizing
+      const supportsWh = true // Level1 supports width,height sizing
+      const supportsPercentage = true // Level1 supports percentage sizing
+
+      // Level1 doesn't support upscaling by default
+      const supportsUpscaling = false
+
+      // Handle upscaling when not supported
+      if (parsedSize.upscale && !supportsUpscaling) {
+        parsedSize = { ...parsedSize, upscale: false }
+      }
+
+      // Find best matching predefined size if available
+      const findClosestSize = (targetWidth?: number, targetHeight?: number) => {
+        if (!targetWidth && !targetHeight) return null
+        if (sizes.length === 0) return null
+
+        // Sort sizes by area difference to find closest match
+        return [...sizes].sort((a, b) => {
+          const areaA = a.width * a.height
+          const areaB = b.width * b.height
+          const targetArea = (targetWidth || width) * (targetHeight || height)
+          return Math.abs(areaA - targetArea) - Math.abs(areaB - targetArea)
+        })[0]
+      }
+
+      // Generate size parameter based on type
+      let result: string
+
+      switch (parsedSize.type) {
+        case 'max':
+          result = 'max' // Always supported in level1
+          break
+
+        case 'width': {
+          if (!supportsByW) {
+            return 'max'
+          }
+
+          let sizeWidth = parsedSize.width || 0
+          // Check for closest predefined size
+          const closestWidthSize = findClosestSize(sizeWidth, undefined)
+          if (closestWidthSize) {
+            sizeWidth = closestWidthSize.width
+          }
+
+          // Ensure width is not larger than image
+          sizeWidth = Math.min(sizeWidth, width)
+          result = `${sizeWidth},`
+          break
+        }
+
+        case 'height': {
+          if (!supportsByH) {
+            return 'max'
+          }
+
+          let sizeHeight = parsedSize.height || 0
+          // Check for closest predefined size
+          const closestHeightSize = findClosestSize(undefined, sizeHeight)
+          if (closestHeightSize) {
+            sizeHeight = closestHeightSize.height
+          }
+
+          // Ensure height is not larger than image
+          sizeHeight = Math.min(sizeHeight, height)
+          result = `,${sizeHeight}`
+          break
+        }
+        case 'percentage': {
+          if (!supportsPercentage) {
+            return 'max'
+          }
+
+          const percentage = Math.min(parsedSize.percentage || 100, 100) // Limit to 100% for level1
+          result = `pct:${percentage}`
+          break
+        }
+        case 'exact':
+        case 'bestfit': {
+          if (!supportsWh) {
+            return 'max'
+          }
+
+          let sizeW = parsedSize.width || 0
+          let sizeH = parsedSize.height || 0
+
+          // Check for closest predefined size
+          const closestSize = findClosestSize(sizeW, sizeH)
+          if (closestSize && parsedSize.type === 'bestfit') {
+            sizeW = closestSize.width
+            sizeH = closestSize.height
+          } else {
+            // Ensure dimensions are not larger than image for level1
+            sizeW = Math.min(sizeW, width)
+            sizeH = Math.min(sizeH, height)
+          }
+
+          result = `${sizeW},${sizeH}`
+          break
+        }
+        default:
+          // For unknown types, default to max
+          result = 'max'
+      }
+
+      return result
     }
   },
-
+  components: {
+    AuthImg
+  },
   mounted() {
     this.getIIIFInfo()
     // load iiiif info.json

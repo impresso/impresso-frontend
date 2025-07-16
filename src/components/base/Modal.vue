@@ -12,7 +12,7 @@
     >
       <div class="modal-dialog" :class="dialogClass">
         <div class="modal-content" :class="contentClass">
-          <div class="modal-header d-flex align-items-center">
+          <div class="modal-header align-items-center">
             <slot name="modal-header" v-bind:title-id="`${id}-title`" v-bind:close="() => close()">
               <h5 class="modal-title small-caps" :id="`${id}-title`">{{ props.title }}</h5>
               <button
@@ -26,6 +26,7 @@
               </button>
             </slot>
           </div>
+          <slot name="modal-header-extra" />
           <div :class="`modal-body ${bodyClass ?? ''}`">
             <slot> </slot>
           </div>
@@ -53,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { v4 } from 'uuid'
 import Icon from './Icon.vue'
 
@@ -97,6 +98,22 @@ const emit = defineEmits(['close', 'ok', 'shown'])
 const id = v4()
 const isVisible = ref(props.show)
 const isRendered = ref(props.show)
+
+// Handle ESC key press
+const handleEscKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && isVisible.value) {
+    close()
+  }
+}
+
+// Add/remove event listeners
+onMounted(() => {
+  document.addEventListener('keydown', handleEscKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscKey)
+})
 
 watch(
   () => props.show,

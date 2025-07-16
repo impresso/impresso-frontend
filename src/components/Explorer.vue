@@ -1,22 +1,26 @@
 <template>
-  <Modal :id="id" :show="isVisible" body-class="p-0" @close="$emit(events.Hide)">
-    <template v-slot:modal-header="{ titleId, close }">
-      <div data-testid="tabs">
-        <div class="tb-title small font-weight-bold" :id="titleId">{{ $t('explore') }}</div>
+  <Modal
+    class="Explorer"
+    :id="id"
+    :show="isVisible"
+    body-class="p-0"
+    :title="$t('explore')"
+    @close="$emit(events.Hide)"
+  >
+    <template v-slot:modal-header-extra>
+      <div class="p-3 border-bottom">
+        <b-button
+          v-for="(availableType, i) in typeOptions"
+          v-bind:key="i"
+          class="mr-1 mt-1"
+          variant="outline-primary"
+          size="sm"
+          v-on:click="handleTypeChange(availableType)"
+          v-bind:class="{ active: currentType === availableType }"
+        >
+          {{ $t(`labels.${availableType}`) }}
+        </b-button>
 
-        <div class="mr-4 mt-2">
-          <b-button
-            v-for="(availableType, i) in typeOptions"
-            v-bind:key="i"
-            class="mr-1 mt-1"
-            variant="outline-primary"
-            size="sm"
-            v-on:click="handleTypeChange(availableType)"
-            v-bind:class="{ active: currentType === availableType }"
-          >
-            {{ $t(`labels.${availableType}`) }}
-          </b-button>
-        </div>
         <div class="small mt-2">
           <span v-if="isLoading">{{ $t('loading') }}</span>
           <span
@@ -47,11 +51,6 @@
             </div>
           </div>
         </form>
-      </div>
-      <div class="position-absolute right-0 top-0">
-        <button class="btn btn-icon" v-on:click.prevent="close">
-          <span class="dripicons-cross" />
-        </button>
       </div>
     </template>
     <!-- .modal-body -->
@@ -106,7 +105,8 @@
 
 <script>
 import { entities, topics, newspapers, collections, getSearchFacetsService } from '@/services'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import Icon from '@/components/base/Icon.vue'
 import FacetExplorer from './modules/FacetExplorer.vue'
 import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'
 import RangeFacetExplorer from './modules/RangeFacetExplorer.vue'
@@ -364,7 +364,8 @@ export default {
     Pagination,
     RangeFacetExplorer,
     TimeFacetExplorer,
-    Modal
+    Modal,
+    Icon
   },
   watch: {
     searchParameters: {
@@ -402,7 +403,16 @@ export default {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="css">
+.Explorer {
+  color: var(--impresso-color-black);
+}
+.Explorer .input-group input {
+  border-color: var(--impresso-color-black);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
+}
+</style>
 
 <i18n lang="json">
 {

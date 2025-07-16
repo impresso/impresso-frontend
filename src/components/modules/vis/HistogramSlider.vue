@@ -55,6 +55,10 @@ export default {
     scaleType: {
       type: String,
       default: 'linear'
+    },
+    valueLabel: {
+      type: String,
+      default: 'valueLabel'
     }
   },
   emits: ['update:modelValue', 'change', 'mousemove', 'click'],
@@ -295,7 +299,12 @@ export default {
           const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
           return this.$t(tlabel, {
             n: this.$n(Math.round(bucket.count)),
-            ...bucket
+
+            ...bucket,
+            val: this.$t(this.valueLabel, {
+              val: bucket.val,
+              valAsNumber: this.$n(parseFloat('' + bucket.val))
+            })
           })
         })
         .attr('text-anchor', bucket => {
@@ -332,8 +341,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
 .histogram-slider {
   .slider {
     width: 100% !important;
@@ -363,7 +370,7 @@ export default {
       font-size: 12px;
 
       .point {
-        fill: $clr-primary;
+        fill: var(--impresso-color-black);
       }
     }
   }
@@ -373,7 +380,9 @@ export default {
 {
   "en": {
     "maxval": "{val} ({n} results)",
-    "maxvalrange": "{lower} - {upper} ({n} results)"
+    "maxvalrange": "{lower} - {upper} ({n} results)",
+    "valueLabel": "{n}",
+    "valueAsPercentageLabel": "{val}%"
   }
 }
 </i18n>

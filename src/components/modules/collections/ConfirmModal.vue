@@ -8,7 +8,8 @@
     hide-backdrop
     modal-class="ConfirmModal"
     content-class="rounded drop-shadow"
-    @close="$emit('close')">
+    @close="$emit('close')"
+  >
     <slot></slot>
 
     <template v-slot:modal-footer>
@@ -33,7 +34,7 @@
 </template>
 
 <script>
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
 /**
  * This modal is used to confirm an action. You can provide id, title and label for ok button in this component properties.
@@ -45,23 +46,23 @@ export default {
   props: {
     show: {
       type: Boolean,
-      default: false,
+      default: false
     },
     id: {
       type: String,
-      required: true,
+      required: true
     },
     title: {
       type: String,
-      required: true,
+      required: true
     },
     okLabel: {
       type: String,
-      default: 'actions.ok',
-    },
+      default: 'actions.ok'
+    }
   },
   emits: ['ok', 'close'],
-  components: { Modal },
+  components: { Modal }
 }
 </script>
 

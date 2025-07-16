@@ -17,17 +17,18 @@
       <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
+
       <div
         data-testid="article-access-rights"
         v-if="item.dataProvider != null && item.dataProvider.length"
       >
-        {{ $t(`buckets.accessRight.${item.accessRight}`) }} &mdash; {{ $t('providedBy') }}
-        <ItemSelector
-          :uid="item.dataProvider"
-          :label="$t(`buckets.dataProvider.${item.dataProvider}`)"
-          :item="{ uid: item.dataProvider }"
-          type="partner"
-        />
+        {{ $t(`buckets.copyright.${item.copyright}`) }}
+        <DataProviderLabel
+          v-if="item.dataProvider"
+          :item="{ id: item.dataProvider, name: item.dataProvider, type: 'partner' }"
+          show-link
+          class="d-inline"
+        ></DataProviderLabel>
       </div>
     </div>
     <div class="article-meta">
@@ -120,6 +121,7 @@ import VizBar from '../../base/VizBar.vue'
 import { getShortArticleId } from '@/logic/ids'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import Ellipsis from '../Ellipsis.vue'
+import DataProviderLabel from './DataProviderLabel.vue'
 
 export default {
   props: {
@@ -189,7 +191,8 @@ export default {
     ItemSelector,
     VizBar,
     MediaSourceLabel,
-    Ellipsis
+    Ellipsis,
+    DataProviderLabel
   }
 }
 </script>

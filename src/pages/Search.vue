@@ -88,7 +88,13 @@
               />
             </ellipsis>
           </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-3">
+          <b-navbar-nav class="ml-auto pl-3 gap-2">
+            <CopyToDatalabButton
+              :base64Filters="base64Filters"
+              resource="search"
+              functionName="find"
+              :public-api-url="publicApiUrl"
+            />
             <RouterLink
               class="mr-1 btn btn-sm btn-outline-primary"
               :to="{
@@ -156,47 +162,22 @@
         hide-footer
         body-class="m-0 p-0"
         :title="$tc('add_n_to_collection', selectedItems.length)"
-        :show="isModalVisible('nameSelectionCollection')"
+        :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
         <collection-add-to-list :items="selectedItems" />
       </Modal>
 
-      <Modal
-        id="nameCollection"
-        :title="$t('query_add_to_collection')"
-        :show="isModalVisible('nameCollection')"
-        :okDisabled="nameCollectionOkDisabled"
-        @close="hideModal('nameCollection')"
-        @ok="createQueryCollection()"
-        @shown="nameCollectionOnShown()"
-      >
-        <form v-on:submit.stop.prevent="createQueryCollection()">
-          <label for="inputName">Name</label>
-          <b-form-input
-            @update:modelValue="nameCollectionOnInput"
-            type="text"
-            v-bind:placeholder="$t('Collection_Name')"
-            name="inputName"
-            ref="inputName"
-            v-model="inputName"
-          />
-          <label for="inputDescription" class="mt-3">Description</label>
-          <textarea
-            type="text"
-            name="inputDescription"
-            class="form-control"
-            v-model="inputDescription"
-          />
-        </form>
-        <div class="mt-3 small-caps">
-          <p>Please note: Collections are currently limited to 10.000 items.</p>
-          <p class="mb-0">
-            If your search returned more results, only the 10.000 most relevant items will be
-            stored.
-          </p>
-        </div>
-      </Modal>
+      <CreateCollectionModal
+        :show="visibleModal === 'nameCollection'"
+        @dismiss="hideModal('nameCollection')"
+        @success="hideModal('nameCollection')"
+        :filters="searchServiceQuery.filters"
+        :initial-payload="{
+          name: inputName,
+          description: inputDescription
+        }"
+      />
 
       <Modal
         hide-footer
@@ -256,6 +237,12 @@
           />
         </div>
       </div>
+
+      <AuthGate v-if="isBaristaEnabled">
+        <template #authenticated>
+          <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
+        </template>
+      </AuthGate>
     </i-layout-section>
   </i-layout>
 </template>
@@ -277,7 +264,8 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import Article from '@/models/Article'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
-import Modal from '@/components/base/Modal.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import Alert from 'impresso-ui-components/components/Alert.vue'
 import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
 import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -286,29 +274,40 @@ import {
   searchFacets as searchFacetsService,
   filtersItems as filtersItemsService,
   exporter as exporterService,
+  collections as collectionsService,
   collectionsItems as collectionsItemsService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import { RouterLink } from 'vue-router'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import BaristaButton from '@/components/barista/BaristaButton.vue'
+import AuthGate from '@/components/AuthGate.vue'
+import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FACET_TYPES_DPFS = ['person', 'location', 'topic']
+const FacetTypesWithDPFS = ['person', 'location', 'topic']
 
-const FACET_TYPES_S = [
+const FacetTypesWithMultipleValues = [
   'language',
   'newspaper',
   'type',
   'country',
-  'accessRight',
   'partner',
   'year',
   'contentLength'
-]
+].concat(
+  // unsupported fields in new SOLR
+  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
+)
 
-const FACET_TYPES = FACET_TYPES_S.concat(FACET_TYPES_DPFS)
+const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+  : ''
+
+const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
 export default {
   data: () => ({
@@ -326,7 +325,9 @@ export default {
     /** @type {Filter[]} */
     // filtersWithItems: [],
     visibleModal: null,
-    isLoadingResults: false
+    isLoadingResults: false,
+    searchInfo: null,
+    publicApiUrl
   }),
   props: {
     filtersWithItems: {
@@ -478,10 +479,17 @@ export default {
       return new SearchQuery({
         filters: this.filters
       }).getSerialized({ serializer: 'protobuf' })
+    },
+    base64Filters() {
+      return this.searchQueryHash
+    },
+    isBaristaEnabled() {
+      return window.impressoFeatures?.barista?.enabled
     }
   },
   mounted() {
-    this.facets = buildEmptyFacets(FACET_TYPES)
+    console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
+    this.facets = buildEmptyFacets(FacetTypes)
   },
   methods: {
     isModalVisible(name) {
@@ -503,9 +511,13 @@ export default {
       return this.collectionsStore.loadCollections()
     },
     onSummary(msg) {
-      this.inputDescription = msg
+      const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
+      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
+        total: this.paginationTotalRows,
+        inputDescription: searchQueryDescription
+      })
     },
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
@@ -560,23 +572,7 @@ export default {
         }
       })
     },
-    createQueryCollection() {
-      if (!this.nameCollectionOkDisabled) {
-        this.hideModal('nameCollection')
-        return this.collectionsStore
-          .addCollection({
-            name: this.inputName,
-            description: this.inputDescription
-          })
-          .then(collection => {
-            return searchService.create({
-              group_by: 'articles',
-              filters: this.filters.map(getFilterQuery),
-              collection_uid: collection.uid
-            })
-          })
-      }
-    },
+
     exportQueryCsv() {
       exporterService.create(
         {
@@ -609,36 +605,11 @@ export default {
         }
       )
     },
-    nameCollectionOnShown() {
-      this.inputName = ''
-      this.$refs.inputName.$el.focus()
-    },
-    nameCollectionOnInput() {
-      this.inputName.trim()
-      this.nameCollectionOkDisabled = this.inputName.length < 3 || this.inputName.length > 50
-    },
+
     reset() {
       this.searchQuery = new SearchQuery({
         filters: this.ignoredFilters
       })
-    },
-    updateselectAll() {
-      let count = 0
-      this.searchResults.forEach(item => {
-        if (this.itemSelected(item)) {
-          count += 1
-        }
-      })
-      if (count === 0) {
-        this.allSelected = false
-        this.allIndeterminate = false
-      } else if (count < this.searchResults.length) {
-        this.allSelected = false
-        this.allIndeterminate = true
-      } else {
-        this.allSelected = true
-        this.allIndeterminate = false
-      }
     },
     addFilterFromEmbedding(embedding) {
       this.handleFiltersChanged(
@@ -649,64 +620,77 @@ export default {
           })
         ])
       )
+    },
+    updateSearchFromBarista(filters) {
+      console.log('Barista suggests', filters)
+      this.$router.push({
+        name: 'search',
+        query: {
+          ...this.$route.query,
+          sq: filters
+        }
+      })
     }
   },
   watch: {
-    searchResults() {
-      this.updateselectAll()
-    },
-    selectedItems() {
-      this.updateselectAll()
-    },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy, groupBy }) {
+        console.debug('[Search] @searchServiceQuery')
+        const startTime = new Date()
         this.isLoadingResults = true
-        const { total, data, info } = await searchService
-          .find({
-            query: {
-              page,
-              limit,
-              filters,
-              facets: FACET_TYPES_S,
-              order_by: orderBy,
-              group_by: groupBy
-            }
-          })
-          .then(response => {
-            console.log('[Search] data:', response.data)
-            return response
-          })
+        const { total, data, info } = await searchService.find({
+          query: {
+            page,
+            limit,
+            filters,
+            facets: FacetTypesWithMultipleValues,
+            order_by: orderBy,
+            group_by: groupBy
+          }
+        })
+
         this.paginationTotalRows = total
         this.searchResults = data.map(d => new Article(d))
         this.isLoadingResults = false
-
-        this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
-
-        let facets = searchResponseToFacetsExtractor(FACET_TYPES_S)({ info })
+        this.searchInfo = info
+        console.debug(
+          '[Search] @searchServiceQuery: took',
+          new Date() - startTime,
+          'ms. Total results:',
+          total
+        )
+        // @todo next tick
+        this.$nextTick(() => {
+          this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
+        })
+      },
+      immediate: true
+    },
+    searchInfo: {
+      async handler(info) {
+        if (!info) {
+          return
+        }
+        // console.debug(
+        //   '[Search] @searchInfo, responseTime:',
+        //   +info.responseTime.solr,
+        //   'ms. Total results:',
+        //   +info.facets.count
+        // )
+        let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
         // get remaining facets and enriched filters.
-        const facetTypes = [
-          ...['person', 'location', 'topic'],
-          ...(this.isLoggedIn ? ['collection'] : [])
-        ]
+        const facetTypes = [...['person', 'location', 'topic']]
 
         const [extraFacets, collectionsItemsIndex] = await Promise.all([
           searchFacetsService
             .find({
               query: {
                 facets: facetTypes,
-                filters
-                // group_by: groupBy,
+                filters: this.searchServiceQuery.filters
               }
             })
             .then(response => response.data),
-          // filtersItemsService
-          //   .find({
-          //     query: {
-          //       filters: this.searchQueryHash,
-          //     },
-          //   })
-          //   .then(joinFiltersWithItems),
           this.isLoggedIn
             ? collectionsItemsService
                 .find({
@@ -736,7 +720,7 @@ export default {
           })
         }
       },
-      immediate: true
+      deep: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return
@@ -746,7 +730,9 @@ export default {
     }
   },
   components: {
+    Alert,
     Autocomplete,
+    CreateCollectionModal,
     Pagination,
     SearchResultsListItem,
     SearchResultsTilesItem,
@@ -757,13 +743,16 @@ export default {
     EmbeddingsSearch,
     SearchSidebar,
     InfoButton,
-    Modal
+    Modal,
+    CopyToDatalabButton,
+    BaristaButton,
+    AuthGate
   }
 }
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .navbar-nav {
   flex-direction: row;
@@ -826,24 +815,8 @@ export default {
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
-    "Based on search query with": "Based on search query with"
-  },
-  "nl": {
-    "label_display": "Toon Als",
-    "label_order": "Sorteer Op",
-    "label_group": "Rangschikken Per",
-    "label_isFront": "Voorpagina",
-    "label_hasTextContents": "Bevat tekst",
-    "sort_asc": "Oplopend",
-    "sort_desc": "Aflopend",
-    "sort_date": "Datum",
-    "sort_relevance": "Relavantie",
-    "display_button_list": "Lijst",
-    "display_button_tiles": "Tegels",
-    "order_issues": "Uitgave",
-    "order_pages": "Pagina",
-    "order_articles": "Artikel",
-    "order_sentences": "Zin"
+    "Based on search query with": "Based on search query with",
+    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
   }
 }
 </i18n>

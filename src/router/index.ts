@@ -86,6 +86,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/helpers/filters',
+      name: 'filtersParser',
+      component: () => import('@/pages/FilterParserPage.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/user/login',
       name: 'login',
       component: UserLoginPage,

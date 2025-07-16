@@ -1,14 +1,17 @@
 <template lang="html">
   <div>
-      <div v-if="title">{{title}}</div>
-      <div
-        v-for="(item, index) in items" :key="index" :variant="compact"
-        :class="`${styleVariant} viz-bar-bar border-right small-caps pl-1`"
-        :style="`width:${percent(item.count)}%; background:rgba(200, 200, 200, ${alpha(item.count)})`">
-        <div :title="`${item.name} — ${item.count}`">
-          {{item.name}}
-        </div>
+    <div v-if="title">{{ title }}</div>
+    <div
+      v-for="(item, index) in items"
+      :key="index"
+      :variant="compact"
+      :class="`${styleVariant} viz-bar-bar border-right small-caps pl-1`"
+      :style="`width:${percent(item.count)}%; background:rgba(200, 200, 200, ${alpha(item.count)})`"
+    >
+      <div :title="`${item.name} — ${item.count}`">
+        {{ item.name }}
       </div>
+    </div>
   </div>
 </template>
 
@@ -20,35 +23,34 @@ export default {
   props: [
     'title', // opt: label
     'variant', // opt: 'compact' or 'multiline'
-    'items', // array of [{'name' : String, count : Number}]
+    'items' // array of [{'name' : String, count : Number}]
   ],
   methods: {
     percent(count) {
-      return Math.round((count * 100) / this.total);
+      return Math.round((count * 100) / this.total)
     },
     alpha(count) {
-      return (count / (this.total)) + 0.6;
-    },
+      return count / this.total + 0.6
+    }
   },
-  components: {
-  },
+  components: {},
   computed: {
     styleVariant() {
-      return this.variant === 'compact' ? 'd-inline-block' : 'mb-1';
+      return this.variant === 'compact' ? 'd-inline-block' : 'mb-1'
     },
     total() {
-      let t = 0;
-      this.items.forEach((i) => {
-        t += i.count;
-      });
-      return t;
-    },
-  },
-};
+      let t = 0
+      this.items.forEach(i => {
+        t += i.count
+      })
+      return t
+    }
+  }
+}
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .viz-bar-bar {
   line-height: 0.9;
@@ -73,5 +75,4 @@ export default {
   background-color: #ddd;
   border-right-color: $clr-secondary !important;
 }
-
 </style>

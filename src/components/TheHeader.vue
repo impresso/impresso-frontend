@@ -324,10 +324,10 @@ export default defineComponent({
       return this.userStore.user
     },
     userPlan() {
-      return this.userStore.userPlan || PlanGuest
+      return this.userStore.userPlan
     },
     userPlanLabel() {
-      return PlanLabels[this.userPlan]
+      return PlanLabels[this.userPlan] || '...'
     },
 
     connectivityStatus() {
@@ -425,7 +425,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 #TheHeader {
   height: 56px;
@@ -725,12 +725,7 @@ export default defineComponent({
     "label_current_search": "browse results ...",
     "label_faq": "Help",
     "label_terms": "Terms of Use",
-    "label_jobs": "Running tasks",
-    "label_terms_of_use": "Terms of Use",
-    "staff": "staff",
-    "researcher": "researcher",
-    "join_slack_channel": "Join us on <b>Slack!</b>",
-    "current_version": "frontend <span class='small-caps'>{version}</span>"
+    "label_jobs": "Tasks"
   }
 }
 </i18n>

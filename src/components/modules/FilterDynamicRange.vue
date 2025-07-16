@@ -26,6 +26,7 @@
         :scale-type="'symlog'"
         :sliderValue="value"
         @mousemove="handleMouseMove"
+        :valueLabel="isPercentage ? 'valueAsPercentageLabel' : 'valueLabel'"
         @click="handleClick"
       />
       <tooltip :tooltip="tooltip">
@@ -82,6 +83,7 @@ interface FacetSearchQueryParameters {
   rangeEnd: number
   rangeGap: number
   rangeInclude?: string
+  limit: number
 }
 
 type FacetSearchResponse = Facet
@@ -114,6 +116,7 @@ export default defineComponent({
       start: 0,
       end: 0,
       gap: 1,
+      numBuckets: 0,
       value: /** @type {number[]} */ [],
       sliderValue: [],
       buckets: [],
@@ -224,7 +227,8 @@ export default defineComponent({
           lower: this.$n(bucket.lower)
         })
       // 2. values are the same
-      return this.$t(this.valueLabel, { val: this.$n(parseInt(bucket?.val) ?? 0) })
+      const value: number = typeof bucket.val === 'number' ? bucket.val : parseInt(bucket.val, 10)
+      return this.$t(this.valueLabel, { val: this.$n(value) })
     },
     handleMouseMove(value) {
       if (!value) {
@@ -311,6 +315,17 @@ export default defineComponent({
             this.sliderValue = [this.start, this.end]
             const range = this.end - this.start
             this.gap = Math.max(1, Math.round(range / (this.maxExpectedBuckets + 1)))
+            this.numBuckets = this.isPercentage ? 100 : Math.floor(range / this.gap)
+
+            console.debug('[FilterDynamicRange] stats', this.facetType, {
+              range: range,
+              start: this.start,
+              end: this.end,
+              gap: this.gap,
+              total: this.total,
+              numBuckets: this.numBuckets,
+              maxExpectedBuckets: this.maxExpectedBuckets
+            })
           })
           .catch(error => {
             // eslint-disable-next-line
@@ -325,13 +340,38 @@ export default defineComponent({
             group_by: query.groupby,
             rangeStart: this.start,
             rangeEnd: this.end + 1,
-            rangeGap: this.gap
+            rangeGap: this.gap,
+            limit: this.numBuckets || 1
             // rangeInclude: 'edge',
           }
         })
           .then(response => {
-            // console.debug('[FilterDynamicRange] loadFacet', response)
             this.buckets = response.buckets
+              .sort((a, b) => {
+                return (a.val as number) - (b.val as number)
+              })
+              .map((bucket, i, arr) => {
+                return {
+                  // calculate upper and lower bounds based on value if they're not set
+                  lower: bucket.val,
+                  upper: Math.max(
+                    (arr[i + 1]?.val as any as number) - 1,
+                    bucket.val as any as number
+                  ),
+                  ...bucket
+                }
+              })
+            console.debug('[FilterDynamicRange] loadFacet', this.facetType, this.buckets)
+            // artificially add upper and lower bounds
+
+            // .map(bucket => {
+            //   // convert to number
+            //   bucket.val = parseFloat(bucket.val)
+            //   bucket.lower = parseFloat(bucket.lower)
+            //   bucket.upper = parseFloat(bucket.upper)
+            //   bucket.label = this.getTooltipLabel(bucket)
+            //   return bucket
+            // })
           })
           .catch(error => {
             // eslint-disable-next-line

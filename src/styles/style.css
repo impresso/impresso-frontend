@@ -23,6 +23,10 @@
 :root {
   --impresso-color-paper: #fafbf2;
   --impresso-color-white: #ffffff;
+  --impresso-color-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --impresso-color-white-alpha-30: rgba(255, 255, 255, 0.3);
+  --impresso-color-white-alpha-50: rgba(255, 255, 255, 0.5);
+  --impresso-color-white-alpha-80: rgba(255, 255, 255, 0.8);
   --impresso-color-yellow-code: 255, 235, 120;
   --impresso-color-yellow: #ffeb78;
   --impresso-color-yellow-alpha-20: rgba(255, 235, 120, 0.2);
@@ -34,6 +38,8 @@
   --impresso-color-black-alpha-20: rgba(52, 58, 64, 0.2);
   --impresso-color-black-alpha-30: rgba(52, 58, 64, 0.3);
   --impresso-color-black-rgb: 52, 58, 64;
+
+  --impresso-color-black-deeper: #17191c;
 
   --impresso-color-pastel-blue: rgba(86, 204, 242);
   --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
@@ -68,8 +74,9 @@
   --success: #a6d47c;
   --success-rgb: 166, 212, 124;
 
-  --clr-white: #f8f8ff;
+  --clr-white: #ffffff;
   --clr-white-rgba-20: #ffffff33;
+  --clr-white-rgba-90: #ffffffee;
   --clr-white-rgba-50: #f8f8ff80;
   --clr-dark: var(--impresso-color-black);
 
@@ -120,9 +127,13 @@
   --bs-box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   --bs-box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.125);
   /* Original: --bs-box-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); */
-  --bs-box-shadow-md: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em,
-    rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+  --bs-box-shadow-md:
+    rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em,
+    rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   --bs-box-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  --bs-box-shadow-lg-darker: 0 1rem 3rem rgba(0, 0, 0, 0.29);
+  --bs-box-shadow-md-darker:
+    rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em;
   --bs-box-shadow-focus: 0 0 0 0.2rem #ffeb78;
   --bs-box-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.075);
 
@@ -133,7 +144,8 @@
   --impresso-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   --z-index-pagination: 1001;
-  --z-index-modals: 1041;
+  --z-index-modals: 1039;
+  --z-index-modals-feedback: 1039;
 }
 
 body {
@@ -194,7 +206,8 @@ h6 em,
   font-variation-settings: 'wght' 375;
 }
 i,
-em {
+em,
+.font-style-italic {
   font-style: normal;
   font-family: var(--bs-font-sans-serif-italic);
 }
@@ -313,6 +326,7 @@ label {
   border-radius: var(--border-radius-sm);
   white-space: nowrap;
 }
+
 .input-group .btn,
 .btn-group-sm > .btn {
   border-top-left-radius: 0;
@@ -348,6 +362,9 @@ label {
 .btn-outline-primary.disabled,
 .btn-outline-primary:disabled {
   background-color: var(--clr-grey-600) !important;
+}
+.btn-outline-primary:hover svg path {
+  stroke: currentColor;
 }
 
 .btn-outline-icon {
@@ -454,7 +471,6 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   padding: var(--spacing-1);
   border-radius: 50%;
   border: 1px solid transparent;
-  transition: background-color 0.5s var(--impresso-transition-ease);
 }
 .btn-icon path {
   fill: transparent;
@@ -491,6 +507,12 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 .dropdown .dropdown-item {
   padding: var(--spacing-1) var(--spacing-3);
 }
+
+.bg-dark ::selection {
+  background-color: var(--impresso-color-yellow);
+  color: black;
+}
+
 .bg-dark .dropdown .Icon path {
   stroke: var(--clr-white) !important;
 }
@@ -529,6 +551,14 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 
 .modal .modal-footer {
   padding: var(--spacing-1);
+}
+
+.modal-backdrop {
+  background-image: linear-gradient(
+    to top,
+    var(--impresso-color-black) 0%,
+    var(--clr-grey-900) 100%
+  );
 }
 /* SVGs */
 svg text {

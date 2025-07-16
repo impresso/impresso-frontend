@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-interface State {
+export interface State {
   language: string
   limit: number
 }
@@ -8,7 +8,7 @@ interface State {
 export const useEmbeddingsStore = defineStore('embeddings', {
   state: (): State => ({
     language: 'fr',
-    limit: 25,
+    limit: 25
   }),
   getters: {},
   actions: {
@@ -17,9 +17,9 @@ export const useEmbeddingsStore = defineStore('embeddings', {
     },
     updateLimit(limit: number) {
       this.limit = limit
-    },
+    }
   },
   persist: {
-    paths: [],
-  },
+    paths: []
+  }
 })

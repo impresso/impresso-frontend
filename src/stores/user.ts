@@ -1,7 +1,15 @@
 import { defineStore } from 'pinia'
-import { app, me as meService } from '@/services'
+import {
+  app,
+  MEDIA_COOKIE_NAME,
+  me as meService,
+  termsOfUse as termsOfUseService,
+  MIDDLELAYER_MEDIA_PATH
+} from '@/services'
 import User from '@/models/User'
-import { PlanEducational, PlanGuest, PlanImpressoUser, PlanResearcher } from '@/constants'
+import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
+import { removeCookie, setCookie } from '@/util/cookies'
+import { TermsOfUse } from '@/services/types'
 
 export interface State {
   userData: User | false
@@ -10,6 +18,17 @@ export interface State {
   redirectionParams: any
   acceptTermsDate: string | null
   acceptTermsDateOnLocalStorage: string | null
+  hasPendingChangePlanRequest: boolean
+}
+
+interface IAuthResult {
+  accessToken?: string
+  authentication?: {
+    payload?: {
+      exp?: number // expiration timestamp
+    }
+  }
+  user?: User
 }
 
 export const useUserStore = defineStore('user', {
@@ -21,7 +40,9 @@ export const useUserStore = defineStore('user', {
     // this is not stored on localStorage, and if it is not null is a ISO date string
     acceptTermsDate: null,
     // this is stored on localStorage
-    acceptTermsDateOnLocalStorage: null
+    acceptTermsDateOnLocalStorage: null,
+    //
+    hasPendingChangePlanRequest: false
   }),
   getters: {
     user(state) {
@@ -32,22 +53,29 @@ export const useUserStore = defineStore('user', {
       if (!state.acceptTermsDate) {
         return PlanGuest
       }
-      let userPlan = state.userData !== null ? PlanImpressoUser : PlanGuest
+      let userPlan = state.userData !== null ? PlanNone : PlanGuest
       if (state.userData && Array.isArray(state.userData?.groups)) {
-        for (const group of state.userData.groups) {
-          if (group.name === PlanEducational || group.name === PlanResearcher) {
-            userPlan = group.name
+        const SortedAvailablePlans = [PlanResearcher, PlanEducational, PlanImpressoUser]
+        for (const planName of SortedAvailablePlans) {
+          if (state.userData.groups.some(g => g.name === planName)) {
+            userPlan = planName
             break
           }
         }
+      }
+      if (userPlan === PlanNone && state.hasPendingChangePlanRequest) {
+        userPlan = PlanImpressoUser // default to Impresso User if no plan is set but there is a pending request
       }
       return userPlan
     }
   },
   actions: {
-    setAcceptTermsDate(date: string) {
+    setAcceptTermsDate(date: string | null) {
       this.acceptTermsDate = date
       this.acceptTermsDateOnLocalStorage = date
+    },
+    setPendingChangePlanRequest(v: boolean) {
+      this.hasPendingChangePlanRequest = v
     },
     setBitmap(bitmap: string) {
       this.bitmap = bitmap
@@ -60,51 +88,92 @@ export const useUserStore = defineStore('user', {
           console.error(err)
         })
         .finally(() => {
-          const expiredDate = new Date(-1)
-          document.cookie = 'feathers-jwt=; expires=' + expiredDate.toUTCString() + '; path=/'
           // remove from localstorage
           localStorage.removeItem('feathers-jwt')
+          removeCookie(MEDIA_COOKIE_NAME, MIDDLELAYER_MEDIA_PATH)
           // clean terms date and bitmap
           this.userData = false
           this.acceptTermsDate = null
         })
     },
-    async refreshUser() {
-      return meService.find().then(d => {
-        console.info('[store/user]', d)
-        const user = new User(d)
-        this.userData = user
-        return user
-      })
+    setUserData(user: User | false) {
+      if (user) {
+        this.userData = new User({ ...user })
+      } else {
+        this.userData = false
+      }
     },
-    async login({ email, password }: { email: string; password: string }) {
-      return (app as any)
-        .authenticate({
-          strategy: 'local',
-          email,
-          password
-        })
-        .then((res: any) => {
-          console.info('[store/user] Authentication response:', Object.keys(res))
-          if (res.user && res.user.bitmap) {
-            console.info(' - bitmap:', res.user.bitmap)
-            this.bitmap = res.user.bitmap
-          }
-          return res
-        })
-        .then(({ user }) => {
-          console.info('LOGIN: user', user.username, 'logged in!')
-          // don't save cookie
-          // const expiredDate = new Date(authentication?.payload?.exp * 1000)
-          // document.cookie = 'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/';
-          app.set('user', user)
-          this.userData = new User({
-            ...user,
-            picture: user.profile.picture,
-            pattern: user.profile.pattern
-          })
+    async refreshUser() {
+      return meService
+        .find()
+        .then(d => {
+          console.info('[store/user]', d)
+          const user = new User(d)
+          this.userData = user
           return user
         })
+        .catch(err => {
+          if (err.response?.status === 401) {
+            this.userData = false
+          }
+          throw err
+        })
+    },
+    async login({ email, password }: { email: string; password: string }) {
+      const authResult = await app.authenticate({ strategy: 'local', email, password })
+
+      const { accessToken, authentication, user } = authResult as IAuthResult
+
+      console.info('[store/user] Authentication response:', Object.keys(authResult))
+
+      const termsOfuse: TermsOfUse | null = await termsOfUseService
+        .find()
+        .then((data: TermsOfUse) => {
+          console.debug('[store/user] call termsOfUseService.find() success:', data)
+          return data
+        })
+        .catch(err => {
+          console.error(
+            '[store/user] call termsOfUseService.find() error:',
+            err.message,
+            err.data,
+            err.code
+          )
+          return null
+        })
+      if (termsOfuse && termsOfuse.dateAcceptedTerms) {
+        this.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
+      } else {
+        console.warn('[store/user] termsOfuse is null or dateAcceptedTerms is undefined.')
+        this.setAcceptTermsDate(null)
+      }
+
+      if (user && user.bitmap) {
+        console.info(' - bitmap:', user.bitmap)
+        this.bitmap = user.bitmap
+      }
+      console.info('LOGIN: user', user.username, 'logged in!')
+
+      // Set the access token in a cookie on the media path only.
+      // It is used to authorize the use of media files: images, audio.
+      setCookie(MEDIA_COOKIE_NAME, accessToken, {
+        expires: new Date(authentication?.payload?.exp * 1000),
+        sameSite: 'Lax',
+        secure: window.location.hostname !== 'localhost', // allow non-secure cookie on localhost
+        path: MIDDLELAYER_MEDIA_PATH
+      })
+
+      // Not using cookies to exclude CSRF attacks (https://feathersjs.com/guides/security)
+      // const expiredDate = new Date(authentication?.payload?.exp * 1000)
+      // document.cookie =
+      //   'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/'
+      app.set('user', user)
+      this.userData = new User({
+        ...user,
+        picture: (user as any).profile.picture,
+        pattern: (user as any).profile.pattern
+      })
+      return user
     },
     setRememberCredentials(remember: boolean) {
       this.rememberCredentials = remember
@@ -112,30 +181,10 @@ export const useUserStore = defineStore('user', {
     getCurrentUser() {
       return meService.find().then(d => new User(d))
     },
-    changePassword({
-      uid,
-      previousPassword,
-      newPassword
-    }: {
-      uid: string
-      previousPassword: string
-      newPassword: string
-    }) {
-      return meService.patch(uid, { previousPassword, newPassword }, {})
-    },
-    updateCurrentUser(user: User) {
-      return meService.update(user.uid, user, {}).then(d => {
-        const user = new User(d)
-        this.userData = user
-        return user
-      })
-    },
     setRedirectionRoute(params) {
       console.debug('[tores/user] setRedirectionRoute params:', params)
       this.redirectionParams = params
     }
   },
-  persist: {
-    paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage']
-  }
+  persist: { paths: ['rememberCredentials', 'userData', 'acceptTermsDateOnLocalStorage'] }
 })

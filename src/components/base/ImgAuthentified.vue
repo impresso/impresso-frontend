@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="ImgAuthentified" :style="style">
     <div v-if="errorMessage" class="p-2 text-small">{{ errorMessage }}</div>
     <div v-else class="ImgAuthentified_image" :style="imageStyle" />
@@ -7,23 +7,37 @@
     </div>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import { getAuthenticationToken } from '@/services'
+import { getAuthHeaders } from '@/util/auth'
+import { defaultAuthCondition } from '@/util/imageAuth'
 import axios from 'axios'
 import { Buffer } from 'buffer'
+import { defineComponent } from 'vue'
 
-export default {
+export default defineComponent({
   data: () => ({
     isVisible: false,
     isReady: false,
     width: 0,
     imageWidthHeightRatio: 0,
     imageSrc: null,
-    errorMessage: null
+    errorMessage: null,
+    observer: undefined
   }),
   props: {
-    height: Number,
-    src: String,
-    headers: Object
+    height: {
+      type: Number
+    },
+    src: {
+      type: String,
+      required: true
+    },
+    authCondition: {
+      type: Function,
+      default: defaultAuthCondition
+    }
   },
   computed: {
     style() {
@@ -77,10 +91,13 @@ export default {
       async handler() {
         const imageUrl = this.src
 
+        const authCondition = this.authCondition ?? defaultAuthCondition
+        const headers = authCondition(imageUrl) ? getAuthHeaders(getAuthenticationToken()) : {}
+
         await axios
           .get(imageUrl, {
             responseType: 'arraybuffer',
-            headers: this.headers
+            headers
           })
           .then(({ data, status, headers }) => {
             if (status === 200) {
@@ -111,7 +128,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 <style lang="scss">
 .ImgAuthentified {

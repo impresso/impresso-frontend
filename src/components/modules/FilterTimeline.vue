@@ -1,5 +1,5 @@
 <template>
-  <div class="filter-timeline">
+  <div class="FilterTimeline">
     <base-title-bar
       >{{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
@@ -21,17 +21,22 @@
         <span v-else>
           {{ $t(`label.timelineDescription.${groupBy}.description.${displayStyle}`) }}
         </span>
-        <li v-if="!disableRelativeDisplayStyle" class="form-inline">
-          <form class="form-inline">
-            <radio-group
-              :modelValue="displayStyle"
-              @update:modelValue="displayStyle = $event"
-              :options="displayStyleOptions"
-              type="button"
-            />
-            <info-button name="relative-vs-absolute-year-graph" class="ml-2" />
-          </form>
-        </li>
+        <form v-if="!disableRelativeDisplayStyle" class="form-inline m-2">
+          <radio-group
+            :modelValue="displayStyle"
+            @update:modelValue="displayStyle = $event"
+            :options="displayStyleOptions"
+            type="button"
+          />
+          <info-button name="relative-vs-absolute-year-graph" class="mx-2" />
+          <radio-group
+            :modelValue="exponent"
+            @update:modelValue="exponent = $event"
+            :options="exponentOptions"
+            type="button"
+          />
+          <info-button name="linear-vs-power-scale-year-graph" class="ml-2" />
+        </form>
       </template>
     </base-title-bar>
 
@@ -42,20 +47,23 @@
       :brushable="false"
       :brush="brush"
       @brush-end="onTimelineBrushEnd"
+      :exponent="parseInt(exponent, 10)"
       :percentage="isPercentage"
       @brushed="onTimelineBrushed"
     >
       <template v-slot="tooltipScope">
-        <div v-if="tooltipScope.tooltip.item">
-          {{ tooltipScope?.tooltip?.item?.t ? $d(tooltipScope.tooltip.item.t, 'year') : '' }}
-          &middot;
-          <b>{{ tooltipScope?.tooltip?.item?.w ? $n(tooltipScope.tooltip.item.w) : '' }}</b>
-          {{ groupBy }}
-          <!-- <br />
-          <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-          &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-          ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-          </span> -->
+        <div v-if="tooltipScope.tooltip?.item?.t">
+          <div v-if="isPercentage">
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+            &middot;
+            <b>{{ $n(tooltipScope.tooltip.item.p) }}%</b>
+          </div>
+          <div v-else>
+            {{ $d(tooltipScope.tooltip.item.t, 'year') }}
+            &middot;
+            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '0' }}</b>
+            {{ groupBy }}
+          </div>
         </div>
       </template>
     </timeline>
@@ -124,6 +132,11 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
 
+const DisplayStyleSum = 'sum'
+const DisplayStylePercent = 'percent'
+const ExponentLinear = '1'
+const ExponentPower = '4'
+
 export default {
   name: 'FilterTimeline',
   props: {
@@ -154,7 +167,8 @@ export default {
     temporaryFilter: null,
     selectedFilterBrush: [],
     selectedFilterIndex: -1,
-    displayStyle: 'sum'
+    displayStyle: DisplayStyleSum,
+    exponent: ExponentLinear
   }),
   components: {
     BaseTitleBar,
@@ -194,17 +208,23 @@ export default {
       return d.split('T').shift()
     },
     isPercentage() {
-      return this.displayStyle === 'percent'
-    },
-    displayStyleOptions() {
-      return ['percent', 'sum'].map(value => ({
-        text: this.$t(`label.display.${value}`),
-        value
-      }))
+      return this.displayStyle === DisplayStylePercent
     },
     // a string of min amd max date
     dateRangeString() {
       return `${this.startDaterange} - ${this.endDaterange}`
+    },
+    displayStyleOptions() {
+      return [DisplayStylePercent, DisplayStyleSum].map(value => ({
+        text: this.$t(`label.display.${value}`),
+        value
+      }))
+    },
+    exponentOptions() {
+      return [ExponentLinear, ExponentPower].map(value => ({
+        text: this.$t(`label.exponent.${value}`),
+        value
+      }))
     }
   },
   methods: {
@@ -314,7 +334,12 @@ export default {
 }
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css">
+.FilterTimeline .form-inline .btn {
+  padding: 4px 4px;
+  line-height: 1em;
+}
+</style>
 <i18n lang="json">
 {
   "en": {
@@ -359,6 +384,10 @@ export default {
       "display": {
         "sum": "sum",
         "percent": "%"
+      },
+      "exponent": {
+        "1": "linear",
+        "4": "power scale"
       },
       "daterange": {
         "pick": "add new date filter ...",

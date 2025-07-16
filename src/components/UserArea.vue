@@ -15,9 +15,10 @@
       <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
-    <!-- <b-dropdown-item :to="{ name: 'termsOfUse' }" active-class="active">
-      {{ $t('label_terms_of_use') }}
-    </b-dropdown-item> -->
+
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewChangePassword">
+      {{ $t('label_change_password') }}
+    </LinkToModal>
 
     <LinkToModal
       v-if="user && isViewPlansFeatureEnabled"
@@ -27,26 +28,17 @@
       {{ $t('label_change_plan_request') }}
     </LinkToModal>
 
-    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
-      {{ $t('label_terms_of_use') }}
-    </LinkToModal>
-
     <b-dropdown-item v-on:click="logout">{{ $t('logout') }}</b-dropdown-item>
+
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
     <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
       {{ $t('label_user_requests') }}
     </LinkToModal> -->
+
     <LinkToModal
-      v-if="user && isViewPlansFeatureEnabled"
-      class="dropdown-item"
-      :view="ViewCorpusOverview"
-    >
-      {{ $t('label_corpus_overview') }}
-    </LinkToModal>
-    <LinkToModal
-      v-if="user && isViewPlansFeatureEnabled"
+      v-if="user && user.isStaff && isViewPlansFeatureEnabled"
       class="dropdown-item"
       :view="ViewInfoModal"
     >
@@ -55,12 +47,28 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="send_update_bitmap()">{{
       $t('send_update_bitmap')
     }}</b-dropdown-item>
-    <b-dropdown-item
-      target="_blank"
-      href="https://join.slack.com/t/impresso-community/shared_invite/enQtNTg5MzY2NDg2NTAyLTdiMmI2ZWU5ZjliNGNjN2M4NTgxM2UzOTQyYTkxYWU4MTgwN2I1MzQxMzg3N2Y0NGU3OGFjMzFmMGIyNGRlZmQ"
+    <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewFeedback">
+      {{ $t('label_feedback') }}
+    </LinkToModal>
+
+    <li class="mx-3">
+      <hr class="dropdown-divider" />
+    </li>
+
+    <LinkToModal
+      v-if="user && isViewPlansFeatureEnabled"
+      class="dropdown-item"
+      :view="ViewCorpusOverview"
     >
-      <Icon name="slack" :scale="0.5" :strokeWidth="0.5" />&nbsp;
-      <span v-html="$t('join_slack_channel')"></span>
+      {{ $t('label_corpus_overview') }}
+    </LinkToModal>
+    <LinkToModal class="dropdown-item" :view="ViewTermsOfUse">
+      {{ $t('label_terms_of_use') }}
+    </LinkToModal>
+    <li class="mx-3"><hr class="dropdown-divider" /></li>
+    <b-dropdown-item target="_blank" :href="discussionChannelLink">
+      <Icon name="discord" class="text-white" :scale="0.5" :strokeWidth="1" />&nbsp;
+      <span v-html="$t('join_discussion_channel')"></span>
     </b-dropdown-item>
 
     <b-dropdown-item>
@@ -70,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import LinkToModal from './LinkToModal.vue'
 import {
   ViewTermsOfUse,
@@ -78,13 +86,15 @@ import {
   ViewInfoModal,
   // ViewUserRequests,
   // ViewPlans
-  ViewCorpusOverview
+  ViewCorpusOverview,
+  ViewFeedback,
+  ViewChangePassword
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
 import { useUserStore } from '@/stores/user'
-import { type User } from '@/models'
-import Sunset from './base/Sunset.vue'
+import User from '@/models/User'
+import Sunset from 'impresso-ui-components/components/Sunset.vue'
 
 const userStore = useUserStore()
 
@@ -92,6 +102,8 @@ export interface UserAreaProps {
   user: User
   userPlanLabel: string
 }
+
+const discussionChannelLink = ref(import.meta.env.VITE_DISCUSSION_CHANNEL_URL || '')
 
 const props = defineProps<UserAreaProps>()
 
@@ -125,23 +137,23 @@ const send_update_bitmap = async () => {
   })
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
-    "label_change_plan_request": "Change Plan Request",
+    "label_change_plan_request": "Request change of plan",
     "label_user_requests": "Your requests for data domains",
-    "label_verbose_info": "Settings",
+    "label_verbose_info": "[staff only] Settings",
     "label_plans": "Plans",
     "label_corpus_overview": "Corpus Overview",
+    "label_feedback": "[staff only] Feedback",
     "logout": "Logout",
-    "join_slack_channel": "Join Slack Channel",
+    "join_discussion_channel": "Join our Discord channel",
     "current_version": "Current version: {version}",
     "send_test_job": "[staff only] Send test job",
-    "send_update_bitmap":
-      "[staff only] Test update bitmap"
-    
+    "send_update_bitmap": "[staff only] Test update bitmap",
+    "label_change_password": "Change Password"
   }
 }
 </i18n>

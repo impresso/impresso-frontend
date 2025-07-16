@@ -1,122 +1,164 @@
 <template>
-  <div id="faq-items" class="container py-5">
-    <h1>{{ title }}</h1>
-    <section v-for="(section, i) in sections" :key="i" class="my-5">
-      <div class="row position-sticky top-0 bg-light z-index-1 border-bottom py-3">
-        <h2 class="col-12 small-caps-bold m-0">{{ section.title }}</h2>
-      </div>
+  <i-layout>
+    <i-layout-section>
+      <template v-slot:header>
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item :to="{ name: 'faq' }" class="active" active-class="none">
+              <span v-html="$t('tableOfContents')"></span>
+            </b-nav-item>
+          </template>
+        </b-tabs>
+      </template>
+      <nav class="faq-toc mt-2">
+        <ul class="list-unstyled">
+          <li v-for="(section, i) in sections" :key="section.id">
+            <p
+              class="font-weight-bold d-block position-sticky top-0 bg-light z-index-1 border-bottom py-3 px-3 px-xl-4"
+            >
+              {{ section.title }}
+            </p>
+            <ul class="list-unstyled p-3 px-xl-4">
+              <li class="mb-2" v-for="(paragraph, j) in section.paragraphs" :key="paragraph.id">
+                <a :href="'#' + paragraph.id">
+                  {{ paragraph.title }}
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </i-layout-section>
+    <i-layout-section main>
+      <template v-slot:header>
+        <b-navbar class="px-03 px-xl-5">
+          <section class="pt-2 pb-1 w-100">
+            <span class="label small-caps">{{ $t('help') }}</span>
 
-      <div v-for="(paragraph, j) in section.paragraphs" :key="j" class="row mb-3">
-        <a :id="paragraph.id" class="col-12" style="scroll-margin-top: 100px" />
-        <div class="col-12">
-          <h3 class="sans pt-4 font-size-inherit font-weight-bold">
-            {{ paragraph.title }}
-          </h3>
-          <p v-html="paragraph.summary" />
+            <h3 class="mb-1">
+              {{ $t('title.faq') }}
+            </h3>
+          </section>
+        </b-navbar>
+      </template>
+      <div id="faq-items" class="container ml-0 ms-0 px-3 px-xl-5">
+        <section v-for="(section, i) in sections" :key="i" class="mbFre-5">
+          <div class="row position-sticky top-0 bg-light z-index-1 border-bottom py-3">
+            <h2 class="col-12 small-caps-bold m-0">{{ section.title }}</h2>
+          </div>
 
-          <ellipsis
-            v-if="paragraph.description.length"
-            class="p-3 rounded shadow"
-            moreClass="rounded pr-1 pb-1"
-            v-bind:initialHeight="70"
-          >
-            <div v-html="paragraph.description" />
-          </ellipsis>
-        </div>
+          <div v-for="(paragraph, j) in section.paragraphs" :key="j" class="row mb-3">
+            <a :id="paragraph.id" class="col-12" style="scroll-margin-top: 100px"></a>
+            <div class="col-12">
+              <h3 class="sans pt-4 font-size-inherit font-weight-bold">
+                {{ paragraph.title }}
+              </h3>
+              <p v-html="paragraph.summary" />
+              <div v-html="paragraph.description" />
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
-  </div>
+    </i-layout-section>
+  </i-layout>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, nextTick, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import content from '@/assets/faqpage.json'
-import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
 import { CollapsibleParagraph as Paragraph } from '@/models/CollapsibleParagraph'
-import Ellipsis from '@/components/modules/Ellipsis.vue'
 
-const ApiVersionLine = apiVersion => `
+// Types
+interface FAQ {
+  id: string
+  title: string
+  summary: string
+  description: string | string[]
+}
+
+interface FAQGroup {
+  title: string
+  faq: FAQ[]
+}
+
+interface FAQContent {
+  groups: FAQGroup[]
+}
+
+interface ApiVersion {
+  version: string
+  revision: string
+  branch: string
+}
+
+// Composables
+const route = useRoute()
+const settingsStore = useSettingsStore()
+
+// Helper functions
+const ApiVersionLine = (apiVersion: ApiVersion): string => `
 API: v${apiVersion.version},
 Revision <a href="https://github.com/impresso/impresso-middle-layer/commit/${apiVersion.revision}" target="_blank">${apiVersion.revision}</a>,
 "${apiVersion.branch}" branch.
 `
 
-const WebappVersionLine = `
+const WebappVersionLine = (): string => `
 Web App: v${import.meta.env.VITE_VERSION},
 Revision <a href="https://github.com/impresso/impresso-frontend/commit/${import.meta.env.VITE_GIT_REVISION}" target="_blank">${import.meta.env.VITE_GIT_REVISION}</a>,
 "${import.meta.env.VITE_GIT_BRANCH}" branch.
 `
 
-export default {
-  components: {
-    Ellipsis
-  },
-  computed: {
-    ...mapStores(useSettingsStore),
-    route: {
-      get() {
-        return this.$route
+const activeLanguageCode = computed<string>(() => {
+  return settingsStore.language_code
+})
+const getVersionGroup = (): FAQGroup => {
+  return {
+    title: 'title.version',
+    faq: [
+      {
+        id: 'version-of-impresso',
+        // It is not possible to use i18n in the title in setup apparently: https://github.com/intlify/vue-i18n/issues/953
+        title: 'Which version of Impresso am I using?',
+        summary: 'Version of the web application and API. Use this to report issues.',
+        description: [WebappVersionLine(), ApiVersionLine((window as any).impressoApiVersion)]
       }
-    },
-    title: {
-      get() {
-        return this.$t('title.faq')
-      }
-    },
-    sections: {
-      get() {
-        const faqContent = content[this.activeLanguageCode]
-        faqContent.groups.push(this.getVersionGroup())
-        return faqContent.groups.map(g => {
-          console.debug('[FaqPage] group:', g)
-          return new Paragraph({
-            id: g.title,
-            title: g.title,
-            paragraphs: g.faq.map(f => {
-              console.debug('[FaqPage] paragraph:', f)
-              return new Paragraph({
-                id: f.id,
-                title: f.title,
-                summary: f.summary,
-                description: f.description
-              })
-            })
-          })
-        })
-      }
-    },
-    activeLanguageCode() {
-      return this.settingsStore.language_code
-    }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      if (this.route.hash) {
-        const el = document.getElementById(this.route.hash.slice(1))
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', offset: { top: -100 } })
-          // add actoive class tp the parent
-          el.parentNode.classList.add('border-left', 'border-primary', 'pl-3')
-        }
-      }
-    })
-  },
-  methods: {
-    getVersionGroup() {
-      return {
-        title: this.$t('title.version'),
-        faq: [
-          {
-            id: 'version-of-impresso',
-            title: this.$t('title.whichVersion'),
-            summary: this.$t('summary.version'),
-            description: [WebappVersionLine, ApiVersionLine(window.impressoApiVersion)]
-          }
-        ]
-      }
-    }
+    ]
   }
 }
+
+const sections = computed(() => {
+  const faqContent = (content as Record<string, FAQContent>)[activeLanguageCode.value]
+  const groupsWithVersion = [...faqContent.groups, getVersionGroup()]
+
+  return groupsWithVersion.map(g => {
+    return new Paragraph({
+      id: g.title,
+      title: g.title,
+      paragraphs: g.faq.map(f => {
+        return new Paragraph({
+          id: f.id,
+          title: f.title,
+          summary: f.summary,
+          description: Array.isArray(f.description) ? f.description.join('<br/>') : f.description
+        })
+      })
+    })
+  })
+})
+
+// Lifecycle
+onMounted(() => {
+  nextTick(() => {
+    if (route.hash) {
+      const el = document.getElementById(route.hash.slice(1))
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' })
+      }
+    }
+  })
+})
 </script>
 
 <style lang="scss">
@@ -149,7 +191,7 @@ export default {
 
     &.show {
       max-height: 1000px;
-      transition: max-height 0.3 ease-in-out;
+      transition: max-height 0.3s ease-in-out;
     }
   }
 }
@@ -158,6 +200,7 @@ export default {
 <i18n lang="json">
 {
   "en": {
+    "tableOfContents": "Table of Contents",
     "title": {
       "faq": "Frequently Asked Questions",
       "version": "Version",

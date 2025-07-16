@@ -90,7 +90,7 @@
         count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
         :value-percentage-label="facet.type + 'ValuePercentageLabel'"
-        :value-label="facet.type + 'ValueLabel'"
+        :value-label="'test-' + facet.type + 'ValueLabel'"
         :value-as-range-label="facet.type + 'ValueAsRangeLabel'"
         :info-button-id="`text-reuse-filter-${facet.type}`"
       />

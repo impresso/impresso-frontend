@@ -1,20 +1,40 @@
 <template>
-  <marginalia-panel :isLeft="true" :sections="marginaliaSections.filter(({ isLeft }) => isLeft)"
-    ref="marginaliaPanelLeft" />
-  <div class="os-article-viewer" v-bind="$attrs" :style="{ 'font-size': `${fontSize}%` }" ref="container"></div>
-  <marginalia-panel :isLeft="false" :sections="marginaliaSections.filter(({ isLeft }) => !isLeft)"
-    ref="marginaliaPanelRight" />
+  <marginalia-panel
+    class="marginalia-panel"
+    :isLeft="true"
+    :sections="marginaliaSections.filter(({ isLeft }) => isLeft)"
+    ref="marginaliaPanelLeft"
+  />
+  <div
+    class="os-article-viewer"
+    v-bind="$attrs"
+    :style="{ 'font-size': `${fontSize}%` }"
+    ref="container"
+  ></div>
+  <marginalia-panel
+    class="marginalia-panel"
+    :isLeft="false"
+    :sections="marginaliaSections.filter(({ isLeft }) => !isLeft)"
+    ref="marginaliaPanelRight"
+  />
 </template>
 
 <script lang="ts">
 import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
-import initViewer, { Rect, Viewer, type TiledImage } from 'openseadragon'
-import { defineComponent, ref, type PropType } from 'vue'
+import {
+  createOpenSeadragon,
+  Rect,
+  Viewer,
+  getAuthOptions,
+  isAuthRequired
+} from '@/services/openseadragon'
+import { TiledImage, MouseTracker } from 'openseadragon'
+import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
-interface Region {
-  articleUid: string,
-  pageUid: string,
-  coords: { x: number, y: number, w: number, h: number }
+export interface Region {
+  articleUid: string
+  pageUid: string
+  coords: { x: number; y: number; w: number; h: number }
 }
 
 function createPageOverlay(tiledImage: TiledImage) {
@@ -28,7 +48,7 @@ function createRegionOverlay(
   tiledImage: TiledImage,
   region: Region,
   clickHandler: (articleUid: string) => void
-): { overlay: any, rect: Rect } {
+): { overlay: any; rect: Rect } {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
   overlay.dataset.articleUid = region.articleUid
@@ -42,20 +62,17 @@ function createRegionOverlay(
     })
   })
 
-  overlay.addEventListener('click', event => {
-    const overlayTarget = event.target as HTMLDivElement
+  new MouseTracker({
+    element: overlay,
+    clickHandler: function (event: any) {
+      if (!event.quick) return
 
-    const articleUid = overlayTarget.dataset.articleUid as string
-    event.stopPropagation()
-    clickHandler(articleUid)
-    //
-    // event.target.parentNode.querySelectorAll('div.overlay-region').forEach((item) => {
-    //   if (articleUid === item.getAttribute('data-article-uid')) {
-    //     item.classList.add('active')
-    //   } else {
-    //     item.classList.remove('active')
-    //   }
-    // })
+      const overlayTarget = event?.originalEvent?.target as HTMLDivElement
+      if (overlayTarget == null) return
+
+      const articleUid = overlayTarget.dataset.articleUid as string
+      clickHandler(articleUid)
+    }
   })
 
   overlay.addEventListener('mouseleave', event => {
@@ -72,7 +89,7 @@ function createRegionOverlay(
     region.coords.x,
     region.coords.y,
     region.coords.w,
-    region.coords.h,
+    region.coords.h
   )
 
   return { overlay, rect }
@@ -86,62 +103,114 @@ function getMarginaliaOverlayRect(tiledImage: TiledImage, isRight: boolean) {
     : new Rect(x - width / factor, y, width / factor, height)
 }
 
+const blackTileSource = {
+  tileSize: 256,
+  minLevel: 0,
+  maxLevel: 0,
+  getTileUrl: () =>
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mM0sXJ4CgAC7QGV4Z7MDgAAAABJRU5ErkJggg=='
+}
+
+const getCurrentItemIndex = (viewer: Viewer) => {
+  let { x: currentX } = viewer.viewport.getCenter()
+  const firstItemX = viewer.world.getItemAt(0).getBounds().x
+
+  if (currentX < firstItemX) currentX = firstItemX
+
+  const itemsBounds = [...Array(viewer.world.getItemCount()).keys()].map(i =>
+    viewer.world.getItemAt(i).getBounds()
+  )
+  const currentItemIndex = itemsBounds.findIndex((item, index, bounds) => {
+    if (index + 1 >= bounds.length) return true
+
+    const previousItem = index > 0 ? bounds[index - 1] : undefined
+    const nextItem = bounds[index + 1]
+
+    const leftBoundary = previousItem
+      ? previousItem.x + previousItem.width + (item.x - (previousItem.x + previousItem.width)) / 2
+      : item.x
+    const rightBoundary = item.x + item.width + (nextItem.x - (item.x + item.width)) / 2
+
+    return currentX >= leftBoundary && currentX < rightBoundary
+  })
+
+  return currentItemIndex
+}
+
 const DefaultZoomLevel = 0.0008
 const MaxFontSizePc = 100
 
-interface MarginaliaSection {
-  title: string,
-  items: string[],
+export interface MarginaliaSection {
+  title: string
+  items: string[]
   isLeft: boolean
 }
 
-interface Data {
-  viewer?: Viewer,
-  currentPageIndex: number,
-  tilesAreReady: boolean,
-  pagesAreOpen: boolean,
-  currentOverlays: HTMLDivElement[],
-  isDragging: boolean,
-  currentZoomLevel: number,
+export interface Data {
+  viewer?: Viewer
+  currentPageIndex: number
+  initialFitCompleted: boolean
+  currentOverlays: HTMLDivElement[]
+  currentZoomLevel: number
+
+  /** Indices of pages that have been fully loaded. */
+  loadedPages: Set<number>
+
+  /** Indices of real pages added (without placeholder) */
+  realPages: Set<number>
+
+  /** How many neighbour pages load left and right of the current page. */
+  neighboursToLoad: number
+
+  /** A local variable that indicates dragging is active, preventing LISTENING on page change events while dragging.*/
+  isDragging: boolean
 }
 
 export default defineComponent({
   data: (): Data => ({
     viewer: undefined,
     currentPageIndex: 0,
-    tilesAreReady: false,
+    initialFitCompleted: false,
     currentOverlays: [],
-    isDragging: false,
     currentZoomLevel: DefaultZoomLevel,
-    pagesAreOpen: false,
+    loadedPages: new Set(),
+    realPages: new Set(),
+    neighboursToLoad: 2,
+    isDragging: false
   }),
   setup() {
     const container = ref<HTMLElement | undefined>()
-    const marginaliaPanelLeft = ref<typeof MarginaliaPanel | undefined>()
-    const marginaliaPanelRight = ref<typeof MarginaliaPanel | undefined>()
+    const marginaliaPanelLeft = ref<ComponentPublicInstance | undefined>()
+    const marginaliaPanelRight = ref<ComponentPublicInstance | undefined>()
+
     return {
       container,
       marginaliaPanelLeft,
-      marginaliaPanelRight,
+      marginaliaPanelRight
     }
   },
   props: {
     pages: {
+      /**
+       * Array of page URLs.
+       */
       type: Array as PropType<string[]>,
+      default: () => [],
+      required: true
     },
     defaultCurrentPageIndex: {
       type: Number,
-      default: 0,
+      default: 0
     },
     article: Object,
     regions: {
       type: Array as PropType<Region[]>,
-      default: () => [],
+      default: () => []
     },
     marginaliaSections: {
       type: Array as PropType<MarginaliaSection[]>,
-      default: () => [],
-    },
+      default: () => []
+    }
   },
   emits: ['page-changed', 'article-selected'],
   methods: {
@@ -150,20 +219,20 @@ export default defineComponent({
 
       if (this.viewer != null) return this.viewer
 
-      this.viewer = initViewer({
+      this.viewer = createOpenSeadragon({
         element: this.container,
         immediateRender: true,
         showNavigationControl: false,
         // animationTime: 0,
         gestureSettingsMouse: {
           clickToZoom: false,
-          dblClickToZoom: true,
+          dblClickToZoom: true
         },
         defaultZoomLevel: DefaultZoomLevel,
         collectionMode: true,
         collectionRows: 1,
         // collectionTileSize:   512,
-        collectionTileMargin: 16,
+        collectionTileMargin: 16
         // debugMode: true
       })
 
@@ -172,31 +241,10 @@ export default defineComponent({
         if (!viewer) return
 
         if (viewer.world.getItemCount() === 0) return
-        let { x: currentX } = viewer.viewport.getCenter()
-        const firstItemX = viewer.world.getItemAt(0).getBounds().x
 
-        if (currentX < firstItemX) currentX = firstItemX
+        const currentItemIndex = getCurrentItemIndex(viewer)
 
-        const itemsBounds = [...Array(viewer.world.getItemCount()).keys()].map(i =>
-          viewer.world.getItemAt(i).getBounds(),
-        )
-        const currentItemIndex = itemsBounds.findIndex((item, index, bounds) => {
-          if (index + 1 >= bounds.length) return true
-
-          const previousItem = index > 0 ? bounds[index - 1] : undefined
-          const nextItem = bounds[index + 1]
-
-          const leftBoundary = previousItem
-            ? previousItem.x +
-            previousItem.width +
-            (item.x - (previousItem.x + previousItem.width)) / 2
-            : item.x
-          const rightBoundary = item.x + item.width + (nextItem.x - (item.x + item.width)) / 2
-
-          return currentX >= leftBoundary && currentX < rightBoundary
-        })
-
-        if (currentItemIndex !== this.currentPageIndex) {
+        if (currentItemIndex !== this.currentPageIndex && this.initialFitCompleted) {
           this.currentPageIndex = currentItemIndex
           this.$emit('page-changed', this.currentPageIndex)
         }
@@ -205,138 +253,235 @@ export default defineComponent({
       this.viewer.addHandler('viewport-change', viewportChangeHandler)
       this.$emit('page-changed', this.currentPageIndex)
 
-      this.viewer.addHandler('canvas-drag', () => {
-        this.isDragging = true
-      })
-
-      this.viewer.addHandler('canvas-drag-end', () => {
-        setTimeout(() => {
-          this.isDragging = false
-        }, 0)
-      })
-
       this.viewer.addHandler('zoom', ({ zoom }) => {
         if (zoom == null) return
         this.currentZoomLevel = zoom
       })
 
-      this.viewer.addOnceHandler('open', () => {
-        this.pagesAreOpen = true
+      const onCanvasDrag = () => {
+        this.isDragging = true
+      }
+      const onAnimationFinish = () => {
+        console.debug('[OpenSeadragonArticleViewer] Animation finished')
+        this.isDragging = false
+      }
+      this.viewer.addHandler('canvas-drag', onCanvasDrag)
+      this.viewer.addHandler('animation-finish', onAnimationFinish)
+
+      this.viewer.world.addHandler('add-item', async evt => {
+        const image = evt.item
+
+        image.addHandler('bounds-change', evt => {
+          const image = evt.eventSource
+          const imageIndex = this.viewer.world.getIndexOfItem(image)
+
+          if (imageIndex === this.currentPageIndex) {
+            this.applyMarginaliaAndOverlay(this.viewer, image)
+
+            const { width, height } = image.getBounds()
+            const isNominal = width === 1 || height === 1
+
+            if (!this.initialFitCompleted && !isNominal) {
+              this.viewer.viewport.fitBounds(image.getBounds(), true)
+              this.viewer.viewport.zoomTo(DefaultZoomLevel)
+              this.initialFitCompleted = true
+            }
+          }
+        })
+
+        image.addHandler('fully-loaded-change', evt => {
+          const image = evt.eventSource
+          const imageIndex = this.viewer.world.getIndexOfItem(image)
+
+          if (evt.fullyLoaded) {
+            this.loadedPages.add(imageIndex)
+          } else {
+            this.loadedPages.delete(imageIndex)
+          }
+        })
       })
 
       return this.viewer
-
-      // return new Promise(resolve => {
-      //   setTimeout(() => {
-
-      //   }, 0)
-      // })
     },
+    async applyMarginaliaAndOverlay(viewer: Viewer, tiledImage: TiledImage) {
+      this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
+      this.currentOverlays = []
+
+      const regions = this.regions
+      const article = this.article
+
+      // page overlay (page selection background)
+      const { overlay, rect } = createPageOverlay(tiledImage)
+      viewer.addOverlay(overlay, rect)
+
+      this.currentOverlays = regions.map(region => {
+        const { overlay, rect } = createRegionOverlay(tiledImage, region, articleUid => {
+          this.$emit('article-selected', articleUid)
+        })
+        if (article.uid && region.articleUid === article.uid) {
+          overlay.classList.add('active')
+        }
+        viewer.addOverlay(overlay, rect)
+
+        return overlay
+      })
+      this.currentOverlays.push(overlay)
+
+      if (this.marginaliaPanelLeft == null || this.marginaliaPanelRight == null) {
+        return
+      }
+
+      // marginalia repositioning
+      viewer.removeOverlay(this.marginaliaPanelLeft.$el)
+      viewer.addOverlay(this.marginaliaPanelLeft.$el, getMarginaliaOverlayRect(tiledImage, false))
+
+      viewer.removeOverlay(this.marginaliaPanelRight?.$el)
+      viewer.addOverlay(this.marginaliaPanelRight?.$el, getMarginaliaOverlayRect(tiledImage, true))
+    }
   },
   mounted() {
     this.currentPageIndex = this.defaultCurrentPageIndex
   },
   computed: {
-    readyRegions() {
-      if (this.tilesAreReady) return this.regions
-      return []
-    },
-    readyData() {
-      return {
-        regions: this.regions,
-        article: this.article,
-        pagesAreOpen: this.pagesAreOpen,
-      }
-    },
     /** @returns {number} */
     fontSize() {
       const newFontSize = ((this.currentZoomLevel * 0.7) / DefaultZoomLevel) * MaxFontSizePc
       return newFontSize > MaxFontSizePc ? MaxFontSizePc : newFontSize
-    },
+    }
   },
   watch: {
     pages: {
       async handler(pages: string[]) {
         if (pages == null) return
+
         const viewer = await this.getViewer()
+        this.realPages.clear()
+        this.loadedPages.clear()
+        viewer.world.removeAll()
+        this.initialFitCompleted = false
 
-        this.tilesAreReady = false
-        viewer.addOnceHandler('tile-loaded', () => {
-          viewer.viewport.fitBounds(viewer.world.getItemAt(this.currentPageIndex).getBounds(), true)
-          viewer.viewport.zoomTo(DefaultZoomLevel)
-          this.tilesAreReady = true
+        const authIsRequired = isAuthRequired(pages[0])
+
+        const infoRes = await fetch(pages[0], {
+          headers: {
+            ...(authIsRequired ? getAuthOptions().ajaxHeaders : {})
+          }
         })
+        const info = await infoRes.json()
 
-        viewer.open(pages)
+        pages.forEach((page, idx) => {
+          if (
+            idx < Math.max(0, this.currentPageIndex - this.neighboursToLoad) ||
+            idx >
+              Math.min(
+                this.pages.length - this.neighboursToLoad,
+                this.currentPageIndex + this.neighboursToLoad
+              )
+          ) {
+            viewer.addTiledImage({
+              tileSource: {
+                ...blackTileSource,
+                width: info.width,
+                height: info.height
+              },
+              index: idx
+            })
+          } else {
+            this.realPages.add(idx)
+
+            viewer.addTiledImage({
+              tileSource: page,
+              ...(isAuthRequired(page) ? getAuthOptions() : {}),
+              index: idx
+            })
+          }
+        })
       },
       immediate: true,
-      deep: true,
+      deep: true
     },
     defaultCurrentPageIndex: {
       handler(idx: number) {
-        if (this.viewer && this.currentPageIndex !== idx && this.viewer.world.getItemAt(idx)) {
-          this.viewer.viewport.fitBounds(this.viewer.world.getItemAt(idx).getBounds(), true)
-          this.viewer.viewport.zoomTo(DefaultZoomLevel)
+        if (this.currentPageIndex !== idx) {
+          this.currentPageIndex = idx
         }
       },
-      immediate: true,
+      immediate: true
     },
-    readyData: {
-      async handler({ regions, article, pagesAreOpen }: { regions: Region[], article: { uid: string }, pagesAreOpen: boolean }) {
-        if (!pagesAreOpen) return
-
-        // await new Promise(resolve => setTimeout(resolve, 1000))
-        const viewer = await this.getViewer()
-        this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
-        this.currentOverlays = []
-
-        const tiledImage = viewer.world.getItemAt(this.currentPageIndex)
-        if (tiledImage == null) return
-
-        this.currentOverlays = regions.map(region => {
-          const { overlay, rect } = createRegionOverlay(tiledImage, region, articleUid => {
-            if (this.isDragging) return
-            this.$emit('article-selected', articleUid)
-          })
-          if (article.uid && region.articleUid === article.uid) {
-            overlay.classList.add('active')
-          }
-          viewer.addOverlay(overlay, rect)
-          return overlay
-        })
-
-        // page overlay (page selection background)
-        const { overlay, rect } = createPageOverlay(tiledImage)
-        viewer.addOverlay(overlay, rect)
-        this.currentOverlays.push(overlay)
-
-        if (this.marginaliaPanelLeft == null || this.marginaliaPanelRight == null) {
-          console.error('Marginalia panels are not found')
+    currentPageIndex: {
+      async handler(newIndex: number) {
+        if (this.viewer == null) return
+        if (this.isDragging) {
+          console.debug('[OpenSeadragonArticleViewer] Skipping page change while dragging')
           return
         }
-        // marginalia repositioning
-        viewer.removeOverlay(this.marginaliaPanelLeft.$el)
-        viewer.addOverlay(this.marginaliaPanelLeft.$el, getMarginaliaOverlayRect(tiledImage, false))
+        const image = this.viewer.world.getItemAt(newIndex)
+        const currentItemIndex = getCurrentItemIndex(this.viewer)
 
-        viewer.removeOverlay(this.marginaliaPanelRight?.$el)
-        viewer.addOverlay(this.marginaliaPanelRight?.$el, getMarginaliaOverlayRect(tiledImage, true))
+        if (currentItemIndex !== newIndex) {
+          this.viewer.viewport.panTo(image.getBounds().getCenter(), true)
+        }
+
+        await this.applyMarginaliaAndOverlay(this.viewer, image)
+
+        const loadFrom = Math.max(newIndex - this.neighboursToLoad, 0)
+        const loadTo = Math.min(newIndex + this.neighboursToLoad, this.pages.length - 1)
+        const indicesRange = [...Array(loadTo - loadFrom + 1).keys()].map(i => i + loadFrom)
+
+        indicesRange.forEach(idx => {
+          if (this.realPages.has(idx)) return
+
+          const tiledImage = this.viewer.world.getItemAt(idx)
+          if (tiledImage == null) return
+
+          const page = this.pages[idx]
+
+          // using the bounds of the tiled image to position it correctly
+          // otherwise it will flicker.
+          const { x, y, width } = tiledImage.getBounds()
+
+          this.viewer.addTiledImage({
+            tileSource: page,
+            ...(isAuthRequired(page) ? getAuthOptions() : {}),
+            index: idx,
+            x,
+            y,
+            width,
+            replace: true
+          })
+
+          this.realPages.add(idx)
+        })
+      }
+    },
+    regions: {
+      async handler() {
+        console.debug('[OpenSeadragonArticleViewer] Regions changed, updating overlays')
+        if (this.viewer == null) return
+        const image = this.viewer.world.getItemAt(this.currentPageIndex)
+        if (image == null) return
+        await this.applyMarginaliaAndOverlay(this.viewer, image)
       },
       immediate: true,
-      deep: true,
-    },
+      deep: true
+    }
   },
   components: {
-    MarginaliaPanel,
+    MarginaliaPanel
   }
 })
 </script>
 
 <style lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 .os-article-viewer {
   height: 100%;
   width: 100%;
+}
+
+.marginalia-panel {
+  display: none;
 }
 
 div.overlay-page {
@@ -344,7 +489,6 @@ div.overlay-page {
   box-shadow: 0 0 40px #0005;
   pointer-events: none;
 }
-
 
 .overlay-region {
   background-color: transparentize($clr-accent-secondary, 1);
@@ -359,7 +503,6 @@ div.overlay-page {
     cursor: inherit;
   }
 }
-
 
 @supports (mix-blend-mode: multiply) {
   div.overlay-region {

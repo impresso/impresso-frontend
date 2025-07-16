@@ -319,7 +319,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import 'src/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
 
 $clr-white: #ffffff;
 $clr-grey-100: #17191c;
