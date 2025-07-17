@@ -101,28 +101,21 @@
       <div class="container">
         <div v-for="(record, idx) in contentItem?.audio?.records ?? []" :key="idx">
           <AudioItem
-            :audio-url="record.audioFileUrl"
-            :title="'TODO'"
-            :duration="contentItem?.audio?.duration"
-            :data-provider="contentItem?.meta?.partnerId"
-            :access-rights="contentItem?.access?.copyright"
-            :item-type="contentItem?.text?.itemType!"
-            :media-source="mediaSource"
-            :publication-date="contentItem?.meta?.date"
-            :transcript-length="contentItem?.text?.contentLength"
-            :is-loading="status === 'loading'"
-            :excerpt="contentItem?.text?.snippet"
+            v-if="audioItemData"
+            :item="audioItemData"
+            :is-playing="false"
             :enable-player="true"
-            :current-time="currentTime"
-            @timeupdate="currentTime = $event"
+            @toggleplay="currentTime = 0"
           ></AudioItem>
 
           <TranscriptViewer
             class="mt-3"
-            v-if="contentItem?.text"
-            :content="contentItem?.text?.content"
-            :audio-segments-locators="record.audioSegmentsLocators ?? []"
+            v-if="contentItem?.text && transcriptData.rrrebs.length > 0"
+            :utterances="transcriptData.utterances"
+            :rrrebs="transcriptData.rrrebs"
             :current-time="currentTime"
+            :disabled="false"
+            :debug="false"
             @click="onTranscriptViewerClick"
           ></TranscriptViewer>
         </div>
@@ -142,12 +135,17 @@
 </i18n>
 <script setup lang="ts">
 import { MediaSource } from '@/models'
-import type { ContentItem, ContentItemAudioLocator } from '@/models/generated/schemas/contentItem'
+import type { ContentItem } from '@/models/generated/schemas/contentItem'
 import { contentItems as contentItemsService } from '@/services'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
-import TranscriptViewer from 'impresso-ui-components/components/audioPlayer/TranscriptViewer.vue'
+import TranscriptViewer, {
+  Rrreb,
+  Utterance
+} from 'impresso-ui-components/components/audioPlayer/TranscriptViewer.vue'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+
+import type { AudioItemProps } from 'impresso-ui-components/components/AudioItem.vue'
 
 const route = useRoute()
 
@@ -167,17 +165,115 @@ const mediaSource = computed<MediaSource | null>(() => {
   return null
 })
 
+type IAudioItem = AudioItemProps['item']
+// Adapter for the AudioContentItem component
+const audioItemData = computed<IAudioItem | undefined>(() => {
+  if (!contentItem.value) return undefined
+
+  return {
+    uid: route.params.content_item_uid as string,
+    title: contentItem.value.text?.title,
+    radioChannel: contentItem.value.meta?.mediaId,
+    mediaSource: mediaSource.value!,
+    type: 'audio',
+    duration: contentItem.value.audio?.duration ? Number(contentItem.value.audio.duration) : 0,
+    publicationDate: contentItem.value.meta?.date,
+    dataProvider: contentItem.value.meta?.partnerId,
+    copyright: contentItem.value.access?.copyright,
+    excerpt: contentItem.value.text?.snippet,
+    transcriptLength: contentItem.value.text?.contentLength
+      ? Number(contentItem.value.text.contentLength)
+      : 0,
+    audioSrc: contentItem.value.audio?.records?.[0]?.audioFileUrl,
+    startTime: 0
+  } satisfies IAudioItem
+})
+
+const transcriptData = computed(() => {
+  if (!contentItem.value?.text?.content || !contentItem.value?.audio?.records?.length) {
+    return { utterances: [], rrrebs: [] }
+  }
+
+  const record = contentItem.value.audio.records[0]
+  const segmentLocators = record.audioSegmentsLocators || []
+
+  // Create rrrebs (words with timing)
+  const rrrebs: Rrreb[] = []
+  const content = contentItem.value.text.content || ''
+
+  // Split content into words and create rrrebs
+  const words = content.split(/\s+/).filter(word => word.trim().length > 0)
+
+  // Map words to timing information from segmentLocators if available
+  words.forEach((word, idx) => {
+    // Default timing if no locator found
+    let startTime = idx > 0 ? idx * 0.5 : 0 // Simple approximation if no real timing
+    let endTime = startTime + 0.5
+
+    // Try to find matching locator
+    const locator = segmentLocators.find(
+      loc =>
+        loc.timeCode &&
+        loc.timeCode.length >= 2 && // Ensure it has valid timeCode
+        idx % 5 === 0 // Simplistic approach - assign timestamps to every 5th word
+    )
+    if (locator && locator.timeCode && locator.timeCode.length >= 2) {
+      startTime = locator.timeCode[0]
+      endTime = locator.timeCode[1]
+    }
+
+    rrrebs.push({
+      idx,
+      text: word,
+      startTime,
+      endTime
+    })
+  })
+
+  // Create utterances (paragraphs/segments)
+  const utterances: Utterance[] = []
+
+  // Simple approach: create utterances based on timing or paragraph breaks
+  let currentUtterance: Utterance | null = null
+  const UTTERANCE_MAX_DURATION = 10 // seconds
+
+  rrrebs.forEach((rrreb, idx) => {
+    if (
+      !currentUtterance ||
+      rrreb.startTime - currentUtterance.startTime > UTTERANCE_MAX_DURATION
+    ) {
+      // Start a new utterance
+      if (currentUtterance) {
+        utterances.push(currentUtterance)
+      }
+      currentUtterance = {
+        startTime: rrreb.startTime,
+        endTime: rrreb.endTime,
+        indices: [idx]
+      }
+    } else {
+      // Add to current utterance
+      currentUtterance.indices.push(idx)
+      currentUtterance.endTime = rrreb.endTime
+    }
+  })
+
+  // Add the last utterance if it exists
+  if (currentUtterance) {
+    utterances.push(currentUtterance)
+  }
+
+  return { utterances, rrrebs }
+})
+
 const isContentItemSupported = (item: ContentItem) => {
   return item?.meta?.sourceMedium === 'audio'
 }
 
 const currentTime = ref(0)
 
-const onTranscriptViewerClick = (locator: ContentItemAudioLocator): void => {
-  const startTime = locator.timeCode?.[0]
-  if (startTime != null) {
-    currentTime.value = startTime
-  }
+const onTranscriptViewerClick = (rrreb: Rrreb): void => {
+  currentTime.value = rrreb.startTime
 }
 
 const loadContentItem = async (id: string) => {

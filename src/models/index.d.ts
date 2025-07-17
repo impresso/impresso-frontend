@@ -166,12 +166,6 @@ export interface Utterance {
   indices: number[] // indices of TranscriptPartialText contained in this utterance
 }
 
-export interface Rrreb {
-  idx: number
-  text: string
-  startTime: number
-  endTime: number
-}
 export interface ContentItem {
   uid: string
   type: 'audio' | 'ar' | 'radio_broadcast_episode'

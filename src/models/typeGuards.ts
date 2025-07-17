@@ -12,7 +12,7 @@ export const isRangeBucket = (bucket: any): bucket is SearchFacetRangeBucket => 
 export const isTermOrRangeBucket = (
   bucket: any
 ): bucket is SearchFacetBucket | SearchFacetRangeBucket => {
-  return isTermOrRangeBucket(bucket) || isRangeBucket(bucket)
+  return isTermBucket(bucket) || isRangeBucket(bucket)
 }
 
 export const isBucket = (bucket: any): bucket is Bucket => {
