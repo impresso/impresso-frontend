@@ -43,7 +43,7 @@
           <b-navbar v-if="tab.name === 'overview'">
             <div v-if="description">"<span v-html="description" />" (wikidata)</div>
           </b-navbar>
-          <b-navbar-nav v-if="tab.name === TabArticles || tab.name === 'mentions'" class="px-2">
+          <b-navbar-nav v-if="tab.name === 'content-items' || tab.name === 'mentions'" class="px-2">
             <li>
               <i-dropdown
                 v-model="orderBy"
@@ -59,10 +59,10 @@
 
     <!-- BODY ILayout-->
     <div class="items p-3">
-      <div v-if="tab.name === TabArticles">
+      <div v-if="tab.name === 'content-items'">
         <div v-for="(item, index) in items" :key="index">
           <article-item
-            :item="item"
+            :item="asArticle(item as ContentItem)"
             show-meta
             show-excerpt
             show-entities
@@ -83,7 +83,7 @@
                       :src="`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${entity.wikidata.coordinates.latitude},${entity.wikidata.coordinates.longitude}`"
                       class="border mb-2">
                     </iframe> -->
-              <div :style="preferredImageStyle" />
+              <div :style="preferredImageStyle"></div>
             </div>
 
             <div class="w-75 pl-2">
@@ -97,7 +97,7 @@
               <p>
                 <a
                   v-if="entity.wikidata.birthPlace"
-                  :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.birthPlace.id}`"
+                  :href="`https://www.wikidata.org/wiki/${entity.wikidata.birthPlace.id}`"
                   target="_blank"
                 >
                   {{ entity.wikidata.birthPlace.labels[activeLanguageCode] }},</a
@@ -107,7 +107,7 @@
                 </span>
                 <a
                   v-if="entity.wikidata.deathPlace"
-                  :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.deathPlace.id}`"
+                  :href="`https://www.wikidata.org/wiki/${entity.wikidata.deathPlace.id}`"
                   target="_blank"
                 >
                   {{ entity.wikidata.deathPlace.labels[activeLanguageCode] }},</a
@@ -127,7 +127,7 @@
               <a
                 class="position-absolute border-top border-left px-2 small-caps bg-white"
                 style="right: 0; bottom: 0"
-                :href="`https://www.wikidata.org/wiki/${this.entity.wikidata.id}`"
+                :href="`https://www.wikidata.org/wiki/${entity.wikidata.id}`"
                 target="_blank"
               >
                 Source: <span class="text-serif">W</span>/{{ entity.wikidata.id }}</a
@@ -170,10 +170,14 @@
       </div>
 
       <div v-if="tab.name === 'mentions'">
-        <div v-for="(item, index) in items" :key="index" class="border-bottom mb-3 pb-3">
+        <div
+          v-for="(item, index) in items as EntityMention[]"
+          :key="index"
+          class="border-bottom mb-3 pb-3"
+        >
           <mention-item :item="item" />
           <article-item
-            :item="item.article"
+            :item="asArticle(item.contentItem)"
             show-meta
             show-excerpt
             show-link
@@ -184,7 +188,7 @@
       </div>
     </div>
 
-    <template v-slot:footer v-if="tab.name === TabArticles || tab.name === 'mentions'">
+    <template v-slot:footer v-if="tab.name === 'content-items' || tab.name === 'mentions'">
       <div class="fixed-pagination-footer p-1 m-0 mb-2">
         <pagination
           v-bind:perPage="paginationList.perPage"
@@ -198,28 +202,55 @@
   </i-layout-section>
 </template>
 
-<script>
-import Facet from '@/models/Facet'
-import SearchQuery from '@/models/SearchQuery'
-import Timeline from '@/components/modules/Timeline.vue'
+<script lang="ts">
 import Pagination from '@/components/modules/Pagination.vue'
+import Timeline from '@/components/modules/Timeline.vue'
 import ArticleItem from '@/components/modules/lists/ArticleItem.vue'
 import MentionItem from '@/components/modules/lists/MentionItem.vue'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import Facet, { FacetType } from '@/models/Facet'
+import { getImpressoMetadata } from '@/models/ImpressoMetadata'
+import SearchQuery from '@/models/SearchQuery'
 import { searchFacets as searchFacetsService } from '@/services'
-import { mapStores } from 'pinia'
+import type { FindQuery as FindContentItemsQuery } from '@/services/types/contentItems'
+import type { FindQuery as FindMentionsQuery } from '@/services/types/mentions'
+import type { FindQuery as FindFacetsQuery } from '@/services/types/searchFacets'
 import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { mapStores } from 'pinia'
+import { PropType } from 'vue'
 
-const TabArticles = 'articles'
-const TabMentions = 'mentions'
-const TabOverview = 'overview'
+import Article from '@/models/Article'
+import Bucket from '@/models/Bucket'
+import { EntityMention } from '@/models/generated/schemas'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
+
+type TabId = 'content-items' | 'mentions' | 'overview'
+
+export type EntityFacetType = Exclude<FacetType, 'textReuseCluster' | 'textReusePassage' | 'year'>
+
+export interface IData {
+  entity: any
+  mentions: any[]
+  timevalues: any[]
+  tab: { name?: TabId; label?: string }
+  paginationList: {
+    perPage: number
+    currentPage: number
+    totalRows: number
+  }
+  contentItemsOrderBy: FindContentItemsQuery['order_by']
+  mentionsOrderBy?: FindMentionsQuery['order_by']
+  items: ContentItem[] | EntityMention[]
+  facets: Facet<EntityFacetType>[]
+}
 
 export default {
   props: {
     facetTypes: {
-      type: Array,
+      type: Array as PropType<EntityFacetType[]>,
       default: () => [
         'country',
         'language',
@@ -233,23 +264,22 @@ export default {
       ]
     }
   },
-  data: () => ({
-    entity: null,
-    mentions: [],
-    timevalues: [],
-    tab: {},
-    paginationList: {
-      perPage: 10,
-      currentPage: 1,
-      totalRows: 0
-    },
-    currentOrderBy: '-relevance',
-    items: [],
-    facets: [],
-    TabArticles,
-    TabMentions,
-    TabOverview
-  }),
+  data: (): IData =>
+    ({
+      entity: null,
+      mentions: [],
+      timevalues: [],
+      tab: {},
+      paginationList: {
+        perPage: 10,
+        currentPage: 1,
+        totalRows: 0
+      },
+      contentItemsOrderBy: '-relevance',
+      mentionsOrderBy: undefined,
+      items: [],
+      facets: []
+    }) satisfies IData,
   components: {
     Timeline,
     Pagination,
@@ -260,10 +290,10 @@ export default {
   computed: {
     ...mapStores(useEntitiesStore, useSettingsStore, useUserStore),
     startYear() {
-      return window.impressoDocumentsYearSpan.firstYear
+      return getImpressoMetadata().impressoDocumentsYearSpan?.firstYear
     },
     endYear() {
-      return window.impressoDocumentsYearSpan.lastYear
+      return getImpressoMetadata().impressoDocumentsYearSpan?.lastYear
     },
     preferredImageStyle() {
       return {
@@ -282,8 +312,8 @@ export default {
         name: 'search',
         query: SearchQuery.serialize({
           filters: [{ type: this.entity.type, q: this.entity.uid }]
-        })
-      }
+        }) as LocationQueryRaw
+      } satisfies RouteLocationRaw
     },
     description() {
       if (!this.entity || !this.entity.wikidata || !this.entity.wikidata.descriptions) {
@@ -293,27 +323,36 @@ export default {
     },
     orderBy: {
       get() {
-        return this.currentOrderBy
+        if (this.tab.name === 'content-items') {
+          return this.contentItemsOrderBy
+        } else if (this.tab.name === 'mentions') {
+          return this.mentionsOrderBy
+        }
+        return undefined
       },
       set(value) {
-        this.currentOrderBy = value
+        if (this.tab.name === 'content-items') {
+          this.contentItemsOrderBy = value
+        } else if (this.tab.name === 'mentions') {
+          this.mentionsOrderBy = value
+        }
         this.loadItems()
       }
     },
-    orderByOptions() {
-      const common = [
-        {
-          value: 'date',
-          text: this.$t('sort.publicationDate.asc')
-        },
-        {
-          value: '-date',
-          text: this.$t('sort.publicationDate.desc')
-        }
-      ]
-
-      if (this.tab.name === TabArticles) {
+    orderByOptions(): {
+      value: FindContentItemsQuery['order_by'] | FindMentionsQuery['order_by']
+      text: string
+    }[] {
+      if (this.tab.name === 'content-items') {
         return [
+          {
+            value: 'date',
+            text: this.$t('sort.publicationDate.asc')
+          },
+          {
+            value: '-date',
+            text: this.$t('sort.publicationDate.desc')
+          },
           {
             value: 'relevance',
             text: this.$t('sort.relevanceArticles.asc')
@@ -321,11 +360,18 @@ export default {
           {
             value: '-relevance',
             text: this.$t('sort.relevanceArticles.desc')
-          },
-          ...common
-        ]
+          }
+        ] satisfies {
+          value: FindContentItemsQuery['order_by']
+          text: string
+        }[]
       }
+
       return [
+        {
+          value: undefined,
+          text: this.$t('sort.relevanceArticles.asc')
+        },
         {
           value: 'id',
           text: this.$t('sort.idMentions.asc')
@@ -333,27 +379,29 @@ export default {
         {
           value: '-id',
           text: this.$t('sort.idMentions.desc')
-        },
-        ...common
-      ]
+        }
+      ] satisfies {
+        value: FindMentionsQuery['order_by']
+        text: string
+      }[]
     },
-    tabs() {
+    tabs(): { name: TabId; label: string }[] {
       return [
         {
           label: this.$t('tabs.overview'),
-          name: TabOverview
+          name: 'overview'
         },
         {
-          label: this.$tc('tabs.articles', this.entity.countItems, {
+          label: this.$tc('tabs.contentItems', this.entity.countItems, {
             count: this.$n(this.entity.countItems)
           }),
-          name: TabArticles
+          name: 'content-items'
         },
         {
           label: this.$tc('tabs.mentions', this.entity.countMentions, {
             count: this.$n(this.entity.countMentions)
           }),
-          name: TabMentions
+          name: 'mentions'
         }
       ]
     },
@@ -377,41 +425,51 @@ export default {
     }
   },
   methods: {
+    asArticle(item: ContentItem) {
+      return Article.fromContentItem(item)
+    },
     getEntity() {
-      return this.entitiesStore.loadDetail(this.$route.params.entity_id)
+      return this.entitiesStore.loadDetail(this.$route.params.entity_id as string)
     },
     async loadFacets() {
-      this.entitiesStore.loadTimeline(this.$route.params.entity_id).then(values => {
+      this.entitiesStore.loadTimeline(this.$route.params.entity_id as string).then(values => {
         this.timevalues = values
       })
       this.facets = []
       const query = {
-        facets: this.facetTypes,
+        facets: this.facetTypes as string[],
         filters: [
           {
             type: 'entity',
-            q: [this.$route.params.entity_id]
+            q: [this.$route.params.entity_id as string]
           }
         ]
-      }
+      } satisfies FindFacetsQuery
 
-      this.facets = await searchFacetsService
-        .find({ query })
-        .then(response => response.data.map(item => new Facet(item)))
+      this.facets = await searchFacetsService.find({ query }).then(response =>
+        response.data.map(
+          item =>
+            new Facet({
+              type: item.type as EntityFacetType,
+              buckets: item.buckets.map(b => new Bucket(b)),
+              numBuckets: item.numBuckets
+            })
+        )
+      )
     },
     loadItems(page = 1) {
-      if (this.tab.name === TabArticles) {
-        return this.loadArticles(page)
-      } else if (this.tab.name === TabMentions) {
+      if (this.tab.name === 'content-items') {
+        return this.loadContentItems(page)
+      } else if (this.tab.name === 'mentions') {
         return this.loadMentions(page)
       }
       return this.loadFacets()
     },
-    loadArticles(page = 1) {
+    loadContentItems(page = 1) {
       return this.entitiesStore
-        .loadEntityArticles({
-          page,
-          orderBy: this.currentOrderBy,
+        .loadEntityContentItems({
+          offset: (page - 1) * this.paginationList.perPage,
+          order_by: this.contentItemsOrderBy,
           filters: [
             {
               q: this.$route.params.entity_id,
@@ -431,8 +489,8 @@ export default {
     loadMentions(page = 1) {
       return this.entitiesStore
         .loadEntityMentions({
-          page,
-          orderBy: this.currentOrderBy,
+          offset: (page - 1) * this.paginationList.perPage,
+          order_by: this.mentionsOrderBy,
           filters: [
             {
               q: this.$route.params.entity_id,
@@ -452,13 +510,6 @@ export default {
     },
     onInputPagination(page = 1) {
       return this.loadItems(page)
-    },
-    onHighlight(event, origin) {
-      this.highlights.forEach(vis => {
-        if (vis !== origin) {
-          this[`highlight${vis}`] = event.datum
-        }
-      })
     },
     parseWkDate(wkDate) {
       let numYear = parseInt(wkDate.split('-')[0], 10)
@@ -483,10 +534,10 @@ export default {
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab)
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0]
 
-        if (this.tab.name === TabArticles) {
-          this.currentOrderBy = '-relevance'
-        } else if (this.tab.name === TabMentions) {
-          this.currentOrderBy = 'id'
+        if (this.tab.name === 'content-items') {
+          this.contentItemsOrderBy = undefined
+        } else if (this.tab.name === 'mentions') {
+          this.mentionsOrderBy = 'id'
         }
         // reset item list
         this.items = []
@@ -518,7 +569,7 @@ a:hover {
     "tabs": {
       "mentions": "... mentions | mentioned only once | mentioned {count} times",
       "cooccurrences": "Cooccurrences",
-      "articles": "... related articles | 1 related article | {count} related articles"
+      "contentItems": "... related content items | 1 related content item | {count} related content items"
     }
   }
 }
