@@ -1,42 +1,36 @@
-<template lang="html">
+<template>
   <div class="mention-item item">
     <blockquote v-html="item.context" />
     <b-row>
       <b-col>
-        <div v-if="item.fn == null">
-          <span class="small-caps">Function</span>
-          <span>{{item.fn}}</span>
+        <div v-if="item.confidenceNel != null">
+          <span class="small-caps">NEL confidence</span>
+          <span>{{ item.confidenceNel.toFixed(2) }}%</span>
         </div>
       </b-col>
       <b-col>
-        <div v-if="item.confidence == null">
-          <span class="small-caps">Confidence</span> <span>o{{$t(`confidence.${item.confidence}`)}}</span>
-        </div>
-      </b-col>
-      <b-col>
-        <div v-if="item.demonym == null">
-          <div class="small-caps">demonym</div>
-          {{item.demonym}}
+        <div v-if="item.confidenceNer != null">
+          <span class="small-caps">NER confidence</span>
+          <span>{{ item.confidenceNer.toFixed(2) }}%</span>
         </div>
       </b-col>
     </b-row>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { EntityMention } from '@/models/generated/schemas'
+import { PropType } from 'vue'
+
 export default {
   props: {
-    item: Object,
-    required: {
-      default: true,
-      type: Boolean,
-    },
-  },
-};
+    item: Object as PropType<EntityMention>
+  }
+}
 </script>
 
 <style lang="css">
-blockquote span[ref=match]{
+blockquote span[ref='match'] {
   background-color: gold;
 }
 </style>

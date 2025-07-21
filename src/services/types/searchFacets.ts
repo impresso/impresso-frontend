@@ -16,7 +16,7 @@ interface GetQuery {
   filters?: Filter[]
 }
 
-interface FindQuery extends GetQuery {
+export interface FindQuery extends GetQuery {
   facets?: string[]
 }
 export type SearchFacetsService = Pick<

@@ -54,7 +54,7 @@ type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default class Facet<T extends string = FacetType> {
+export default class Facet<T = FacetType> {
   type: T
   buckets: Bucket[]
   operators: string[]
