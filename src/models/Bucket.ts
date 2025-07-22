@@ -42,6 +42,8 @@ export default class Bucket implements IBucket {
         break
       case 'person':
       case 'location':
+      case 'nag':
+      case 'organisation':
         this.item = new Entity(item)
         break
       case 'newspaper':

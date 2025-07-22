@@ -324,6 +324,30 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      sourceType: {
+        title: 'Source Type | Source Type | Source Types',
+        filterTitle: 'source type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their source type is <b>one of {count} selected</b>',
+        description: 'filter results based on source type',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> available as'
+        }
+      },
+      sourceMedium: {
+        title: 'Source Medium | Source Medium | Source Mediums',
+        filterTitle: 'source medium',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their source medium is <b>one of {count} selected</b>',
+        description: 'filter results based on source medium',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> available as'
+        }
+      },
       collection: {
         title: 'Collection | Collection | Collections',
         filterTitle: 'collection',
@@ -363,6 +387,24 @@ export default {
         description: 'check one or more countries to filter results',
         empty: '(no results)',
         item: 'Country of publication'
+      },
+      nag: {
+        title: 'News Agency | News Agency | News Agencies',
+        filterTitle: 'news agency',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> news agencies applies',
+        description: 'check one or more news agencies to filter results',
+        empty: '(no results)',
+        item: 'News agency'
+      },
+      organisation: {
+        title: 'Organisation | Organisation | Organisations',
+        filterTitle: 'organisation',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> organisations applies',
+        description: 'check one or more organisations to filter results',
+        empty: '(no results)',
+        item: 'Organisation'
       },
       dataDomain: {
         filterTitle: 'Data domain',

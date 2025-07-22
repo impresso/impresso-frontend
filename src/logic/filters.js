@@ -174,7 +174,11 @@ export const SupportedFiltersByContext = Object.freeze({
     'entity-string',
     'entity-type',
     'regex',
-    'textReuseCluster'
+    'textReuseCluster',
+    'organisation',
+    'nag',
+    'sourceType',
+    'sourceMedium'
   ].concat(
     // unsupported fields in new SOLR
     import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS

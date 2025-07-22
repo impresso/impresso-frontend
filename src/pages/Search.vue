@@ -261,7 +261,7 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
-import FacetModel from '@/models/Facet'
+import FacetModel, { FacetType } from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { buildEmptyFacets } from '@/logic/facets'
@@ -289,26 +289,28 @@ import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FacetTypesWithDPFS = ['person', 'location', 'topic']
-
-const FacetTypesWithMultipleValues = [
+const FacetTypes = [
   'language',
   'newspaper',
   'type',
   'country',
   'partner',
   'year',
-  'contentLength'
-].concat(
-  // unsupported fields in new SOLR
-  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
-)
+  'contentLength',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  // DPFS facets
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] satisfies FacetType[]
 
 const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
   ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
   : ''
-
-const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
 
 export interface IData {
   selectedItems: ContentItem[]
@@ -684,8 +686,9 @@ export default defineComponent({
 
         // get remaining facets and enriched filters.
         const facetTypes = [
-          ...FacetTypesWithMultipleValues,
-          ...['person', 'location', 'topic'],
+          ...FacetTypes,
+          // ...FacetTypesWithMultipleValues,
+          // ...['person', 'location', 'topic'],
           ...(this.isLoggedIn ? ['collection'] : [])
         ]
 
