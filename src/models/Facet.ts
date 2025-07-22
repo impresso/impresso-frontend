@@ -17,6 +17,14 @@ export type FacetType =
   | 'newspaper'
   | 'person'
   | 'location'
+  | 'sourceType'
+  | 'sourceMedium'
+  | 'dataDomain'
+  | 'copyright'
+  | 'partner'
+  | 'contentLength'
+  | 'nag'
+  | 'organisation'
 
 /**
  * Read-only array of all supported facet types.
@@ -34,7 +42,13 @@ export const FacetTypes: ReadonlyArray<FacetType> = Object.freeze([
     'language',
     'newspaper',
     'person',
-    'location'
+    'location',
+    'sourceType',
+    'sourceMedium',
+    'dataDomain',
+    'copyright',
+    'partner',
+    'contentLength'
   ])
 ] as const)
 
