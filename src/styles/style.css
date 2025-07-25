@@ -37,6 +37,7 @@
   --impresso-color-black: #343a40;
   --impresso-color-black-alpha-20: rgba(52, 58, 64, 0.2);
   --impresso-color-black-alpha-30: rgba(52, 58, 64, 0.3);
+  --impresso-color-black-alpha-50: rgba(52, 58, 64, 0.5);
   --impresso-color-black-rgb: 52, 58, 64;
 
   --impresso-color-black-deeper: #17191c;
@@ -224,6 +225,19 @@ h6.dropdown-header {
   font-weight: 450;
   font-variation-settings: 'wght' 450;
 }
+
+a {
+  text-decoration-color: var(--impresso-color-black-alpha-30);
+  color: var(--impresso-color-black-deeper);
+}
+a.btn {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration-color: inherit;
+}
+
 .btn-group-sm > .btn,
 .input-group-sm > .input-group-append > .btn {
   font-size: var(--impresso-font-size-smallcaps);
@@ -450,6 +464,7 @@ ul.nav.nav-pills .nav-item .nav-link {
   font-weight: var(--impresso-wght-smallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
   border-bottom: 1px solid transparent;
+  text-decoration: none;
 }
 ul.nav.nav-pills .nav-item.active .nav-link,
 ul.nav.nav-pills .nav-item .nav-link.active {

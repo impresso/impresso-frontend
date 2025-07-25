@@ -2,16 +2,12 @@
   <div v-if="!isAuthenticated && withCallToAction">
     <div v-if="!acceptTermsDateOnLocalStorage">
       You have not accepted the
-      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
-        >Terms of Use</LinkToModal
-      >
+      <LinkToModal :view="ViewTermsOfUse">Terms of Use</LinkToModal>
       yet on this device.
     </div>
     <div v-else>
       You have accepted the
-      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
-        >Terms of Use</LinkToModal
-      >
+      <LinkToModal :view="ViewTermsOfUse">Terms of Use</LinkToModal>
       on this device:
       <span class="date">{{ $d(new Date(acceptTermsDateOnLocalStorage), 'precise') }}</span>
     </div>
@@ -30,20 +26,14 @@
   <div v-else-if="isAuthenticated && withCallToAction">
     <div v-if="acceptTermsDate">
       You have accepted the
-      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
-        >Terms of Use</LinkToModal
-      >:
+      <LinkToModal :view="ViewTermsOfUse">Terms of Use</LinkToModal>:
       <span class="date">{{ $d(new Date(acceptTermsDate), 'precise') }}</span>
     </div>
     <div v-else-if="acceptTermsDateOnLocalStorage && !acceptTermsDate">
-      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
-        >Terms of Use</LinkToModal
-      >
+      <LinkToModal :view="ViewTermsOfUse">Terms of Use</LinkToModal>
     </div>
     <div v-else>
-      <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse"
-        >Terms of Use</LinkToModal
-      >
+      <LinkToModal :view="ViewTermsOfUse">Terms of Use</LinkToModal>
     </div>
   </div>
   <div v-else-if="isAuthenticated && !withCallToAction">

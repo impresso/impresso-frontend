@@ -11,9 +11,7 @@
       />
       <label class="form-check-label font-weight-bold" for="terms-of-use">
         {{ $t('label_read_and_agree') }}
-        <LinkToModal class="text-decoration-underline" :view="ViewTermsOfUse">{{
-          $t('label_ToU_link')
-        }}</LinkToModal>
+        <LinkToModal :view="ViewTermsOfUse">{{ $t('label_ToU_link') }}</LinkToModal>
       </label>
     </div>
   </section>

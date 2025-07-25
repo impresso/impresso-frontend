@@ -533,6 +533,8 @@ export default defineComponent({
     text-overflow: ellipsis;
     overflow: hidden;
     min-width: 50px;
+
+    text-decoration: none;
     > span {
       position: relative;
     }
