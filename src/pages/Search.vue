@@ -270,10 +270,7 @@ import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
   contentItems as contentItemsService,
   searchFacets as searchFacetsService,
-  filtersItems as filtersItemsService,
-  exporter as exporterService,
-  collections as collectionsService,
-  collectionsItems as collectionsItemsService
+  exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
@@ -308,6 +305,8 @@ const FacetTypes = [
   'topic'
 ] satisfies FacetType[]
 
+const UserFacetTypes = ['collection'] satisfies FacetType[]
+
 const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
   ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
   : ''
@@ -322,7 +321,14 @@ export interface IData {
   inputEmbeddings: string
   searchResults: ContentItem[]
   paginationTotalRows: number
-  facets: Facet[]
+  /**
+   * Common facets are expected to be loaded first.
+   */
+  commonFacets: Facet[]
+  /**
+   * User specific facets may take time to load and are not expected to be available immediately.
+   */
+  userFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -339,7 +345,8 @@ export default defineComponent({
       inputEmbeddings: '',
       searchResults: [],
       paginationTotalRows: 0,
-      facets: [],
+      commonFacets: [],
+      userFacets: [],
       visibleModal: null,
       isLoadingResults: false
     } satisfies IData
@@ -502,6 +509,9 @@ export default defineComponent({
     },
     isBaristaEnabled() {
       return (window as any as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
+    },
+    facets() {
+      return this.commonFacets.concat(this.userFacets)
     }
   },
   mounted() {
@@ -515,8 +525,8 @@ export default defineComponent({
     showModal(name) {
       this.visibleModal = name
     },
-    hideModal(name = null) {
-      this.visibleModal = null
+    hideModal(name = undefined) {
+      this.visibleModal = name
     },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
@@ -649,7 +659,7 @@ export default defineComponent({
   },
   watch: {
     searchServiceQuery: {
-      async handler({ page, limit, filters, orderBy, groupBy }) {
+      async handler({ page, limit, filters, orderBy }) {
         console.debug('[Search] @searchServiceQuery')
         const startTime = new Date()
         this.isLoadingResults = true
@@ -682,62 +692,26 @@ export default defineComponent({
         this.$nextTick(() => {
           this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
         })
-        let facets = []
 
-        // get remaining facets and enriched filters.
-        const facetTypes = [
-          ...FacetTypes,
-          // ...FacetTypesWithMultipleValues,
-          // ...['person', 'location', 'topic'],
-          ...(this.isLoggedIn ? ['collection'] : [])
-        ]
+        this.commonFacets = await searchFacetsService
+          .find({
+            query: {
+              facets: FacetTypes,
+              filters: this.searchServiceQuery.filters
+            }
+          })
+          .then(response => response.data.map(f => new FacetModel(f as any)))
 
-        const [extraFacets /* collectionsItemsIndex */] = await Promise.all([
-          searchFacetsService
-            .find({
-              query: {
-                facets: facetTypes,
-                filters: this.searchServiceQuery.filters
-              }
-            })
-            .then(response => response.data)
-          // filtersItemsService
-          //   .find({
-          //     query: {
-          //       filters: this.searchQueryHash,
-          //     },
-          //   })
-          //   .then(joinFiltersWithItems),
-          // this.isLoggedIn
-          //   ? collectionsItemsService
-          //       .find({
-          //         query: {
-          //           item_uids: this.searchResults.map(d => d.id),
-          //           limit: 100
-          //         }
-          //       })
-          //       .then(({ data }) =>
-          //         data.reduce((acc, d) => {
-          //           acc[d.itemId] = d
-          //           return acc
-          //         }, {})
-          //       )
-          //   : {}
-        ])
-        facets = facets.concat(extraFacets)
-        // TODO sort facets based on the right order
-        this.facets = facets.map(f => new FacetModel(f))
-
-        // already added in IML
-        // if (this.isLoggedIn) {
-        //   // add collections.
-        //   this.searchResults = this.searchResults.map(contentItem => {
-        //     if (collectionsItemsIndex[contentItem.id]) {
-        //       article.collections = collectionsItemsIndex[article.uid].collections
-        //     }
-        //     return article
-        //   })
-        // }
+        this.userFacets = this.isLoggedIn
+          ? await searchFacetsService
+              .find({
+                query: {
+                  facets: UserFacetTypes,
+                  filters: this.searchServiceQuery.filters
+                }
+              })
+              .then(response => response.data.map(f => new FacetModel(f as any)))
+          : []
       },
       deep: true,
       immediate: true
