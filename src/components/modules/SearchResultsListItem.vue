@@ -302,47 +302,34 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="css">
 .SearchResultListItem .list-item-details {
   max-width: 800px;
 }
 
-.SearchResultListItem {
-  .thumbnail {
-    width: 250px;
-    height: 240px;
-    position: relative;
-    cursor: move;
-  }
+.SearchResultListItem .thumbnail {
+  width: 250px;
+  height: 240px;
+  position: relative;
+  cursor: move;
+}
 
-  .error {
-    width: 250px;
-    height: 240px;
-    position: relative;
-    text-align: center;
+.SearchResultListItem .error {
+  width: 250px;
+  height: 240px;
+  position: relative;
+  text-align: center;
+}
+.SearchResultListItem .error .message {
+  margin-top: 114px;
+}
 
-    .message {
-      margin-top: 114px;
-    }
-  }
+.SearchResultListItem h2 {
+  font-size: inherit;
+}
 
-  h2 {
-    font-size: 1.2em;
-    font-weight: 500;
-
-    a {
-      text-decoration: underline;
-
-      // text-decoration-color:#ccc;
-      &:hover {
-        text-decoration-color: transparent;
-      }
-    }
-  }
-
-  .article-collections .badge {
-    font-size: inherit;
-  }
+.SearchResultListItem .article-collections .badge {
+  font-size: inherit;
 }
 </style>
 

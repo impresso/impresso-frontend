@@ -1,9 +1,13 @@
 <template>
-  <div class="ItemSelector d-inline" v-on:click.prevent.stop="selectItem" title="See details">
+  <button
+    class="ItemSelector d-inline btn btn-link"
+    v-on:click.prevent.stop="selectItem"
+    title="See details"
+  >
     <slot></slot>
-    <span v-if="label" class="ItemSelector_label underline">{{ label }}</span>
+    <span v-if="label" class="ItemSelector_label">{{ label }}</span>
     <span v-else-if="!hideIcon" class="dripicons-enter icon-link"></span>
-  </div>
+  </button>
 </template>
 
 <script>
@@ -76,13 +80,3 @@ export default {
   }
 }
 </script>
-
-<style lang="css">
-.ItemSelector_label {
-  cursor: pointer;
-}
-.ItemSelector_label:hover,
-.ItemSelector_label.underline {
-  box-shadow: 0 1px 0px 0 black;
-}
-</style>
