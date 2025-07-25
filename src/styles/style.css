@@ -260,7 +260,7 @@ a:hover,
   background-color: #e1e6ea;
 }
 .badge-light {
-  background-color: var(--clr-grey-800);
+  background-color: var(--clr-grey-600);
   color: inherit;
   box-shadow: none !important;
 }
