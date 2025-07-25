@@ -146,7 +146,16 @@ export const useNotificationsStore = defineStore('notifications', {
         // do not force if BadGateway or polling error (risk of having endless and useless loops)
         const errorType = isFeathersError(error) ? error.type : undefined
         const className = isFeathersError(error) ? error.className : undefined
-        if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === errorType).length) {
+
+        if (import.meta.env.MODE === 'development') {
+          console.warn(
+            '[NotificationsStore] displayError',
+            error.name,
+            error.message,
+            error.stack,
+            errorRoute
+          )
+        } else if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === errorType).length) {
           console.info(
             'Error',
             error.name,
