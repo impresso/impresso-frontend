@@ -3,7 +3,7 @@
   <div v-else class="ItemLabel">
     <div v-if="type === 'newspaper'">
       <div><label className="small-caps">newspaper's metadata</label></div>
-      <p v-html="newspaperDetailedLabel"></p>
+      <p class="m-0" v-html="newspaperDetailedLabel"></p>
     </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
@@ -84,20 +84,44 @@ export default defineComponent({
       return t
     },
     newspaperDetailedLabel() {
-      const firstIssueDate =
-        this.item?.firstIssue?.date instanceof Date
-          ? this.$d(this.item?.firstIssue?.date ?? 0, 'short')
-          : this.$d(new Date(this.item?.firstIssue?.date ?? 0), 'short')
-      const lastIssueDate =
-        this.item?.lastIssue?.date instanceof Date
-          ? this.$d(this.item?.lastIssue?.date ?? 0, 'short')
-          : this.$d(new Date(this.item?.lastIssue?.date ?? 0), 'short')
-      return [
-        `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
-        `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
-        `<span class="number">${this.$n(this.item.countIssues)}</span> issues. <br/>`,
-        `Published from: ${firstIssueDate} to ${lastIssueDate}.`
-      ].join(' ')
+      if (!this.item || !Array.isArray(this.item.publishedPeriodYears) || !this.item.totals) {
+        return 'No detailed information available.'
+      }
+      const parts = [
+        `<span class="number">${this.$n(this.item.totals.pages)}</span> pages,`,
+        `<span class="number">${this.$n(this.item.totals.issues)}</span> issues.`
+      ]
+      if (this.item.publishedPeriodYears.length > 0) {
+        const firstYear = this.item.publishedPeriodYears[0]
+        const lastYear = this.item.publishedPeriodYears[this.item.publishedPeriodYears.length - 1]
+        if (firstYear === lastYear) {
+          parts.push(`Published in ${firstYear}.`)
+        } else {
+          parts.push(`Published from ${firstYear} to ${lastYear}.`)
+        }
+      }
+
+      if (Array.isArray(this.item.properties)) {
+        // push institution names
+        const institutionsNames = this.item.properties
+          .filter(p => p.id === 'institutionNames')
+          .map(p => p.value)
+        if (institutionsNames.length > 0) {
+          parts.push(`Owned by ${institutionsNames.join(', ')}.`)
+        } else {
+          parts.push('No institution information available.')
+        }
+
+        const bibRecText = this.item.properties
+          .filter(p => p.id === 'bibRecText')
+          .map(p => p.value)
+          .join(', ')
+        if (bibRecText) {
+          parts.push('<blockquote class="m-2 pl-2 small border-left">', bibRecText, '</blockquote>')
+        }
+      }
+
+      return parts.join(' ')
     }
   },
   methods: {

@@ -5,8 +5,9 @@
       v-if="showLink"
       :uid="item.id"
       :label="title"
-      :item="{ uid: item.id }"
+      :item="{ uid: item.id, name: title }"
       type="partner"
+      :class="titleClass"
     />
     <span v-else :class="titleClass">{{ title }}</span>
   </div>
@@ -34,7 +35,7 @@ export interface DataProviderLabelProps {
 const glob = window as any
 const props = withDefaults(defineProps<DataProviderLabelProps>(), {
   showLink: true,
-  titleClass: 'font-weight-medium text-decoration-underline'
+  titleClass: ''
 })
 
 const title = computed(() => {

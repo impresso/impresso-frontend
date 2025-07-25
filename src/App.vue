@@ -543,18 +543,7 @@ input[type='range']:active::-ms-thumb {
     color: black;
   }
 }
-.badge {
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--bs-box-shadow-sm);
-  font-size: var(--impresso-font-size-smallcaps);
-}
 
-.badge-info {
-  background-color: #049dae;
-}
-.badge-language {
-  background-color: #e1e6ea;
-}
 .ngram-highlight {
   background-color: #17191c;
   color: white;

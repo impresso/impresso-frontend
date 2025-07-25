@@ -13,8 +13,7 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <MediaSourceLabel :item="item.mediaSource" show-link class="d-inline-block" />
-      <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
+      <MediaSourceLabel :item="item.mediaSource" lass="d-inline-block" />
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
 
@@ -22,7 +21,7 @@
         data-testid="article-access-rights"
         v-if="item.dataProvider != null && item.dataProvider.length"
       >
-        {{ $t(`buckets.copyright.${item.copyright}`) }}
+        {{ $t(`buckets.accessRight.${item.accessRight}`) }}
         <DataProviderLabel
           v-if="item.dataProvider"
           :item="{ id: item.dataProvider, name: item.dataProvider }"
@@ -49,30 +48,24 @@
     <slot name="actions"></slot>
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
-      <div v-if="item.locations?.length" data-testid="article-locations">
-        <Ellipsis :initialHeight="100" :maxHeight="200">
-          <b-badge variant="light" class="mr-1 small-caps bg-medium">locations</b-badge>
-          <span class="small" v-for="(location, idx) in item.locations" v-bind:key="idx">
-            <item-selector
-              :uid="location.uid"
-              :label="location.name"
-              :item="location"
-              type="location"
-            />
-            <span v-if="idx !== item.locations.length - 1">, </span>
-          </span>
-        </Ellipsis>
-      </div>
-      <div v-if="item.persons?.length" data-testid="article-persons">
-        <Ellipsis :initialHeight="100" :maxHeight="200">
-          <b-badge variant="light" class="mr-1 small-caps bg-medium">people</b-badge>
-          <span class="small" v-for="(person, idx) in item.persons" v-bind:key="idx">
-            <item-selector :uid="person.uid" :label="person.name" :item="person" type="person" />
-            <span class="small" v-if="idx !== item.persons.length - 1">, </span>
-          </span>
-        </Ellipsis>
+      <div v-for="entityType in ['persons', 'locations', 'organisations']">
+        <div v-if="item[entityType]?.length" data-testid="article-locations">
+          <Ellipsis :initialHeight="100" :maxHeight="200">
+            <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
+            <div v-for="(entity, idx) in item[entityType]" v-bind:key="idx" class="d-inline small">
+              <item-selector
+                :uid="entity.uid"
+                :label="entity.name"
+                :item="entity"
+                :type="entityType"
+              />
+              <span v-if="idx !== item[entityType].length - 1">, </span>
+            </div>
+          </Ellipsis>
+        </div>
       </div>
     </div>
+
     <div
       v-if="showTopics && item.topics?.length"
       class="small article-extras article-topics my-2"

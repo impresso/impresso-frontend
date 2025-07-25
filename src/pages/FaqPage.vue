@@ -20,7 +20,7 @@
             </p>
             <ul class="list-unstyled p-3 px-xl-4">
               <li class="mb-2" v-for="(paragraph, j) in section.paragraphs" :key="paragraph.id">
-                <a :href="'#' + paragraph.id">
+                <a :href="'#' + paragraph.id" class="text-decoration-none">
                   {{ paragraph.title }}
                 </a>
               </li>

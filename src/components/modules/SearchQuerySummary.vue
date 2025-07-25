@@ -348,8 +348,6 @@ export default {
 
   span.item.newspaper,
   span.item.country {
-    font-family: var(--bs-font-serif);
-    font-weight: bold;
     font-weight: var(--impresso-wght-bold);
     font-variation-settings: 'wght' var(--impresso-wght-bold);
   }

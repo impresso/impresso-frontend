@@ -6,20 +6,18 @@
     >
       <!--  header -->
       <template v-slot:header>
-        <div :class="{ 'border-bottom border-secondary': showLines }">
-          <search-tabs focusOnSearch />
-          <div class="py-3 px-3">
-            <search-pills
-              class="bg-dark"
-              :filters="enrichedFilters"
-              @changed="handleFiltersChanged"
-            />
-            <autocomplete
-              body-class="bg-dark"
-              @submitEmpty="onSubmitEmpty"
-              v-on:submit="onSuggestion"
-            />
-          </div>
+        <search-tabs focusOnSearch />
+        <div class="py-3 px-3">
+          <search-pills
+            class="bg-dark"
+            :filters="enrichedFilters"
+            @changed="handleFiltersChanged"
+          />
+          <autocomplete
+            body-class="bg-dark"
+            @submitEmpty="onSubmitEmpty"
+            v-on:submit="onSuggestion"
+          />
         </div>
       </template>
 
@@ -32,7 +30,6 @@
             <span class="text-muted" v-html="$t('release_label')"></span>
             <LinkToModal
               v-if="dataRelease"
-              class="text-decoration-underline"
               :view="ViewDataRundown"
               v-html="dataRelease.releaseVersion"
             ></LinkToModal>
@@ -110,7 +107,7 @@
         <TermsOfUseStatus withCallToAction />
       </div>
     </i-layout-section>
-    <i-layout-section main>
+    <i-layout-section main class="border-0">
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
           <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
@@ -415,8 +412,8 @@ h1.HomePage__hugeHeading,
 }
 .HomePage a {
   color: var(--clr-white);
+  text-decoration-color: var(--impresso-color-yellow);
 }
-
 .HomePage .search-pill span.label.sp-string,
 .search-pill span.label > .sp-string {
   color: black;
