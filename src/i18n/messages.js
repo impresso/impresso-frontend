@@ -61,7 +61,9 @@ export default {
         na: 'not specified (no export)',
         OpenPrivate: 'Personal use',
         Closed: 'Personal use (no export)',
-        OpenPublic: 'Public domain'
+        OpenPublic: 'Public domain',
+        prt: 'in copyright',
+        pbl: 'public domain'
       },
       copyright: {
         in_cpy: 'in copyright',

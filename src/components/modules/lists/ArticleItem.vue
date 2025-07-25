@@ -13,8 +13,7 @@
       </div>
     </slot>
     <div v-if="showMeta" class="article-meta">
-      <MediaSourceLabel :item="item.mediaSource" show-link class="d-inline-block" />
-      <item-selector :uid="item?.newspaper?.uid" :item="item?.newspaper" type="newspaper" /> &nbsp;
+      <MediaSourceLabel :item="item.mediaSource" lass="d-inline-block" />
       <span data-testid="article-date">{{ item.date ? $d(item.date, 'long') : '' }}</span>
       <span data-testid="article-pages-count"> – {{ pages }}</span>
 
@@ -22,7 +21,7 @@
         data-testid="article-access-rights"
         v-if="item.dataProvider != null && item.dataProvider.length"
       >
-        {{ $t(`buckets.copyright.${item.copyright}`) }}
+        {{ $t(`buckets.accessRight.${item.accessRight}`) }}
         <DataProviderLabel
           v-if="item.dataProvider"
           :item="{ id: item.dataProvider, name: item.dataProvider }"

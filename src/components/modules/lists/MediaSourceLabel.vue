@@ -1,20 +1,21 @@
 <template>
   <div class="MediaSourceLabel">
-    <router-link v-if="showLink" :to="routerLinkUrl">
-      <span :class="titleClass">{{ title }}</span
-      >{{ ' ' }}
-      <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
-    </router-link>
-    <div v-else>
-      <span :class="titleClass">{{ title }}</span
-      >{{ ' ' }}
-      <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
-    </div>
+    <ItemSelector
+      v-if="showLink"
+      :uid="item.uid"
+      :label="title"
+      :item="cachedItem"
+      type="newspaper"
+      :class="titleClass"
+    />
+    <span v-else :class="titleClass">{{ title }}</span>
+    {{ ' ' }}
+    <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
   </div>
 </template>
 <script lang="ts" setup>
 import type { MediaSource } from '@/models'
-import { RouterLink } from 'vue-router'
+import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
 
 export interface MediaSourceLabelProps {
@@ -24,26 +25,26 @@ export interface MediaSourceLabelProps {
   titleClass?: string
 }
 
+const glob = window as any
 const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
   showType: true,
-  titleClass: 'font-weight-medium text-decoration-underline'
+  showLink: true,
+  titleClass: ''
 })
 
-const routerLinkUrl = computed(() => ({
-  name: 'newspaper_metadata',
-  params: { newspaper_uid: props.item.uid }
-}))
-
-const glob = window as any
+const cachedItem = computed(() => {
+  if (typeof glob.impressoNewspapers === 'object') {
+    return glob.impressoNewspapers[props.item.uid]
+  }
+  return { uid: props.item.uid, name: props.item.name || props.item.uid }
+})
 
 const title = computed(() => {
-  if (props.item.type === 'newspaper' && typeof glob.impressoNewspapers === 'object') {
-    try {
-      return glob.impressoNewspapers[props.item.uid].name
-    } catch (e) {
-      // debugger
-      return props.item.name || props.item.uid
+  if (typeof glob.impressoNewspapers === 'object' && props.item.type === 'newspaper') {
+    if (props.item.uid in glob.impressoNewspapers) {
+      return glob.impressoNewspapers[props.item.uid].name || props.item.uid
     }
+    return props.item.name || props.item.uid
   }
   return props.item.name || props.item.uid
 })
