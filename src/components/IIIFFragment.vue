@@ -33,23 +33,22 @@
       </div>
     </figure>
     <div v-if="hasErrors" class="bg-light border rounded position-absolute top-0 p-4 text-center">
-      <div v-if="isForbidden">
-        This image is available with a different plan or special membership.
-        <br />
-        Please check your subscription details.
-      </div>
-      <div v-else-if="isNotFound">
-        This image is not available.
-        <br />
-        Details: <em>{{ errorMessage }}</em>
-      </div>
-      <div v-else-if="errorMessage">
-        We ran into a problem while loading the image.<br />
-        Details: <em>{{ errorMessage }}</em>
-      </div>
+      <div v-if="isForbidden" v-html="$t('errorMessageForbidden')" />
+      <div v-else-if="isNotFound" v-html="$t('errorMessageNotFound', { errorMessage })" />
+      <div v-else-if="errorMessage" v-html="$t('errorMessageGeneric', { errorMessage })" />
     </div>
   </div>
 </template>
+
+<i18n lang="json">
+{
+  "en": {
+    "errorMessageForbidden": "This image is available with a different plan or special membership. <br /> Please check your subscription details.",
+    "errorMessageNotFound": "This image is not available. <br /> Details: <em>{ errorMessage }</em>",
+    "errorMessageGeneric": "We ran into a problem while loading the image.<br /> Details: <em>{ errorMessage }</em>. <br/> Please try again later or contact support if the problem persists."
+  }
+}
+</i18n>
 
 <script lang="ts">
 import AuthImg from '@/components/AuthImg.vue'
