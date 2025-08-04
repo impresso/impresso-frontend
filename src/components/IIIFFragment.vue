@@ -2,6 +2,7 @@
   <div class="IIIFFragment">
     <figure class="position-relative IIIFFragment overflow-hidden">
       <auth-img
+        v-if="isIiifReady"
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
@@ -31,11 +32,23 @@
         ></div>
       </div>
     </figure>
-    <div v-if="errorMessage" class="alert alert-danger" role="alert">
-      {{ errorMessage }}
+    <div v-if="hasErrors" class="bg-light border rounded position-absolute top-0 p-4 text-center">
+      <div v-if="isForbidden" v-html="$t('errorMessageForbidden')" />
+      <div v-else-if="isNotFound" v-html="$t('errorMessageNotFound', { errorMessage })" />
+      <div v-else-if="errorMessage" v-html="$t('errorMessageGeneric', { errorMessage })" />
     </div>
   </div>
 </template>
+
+<i18n lang="json">
+{
+  "en": {
+    "errorMessageForbidden": "This image is available with a different plan or special membership. <br /> Please check your subscription details.",
+    "errorMessageNotFound": "This image is not available. <br /> Details: <em>{ errorMessage }</em>",
+    "errorMessageGeneric": "We ran into a problem while loading the image.<br /> Details: <em>{ errorMessage }</em>. <br/> Please try again later or contact support if the problem persists."
+  }
+}
+</i18n>
 
 <script lang="ts">
 import AuthImg from '@/components/AuthImg.vue'
@@ -54,6 +67,9 @@ export interface IParsedSize {
   maintain_aspect_ratio?: boolean
 }
 
+export interface ImageLoadError extends Error {
+  status?: number
+}
 // IIIF v3 spec level1 profile interface
 export interface IIIIFProfile {
   width: number
@@ -79,8 +95,10 @@ export default defineComponent({
       imageHeight: 0,
       isLoaded: false,
       isNotFound: false,
+      isForbidden: false,
       errorMessage: null,
-      adjustedSize: null
+      adjustedSize: null,
+      isIiifReady: false
     }
   },
   props: {
@@ -250,6 +268,9 @@ export default defineComponent({
           h: (h / this.height) * 100
         }
       })
+    },
+    hasErrors() {
+      return this.isNotFound || this.isForbidden || !!this.errorMessage
     }
   },
   methods: {
@@ -259,13 +280,13 @@ export default defineComponent({
       this.imageHeight = target.naturalHeight
       this.isLoaded = true
     },
-    onImageLoadError(e: Error) {
-      this.isNotFound = e['status'] === 404
+    onImageLoadError(e: ImageLoadError) {
+      this.isNotFound = e.status === 404
+      this.isForbidden = e.status === 403
       this.isLoaded = false
-      if (e['status'] !== 404) {
-        this.errorMessage = e.message
-      }
+      this.errorMessage = e.message
     },
+
     requiresAuth(url: string) {
       const authCondition = this.authCondition ?? defaultAuthCondition
       return authCondition(url)
@@ -302,8 +323,8 @@ export default defineComponent({
       }
     },
     async getIIIFInfo() {
+      // iiif url should be without info.json, it is not always the case
       const iiif = this.iiif.replace('/info.json', '')
-      // .replace(String(import.meta.env.VITE_BASE_URL), '')
 
       try {
         const response = await axios.get(`${iiif}/info.json`, {
@@ -313,13 +334,12 @@ export default defineComponent({
         this.width = response.data.width
         this.height = response.data.height
         this.adjustedSize = this.getBestSizeForProfile(this.parsedSize, response.data)
+        this.isIiifReady = true
       } catch (error) {
-        if (error?.response?.status !== 404) {
-          this.errorMessage = `${error.message}: ${iiif}`
-        } else {
-          this.isLoaded = false
-          this.isNotFound = true
-        }
+        this.onImageLoadError({
+          status: error.response?.status,
+          message: error.response?.data?.error || error.message || 'Failed to load IIIF info'
+        } as ImageLoadError)
         this.adjustedSize = this.size
       }
     },
@@ -452,8 +472,8 @@ export default defineComponent({
   components: {
     AuthImg
   },
-  mounted() {
-    this.getIIIFInfo()
+  async mounted() {
+    await this.getIIIFInfo()
     // load iiiif info.json
   }
 })

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import IIIFFragment from './IIIFFragment.vue'
 import { defaultAuthCondition } from '@/util/imageAuth'
+import { http, HttpResponse } from 'msw'
 
 // Define the component metadata
 const meta: Meta<typeof IIIFFragment> = {
@@ -123,10 +124,82 @@ export const Level1: Story = {
   }
 }
 
-// Story showing error state
-export const ErrorState: Story = {
+// Story showing error state Not Found
+export const ErrorStateNotFound: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/non-existent-iiif-url.com/info.json', () => {
+          return HttpResponse.json(
+            {
+              error: 'Not found'
+            },
+            { status: 404 }
+          )
+        })
+      ]
+    }
+  },
   args: {
-    iiif: 'https://non-existent-iiif-url.com/info.json',
+    iiif: '/non-existent-iiif-url.com/info.json',
+    size: 'max',
+    scale: 1,
+    authCondition: defaultAuthCondition
+  }
+}
+
+// Story showing error state Not Found
+export const ErrorStateInfoAndImageForbidden: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // Simulate a forbidden IIIF info request
+        http.get('/forbidden/info.json', () => {
+          return HttpResponse.json(
+            {
+              error: 'Forbidden'
+            },
+            { status: 403 }
+          )
+        }),
+        // Simulate a forbidden image request
+        http.get('/forbidden/full/max/0/default.jpg', () => {
+          return HttpResponse.json(
+            {
+              error: 'Forbidden'
+            },
+            { status: 403 }
+          )
+        })
+      ]
+    }
+  },
+  args: {
+    iiif: '/forbidden/info.json',
+    size: 'max',
+    scale: 1,
+    authCondition: defaultAuthCondition
+  }
+}
+
+// Story showing error state Not Found
+export const ErrorStateGenericError: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/generic-error/info.json', () => {
+          return HttpResponse.json(
+            {
+              error: 'Generic Error'
+            },
+            { status: 500 }
+          )
+        })
+      ]
+    }
+  },
+  args: {
+    iiif: '/generic-error/info.json',
     size: 'max',
     scale: 1,
     authCondition: defaultAuthCondition

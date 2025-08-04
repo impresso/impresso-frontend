@@ -15,8 +15,11 @@
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
-      <div v-else class="error bg-light border">
-        <p class="message">{{ $t('login_message') }}</p>
+      <div
+        v-else
+        class="error rounded bg-light border p-4 d-flex align-items-center justify-content-center"
+      >
+        {{ $t('login_message') }}
       </div>
     </div>
     <div class="media-body">
@@ -320,9 +323,6 @@ export default defineComponent({
   position: relative;
   text-align: center;
 }
-.SearchResultListItem .error .message {
-  margin-top: 114px;
-}
 
 .SearchResultListItem h2 {
   font-size: inherit;
@@ -338,7 +338,7 @@ export default defineComponent({
   "en": {
     "view": "View",
     "add_to_collection": "Save to Collection ...",
-    "login_message": "Login to view image",
+    "login_message": "You need to be signed in to view this image",
     "share_article": "Share ..."
   }
 }
