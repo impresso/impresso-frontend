@@ -31,8 +31,26 @@
         ></div>
       </div>
     </figure>
-    <div v-if="errorMessage" class="alert alert-danger" role="alert">
-      {{ errorMessage }}
+    <div v-if="isForbidden" class="bg-light border rounded position-absolute top-0 p-4 text-center">
+      This image requires a different plan or special membership.
+    </div>
+    <div
+      v-else-if="errorMessage"
+      class="alert alert-danger rounded position-absolute top-0 p-4 text-center"
+      role="alert"
+    >
+      There was an error while loading the image.
+      <br />
+      Error message:
+      <b>{{ errorMessage }}</b>
+    </div>
+    <div
+      v-else-if="infoErrorMessage"
+      class="alert alert-danger rounded position-absolute top-0 p-4 text-center"
+      role="alert"
+    >
+      <b>IIIF info error:</b>
+      {{ infoErrorMessage }}
     </div>
   </div>
 </template>
@@ -79,7 +97,9 @@ export default defineComponent({
       imageHeight: 0,
       isLoaded: false,
       isNotFound: false,
+      isForbidden: false,
       errorMessage: null,
+      infoErrorMessage: null,
       adjustedSize: null
     }
   },
@@ -261,14 +281,17 @@ export default defineComponent({
     },
     onImageLoadError(e: Error) {
       this.isNotFound = e['status'] === 404
+      this.isForbidden = e['status'] === 4030
       this.isLoaded = false
-      if (e['status'] !== 404) {
+      if (!this.isNotFound && !this.isForbidden) {
         this.errorMessage = e.message
       }
     },
     requiresAuth(url: string) {
       const authCondition = this.authCondition ?? defaultAuthCondition
-      return authCondition(url)
+      const result = authCondition(url)
+      console.debug('[IIIFFragment]Checking auth condition for URL:', url, result)
+      return true
     },
     getRequestHeaders(url: string) {
       const headers = this.requiresAuth(url) ? getAuthHeaders(getAuthenticationToken()) : {}
@@ -302,8 +325,8 @@ export default defineComponent({
       }
     },
     async getIIIFInfo() {
+      // iiif url should be without info.json, it is not always the case
       const iiif = this.iiif.replace('/info.json', '')
-      // .replace(String(import.meta.env.VITE_BASE_URL), '')
 
       try {
         const response = await axios.get(`${iiif}/info.json`, {
@@ -315,7 +338,7 @@ export default defineComponent({
         this.adjustedSize = this.getBestSizeForProfile(this.parsedSize, response.data)
       } catch (error) {
         if (error?.response?.status !== 404) {
-          this.errorMessage = `${error.message}: ${iiif}`
+          this.infoErrorMessage = `${error.message}: ${iiif}`
         } else {
           this.isLoaded = false
           this.isNotFound = true
@@ -452,8 +475,8 @@ export default defineComponent({
   components: {
     AuthImg
   },
-  mounted() {
-    this.getIIIFInfo()
+  async mounted() {
+    await this.getIIIFInfo()
     // load iiiif info.json
   }
 })

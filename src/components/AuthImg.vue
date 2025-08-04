@@ -44,6 +44,7 @@ const loadImage = async () => {
     if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
     imageSrc.value = URL.createObjectURL(blob)
   } catch (error) {
+    console.error('Error loading image:', error)
     emit('error', error)
   }
 }
