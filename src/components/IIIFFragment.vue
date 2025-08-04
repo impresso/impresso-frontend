@@ -2,6 +2,7 @@
   <div class="IIIFFragment">
     <figure class="position-relative IIIFFragment overflow-hidden">
       <auth-img
+        v-if="isIiifReady"
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
@@ -31,26 +32,21 @@
         ></div>
       </div>
     </figure>
-    <div v-if="isForbidden" class="bg-light border rounded position-absolute top-0 p-4 text-center">
-      This image requires a different plan or special membership.
-    </div>
-    <div
-      v-else-if="errorMessage"
-      class="alert alert-danger rounded position-absolute top-0 p-4 text-center"
-      role="alert"
-    >
-      There was an error while loading the image.
-      <br />
-      Error message:
-      <b>{{ errorMessage }}</b>
-    </div>
-    <div
-      v-else-if="infoErrorMessage"
-      class="alert alert-danger rounded position-absolute top-0 p-4 text-center"
-      role="alert"
-    >
-      <b>IIIF info error:</b>
-      {{ infoErrorMessage }}
+    <div v-if="hasErrors" class="bg-light border rounded position-absolute top-0 p-4 text-center">
+      <div v-if="isForbidden">
+        This image is available with a different plan or special membership.
+        <br />
+        Please check your subscription details.
+      </div>
+      <div v-else-if="isNotFound">
+        This image is not available.
+        <br />
+        Details: <em>{{ errorMessage }}</em>
+      </div>
+      <div v-else-if="errorMessage">
+        We ran into a problem while loading the image.<br />
+        Details: <em>{{ errorMessage }}</em>
+      </div>
     </div>
   </div>
 </template>
@@ -99,8 +95,8 @@ export default defineComponent({
       isNotFound: false,
       isForbidden: false,
       errorMessage: null,
-      infoErrorMessage: null,
-      adjustedSize: null
+      adjustedSize: null,
+      isIiifReady: false
     }
   },
   props: {
@@ -270,6 +266,9 @@ export default defineComponent({
           h: (h / this.height) * 100
         }
       })
+    },
+    hasErrors() {
+      return this.isNotFound || this.isForbidden || !!this.errorMessage
     }
   },
   methods: {
@@ -279,19 +278,17 @@ export default defineComponent({
       this.imageHeight = target.naturalHeight
       this.isLoaded = true
     },
-    onImageLoadError(e: Error) {
-      this.isNotFound = e['status'] === 404
-      this.isForbidden = e['status'] === 4030
+    onImageLoadError(e: Error & { status?: number }) {
+      this.isNotFound = e.status === 404
+      this.isForbidden = e.status === 403
       this.isLoaded = false
-      if (!this.isNotFound && !this.isForbidden) {
-        this.errorMessage = e.message
-      }
+      this.errorMessage = e.message
     },
+
     requiresAuth(url: string) {
       const authCondition = this.authCondition ?? defaultAuthCondition
       const result = authCondition(url)
-      console.debug('[IIIFFragment]Checking auth condition for URL:', url, result)
-      return true
+      return result
     },
     getRequestHeaders(url: string) {
       const headers = this.requiresAuth(url) ? getAuthHeaders(getAuthenticationToken()) : {}
@@ -336,13 +333,12 @@ export default defineComponent({
         this.width = response.data.width
         this.height = response.data.height
         this.adjustedSize = this.getBestSizeForProfile(this.parsedSize, response.data)
+        this.isIiifReady = true
       } catch (error) {
-        if (error?.response?.status !== 404) {
-          this.infoErrorMessage = `${error.message}: ${iiif}`
-        } else {
-          this.isLoaded = false
-          this.isNotFound = true
-        }
+        this.onImageLoadError({
+          status: error.response?.status,
+          message: error.response?.data?.error || error.message || 'Failed to load IIIF info'
+        } as Error & { status?: number })
         this.adjustedSize = this.size
       }
     },
