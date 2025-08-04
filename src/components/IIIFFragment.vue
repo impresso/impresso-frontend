@@ -67,6 +67,9 @@ export interface IParsedSize {
   maintain_aspect_ratio?: boolean
 }
 
+export interface ImageLoadError extends Error {
+  status?: number
+}
 // IIIF v3 spec level1 profile interface
 export interface IIIIFProfile {
   width: number
@@ -277,7 +280,7 @@ export default defineComponent({
       this.imageHeight = target.naturalHeight
       this.isLoaded = true
     },
-    onImageLoadError(e: Error & { status?: number }) {
+    onImageLoadError(e: ImageLoadError) {
       this.isNotFound = e.status === 404
       this.isForbidden = e.status === 403
       this.isLoaded = false
@@ -286,8 +289,7 @@ export default defineComponent({
 
     requiresAuth(url: string) {
       const authCondition = this.authCondition ?? defaultAuthCondition
-      const result = authCondition(url)
-      return result
+      return authCondition(url)
     },
     getRequestHeaders(url: string) {
       const headers = this.requiresAuth(url) ? getAuthHeaders(getAuthenticationToken()) : {}
@@ -337,7 +339,7 @@ export default defineComponent({
         this.onImageLoadError({
           status: error.response?.status,
           message: error.response?.data?.error || error.message || 'Failed to load IIIF info'
-        } as Error & { status?: number })
+        } as ImageLoadError)
         this.adjustedSize = this.size
       }
     },
