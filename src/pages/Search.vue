@@ -36,67 +36,10 @@
 
     <i-layout-section main>
       <template v-slot:header>
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
-            <label class="mr-1">{{ $t('label_group') }}</label>
-            <i-dropdown
-              v-model="groupBy"
-              v-bind:options="groupByOptions"
-              size="sm"
-              variant="outline-primary"
-              data-testid="group-by-dropdown"
-            ></i-dropdown>
-          </b-navbar-nav>
-          <b-navbar-nav class="px-3 py-3 border-right">
-            <label class="mr-1">{{ $t('label_order') }}</label>
-            <i-dropdown
-              v-model="orderBy"
-              v-bind:options="orderByOptions"
-              size="sm"
-              variant="outline-primary"
-              right
-              data-testid="order-by-dropdown"
-            ></i-dropdown>
-          </b-navbar-nav>
-        </b-navbar>
-
-        <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
-          <div class="flex-grow-1">
-            <span class="small-caps">
-              {{ $tc('items_selected', selectedItems.length) }}
-            </span>
-            <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
-              {{ $t('Clear Selection') }}
-            </b-button>
-            <collection-add-to
-              :items="selectedItems"
-              :text="$tc('add_n_to_collection', selectedItems.length)"
-              class="addbulk bg-white float-right"
-            />
-          </div>
-        </b-navbar>
-
-        <b-navbar class="d-flex p-0 border-bottom bg-light">
-          <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
-            <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
-                :isLoading="isLoadingResults"
-                @onSummary="onSummary"
-                :group-by="groupBy"
-                :search-query="{ filters: enrichedFilters }"
-                :totalRows="paginationTotalRows"
-              />
-            </ellipsis>
-          </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-3 gap-2">
-            <CopyToDatalabButton
-              :base64Filters="base64Filters"
-              resource="search"
-              functionName="find"
-              :public-api-url="publicApiUrl"
-            />
+        <PageNavbarHeading :label="$t('pageLabel')" :title="$t('pageTitle')">
+          <template #actions>
             <RouterLink
-              class="mr-1 btn btn-sm btn-outline-primary"
+              class="mr-2 btn btn-sm btn-outline-primary"
               :to="{
                 name: 'compare',
                 query: {
@@ -106,55 +49,36 @@
             >
               {{ $t('actions.compare') }}
             </RouterLink>
-            <b-dropdown
-              v-if="isLoggedIn"
-              v-bind:text="$t('query_actions')"
+            <CopyToDatalabButton
+              :base64Filters="base64Filters"
+              resource="search"
+              functionName="find"
+              :public-api-url="publicApiUrl"
+            />
+          </template>
+          <template #summary>
+            <ellipsis v-bind:initialHeight="60">
+              <search-results-summary
+                :isLoading="isLoadingResults"
+                @onSummary="onSummary"
+                :group-by="groupBy"
+                :search-query="{ filters: enrichedFilters }"
+                :totalRows="paginationTotalRows"
+              />
+            </ellipsis>
+          </template>
+          <template #summaryActions>
+            <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
+            <i-dropdown
+              v-model="orderBy"
+              v-bind:options="orderByOptions"
               size="sm"
               variant="outline-primary"
               right
-              class="bg-white mr-3"
-            >
-              <b-dropdown-item
-                v-if="selectedItems.length > 0"
-                @click="showModal('nameSelectionCollection')"
-              >
-                <span class="dripicons-checklist pr-1"></span>
-                {{ $tc('add_n_to_collection', selectedItems.length) }}
-              </b-dropdown-item>
-              <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
-                <span class="dripicons-export pr-1"></span>
-                {{ $t('selected_export_csv') }}
-              </b-dropdown-item>
-              <b-dropdown-item @click="showModal('nameCollection')">
-                <span class="dripicons-archive pr-1"></span>
-                {{ $t('query_add_to_collection') }}
-              </b-dropdown-item>
-              <b-dropdown-item v-on:click="exportQueryCsv">
-                <span class="dripicons-export pr-1"></span>
-                {{ $t('query_export_csv') }}
-                <info-button
-                  placement="left"
-                  name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
-                  right
-                  class="float-right"
-                  :offset-options="{
-                    crossAxis: 100,
-                    mainAxis: 20
-                  }"
-                />
-              </b-dropdown-item>
-            </b-dropdown>
-            <!-- <b-form-checkbox
-              v-if="isLoggedIn"
-              class="mx-1"
-              v-bind:title="$t('select_all')"
-              v-bind:indeterminate="this.allIndeterminate"
-              v-bind:modelValue="this.allSelected"
-              @update:modelValue="toggleSelectAll"
-            >
-            </b-form-checkbox> -->
-          </b-navbar-nav>
-        </b-navbar>
+              data-testid="order-by-dropdown"
+            ></i-dropdown>
+          </template>
+        </PageNavbarHeading>
       </template>
 
       <Modal
@@ -264,6 +188,7 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import FacetModel, { FacetType } from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -739,7 +664,8 @@ export default defineComponent({
     Modal,
     CopyToDatalabButton,
     BaristaButton,
-    AuthGate
+    AuthGate,
+    PageNavbarHeading
   }
 })
 </script>
@@ -785,6 +711,8 @@ export default defineComponent({
 <i18n lang="json">
 {
   "en": {
+    "pageTitle": "Search Text",
+    "pageLabel": "Search ",
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",
