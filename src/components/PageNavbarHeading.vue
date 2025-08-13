@@ -4,7 +4,7 @@
     variant="light"
     class="p-0 align-items-stretch justify-content-between border-bottom"
   >
-    <b-navbar-nav class="py-2 px-3">
+    <b-navbar-nav class="px-3 py-2">
       <div>
         <slot name="label">
           <span class="label small-caps"> {{ label }} </span>
@@ -14,7 +14,7 @@
         </slot>
       </div>
     </b-navbar-nav>
-    <b-navbar-nav v-if="!!$slots.actions" class="border-start border-left py-2 px-3">
+    <b-navbar-nav v-if="!!$slots.actions" class="border-start border-left px-3 py-2">
       <slot name="actions" />
     </b-navbar-nav>
   </b-navbar>
@@ -25,7 +25,7 @@
     <b-navbar-nav v-if="!!$slots.summary" class="px-3 py-2 flex-grow-1">
       <slot name="summary" />
     </b-navbar-nav>
-    <b-navbar-nav v-if="!!$slots.summaryActions" class="px-3 p-y2 border-left">
+    <b-navbar-nav v-if="!!$slots.summaryActions" class="px-3 py-2 border-left">
       <slot name="summaryActions" />
     </b-navbar-nav>
   </b-navbar>

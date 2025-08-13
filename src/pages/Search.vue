@@ -38,6 +38,17 @@
       <template v-slot:header>
         <PageNavbarHeading :label="$t('pageLabel')" :title="$t('pageTitle')">
           <template #actions>
+            <RouterLink
+              class="mr-2 btn btn-sm btn-outline-primary"
+              :to="{
+                name: 'compare',
+                query: {
+                  left: searchQueryHash
+                }
+              }"
+            >
+              {{ $t('actions.compare') }}
+            </RouterLink>
             <CopyToDatalabButton
               :base64Filters="base64Filters"
               resource="search"
@@ -57,7 +68,7 @@
             </ellipsis>
           </template>
           <template #summaryActions>
-            <label class="mr-2">{{ $t('label_order') }}</label>
+            <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
             <i-dropdown
               v-model="orderBy"
               v-bind:options="orderByOptions"
