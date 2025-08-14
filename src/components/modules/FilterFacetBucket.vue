@@ -4,6 +4,7 @@
     </b-form-checkbox>
 
     <item-selector
+      v-if="bucket.item"
       hide-icon
       :uid="bucket.val"
       :item="bucket.item"
