@@ -93,3 +93,8 @@ export const AvailableFeedbackOptions = [
   FeedbackOptionDocumentLoadingIssue,
   FeedbackOptionOtherIssue
 ]
+
+export const DatalabPublicApiUrl =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_DATALAB_PUBLIC_API_URL
+    ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
+    : ''
