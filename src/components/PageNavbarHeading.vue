@@ -14,7 +14,10 @@
         </slot>
       </div>
     </b-navbar-nav>
-    <b-navbar-nav v-if="!!$slots.actions" class="border-start border-left px-3 py-2">
+    <b-navbar-nav
+      v-if="!!$slots.actions"
+      class="border-start border-left px-3 py-2 align-items-end"
+    >
       <slot name="actions" />
     </b-navbar-nav>
   </b-navbar>
@@ -25,7 +28,7 @@
     <b-navbar-nav v-if="!!$slots.summary" class="px-3 py-2 flex-grow-1">
       <slot name="summary" />
     </b-navbar-nav>
-    <b-navbar-nav v-if="!!$slots.summaryActions" class="px-3 py-2 border-left">
+    <b-navbar-nav v-if="!!$slots.summaryActions" class="px-3 py-2 border-left align-items-end">
       <slot name="summaryActions" />
     </b-navbar-nav>
   </b-navbar>

@@ -208,6 +208,7 @@ import { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -231,10 +232,6 @@ const FacetTypes = [
 ] satisfies FacetType[]
 
 const UserFacetTypes = ['collection'] satisfies FacetType[]
-
-const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
-  ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
-  : ''
 
 export interface IData {
   selectedItems: ContentItem[]
@@ -301,7 +298,7 @@ export default defineComponent({
       })
     },
     publicApiUrl() {
-      return publicApiUrl
+      return DatalabPublicApiUrl
     },
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map(value => ({

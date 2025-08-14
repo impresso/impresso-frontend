@@ -85,6 +85,9 @@ export default class TextReuseCluster implements IEntity {
    * @returns TextReuseCluster object
    */
   static fromTextReusePassage(item) {
+    if (!item) {
+      return undefined
+    }
     if (!item.textReuseCluster) return undefined
 
     const maxDate = new Date(item.date)

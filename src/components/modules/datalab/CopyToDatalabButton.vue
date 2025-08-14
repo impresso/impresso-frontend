@@ -80,7 +80,7 @@ const publicApiUrlAsPythonArg = computed<string>(() => {
 const initialCode = `from impresso import connect
 
 # Connect to the Impresso Public API
-impresso = connect(${publicApiUrlAsPythonArg.value})
+impresso_session = connect(${publicApiUrlAsPythonArg.value})
 
 `
 
@@ -107,7 +107,7 @@ watchEffect(async () => {
   if (result.code.indexOf('AND(') > 0) logical_ops_required.push('AND')
   if (result.code.indexOf('OR(') > 0) logical_ops_required.push('OR')
   if (result.code.indexOf('NOT(') > 0) logical_ops_required.push('NOT')
-  const initialCode = result.code
+  const initialCode = result.code.replace('impresso.', 'impresso_session.')
   let reducedCode = '' + initialCode
   if (logical_ops_required.length > 1) {
     reducedCode = `from impresso import (${logical_ops_required.join(', ')})\n\n${initialCode}`
