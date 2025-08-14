@@ -1,10 +1,8 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar type="light" variant="light">
-        <section class="pt-2 pb-1 w-100">
-          <span class="label small-caps">{{ $t('textReuse').toLowerCase() }}</span>
-
+      <PageNavbarHeading :title="$t('textReuse')" :label="$t('textReuse')">
+        <template #title>
           <h3 class="mb-1">
             <span v-if="isLoading"> ... (loading) </span>
             <span>{{ $t('routes.' + $route.name) }}</span>
@@ -12,43 +10,48 @@
               <InfoButton name="text-reuse" class="ml-1" />
             </small>
           </h3>
-          <section class="TextReuseExplorerPage_summary">
-            <Ellipsis class="textbox-fancy text-serif" :initialHeight="60" :maxHeight="0">
-              <span v-html="incipit" />
-              <SearchQuerySummary
-                v-on:updated="summaryUpdatedHandler"
-                :search-query="{ filters: supportedFiltersWithItems }"
-              />
-            </Ellipsis>
-            <div class="d-flex ml-2 gap-2">
-              <CopyToDatalabButton
-                :base64Filters="base64Filters"
-                resource="text_reuse.clusters"
-                functionName="find"
-              />
-              <AddToCollection
-                @item:click="handleAddToCollectionClick"
-                @create="handleAddToCollectionCreate"
-                :title="$t('addTrQueryResultsToCollection')"
-                right
+        </template>
+        <template #summary>
+          <Ellipsis class="textbox-fancy text-serif" :initialHeight="60" :maxHeight="0">
+            <span v-html="incipit" />{{ ' ' }}
+            <SearchQuerySummary
+              class="d-inline"
+              v-on:updated="summaryUpdatedHandler"
+              :search-query="{ filters: supportedFiltersWithItems }"
+            />
+          </Ellipsis>
+        </template>
+        <template #actions>
+          <CopyToDatalabButton
+            :base64Filters="base64Filters"
+            resource="text_reuse.clusters"
+            functionName="find"
+            :public-api-url="DatalabPublicApiUrl"
+          />
+        </template>
+        <template #summaryActions>
+          <AddToCollection
+            @item:click="handleAddToCollectionClick"
+            @create="handleAddToCollectionCreate"
+            :title="$t('addTrQueryResultsToCollection')"
+            right
+          >
+            <template v-slot:empty>
+              <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
+              <b-button
+                size="sm"
+                class="small-caps rounded shadow-sm mt-3"
+                variant="outline-secondary"
+                @click="showCreateCollectionModal()"
               >
-                <template v-slot:empty>
-                  <span class="text-muted d-block">{{ $t('no_collections_found') }}</span>
-                  <b-button
-                    size="sm"
-                    class="small-caps rounded shadow-sm mt-3"
-                    variant="outline-secondary"
-                    @click="showCreateCollectionModal()"
-                  >
-                    <span class="dripicons-archive pr-1"></span>
-                    {{ $t('query_add_to_collection') }}
-                  </b-button>
-                </template>
-              </AddToCollection>
-            </div>
-          </section>
-        </section>
-      </b-navbar>
+                <span class="dripicons-archive pr-1"></span>
+                {{ $t('query_add_to_collection') }}
+              </b-button>
+            </template>
+          </AddToCollection>
+        </template>
+      </PageNavbarHeading>
+
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
           <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseOverview' }">
@@ -250,6 +253,8 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import SearchQuery from '@/models/SearchQuery'
+import PageNavbarHeading from './PageNavbarHeading.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 
 const supportedSearchIndexFilters = filter =>
   SupportedFiltersByContext.textReusePassages.includes(filter.type)
@@ -281,7 +286,8 @@ export default {
     AddToCollection,
     ConfirmModal,
     ItemLabel,
-    CopyToDatalabButton
+    CopyToDatalabButton,
+    PageNavbarHeading
   },
   props: {
     /** @type {import('vue').PropOptions<Number>} */
@@ -303,6 +309,7 @@ export default {
     }
   },
   data: () => ({
+    DatalabPublicApiUrl,
     summary: '',
     clusters: [],
     totalClusters: -1,
