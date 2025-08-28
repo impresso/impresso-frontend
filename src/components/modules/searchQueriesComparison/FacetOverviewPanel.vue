@@ -12,7 +12,7 @@
           </span>
         </div>
         <div class="col p-0 align-self-end">
-          <li class="form-inline display-style">
+          <li v-if="maxValues.length > 0" class="form-inline display-style">
             <form class="form-inline">
               <radio-group
                 :modelValue="displayStyle"
@@ -98,21 +98,62 @@
 </template>
 
 <script lang="ts">
-import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
-import Timeline from '@/components/modules/Timeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import { Bucket } from '@/models'
-import { search } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import { PropType } from 'vue'
-import { isBucket } from '@/models/typeGuards'
+import Timeline from '@/components/modules/Timeline.vue'
+import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
+import { Bucket } from '@/models'
 import { FacetType } from '@/models/Facet'
+import { isBucket } from '@/models/typeGuards'
+import { PropType } from 'vue'
 
-const DisplayStyles = ['percent', 'sum']
+type DisplayStyle = 'percent' | 'sum'
+const DisplayStyles: DisplayStyle[] = ['percent', 'sum']
 
-const timelineValuesSorter = (a, b) => a.t - b.t
+export interface TimelineValue {
+  w: number
+  t: number
+}
 
-function fillEmptyYearsWithZeros(timelineValues, timelineRange: [number, number] | []) {
+const timelineValuesSorter = (a: TimelineValue, b: TimelineValue) => a.t - b.t
+
+function bucketsToTimelineValues(
+  buckets: Bucket[],
+  displayStyle: DisplayStyle,
+  maxBuckets?: Bucket[]
+): TimelineValue[] {
+  if (!buckets.length) return []
+
+  const maxBucketsLookup = maxBuckets
+    ? maxBuckets.reduce(
+        (acc, bucket) => {
+          acc[bucket.val] = bucket.count
+          return acc
+        },
+        {} as { [key: string]: number }
+      )
+    : null
+
+  const timelineValues = buckets
+    .map(({ val, count }) => {
+      const maxValue =
+        displayStyle === 'percent' && maxBucketsLookup ? maxBucketsLookup[val] : undefined
+
+      const w = displayStyle === 'percent' ? (maxValue != undefined ? count / maxValue : 1) : count
+      return {
+        t: typeof val === 'string' ? parseInt(val, 10) : val,
+        w
+      }
+    })
+    .sort(timelineValuesSorter)
+
+  return timelineValues
+}
+
+function fillEmptyYearsWithZeros(
+  timelineValues: TimelineValue[],
+  timelineRange?: [number, number]
+) {
   if (!timelineRange) return timelineValues
   const [rangeMin, rangeMax] = timelineRange
   const presentYears = timelineValues.map(({ t }) => t)
@@ -133,8 +174,7 @@ function fillEmptyYearsWithZeros(timelineValues, timelineRange: [number, number]
 }
 
 export interface IData {
-  displayStyle: string
-  cachedUnfilteredCounts?: { [key: string]: number }
+  displayStyle: DisplayStyle
 }
 
 export default {
@@ -154,6 +194,11 @@ export default {
     },
     values: {
       type: Array as PropType<Bucket[]>,
+      default: () => [],
+      validator: (v: any[]) => v.map(isBucket).reduce((acc, v) => acc && v, true)
+    },
+    maxValues: {
+      type: Array as PropType<Bucket[] | undefined>,
       default: () => [],
       validator: (v: any[]) => v.map(isBucket).reduce((acc, v) => acc && v, true)
     },
@@ -181,45 +226,26 @@ export default {
     RadioGroup
   },
   computed: {
-    /** @returns {string} */
-    title() {
+    title(): string {
       return this.$tc(`label.${this.facet}.title`, this.values.length || 1)
     },
-    /** @returns {{w: number, t: number}[]} */
-    timelineValues() {
-      let v = this.values
-        .map(({ val, count }) => ({
-          t: typeof val === 'string' ? parseInt(val, 10) : val,
-          w: count
-        }))
-        .sort(timelineValuesSorter)
-
-      if (this.displayStyle === 'percent' && this.cachedUnfilteredCounts != null) {
-        v = v.map(({ t, w }) => {
-          // @ts-ignore
-          const total = this.cachedUnfilteredCounts[t]
-          if (total > 0) return { t, w: w / total }
-          return { t, w: 0 }
-        })
-      }
-
-      return fillEmptyYearsWithZeros(v, this.timelineDomainRange)
+    timelineValues(): TimelineValue[] {
+      const values = bucketsToTimelineValues(this.values, this.displayStyle, this.maxValues)
+      return fillEmptyYearsWithZeros(values, this.timelineDomainRange)
     },
-    timelineDomainRange(): [number, number] | [] {
+    timelineDomainRange(): [number, number] | undefined {
       if (this.timelineDomain.length === 2) {
         return this.timelineDomain as [number, number]
       }
       const keys = this.values
         .map(({ val }) => (typeof val === 'string' ? parseFloat(val) : val))
         .sort()
-      return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : []
+      return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : undefined
     },
-    /** @returns {number} */
-    numberOfAvailableBucketsToLoad() {
+    numberOfAvailableBucketsToLoad(): number {
       return this.numBuckets - this.values.length
     },
-    /** @returns {any[]} */
-    displayStyleOptions() {
+    displayStyleOptions(): { text: string; value: DisplayStyle }[] {
       return DisplayStyles.map(value => ({
         text: this.$t(`label.display.${value}`),
         value
@@ -227,37 +253,17 @@ export default {
     }
   },
   methods: {
-    /** @param {object} data */
-    onHighlight(data) {
+    onHighlight(data: any) {
       this.$emit('timeline-highlight', { facetId: this.facet, data })
     },
     onHighlightOff() {
       this.$emit('timeline-highlight-off', { facetId: this.facet })
     },
-    /** @param {object} val */
-    onHoverBar(val) {
+    onHoverBar(val: any) {
       this.$emit('hovered', String(val))
     },
     handleLoadMore() {
       this.$emit('load-more-items')
-    }
-  },
-  watch: {
-    /** @param {string} value */
-    async displayStyle(value) {
-      // percent value against total number of articles per year
-      if (value === 'percent' && this.cachedUnfilteredCounts == null) {
-        const query = {
-          limit: 0,
-          facets: 'year',
-          group_by: 'articles'
-        }
-        const response = await search.find({ query })
-        this.cachedUnfilteredCounts = response.info.facets.year.buckets.reduce((acc, bucket) => {
-          acc[bucket.val] = bucket.count
-          return acc
-        }, {})
-      }
     }
   }
 }

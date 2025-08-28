@@ -115,6 +115,7 @@ import { Navigation } from '@/plugins/Navigation'
 import { Filter } from '@/models'
 import { SearchFacet, SearchFacetBucket, SearchFacetRangeBucket } from '@/models/generated/schemas'
 import { isBucket, isTermOrRangeBucket } from '@/models/typeGuards'
+import { FacetType } from '@/models/Facet'
 
 type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 
@@ -264,6 +265,7 @@ export interface IData {
    */
   facets: [FacetContainer['id'], FacetContainer['visualisationType']][]
   queriesResults: [QueryResult | undefined, QueryResult | undefined, QueryResult | undefined]
+  maxValues: Record<Extract<FacetContainer['id'], 'year'>, IBucket[]>
   additionalBuckets: { [key: string]: IBucket[] }[]
   comparisonResult?: any
   /**
@@ -294,6 +296,7 @@ export default {
         ['location', 'bars']
       ],
       queriesResults: [undefined, undefined /*{ type: 'intersection' }*/, undefined],
+      maxValues: { year: [] },
       additionalBuckets: [{}, {}, {}],
       comparisonResult: undefined,
       collections: [],
@@ -369,6 +372,8 @@ export default {
     }
   },
   async mounted() {
+    this.maxValues.year = await this.getMaxValues('year', 100000)
+
     // @todo: remove collections prefecth
     // get collections on created.
     const { data } = await collections.find().catch(err => {
@@ -515,7 +520,8 @@ export default {
             return {
               isLoaded: result?.facets != null,
               buckets,
-              numBuckets: item?.numBuckets ?? item?.buckets?.length ?? 0
+              numBuckets: item?.numBuckets ?? item?.buckets?.length ?? 0,
+              maxValues: this.maxValues[facetId] ?? []
             } satisfies ComparableItem
           }
         )
@@ -583,6 +589,12 @@ export default {
     Spinner
   },
   methods: {
+    async getMaxValues(facetId: FacetType, limit?: number) {
+      const result = await searchFacets.get(facetId, {
+        query: { limit }
+      })
+      return result?.buckets ?? []
+    },
     async getQueryResult(comparable: Comparable): Promise<QueryResult | undefined> {
       if (comparableIsEmpty(comparable)) return
 
