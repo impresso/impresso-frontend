@@ -1,8 +1,9 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
 import Topic from '@/models/Topic'
-import { Facet } from '../models'
+import { Bucket, Facet } from '../models'
 import Year from '@/models/Year'
+import { ComponentCustomProperties } from 'vue'
 
 export interface TimelineValue {
   val: string
@@ -110,36 +111,33 @@ export const buildEmptyFacets = facetTypes =>
   searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
 
 const LabelExtractors = {
-  /** @param {Bucket} bucket */
-  name: bucket => bucket?.item?.name,
-  /** @param {Bucket} bucket */
-  topic: bucket => {
+  name: (bucket?: Bucket): string | undefined => bucket?.item?.name,
+  topic: (bucket?: Bucket): string | undefined => {
     const item = bucket?.item != null ? new Topic(bucket.item) : bucket?.item
     return item != null ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}` : undefined
   },
-  /** @param {Bucket} bucket */
-  year: bucket => bucket?.item?.y ?? bucket.val,
-  /**
-   * @param {Bucket} bucket
-   * @param {string} type
-   * @param {import('vue/types/vue').Vue} vueInstance
-   */
-  translated: (bucket, type, vueInstance) => {
-    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket.val}`)
+  year: (bucket?: Bucket): string | undefined => {
+    const val = bucket?.item?.y ?? bucket?.val
+    return val != null ? String(val) : undefined
+  },
+  translated: (
+    bucket: Bucket | undefined,
+    type: string,
+    vueInstance: ComponentCustomProperties
+  ) => {
+    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket?.val}`)
   }
 }
 
 /**
  * This is derived from `ItemLabel.vue`. Given a filter return its title
  * as string (ItemLabel returns HTML). This label is useful for SVG labels.
- *
- * @param {Bucket} bucket
- * @param {string} type
- * @param {import('vue/types/vue').Vue} vueInstance
- *
- * @returns {string}
  */
-export function getBucketLabel(bucket, type, vueInstance) {
+export function getBucketLabel(
+  bucket: Bucket | undefined,
+  type: string,
+  vueInstance: ComponentCustomProperties
+): string | undefined {
   const extractor =
     {
       location: LabelExtractors.name,
@@ -150,5 +148,7 @@ export function getBucketLabel(bucket, type, vueInstance) {
       year: LabelExtractors.year
     }[type] ?? LabelExtractors.translated
 
-  return extractor(bucket, type, vueInstance) ?? bucket.val
+  const label = extractor(bucket, type, vueInstance) ?? bucket?.val
+
+  return label != null ? String(label) : undefined
 }

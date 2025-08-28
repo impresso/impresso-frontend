@@ -494,8 +494,8 @@ export default {
               return {
                 intersection: bucket.count,
                 label,
-                left: leftBucket.count,
-                right: rightBucket.count
+                left: leftBucket?.count,
+                right: rightBucket?.count
               }
             })
             .sort(SortingMethods[this.barSortingMethod]) ?? []
