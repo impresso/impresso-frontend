@@ -58,6 +58,7 @@
             :type="facet.visualisationType"
             :values="comparableItem.buckets"
             :numBuckets="comparableItem.numBuckets"
+            :max-values="comparableItem.maxValues"
             @timeline-highlight="onTimelineHighlight"
             @timeline-highlight-off="onTimelineHighlightOff"
             @hovered="onHovered"
@@ -90,6 +91,7 @@ type HandleFacetItemClickedParams = Partial<Pick<ActivateParameters, 'item' | 't
 
 export interface ComparableItem {
   buckets: Bucket[]
+  maxValues?: Bucket[]
   isLoaded: boolean
   numBuckets: number
 }
