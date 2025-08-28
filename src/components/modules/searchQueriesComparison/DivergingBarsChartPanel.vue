@@ -64,55 +64,48 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import DivergingBarsChart from '@/components/modules/vis/DivergingBarsChart.vue'
+import { PropType } from 'vue'
 
-/**
- * @typedef {{ left: number, right: number, intersection: number, label: string }} FacetItem
- * @typedef {{ id: string, items: FacetItem[], numBuckets: number }} FacetContainer
- */
+export interface FacetItem {
+  left: number
+  right: number
+  intersection: number
+  label: string
+}
+
+export interface FacetContainer {
+  id: string
+  items: FacetItem[]
+  numBuckets: number
+}
 
 export default {
   props: {
-    /** @type {import('vue').PropOptions<FacetContainer[]>} */
     facets: {
-      type: Array,
+      type: Array as PropType<FacetContainer[]>,
       default: () => [],
       required: true
     },
-    /** @type {import('vue').PropOptions<string>} */
     scale: {
       type: String,
       default: 'linear'
     },
-    /** @type {import('vue').PropOptions<(number) => string>} */
     roundValueFn: {
-      type: Function,
+      type: Function as PropType<(number) => string>,
       default: undefined
     }
   },
   methods: {
-    /**
-     * @param {number} intersectionValue
-     * @param {number} comparableValue
-     * @returns {string}
-     */
-    getIntersection(intersectionValue, comparableValue) {
+    getIntersection(intersectionValue: number, comparableValue: number): string {
       const v = (intersectionValue / comparableValue) * 100
-      console.log('VV', v)
       return `${this.$n(v)}%`
     },
-    /**
-     * @param {FacetContainer} facet
-     * @returns {number}
-     */
-    getNumberOfAvailableBucketsToLoad(facet) {
+    getNumberOfAvailableBucketsToLoad(facet: FacetContainer): number {
       return facet.numBuckets - facet.items.length
     },
-    /**
-     * @param {FacetContainer} facet
-     */
-    handleLoadMore(facet) {
+    handleLoadMore(facet: FacetContainer) {
       this.$emit('load-more-items', facet)
     }
   },
