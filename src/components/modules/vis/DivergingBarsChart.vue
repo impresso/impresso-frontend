@@ -97,7 +97,6 @@ export default {
     },
     tooltipData: {
       handler() {
-        console.log(this.tooltipData)
         this.render()
       },
       deep: true
@@ -119,7 +118,6 @@ export default {
             isActive: false,
             item: undefined
           }
-      console.log('boom', this.tooltipData)
     }
   }
 }
