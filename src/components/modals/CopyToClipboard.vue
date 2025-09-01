@@ -314,7 +314,7 @@ export default {
     },
     iframeCaptionCode() {
       const date = this.$d(this.article.date, 'long')
-      const url = `${import.meta.env.VITE_BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
+      const url = `${import.meta.env.BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
       return [
         `<div style="color: ${this.textColor}">`,
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
