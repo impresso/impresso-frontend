@@ -600,13 +600,29 @@ export default {
       const query = {
         ...comparableToQuery(comparable),
         limit: 25,
-        facets: this.facets.map(([facetType]) => facetType)
+        // get year separately because we need all values for the timeline
+        facets: this.facets
+          .map(([facetType]) => facetType)
+          .filter(facetType => facetType !== 'year')
         // group_by: 'articles'
+      }
+
+      const yearQuery = {
+        ...comparableToQuery(comparable),
+        limit: 999,
+        facets: ['year']
       }
 
       const { type, id } = comparable
 
       const resultPromise = searchFacets.find({ query }).then(result => ({
+        id,
+        type,
+        title: '',
+        facets: result.data,
+        total: result.total
+      }))
+      const yearPromise = searchFacets.find({ query: yearQuery }).then(result => ({
         id,
         type,
         title: '',
@@ -633,11 +649,14 @@ export default {
               })
           : Promise.resolve('')
 
-      const [result, collectionTitle, total] = await Promise.all([
+      const [result, yearResult, collectionTitle, total] = await Promise.all([
         resultPromise,
+        yearPromise,
         collectionTitlePromise,
         totalPromise
       ])
+
+      result.facets = result.facets.concat(yearResult.facets)
 
       if (type === ComparableTypes.Collection) result.title = collectionTitle
 
