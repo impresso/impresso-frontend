@@ -10,7 +10,7 @@
           v-if="article?.pages?.length"
           :iiif="article.pages[0].iiif"
           size="!496,480"
-          :scale="0.5"
+          :scale="1"
           fit-to-regions
           :regions="computedRegionsInArticleFirstPage"
         />

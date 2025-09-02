@@ -85,6 +85,43 @@ export interface ICoords {
   h: number
 }
 
+/**
+ * The coordinatest provided may be incorrect (out of bounds, negative, covering area outside image...).
+ * This function ensures the coordinates are valid and within the image dimensions.
+ * If the region is completely out of bounds (x and y start outside image), it will return
+ * the full image coordinates.
+ */
+const sanitizeCoordinates = (coords: ICoords, imageWidth: number, imageHeight: number): ICoords => {
+  const { x, y, w, h } = coords
+
+  // If region is completely out of bounds, return full image coordinates
+  if (x >= imageWidth || y >= imageHeight || x < 0 || y < 0) {
+    return {
+      x: 0,
+      y: 0,
+      w: imageWidth,
+      h: imageHeight
+    }
+  }
+
+  // Clamp coordinates to image bounds
+  const sanitizedX = Math.max(0, Math.min(x, imageWidth))
+  const sanitizedY = Math.max(0, Math.min(y, imageHeight))
+
+  // Adjust width and height to stay within image bounds
+  const maxWidth = imageWidth - sanitizedX
+  const maxHeight = imageHeight - sanitizedY
+  const sanitizedW = Math.max(1, Math.min(w, maxWidth))
+  const sanitizedH = Math.max(1, Math.min(h, maxHeight))
+
+  return {
+    x: sanitizedX,
+    y: sanitizedY,
+    w: sanitizedW,
+    h: sanitizedH
+  }
+}
+
 export default defineComponent({
   name: 'IIIFFragment',
   data() {
@@ -124,7 +161,7 @@ export default defineComponent({
     },
     coords: {
       // IIIF size parameter
-      type: Object
+      type: Object as PropType<ICoords>
     },
     regions: {
       type: Array as PropType<{ coords?: ICoords }[]>,
@@ -223,7 +260,11 @@ export default defineComponent({
       const size = this.adjustedSize ?? this.size
 
       if (this.regions.length && this.fitToRegions) {
-        const coords = this.getCoordsFromArticleRegions()
+        const coords = sanitizeCoordinates(
+          this.getCoordsFromArticleRegions(),
+          this.width,
+          this.height
+        )
         if (coords.w * coords.h < this.coordMinArea) {
           return `${iiif}/full/${size}/0/default.jpg`
         }
@@ -231,7 +272,7 @@ export default defineComponent({
       }
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
-        const { x, y, w, h } = this.coords
+        const { x, y, w, h } = sanitizeCoordinates(this.coords, this.width, this.height)
         return `${iiif}/${x},${y},${w},${h}/${size}/0/default.jpg`
       }
       return `${iiif}/full/${size}/0/default.jpg`
