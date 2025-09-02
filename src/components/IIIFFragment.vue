@@ -154,6 +154,12 @@ export default defineComponent({
       type: String,
       default: 'max'
     },
+    extension: {
+      // Image format extension (jpg or png)
+      type: String,
+      default: 'png',
+      validator: (value: string) => ['jpg', 'png'].includes(value)
+    },
     scale: {
       // scale down size parameter when printing image
       type: Number,
@@ -258,6 +264,7 @@ export default defineComponent({
       let iiif = this.iiif.replace('/info.json', '')
 
       const size = this.adjustedSize ?? this.size
+      const format = `default.${this.extension}`
 
       if (this.regions.length && this.fitToRegions) {
         const coords = sanitizeCoordinates(
@@ -266,16 +273,16 @@ export default defineComponent({
           this.height
         )
         if (coords.w * coords.h < this.coordMinArea) {
-          return `${iiif}/full/${size}/0/default.jpg`
+          return `${iiif}/full/${size}/0/${format}`
         }
-        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${size}/0/default.jpg`
+        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${size}/0/${format}`
       }
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
         const { x, y, w, h } = sanitizeCoordinates(this.coords, this.width, this.height)
-        return `${iiif}/${x},${y},${w},${h}/${size}/0/default.jpg`
+        return `${iiif}/${x},${y},${w},${h}/${size}/0/${format}`
       }
-      return `${iiif}/full/${size}/0/default.jpg`
+      return `${iiif}/full/${size}/0/${format}`
     },
     computedRegionsStyle() {
       return {
