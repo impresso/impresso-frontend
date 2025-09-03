@@ -22,6 +22,7 @@
       :only-range-labels="true"
       :scale-type="'symlog'"
       :sliderValue="value"
+      :show-tooltip="true"
       @change="changeValue"
     />
 
