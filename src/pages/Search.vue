@@ -50,11 +50,50 @@
               {{ $t('actions.compare') }}
             </RouterLink>
             <CopyToDatalabButton
+              class="mr-2"
               :base64Filters="base64Filters"
               resource="search"
               functionName="find"
               :public-api-url="publicApiUrl"
             />
+            <b-dropdown
+              v-if="isLoggedIn"
+              v-bind:text="$t('query_actions')"
+              size="sm"
+              variant="outline-primary"
+              right
+              class="bg-white"
+            >
+              <b-dropdown-item
+                v-if="selectedItems.length > 0"
+                @click="showModal('nameSelectionCollection')"
+              >
+                <span class="dripicons-checklist pr-1"></span>
+                {{ $tc('add_n_to_collection', selectedItems.length) }}
+              </b-dropdown-item>
+              <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
+                <span class="dripicons-export pr-1"></span>
+                {{ $t('selected_export_csv') }}
+              </b-dropdown-item>
+              <b-dropdown-item @click="showModal('nameCollection')">
+                <span class="dripicons-archive pr-1"></span>
+                {{ $t('query_add_to_collection') }}
+              </b-dropdown-item>
+              <b-dropdown-item v-on:click="exportQueryCsv">
+                <span class="dripicons-export pr-1"></span>
+                {{ $t('query_export_csv') }}
+                <info-button
+                  placement="left"
+                  name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
+                  right
+                  class="float-right"
+                  :offset-options="{
+                    crossAxis: 100,
+                    mainAxis: 20
+                  }"
+                />
+              </b-dropdown-item>
+            </b-dropdown>
           </template>
           <template #summary>
             <ellipsis v-bind:initialHeight="60">
