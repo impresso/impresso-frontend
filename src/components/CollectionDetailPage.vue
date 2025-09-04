@@ -381,7 +381,7 @@ export default defineComponent({
         'location',
         'topic',
         'partner',
-        'accessRight'
+        'copyright'
       ],
       isConfirmDeleteModalVisible: false
     }) as IData,
@@ -709,14 +709,13 @@ export default defineComponent({
             // group_by: 'articles',
           }
         })
-        .then(
-          facet =>
-            new Facet({
-              type,
-              buckets: facet.buckets.map(b => new Bucket(b)),
-              numBuckets: facet.numBuckets
-            })
-        )
+        .then(facet => {
+          return new Facet({
+            type,
+            buckets: facet.buckets.map(b => new Bucket({ ...b, type })),
+            numBuckets: facet.numBuckets
+          })
+        })
     }
   }
 })
