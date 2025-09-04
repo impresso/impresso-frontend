@@ -50,6 +50,8 @@ export const DefaultFacetTypesForIndex = Object.freeze({
     'partner',
     'person',
     'location',
+    'organisation',
+    'nag',
     'year'
   ]),
   tr_clusters: Object.freeze(['newspaper']),

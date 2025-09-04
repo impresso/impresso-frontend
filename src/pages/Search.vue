@@ -251,7 +251,7 @@ import { DatalabPublicApiUrl } from '@/constants'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FacetTypes = [
+export const FacetTypes = [
   'language',
   'newspaper',
   'type',
