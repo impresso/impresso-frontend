@@ -1,6 +1,12 @@
 import type { Entity as IEntity } from '.'
 import Issue from './Issue'
 
+export interface INewspaperProperty {
+  label: string
+  name: string
+  value: string
+}
+
 /**
  * @class Issue is an object representing a newspaper issue
  * @param {String} acronym Three Letter Acronym (TLA) for the newspaper
@@ -22,7 +28,7 @@ export default class Newspaper implements IEntity {
   name: string
   startYear: number
   uid: string
-  properties: string[]
+  properties: INewspaperProperty[]
   firstIssue: Issue | null
   lastIssue: Issue | null
   included: boolean
@@ -39,7 +45,6 @@ export default class Newspaper implements IEntity {
     name = '',
     startYear = 0,
     uid = '',
-    id = '',
     properties = [],
     firstIssue = null,
     lastIssue = null,

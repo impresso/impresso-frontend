@@ -1,11 +1,5 @@
 <template>
   <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop>
-    <!-- <div v-if="isActive" class="monitor drop-shadow bg-light" v-on:click.stop :class="{'invisible': isDragging}"
-  draggable="true"
-  v-on:dragstart="dragstart($event)"
-  v-on:dragend="dragend($event)"
-  v-bind:style="transformStyle"
-  > -->
     <div class="d-flex my-2 align-items-center">
       <b-tabs pills class="px-2" style="flex-grow: 1">
         <template v-slot:tabs-end>
@@ -41,18 +35,12 @@
                   <div v-if="tooltipScope.tooltip.item">
                     {{ $d(tooltipScope?.tooltip?.item?.t ?? 0, 'year') }} &middot;
                     <b>{{ tooltipScope.tooltip.item.w }}</b> {{ groupBy }}
-                    <!-- <br />
-                    <span class="contrast" v-if="tooltipScope.tooltip.item.w1 > 0">
-                    &mdash; <b>{{ percent(tooltipScope.tooltip.item.w1, tooltipScope.tooltip.item.w) }}%</b>
-                    ({{ tooltipScope.tooltip.item.w1 }}) {{ contrastLabel }}
-                    </span> -->
                   </div>
                 </template>
               </timeline>
             </div>
           </div>
-          <!-- {{ path }}
-          {{ searchQueryFilters }} -->
+
           <div class="mx-3">
             <b-form-group class="m-0">
               <b-form-checkbox v-model="applyCurrentSearchFilters">

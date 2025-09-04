@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import { FacetType } from '@/models/Facet'
+import Newspaper from '@/models/Newspaper'
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
@@ -84,16 +85,18 @@ export default defineComponent({
       return t
     },
     newspaperDetailedLabel() {
-      if (!this.item || !Array.isArray(this.item.publishedPeriodYears) || !this.item.totals) {
+      const newspaperItem = this.item as Newspaper
+
+      if (!newspaperItem) {
         return 'No detailed information available.'
       }
       const parts = [
-        `<span class="number">${this.$n(this.item.totals.pages)}</span> pages,`,
-        `<span class="number">${this.$n(this.item.totals.issues)}</span> issues.`
+        `<span class="number">${this.$n(newspaperItem.countPages)}</span> pages,`,
+        `<span class="number">${this.$n(newspaperItem.countIssues)}</span> issues.`
       ]
-      if (this.item.publishedPeriodYears.length > 0) {
-        const firstYear = this.item.publishedPeriodYears[0]
-        const lastYear = this.item.publishedPeriodYears[this.item.publishedPeriodYears.length - 1]
+      if (newspaperItem.startYear != null && newspaperItem.endYear != null) {
+        const firstYear = newspaperItem.startYear
+        const lastYear = newspaperItem.endYear
         if (firstYear === lastYear) {
           parts.push(`Published in ${firstYear}.`)
         } else {
@@ -101,10 +104,10 @@ export default defineComponent({
         }
       }
 
-      if (Array.isArray(this.item.properties)) {
+      if (Array.isArray(newspaperItem.properties)) {
         // push institution names
-        const institutionsNames = this.item.properties
-          .filter(p => p.id === 'institutionNames')
+        const institutionsNames = newspaperItem.properties
+          .filter(p => p.name === 'institutionNames')
           .map(p => p.value)
         if (institutionsNames.length > 0) {
           parts.push(`Owned by ${institutionsNames.join(', ')}.`)
@@ -112,8 +115,8 @@ export default defineComponent({
           parts.push('No institution information available.')
         }
 
-        const bibRecText = this.item.properties
-          .filter(p => p.id === 'bibRecText')
+        const bibRecText = newspaperItem.properties
+          .filter(p => p.name === 'bibRecText')
           .map(p => p.value)
           .join(', ')
         if (bibRecText) {
