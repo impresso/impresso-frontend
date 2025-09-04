@@ -167,7 +167,8 @@ export default {
       person: 'person',
       human: 'human',
       newsagency: 'news agency',
-      organisation: 'organisation'
+      organisation: 'organisation',
+      item: 'undefined type'
     },
     groupBy: {
       images: 'images',
@@ -406,7 +407,11 @@ export default {
         selected: 'filter results if <b>one of {count} selected</b> organisations applies',
         description: 'check one or more organisations to filter results',
         empty: '(no results)',
-        item: 'Organisation'
+        item: 'Organisation',
+        context: {
+          include: 'mentioned',
+          exclude: '<b>NOT</b> mentioned'
+        }
       },
       dataDomain: {
         filterTitle: 'Data domain',
