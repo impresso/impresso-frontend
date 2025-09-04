@@ -465,13 +465,17 @@ export default defineComponent({
           name: TAB_ARTICLES
         }
       ]
-      const recommendationsTab = {
-        label: this.$t('tabs.recommendations'),
-        name: TAB_RECOMMENDATIONS
-      }
-      return this.$route.params.collection_uid != null
-        ? mainTabs.concat([recommendationsTab])
-        : mainTabs
+      return mainTabs
+
+      // recommendations are hidden for now
+      // https://github.com/impresso/impresso-frontend/issues/1669
+      // const recommendationsTab = {
+      //   label: this.$t('tabs.recommendations'),
+      //   name: TAB_RECOMMENDATIONS
+      // }
+      // return this.$route.params.collection_uid != null
+      //   ? mainTabs.concat([recommendationsTab])
+      //   : mainTabs
     },
     recommendersSettings: {
       /** @returns {import('impresso-jscommons').CollectionRecommendersSettings|undefined} */
