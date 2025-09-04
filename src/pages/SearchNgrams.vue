@@ -207,6 +207,8 @@ const AllowedFilterTypes = [
   'newspaper',
   'partner',
   'person',
+  'nag',
+  'organisation',
   // 'string',
   // 'title',
   'topic',
@@ -295,7 +297,7 @@ export default {
         const query = {
           filters: filters.map(toCanonicalFilter),
           limit: 25,
-          facets: SupportedFacetTypes
+          facets: SupportedFacetTypes.filter(t => t !== 'collection')
           // group_by: 'articles'
         }
         const facets = await searchFacetsService.find({ query }).then(result => {

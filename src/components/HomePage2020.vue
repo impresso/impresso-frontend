@@ -249,26 +249,9 @@ import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
 import LinkToModal from './LinkToModal.vue'
 import { ViewDataRundown, ViewPlans } from '@/constants'
+import { FacetTypes } from '../pages/Search.vue'
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  'issue',
-  'language',
-  'location',
-  'newspaper',
-  'newspaper',
-  'partner',
-  'person',
-  'string',
-  'title',
-  'topic',
-  'type',
-  'year',
-  'daterange'
-]
+const AllowedFilterTypes = FacetTypes
 
 export default {
   data: () => ({
