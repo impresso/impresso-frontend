@@ -157,7 +157,10 @@ export default defineComponent({
     extension: {
       // Image format extension (jpg or png)
       type: String,
-      default: 'png',
+      /**
+       * NOTE: `jpg` is the most widely supported format across IIIF servers. It's safer to use it everywhere.
+       */
+      default: 'jpg',
       validator: (value: string) => ['jpg', 'png'].includes(value)
     },
     scale: {
