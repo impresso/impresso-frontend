@@ -77,41 +77,16 @@
         </template>
       </timeline>
 
-      <div class="row my-3 mx-2">
-        <div class="col-lg-12 col-xl-6">
-          <h3 class="my-3 small-caps font-weight-bold">
-            List of known metadata for this newspaper
-          </h3>
-          <table class="table border rounded">
-            <thead class="small-caps font-weight-bold">
-              <tr>
-                <th>metadata</th>
-                <th>value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="prop in newspaper.properties" v-bind:key="prop.name">
-                <td>{{ prop.label }}</td>
-                <td>
-                  <a :href="prop.value" target="_blank" v-if="prop.isUrl">{{ prop.value }}</a>
-                  <span v-else>
-                    {{ prop.value }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="col-lg-12 col-xl-6">
-          <div class="row">
-            <div class="col-lg-12 col-xl-6" v-for="(facet, idx) in facets" v-bind:key="idx">
-              <stacked-bars-panel
-                class=""
-                :label="facet.type"
-                :buckets="facet.buckets"
-                :facet-type="facet.type"
-              />
-            </div>
+      <div class="col my-3 mx-2">
+        <metadata-table :properties="newspaper.properties" initial-collapsed="true" />
+        <div class="row">
+          <div class="col-lg-12 col-xl-6" v-for="(facet, idx) in facets" v-bind:key="idx">
+            <stacked-bars-panel
+              class=""
+              :label="facet.type"
+              :buckets="facet.buckets"
+              :facet-type="facet.type"
+            />
           </div>
         </div>
       </div>
@@ -150,6 +125,7 @@ import Pagination from './modules/Pagination.vue'
 import Timeline from './modules/Timeline.vue'
 import IssueItem from './modules/lists/IssueItem.vue'
 import StackedBarsPanel from './modules/vis/StackedBarsPanel.vue'
+import MetadataTable from './modules/MetadataTable.vue'
 import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
@@ -368,7 +344,8 @@ export default {
     IssueItem,
     BNavbar,
     BNavItem,
-    BNavbarNav
+    BNavbarNav,
+    MetadataTable
   }
 }
 </script>
@@ -407,16 +384,8 @@ export default {
     }
   }
 
-  .b-table {
-    background-color: white;
-
-    th {
-    }
-
-    td[aria-colindex='2'] {
-      overflow-wrap: anywhere;
-      font-size: smaller;
-    }
+  .min-w-table {
+    min-width: 400px;
   }
 }
 </style>
