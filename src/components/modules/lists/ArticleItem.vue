@@ -249,6 +249,9 @@ export default defineComponent({
 }
 
 .ArticleItem.reference {
+  display: flex;
+  flex-direction: column;
+
   h2,
   .article-meta {
     font-size: inherit;

@@ -175,7 +175,7 @@
           :key="index"
           class="border-bottom mb-3 pb-3"
         >
-          <mention-item :item="item" />
+          <mention-item :item="item" class="ml-2" />
           <article-item
             :item="asArticle(item.contentItem)"
             show-meta
