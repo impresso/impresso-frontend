@@ -1,20 +1,20 @@
 <template>
   <div class="mention-item item">
     <blockquote v-html="item.context" />
-    <b-row>
-      <b-col>
+    <b-col>
+      <b-row>
         <div v-if="item.confidenceNel != null">
-          <span class="small-caps">NEL confidence</span>
+          <span class="small-caps label">NEL confidence</span>
           <span>{{ item.confidenceNel.toFixed(2) }}%</span>
         </div>
-      </b-col>
-      <b-col>
+      </b-row>
+      <b-row>
         <div v-if="item.confidenceNer != null">
-          <span class="small-caps">NER confidence</span>
+          <span class="small-caps label">NER confidence</span>
           <span>{{ item.confidenceNer.toFixed(2) }}%</span>
         </div>
-      </b-col>
-    </b-row>
+      </b-row>
+    </b-col>
   </div>
 </template>
 
@@ -32,5 +32,10 @@ export default {
 <style lang="css">
 blockquote span[ref='match'] {
   background-color: gold;
+}
+.mention-item {
+  .label {
+    margin-right: 1em;
+  }
 }
 </style>
