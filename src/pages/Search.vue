@@ -107,15 +107,17 @@
             </ellipsis>
           </template>
           <template #summaryActions>
-            <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
-            <i-dropdown
-              v-model="orderBy"
-              v-bind:options="orderByOptions"
-              size="sm"
-              variant="outline-primary"
-              right
-              data-testid="order-by-dropdown"
-            ></i-dropdown>
+            <div class="d-flex align-items-center">
+              <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
+              <i-dropdown
+                v-model="orderBy"
+                v-bind:options="orderByOptions"
+                size="sm"
+                variant="outline-primary"
+                right
+                data-testid="order-by-dropdown"
+              ></i-dropdown>
+            </div>
           </template>
         </PageNavbarHeading>
       </template>

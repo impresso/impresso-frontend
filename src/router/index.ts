@@ -358,7 +358,7 @@ const router = createRouter({
           query: {
             p: ci.image?.pages?.[0]?.number,
             articleId: getShortArticleId(ci.id),
-            text: '1'
+            text: '2'
           }
         }
       }
