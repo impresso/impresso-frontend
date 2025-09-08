@@ -194,9 +194,9 @@ export default {
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articles:
-        'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+        'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articlesInCommon:
-        'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
+        'no content items | <span class="number">1</span> content item in common | <span class="number">{n}</span> content items in common',
       images:
         'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
       pages:
@@ -328,11 +328,11 @@ export default {
         }
       },
       sourceType: {
-        title: 'Source Type | Source Type | Source Types',
-        filterTitle: 'source type',
+        title: 'Media Type | Media Type | Media Types',
+        filterTitle: 'media type',
         filtered: 'results are filtered when:',
-        selected: 'filter results if their source type is <b>one of {count} selected</b>',
-        description: 'filter results based on source type',
+        selected: 'filter results if their media type is <b>one of {count} selected</b>',
+        description: 'filter results based on media type',
         empty: '(no results)',
         context: {
           include: 'content available as',
@@ -362,13 +362,13 @@ export default {
         item: 'Collection'
       },
       contentLength: {
-        title: 'Content Length | Content Length | Content Lengths',
-        filterTitle: 'content length',
+        title: 'Transcript Length | Transcript Length | Transcript Lengths',
+        filterTitle: 'transcript length',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are within the range',
-        description: 'total number of articles per content length',
+        description: 'total number of articles per transcript length',
         empty: '(no results)',
-        item: 'Content length'
+        item: 'Transcript length'
       },
 
       copyright: {
@@ -432,7 +432,7 @@ export default {
       isFront: 'frontpage',
       language: {
         title: 'Language | Language | Languages',
-        filterTitle: 'language of articles',
+        filterTitle: 'language',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
         description: 'check one or more language to filter results',
@@ -454,7 +454,7 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper titles',
+        filterTitle: 'newspaper title',
         filtered: 'results are filtered when:',
         selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
         description: 'check one or more newspaper to filter results',
@@ -462,9 +462,10 @@ export default {
       },
       partner: {
         title: 'Data Provider | Data Provider | Data Providers',
-        filterTitle: 'archive',
+        filterTitle: 'provider',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
+        selected:
+          'filter results if they are published in <b>one of {count} selected</b> providers',
         description: 'check one or more data provider to filter results',
         empty: '(no results)'
       },
@@ -519,7 +520,7 @@ export default {
       type: {
         title: 'Item type | Item types | Item types',
         optionsTitle: 'Article content type',
-        filterTitle: 'item types',
+        filterTitle: 'item type',
         filtered: 'results are filtered when:',
         selected: 'filter results if the item type is <b>one of {count} selected</b>',
         description: 'check one or more item types to filter results',

@@ -49,56 +49,7 @@ export default {
 {
   "en": {
     "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found",
-    "loading": { "articles": "... loading articles" }
-  },
-  "fr": {
-    "summary": "summary",
-    "include": {
-      "topic": "with topic",
-      "pub": {
-        "newspaper": "published in"
-      },
-      "pubof": {
-        "newspaper": "of"
-      },
-      "person": "mentioning",
-      "location": "mentioning",
-      "string": "containing",
-      "title": "where title includes",
-      "daterange": "published",
-      "collection": "saved in",
-      "language": "written in",
-      "country": "printed in",
-      "type": "tagged as"
-    },
-    "exclude": {
-      "topic": "without topic",
-      "pub": {
-        "newspaper": "not published in"
-      },
-      "pubof": {
-        "newspaper": "not published in"
-      },
-      "person": "not mentioning",
-      "location": "not mentioning",
-      "daterange": "not published",
-      "collection": "not yet saved in",
-      "language": "not written in",
-      "string": "not containing",
-      "country": "not printed in",
-      "type": "not tagged as"
-    },
-    "isFront": "appearing on the <em>front page</em>",
-    "message": "Found <span class='number'>{count}</span> {groupByLabel} {type} {front} {newspapers} {countries} {ranges} {collections} {terms} {title} {languages} {topics} {people} {locations}",
-    "daterange": "from <span class='date'>{start}</span> to <span class='date'>{end}</span>"
-  },
-  "fr": {},
-  "it": {},
-  "nl": {
-    "summary": "SAMENVATTING",
-    "include": "inclusief",
-    "exclude": "exclusief",
-    "message": "<span class='number'>{count}</span> artikelen gevonden {terms} {ranges}"
+    "loading": { "articles": "... loading matching content items" }
   }
 }
 </i18n>
