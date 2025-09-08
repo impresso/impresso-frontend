@@ -347,7 +347,7 @@ export default defineComponent({
       }))
     },
     orderByOptions() {
-      return ['-relevance', 'date', '-date'].map(value => {
+      return ['-ocrQuality', '-relevance', 'date', '-date'].map(value => {
         const label = value.replace(/^-/, '')
         const direction = value.indexOf('-') === 0 ? 'desc' : 'asc'
         return {
@@ -373,7 +373,15 @@ export default defineComponent({
     },
     orderBy: {
       get() {
-        return (this.$route.query.orderBy as string) ?? '-relevance'
+        // If the user explicitly set an orderBy parameter, we use that.
+        if (this.$route.query.orderBy != null) {
+          return this.$route.query.orderBy as string
+        }
+
+        // We want to use ocrQuality as default order to show higher quality content
+        // because without filters the relevance is always the same.
+        // But if there are filters, we assume the user wants relevance sorting.
+        return this.searchQuery.filters.length === 0 ? '-ocrQuality' : '-relevance'
       },
       set(orderBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
