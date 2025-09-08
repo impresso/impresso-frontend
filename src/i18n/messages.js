@@ -584,6 +584,9 @@ export default {
       relevance: {
         desc: 'relevance'
       },
+      ocrQuality: {
+        desc: 'OCR quality'
+      },
       date: {
         asc: 'publication date, oldest first',
         desc: 'publication date, most recent first'

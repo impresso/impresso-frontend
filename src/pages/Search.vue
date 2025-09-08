@@ -347,7 +347,7 @@ export default defineComponent({
       }))
     },
     orderByOptions() {
-      return ['-relevance', 'date', '-date'].map(value => {
+      return ['-ocrQuality', '-relevance', 'date', '-date'].map(value => {
         const label = value.replace(/^-/, '')
         const direction = value.indexOf('-') === 0 ? 'desc' : 'asc'
         return {
@@ -373,7 +373,7 @@ export default defineComponent({
     },
     orderBy: {
       get() {
-        return (this.$route.query.orderBy as string) ?? '-relevance'
+        return (this.$route.query.orderBy as string) ?? '-ocrQuality'
       },
       set(orderBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
