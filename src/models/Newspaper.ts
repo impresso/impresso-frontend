@@ -32,7 +32,7 @@ export default class Newspaper implements IEntity {
   firstIssue: Issue | null
   lastIssue: Issue | null
   included: boolean
-
+  dataProvider: string = ''
   checked?: boolean
 
   constructor({
@@ -68,5 +68,9 @@ export default class Newspaper implements IEntity {
     if (lastIssue) {
       this.lastIssue = new Issue(lastIssue)
     }
+    // get property value where name in 'partnerUid
+    // a property item is composed as such:
+    // {"label":"partner uid","value":"NZZ","name":"partnerUid"}
+    this.dataProvider = this.properties.find(p => p.name === 'partnerUid')?.value || ''
   }
 }
