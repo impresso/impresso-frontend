@@ -25,6 +25,7 @@
 import type { DataProvider } from '@/models'
 import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
+import { dataProviders } from '@/services'
 
 export interface DataProviderLabelProps {
   item: DataProvider
@@ -39,12 +40,6 @@ const props = withDefaults(defineProps<DataProviderLabelProps>(), {
 })
 
 const title = computed(() => {
-  if (typeof glob.impressoDataProviders === 'object') {
-    if (props.item.id in glob.impressoDataProviders) {
-      return glob.impressoDataProviders[props.item.id]
-    }
-    return props.item.name || props.item.id
-  }
-  return props.item.name || props.item.id
+  return dataProviders.getDataProviderNameById(props.item.id) ?? props.item.id
 })
 </script>

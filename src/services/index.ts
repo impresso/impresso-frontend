@@ -10,6 +10,7 @@ import uploadedImagesHooks from './hooks/uploadedImages'
 import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
 import type { Services } from './types'
+import { DataProvidersService } from './local/dataProviders'
 
 export const app = feathers<Services>()
 
@@ -193,6 +194,7 @@ export const subscriptionDatasets = app.service('subscriptions')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
 export const barista = app.service('barista-proxy')
+export const dataProviders = new DataProvidersService()
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
