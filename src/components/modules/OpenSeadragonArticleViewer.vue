@@ -5,7 +5,18 @@
     :sections="marginaliaSections.filter(({ isLeft }) => isLeft)"
     ref="marginaliaPanelLeft"
   />
+  <div v-if="isError" class="error-overlay">
+    <div class="error-message">
+      <div class="error-description" v-if="errorKind === 'forbidden'">
+        {{ $t('errorMessageForbidden') }}
+      </div>
+      <div class="error-description" v-else>
+        {{ $t('errorMessageGeneric', { errorMessage: errorKind }) }}
+      </div>
+    </div>
+  </div>
   <div
+    v-else
     class="os-article-viewer"
     v-bind="$attrs"
     :style="{ 'font-size': `${fontSize}%` }"
@@ -164,6 +175,8 @@ export interface Data {
 
   /** A local variable that indicates dragging is active, preventing LISTENING on page change events while dragging.*/
   isDragging: boolean
+  /** The kind of error that occurred when trying to load a tile or image. */
+  errorKind?: 'forbidden' | 'unknown'
 }
 
 export default defineComponent({
@@ -176,7 +189,8 @@ export default defineComponent({
     loadedPages: new Set(),
     realPages: new Set(),
     neighboursToLoad: 2,
-    isDragging: false
+    isDragging: false,
+    errorKind: undefined
   }),
   setup() {
     const container = ref<HTMLElement | undefined>()
@@ -234,6 +248,26 @@ export default defineComponent({
         // collectionTileSize:   512,
         collectionTileMargin: 16
         // debugMode: true
+      })
+
+      // Handle failure to open a tile source
+      this.viewer.addHandler('open-failed', event => {
+        if (event.message && event.message.includes('403')) {
+          this.errorKind = 'forbidden'
+        } else {
+          this.errorKind = 'unknown'
+        }
+        console.error('[IIIFViewer] @open-failed:', event)
+      })
+
+      // Handle failure to load individual tiles
+      this.viewer.addHandler('tile-load-failed', event => {
+        if (event.message && event.message.includes('load aborted')) {
+          this.errorKind = 'forbidden'
+        } else {
+          this.errorKind = 'unknown'
+        }
+        console.error('[IIIFViewer] @tile-load-failed:', event)
       })
 
       const viewportChangeHandler = () => {
@@ -347,12 +381,29 @@ export default defineComponent({
     fontSize() {
       const newFontSize = ((this.currentZoomLevel * 0.7) / DefaultZoomLevel) * MaxFontSizePc
       return newFontSize > MaxFontSizePc ? MaxFontSizePc : newFontSize
+    },
+    errorCode() {
+      return this.errorKind === 'forbidden' ? '403' : '500'
+    },
+    errorTitle() {
+      return this.errorKind === 'forbidden' ? 'Forbidden' : 'Error'
+    },
+    errorDescription() {
+      return this.errorKind === 'forbidden'
+        ? 'You do not have permission to view this content'
+        : 'There was a problem loading the image'
+    },
+    isError() {
+      return this.errorKind !== undefined
     }
   },
+
   watch: {
     pages: {
       async handler(pages: string[]) {
         if (pages == null) return
+
+        this.errorKind = undefined
 
         const viewer = await this.getViewer()
         this.realPages.clear()
@@ -368,8 +419,16 @@ export default defineComponent({
           }
         })
         const info = await infoRes.json()
+        if (infoRes.status === 403) {
+          this.errorKind = 'forbidden'
+          return
+        } else if (!infoRes.ok) {
+          this.errorKind = 'unknown'
+          return
+        }
 
         pages.forEach((page, idx) => {
+          console.log('[OpenSeadragonArticleViewer] Adding page', idx, page)
           if (
             idx < Math.max(0, this.currentPageIndex - this.neighboursToLoad) ||
             idx >
@@ -509,4 +568,52 @@ div.overlay-page {
     mix-blend-mode: multiply;
   }
 }
+
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-message {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 80%;
+}
+
+.error-code {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.error-description {
+  color: #555;
+}
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "errorMessageForbidden": "This image is available with a different plan or special membership. Please check your subscription details.",
+    "errorMessageGeneric": "We ran into a problem while loading the image. Details: { errorMessage }. Please try again later or contact support if the problem persists."
+  }
+}
+</i18n>
