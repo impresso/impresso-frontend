@@ -93,11 +93,18 @@ export interface ImpressoInfo {
 }
 
 /**
- * Data providers mapping
+ * Data providers
  */
-export interface ImpressoDataProviders {
-  [key: string]: string
+export interface ImpressoDataProvider {
+  id: string
+  names: {
+    langCode: string
+    name: string
+  }[]
+  bitmapIndex: number
 }
+
+export type ImpressoDataProviders = ImpressoDataProvider[]
 
 /**
  * Global metadata for Impresso

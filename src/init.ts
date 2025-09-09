@@ -5,7 +5,7 @@ import {
   version as versionService
 } from '@/services'
 import { PlanNone } from './constants'
-import type { ImpressoGlobalMetadata } from './models/ImpressoMetadata'
+import type { ImpressoDataProvider, ImpressoGlobalMetadata } from './models/ImpressoMetadata'
 import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { reducedTimeoutPromise } from './services/utils'
 import { useNotificationsStore } from './stores/notifications'
@@ -39,6 +39,7 @@ type VersionResponse = {
   documentsDateSpan: DocumentsDateSpan
   newspapers: Record<string, unknown>
   features: Features
+  partnerInstitutions?: ImpressoDataProvider[]
 }
 
 export const loadVersion = async () => {
@@ -57,7 +58,8 @@ export const loadVersion = async () => {
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
       newspapers: res.newspapers,
-      features: res.features
+      features: res.features,
+      partnerInstitutions: res.partnerInstitutions
     }))
     .catch(err => {
       console.warn('[init:loadVersion] error:', err)
@@ -93,15 +95,8 @@ export const loadVersion = async () => {
   glob.impressoApiVersion = res.apiVersion
   glob.impressoDocumentsDateSpan = res.documentsDateSpan
   glob.impressoNewspapers = res.newspapers
-  glob.impressoDataProviders = {
-    SNL: 'Swiss National Library',
-    BNF: 'Bibliothèque nationale de France',
-    BNL: 'Luxembourg National Library',
-    NZZ: 'Neue Zürcher Zeitung',
-    Migros: 'Migros',
-    BCUL: 'Bibliothèque cantonale et universitaire Lausanne',
-    'BCU Fribourg': 'Bibliothèque cantonale et universitaire Fribourg'
-  }
+  glob.impressoDataProviders = res.partnerInstitutions
+
   glob.impressoFeatures = { ...DefaultImpressoFeatures, ...res.features }
   glob.impressoDocumentsYearSpan = {
     firstYear: new Date(res.documentsDateSpan.firstDate).getFullYear(),
