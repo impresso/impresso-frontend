@@ -101,11 +101,15 @@
           >
             <div v-if="article.isCC" class="col col-sm-5">
               <div class="py-3">
-                <auth-img
-                  v-bind:src="region.iiifFragment"
-                  alt="..."
-                  :style="{ width: `${region.nw * 100}%` }"
-                />
+                <IIIFFragment
+                  v-if="region.iiif"
+                  :iiif="region.iiif"
+                  size="!496,480"
+                  :scale="1"
+                  fit-to-regions
+                  :regions="[region]"
+                ></IIIFFragment>
+                {{ region.coords }}
               </div>
             </div>
             <div class="col col-sm-7 text-serif py-2">
@@ -159,7 +163,6 @@
 </template>
 
 <script lang="ts">
-import AuthImg from '@/components/AuthImg.vue'
 import { mapStores } from 'pinia'
 import {
   articlesSuggestions,
@@ -182,6 +185,7 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
+import IIIFFragment from '../IIIFFragment.vue'
 
 const colourScheme = [
   '#8dd3c7',
@@ -342,7 +346,7 @@ export default {
     AnnotatedText,
     InfoButton,
     IIIFViewer,
-    AuthImg
+    IIIFFragment
   },
   methods: {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
