@@ -185,7 +185,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
               new Region({
                 articleUid: contentItem.id,
                 pageUid: page.id ?? `page-${pageIdx}`,
-                coords: coords
+                coords,
+                iiif: page.iiif?.manifestUrl ?? ''
               })
             )
           })
