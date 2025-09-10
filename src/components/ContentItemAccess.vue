@@ -1,17 +1,13 @@
 <template>
   <div
-    class="ContentItemAccess mb-2 d-inline-flex align-items-center px-1"
+    class="ContentItemAccess d-inline-flex align-items-center"
     :class="{
-      'with-full-access border-success text-success': accessLevel === FullAccessLevel,
-      'with-partial-access': accessLevel === PartialAccessLevel,
-      'with-no-access border-danger': accessLevel === 0
+      'border-success text-success': accessLevel === FullAccessLevel
     }"
   >
-    <div v-if="accessLevel === FullAccessLevel" class="d-inline-flex align-items-center px-1">
+    <div v-if="accessLevel === FullAccessLevel" class="d-inline-flex align-items-center">
       <slot name="access-granted">
-        <span class="px-1 very-small-caps" style="padding-bottom: 1px">{{
-          $t('full_access')
-        }}</span>
+        <span class="px-1 very-small-caps">{{ $t('full_access') }}</span>
       </slot>
       <InfoButton
         :default-content="$t('full_access_description')"
@@ -20,21 +16,18 @@
       ></InfoButton>
     </div>
     <div
-      v-else-if="accessLevel === PartialAccessLevel"
+      v-else-if="accessLevel < FullAccessLevel && accessLevel > 0"
       class="d-inline-flex align-items-center gap-2"
     >
-      <slot name="partial-access">
-        <div>
-          <div class="very-small-caps">{{ $t('partial_access') }}</div>
-          <div class="very-small">
-            {{ $t(partialAccessTranslationKey) }}
-          </div>
+      <slot name="limited-access">
+        <div class="very-small-caps">{{ $t('limited_access') }}</div>
+        <div class="very-small">
+          {{ $t(limitedAccessTranslationKey) }}
         </div>
       </slot>
       <InfoButton
-        :default-content="$t(partialAccessTranslationKey + '_description')"
-        :name="$t(partialAccessTranslationKey)"
-        class="pt-1"
+        :default-content="$t(limitedAccessTranslationKey + '_description')"
+        :name="$t(limitedAccessTranslationKey)"
       ></InfoButton>
     </div>
     <div v-else class="d-inline-flex align-items-center gap-2">
@@ -52,22 +45,23 @@
 {
   "en": {
     "full_access": "Full Access",
-    "partial_access": "Partial Access",
-    "partial_access_explore_description": "You have partial access to this content item. You can freely read its content on the Impresso App, but you cannot download it. Please check your subscription or contact support for more information.",
-    "no_access": "No Access"
+    "full_access_description": "With your current user plan, you have full access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata and transcripts via API and csv export.",
+    "limited_access": "Limited Access",
+    "limited_access_explore": "Explore only",
+    "limited_access_explore_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata via API and csv export but are not permitted to download the transcript.",
+    "no_access": "Metadata only access",
+    "no_access_description": "You do not have access to this content item. Please check your subscription or contact support for more information."
   }
 }
 </i18n>
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/schemas/contentItem.d.ts'
 import { useUserStore } from '@/stores/user'
-import { base64ToBigInt, bigIntToBinaryString } from '@/util/bitmask'
+import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
 import { computed } from 'vue'
-import Icon from './base/Icon.vue'
 import InfoButton from './base/InfoButton.vue'
 
-const PartialAccessLevel = 1
-const FullAccessLevel = 2
+const FullAccessLevel = 3
 
 export interface ContentItemAccessProps {
   item: ContentItem
@@ -86,7 +80,7 @@ const userBitmapAsBigInt = computed(() => {
   if (!userStore.userData) {
     return BigInt(0n) // Default to no access
   }
-  return base64ToBigInt(userStore.userData.bitmap)
+  return base64BytesToBigInt(userStore.userData.bitmap)
 })
 
 const hasExploreAccess = computed(() => {
@@ -101,20 +95,20 @@ const hasFacsimileAccess = computed(() => {
   return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
 })
 
-const partialAccessTranslationKey = computed(() => {
+const limitedAccessTranslationKey = computed(() => {
   if (hasExploreAccess.value && !hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'partial_access_explore'
+    return 'limited_access_explore'
   } else if (hasExploreAccess.value && !hasFacsimileAccess.value && hasTranscriptAccess.value) {
-    return 'partial_access_explore_transcript'
+    return 'limited_access_explore_transcript'
   } else if (hasExploreAccess.value && hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'partial_access_explore_facsimile'
+    return 'limited_access_explore_facsimile'
   } else {
-    return 'partial_access_other'
+    return 'limited_access_other'
   }
 })
 
 const accessLevel = computed<number>(() => {
-  return +hasExploreAccess.value + +hasTranscriptAccess.value
+  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
 })
 /**
  * Computed property that converts content item access bitmaps from base64 to BigInt format.
@@ -130,24 +124,20 @@ const contentItemBitmapsAsBigInts = computed<{
   transcript: bigint
   facsimile?: bigint
 }>(() => {
-  if (!props.item.access) {
+  if (!props.item.access || !props.item.access.accessBitmaps) {
     return {
       explore: BigInt(0n),
       transcript: BigInt(0n),
       facsimile: BigInt(0n)
     }
   }
+
   try {
+    const { explore, getTranscript, getImages } = props.item.access.accessBitmaps
     return {
-      explore: props.item.access.explore
-        ? base64ToBigInt(props.item.access.explore as string)
-        : BigInt(0n),
-      transcript: props.item.access.transcript
-        ? base64ToBigInt(props.item.access.transcript as string)
-        : BigInt(0n),
-      facsimile: props.item.access.facsimile
-        ? base64ToBigInt(props.item.access.facsimile as string)
-        : BigInt(0n) // Not used currently
+      explore: explore ? base64BytesToBigInt(explore as string) : BigInt(0n),
+      transcript: getTranscript ? base64BytesToBigInt(getTranscript as string) : BigInt(0n),
+      facsimile: getImages ? base64BytesToBigInt(getImages as string) : BigInt(0n) // Not used currently
     }
   } catch (e) {
     console.error(
@@ -158,19 +148,22 @@ const contentItemBitmapsAsBigInts = computed<{
     )
     return {
       explore: BigInt(0n),
-      transcript: BigInt(0n)
+      transcript: BigInt(0n),
+      facsimile: BigInt(0n)
     }
   }
 })
 
 // only for debugging purposes
-// const contentItemBitmapExploreAsString = computed(() => {
-//   return bigIntToBinaryString(contentItemBitmapsAsBigInts.value.explore)
-// })
-// const contentItemBitmapTranscriptAsString = computed(() => {
-//   return bigIntToBinaryString(contentItemBitmapsAsBigInts.value.transcript)
-// })
-// const userBitmapAsString = computed(() => {
-//   return bigIntToBinaryString(userBitmapAsBigInt.value)
-// })
+const userBitmapAsString = computed(() => {
+  return bigIntToBitString(userBitmapAsBigInt.value)
+})
+
+const contentItemBitmapExploreAsString = computed(() => {
+  return bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)
+})
+
+const contentItemBitmapTranscriptAsString = computed(() => {
+  return bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)
+})
 </script>
