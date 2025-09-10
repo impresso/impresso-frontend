@@ -59,6 +59,53 @@ export const Default: Story = {
   } as ContentItemAccessProps
 }
 
+export const ExploreAndTranscript: Story = {
+  args: {
+    item: {
+      id: 'article',
+      type: 'ar',
+      dataProvider: 'Impresso',
+      publicationDate: '2024-01-01',
+      title: 'Sample Article',
+      nbPages: 10,
+      pages: [],
+      transcriptLength: 0,
+      access: {
+        dataDomain: 'prt',
+        copyright: 'in_cpy',
+        accessBitmaps: {
+          explore: 'AAAAAAAAAAI=',
+          getTranscript: 'AAAAAAAAAAI=',
+          getImages: 'AAAAgAAAAAA='
+        }
+      }
+    }
+  } as ContentItemAccessProps
+}
+
+export const ExploreAndFacsimile: Story = {
+  args: {
+    item: {
+      id: 'article',
+      type: 'ar',
+      dataProvider: 'Impresso',
+      publicationDate: '2024-01-01',
+      title: 'Sample Article',
+      nbPages: 10,
+      pages: [],
+      transcriptLength: 0,
+      access: {
+        dataDomain: 'prt',
+        copyright: 'in_cpy',
+        accessBitmaps: {
+          explore: 'AAAAAAAAAAI=',
+          getTranscript: 'AAAAgAAAAAA=',
+          getImages: 'AAAAAAAAAAI='
+        }
+      }
+    }
+  } as ContentItemAccessProps
+}
 export const fullAccess: Story = {
   args: {
     item: {

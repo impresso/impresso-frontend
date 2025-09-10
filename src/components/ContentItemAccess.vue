@@ -50,7 +50,13 @@
     "limited_access_explore": "Explore only",
     "limited_access_explore_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata via API and csv export but are not permitted to download the transcript.",
     "no_access": "Metadata only access",
-    "no_access_description": "You do not have access to this content item. Please check your subscription or contact support for more information."
+    "no_access_description": "You do not have access to this content item. Please check your subscription or contact support for more information.",
+    "limited_access_explore_transcript": "Explore and get transcript",
+    "limited_access_explore_transcript_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata and transcripts via API and csv export but are not permitted to download the facsimile.",
+    "limited_access_explore_facsimile": "Explore and view facsimile",
+    "limited_access_explore_facsimile_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata and facsimile images via API, but are not permitted to download the transcript.",
+    "limited_access_other": "Limited Access",
+    "limited_access_other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
   }
 }
 </i18n>
