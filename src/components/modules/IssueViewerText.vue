@@ -109,7 +109,6 @@
                   fit-to-regions
                   :regions="[region]"
                 ></IIIFFragment>
-                {{ region.coords }}
               </div>
             </div>
             <div class="col col-sm-7 text-serif py-2">
