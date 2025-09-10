@@ -36,9 +36,15 @@ const getMe = http.get('/api/me', () => {
     email: 'john.doe@example.com',
     uid: '123',
     username: 'johndoe',
+    bitmap: 'AAAAAAAAAAs',
     isActive: true,
     isStaff: false,
-    emailAccepted: false
+    emailAccepted: false,
+    groups: [
+      {
+        name: 'plan-researcher'
+      }
+    ]
   })
 })
 

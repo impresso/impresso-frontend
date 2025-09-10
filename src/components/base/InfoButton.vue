@@ -2,6 +2,7 @@
   <div v-if="content" class="InfoButton d-inline">
     <div
       class="info-button-trigger icon-link dripicons-information d-inline-block"
+      :class="triggerClass"
       ref="reference"
       @click.prevent.stop="togglePopover"
     ></div>
@@ -56,6 +57,15 @@ const props = defineProps({
     type: String,
     required: true
   },
+  triggerClass: {
+    type: String,
+    required: false,
+    default: ''
+  },
+  defaultContent: {
+    type: String,
+    required: false
+  },
   placement: {
     type: String as PropType<Side>,
     required: false
@@ -95,6 +105,9 @@ const store = useSettingsStore()
 const activeLanguageCode = computed(() => store.language_code)
 const content = computed(() => {
   let content = FaqContentsMap[activeLanguageCode.value]?.[props.name]
+  if (!content && props.defaultContent) {
+    content = { title: props.name, summary: props.defaultContent }
+  }
   if (!content) {
     content = { title: props.name }
     console.warn(`[InfoButton] 😖 props.name not found: "${props.name}" `)
@@ -109,7 +122,12 @@ useClickOutside(floating, () => (show.value = false), reference)
 
 <style lang="css">
 .info-button-trigger {
-  font-size: 16px;
+  font-size: 15px;
+  color: var(--clr-grey-300);
+  cursor: pointer;
+}
+.info-button-trigger:hover {
+  color: var(--clr-grey-100);
 }
 
 .InfoButton .popover {

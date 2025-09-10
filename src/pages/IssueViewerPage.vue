@@ -17,6 +17,7 @@
           :filtersWithItems="filtersWithItems"
           :issue="issue"
           :article="contentItem"
+          :contentItem="contentItemOriginal"
           :mediaSource="mediaSource"
           :dataProvider="dataProvider"
           :page="page"
@@ -175,6 +176,7 @@ const pagesIIIFUrls = ref<string[]>([])
 const mediaSource = ref(null)
 const dataProvider = ref(null)
 const contentItem = ref<ArticleBase | null>(null)
+const contentItemOriginal = ref<any>(null)
 const isViewerReady = computed(() => {
   return pagesIIIFUrls.value.length > 0 && tableOfContents.value
 })
@@ -270,6 +272,7 @@ async function fetchContentItem(id: string): Promise<void> {
     .get(id)
     .then(data => {
       console.debug('[IssueViewerPage] fetchContentItem contentItem OK', data)
+      contentItemOriginal.value = data
       contentItem.value = Article.fromContentItem(data)
     })
     .catch(err => {
