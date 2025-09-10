@@ -84,7 +84,7 @@ const userStore = useUserStore()
  */
 const userBitmapAsBigInt = computed(() => {
   if (!userStore.userData) {
-    return BigInt(0n) // Default to no access
+    return 0n // Default to no access
   }
   return base64BytesToBigInt(userStore.userData.bitmap)
 })
@@ -132,18 +132,18 @@ const contentItemBitmapsAsBigInts = computed<{
 }>(() => {
   if (!props.item.access || !props.item.access.accessBitmaps) {
     return {
-      explore: BigInt(0n),
-      transcript: BigInt(0n),
-      facsimile: BigInt(0n)
+      explore: 0n,
+      transcript: 0n,
+      facsimile: 0n
     }
   }
 
   try {
     const { explore, getTranscript, getImages } = props.item.access.accessBitmaps
     return {
-      explore: explore ? base64BytesToBigInt(explore as string) : BigInt(0n),
-      transcript: getTranscript ? base64BytesToBigInt(getTranscript as string) : BigInt(0n),
-      facsimile: getImages ? base64BytesToBigInt(getImages as string) : BigInt(0n) // Not used currently
+      explore: explore ? base64BytesToBigInt(explore as string) : 0n,
+      transcript: getTranscript ? base64BytesToBigInt(getTranscript as string) : 0n,
+      facsimile: getImages ? base64BytesToBigInt(getImages as string) : 0n // Not used currently
     }
   } catch (e) {
     console.error(
@@ -153,23 +153,10 @@ const contentItemBitmapsAsBigInts = computed<{
       e
     )
     return {
-      explore: BigInt(0n),
-      transcript: BigInt(0n),
-      facsimile: BigInt(0n)
+      explore: 0n,
+      transcript: 0n,
+      facsimile: 0n
     }
   }
-})
-
-// only for debugging purposes
-const userBitmapAsString = computed(() => {
-  return bigIntToBitString(userBitmapAsBigInt.value)
-})
-
-const contentItemBitmapExploreAsString = computed(() => {
-  return bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)
-})
-
-const contentItemBitmapTranscriptAsString = computed(() => {
-  return bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)
 })
 </script>
