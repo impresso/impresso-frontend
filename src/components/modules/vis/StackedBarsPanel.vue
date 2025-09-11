@@ -67,7 +67,11 @@ export default {
       return Math.max(...this.buckets.map(b => b.count))
     },
     bucketModels() {
-      return this.buckets.map(b => new FacetBucketModel({ ...(b as any), type: this.facetType }))
+      return this.buckets.map(b =>
+        b instanceof FacetBucketModel
+          ? b
+          : new FacetBucketModel({ ...(b as any), type: this.facetType })
+      )
     }
   },
   methods: {

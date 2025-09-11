@@ -111,10 +111,12 @@ export default class Facet<T = FacetType> {
     })
   }
 
-  static fromSearchFacet(facet: SearchFacet) {
-    return new Facet({
-      type: facet.type as FacetType,
-      buckets: (facet.buckets || []).map(bucket => new Bucket(bucket)),
+  static fromSearchFacet<T = FacetType>(facet: SearchFacet) {
+    return new Facet<T>({
+      type: facet.type as T,
+      buckets: (facet.buckets || []).map(
+        bucket => new Bucket({ ...bucket, type: facet.type as T })
+      ),
       numBuckets: facet.numBuckets
     })
   }
