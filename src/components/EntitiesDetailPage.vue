@@ -447,14 +447,9 @@ export default {
       } satisfies FindFacetsQuery
 
       this.facets = await searchFacetsService.find({ query }).then(response =>
-        response.data.map(
-          item =>
-            new Facet({
-              type: item.type as EntityFacetType,
-              buckets: item.buckets.map(b => new Bucket(b)),
-              numBuckets: item.numBuckets
-            })
-        )
+        response.data.map(item => {
+          return Facet.fromSearchFacet<EntityFacetType>(item)
+        })
       )
     },
     loadItems(page = 1) {
