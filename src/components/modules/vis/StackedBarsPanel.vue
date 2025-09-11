@@ -7,7 +7,7 @@
     <div class="row mx-0">
       <div class="col bg-light">
         <div
-          v-for="(bucket, idx) in buckets"
+          v-for="(bucket, idx) in bucketModels"
           :key="idx"
           :class="`bar-container row my-1 small ${isHovered(bucket) ? 'hilight' : ''}`"
           @mouseover="onHover(bucket)"
@@ -35,6 +35,7 @@ import VizBar from '../../base/VizBar.vue'
 import { Bucket } from '@/models'
 import { isBucket } from '@/models/typeGuards'
 import { FacetType } from '@/models/Facet'
+import FacetBucketModel from '@/models/Bucket'
 
 export default {
   props: {
@@ -64,6 +65,9 @@ export default {
     /** @returns {number} */
     maxValue() {
       return Math.max(...this.buckets.map(b => b.count))
+    },
+    bucketModels() {
+      return this.buckets.map(b => new FacetBucketModel({ ...(b as any), type: this.facetType }))
     }
   },
   methods: {
