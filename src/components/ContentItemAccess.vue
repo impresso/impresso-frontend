@@ -35,7 +35,7 @@
         <div class="very-small-caps text-danger">{{ $t('no_access') }}</div>
       </slot>
       <InfoButton
-        :default-content="$t('no_access_description')"
+        :default-content="$t('no_access_description') + JSON.stringify(contentItemBitmapsAsPlans)"
         :name="$t('no_access')"
       ></InfoButton>
     </div>
@@ -86,7 +86,7 @@ const userBitmapAsBigInt = computed(() => {
   if (!userStore.userData) {
     return 0n // Default to no access
   }
-  return base64BytesToBigInt(userStore.userData.bitmap)
+  return base64BytesToBigInt(userStore.bitmap)
 })
 
 const hasExploreAccess = computed(() => {
@@ -157,6 +157,23 @@ const contentItemBitmapsAsBigInts = computed<{
       transcript: 0n,
       facsimile: 0n
     }
+  }
+})
+
+const userBitmapAsPlan = computed(() => {
+  // Helper to get last 5 bits as string, padded to 5 bits
+  return bigIntToBitString(userBitmapAsBigInt.value)
+})
+
+const contentItemBitmapsAsPlans = computed(() => {
+  // Helper to get last 5 bits as string, padded to 5 bits
+  function last5Bits(bitString: string) {
+    return bitString.slice(-5).padStart(5, '0')
+  }
+  return {
+    explore: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)),
+    transcript: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)),
+    facsimile: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n))
   }
 })
 </script>
