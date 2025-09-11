@@ -35,7 +35,7 @@ interface IAuthResult {
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
-    bitmap: '1',
+    bitmap: 'AQ==',
     rememberCredentials: false,
     redirectionParams: {},
     // this is not stored on localStorage, and if it is not null is a ISO date string
@@ -94,6 +94,7 @@ export const useUserStore = defineStore('user', {
           removeCookie(MEDIA_COOKIE_NAME, MIDDLELAYER_MEDIA_PATH)
           // clean terms date and bitmap
           this.userData = false
+          this.bitmap = 'AQ=='
           this.acceptTermsDate = null
         })
     },
