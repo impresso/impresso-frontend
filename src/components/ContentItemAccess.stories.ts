@@ -18,7 +18,7 @@ const meta: Meta<typeof ContentItemAccess> = {
           .finally(() => {
             userStore.setAcceptTermsDate(new Date().toISOString())
           })
-
+        userStore.setBitmap(bigIntToBase64Bytes(BigInt('0b1111111111'))) // full access
         return { args }
       },
       components: { ContentItemAccess },
