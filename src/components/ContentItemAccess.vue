@@ -1,65 +1,16 @@
 <template>
-  <div
-    class="ContentItemAccess d-inline-flex align-items-center"
-    :class="{
-      'border-success text-success': accessLevel === FullAccessLevel
-    }"
-  >
-    <div v-if="accessLevel === FullAccessLevel" class="d-inline-flex align-items-center">
-      <slot name="access-granted">
-        <span class="px-1 very-small-caps">{{ $t('full_access') }}</span>
-      </slot>
+  <div class="ContentItemAccess d-inline-flex align-items-center">
+    <div class="d-inline-flex align-items-center">
+      <div class="very-small-caps m-1">{{ $t(accessTranslationKey) }}</div>
       <InfoButton
-        :default-content="$t('full_access_description')"
-        :name="$t('full_access')"
-        trigger-class="text-success"
-      ></InfoButton>
-    </div>
-    <div
-      v-else-if="accessLevel < FullAccessLevel && accessLevel > 0"
-      class="d-inline-flex align-items-center gap-2"
-    >
-      <slot name="limited-access">
-        <div class="very-small-caps">{{ $t('limited_access') }}</div>
-        <div class="very-small">
-          {{ $t(limitedAccessTranslationKey) }}
-        </div>
-      </slot>
-      <InfoButton
-        :default-content="$t(limitedAccessTranslationKey + '_description')"
-        :name="$t(limitedAccessTranslationKey)"
-      ></InfoButton>
-    </div>
-    <div v-else class="d-inline-flex align-items-center gap-2">
-      <slot name="access-denied">
-        <div class="very-small-caps text-danger">{{ $t('no_access') }}</div>
-      </slot>
-      <InfoButton
-        :default-content="$t('no_access_description')"
-        :name="$t('no_access')"
+        style="margin-top: -2px"
+        :default-content="$t(accessDescriptionTranslationKey)"
+        :name="$t(accessTranslationKey)"
       ></InfoButton>
     </div>
   </div>
 </template>
-<i18n lang="json">
-{
-  "en": {
-    "full_access": "Full Access",
-    "full_access_description": "With your current user plan, you have full access to this content item. You can view the transcript and all metadata in the Impresso Web App. You can access both metadata and transcripts via  Impresso Public API, CSV export and Impresso Python library.",
-    "limited_access": "Limited Access",
-    "limited_access_explore": "Explore only",
-    "limited_access_explore_description": "With your current user plan, you have limited access to this content item. You can view the transcript and all metadata in the Impresso Web App. You can access metadata via Impresso Public API, CSV export and Impresso Python library, but cannot download the transcript.",
-    "no_access": "Metadata only access",
-    "no_access_description": "With your current user plan, you have metadata-only access to this content item. You can view and access metadata via the Impresso Web App, Impresso Public API, CSV export and Impresso Python library. You cannot view or download the transcript.",
-    "limited_access_explore_transcript": "Explore and get transcript",
-    "limited_access_explore_transcript_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata and transcripts via API, but are not permitted to download the transcript.",
-    "limited_access_explore_facsimile": "Explore and view facsimile",
-    "limited_access_explore_facsimile_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata and facsimile images via API and csv export but are not permitted to download the transcript.",
-    "limited_access_other": "Limited Access",
-    "limited_access_other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
-  }
-}
-</i18n>
+
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/schemas/contentItem.d.ts'
 import { useUserStore } from '@/stores/user'
@@ -86,7 +37,7 @@ const userBitmapAsBigInt = computed(() => {
   if (!userStore.userData) {
     return 0n // Default to no access
   }
-  return base64BytesToBigInt(userStore.userData.bitmap)
+  return base64BytesToBigInt(userStore.bitmap)
 })
 
 const hasExploreAccess = computed(() => {
@@ -101,16 +52,25 @@ const hasFacsimileAccess = computed(() => {
   return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
 })
 
-const limitedAccessTranslationKey = computed(() => {
-  if (hasExploreAccess.value && !hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'limited_access_explore'
-  } else if (hasExploreAccess.value && !hasFacsimileAccess.value && hasTranscriptAccess.value) {
-    return 'limited_access_explore_transcript'
-  } else if (hasExploreAccess.value && hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'limited_access_explore_facsimile'
-  } else {
-    return 'limited_access_other'
+const accessTranslationKey = computed(() => {
+  if (accessLevel.value === FullAccessLevel) {
+    return 'full_access'
   }
+  if (accessLevel.value === 0) {
+    return 'no_access'
+  }
+  if (hasExploreAccess.value && !hasFacsimileAccess.value && !hasTranscriptAccess.value) {
+    return 'explore'
+  } else if (hasExploreAccess.value && !hasFacsimileAccess.value && hasTranscriptAccess.value) {
+    return 'explore_transcript'
+  } else if (hasExploreAccess.value && hasFacsimileAccess.value && !hasTranscriptAccess.value) {
+    return 'explore_facsimile'
+  }
+  return 'other'
+})
+
+const accessDescriptionTranslationKey = computed(() => {
+  return accessTranslationKey.value + '_description'
 })
 
 const accessLevel = computed<number>(() => {
@@ -159,4 +119,40 @@ const contentItemBitmapsAsBigInts = computed<{
     }
   }
 })
+
+const userBitmapAsPlan = computed(() => {
+  // Helper to get last 5 bits as string, padded to 5 bits
+  return bigIntToBitString(userBitmapAsBigInt.value)
+})
+
+const contentItemBitmapsAsPlans = computed(() => {
+  // Helper to get last 5 bits as string, padded to 5 bits
+  function last5Bits(bitString: string) {
+    return bitString.slice(-5).padStart(5, '0')
+  }
+  return {
+    explore: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)),
+    transcript: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)),
+    facsimile: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n))
+  }
+})
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "full_access": "Web App & Datalab access",
+    "full_access_description": "Your current user plan provides access to all elements of this content item - metadata, digital surrogate, semantic enrichments, and transcript - in the Web App. In the Datalab, you can access and export all elements except the digital surrogate.",
+    "no_access": "Annotation & semantic enrichment access",
+    "no_access_description": "Your current user plan allows you to view only the metadata and semantic enrichments of this content item. You can also access and export them via the Web App (CSV export) and the Datalab (Impresso Python library).",
+    "explore": "Web App access",
+    "explore_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. However, via CSV export and the Datalab (Impresso Python library), you can access only its metadata and semantic enrichments.",
+
+    "explore_transcript": "Web App & transcript access",
+    "explore_transcript_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. Additionally, you can access and export its metadata and transcript via CSV export and the Datalab (Impresso Python library). However, access to the digital surrogate is not included.",
+    "explore_facsimile": "Web App & facsimile access",
+    "explore_facsimile_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. Additionally, you can access and export its metadata and facsimile images via CSV export and the Datalab (Impresso Python library).",
+    "other": "Limited Access",
+    "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
+  }
+}
+</i18n>

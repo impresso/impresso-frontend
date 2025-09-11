@@ -1,3 +1,4 @@
+import { decodeJwt } from './util/auth'
 import {
   app as appService,
   termsOfUse as termsOfUseService,
@@ -164,16 +165,19 @@ export const initSequence = async () => {
         }
         return
       }
+      const payload = decodeJwt(res.accessToken)
+      const { bitmap, groups } = payload
       // eslint-disable-next-line
       console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
         '[init:initSequence] from JWT - uid:',
         res.user.uid,
         '- bitmap:',
-        res.user.bitmap,
+        bitmap,
         '- groups:',
-        res.user.groups
+        groups
       )
+      userStore.setBitmap(bitmap)
       shouldRefreshUser = true
     })
   if (!shouldRefreshUser) {
@@ -181,9 +185,6 @@ export const initSequence = async () => {
   }
   console.debug('[init:initSequence] refreshUser()')
   await userStore.refreshUser()
-
-  // check legacy user
-  console.debug('[init:initSequence] check legacy user', userStore.userPlan)
 }
 
 export const initUserTermsOfUse = async () => {
@@ -214,7 +215,6 @@ export const initUserTermsOfUse = async () => {
     return
   } else {
     userStore.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
-    userStore.setBitmap(termsOfuse.bitmap)
   }
 }
 

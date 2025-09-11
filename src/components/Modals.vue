@@ -97,7 +97,7 @@
           {{ $t('user_bitmap_label') }}
         </div>
         <div>
-          {{ userBitmap }}
+          {{ userStore.bitmap }}
         </div>
       </div>
       <div class="d-flex justify-content-between border-bottom p-2">
@@ -262,11 +262,6 @@ const store = useViewsStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 const userPlan = computed(() => userStore.userPlan)
-const userBitmap = computed(() => {
-  if (!userStore.userData) return 'n/a'
-  const base64String = userStore.userData?.bitmap
-  return base64String
-})
 
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
