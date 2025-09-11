@@ -107,9 +107,9 @@ export const loadVersion = async () => {
       version: glob.impressoFrontendVersion,
       revision: glob.impressoFrontendRevision,
       branch: glob.impressoFrontendBranch,
-      gitRepoUrl: import.meta.env.VITE_GIT_REPO,
-      gitCommitUrl: `${import.meta.env.VITE_GIT_REPO}/commit/${glob.impressoFrontendRevision}`,
-      gitCommitUrlLabel: import.meta.env.VITE_GIT_REPO.split('/').slice(3, 5).join('/')
+      gitRepoUrl: import.meta.env.VITE_APP_GIT_REPO,
+      gitCommitUrl: `${import.meta.env.VITE_APP_GIT_REPO}/commit/${glob.impressoFrontendRevision}`,
+      gitCommitUrlLabel: import.meta.env.VITE_APP_GIT_REPO.split('/').slice(3, 5).join('/')
     },
     middleLayer: {
       version: glob.impressoApiVersion.version ?? 'latest',
@@ -120,8 +120,8 @@ export const loadVersion = async () => {
       gitCommitUrlLabel: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO.split('/').slice(3, 5).join('/')
     },
     project: {
-      repoUrl: import.meta.env.VITE_GIT_REPO.split('/').slice(0, 4).join('/'),
-      repoUrlLabel: import.meta.env.VITE_GIT_REPO.split('/').slice(3, 5).join('/')
+      repoUrl: import.meta.env.VITE_PROJECT_GIT_URL,
+      repoUrlLabel: import.meta.env.VITE_PROJECT_GIT_LABEL
     }
   }
 }

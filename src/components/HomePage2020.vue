@@ -24,10 +24,10 @@
       <!--  body -->
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
-        <p class="small-caps mt-3">Current Impresso data rundown</p>
+        <h3 class="small-caps mt-3 text-white">{{ $t('current_versions') }}</h3>
         <DataRundown>
           <template #header="{ dataRelease }">
-            <span class="text-muted" v-html="$t('release_label')"></span>
+            <span v-html="$t('release_label')"></span>
             <LinkToModal
               v-if="dataRelease"
               :view="ViewDataRundown"
@@ -35,16 +35,33 @@
             ></LinkToModal>
           </template>
         </DataRundown>
+        <div class="mb-5">
+          WebApp: Release
+          <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
+            {{ impressoInfo.frontend.version }}
+          </a>
+          <br />
+          Middle Layer: Release
+          <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
+            {{ impressoInfo.middleLayer.version }}
+          </a>
+          <br />
+          GitHub organisation:
+          <a :href="impressoInfo.project.repoUrl" target="_blank">
+            {{ impressoInfo.project.repoUrlLabel }}</a
+          >
+        </div>
         <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p> -->
+        <h3 class="small-caps mt-3 text-white">{{ $t('contacts') }}</h3>
+        <p>
+          info @ impresso-project [dot] ch
+          <br />
+          project website: <a href="/" target="_blank">impresso-project.ch</a>
+        </p>
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
-          <p>
-            info @ impresso-project [dot] ch
-            <br />
-            project website: <a href="/" target="_blank">impresso-project.ch</a>
-          </p>
           <!--  -->
           <p class="mb-0">
             <img
@@ -88,18 +105,6 @@
             <Icon name="discord" class="text-white mr-2" :width="16" :stroke-width="2"></Icon>
             Discord:
             <a :href="discussionChannelLink" target="_blank">Impresso</a>
-          </p>
-
-          <p>
-            version:
-            <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
-              {{ impressoInfo.frontend.version }}
-            </a>
-            <br />
-            middle layer:
-            <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
-              {{ impressoInfo.middleLayer.version }}
-            </a>
           </p>
         </div>
 
@@ -537,6 +542,8 @@ h1.HomePage__hugeHeading,
 <i18n lang="json">
 {
   "en": {
+    "current_versions": "Current Impresso versions",
+    "contacts": "Contacts",
     "release_label": "Latest data release: ",
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",

@@ -1,13 +1,16 @@
 <template>
   <div class="DataReleaseCard">
     <slot name="header" :data-release="dataRelease">
-      <span class="text-muted" v-html="$t('release_label')"></span>
+      <span v-html="$t('release_label')"></span>
       <h3 class="font-size-inherit font-weight-medium">
-        {{ dataRelease.releaseName }}
-        <span class="text-muted">{{ dataRelease.releaseVersion }}</span>
+        {{ dataRelease.releaseVersion }}
+        <span class="text-muted"></span>
       </h3>
     </slot>
-    <ul class="list-unstyled d-flex-wrap mb-0">
+    <ul
+      class="list-unstyled d-flex-wrap mb-0 pl-3 my-3 border-left"
+      style="border-width: 2px !important"
+    >
       <li v-for="(npsStat, index) in orderedNpsStats" :key="index" style="display: inline-block">
         {{ $t(npsStat) }}
         <span class="number">{{ $n(dataRelease.impressoCorpusOverview?.npsStats[npsStat]) }}</span>
