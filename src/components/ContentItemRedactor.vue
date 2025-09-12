@@ -23,7 +23,7 @@ function last5Bits(bitString: string) {
   return bitString.slice(-5).padStart(5, '0')
 }
 
-const RedactorContexts = ['audio', 'image', 'transcript'] as const
+const RedactorContexts = ['explore', 'audio', 'image', 'transcript'] as const
 
 export interface ContentItemRedactorProps {
   item: ContentItem
@@ -34,7 +34,8 @@ export interface ContentItemRedactorProps {
 const RedactorContextsToAccessLevels: Record<(typeof RedactorContexts)[number], string> = {
   audio: 'getImages',
   image: 'getImages',
-  transcript: 'transcript'
+  transcript: 'transcript',
+  explore: 'explore'
 }
 
 const props = defineProps<ContentItemRedactorProps>()

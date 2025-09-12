@@ -1,7 +1,27 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import ContentItemRedactor, { ContentItemRedactorProps } from '@/components/ContentItemRedactor.vue'
-import { PlanGuestAsBigInt } from '@/constants'
+import { PlanGuestAsBigInt, PlanImpressoUserAsBigInt } from '@/constants'
 import { bigIntToBase64Bytes } from '@/util/bigint'
+
+const mockContentItem = {
+  id: 'article',
+  type: 'ar',
+  dataProvider: 'Impresso',
+  publicationDate: '2024-01-01',
+  title: 'Sample Article',
+  nbPages: 10,
+  pages: [],
+  transcriptLength: 0,
+  access: {
+    dataDomain: 'prt',
+    copyright: 'in_cpy',
+    accessBitmaps: {
+      explore: 'AAAAAAAAAAI=',
+      getTranscript: 'AAAAgAAAAAA=',
+      getImages: 'AAAAgAAAAAA='
+    }
+  }
+}
 
 const meta: Meta<typeof ContentItemRedactor> = {
   title: 'Components/ContentItemRedactor',
@@ -14,7 +34,7 @@ const meta: Meta<typeof ContentItemRedactor> = {
       },
       components: { ContentItemRedactor },
       template: `
-        <div class="bg-light d-flex align-items-center p-4" style="height: 200px;width: 100%;">
+        <div class="bg-light d-flex align-items-center p-4" >
           <ContentItemRedactor v-bind="args">
           </ContentItemRedactor>
         </div>
@@ -29,25 +49,19 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     item: {
-      id: 'article',
-      type: 'ar',
-      dataProvider: 'Impresso',
-      publicationDate: '2024-01-01',
-      title: 'Sample Article',
-      nbPages: 10,
-      pages: [],
-      transcriptLength: 0,
-      access: {
-        dataDomain: 'prt',
-        copyright: 'in_cpy',
-        accessBitmaps: {
-          explore: 'AAAAAAAAAAI=',
-          getTranscript: 'AAAAgAAAAAA=',
-          getImages: 'AAAAgAAAAAA='
-        }
-      }
+      ...mockContentItem
     },
     userBitmap: bigIntToBase64Bytes(PlanGuestAsBigInt), // guest
-    context: 'image'
+    context: 'explore'
+  } as ContentItemRedactorProps
+}
+
+export const NoRedactionNeeded: Story = {
+  args: {
+    item: {
+      ...mockContentItem
+    },
+    userBitmap: bigIntToBase64Bytes(PlanImpressoUserAsBigInt), // full access
+    context: 'explore'
   } as ContentItemRedactorProps
 }
