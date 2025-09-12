@@ -6,6 +6,14 @@ export const PlanEducational = 'plan-educational'
 export const PlanResearcher = 'plan-researcher'
 export const PlanResearcherPlus = 'academic-user-plus'
 export const PlanNone = 'no-plan'
+
+export const PlanEducationalAsBigInt = 4n
+export const PlanImpressoUserAsBigInt = 2n
+export const PlanResearcherAsBigInt = 11n // 8 + 2 + 1
+export const PlanResearcherPlusAsBigInt = 16n
+export const PlanGuestAsBigInt = 1n
+export const PlanNoneAsBigInt = 0n
+
 export const PlanLabels: Record<string, string> = {
   [PlanGuest]: 'Guest',
   [PlanImpressoUser]: 'Basic User',
@@ -22,6 +30,15 @@ export const Plans: string[] = [
   PlanResearcherPlus,
   PlanNone
 ]
+
+export const PlansAsBigInt: Record<string, bigint> = {
+  [PlanGuest]: PlanGuestAsBigInt,
+  [PlanImpressoUser]: PlanImpressoUserAsBigInt,
+  [PlanEducational]: PlanEducationalAsBigInt,
+  [PlanResearcher]: PlanResearcherAsBigInt,
+  [PlanResearcherPlus]: PlanResearcherPlusAsBigInt,
+  [PlanNone]: PlanNoneAsBigInt
+}
 
 export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher]
 
