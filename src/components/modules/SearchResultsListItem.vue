@@ -4,7 +4,7 @@
     data-testid="search-results-list-item"
   >
     <div class="media-aside align-self-start overflow-hidden">
-      <div v-if="isAvailable()" class="thumbnail">
+      <div v-if="isAvailable" class="thumbnail">
         <IIIFFragment
           @selected="goToArticle"
           v-if="article?.pages?.length"
@@ -103,7 +103,7 @@
             :regions="computedRegionsInArticleFirstPage"
           />
         </div>
-        <div v-if="isAvailable() && checkbox" class="ml-auto pl-2">
+        <div v-if="isAvailable && checkbox" class="ml-auto pl-2">
           <b-checkbox
             class="mr-0 select-item"
             v-bind:checked="checked"
@@ -228,6 +228,10 @@ export default defineComponent({
           article_uid: this.article.uid
         }
       }
+    },
+    isAvailable(): boolean {
+      // Check if the user has access to view the article
+      return true
     }
   },
   methods: {
@@ -251,12 +255,7 @@ export default defineComponent({
     click() {
       this.$emit('click')
     },
-    isAvailable() {
-      if (this.article.accessRight === 'OpenPublic') {
-        return true
-      }
-      return this.userStore.userData
-    },
+
     showModalShareArticle() {
       this.showModalShare = true
     },
