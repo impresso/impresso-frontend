@@ -35,7 +35,7 @@ const userStore = useUserStore()
  */
 const userBitmapAsBigInt = computed(() => {
   if (!userStore.userData) {
-    return 0n // Default to no access
+    return 1n // Default to basic access
   }
   return base64BytesToBigInt(userStore.bitmap)
 })
@@ -53,20 +53,24 @@ const hasFacsimileAccess = computed(() => {
 })
 
 const accessTranslationKey = computed(() => {
+  let key = 'no_access'
   if (accessLevel.value === FullAccessLevel) {
-    return 'full_access'
+    key = 'full_access'
   }
   if (accessLevel.value === 0) {
-    return 'no_access'
+    key = 'no_access'
   }
   if (hasExploreAccess.value && !hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'explore'
+    key = 'explore'
   } else if (hasExploreAccess.value && !hasFacsimileAccess.value && hasTranscriptAccess.value) {
-    return 'explore_transcript'
+    key = 'explore_transcript'
   } else if (hasExploreAccess.value && hasFacsimileAccess.value && !hasTranscriptAccess.value) {
-    return 'explore_facsimile'
+    key = 'explore_facsimile'
   }
-  return 'other'
+  if (!userStore.userData) {
+    key += '_guest'
+  }
+  return key
 })
 
 const accessDescriptionTranslationKey = computed(() => {
@@ -142,15 +146,28 @@ const contentItemBitmapsAsPlans = computed(() => {
   "en": {
     "full_access": "Web App & Datalab access",
     "full_access_description": "Your current user plan provides access to all elements of this content item - metadata, digital surrogate, semantic enrichments, and transcript - in the Web App. In the Datalab, you can access and export all elements except the digital surrogate.",
+    "full_access_guest": "Web App access (Public Domain)",
+    "full_access_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
+
     "no_access": "Annotation & semantic enrichment access",
     "no_access_description": "Your current user plan allows you to view only the metadata and semantic enrichments of this content item. You can also access and export them via the Web App (CSV export) and the Datalab (Impresso Python library).",
+    "no_access_guest": "Annotation & semantic enrichment access",
+    "no_access_guest_description": "You can view only the metadata and semantic enrichments of this content item. If you want to access this content in Datalab, please log in or create an account.",
+
     "explore": "Web App access",
     "explore_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. However, via CSV export and the Datalab (Impresso Python library), you can access only its metadata and semantic enrichments.",
+    "explore_guest": "Web App access",
+    "explore_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
 
     "explore_transcript": "Web App & transcript access",
     "explore_transcript_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. Additionally, you can access and export its metadata and transcript via CSV export and the Datalab (Impresso Python library). However, access to the digital surrogate is not included.",
+    "explore_transcript_guest": "Web App & transcript access",
+    "explore_transcript_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
+
     "explore_facsimile": "Web App & facsimile access",
     "explore_facsimile_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. Additionally, you can access and export its metadata and facsimile images via CSV export and the Datalab (Impresso Python library).",
+    "explore_facsimile_guest": "Web App access",
+    "explore_facsimile_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
     "other": "Limited Access",
     "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
   }
