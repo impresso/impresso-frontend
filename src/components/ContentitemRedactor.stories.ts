@@ -1,7 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import ContentItemRedactor, { ContentItemRedactorProps } from '@/components/ContentItemRedactor.vue'
-import { PlanGuestAsBigInt, PlanImpressoUserAsBigInt } from '@/constants'
+import {
+  PlanGuestAsBigInt,
+  PlanEducationalAsBigInt,
+  PlanImpressoUserAsBigInt,
+  PlanResearcherAsBigInt
+} from '@/constants'
 import { bigIntToBase64Bytes } from '@/util/bigint'
+
+const ThisRequiresStudentPlan = bigIntToBase64Bytes(BigInt('0b100')) // educational
+const ThisIsForEveryone = bigIntToBase64Bytes(BigInt('0b1'))
+const ThisRequiresBasicUserPlan = bigIntToBase64Bytes(BigInt('0b10')) // basic user
+const ThisRequiresAcademicUserPlan = bigIntToBase64Bytes(BigInt('0b1000')) // researcher
+const ThisRequiresSpecialMembership = bigIntToBase64Bytes(BigInt('0b1000000000000')) // all bits on
 
 const mockContentItem = {
   id: 'article',
@@ -16,9 +27,9 @@ const mockContentItem = {
     dataDomain: 'prt',
     copyright: 'in_cpy',
     accessBitmaps: {
-      explore: 'AAAAAAAAAAI=',
-      getTranscript: 'AAAAgAAAAAA=',
-      getImages: 'AAAAgAAAAAA='
+      explore: ThisRequiresBasicUserPlan,
+      getTranscript: ThisRequiresStudentPlan,
+      getImages: ThisRequiresAcademicUserPlan
     }
   }
 }
@@ -34,7 +45,7 @@ const meta: Meta<typeof ContentItemRedactor> = {
       },
       components: { ContentItemRedactor },
       template: `
-        <div class="bg-light d-flex align-items-center p-4" >
+        <div class="bg-light p-4" >
           <ContentItemRedactor v-bind="args">
           </ContentItemRedactor>
         </div>
@@ -56,12 +67,76 @@ export const Default: Story = {
   } as ContentItemRedactorProps
 }
 
+export const WithDebugInfo: Story = {
+  args: {
+    item: {
+      ...mockContentItem
+    },
+    userBitmap: bigIntToBase64Bytes(PlanGuestAsBigInt), // guest
+    context: 'explore',
+    debug: true
+  } as ContentItemRedactorProps
+}
+
+export const StudentUserAgainstAcademicPlanPublicApiWithDebugInfo: Story = {
+  args: {
+    item: {
+      ...mockContentItem,
+      access: {
+        ...mockContentItem.access,
+        accessBitmaps: {
+          ...mockContentItem.access.accessBitmaps,
+          transcript: ThisRequiresAcademicUserPlan
+        }
+      }
+    },
+    userBitmap: bigIntToBase64Bytes(PlanEducationalAsBigInt), // student
+    context: 'publicApi',
+    debug: true
+  } as ContentItemRedactorProps
+}
+
+export const StudentUserAgainstSpecialMembershipPublicApiWithDebugInfo: Story = {
+  args: {
+    item: {
+      ...mockContentItem,
+      access: {
+        ...mockContentItem.access,
+        accessBitmaps: {
+          ...mockContentItem.access.accessBitmaps,
+          transcript: ThisRequiresSpecialMembership
+        }
+      }
+    },
+    userBitmap: bigIntToBase64Bytes(PlanEducationalAsBigInt), // student
+    context: 'publicApi',
+    debug: true
+  } as ContentItemRedactorProps
+}
+
 export const NoRedactionNeeded: Story = {
   args: {
     item: {
       ...mockContentItem
     },
     userBitmap: bigIntToBase64Bytes(PlanImpressoUserAsBigInt), // full access
+    context: 'explore'
+  } as ContentItemRedactorProps
+}
+
+export const NoRedactionWithStudentPlanNeeded: Story = {
+  args: {
+    item: {
+      ...mockContentItem,
+      access: {
+        ...mockContentItem.access,
+        accessBitmaps: {
+          ...mockContentItem.access.accessBitmaps,
+          explore: ThisRequiresStudentPlan
+        }
+      } // requires educational plan
+    },
+    userBitmap: bigIntToBase64Bytes(PlanEducationalAsBigInt), // student
     context: 'explore'
   } as ContentItemRedactorProps
 }
