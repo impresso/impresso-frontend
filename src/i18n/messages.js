@@ -53,6 +53,11 @@ export default {
         cs: 'Czech',
         ja: 'Japanese',
         sw: 'Swedish',
+        sq: 'Albanian',
+        br: 'Breton',
+        tl: 'Tagalog',
+        sv: 'Swahili',
+        cy: 'Welsh',
         'n/a': 'Undefined language',
         nl: 'Dutch',
         undefined: 'Undefined language'
@@ -213,7 +218,7 @@ export default {
       articlesMatchingWithinSearch:
         'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
       articlesMatchingSearchFilters:
-        'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
+        'no content items matching your search filters | <span class="number">1</span> content items matching your search filters | <span class="number">{n}</span> content items matching your search filters',
       relatedTopics:
         'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',

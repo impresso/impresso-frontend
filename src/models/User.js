@@ -14,7 +14,6 @@ const regexpColor = new RegExp(/^#[a-f0-9]{3,6}$/)
  * @param {Date}    creationDate=null Date of creation
  * @param {Boolean} emailAccepted=false Email accepted
  * @param {String}  displayName=''  Display name
- * @param {String}  bitmap=''      Bitmap as base64 string
  */
 export default class User {
   constructor({
@@ -30,8 +29,8 @@ export default class User {
     pattern = [],
     creationDate = null,
     emailAccepted = false,
-    displayName = '',
-    bitmap = '' // bitmap as base64 string
+    displayName = ''
+    // bitmap = '' // bitmap as base64 string
   } = {}) {
     this.firstname = String(firstname)
     this.lastname = String(lastname)
@@ -60,7 +59,6 @@ export default class User {
     } else {
       this.displayName = 'guest'
     }
-    this.bitmap = String(bitmap)
   }
 
   setPattern(pattern) {

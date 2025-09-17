@@ -40,6 +40,7 @@
     "@vuelidate/validators": "^2.0.4",
     "ajv": "^8.17.1",
     "axios": "^1.8.4",
+    "bigint-buffer": "^1.1.5",
     "d3": "7.9.0",
     "diff": "^5.1.0",
     "dripicons": "2.0.0",

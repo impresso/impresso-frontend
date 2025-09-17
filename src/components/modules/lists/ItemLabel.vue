@@ -60,12 +60,7 @@ export default defineComponent({
             '<span class="small-caps">',
             this.$t('dates.lastModifiedDate'),
             this.item.lastModifiedDate ? this.$d(this.item.lastModifiedDate, 'short') : '(unknown)',
-            '</span><br/>',
-            this.item.countItems
-              ? this.$tc('numbers.articles', this.item.countItems, {
-                  n: this.$n(this.item.countItems)
-                })
-              : '(empty)'
+            '</span>'
           ].join(' ')
         } else {
           t = this.item.uid

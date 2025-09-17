@@ -35,6 +35,8 @@
             show-link
             class="mb-2"
           />
+          <ContentItemAccess :item="contentItem" class="mr-3" />
+
           <b-badge
             class="mb-2"
             pill
@@ -125,6 +127,7 @@ import { useUserStore } from '@/stores/user'
 import { defineComponent, PropType } from 'vue'
 import { ContentItem } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
+import ContentItemAccess from '../ContentItemAccess.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -300,7 +303,8 @@ export default defineComponent({
     CollectionAddTo,
     ArticleItem,
     CopyToClipboard,
-    IIIFFragment
+    IIIFFragment,
+    ContentItemAccess
   }
 })
 </script>
