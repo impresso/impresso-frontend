@@ -25,23 +25,25 @@ import { getSearchFacetsService } from '@/services'
 export default {
   name: 'TextReuseOverview',
   components: {
-    StackedBarsPanel: defineAsyncComponent(() => import('@/components/modules/vis/StackedBarsPanel.vue')),
+    StackedBarsPanel: defineAsyncComponent(
+      () => import('@/components/modules/vis/StackedBarsPanel.vue')
+    )
   },
   props: {
     filters: {
       type: Array,
-      default: () => [],
+      default: () => []
     },
     loading: Boolean,
     searchIndex: {
       type: String,
-      default: 'tr_passages',
-    },
+      default: 'tr_passages'
+    }
   },
   data: () => ({
-    facets: ['newspaper', 'country', 'type', 'language', 'person', 'location', 'topic'].map(
-      type => new Facet({ type }),
-    ),
+    facets: ['newspaper', 'country', 'language', 'person', 'location', 'topic'].map(
+      type => new Facet({ type })
+    )
   }),
   computed: {
     /** @returns {{ query: any, hash: string }} */
@@ -50,18 +52,15 @@ export default {
         limit: 10,
         order_by: '-count',
         page: 1,
-        filters: this.filters,
+        filters: this.filters
       }
       // eslint-disable-next-line
       console.debug('[TextReuse] searchFacetApiQueryParams', query)
       return {
         query,
-        hash: JSON.stringify(query)
-          .split('')
-          .sort()
-          .join(''),
+        hash: JSON.stringify(query).split('').sort().join('')
       }
-    },
+    }
   },
   methods: {
     loadFacets(types, opts = {}) {
@@ -70,15 +69,15 @@ export default {
         '[TextReuseOverview] loadFacets',
         types,
         'query',
-        this.searchFacetApiQueryParams.query,
+        this.searchFacetApiQueryParams.query
       )
       getSearchFacetsService(this.searchIndex)
         .find({
           query: {
             facets: types,
             ...this.searchFacetApiQueryParams.query,
-            ...opts,
-          },
+            ...opts
+          }
         })
         .then(result => {
           result.data.forEach(result => {
@@ -89,7 +88,7 @@ export default {
             }
           })
         })
-    },
+    }
   },
   watch: {
     searchFacetApiQueryParams: {
@@ -110,8 +109,8 @@ export default {
         ])
       },
       immediate: true,
-      deep: false,
-    },
-  },
+      deep: false
+    }
+  }
 }
 </script>

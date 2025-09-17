@@ -61,11 +61,11 @@
               ><span>{{ $t('routeTextReuseOverview') }}</span>
             </RouterLink>
           </li>
-          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseStatistics' }">
+          <!-- hidden temporarily <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseStatistics' }">
             <RouterLink class="nav-link" :to="goToRoute({ name: 'textReuseStatistics' })"
               ><span>{{ $t('routeTextReuseStatistics') }}</span>
             </RouterLink>
-          </li>
+          </li> -->
           <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseClusters' }">
             <RouterLink
               class="nav-link"

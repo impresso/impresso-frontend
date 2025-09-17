@@ -142,7 +142,7 @@ const FacetTypes = [
   'collection',
   'year',
   'country',
-  'type',
+  // 'type',
   'language',
   'person',
   'location',
