@@ -19,6 +19,7 @@ function isLocalhost(url: string): boolean {
 
 export default ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd())
+  console.log('mode', mode)
   if (mode === 'development') {
     console.log(env)
   }

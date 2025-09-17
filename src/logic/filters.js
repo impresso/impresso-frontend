@@ -197,7 +197,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'string',
     'language',
     'topic',
-    'type',
+    // 'type', // temporarily disabled in Text Reuse
     'country',
     'location',
     'person',
@@ -216,7 +216,7 @@ export const SupportedFiltersByContext = Object.freeze({
     'isFront',
     'title',
     'topic',
-    'type',
+    // 'type',
     'country',
     'location',
     'person',
