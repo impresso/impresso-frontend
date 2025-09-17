@@ -26,6 +26,7 @@ const imageSrc = ref('')
 const imgRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
 const observer = ref<IntersectionObserver | null>(null)
+const isForbidden = ref(false)
 
 const loadImage = async () => {
   if (!props.src || !isVisible.value) return
@@ -35,15 +36,18 @@ const loadImage = async () => {
 
     const res = await fetch(props.src, { headers })
     if (!res.ok) {
+      if (res.status === 403) isForbidden.value = true
       const err = new Error(res.statusText)
       err['status'] = res.status
       throw err
     }
+    isForbidden.value = false
 
     const blob = await res.blob()
     if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
     imageSrc.value = URL.createObjectURL(blob)
   } catch (error) {
+    console.error('Error loading image:', error, 'for:', props.src)
     emit('error', error)
   }
 }
@@ -109,5 +113,21 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <img ref="imgRef" :src="imageSrc" v-bind="attrs" @load="handleLoad" />
+  <div>
+    <img v-if="!isForbidden" ref="imgRef" :src="imageSrc" v-bind="attrs" @load="handleLoad" />
+    <div
+      v-else
+      class="error rounded bg-light border p-4 d-flex align-items-center justify-content-center"
+    >
+      {{ $t('login_message') }}
+    </div>
+  </div>
 </template>
+
+<i18n lang="json">
+{
+  "en": {
+    "login_message": "You need to be signed in to view this image"
+  }
+}
+</i18n>

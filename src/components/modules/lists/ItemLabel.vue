@@ -3,7 +3,7 @@
   <div v-else class="ItemLabel">
     <div v-if="type === 'newspaper'">
       <div><label className="small-caps">newspaper's metadata</label></div>
-      <p v-html="newspaperDetailedLabel"></p>
+      <p class="m-0" v-html="newspaperDetailedLabel"></p>
     </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
@@ -18,8 +18,12 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { FacetType } from '@/models/Facet'
+import Newspaper from '@/models/Newspaper'
+import { defineComponent, PropType } from 'vue'
+
+export default defineComponent({
   name: 'ItemLabel',
   props: {
     item: {
@@ -27,7 +31,7 @@ export default {
       required: true
     },
     type: {
-      type: String,
+      type: String as PropType<FacetType>,
       required: true
     },
     detailed: {
@@ -56,18 +60,13 @@ export default {
             '<span class="small-caps">',
             this.$t('dates.lastModifiedDate'),
             this.item.lastModifiedDate ? this.$d(this.item.lastModifiedDate, 'short') : '(unknown)',
-            '</span><br/>',
-            this.item.countItems
-              ? this.$tc('numbers.articles', this.item.countItems, {
-                  n: this.$n(this.item.countItems)
-                })
-              : '(empty)'
+            '</span>'
           ].join(' ')
         } else {
           t = this.item.uid
         }
       } else if (this.type === 'year') {
-        t = this.item ? this.item.y : this.val
+        t = this.item ? this.item.y : this.item.val
       } else if (['type', 'country', 'language', 'copyright', 'dataDomain'].includes(this.type)) {
         t = this.$t(`buckets.${this.type}.${this.item.uid}`)
         if (t.startsWith('buckets.')) {
@@ -81,20 +80,46 @@ export default {
       return t
     },
     newspaperDetailedLabel() {
-      const firstIssueDate =
-        this.item?.firstIssue?.date instanceof Date
-          ? this.$d(this.item?.firstIssue?.date ?? 0, 'short')
-          : this.$d(new Date(this.item?.firstIssue?.date ?? 0), 'short')
-      const lastIssueDate =
-        this.item?.lastIssue?.date instanceof Date
-          ? this.$d(this.item?.lastIssue?.date ?? 0, 'short')
-          : this.$d(new Date(this.item?.lastIssue?.date ?? 0), 'short')
-      return [
-        `<span class="number"> ${this.$n(this.item.countArticles)}</span> articles,`,
-        `<span class="number">${this.$n(this.item.countPages)}</span> pages,`,
-        `<span class="number">${this.$n(this.item.countIssues)}</span> issues. <br/>`,
-        `Published from: ${firstIssueDate} to ${lastIssueDate}.`
-      ].join(' ')
+      const newspaperItem = this.item as Newspaper
+
+      if (!newspaperItem) {
+        return 'No detailed information available.'
+      }
+      const parts = [
+        `<span class="number">${this.$n(newspaperItem.countPages)}</span> pages,`,
+        `<span class="number">${this.$n(newspaperItem.countIssues)}</span> issues.`
+      ]
+      if (newspaperItem.startYear != null && newspaperItem.endYear != null) {
+        const firstYear = newspaperItem.startYear
+        const lastYear = newspaperItem.endYear
+        if (firstYear === lastYear) {
+          parts.push(`Published in ${firstYear}.`)
+        } else {
+          parts.push(`Published from ${firstYear} to ${lastYear}.`)
+        }
+      }
+
+      if (Array.isArray(newspaperItem.properties)) {
+        // push institution names
+        const institutionsNames = newspaperItem.properties
+          .filter(p => p.name === 'institutionNames')
+          .map(p => p.value)
+        if (institutionsNames.length > 0) {
+          parts.push(`Owned by ${institutionsNames.join(', ')}.`)
+        } else {
+          parts.push('No institution information available.')
+        }
+
+        const bibRecText = newspaperItem.properties
+          .filter(p => p.name === 'bibRecText')
+          .map(p => p.value)
+          .join(', ')
+        if (bibRecText) {
+          parts.push('<blockquote class="m-2 pl-2 small border-left">', bibRecText, '</blockquote>')
+        }
+      }
+
+      return parts.join(' ')
     }
   },
   methods: {
@@ -152,7 +177,7 @@ export default {
       ].join(' ')
     }
   }
-}
+})
 </script>
 
 <style lang="css"></style>

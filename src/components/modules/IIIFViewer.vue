@@ -1,5 +1,16 @@
 <template>
-  <div class="IIIFViewer" ref="viewerContainer"></div>
+  <div class="IIIFViewer" ref="viewerContainer">
+    <div v-if="errorKind != null" class="forbidden-overlay">
+      <div class="forbidden-message">
+        <div class="error-description" v-if="errorKind === 'forbidden'">
+          {{ $t('errorMessageForbidden') }}
+        </div>
+        <div class="error-description" v-else>
+          {{ $t('errorMessageGeneric', { errorMessage: errorKind }) }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -51,6 +62,12 @@ const emit = defineEmits(['clickOnOverlayRegion'])
 
 const viewerContainer = ref<HTMLDivElement | null>(null)
 const viewer = ref<Viewer | null>(null)
+
+/**
+ * Set to true if the viewer encounters an error when
+ * trying to load a tile source or tiles.
+ */
+const errorKind = ref<'forbidden' | 'unknown' | undefined>()
 
 const manifestUrlsChanged = computed(() => {
   return JSON.stringify(props.manifestUrls) // eslint-disable-line
@@ -232,10 +249,33 @@ const createViewer = () => {
       fitBoundsToOverlay(props.fitBoundsToOverlayIdx)
     })
   })
+
+  // Handle failure to open a tile source
+  viewer.value.addHandler('open-failed', event => {
+    if (event.message && event.message.includes('403')) {
+      errorKind.value = 'forbidden'
+    } else {
+      errorKind.value = 'unknown'
+    }
+    console.error('[IIIFViewer] @open-failed:', event)
+  })
+
+  // Handle failure to load individual tiles
+  viewer.value.addHandler('tile-load-failed', event => {
+    if (event.message && event.message.includes('load aborted')) {
+      errorKind.value = 'forbidden'
+    } else {
+      errorKind.value = 'unknown'
+    }
+    console.error('[IIIFViewer] @tile-load-failed:', event)
+  })
 }
 
 watch([manifestUrlsChanged, overlaysChanged], _ => {
   console.debug('[IIIFViewer] manifestUrls changed to:', props.manifestUrls)
+  // Reset error kind when manifest URLs change
+  errorKind.value = undefined
+
   if (!viewer.value) {
     createViewer()
   }
@@ -307,4 +347,51 @@ onBeforeUnmount(() => {
 .IIIFViewer .openseadragon-container {
   overflow: hidden;
 }
+
+.IIIFViewer .forbidden-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.IIIFViewer .forbidden-message {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.IIIFViewer .error-code {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.IIIFViewer .error-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.IIIFViewer .error-description {
+  color: #555;
+}
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "errorMessageForbidden": "This image is available with a different plan or special membership. Please check your subscription details.",
+    "errorMessageGeneric": "We ran into a problem while loading the image. Details: { errorMessage }. Please try again later or contact support if the problem persists."
+  }
+}
+</i18n>

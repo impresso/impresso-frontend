@@ -2,6 +2,7 @@
   <div class="IIIFFragment">
     <figure class="position-relative IIIFFragment overflow-hidden">
       <auth-img
+        v-if="isIiifReady"
         class="shadow-sm"
         :src="computedImageUrl"
         :alt="isNotFound ? 'Image not available' : ''"
@@ -31,11 +32,23 @@
         ></div>
       </div>
     </figure>
-    <div v-if="errorMessage" class="alert alert-danger" role="alert">
-      {{ errorMessage }}
+    <div v-if="hasErrors" class="bg-light border rounded position-absolute top-0 p-4 text-center">
+      <div v-if="isForbidden" v-html="$t('errorMessageForbidden')" />
+      <div v-else-if="isNotFound" v-html="$t('errorMessageNotFound', { errorMessage })" />
+      <div v-else-if="errorMessage" v-html="$t('errorMessageGeneric', { errorMessage })" />
     </div>
   </div>
 </template>
+
+<i18n lang="json">
+{
+  "en": {
+    "errorMessageForbidden": "This image is available with a different plan or special membership. <br /> Please check your subscription details.",
+    "errorMessageNotFound": "This image is not available. <br /> Details: <em>{ errorMessage }</em>",
+    "errorMessageGeneric": "We ran into a problem while loading the image.<br /> Details: <em>{ errorMessage }</em>. <br/> Please try again later or contact support if the problem persists."
+  }
+}
+</i18n>
 
 <script lang="ts">
 import AuthImg from '@/components/AuthImg.vue'
@@ -45,7 +58,7 @@ import { defaultAuthCondition } from '@/util/imageAuth'
 import axios from 'axios'
 import { defineComponent, PropType } from 'vue'
 
-interface IParsedSize {
+export interface IParsedSize {
   type: 'max' | 'exact' | 'bestfit' | 'width' | 'height' | 'percentage' | 'unknown'
   upscale: boolean
   width?: number
@@ -54,19 +67,59 @@ interface IParsedSize {
   maintain_aspect_ratio?: boolean
 }
 
+export interface ImageLoadError extends Error {
+  status?: number
+}
 // IIIF v3 spec level1 profile interface
-interface IIIIFProfile {
+export interface IIIIFProfile {
   width: number
   height: number
   sizes: { width: number; height: number }[]
   profile: 'level1'
 }
 
-interface ICoords {
+export interface ICoords {
   x: number
   y: number
   w: number
   h: number
+}
+
+/**
+ * The coordinatest provided may be incorrect (out of bounds, negative, covering area outside image...).
+ * This function ensures the coordinates are valid and within the image dimensions.
+ * If the region is completely out of bounds (x and y start outside image), it will return
+ * the full image coordinates.
+ */
+const sanitizeCoordinates = (coords: ICoords, imageWidth: number, imageHeight: number): ICoords => {
+  const { x, y, w, h } = coords
+
+  // If region is completely out of bounds, return full image coordinates
+  if (x >= imageWidth || y >= imageHeight || x < 0 || y < 0) {
+    return {
+      x: 0,
+      y: 0,
+      w: imageWidth,
+      h: imageHeight
+    }
+  }
+
+  // Clamp coordinates to image bounds
+  const sanitizedX = Math.max(0, Math.min(x, imageWidth))
+  const sanitizedY = Math.max(0, Math.min(y, imageHeight))
+
+  // Adjust width and height to stay within image bounds
+  const maxWidth = imageWidth - sanitizedX
+  const maxHeight = imageHeight - sanitizedY
+  const sanitizedW = Math.max(1, Math.min(w, maxWidth))
+  const sanitizedH = Math.max(1, Math.min(h, maxHeight))
+
+  return {
+    x: sanitizedX,
+    y: sanitizedY,
+    w: sanitizedW,
+    h: sanitizedH
+  }
 }
 
 export default defineComponent({
@@ -79,8 +132,10 @@ export default defineComponent({
       imageHeight: 0,
       isLoaded: false,
       isNotFound: false,
+      isForbidden: false,
       errorMessage: null,
-      adjustedSize: null
+      adjustedSize: null,
+      isIiifReady: false
     }
   },
   props: {
@@ -99,6 +154,15 @@ export default defineComponent({
       type: String,
       default: 'max'
     },
+    extension: {
+      // Image format extension (jpg or png)
+      type: String,
+      /**
+       * NOTE: `jpg` is the most widely supported format across IIIF servers. It's safer to use it everywhere.
+       */
+      default: 'jpg',
+      validator: (value: string) => ['jpg', 'png'].includes(value)
+    },
     scale: {
       // scale down size parameter when printing image
       type: Number,
@@ -106,10 +170,10 @@ export default defineComponent({
     },
     coords: {
       // IIIF size parameter
-      type: Object
+      type: Object as PropType<ICoords>
     },
     regions: {
-      type: Array as PropType<{ coords: ICoords }[]>,
+      type: Array as PropType<{ coords?: ICoords }[]>,
       default: () => []
     },
     matches: {
@@ -203,20 +267,25 @@ export default defineComponent({
       let iiif = this.iiif.replace('/info.json', '')
 
       const size = this.adjustedSize ?? this.size
+      const format = `default.${this.extension}`
 
       if (this.regions.length && this.fitToRegions) {
-        const coords = this.getCoordsFromArticleRegions()
+        const coords = sanitizeCoordinates(
+          this.getCoordsFromArticleRegions(),
+          this.width,
+          this.height
+        )
         if (coords.w * coords.h < this.coordMinArea) {
-          return `${iiif}/full/${size}/0/default.jpg`
+          return `${iiif}/full/${size}/0/${format}`
         }
-        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${size}/0/default.jpg`
+        return `${iiif}/${coords.x},${coords.y},${coords.w},${coords.h}/${size}/0/${format}`
       }
       if (this.coords) {
         // /125,15,120,140/max/0/default.jpg
-        const { x, y, w, h } = this.coords
-        return `${iiif}/${x},${y},${w},${h}/${size}/0/default.jpg`
+        const { x, y, w, h } = sanitizeCoordinates(this.coords, this.width, this.height)
+        return `${iiif}/${x},${y},${w},${h}/${size}/0/${format}`
       }
-      return `${iiif}/full/${size}/0/default.jpg`
+      return `${iiif}/full/${size}/0/${format}`
     },
     computedRegionsStyle() {
       return {
@@ -250,6 +319,9 @@ export default defineComponent({
           h: (h / this.height) * 100
         }
       })
+    },
+    hasErrors() {
+      return this.isNotFound || this.isForbidden || !!this.errorMessage
     }
   },
   methods: {
@@ -259,13 +331,13 @@ export default defineComponent({
       this.imageHeight = target.naturalHeight
       this.isLoaded = true
     },
-    onImageLoadError(e: Error) {
-      this.isNotFound = e['status'] === 404
+    onImageLoadError(e: ImageLoadError) {
+      this.isNotFound = e.status === 404
+      this.isForbidden = e.status === 403
       this.isLoaded = false
-      if (e['status'] !== 404) {
-        this.errorMessage = e.message
-      }
+      this.errorMessage = e.message
     },
+
     requiresAuth(url: string) {
       const authCondition = this.authCondition ?? defaultAuthCondition
       return authCondition(url)
@@ -302,8 +374,8 @@ export default defineComponent({
       }
     },
     async getIIIFInfo() {
+      // iiif url should be without info.json, it is not always the case
       const iiif = this.iiif.replace('/info.json', '')
-      // .replace(String(import.meta.env.VITE_BASE_URL), '')
 
       try {
         const response = await axios.get(`${iiif}/info.json`, {
@@ -313,13 +385,12 @@ export default defineComponent({
         this.width = response.data.width
         this.height = response.data.height
         this.adjustedSize = this.getBestSizeForProfile(this.parsedSize, response.data)
+        this.isIiifReady = true
       } catch (error) {
-        if (error?.response?.status !== 404) {
-          this.errorMessage = `${error.message}: ${iiif}`
-        } else {
-          this.isLoaded = false
-          this.isNotFound = true
-        }
+        this.onImageLoadError({
+          status: error.response?.status,
+          message: error.response?.data?.error || error.message || 'Failed to load IIIF info'
+        } as ImageLoadError)
         this.adjustedSize = this.size
       }
     },
@@ -452,8 +523,8 @@ export default defineComponent({
   components: {
     AuthImg
   },
-  mounted() {
-    this.getIIIFInfo()
+  async mounted() {
+    await this.getIIIFInfo()
     // load iiiif info.json
   }
 })

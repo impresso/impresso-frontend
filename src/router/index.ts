@@ -61,6 +61,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/search/radio',
+      name: 'searchRadio',
+      component: () => import('@/pages/SearchRadio.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/faq',
       name: 'faq',
       component: FaqPage,
@@ -341,18 +349,27 @@ const router = createRouter({
       path: '/article/:article_uid',
       component: () => null,
       beforeEnter: async to => {
-        const res = await services.articles.get(to.params.article_uid as string)
+        const ci = await services.contentItems.get(to.params.article_uid as string)
         return {
           name: 'issue-viewer',
           params: {
-            issue_uid: res.issue.uid
+            issue_uid: ci.issueId
           },
           query: {
-            p: res.pages[0]?.num,
-            articleId: getShortArticleId(res.uid),
-            text: '1'
+            p: ci.image?.pages?.[0]?.number,
+            articleId: getShortArticleId(ci.id),
+            text: '2'
           }
         }
+      }
+    },
+    {
+      name: 'audioContentItem',
+      path: '/audio-content-item/:content_item_uid',
+      component: () => import('@/pages/AudioContentItem.vue'),
+      meta: {
+        requiresAuth: true,
+        realm: 'contentItem'
       }
     },
     {

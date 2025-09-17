@@ -10,6 +10,7 @@ import User from '@/models/User'
 import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
 import { removeCookie, setCookie } from '@/util/cookies'
 import { TermsOfUse } from '@/services/types'
+import { decodeJwt } from '@/util/auth'
 
 export interface State {
   userData: User | false
@@ -34,7 +35,7 @@ interface IAuthResult {
 export const useUserStore = defineStore('user', {
   state: (): State => ({
     userData: false,
-    bitmap: '1',
+    bitmap: 'AQ==',
     rememberCredentials: false,
     redirectionParams: {},
     // this is not stored on localStorage, and if it is not null is a ISO date string
@@ -93,6 +94,7 @@ export const useUserStore = defineStore('user', {
           removeCookie(MEDIA_COOKIE_NAME, MIDDLELAYER_MEDIA_PATH)
           // clean terms date and bitmap
           this.userData = false
+          this.bitmap = 'AQ=='
           this.acceptTermsDate = null
         })
     },
@@ -108,7 +110,9 @@ export const useUserStore = defineStore('user', {
         .find()
         .then(d => {
           console.info('[store/user]', d)
-          const user = new User(d)
+          const user = new User({
+            ...d
+          })
           this.userData = user
           return user
         })
@@ -122,9 +126,10 @@ export const useUserStore = defineStore('user', {
     async login({ email, password }: { email: string; password: string }) {
       const authResult = await app.authenticate({ strategy: 'local', email, password })
 
-      const { accessToken, authentication, user } = authResult as IAuthResult
-
+      const { accessToken, authentication, user: partialUser } = authResult as IAuthResult
+      const { bitmap } = decodeJwt(accessToken)
       console.info('[store/user] Authentication response:', Object.keys(authResult))
+      this.setBitmap(bitmap)
 
       const termsOfuse: TermsOfUse | null = await termsOfUseService
         .find()
@@ -148,11 +153,7 @@ export const useUserStore = defineStore('user', {
         this.setAcceptTermsDate(null)
       }
 
-      if (user && user.bitmap) {
-        console.info(' - bitmap:', user.bitmap)
-        this.bitmap = user.bitmap
-      }
-      console.info('LOGIN: user', user.username, 'logged in!')
+      console.debug('[store/user] user', partialUser.username, 'logged in!')
 
       // Set the access token in a cookie on the media path only.
       // It is used to authorize the use of media files: images, audio.
@@ -167,19 +168,11 @@ export const useUserStore = defineStore('user', {
       // const expiredDate = new Date(authentication?.payload?.exp * 1000)
       // document.cookie =
       //   'feathers-jwt=' + accessToken + '; expires=' + expiredDate.toUTCString() + '; path=/'
-      app.set('user', user)
-      this.userData = new User({
-        ...user,
-        picture: (user as any).profile.picture,
-        pattern: (user as any).profile.pattern
-      })
+      const user = await this.refreshUser()
       return user
     },
     setRememberCredentials(remember: boolean) {
       this.rememberCredentials = remember
-    },
-    getCurrentUser() {
-      return meService.find().then(d => new User(d))
     },
     setRedirectionRoute(params) {
       console.debug('[tores/user] setRedirectionRoute params:', params)

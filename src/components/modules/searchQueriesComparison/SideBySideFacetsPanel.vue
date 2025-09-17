@@ -58,6 +58,7 @@
             :type="facet.visualisationType"
             :values="comparableItem.buckets"
             :numBuckets="comparableItem.numBuckets"
+            :max-values="comparableItem.maxValues"
             @timeline-highlight="onTimelineHighlight"
             @timeline-highlight-off="onTimelineHighlightOff"
             @hovered="onHovered"
@@ -75,34 +76,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FacetOverviewPanel from '@/components/modules/searchQueriesComparison/FacetOverviewPanel.vue'
 import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
 import { ComparableTypes } from '@/logic/queryComparison'
 import { mapStores } from 'pinia'
-import { useMonitorStore } from '@/stores/monitor'
+import { ActivateParameters, useMonitorStore } from '@/stores/monitor'
+import { Bucket } from '@/models'
+import { PropType } from 'vue'
+import { Comparable } from '@/logic/queryComparison'
+import { FacetType } from '@/models/Facet'
 
-/**
- * @typedef {import('../../../models').Bucket} Bucket
- * @typedef {import('../../../models').Entity} Entity
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/logic/queryComparison').Comparable} Comparable
- * @typedef {{ buckets: Bucket[], isLoaded: boolean, numBuckets: number }} ComparableItem
- * @typedef {{ id: string, comparableItems: ComparableItem[], visualisationType: string }} FacetContainer
- */
+type HandleFacetItemClickedParams = Partial<Pick<ActivateParameters, 'item' | 'type'>>
 
-/**
- * @param {FacetContainer[]} facets
- * @returns {[number, number] | []}
- */
-function getYearsSpan(facets) {
+export interface ComparableItem {
+  buckets: Bucket[]
+  maxValues?: Bucket[]
+  isLoaded: boolean
+  numBuckets: number
+}
+
+export interface FacetContainer {
+  id: FacetType
+  comparableItems: ComparableItem[]
+  visualisationType: 'timeline' | 'bars'
+}
+
+function getYearsSpan(facets: FacetContainer[]): [number, number] | [] {
   const yearFacet = facets.find(({ id }) => id === 'year')
   if (!yearFacet) return []
 
   const years = [
     ...new Set(
       yearFacet.comparableItems.flatMap(({ buckets }) =>
-        buckets.map(({ val }) => parseInt(val, 10))
+        buckets.map(({ val }) => (typeof val === 'string' ? parseInt(val, 10) : val))
       )
     )
   ].sort()
@@ -118,23 +125,20 @@ export default {
     hoverId: undefined
   }),
   props: {
-    /** @type {import('vue').PropOptions<FacetContainer[]>} */
     facets: {
-      type: Array,
+      type: Array as PropType<FacetContainer[]>,
       default: () => []
     },
-    /** @type {import('vue').PropOptions<boolean[]>} */
     comparableLoadingFlags: {
-      type: Array,
+      type: Array as PropType<boolean[]>,
       default: () => []
     },
     disableHandlingLoadingAndEmpty: {
       type: Boolean,
       default: false
     },
-    /** @type {import('vue').PropOptions<Comparable[]>} */
     comparables: {
-      type: Array,
+      type: Array as PropType<Comparable[]>,
       default: () => []
     }
   },
@@ -190,7 +194,10 @@ export default {
      * @param {number} comparableIndex
      * @param {{ params: { item: Entity, type: string }, defaultActionExecuted: boolean }} facetItem
      */
-    handleFacetItemClicked(comparableIndex, { params: { item, type } = {} }) {
+    handleFacetItemClicked(
+      comparableIndex,
+      { params: { item, type } = {} }: { params: HandleFacetItemClickedParams }
+    ) {
       if (item == null || type == null) return
       const comparable = this.comparables[comparableIndex]
       const filters = comparable?.filters ?? comparable?.query?.filters

@@ -10,6 +10,7 @@ import uploadedImagesHooks from './hooks/uploadedImages'
 import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
 import type { Services } from './types'
+import { DataProvidersService } from './local/dataProviders'
 
 export const app = feathers<Services>()
 
@@ -129,7 +130,7 @@ app.service('logs').on('created', payload => {
 // repeat this line for every service in our backend
 export const version = app.service('version')
 export const suggestions = app.service('suggestions')
-export const articles = app.service('articles')
+export const contentItems = app.service('content-items')
 export const images = app.service('images').hooks(imagesHooks)
 export const issues = app.service('issues')
 export const issuesTimeline = app.service('issues-timelines')
@@ -169,7 +170,6 @@ export const getSearchFacetsService = (index: string) => {
       throw new Error(`Unknown search facet index: ${index}`)
   }
 }
-export const contentItems = app.service('content-items')
 export const tableOfContents = app.service('table-of-contents')
 export const searchQueriesComparison = app.service('search-queries-comparison')
 export const errorCollector = app.service('errors-collector')
@@ -194,6 +194,7 @@ export const subscriptionDatasets = app.service('subscriptions')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
 export const barista = app.service('barista-proxy')
+export const dataProviders = new DataProvidersService()
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH

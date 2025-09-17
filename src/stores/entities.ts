@@ -1,75 +1,43 @@
 import { defineStore } from 'pinia'
 import {
-  search as searchService,
+  contentItems as contentItemsService,
   mentions as mentionsService,
   entities as entitiesService,
   searchFacets as searchFacetsService
 } from '@/services'
-import Article from '@/models/Article'
-import Mention from '@/models/Mention'
 import Entity from '@/models/Entity'
 import Facet from '@/models/Facet'
 import Helpers from '@/plugins/Helpers'
+import { FindQuery as FindContentItemsQuery } from '@/services/types/contentItems'
+import { FindQuery as FindMentionsQuery } from '@/services/types/mentions'
 
 export interface State {}
-
-export interface LoadRequest {
-  page?: number
-  filters?: object[]
-  orderBy?: string
-  faster?: string
-}
 
 export const useEntitiesStore = defineStore('entities', {
   state: (): State => ({}),
   getters: {},
   actions: {
-    loadEntityArticles({ page = 1, filters = [], orderBy = '-relevance' }: LoadRequest = {}) {
+    loadEntityContentItems({ offset, filters, order_by }: FindContentItemsQuery = {}) {
       const query = {
-        page,
+        offset,
         filters,
-        order_by: orderBy,
-        group_by: 'articles'
-      }
-      return searchService
-        .find({
-          query
-        })
-        .then(res => ({
-          ...res,
-          data: res.data.map(d => new Article(d))
-        }))
+        order_by
+      } satisfies FindContentItemsQuery
+      return contentItemsService.find({
+        query
+      })
     },
-    loadEntityMentions({
-      page = 1,
-      filters = [],
-      orderBy = '-relevance',
-      faster = 'on'
-    }: LoadRequest = {}) {
+    loadEntityMentions({ offset, filters = [], order_by, faster }: FindMentionsQuery = {}) {
       const query = {
         faster,
-        page,
+        offset,
         filters,
-        order_by: orderBy
+        order_by
       }
 
-      return mentionsService
-        .find({
-          query
-        })
-        .then(res => {
-          return res
-        })
-        .then(res => ({
-          ...res,
-          data: res.data.map(d => {
-            const mention = new Mention(d)
-            if (mention.article) {
-              mention.article = new Article(mention.article)
-            }
-            return mention
-          })
-        }))
+      return mentionsService.find({
+        query
+      })
     },
     loadDetail(entityId: string) {
       return entitiesService.get(entityId, {}).then(res => {
@@ -106,7 +74,7 @@ export const useEntitiesStore = defineStore('entities', {
         .get('topic', {
           query
         })
-        .then(topic => new Facet(topic))
+        .then(facet => Facet.fromSearchFacet(facet))
     },
     loadPageEntities(pageId: string) {
       const query = {
@@ -123,7 +91,9 @@ export const useEntitiesStore = defineStore('entities', {
         .find({
           query
         })
-        .then(response => [new Facet(response.data[0]), new Facet(response.data[1])])
+        .then(response => {
+          return [Facet.fromSearchFacet(response.data[0]), Facet.fromSearchFacet(response.data[1])]
+        })
     }
   },
   persist: {

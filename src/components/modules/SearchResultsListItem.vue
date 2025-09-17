@@ -10,13 +10,16 @@
           v-if="article?.pages?.length"
           :iiif="article.pages[0].iiif"
           size="!496,480"
-          :scale="0.5"
+          :scale="1"
           fit-to-regions
           :regions="computedRegionsInArticleFirstPage"
         />
       </div>
-      <div v-else class="error bg-light border">
-        <p class="message">{{ $t('login_message') }}</p>
+      <div
+        v-else
+        class="error rounded bg-light border p-4 d-flex align-items-center justify-content-center"
+      >
+        {{ $t('login_message') }}
       </div>
     </div>
     <div class="media-body">
@@ -32,6 +35,8 @@
             show-link
             class="mb-2"
           />
+          <ContentItemAccess :item="contentItem" class="mr-3" />
+
           <b-badge
             class="mb-2"
             pill
@@ -111,7 +116,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
 import ArticleItem from './lists/ArticleItem.vue'
@@ -119,23 +124,33 @@ import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { defineComponent, PropType } from 'vue'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
+import Article from '@/models/Article'
+import ContentItemAccess from '../ContentItemAccess.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
 
-export default {
-  data: () => ({
-    showModalShare: false,
-    coordsFromArticleRegion: null
-  }),
+export interface IData {
+  showModalShare: boolean
+  coordsFromArticleRegion?: { x: number; y: number; w: number; h: number } | null
+}
+
+export default defineComponent({
+  data(): IData {
+    return {
+      showModalShare: false,
+      coordsFromArticleRegion: undefined
+    } satisfies IData
+  },
   props: {
     modelValue: {
-      type: Object,
-      default: () => ({})
+      type: Object as PropType<ContentItem>
+      // default: () => ({})
     },
     checkbox: {
       type: Boolean,
-
       default: false
     },
     checked: {
@@ -149,12 +164,15 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
-    article() {
+    contentItem(): ContentItem {
       return this.modelValue
+    },
+    article() {
+      return Article.fromContentItem(this.contentItem)
     },
     pageViewerOptions() {
       return {
-        tileSources: [this.article.pages[0]?.iiif],
+        tileSources: [this.article?.pages[0]?.iiif],
         showNavigator: true,
         navigatorAutoFade: false,
         navigatorBackground: '#f8f9fa',
@@ -285,52 +303,37 @@ export default {
     CollectionAddTo,
     ArticleItem,
     CopyToClipboard,
-    IIIFFragment
+    IIIFFragment,
+    ContentItemAccess
   }
-}
+})
 </script>
 
-<style lang="scss">
+<style lang="css">
 .SearchResultListItem .list-item-details {
   max-width: 800px;
 }
 
-.SearchResultListItem {
-  .thumbnail {
-    width: 250px;
-    height: 240px;
-    position: relative;
-    cursor: move;
-  }
+.SearchResultListItem .thumbnail {
+  width: 250px;
+  height: 240px;
+  position: relative;
+  cursor: move;
+}
 
-  .error {
-    width: 250px;
-    height: 240px;
-    position: relative;
-    text-align: center;
+.SearchResultListItem .error {
+  width: 250px;
+  height: 240px;
+  position: relative;
+  text-align: center;
+}
 
-    .message {
-      margin-top: 114px;
-    }
-  }
+.SearchResultListItem h2 {
+  font-size: inherit;
+}
 
-  h2 {
-    font-size: 1.2em;
-    font-weight: 500;
-
-    a {
-      text-decoration: underline;
-
-      // text-decoration-color:#ccc;
-      &:hover {
-        text-decoration-color: transparent;
-      }
-    }
-  }
-
-  .article-collections .badge {
-    font-size: inherit;
-  }
+.SearchResultListItem .article-collections .badge {
+  font-size: inherit;
 }
 </style>
 
@@ -339,7 +342,7 @@ export default {
   "en": {
     "view": "View",
     "add_to_collection": "Save to Collection ...",
-    "login_message": "Login to view image",
+    "login_message": "You need to be signed in to view this image",
     "share_article": "Share ..."
   }
 }

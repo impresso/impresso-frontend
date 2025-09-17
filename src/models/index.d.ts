@@ -1,3 +1,5 @@
+import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
+
 export interface Entity {
   uid: string
 
@@ -15,8 +17,8 @@ export interface Entity {
   countArticles?: Number
   countIssues?: Number
 
-  start?: Number
-  end?: Number
+  start?: Number | Date
+  end?: Number | Date
 }
 
 export interface Filter {
@@ -33,17 +35,25 @@ export interface FilterInterface extends Filter {
   getQuery(): object
 }
 
-export interface Bucket {
+// New code should use either SearchFacetBucket or SearchFacetRangeBucket
+export interface Bucket<T extends Entity = Entity>
+  extends SearchFacetBucket,
+    SearchFacetRangeBucket {
+  item?: T
   val: string | number
-  count: number
-  item?: Entity
-
-  upper?: number
-  lower?: number
 }
 
-export interface Facet {
-  type: string
+// export interface Bucket {
+//   val: string | number
+//   count: number
+//   item?: Entity
+
+//   upper?: number
+//   lower?: number
+// }
+
+export interface Facet<T extends string = FacetType> {
+  type: T
   buckets: Bucket[]
   operators?: string[]
   numBuckets?: number
@@ -67,9 +77,9 @@ export interface TextReuseCluster {
 }
 
 export interface MediaSource {
-  id: string
+  uid: string
   name: string
-  type: 'newspaper' | 'radio'
+  type: ContentItemMeta['sourceType']
   acronym?: string
   startYear?: number
   endYear?: number
@@ -122,13 +132,9 @@ export interface CollectionItem {
   //   collectionIds: Array [ "local-dg-dk0t_7Rv" ]
 
   // collections: Array []
-  // ​
   // contentType: "A"
-  // ​​
   // itemId: "tageblatt-1923-07-06-a-i0031"
-  // ​​
   // latestDateAdded: "2024-11-09T15:28:26.274Z"
-  // ​​
   // searchQueries: Array []
   itemId: string
   latestDateAdded: Date
@@ -152,4 +158,36 @@ export interface FindResponse<T> {
      */
     offset: number
   }
+}
+
+export interface Utterance {
+  startTime: number
+  endTime: number
+  indices: number[] // indices of TranscriptPartialText contained in this utterance
+}
+
+export interface ContentItem {
+  uid: string
+  type: 'audio' | 'ar' | 'radio_broadcast_episode'
+  publicationDate: string
+  title?: string
+  excerpt?: string
+  transcript?: string
+  transcriptLength: number
+
+  href?: string
+  link?: string
+  mediaSource: MediaSource
+  dataProvider?: string
+  copyright?: string
+}
+
+export interface AudioContentItem extends ContentItem {
+  duration: number
+  startTime: number
+  audioSrc?: string
+  audioSrcType?: 'mp3' | 'ogg' | 'wav'
+  radioChannel?: string
+  rrrebs: Rrreb[]
+  utterances: Utterance[]
 }

@@ -18,6 +18,7 @@ export const newI18n = () => {
   return createI18n({
     legacy: true,
     fallbackLocale: 'en',
+    globalInjection: true,
     locale: settingsStore.language_code,
     datetimeFormats: datetimeFormats as any,
     numberFormats: numberFormats as any,

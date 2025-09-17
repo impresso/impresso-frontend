@@ -1,3 +1,5 @@
+import type { Entity as IEntity } from '.'
+
 interface PartnerFacet {
   id: string
   title: string
@@ -13,7 +15,7 @@ export const fromPartnerFacet = (facet?: PartnerFacet) => {
   })
 }
 
-export default class Partner {
+export default class Partner implements IEntity {
   uid: string
   name: string
   links: string[]

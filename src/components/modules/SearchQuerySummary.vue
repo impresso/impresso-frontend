@@ -86,7 +86,8 @@ export default {
       ;[
         'textReuseClusterSize',
         'textReuseClusterLexicalOverlap',
-        'textReuseClusterDayDelta'
+        'textReuseClusterDayDelta',
+        'contentLength'
       ].forEach(type => {
         if (filtersIndex[type]) {
           translationTable[type] = this.getRangeTranslation({
@@ -348,8 +349,6 @@ export default {
 
   span.item.newspaper,
   span.item.country {
-    font-family: var(--bs-font-serif);
-    font-weight: bold;
     font-weight: var(--impresso-wght-bold);
     font-variation-settings: 'wght' var(--impresso-wght-bold);
   }
@@ -379,10 +378,11 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} ",
+    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength}",
     "isFront": "appearing on the <em>front page</em>",
     "include": {
       "accessRight": "available as",
+      "contentLength": "<span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "copyright": "available as",
       "topic": "with topic",
       "pub": {
@@ -411,6 +411,8 @@ export default {
     },
     "exclude": {
       "accessRight": "not available as",
+      "contentLength": "not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+
       "copyright": "not available as",
       "topic": "without topic",
       "pub": {

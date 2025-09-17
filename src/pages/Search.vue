@@ -27,7 +27,7 @@
           />
         </button>
         <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
-          <b-form-checkbox v-model="isFront" switch v-bind:modelValue="true">
+          <b-form-checkbox v-model="isFront" switch>
             {{ $t('label_isFront') }}
           </b-form-checkbox>
         </b-form-group>
@@ -36,67 +36,10 @@
 
     <i-layout-section main>
       <template v-slot:header>
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="px-3 py-3 flex-grow-1 border-right">
-            <label class="mr-1">{{ $t('label_group') }}</label>
-            <i-dropdown
-              v-model="groupBy"
-              v-bind:options="groupByOptions"
-              size="sm"
-              variant="outline-primary"
-              data-testid="group-by-dropdown"
-            ></i-dropdown>
-          </b-navbar-nav>
-          <b-navbar-nav class="px-3 py-3 border-right">
-            <label class="mr-1">{{ $t('label_order') }}</label>
-            <i-dropdown
-              v-model="orderBy"
-              v-bind:options="orderByOptions"
-              size="sm"
-              variant="outline-primary"
-              right
-              data-testid="order-by-dropdown"
-            ></i-dropdown>
-          </b-navbar-nav>
-        </b-navbar>
-
-        <b-navbar variant="tertiary" v-if="selectedItems.length > 0" class="d-flex border-bottom">
-          <div class="flex-grow-1">
-            <span class="small-caps">
-              {{ $tc('items_selected', selectedItems.length) }}
-            </span>
-            <b-button variant="danger" class="ml-2" size="sm" v-on:click="onClearSelection()">
-              {{ $t('Clear Selection') }}
-            </b-button>
-            <collection-add-to
-              :items="selectedItems"
-              :text="$tc('add_n_to_collection', selectedItems.length)"
-              class="addbulk bg-white float-right"
-            />
-          </div>
-        </b-navbar>
-
-        <b-navbar class="d-flex p-0 border-bottom bg-light">
-          <b-navbar-nav class="px-2 pl-3 py-2 border-right flex-grow-1">
-            <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
-                :isLoading="isLoadingResults"
-                @onSummary="onSummary"
-                :group-by="groupBy"
-                :search-query="{ filters: enrichedFilters }"
-                :totalRows="paginationTotalRows"
-              />
-            </ellipsis>
-          </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-3 gap-2">
-            <CopyToDatalabButton
-              :base64Filters="base64Filters"
-              resource="search"
-              functionName="find"
-              :public-api-url="publicApiUrl"
-            />
+        <PageNavbarHeading :label="$t('pageLabel')" :title="$t('pageTitle')">
+          <template #actions>
             <RouterLink
-              class="mr-1 btn btn-sm btn-outline-primary"
+              class="mr-2 btn btn-sm btn-outline-primary"
               :to="{
                 name: 'compare',
                 query: {
@@ -106,13 +49,20 @@
             >
               {{ $t('actions.compare') }}
             </RouterLink>
+            <CopyToDatalabButton
+              class="mr-2"
+              :base64Filters="base64Filters"
+              resource="search"
+              functionName="find"
+              :public-api-url="publicApiUrl"
+            />
             <b-dropdown
               v-if="isLoggedIn"
               v-bind:text="$t('query_actions')"
               size="sm"
               variant="outline-primary"
               right
-              class="bg-white mr-3"
+              class="bg-white"
             >
               <b-dropdown-item
                 v-if="selectedItems.length > 0"
@@ -144,17 +94,32 @@
                 />
               </b-dropdown-item>
             </b-dropdown>
-            <!-- <b-form-checkbox
-              v-if="isLoggedIn"
-              class="mx-1"
-              v-bind:title="$t('select_all')"
-              v-bind:indeterminate="this.allIndeterminate"
-              v-bind:modelValue="this.allSelected"
-              @update:modelValue="toggleSelectAll"
-            >
-            </b-form-checkbox> -->
-          </b-navbar-nav>
-        </b-navbar>
+          </template>
+          <template #summary>
+            <ellipsis v-bind:initialHeight="60">
+              <search-results-summary
+                :isLoading="isLoadingResults"
+                @onSummary="onSummary"
+                :group-by="groupBy"
+                :search-query="{ filters: enrichedFilters }"
+                :totalRows="paginationTotalRows"
+              />
+            </ellipsis>
+          </template>
+          <template #summaryActions>
+            <div class="d-flex align-items-center">
+              <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
+              <i-dropdown
+                v-model="orderBy"
+                v-bind:options="orderByOptions"
+                size="sm"
+                variant="outline-primary"
+                right
+                data-testid="order-by-dropdown"
+              ></i-dropdown>
+            </div>
+          </template>
+        </PageNavbarHeading>
       </template>
 
       <Modal
@@ -184,19 +149,19 @@
         id="embeddings"
         :title="$t('label_embeddings')"
         :show="isModalVisible('embeddings')"
-        @close="hideModal('embeddings')"
+        @close="hideModal()"
       >
         <embeddings-search @embdding-selected="addFilterFromEmbedding" />
       </Modal>
 
       <div class="p-1">
         <b-container fluid>
-          <div ref="searchResultsFirstElement" />
+          <div ref="searchResultsFirstElementRef" />
           <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.uid"
+              v-bind:key="searchResult.id"
             >
               <search-results-list-item
                 v-bind:checkbox="false"
@@ -213,7 +178,7 @@
               md="6"
               lg="4"
               v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.article_uid"
+              v-bind:key="searchResult.id"
             >
               <search-results-tiles-item
                 checkbox="true"
@@ -247,7 +212,7 @@
   </i-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { mapStores } from 'pinia'
 import Autocomplete from '@/components/Autocomplete.vue'
 import Pagination from '@/components/modules/Pagination.vue'
@@ -261,79 +226,104 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
-import Article from '@/models/Article'
-import FacetModel from '@/models/Facet'
+import FacetModel, { FacetType } from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import Alert from 'impresso-ui-components/components/Alert.vue'
-import { searchResponseToFacetsExtractor, buildEmptyFacets } from '@/logic/facets'
-import { joinFiltersWithItems, SupportedFiltersByContext } from '@/logic/filters'
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
+import { buildEmptyFacets } from '@/logic/facets'
+import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
-  search as searchService,
+  contentItems as contentItemsService,
   searchFacets as searchFacetsService,
-  filtersItems as filtersItemsService,
-  exporter as exporterService,
-  collections as collectionsService,
-  collectionsItems as collectionsItemsService
+  exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
-import { RouterLink } from 'vue-router'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import BaristaButton from '@/components/barista/BaristaButton.vue'
 import AuthGate from '@/components/AuthGate.vue'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { Facet, Filter } from '@/models'
+import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
+import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-const FacetTypesWithDPFS = ['person', 'location', 'topic']
-
-const FacetTypesWithMultipleValues = [
+export const FacetTypes = [
   'language',
   'newspaper',
   'type',
   'country',
   'partner',
   'year',
-  'contentLength'
-].concat(
-  // unsupported fields in new SOLR
-  import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS ? ['copyright'] : ['accessRight']
-)
+  'contentLength',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  // DPFS facets
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] satisfies FacetType[]
 
-const publicApiUrl = import.meta.env.VITE_DATALAB_PUBLIC_API_URL
-  ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
-  : ''
+const UserFacetTypes = ['collection'] satisfies FacetType[]
 
-const FacetTypes = FacetTypesWithMultipleValues.concat(FacetTypesWithDPFS)
+export interface IData {
+  selectedItems: ContentItem[]
+  allIndeterminate: boolean
+  allSelected: boolean
+  inputName: string
+  inputDescription: string
+  nameCollectionOkDisabled: boolean
+  inputEmbeddings: string
+  searchResults: ContentItem[]
+  paginationTotalRows: number
+  /**
+   * Common facets are expected to be loaded first.
+   */
+  commonFacets: Facet[]
+  /**
+   * User specific facets may take time to load and are not expected to be available immediately.
+   */
+  userFacets: Facet[]
+  visibleModal?: string
+  isLoadingResults: boolean
+}
 
-export default {
-  data: () => ({
-    selectedItems: [],
-    allIndeterminate: false,
-    allSelected: false,
-    inputName: '',
-    inputDescription: 'All of Impresso',
-    nameCollectionOkDisabled: true,
-    inputEmbeddings: '',
-    searchResults: [],
-    paginationTotalRows: 0,
-    /** @type {Facet[]} */
-    facets: [],
-    /** @type {Filter[]} */
-    // filtersWithItems: [],
-    visibleModal: null,
-    isLoadingResults: false,
-    searchInfo: null,
-    publicApiUrl
-  }),
+export default defineComponent({
+  data(): IData {
+    return {
+      selectedItems: [],
+      allIndeterminate: false,
+      allSelected: false,
+      inputName: '',
+      inputDescription: 'All of Impresso',
+      nameCollectionOkDisabled: true,
+      inputEmbeddings: '',
+      searchResults: [],
+      paginationTotalRows: 0,
+      commonFacets: [],
+      userFacets: [],
+      visibleModal: null,
+      isLoadingResults: false
+    } satisfies IData
+  },
   props: {
     filtersWithItems: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
+  },
+  setup() {
+    const inputNameRef = ref<ComponentPublicInstance | undefined>()
+    const searchResultsFirstElementRef = ref<ComponentPublicInstance | undefined>()
+    return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
@@ -348,6 +338,9 @@ export default {
         }
       })
     },
+    publicApiUrl() {
+      return DatalabPublicApiUrl
+    },
     groupByOptions() {
       return ['issues', 'pages', 'articles'].map(value => ({
         value,
@@ -356,7 +349,7 @@ export default {
       }))
     },
     orderByOptions() {
-      return ['-relevance', 'date', '-date'].map(value => {
+      return ['-ocrQuality', '-relevance', 'date', '-date'].map(value => {
         const label = value.replace(/^-/, '')
         const direction = value.indexOf('-') === 0 ? 'desc' : 'asc'
         return {
@@ -369,7 +362,7 @@ export default {
       get() {
         return this.filters.some(({ type }) => type === 'isFront')
       },
-      set(val) {
+      set(val: boolean) {
         this.handleFiltersChanged(
           this.filters
             .filter(d => d.type !== 'isFront')
@@ -378,13 +371,21 @@ export default {
       }
     },
     isLoggedIn() {
-      return this.userStore.userData
+      return !!this.userStore.userData
     },
     orderBy: {
       get() {
-        return this.$route.query.orderBy ?? '-relevance'
+        // If the user explicitly set an orderBy parameter, we use that.
+        if (this.$route.query.orderBy != null) {
+          return this.$route.query.orderBy as string
+        }
+
+        // We want to use ocrQuality as default order to show higher quality content
+        // because without filters the relevance is always the same.
+        // But if there are filters, we assume the user wants relevance sorting.
+        return this.searchQuery.filters.length === 0 ? '-ocrQuality' : '-relevance'
       },
-      set(orderBy) {
+      set(orderBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
           orderBy
         })
@@ -392,9 +393,9 @@ export default {
     },
     groupBy: {
       get() {
-        return this.$route.query.groupBy ?? 'articles'
+        return (this.$route.query.groupBy as string) ?? 'articles'
       },
-      set(groupBy) {
+      set(groupBy: string) {
         this.$navigation.updateQueryParametersWithHistory({
           groupBy
         })
@@ -402,9 +403,9 @@ export default {
     },
     displayStyle: {
       get() {
-        return this.$route.query.displayStyle ?? 'list'
+        return (this.$route.query.displayStyle as string) ?? 'list'
       },
-      set(displayStyle) {
+      set(displayStyle: string) {
         this.$navigation.updateQueryParametersWithHistory({
           displayStyle
         })
@@ -412,9 +413,9 @@ export default {
     },
     paginationCurrentPage: {
       get() {
-        return parseInt(this.$route.query.p ?? 1, 10)
+        return parseInt((this.$route.query.p as string) ?? '1', 10)
       },
-      set(p) {
+      set(p: number) {
         this.$navigation.updateQueryParametersWithHistory({
           p
         })
@@ -422,9 +423,10 @@ export default {
     },
     paginationPerPage: {
       get() {
-        return Math.min(25, Math.max(this.$route.query.limit ?? 1, 50))
+        const limit = parseInt((this.$route.query.limit as string) ?? '1')
+        return Math.min(25, Math.max(limit, 50))
       },
-      set(limit) {
+      set(limit: number) {
         this.$navigation.updateQueryParametersWithHistory({
           limit
         })
@@ -433,16 +435,13 @@ export default {
     allowedFiltersWithItems() {
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
     enrichedFilters() {
       return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters
     },
-    /** @returns {Filter[]} */
     ignoredFilters() {
       return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
-    /** @returns {Filter[]} */
-    filters() {
+    filters(): Filter[] {
       // filter by type
       return (
         this.searchQuery.filters
@@ -451,22 +450,18 @@ export default {
           .concat([FilterFactory.create({ type: 'hasTextContents' })])
       )
     },
-    filtersIndex: {
-      get() {
-        return this.searchQuery.filtersIndex
-      }
+    filtersIndex() {
+      return this.searchQuery.filtersIndex
     },
-    searchServiceQuery: {
-      get() {
-        const query = {
-          filters: this.filters.map(getFilterQuery),
-          groupBy: this.groupBy,
-          orderBy: this.orderBy,
-          limit: this.paginationPerPage,
-          page: this.paginationCurrentPage
-        }
-        return query
+    searchServiceQuery() {
+      const query = {
+        filters: this.filters.map(getFilterQuery),
+        groupBy: this.groupBy,
+        orderBy: this.orderBy,
+        limit: this.paginationPerPage,
+        page: this.paginationCurrentPage
       }
+      return query
     },
     paginationData() {
       return {
@@ -478,13 +473,16 @@ export default {
     searchQueryHash() {
       return new SearchQuery({
         filters: this.filters
-      }).getSerialized({ serializer: 'protobuf' })
+      }).getSerialized({ serializer: 'protobuf' }) as string
     },
     base64Filters() {
       return this.searchQueryHash
     },
     isBaristaEnabled() {
-      return window.impressoFeatures?.barista?.enabled
+      return (window as any as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
+    },
+    facets() {
+      return this.commonFacets.concat(this.userFacets)
     }
   },
   mounted() {
@@ -498,8 +496,8 @@ export default {
     showModal(name) {
       this.visibleModal = name
     },
-    hideModal() {
-      this.visibleModal = null
+    hideModal(name = undefined) {
+      this.visibleModal = name
     },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
@@ -522,25 +520,25 @@ export default {
     onSuggestion(filter) {
       this.handleFiltersChanged(this.filters.concat([filter]))
     },
-    itemSelected(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+    itemSelected(item: ContentItem) {
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     addSelectedItem(item) {
       if (!this.itemSelected(item)) {
         this.selectedItems.push(item)
       }
     },
-    removeSelectedItem(item) {
+    removeSelectedItem(item: ContentItem) {
       if (this.itemSelected(item)) {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
-    toggleSelected(item) {
+    toggleSelected(item: ContentItem) {
       if (!this.itemSelected(item)) {
         this.selectedItems.push(item)
       } else {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
@@ -555,8 +553,8 @@ export default {
         })
       }
     },
-    isChecked(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+    isChecked(item: ContentItem) {
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     onClearSelection() {
       this.selectedItems = []
@@ -572,7 +570,6 @@ export default {
         }
       })
     },
-
     exportQueryCsv() {
       exporterService.create(
         {
@@ -588,7 +585,7 @@ export default {
       )
     },
     exportSelectedCsv() {
-      const uids = this.selectedItems.map(a => a.uid)
+      const uids = this.selectedItems.map(a => a.id)
       exporterService.create(
         {},
         {
@@ -605,7 +602,6 @@ export default {
         }
       )
     },
-
     reset() {
       this.searchQuery = new SearchQuery({
         filters: this.ignoredFilters
@@ -634,93 +630,62 @@ export default {
   },
   watch: {
     searchServiceQuery: {
-      async handler({ page, limit, filters, orderBy, groupBy }) {
+      async handler({ page, limit, filters, orderBy }) {
         console.debug('[Search] @searchServiceQuery')
         const startTime = new Date()
         this.isLoadingResults = true
-        const { total, data, info } = await searchService.find({
-          query: {
-            page,
-            limit,
-            filters,
-            facets: FacetTypesWithMultipleValues,
-            order_by: orderBy,
-            group_by: groupBy
-          }
-        })
-
+        const { data, total } = await contentItemsService
+          .find({
+            query: {
+              offset: (page - 1) * limit,
+              limit,
+              filters,
+              // facets: FacetTypesWithMultipleValues,
+              order_by: orderBy
+              // group_by: groupBy
+            }
+          })
+          .then(response => {
+            console.log('[Search] data:', response.data)
+            return response
+          })
         this.paginationTotalRows = total
-        this.searchResults = data.map(d => new Article(d))
+        this.searchResults = data
         this.isLoadingResults = false
-        this.searchInfo = info
+        // this.searchInfo = info
         console.debug(
           '[Search] @searchServiceQuery: took',
-          new Date() - startTime,
+          new Date().getTime() - startTime.getTime(),
           'ms. Total results:',
           total
         )
         // @todo next tick
         this.$nextTick(() => {
-          this.$refs.searchResultsFirstElement?.scrollIntoView({ behavior: 'smooth' })
+          this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
         })
-      },
-      immediate: true
-    },
-    searchInfo: {
-      async handler(info) {
-        if (!info) {
-          return
-        }
-        // console.debug(
-        //   '[Search] @searchInfo, responseTime:',
-        //   +info.responseTime.solr,
-        //   'ms. Total results:',
-        //   +info.facets.count
-        // )
-        let facets = searchResponseToFacetsExtractor(FacetTypesWithMultipleValues)({ info })
 
-        // get remaining facets and enriched filters.
-        const facetTypes = [...['person', 'location', 'topic']]
-
-        const [extraFacets, collectionsItemsIndex] = await Promise.all([
-          searchFacetsService
-            .find({
-              query: {
-                facets: facetTypes,
-                filters: this.searchServiceQuery.filters
-              }
-            })
-            .then(response => response.data),
-          this.isLoggedIn
-            ? collectionsItemsService
-                .find({
-                  query: {
-                    item_uids: this.searchResults.map(d => d.uid),
-                    limit: 100
-                  }
-                })
-                .then(({ data }) =>
-                  data.reduce((acc, d) => {
-                    acc[d.itemId] = d
-                    return acc
-                  }, {})
-                )
-            : {}
-        ])
-        facets = facets.concat(extraFacets)
-        // TODO sort facets based on the right order
-        this.facets = facets.map(f => new FacetModel(f))
-        if (this.isLoggedIn) {
-          // add collections.
-          this.searchResults = this.searchResults.map(article => {
-            if (collectionsItemsIndex[article.uid]) {
-              article.collections = collectionsItemsIndex[article.uid].collections
+        this.commonFacets = await searchFacetsService
+          .find({
+            query: {
+              facets: FacetTypes,
+              filters: this.searchServiceQuery.filters
             }
-            return article
           })
-        }
+          .then(response => response.data.map(f => new FacetModel(f as any)))
+
+        this.userFacets = this.isLoggedIn
+          ? await searchFacetsService
+              .find({
+                query: {
+                  facets: UserFacetTypes,
+                  filters: this.searchServiceQuery.filters
+                }
+              })
+              .then(response => response.data.map(f => new FacetModel(f as any)))
+          : []
       },
-      deep: true
+      deep: true,
+      immediate: true
     },
     paginationData({ perPage, currentPage = 1, total }) {
       if (total == null) return
@@ -730,7 +695,6 @@ export default {
     }
   },
   components: {
-    Alert,
     Autocomplete,
     CreateCollectionModal,
     Pagination,
@@ -746,9 +710,10 @@ export default {
     Modal,
     CopyToDatalabButton,
     BaristaButton,
-    AuthGate
+    AuthGate,
+    PageNavbarHeading
   }
-}
+})
 </script>
 
 <style lang="scss">
@@ -792,6 +757,8 @@ export default {
 <i18n lang="json">
 {
   "en": {
+    "pageTitle": "Search Text",
+    "pageLabel": "Search ",
     "label_display": "Display As",
     "label_order": "Order By",
     "label_group": "Group By",

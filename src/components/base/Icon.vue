@@ -81,6 +81,74 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  newsagency: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 7L12 13'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M4 21.4V2.6C4 2.26863 4.26863 2 4.6 2H19.4C19.7314 2 20 2.26863 20 2.6V21.4C20 21.7314 19.7314 22 19.4 22H4.6C4.26863 22 4 21.7314 4 21.4Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M8 10H16M8 6H16M8 14H12M8 18H14'
+      }
+    ]
+  },
+  organisation: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M3 21H21'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M5 21V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M9 21V17C9 16.4477 9.44772 16 10 16H14C14.5523 16 15 16.4477 15 17V21'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M9 8H15'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M9 12H15'
+      }
+    ]
+  },
+  sourceType: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M9 12H15'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M12 9V15'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z'
+      }
+    ]
+  },
+  sourceMedium: {
+    paths: [
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M22 12C22 15.3137 19.3137 18 16 18C14.3431 18 12.8414 17.3284 11.7712 16.2582C10.7009 15.1879 10.0294 13.6863 10.0294 12C10.0294 10.3137 10.7009 8.81214 11.7712 7.74184C12.8414 6.67154 14.3431 6 16 6C19.3137 6 22 8.68629 22 12Z'
+      },
+      {
+        style: `stroke-width:${props.strokeWidth}px; stroke-linecap:round; stroke-linejoin:round;`,
+        d: 'M14 12C14 15.3137 11.3137 18 8 18C4.68629 18 2 15.3137 2 12C2 8.68629 4.68629 6 8 6C11.3137 6 14 8.68629 14 12Z'
+      }
+    ]
+  },
   //
   cubeDots: {
     // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M12.4961 19.7165L18.4961 16.2879C18.8077 16.1099 19 15.7785 19 15.4197V9.58032C19 9.22147 18.8077 8.89012 18.4961 8.71208L12.4961 5.28351C12.1887 5.10783 11.8113 5.10783 11.5039 5.28351L5.50386 8.71208C5.19229 8.89012 5 9.22147 5 9.58032V15.4197C5 15.7785 5.19229 16.1099 5.50386 16.2879L11.5039 19.7165C11.8113 19.8922 12.1887 19.8922 12.4961 19.7165Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M5.5 9.5L12 13M12 13L18.5 9.5M12 13V19.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 3.01013L3.01 2.99902" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 21.0101L3.01 20.999" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 3.01013L21.01 2.99902" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 21.0101L21.01 20.999" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -546,7 +614,12 @@ const IconAliases: Record<string, string> = {
   newspaper: 'journal',
   type: 'label',
   country: 'position',
-  person: 'cubeDots'
+  person: 'cubeDots',
+  nag: 'newsagency',
+  newsagency: 'newsagency',
+  organisation: 'organisation',
+  sourceType: 'sourceType',
+  sourceMedium: 'sourceMedium'
 }
 
 const computedPaths = computed(() => {

@@ -41,7 +41,7 @@ export const Default: Story = {
     },
     mediaSource: {
       name: 'Luxembourg (1935)',
-      id: 'luxembourg1937',
+      uid: 'luxembourg1937',
       type: 'newspaper'
     },
     dataProvider: {
@@ -63,7 +63,7 @@ export const WithArticle: Story = {
     },
     mediaSource: {
       name: 'Luxembourg (1935)',
-      id: 'luxembourg1937',
+      uid: 'luxembourg1937',
       type: 'newspaper'
     },
     dataProvider: {

@@ -21,19 +21,41 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import ItemLabel from '../modules/lists/ItemLabel.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
+import { defineComponent, PropType } from 'vue'
+import { FacetType } from '@/models/Facet'
 
-export default {
+export default defineComponent({
   props: {
-    showBorder: Boolean,
-    showPercent: Boolean,
-    percent: { type: Number },
-    count: { type: Number },
-    uid: { type: String },
-    type: { type: String },
-    item: { type: Object },
+    showBorder: {
+      type: Boolean,
+      default: false
+    },
+    showPercent: {
+      type: Boolean,
+      default: false
+    },
+    percent: {
+      type: Number,
+      default: 0
+    },
+    count: {
+      type: Number,
+      default: 0
+    },
+    uid: {
+      type: String,
+      default: ''
+    },
+    type: {
+      type: String as PropType<FacetType>
+    },
+    item: {
+      type: Object,
+      default: () => ({})
+    },
     defaultClickActionDisabled: {
       type: Boolean,
       default: false
@@ -48,11 +70,9 @@ export default {
     ItemLabel
   },
   computed: {
-    /** @returns {string} */
-    toolTitle() {
-      const title = this.percent ? `${this.$n(this.percent)}%` : ''
-      return title
+    toolTitle(): string {
+      return this.percent ? `${this.$n(this.percent)}%` : ''
     }
   }
-}
+})
 </script>

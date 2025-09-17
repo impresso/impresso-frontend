@@ -141,7 +141,7 @@ import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   searchFacets as searchFacetsService,
-  search as searchService,
+  contentItems as contentItemsService,
   collectionsItems as collectableItemsService
 } from '@/services'
 import { useUserStore } from '@/stores/user'
@@ -150,6 +150,7 @@ import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import Article from '@/models/Article'
+import { FindQuery } from '@/services/types/contentItems'
 
 const userStore = useUserStore()
 
@@ -169,7 +170,7 @@ const FacetTypes = [
   'accessRight'
 ]
 
-const orderByOptions = ['-date', 'date']
+const orderByOptions: FindQuery['order_by'][] = ['-date', 'date']
 const orderBy = ref(orderByOptions[0])
 
 const collectionFilter = computed(() => {
@@ -250,7 +251,7 @@ const contentItemsSearchQuery = computed(() => {
     limit: contentItemsPaginationList.value.perPage,
     offset: (contentItemsCurrentPage.value - 1) * contentItemsPaginationList.value.perPage,
     order_by: orderBy.value
-  }
+  } satisfies FindQuery
 })
 
 const fetchContentItems = async (query = {}) => {
@@ -260,7 +261,7 @@ const fetchContentItems = async (query = {}) => {
     data: [],
     total: 0
   }
-  const response = await searchService.find({
+  const response = await contentItemsService.find({
     query: contentItemsSearchQuery.value
   })
   if (!response) {
@@ -271,7 +272,7 @@ const fetchContentItems = async (query = {}) => {
     }
     return
   }
-  const contentItemsIds = response.data.map(d => d.uid)
+  const contentItemsIds = response.data.map(d => d.id)
   if (contentItemsIds.length === 0) {
     contentItemsResponse.value = {
       status: 'success',
@@ -297,10 +298,9 @@ const fetchContentItems = async (query = {}) => {
   contentItemsResponse.value = {
     status: 'success',
     data: response.data.map(d => {
-      return new Article({
-        ...d,
-        collections: collectableItemsIndex[d.uid]?.collections || []
-      })
+      const a = Article.fromContentItem(d)
+      a.collections = collectableItemsIndex[d.id]?.collections ?? []
+      return a
     }),
     total: response.total
   }

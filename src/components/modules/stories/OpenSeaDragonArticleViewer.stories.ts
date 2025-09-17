@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { fn } from '@storybook/test'
+import { http, HttpResponse } from 'msw'
 import OpenSeadragonArticleViewer from '../OpenSeadragonArticleViewer.vue'
 
 const meta: Meta<typeof OpenSeadragonArticleViewer> = {
@@ -358,6 +359,76 @@ export const Default: Story = {
     regions: testRegions,
     defaultCurrentPageIndex: testCurrentPageIndex,
     article: { uid: testArticleId },
+    marginaliaSections: testMarginaliaSections
+  }
+}
+
+export const ForbiddenAccess: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // Simulate a 403 Forbidden response for the info.json request
+        http.get('/forbidden/access/info.json', () => {
+          return HttpResponse.json(
+            {
+              error: 'Forbidden',
+              message: 'You do not have permission to access this resource'
+            },
+            { status: 403 }
+          )
+        })
+      ]
+    }
+  },
+  args: {
+    pages: ['/forbidden/access/info.json'],
+    regions: [],
+    defaultCurrentPageIndex: 0,
+    article: { uid: 'test-article-id' },
+    marginaliaSections: testMarginaliaSections
+  }
+}
+
+export const ImagesOnlyForbidden: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // The info.json request succeeds with proper IIIF manifest data
+        http.get(/\/restricted\/images\/info-\d+\.json/, () => {
+          return HttpResponse.json({
+            '@context': 'http://iiif.io/api/image/2/context.json',
+            '@id': '/restricted/images',
+            protocol: 'http://iiif.io/api/image',
+            width: 4000,
+            height: 6000,
+            sizes: [
+              { width: 2000, height: 3000 },
+              { width: 1000, height: 1500 },
+              { width: 500, height: 750 },
+              { width: 250, height: 375 }
+            ],
+            tiles: [{ width: 512, height: 512, scaleFactors: [1, 2, 4, 8, 16] }],
+            profile: ['http://iiif.io/api/image/2/level2.json']
+          })
+        }),
+        // But any image request returns a 403 Forbidden
+        http.get(/\/restricted\/images\/.*\.jpg$/, () => {
+          return HttpResponse.json(
+            {
+              error: 'Forbidden',
+              message: 'You need appropriate permissions to view this image'
+            },
+            { status: 403 }
+          )
+        })
+      ]
+    }
+  },
+  args: {
+    pages: ['/restricted/images/info-1.json', '/restricted/images/info-2.json'],
+    regions: [],
+    defaultCurrentPageIndex: 0,
+    article: { uid: 'test-article-id' },
     marginaliaSections: testMarginaliaSections
   }
 }

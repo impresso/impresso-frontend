@@ -13,7 +13,7 @@
           <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
             <template v-slot:tabs-end>
               <b-nav-item class="active">
-                <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`).toLowerCase()" />
+                <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`)" />
               </b-nav-item>
             </template>
           </b-tabs>
@@ -128,7 +128,7 @@
       </ListOfItems>
       <!-- detailed label -->
       <EntityMonitor
-        v-else-if="['person', 'location'].includes(monitor.type)"
+        v-else-if="['person', 'location', 'organisation'].includes(monitor.type)"
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
         :id="monitor.item.id || monitor.item.uid || ''"
         :type="monitor.type"
@@ -137,17 +137,21 @@
       />
       <div
         v-else-if="['topic', 'newspaper'].includes(monitor.type)"
-        class="m-3 border-top"
+        class="mx-3 border-top border-bottom"
         style="max-height: 150px; overflow: scroll"
       >
-        <item-label :item="monitor.item" :type="monitor.type" detailed />
-        <!-- button url  -->
-        <div class="text-right mt-2" v-if="detailsUrl">
-          <router-link class="btn btn-secondary px-5 btn-sm d-block" :to="detailsUrl" @click="hide">
-            {{ $t('actions.detail') }}
-          </router-link>
-        </div>
+        <ItemLabel :item="monitor.item" :type="monitor.type" detailed />
       </div>
+
+      <!-- button url  -->
+      <router-link
+        v-if="detailsUrl"
+        class="btn btn-outline-secondary m-3 btn-sm d-block"
+        :to="detailsUrl"
+        @click="hide"
+      >
+        {{ $t('actions.detail') }}
+      </router-link>
       <!-- end bottom -->
       <!-- actions -->
       <div
@@ -260,7 +264,7 @@ export default defineComponent({
         return null
       } else if (this.monitor.type === 'newspaper') {
         return {
-          name: 'newspaper',
+          name: 'newspaper_metadata',
           params: {
             newspaper_uid: this.monitor.item.uid
           }
@@ -532,13 +536,18 @@ export default defineComponent({
     "tabs_textReuseClusterDayDelta_closeUp": "Time span in days  - close-up view",
     "tabs_newspaper_overview": "newspaper",
     "tabs_topic_overview": "topic",
-    "tabs_partner_overview": "archive / partner institution",
+    "tabs_partner_overview": "provider",
     "tabs_accessRight_overview": "access right",
+    "tabs_copyright_overview": "copyright status",
     "tabs_language_overview": "language",
-    "tabs_type_overview": "article type",
+    "tabs_type_overview": "item type",
+    "tabs_sourceType_overview": "source type",
+    "tabs_sourceMedium_overview": "source medium",
     "tabs_country_overview": "country of publication",
-    "tabs_person_overview": "person",
+    "tabs_persons_overview": "person",
     "tabs_location_overview": "location",
+    "tabs_organisation_overview": "organisation",
+    "tabs_nag_overview": "news agency",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
     "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters"

@@ -78,7 +78,11 @@
           <!--  type:person, type:location, type:newspaper -->
           <span
             class="label sp-labelled"
-            v-if="['person', 'location', 'newspaper', 'entity'].indexOf(filter.type) !== -1"
+            v-if="
+              ['person', 'location', 'newspaper', 'entity', 'nag', 'organisation'].indexOf(
+                filter.type
+              ) !== -1
+            "
             v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
             :class="filter.context"
           >
@@ -94,7 +98,9 @@
                 'accessRight',
                 'copyright',
                 'dataDomain',
-                'partner'
+                'partner',
+                'sourceType',
+                'sourceMedium'
               ].indexOf(filter.type) !== -1
             "
             v-html="

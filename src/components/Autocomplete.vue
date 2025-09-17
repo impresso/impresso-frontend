@@ -5,6 +5,7 @@
   >
     <div class="input-group">
       <b-form-input
+        ref="input"
         class="search-input"
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
@@ -167,7 +168,7 @@ export default {
     useClickOutside(
       autocomplete,
       e => {
-        if (e.target.classList.contains('search-input')) {
+        if (e.target === this.$refs?.input?.$el) {
           this.showSuggestions = true
         } else {
           this.hideSuggestions()
@@ -288,7 +289,6 @@ export default {
       this.showSuggestions = false
     },
     search() {
-      console.log('searching')
       this.showSuggestions = this.q.length > 0
       // debugger;
       if (this.q.length) {

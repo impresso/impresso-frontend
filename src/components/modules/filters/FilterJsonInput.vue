@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 import { jsonSchemas, Filter } from 'impresso-jscommons'
 import Ajv, { ErrorObject } from 'ajv'
 

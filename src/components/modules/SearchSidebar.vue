@@ -40,11 +40,14 @@
   </i-layout-section>
 </template>
 
-<script>
+<script lang="ts">
 import SearchPills from '@/components/SearchPills.vue'
 import SearchTabs from '@/components/modules/SearchTabs.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
+import { PropType } from 'vue'
+import { Facet, Filter } from '@/models'
+import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -64,19 +67,16 @@ export default {
       type: String,
       default: '400px'
     },
-    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     },
-    /** @type {import('vue').PropOptions<Facet[]>} */
     facets: {
-      type: Array,
+      type: Array as PropType<Facet[]>,
       default: () => []
     },
-    /** @type {import('vue').PropOptions<Filter[]>} */
     ignoredFilters: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       default: () => []
     }
   },
@@ -100,10 +100,10 @@ export default {
       return `how-${this.contextTag}-work-with-search-filters`
     },
     startYear() {
-      return window.impressoDocumentsYearSpan.firstYear
+      return getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear
     },
     endYear() {
-      return window.impressoDocumentsYearSpan.lastYear
+      return getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear
     }
   },
   components: {

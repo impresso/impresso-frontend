@@ -1,0 +1,32 @@
+import type { Entity as IEntity } from '.'
+
+const NUMBER_OF_CONTENTITEMS = 'c'
+// const NUMBER_OF_ARTICLES = 'a'
+// const NUMBER_OF_PAGES = 'p';
+// const NUMBER_OF_ISSUES = 'i';
+// const NUMBER_OF_IMAGES = 'm'
+
+export default class Year implements IEntity {
+  uid: string
+  y: string
+  refs: { [key: string]: number } | null
+
+  constructor({ y, refs = null }) {
+    this.uid = String(y)
+    this.y = y
+    this.refs = refs
+  }
+
+  /**
+   * Normalize a given value against a specific value in refs.
+   * @param  {float} value                      value to normalize
+   * @param  {String} [k=NUMBER_OF_CONTENTITEMS] [description]
+   * @return {float}                            normalized values
+   */
+  normalize(value, k = NUMBER_OF_CONTENTITEMS) {
+    if (this.refs == null || this.refs[k] === null || this.refs[k] === 0) {
+      return 0
+    }
+    return value / this.refs[k]
+  }
+}

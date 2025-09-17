@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { deserializeFilters } from '@/logic/filters'
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 
 interface Props {
   modelValue: string

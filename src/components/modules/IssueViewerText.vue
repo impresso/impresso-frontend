@@ -93,32 +93,36 @@
             </div>
           </div>
         </div>
-        <div
-          v-if="!withIIIFViewer"
-          class="row IssueViewerText__regions mt-1"
-          v-for="(region, i) in computedRegions"
-          v-bind:key="i"
-        >
-          <div v-if="article.isCC" class="col col-sm-5">
-            <div class="py-3">
-              <auth-img
-                v-bind:src="region.iiifFragment"
-                alt="..."
-                :style="{ width: `${region.nw * 100}%` }"
+        <div v-if="!withIIIFViewer">
+          <div
+            class="row IssueViewerText__regions mt-1"
+            v-for="(region, i) in computedRegions"
+            v-bind:key="i"
+          >
+            <div v-if="article.isCC" class="col col-sm-5">
+              <div class="py-3">
+                <IIIFFragment
+                  v-if="region.iiif"
+                  :iiif="region.iiif"
+                  size="!496,480"
+                  :scale="1"
+                  fit-to-regions
+                  :regions="[region]"
+                ></IIIFFragment>
+              </div>
+            </div>
+            <div class="col col-sm-7 text-serif py-2">
+              <AnnotatedText
+                v-if="regionsAnnotationTree[i]"
+                :children="regionsAnnotationTree[i].children"
+                :cluster-colours="clusterColourMap"
+                :selected-cluster-id="selectedClusterId"
+                @clusterSelected="clusterSelectedHandler"
+                @passageClicked="passageSelectedHandler"
+                @passageMouseenter="mouseenterPassageHandler"
+                @passageMouseleave="mouseleavePassageHandler"
               />
             </div>
-          </div>
-          <div class="col col-sm-7 text-serif py-2">
-            <AnnotatedText
-              v-if="regionsAnnotationTree[i]"
-              :children="regionsAnnotationTree[i].children"
-              :cluster-colours="clusterColourMap"
-              :selected-cluster-id="selectedClusterId"
-              @clusterSelected="clusterSelectedHandler"
-              @passageClicked="passageSelectedHandler"
-              @passageMouseenter="mouseenterPassageHandler"
-              @passageMouseleave="mouseleavePassageHandler"
-            />
           </div>
         </div>
       </b-container>
@@ -158,12 +162,11 @@
 </template>
 
 <script lang="ts">
-import AuthImg from '@/components/AuthImg.vue'
 import { mapStores } from 'pinia'
 import {
   articlesSuggestions,
   articleTextReusePassages,
-  articles as articlesService
+  contentItems as contentItemsService
 } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 import ArticleItem from './lists/ArticleItem.vue'
@@ -181,7 +184,7 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
-import Ellipsis from './Ellipsis.vue'
+import IIIFFragment from '../IIIFFragment.vue'
 
 const colourScheme = [
   '#8dd3c7',
@@ -210,8 +213,7 @@ export default {
       availableOffsetHeight: 500,
       iiifViewerMarginTop: 20
     } as {
-      article: any
-
+      article: Article
       textReusePassages: any[]
       articlesSuggestions: any[]
       selectedPassageId: string | number | undefined
@@ -271,15 +273,13 @@ export default {
         return acc
       }, {})
 
-      const overlays = this.article.pages
-        .sort(d => d.pageUid)
-        .map((page: any, j: number) => {
-          return {
-            id: page.uid,
-            manifestUrls: page.iiif,
-            regions: regionsByPageIndex[page.uid] || []
-          }
-        })
+      const overlays = this.article.pages.map(page => {
+        return {
+          id: page.uid,
+          manifestUrls: page.iiif,
+          regions: regionsByPageIndex[page.uid] || []
+        }
+      })
       console.debug('[IssueViewerText] @computedIIIFViewerOverlays', overlays)
       return overlays
     },
@@ -345,7 +345,7 @@ export default {
     AnnotatedText,
     InfoButton,
     IIIFViewer,
-    AuthImg
+    IIIFFragment
   },
   methods: {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
@@ -470,9 +470,9 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          articlesService.get(articleUid).then(d => {
+          contentItemsService.get(articleUid).then(d => {
             console.debug(['[IssueViewerText] @article_uid', d])
-            return new Article(d)
+            return Article.fromContentItem(d)
           }),
           trPromise
         ])

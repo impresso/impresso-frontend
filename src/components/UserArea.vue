@@ -71,9 +71,9 @@
       <span v-html="$t('join_discussion_channel')"></span>
     </b-dropdown-item>
 
-    <b-dropdown-item>
+    <li class="mx-3">
       <span class="small text-muted" v-html="$t('current_version', { version })"></span>
-    </b-dropdown-item>
+    </li>
   </b-dropdown>
 </template>
 
@@ -140,6 +140,7 @@ const send_update_bitmap = async () => {
 <i18n lang="json">
 {
   "en": {
+    "key": "Key: {key}",
     "profile": "Profile",
     "label_terms_of_use": "Terms of Use",
     "label_change_plan_request": "Request change of plan",

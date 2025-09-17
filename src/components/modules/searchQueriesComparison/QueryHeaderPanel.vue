@@ -72,11 +72,11 @@
                       class="textbox-fancy"
                       v-if="!isNaN(total)"
                       v-html="
-                        $tc(`comparison.titles.${comparable.type}`, this.total, {
+                        $tc(`comparison.titles.${comparable.type}`, total, {
                           n: $n(total)
                         })
                       "
-                    />
+                    ></span>
                     <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
                     <info-button class="ml-2" name="what-compare-and-inspect" />
                   </h3>
@@ -112,7 +112,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 // import SearchQueryModel from '@/models/SearchQuery';
 import SearchPills from '../../SearchPills.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
@@ -121,22 +121,19 @@ import Autocomplete from '../../Autocomplete.vue'
 import InfoIgnoredFilters from '../../base/InfoIgnoredFilters.vue'
 import { ComparableTypes, comparableToQuery } from '@/logic/queryComparison'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import { PropType } from 'vue'
+import { Comparable } from '@/logic/queryComparison'
+import { RouteLocationRaw } from 'vue-router'
 
 const SupportedFilterTypes = SupportedFiltersByContext.search
 
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models').SearchQuery} SearchQuery
- * @typedef {import('@/logic/queryComparison').Comparable} Comparable
- */
 export default {
   data: () => ({
     supportedFilterTypes: SupportedFilterTypes
   }),
   props: {
-    /** @type {import('vue').PropOptions<Comparable>} */
     comparable: {
-      type: Object,
+      type: Object as PropType<Comparable>,
       required: true
     },
     title: {
@@ -151,28 +148,21 @@ export default {
     total: Number, // total items in selected collection.
     /**
      * list of available collections
-     * @type {import('vue').PropOptions<{ title: string, id: string }[]>}
      */
     collections: {
-      type: Array,
+      type: Array as PropType<{ name: string; uid: string }[]>,
       default() {
         return []
       }
     },
-    /**
-     * @type {import('vue').PropOptions<string[]>}
-     */
     comparisonOptions: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default() {
         return ['intersection', 'diffA', 'diffB']
       }
     },
-    /**
-     * @type {import('vue').PropOptions<string[]>}
-     */
     modeOptions: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default() {
         return ['inspect', 'compare']
       }
@@ -227,9 +217,12 @@ export default {
       this.$emit('comparable-changed', comparable)
     },
     /** @param {Comparable} c */
-    searchPageLink(comparable) {
+    searchPageLink(comparable): RouteLocationRaw {
       const searchQuery = comparableToQuery(comparable)
-      if (searchQuery == null) return searchQuery
+      if (searchQuery == null)
+        return {
+          query: searchQuery as Record<string, any>
+        }
       return {
         name: 'search',
         query: {

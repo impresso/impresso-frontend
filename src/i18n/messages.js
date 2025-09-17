@@ -53,6 +53,11 @@ export default {
         cs: 'Czech',
         ja: 'Japanese',
         sw: 'Swedish',
+        sq: 'Albanian',
+        br: 'Breton',
+        tl: 'Tagalog',
+        sv: 'Swahili',
+        cy: 'Welsh',
         'n/a': 'Undefined language',
         nl: 'Dutch',
         undefined: 'Undefined language'
@@ -61,7 +66,9 @@ export default {
         na: 'not specified (no export)',
         OpenPrivate: 'Personal use',
         Closed: 'Personal use (no export)',
-        OpenPublic: 'Public domain'
+        OpenPublic: 'Public domain',
+        prt: 'in copyright',
+        pbl: 'public domain'
       },
       copyright: {
         in_cpy: 'in copyright',
@@ -165,7 +172,8 @@ export default {
       person: 'person',
       human: 'human',
       newsagency: 'news agency',
-      organisation: 'organisation'
+      organisation: 'organisation',
+      item: 'undefined type'
     },
     groupBy: {
       images: 'images',
@@ -191,9 +199,9 @@ export default {
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articles:
-        'no articles | <span class="number">1</span> article | <span class="number">{n}</span> articles',
+        'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articlesInCommon:
-        'no articles | <span class="number">1</span> article in common | <span class="number">{n}</span> articles in common',
+        'no content items | <span class="number">1</span> content item in common | <span class="number">{n}</span> content items in common',
       images:
         'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
       pages:
@@ -210,7 +218,7 @@ export default {
       articlesMatchingWithinSearch:
         'no articles matching <span class="highlight">{q}</span> and your search filters | <span class="number">1</span> article contains <span class="highlight">{q}</span> and your search filters | <span class="number">{n}</span> articles contain <span class="highlight">{q}</span> and your search filters',
       articlesMatchingSearchFilters:
-        'no articles matching your search filters | <span class="number">1</span> article matching your search filters | <span class="number">{n}</span> articles matching your search filters',
+        'no content items matching your search filters | <span class="number">1</span> content items matching your search filters | <span class="number">{n}</span> content items matching your search filters',
       relatedTopics:
         'no related topics | <span class="number">1</span> related topic | <span class="number">{n}</span> related topics',
       resultsParenthesis: '(empty, no results) | (1 result) | ({n} results)',
@@ -324,6 +332,30 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      sourceType: {
+        title: 'Media Type | Media Type | Media Types',
+        filterTitle: 'media type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their media type is <b>one of {count} selected</b>',
+        description: 'filter results based on media type',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> available as'
+        }
+      },
+      sourceMedium: {
+        title: 'Source Medium | Source Medium | Source Mediums',
+        filterTitle: 'source medium',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their source medium is <b>one of {count} selected</b>',
+        description: 'filter results based on source medium',
+        empty: '(no results)',
+        context: {
+          include: 'content available as',
+          exclude: 'content <b>NOT</b> available as'
+        }
+      },
       collection: {
         title: 'Collection | Collection | Collections',
         filterTitle: 'collection',
@@ -335,13 +367,13 @@ export default {
         item: 'Collection'
       },
       contentLength: {
-        title: 'Content Length | Content Length | Content Lengths',
-        filterTitle: 'content length',
+        title: 'Transcript Length | Transcript Length | Transcript Lengths',
+        filterTitle: 'transcript length',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are within the range',
-        description: 'total number of articles per content length',
+        description: 'total number of articles per transcript length',
         empty: '(no results)',
-        item: 'Content length'
+        item: 'Transcript length'
       },
 
       copyright: {
@@ -364,6 +396,28 @@ export default {
         empty: '(no results)',
         item: 'Country of publication'
       },
+      nag: {
+        title: 'News Agency | News Agency | News Agencies',
+        filterTitle: 'news agency',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> news agencies applies',
+        description: 'check one or more news agencies to filter results',
+        empty: '(no results)',
+        item: 'News agency'
+      },
+      organisation: {
+        title: 'Organisation | Organisation | Organisations',
+        filterTitle: 'organisation',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> organisations applies',
+        description: 'check one or more organisations to filter results',
+        empty: '(no results)',
+        item: 'Organisation',
+        context: {
+          include: 'mentioned',
+          exclude: '<b>NOT</b> mentioned'
+        }
+      },
       dataDomain: {
         filterTitle: 'Data domain',
         empty: '...'
@@ -383,7 +437,7 @@ export default {
       isFront: 'frontpage',
       language: {
         title: 'Language | Language | Languages',
-        filterTitle: 'language of articles',
+        filterTitle: 'language',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are written in <b>one of {count} selected</b> languages',
         description: 'check one or more language to filter results',
@@ -405,7 +459,7 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper titles',
+        filterTitle: 'newspaper title',
         filtered: 'results are filtered when:',
         selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
         description: 'check one or more newspaper to filter results',
@@ -413,9 +467,10 @@ export default {
       },
       partner: {
         title: 'Data Provider | Data Provider | Data Providers',
-        filterTitle: 'archive',
+        filterTitle: 'provider',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they are published in <b>one of {count} selected</b> archives',
+        selected:
+          'filter results if they are published in <b>one of {count} selected</b> providers',
         description: 'check one or more data provider to filter results',
         empty: '(no results)'
       },
@@ -470,7 +525,7 @@ export default {
       type: {
         title: 'Item type | Item types | Item types',
         optionsTitle: 'Article content type',
-        filterTitle: 'item types',
+        filterTitle: 'item type',
         filtered: 'results are filtered when:',
         selected: 'filter results if the item type is <b>one of {count} selected</b>',
         description: 'check one or more item types to filter results',
@@ -534,6 +589,9 @@ export default {
       },
       relevance: {
         desc: 'relevance'
+      },
+      ocrQuality: {
+        desc: 'OCR quality'
       },
       date: {
         asc: 'publication date, oldest first',

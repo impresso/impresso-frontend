@@ -8,7 +8,7 @@
 
 <script>
 import mitt from 'mitt'
-import { articles } from '@/services'
+import { contentItems } from '@/services'
 import Article from '@/models/Article'
 import { validateOrIgnore } from '../logic/props'
 import OpenSeadragonViewer from '@/components/modules/OpenSeadragonViewer.vue'
@@ -34,8 +34,8 @@ export default {
   mounted() {
     console.info('[ArticleViewer] mounted:', this.$route.params, this.$route.query)
     if (this.articleUid) {
-      articles.get(this.articleUid).then(res => {
-        this.article = new Article(res)
+      contentItems.get(this.articleUid).then(res => {
+        this.article = Article.fromContentItem(res)
         this.initViewer()
       })
     }

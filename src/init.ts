@@ -1,20 +1,27 @@
+import { decodeJwt } from './util/auth'
 import {
-  version as versionService,
   app as appService,
   termsOfUse as termsOfUseService,
-  userChangePlanRequest as userChangePlanRequestService
+  userChangePlanRequest as userChangePlanRequestService,
+  version as versionService
 } from '@/services'
-import { useUserStore } from './stores/user'
-import { useNotificationsStore } from './stores/notifications'
-import { reducedTimeoutPromise } from './services/utils'
-
-import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { PlanNone } from './constants'
+import type { ImpressoDataProvider, ImpressoGlobalMetadata } from './models/ImpressoMetadata'
+import type { TermsOfUse, UserChangePlanRequest } from './services/types'
+import { reducedTimeoutPromise } from './services/utils'
+import { useNotificationsStore } from './stores/notifications'
+import { useUserStore } from './stores/user'
+
+export interface Features {
+  textReuse?: { enabled: boolean }
+  viewPlans?: { enabled: boolean }
+  barista?: { enabled: boolean }
+}
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
   viewPlans: { enabled: true }
-}
+} satisfies Features
 
 type ApiVersion = {
   version: string
@@ -27,17 +34,13 @@ type DocumentsDateSpan = {
   lastDate: string
 }
 
-type Features = {
-  textReuse: { enabled: boolean }
-  viewPlans: { enabled: boolean }
-}
-
 type VersionResponse = {
   version: string
   apiVersion: ApiVersion
   documentsDateSpan: DocumentsDateSpan
   newspapers: Record<string, unknown>
   features: Features
+  partnerInstitutions?: ImpressoDataProvider[]
 }
 
 export const loadVersion = async () => {
@@ -56,7 +59,8 @@ export const loadVersion = async () => {
       apiVersion: res.apiVersion,
       documentsDateSpan: res.documentsDateSpan,
       newspapers: res.newspapers,
-      features: res.features
+      features: res.features,
+      partnerInstitutions: res.partnerInstitutions
     }))
     .catch(err => {
       console.warn('[init:loadVersion] error:', err)
@@ -84,7 +88,7 @@ export const loadVersion = async () => {
     '\n - features:',
     res.features
   )
-  const glob: any = window
+  const glob: ImpressoGlobalMetadata = window
   glob.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
   glob.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
   glob.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH
@@ -92,15 +96,8 @@ export const loadVersion = async () => {
   glob.impressoApiVersion = res.apiVersion
   glob.impressoDocumentsDateSpan = res.documentsDateSpan
   glob.impressoNewspapers = res.newspapers
-  glob.impressoDataProviders = {
-    SNL: 'Swiss National Library',
-    BNF: 'Bibliothèque nationale de France',
-    BNL: 'Luxembourg National Library',
-    NZZ: 'Neue Zürcher Zeitung',
-    Migros: 'Migros',
-    BCUL: 'Bibliothèque cantonale et universitaire Lausanne',
-    'BCU Fribourg': 'Bibliothèque cantonale et universitaire Fribourg'
-  }
+  glob.impressoDataProviders = res.partnerInstitutions
+
   glob.impressoFeatures = { ...DefaultImpressoFeatures, ...res.features }
   glob.impressoDocumentsYearSpan = {
     firstYear: new Date(res.documentsDateSpan.firstDate).getFullYear(),
@@ -111,9 +108,9 @@ export const loadVersion = async () => {
       version: glob.impressoFrontendVersion,
       revision: glob.impressoFrontendRevision,
       branch: glob.impressoFrontendBranch,
-      gitRepoUrl: import.meta.env.VITE_GIT_REPO,
-      gitCommitUrl: `${import.meta.env.VITE_GIT_REPO}/commit/${glob.impressoFrontendRevision}`,
-      gitCommitUrlLabel: import.meta.env.VITE_GIT_REPO.split('/').slice(3, 5).join('/')
+      gitRepoUrl: import.meta.env.VITE_APP_GIT_REPO,
+      gitCommitUrl: `${import.meta.env.VITE_APP_GIT_REPO}/commit/${glob.impressoFrontendRevision}`,
+      gitCommitUrlLabel: import.meta.env.VITE_APP_GIT_REPO.split('/').slice(3, 5).join('/')
     },
     middleLayer: {
       version: glob.impressoApiVersion.version ?? 'latest',
@@ -124,8 +121,8 @@ export const loadVersion = async () => {
       gitCommitUrlLabel: import.meta.env.VITE_MIDDLE_LAYER_GIT_REPO.split('/').slice(3, 5).join('/')
     },
     project: {
-      repoUrl: import.meta.env.VITE_GIT_REPO.split('/').slice(0, 4).join('/'),
-      repoUrlLabel: import.meta.env.VITE_GIT_REPO.split('/').slice(3, 5).join('/')
+      repoUrl: import.meta.env.VITE_PROJECT_GIT_URL,
+      repoUrlLabel: import.meta.env.VITE_PROJECT_GIT_LABEL
     }
   }
 }
@@ -168,16 +165,19 @@ export const initSequence = async () => {
         }
         return
       }
+      const payload = decodeJwt(res.accessToken)
+      const { bitmap, groups } = payload
       // eslint-disable-next-line
       console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
         '[init:initSequence] from JWT - uid:',
         res.user.uid,
         '- bitmap:',
-        res.user.bitmap,
+        bitmap,
         '- groups:',
-        res.user.groups
+        groups
       )
+      userStore.setBitmap(bitmap)
       shouldRefreshUser = true
     })
   if (!shouldRefreshUser) {
@@ -185,9 +185,6 @@ export const initSequence = async () => {
   }
   console.debug('[init:initSequence] refreshUser()')
   await userStore.refreshUser()
-
-  // check legacy user
-  console.debug('[init:initSequence] check legacy user', userStore.userPlan)
 }
 
 export const initUserTermsOfUse = async () => {
@@ -218,7 +215,6 @@ export const initUserTermsOfUse = async () => {
     return
   } else {
     userStore.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
-    userStore.setBitmap(termsOfuse.bitmap)
   }
 }
 

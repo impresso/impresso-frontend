@@ -6,6 +6,9 @@
   </section>
 </template>
 <script setup lang="ts">
+/**
+ * @deprecated This component is deprecated and will be removed in future releases.
+ */
 defineProps<{
   label: string
   title: string

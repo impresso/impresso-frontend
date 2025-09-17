@@ -511,9 +511,7 @@ export default defineComponent({
         this.searchResults = res.data //.map(d => new Image(d))
         this.paginationCurrentPage = Math.round(res.pagination.offset / res.pagination.limit) + 1
 
-        // const facets = searchResponseToFacetsExtractor(AllowedFacetTypes)(res)
         this.facets = facets.data.map(f => new FacetModel(f))
-        // this.facets = []
 
         setTimeout(() => {
           this.isLoading = false

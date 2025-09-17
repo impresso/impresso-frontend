@@ -235,7 +235,7 @@ import { mapStores } from 'pinia'
 import { useEntitiesStore } from '@/stores/entities'
 import { useIssueStore } from '@/stores/issue'
 import { useUserStore } from '@/stores/user'
-import { search as searchService } from '@/services'
+import { contentItems as contentItemsService } from '@/services'
 import Article from '@/models/Article'
 import { renderMetaTags } from '@/plugins/MetaTags'
 
@@ -742,21 +742,21 @@ export default {
 
       const query = {
         filters: filters.map(toCanonicalFilter),
-        facets: [],
-        group_by: 'raw',
-        page: this.matchesCurrentPage,
+        // facets: [],
+        // group_by: 'raw',
+        page: (this.matchesCurrentPage - 1) * 12,
         limit: 12,
         order_by: 'id'
       }
 
-      searchService
+      contentItemsService
         .find({
           query
         })
         .then(res => {
-          if (query.groupBy === 'articles') {
-            res.data = res.data.map(result => new Article(result))
-          }
+          // if (query.groupBy === 'articles') {
+          res.data = res.data.map(result => Article.fromContentItem(result))
+          // }
           return res
         })
         .then(result => {

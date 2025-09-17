@@ -5,13 +5,26 @@
       <info-button class="ml-1" :target="facet.type" name="filter-range" />
 
       <template v-slot:options>
-        <b-button size="sm" variant="outline-primary" @click="handleResetFilters" v-if="value.length === 2">
+        <b-button
+          size="sm"
+          variant="outline-primary"
+          @click="handleResetFilters"
+          v-if="value.length === 2"
+        >
           {{ $t('actions.reset') }}
         </b-button>
       </template>
     </base-title-bar>
-    <histogram-slider class="histo-slider" v-model="sliderValue" :buckets="sliderBuckets" :only-range-labels="true"
-      :scale-type="'symlog'" :sliderValue="value" @change="changeValue" />
+    <histogram-slider
+      class="histo-slider"
+      v-model="sliderValue"
+      :buckets="sliderBuckets"
+      :only-range-labels="true"
+      :scale-type="'symlog'"
+      :sliderValue="value"
+      :show-tooltip="true"
+      @change="changeValue"
+    />
 
     <div class="p-2" v-if="valuesHaveChanged">
       <b-row no-gutters>
@@ -30,27 +43,33 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
+import { Facet, Filter } from '@/models'
+import { PropType } from 'vue'
+
+export interface IData {
+  value: number[]
+}
 
 export default {
-  data: () => ({
-    value: /** @type {number[]} */ ([])
-  }),
+  data: () =>
+    ({
+      value: []
+    }) satisfies IData,
   props: {
-    /** @type {import('vue').PropOptions<import('@/models').Facet>} */
     facet: {
-      type: Object,
+      type: Object as PropType<Facet>,
       required: true
     },
-    /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
     facetFilters: {
-      type: Array,
+      type: Array as PropType<Filter[]>,
       required: true
     }
   },
+  emits: ['changed'],
   computed: {
     /** @returns {import('@/models').Bucket[]} */
     sliderBuckets() {
@@ -76,8 +95,10 @@ export default {
     /** @returns {number[]} */
     filterValue() {
       if (this.facetFilters.length === 0) return []
-      if (typeof this.facetFilters[0].q === 'undefined') return []
-      return /** @type {string[]} */ (this.facetFilters[0].q).map((v) => parseInt(v, 10))
+      const firstFilter = this.facetFilters[0]
+      if (typeof firstFilter.q === 'undefined') return []
+      if (!Array.isArray(firstFilter.q)) return [parseInt(firstFilter.q, 10)]
+      else return firstFilter.q.map(v => parseInt(v, 10))
     }
   },
   methods: {
@@ -91,7 +112,7 @@ export default {
       if (this.value.length !== 2) return this.$emit('changed', [])
       const filter = {
         type: this.facet.type,
-        q: this.value.map((v) => v.toString())
+        q: this.value.map(v => v.toString())
       }
       this.$emit('changed', [filter])
     },

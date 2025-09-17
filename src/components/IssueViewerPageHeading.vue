@@ -51,6 +51,7 @@
               {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}</span
             >
             <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
+            <ContentItemAccess v-if="contentItem" :item="contentItem" class="ml-3" />
           </div>
           <div class="ml-auto" style="min-width: 200px">
             <slot name="actions"></slot>
@@ -74,6 +75,7 @@ import type { Filter, MediaSource, Issue, DataProvider, Page } from '@/models'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import { computed } from 'vue'
 import DataProviderLabel from './modules/lists/DataProviderLabel.vue'
+import ContentItemAccess from './ContentItemAccess.vue'
 
 export interface IssueViewerPageHeadingProps {
   issue?: Issue
@@ -83,6 +85,7 @@ export interface IssueViewerPageHeadingProps {
   infoButtonRef?: string
   isLoading?: boolean
   article?: any
+  contentItem?: any
   showCurrentSearchFilters?: boolean
   filtersWithItems?: Filter[]
 }

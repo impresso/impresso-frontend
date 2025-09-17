@@ -6,48 +6,62 @@
     >
       <!--  header -->
       <template v-slot:header>
-        <div :class="{ 'border-bottom border-secondary': showLines }">
-          <search-tabs focusOnSearch />
-          <div class="py-3 px-3">
-            <search-pills
-              class="bg-dark"
-              :filters="enrichedFilters"
-              @changed="handleFiltersChanged"
-            />
-            <autocomplete
-              body-class="bg-dark"
-              @submitEmpty="onSubmitEmpty"
-              v-on:submit="onSuggestion"
-            />
-          </div>
+        <search-tabs focusOnSearch />
+        <div class="py-3 px-3">
+          <search-pills
+            class="bg-dark"
+            :filters="enrichedFilters"
+            @changed="handleFiltersChanged"
+          />
+          <autocomplete
+            body-class="bg-dark"
+            @submitEmpty="onSubmitEmpty"
+            v-on:submit="onSuggestion"
+          />
         </div>
       </template>
 
       <!--  body -->
       <div class="text-tertiary p-3 stats">
         <!-- <p>The impresso database is growing day-by-day. Currently there are </p> -->
-        <p class="small-caps mt-3">Current Impresso data rundown</p>
+        <h3 class="small-caps mt-3 text-white">{{ $t('current_versions') }}</h3>
         <DataRundown>
           <template #header="{ dataRelease }">
-            <span class="text-muted" v-html="$t('release_label')"></span>
+            <span v-html="$t('release_label')"></span>
             <LinkToModal
               v-if="dataRelease"
-              class="text-decoration-underline"
               :view="ViewDataRundown"
               v-html="dataRelease.releaseVersion"
             ></LinkToModal>
           </template>
         </DataRundown>
+        <div class="mb-5">
+          WebApp: Release
+          <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
+            {{ impressoInfo.frontend.version }}
+          </a>
+          <br />
+          Middle Layer: Release
+          <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
+            {{ impressoInfo.middleLayer.version }}
+          </a>
+          <br />
+          GitHub organisation:
+          <a :href="impressoInfo.project.repoUrl" target="_blank">
+            {{ impressoInfo.project.repoUrlLabel }}</a
+          >
+        </div>
         <!-- <p>
           More? Check on our
           <a class="text-white" href="https://impresso-project.ch/blog">blog</a>
         </p> -->
+        <h3 class="small-caps mt-3 text-white">{{ $t('contacts') }}</h3>
+        <p>
+          info @ impresso-project [dot] ch
+          <br />
+          project website: <a href="/" target="_blank">impresso-project.ch</a>
+        </p>
         <div class="pl-3 my-3 border-left" style="border-width: 2px !important">
-          <p>
-            info @ impresso-project [dot] ch
-            <br />
-            project website: <a href="/" target="_blank">impresso-project.ch</a>
-          </p>
           <!--  -->
           <p class="mb-0">
             <img
@@ -92,25 +106,13 @@
             Discord:
             <a :href="discussionChannelLink" target="_blank">Impresso</a>
           </p>
-
-          <p>
-            version:
-            <a :href="impressoInfo.frontend.gitCommitUrl" target="_blank">
-              {{ impressoInfo.frontend.version }}
-            </a>
-            <br />
-            middle layer:
-            <a :href="impressoInfo.middleLayer.gitCommitUrl" target="_blank">
-              {{ impressoInfo.middleLayer.version }}
-            </a>
-          </p>
         </div>
 
         <br />
         <TermsOfUseStatus withCallToAction />
       </div>
     </i-layout-section>
-    <i-layout-section main>
+    <i-layout-section main class="border-0">
       <div class="d-flex flex-wrap align-items-center">
         <section class="HomePage__card">
           <h1 class="HomePage__hugeHeading font-weight-medium display-3 mb-4">
@@ -252,26 +254,9 @@ import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
 import LinkToModal from './LinkToModal.vue'
 import { ViewDataRundown, ViewPlans } from '@/constants'
+import { FacetTypes } from '../pages/Search.vue'
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  'issue',
-  'language',
-  'location',
-  'newspaper',
-  'newspaper',
-  'partner',
-  'person',
-  'string',
-  'title',
-  'topic',
-  'type',
-  'year',
-  'daterange'
-]
+const AllowedFilterTypes = FacetTypes
 
 export default {
   data: () => ({
@@ -415,8 +400,8 @@ h1.HomePage__hugeHeading,
 }
 .HomePage a {
   color: var(--clr-white);
+  text-decoration-color: var(--impresso-color-yellow);
 }
-
 .HomePage .search-pill span.label.sp-string,
 .search-pill span.label > .sp-string {
   color: black;
@@ -557,6 +542,8 @@ h1.HomePage__hugeHeading,
 <i18n lang="json">
 {
   "en": {
+    "current_versions": "Current Impresso versions",
+    "contacts": "Contacts",
     "release_label": "Latest data release: ",
     "toggle_lines_off": "lines: off",
     "toggle_lines_on": "lines: on",

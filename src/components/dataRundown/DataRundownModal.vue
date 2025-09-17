@@ -61,9 +61,7 @@
               {{ mod.taskName }}
             </div>
             <div class="col-sm-4 d-flex align-items-center">
-              <a :href="mod.huggingFaceLink" target="_blank" class="text-decoration-underline">{{
-                mod.modelId
-              }}</a>
+              <a :href="mod.huggingFaceLink" target="_blank">{{ mod.modelId }}</a>
             </div>
           </div>
         </template>

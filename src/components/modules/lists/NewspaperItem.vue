@@ -1,116 +1,114 @@
 <template>
   <div class="newspaper-item d-flex align-items-center" :class="{ active }">
     <div class="flex-grow-1">
-      <router-link v-if="showLink"
-        v-bind:class="{ active: active }"
-        v-bind:to="itemUrl">
-        <strong>{{ item.name}}</strong>
+      <router-link v-if="showLink" :class="{ active: active }" :to="itemUrl">
+        <strong>{{ item.name }}</strong>
       </router-link>
-      <div v-else>
-        <h2 v-if="showName" class="sans" :class="{ 'font-weight-bold': item.included }">{{ item.name}} ({{ item.startYear}} - {{ item.endYear}})</h2>
-        <div class="small" v-html="stats"></div>
-        <div class="small" v-if="showDate" v-html="dates"></div>
+      <h2 v-else class="sans" :class="{ 'font-weight-bold': item.included }">
+        {{ item.name }}
+      </h2>
+      <div class="small">
+        <span
+          class="d-inline"
+          v-html="$t('availability', { from: item.startYear, to: item.endYear })"
+        ></span>
+        <DataProviderLabel
+          v-if="item.dataProvider"
+          :item="{ id: item.dataProvider, name: '' }"
+          class="d-inline mb-1"
+          showLink
+        />
       </div>
-      <div class="small-caps" v-html="stats"></div>
-      <div class="small-caps" v-html="dates"></div>
-      <div v-if="item.countIssues < 0">{{$t('unavailable')}}</div>
-    </div>
-    <div v-if="isObservable" class="px-2" @click="$emit('toggle-observed', item)">
-      <div class="item-observed" :class="{ active: observed }"><div class="icon dripicons-preview" /></div>
+      <div
+        class="small"
+        v-html="
+          $t('stats', {
+            articles: $n(item.countArticles),
+            pages: $n(item.countPages),
+            issues: $n(item.countIssues)
+          })
+        "
+      ></div>
+
+      <div v-if="item.countIssues < 0">{{ $t('unavailable') }}</div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    observed: Boolean,
-    isObservable: Boolean,
-    active: Boolean,
-    showLink: Boolean,
-    showDate: Boolean,
-    showName: {
-      type: Boolean,
-      default: true,
-    },
-    item: {
-      type: Object,
-    },
-  },
-  computed: {
-    itemUrl() {
-      return {
-        name: 'newspaper_metadata',
-        query: this.$route.query,
-        params: {
-          newspaper_uid: this.item.uid,
-        },
-      };
-    },
-    dates() {
-      if (this.item.firstIssue) {
-        let from;
-        let to;
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import DataProviderLabel from './DataProviderLabel.vue'
 
-        if (this.item.firstIssue.date instanceof Date) {
-          from = this.$d(this.item.firstIssue.date, 'short');
-          to = this.$d(this.item.lastIssue.date, 'short');
-        } else {
-          from = this.$d(new Date(this.item.firstIssue.date), 'short');
-          to = this.$d(new Date(this.item.lastIssue.date), 'short');
-        }
-        return this.$t('availability', { from: asDateTag(from), to: asDateTag(to) });
-      } else if(this.item.startYear) {
-        return this.$t('availability', {
-          from: asDateTag(this.item.startYear),
-          to: asDateTag(this.item.endYear)
-        })
-      }
-      return '';
-    },
-    stats() {
-      if (this.item.countIssues > 0) {
-        return [
-          this.$tc('numbers.articles', this.item.countArticles, {
-            n: this.$n(this.item.countArticles),
-          }),
-          this.$tc('numbers.pages', this.item.countPages, {
-            n: this.$n(this.item.countPages),
-          }),
-          this.$tc('numbers.issues', this.item.countIssues, {
-            n: this.$n(this.item.countIssues),
-          }),
-        ].join(', ');
-      }
-      return '';
-    },
-  },
-};
+// Define interfaces
+interface Issue {
+  date: Date | string
+}
 
-const asDateTag = d => `<span class='date'>${d}</span>`
+interface NewspaperItem {
+  name: string
+  uid: string
+  dataProvider?: string
+  startYear?: number
+  endYear?: number
+  firstIssue?: Issue
+  lastIssue?: Issue
+  countIssues: number
+  countArticles: number
+  countPages: number
+  included?: boolean
+}
+
+// Props definition
+interface Props {
+  active?: boolean
+  showLink?: boolean
+  item: NewspaperItem
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  active: false,
+  showLink: false
+})
+// Composables
+const route = useRoute()
+
+const itemUrl = computed(() => ({
+  name: 'newspaper_metadata',
+  query: route.query,
+  params: {
+    newspaper_uid: props.item.uid
+  }
+}))
+
+const parseDate = (date: Date | string | number): Date => {
+  return date instanceof Date ? date : new Date(date.toString())
+}
 </script>
 
 <style lang="scss">
 .newspaper-item {
-  h2{
+  h2 {
     font-size: inherit;
   }
-  .date{
+
+  .date {
     text-transform: lowercase;
   }
-  .number {
-  }
 }
-.newspaper-item.active{
+
+.newspaper-item.active {
   box-shadow: inset 0.15em 0 #343a40;
   background-color: #f2f2f2;
 }
 </style>
+
 <i18n lang="json">
-  {
-    "en": {
-      "unavailable": "(coming soon)",
-      "availability": "from {from} to {to}"
-    }
+{
+  "en": {
+    "unavailable": "(coming soon)",
+    "availability": "Published from {from} to {to}",
+    "stats": "<span class='number'>{articles}</span> articles, <span class='number'>{pages}</span> pages, <span class='number'>{issues}</span> issues"
   }
+}
 </i18n>

@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, defineProps, onUnmounted, defineEmits } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import hljs from 'highlight.js'
 import json from 'highlight.js/lib/languages/json'
 import 'highlight.js/styles/github.css'

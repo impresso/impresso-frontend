@@ -10,7 +10,7 @@ interface HookErrorMixin {
 const ERRORS_DO_NOT_DISPLAY = ['NavigationDuplicated'] // error names not to display to the user
 const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated'] // error to avoid loopholes
 
-interface Notification {
+export interface Notification {
   title: string
   message: string
   type: 'success' | 'error'
@@ -34,7 +34,7 @@ interface ProcessingActivity {
   c: number
 }
 
-interface State {
+export interface State {
   notifications: StoredNotification[]
   // error message handling,
   errorMessages: ErrorMessage[]
@@ -53,7 +53,7 @@ interface State {
   _lockTimeoutId?: ReturnType<typeof setTimeout> | null
 }
 
-interface DisplayErrorPayload {
+export interface DisplayErrorPayload {
   error: Error
   origin?: string
 }
@@ -146,7 +146,16 @@ export const useNotificationsStore = defineStore('notifications', {
         // do not force if BadGateway or polling error (risk of having endless and useless loops)
         const errorType = isFeathersError(error) ? error.type : undefined
         const className = isFeathersError(error) ? error.className : undefined
-        if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === errorType).length) {
+
+        if (import.meta.env.MODE === 'development') {
+          console.warn(
+            '[NotificationsStore] displayError',
+            error.name,
+            error.message,
+            error.stack,
+            errorRoute
+          )
+        } else if (ERRORS_DO_NOT_FORWARD.filter(d => d === error.name || d === errorType).length) {
           console.info(
             'Error',
             error.name,

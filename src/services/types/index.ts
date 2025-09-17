@@ -3,6 +3,9 @@ import { ImageService } from './images'
 import { EmbeddingsService } from './embeddings'
 import { DatalabSupportService } from './datalabSupport'
 import { BaristaService } from './barista'
+import { ContentItemsService } from './contentItems'
+import { SearchFacetsService } from './searchFacets'
+import { MentionsService } from './mentions'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -28,6 +31,9 @@ export interface Services extends UntypedServices {
   images: ImageService
   embeddings: EmbeddingsService
   ['barista-proxy']: BaristaService
+  ['content-items']: ContentItemsService
+  ['search-facets/search']: SearchFacetsService
+  mentions: MentionsService
 }
 
 export interface Group {

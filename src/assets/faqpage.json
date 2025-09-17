@@ -270,10 +270,10 @@
           },
           {
             "id": "filter-range",
-            "title": "How can I filter results by article length?",
-            "summary": "Article length is measured by the number of tokens, which are essentially individual words or symbols in the article. The content length filter uses a histogram to display the distribution of articles according to their length, grouping them into intervals of similar length.",
+            "title": "How can I filter results by transcript length?",
+            "summary": "Transcript length is measured by the number of tokens, which are essentially individual words or symbols in the transcript. The transcript length filter uses a histogram to display the distribution of transcripts according to their length, grouping them into intervals of similar length.",
             "description": [
-              "<p>The x-axis represents the number of tokens (words) in the article, while the y-axis indicates the number of articles that fall within each length range. For example, if an interval shows 700 tokens with 35 results, it means there are 35 articles of approximately 700 words in length.</p><p><img src='/assets/images/faqs/content-length-screen.png'></img></p><p>By adjusting the sliders on either side of the histogram, you can set a desired length range to filter your search results. Once you've selected the desired range, click “Apply” to narrow down your results based on article length. This is particularly useful when you're looking for more detailed or longer pieces, such as feature articles, or shorter pieces like news briefs.</p>"
+              "<p>The x-axis represents the number of tokens (words) in the transcript, while the y-axis indicates the number of transcripts that fall within each length range. For example, if an interval shows 700 tokens with 35 results, it means there are 35 transcripts of approximately 700 words in length.</p><p><img src='/assets/images/faqs/content-length-screen.png'></img></p><p>By adjusting the sliders on either side of the histogram, you can set a desired length range to filter your search results. Once you've selected the desired range, click “Apply” to narrow down your results based on transcript length. This is particularly useful when you're looking for more detailed or longer pieces, such as feature articles, or shorter pieces like news briefs.</p>"
             ]
           },
           {

@@ -5,8 +5,9 @@
       v-if="showLink"
       :uid="item.id"
       :label="title"
-      :item="{ uid: item.id }"
+      :item="{ uid: item.id, name: title }"
       type="partner"
+      :class="titleClass"
     />
     <span v-else :class="titleClass">{{ title }}</span>
   </div>
@@ -24,6 +25,7 @@
 import type { DataProvider } from '@/models'
 import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
+import { dataProviders } from '@/services'
 
 export interface DataProviderLabelProps {
   item: DataProvider
@@ -34,16 +36,10 @@ export interface DataProviderLabelProps {
 const glob = window as any
 const props = withDefaults(defineProps<DataProviderLabelProps>(), {
   showLink: true,
-  titleClass: 'font-weight-medium text-decoration-underline'
+  titleClass: ''
 })
 
 const title = computed(() => {
-  if (typeof glob.impressoDataProviders === 'object') {
-    if (props.item.id in glob.impressoDataProviders) {
-      return glob.impressoDataProviders[props.item.id]
-    }
-    return props.item.name || props.item.id
-  }
-  return props.item.name || props.item.id
+  return dataProviders.getDataProviderNameById(props.item.id) ?? props.item.id
 })
 </script>

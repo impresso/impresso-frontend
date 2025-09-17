@@ -17,6 +17,7 @@
           :filtersWithItems="filtersWithItems"
           :issue="issue"
           :article="contentItem"
+          :contentItem="contentItemOriginal"
           :mediaSource="mediaSource"
           :dataProvider="dataProvider"
           :page="page"
@@ -94,9 +95,8 @@ import TableOfContents from '@/models/TableOfContents'
 import type { DataProvider, Filter, MediaSource } from '@/models'
 import {
   issues as issuesService,
-  search,
-  tableOfContents as tableOfContentsService,
-  contentItems as contentItemsService
+  contentItems as contentItemsService,
+  tableOfContents as tableOfContentsService
 } from '@/services'
 import type ArticleBase from '@/models/ArticleBase'
 import IssueViewerPageHeading from '@/components/IssueViewerPageHeading.vue'
@@ -176,6 +176,7 @@ const pagesIIIFUrls = ref<string[]>([])
 const mediaSource = ref(null)
 const dataProvider = ref(null)
 const contentItem = ref<ArticleBase | null>(null)
+const contentItemOriginal = ref<any>(null)
 const isViewerReady = computed(() => {
   return pagesIIIFUrls.value.length > 0 && tableOfContents.value
 })
@@ -243,7 +244,7 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
   if (!tableOfContents.value.newspaper) return
 
   mediaSource.value = {
-    id: tableOfContents.value.newspaper.id,
+    uid: tableOfContents.value.newspaper.id,
     name: tableOfContents.value.newspaper.type,
     type: 'newspaper'
   } satisfies MediaSource
@@ -268,10 +269,11 @@ async function fetchContentItem(id: string): Promise<void> {
   }
 
   await contentItemsService
-    .get(id, { ignoreErrors: true })
+    .get(id)
     .then(data => {
       console.debug('[IssueViewerPage] fetchContentItem contentItem OK', data)
-      contentItem.value = new Article(data)
+      contentItemOriginal.value = data
+      contentItem.value = Article.fromContentItem(data)
     })
     .catch(err => {
       console.error('[IssueViewerPage] fetchContentItem error:', err)
@@ -306,7 +308,7 @@ async function fetchPageRegions() {
   // Add artificial delay using setTimeout
   await new Promise(resolve => setTimeout(resolve, 500)) // 500ms delay
 
-  const articles = await search
+  const articles = await contentItemsService
     .find({
       query: {
         filters: [{ type: 'page', q: page.value.uid }],
@@ -314,7 +316,7 @@ async function fetchPageRegions() {
       }
     })
     .then(response => {
-      return response.data.map((d: any) => new Article(d))
+      return response.data.map((d: any) => Article.fromContentItem(d))
     })
   const regions = articles.flatMap((article: Article) =>
     article.regions
