@@ -53,6 +53,11 @@ export default {
         cs: 'Czech',
         ja: 'Japanese',
         sw: 'Swedish',
+        sq: 'Albanian',
+        br: 'Breton',
+        tl: 'Tagalog',
+        sv: 'Swahili',
+        cy: 'Welsh',
         'n/a': 'Undefined language',
         nl: 'Dutch',
         undefined: 'Undefined language'
