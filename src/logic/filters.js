@@ -220,7 +220,9 @@ export const SupportedFiltersByContext = Object.freeze({
     'country',
     'location',
     'person',
-    'entity'
+    'entity',
+    'organisation',
+    'nag'
   ],
   textReuseClusters: [
     'textReuseCluster',

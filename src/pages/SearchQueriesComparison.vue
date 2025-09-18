@@ -301,7 +301,9 @@ export default {
         // heavyweight
         ['topic', 'bars'],
         ['person', 'bars'],
-        ['location', 'bars']
+        ['location', 'bars'],
+        ['organisation', 'bars'],
+        ['nag', 'bars']
       ],
       queriesResults: [undefined, undefined /*{ type: 'intersection' }*/, undefined],
       maxValues: { year: [] },

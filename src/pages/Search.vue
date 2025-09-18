@@ -259,7 +259,7 @@ export const FacetTypes = [
   'type',
   'country',
   'partner',
-  'year',
+  // 'year',
   'contentLength',
   'copyright',
   'sourceType',
@@ -284,6 +284,7 @@ export interface IData {
   inputEmbeddings: string
   searchResults: ContentItem[]
   paginationTotalRows: number
+  timelineFacets: Facet[]
   /**
    * Common facets are expected to be loaded first.
    */
@@ -310,6 +311,7 @@ export default defineComponent({
       paginationTotalRows: 0,
       commonFacets: [],
       userFacets: [],
+      timelineFacets: [],
       visibleModal: null,
       isLoadingResults: false
     } satisfies IData
@@ -482,12 +484,14 @@ export default defineComponent({
       return (window as any as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
     },
     facets() {
-      return this.commonFacets.concat(this.userFacets)
+      // return this.timelineFacets.concat(this.commonFacets, this.userFacets)
+      return [...this.timelineFacets, ...this.commonFacets, ...this.userFacets]
     }
   },
   mounted() {
     console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
     this.facets = buildEmptyFacets(FacetTypes)
+    this.timelineFacets = buildEmptyFacets(['year'])
   },
   methods: {
     isModalVisible(name) {
@@ -663,7 +667,16 @@ export default defineComponent({
         this.$nextTick(() => {
           this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
         })
-
+        this.timelineFacets = await searchFacetsService
+          .find({
+            query: {
+              facets: ['year'],
+              filters: this.searchServiceQuery.filters,
+              limit: 300 // get all values
+            }
+          })
+          .then(response => response.data.map(f => new FacetModel(f as any)))
+        // load facets
         this.commonFacets = await searchFacetsService
           .find({
             query: {

@@ -41,9 +41,16 @@ export default {
     }
   },
   data: () => ({
-    facets: ['newspaper', 'country', 'language', 'person', 'location', 'topic'].map(
-      type => new Facet({ type })
-    )
+    facets: [
+      'newspaper',
+      'country',
+      'language',
+      'person',
+      'location',
+      'topic',
+      'organisation',
+      'nag'
+    ].map(type => new Facet({ type }))
   }),
   computed: {
     /** @returns {{ query: any, hash: string }} */
@@ -105,7 +112,9 @@ export default {
           'language',
           'person',
           'location',
-          'topic'
+          'topic',
+          'organisation',
+          'nag'
         ])
       },
       immediate: true,
