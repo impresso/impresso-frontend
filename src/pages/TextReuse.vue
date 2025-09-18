@@ -146,6 +146,8 @@ const FacetTypes = [
   'language',
   'person',
   'location',
+  'organisation',
+  'nag',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta'
@@ -204,7 +206,9 @@ export default {
           'country',
           'language',
           'person',
-          'location'
+          'location',
+          'organisation',
+          'nag'
         ].includes(type)
       )
     },
@@ -396,6 +400,8 @@ export default {
         await this.loadFacet('language')
         await this.loadFacet('person')
         await this.loadFacet('location')
+        await this.loadFacet('organisation')
+        await this.loadFacet('nag')
       },
       immediate: true,
       deep: false
