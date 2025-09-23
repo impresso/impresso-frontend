@@ -1,52 +1,58 @@
 <template>
-  <div class="timeline-container" ref="containerRef">
-    <svg :width="svgWidth" :height="svgHeight">
-      <!-- Main timeline line -->
+  <div class="timeline-container" ref="containerRef" style="max-height: 500px; overflow: auto">
+    <div style="position: sticky; top: 0">
+      <svg
+        :width="svgWidth"
+        :height="svgHeight"
+        style="background-color: rgba(220, 220, 220, 0.8); backdrop-filter: blur(10px)"
+      >
+        <!-- Main timeline line -->
 
-      <line
-        :x1="margin.left"
-        :y1="svgHeight - margin.bottom"
-        :x2="svgWidth - margin.right"
-        :y2="svgHeight - margin.bottom"
-        stroke="#333"
-        stroke-width="1"
-      />
-
-      <!-- Year ticks and labels -->
-      <g v-for="year in years" :key="year">
-        <!-- Tick mark -->
         <line
-          :x1="xScale(new Date(year, 0, 1))"
+          :x1="margin.left"
           :y1="svgHeight - margin.bottom"
-          :x2="xScale(new Date(year, 0, 1))"
-          :y2="svgHeight - margin.bottom - tickHeight"
+          :x2="svgWidth - margin.right"
+          :y2="svgHeight - margin.bottom"
           stroke="#333"
-          :stroke-width="year % 10 === 0 ? 3 : year % 5 === 0 ? 2 : 1"
+          stroke-width="1"
         />
 
-        <!-- Year label (only for decades and every 5 years) -->
-        <text
-          v-if="shouldShowLabel(year)"
-          :x="xScale(new Date(year, 0, 1))"
-          :y="svgHeight - margin.bottom - tickHeight - 8"
-          text-anchor="middle"
-          :font-weight="year % 10 === 0 ? 'bold' : 'normal'"
-          fill="#333"
-          class="small"
-        >
-          {{ year }}
-        </text>
-      </g>
+        <!-- Year ticks and labels -->
+        <g v-for="year in years" :key="year">
+          <!-- Tick mark -->
+          <line
+            :x1="xScale(new Date(year, 0, 1))"
+            :y1="svgHeight - margin.bottom"
+            :x2="xScale(new Date(year, 0, 1))"
+            :y2="svgHeight - margin.bottom - tickHeight"
+            stroke="#333"
+            :stroke-width="year % 10 === 0 ? 3 : year % 5 === 0 ? 2 : 1"
+          />
 
-      <!-- Start and end date markers -->
-      <g>
-        <!-- Start date marker -->
-        <circle :cx="xScale(startDate)" :cy="svgHeight - margin.bottom" r="4" fill="#007bff" />
+          <!-- Year label (only for decades and every 5 years) -->
+          <text
+            v-if="shouldShowLabel(year)"
+            :x="xScale(new Date(year, 0, 1))"
+            :y="svgHeight - margin.bottom - tickHeight - 8"
+            text-anchor="middle"
+            :font-weight="year % 10 === 0 ? 'bold' : 'normal'"
+            fill="#333"
+            class="small"
+          >
+            {{ year }}
+          </text>
+        </g>
 
-        <!-- End date marker -->
-        <circle :cx="xScale(endDate)" :cy="svgHeight - margin.bottom" r="4" fill="#dc3545" />
-      </g>
-    </svg>
+        <!-- Start and end date markers -->
+        <g>
+          <!-- Start date marker -->
+          <circle :cx="xScale(startDate)" :cy="svgHeight - margin.bottom" r="4" fill="#007bff" />
+
+          <!-- End date marker -->
+          <circle :cx="xScale(endDate)" :cy="svgHeight - margin.bottom" r="4" fill="#dc3545" />
+        </g>
+      </svg>
+    </div>
     <svg :width="svgWidth" :height="gridHeight">
       <g v-for="year in years" :key="year">
         <line
@@ -89,7 +95,7 @@ const props = withDefaults(defineProps<Props>(), {
 const containerRef = ref<HTMLElement>()
 const containerWidth = ref(800)
 const svgHeight = 120
-const gridHeight = 400
+const gridHeight = 1000
 const margin = {
   top: 20,
   right: 40,
