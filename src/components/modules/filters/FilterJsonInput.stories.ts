@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import type { Filter } from '@/models'
 import FilterJsonInput from './FilterJsonInput.vue'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 
 // Sample valid filters for stories
 const sampleFilters: Filter[] = [

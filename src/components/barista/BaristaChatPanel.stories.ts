@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { ref } from 'vue'
 

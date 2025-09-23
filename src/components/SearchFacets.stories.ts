@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SearchFacets from './SearchFacets.vue'
 import { Facet } from '@/models'
 import FacetModel from '@/models/Facet'

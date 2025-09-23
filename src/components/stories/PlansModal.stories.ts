@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import PlansModal from '@/components/PlansModal.vue'
 
 const meta: Meta<typeof PlansModal> = {

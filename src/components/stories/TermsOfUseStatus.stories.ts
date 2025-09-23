@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
 import { ref } from 'vue'

@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FeedbackModal from '@/components/FeedbackModal.vue'
 import { vueRouter } from 'storybook-vue3-router'
 import { ref } from 'vue'
-import { action } from '@storybook/addon-actions'
+import { action } from 'storybook/actions'
 
 const meta: Meta<typeof FeedbackModal> = {
   title: 'Components/FeedbackModal',

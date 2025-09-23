@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import AuthImg from '../AuthImg.vue'
 
 const meta: Meta<typeof AuthImg> = {

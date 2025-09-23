@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ChangePasswordModal from '@/components/modals/ChangePasswordModal.vue'
 import type { ChangePasswordModalProps } from '@/components/modals/ChangePasswordModal.vue'
 
