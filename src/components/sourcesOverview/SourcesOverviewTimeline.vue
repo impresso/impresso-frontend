@@ -1,18 +1,70 @@
+<style lang="css">
+.SourcesOverviewTimeline {
+  --z-index-pointer: 10;
+  --z-index-x-axis: 5;
+  --z-index-data-values: 1;
+}
+.SourcesOverviewTimeline__pointer {
+  z-index: var(--z-index-pointer);
+  position: absolute;
+  top: 10px;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+  background: purple;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.1s ease-out;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+}
+.SourcesOverviewTimeline__xAxis {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-x-axis);
+}
+.SourcesOverviewTimeline__xAxis svg {
+  background-color: rgba(220, 220, 220, 0.1);
+  backdrop-filter: blur(5px);
+}
+
+.SourcesOverviewTimeline__grid svg line {
+  stroke: var(--impresso-color-black-alpha-20);
+}
+</style>
 <template>
   <div class="SourcesOverviewTimeline position-relative">
     <slot name="tooltip"></slot>
     <div
-      class="timeline-container"
-      @mousemove="containerOnMousemove"
-      ref="containerRef"
-      style="max-height: 500px; overflow: auto"
+      class="SourcesOverviewTimeline__pointer"
+      :style="{
+        opacity: currentDateRef.show ? 1 : 0,
+        transform: 'translate3d(' + currentDateRef.x + 'px, 0, 0)'
+      }"
     >
-      <div style="position: sticky; top: 0">
-        <svg
-          :width="svgWidth"
-          :height="svgHeight"
-          style="background-color: rgba(220, 220, 220, 0.8); backdrop-filter: blur(10px)"
-        >
+      <div
+        :style="{
+          position: 'absolute',
+          top: '0',
+          left: '-50px',
+          width: '100px',
+          textAlign: 'center',
+          color: 'white'
+        }"
+      >
+        <span style="background: purple" class="py-1 px-2 rounded">{{ currentDateRef.year }} </span>
+      </div>
+    </div>
+    <div
+      class="timeline-container position-relative"
+      @mousemove="containerOnMousemove"
+      @mouseout="containerOnMouseout"
+      ref="containerRef"
+      style="height: 100%; overflow: auto"
+    >
+      <div class="SourcesOverviewTimeline__xAxis">
+        <svg :width="svgWidth" :height="svgHeight">
           <line
             :x1="margin.left"
             :y1="svgHeight - margin.bottom"
@@ -42,85 +94,62 @@
               text-anchor="middle"
               :font-weight="year % 10 === 0 ? 'bold' : 'normal'"
               fill="#333"
-              class="small"
+              class="very-small"
             >
               {{ year }}
             </text>
           </g>
-
-          <!-- Start and end date markers -->
-          <g>
-            <!-- Start date marker -->
-            <circle :cx="xScale(startDate)" :cy="svgHeight - margin.bottom" r="4" fill="#007bff" />
-
-            <!-- End date marker -->
-            <circle :cx="xScale(endDate)" :cy="svgHeight - margin.bottom" r="4" fill="#dc3545" />
+        </svg>
+      </div>
+      <div
+        class="SourcesOverviewTimeline__grid position-absolute"
+        :style="{ top: svgHeight + 'px' }"
+      >
+        <svg :width="svgWidth" :height="gridHeight">
+          <g v-for="year in years" :key="year">
+            <line
+              :x1="xScale(new Date(year, 0, 1))"
+              :y1="0"
+              :x2="xScale(new Date(year, 0, 1))"
+              :y2="gridHeight - margin.bottom"
+              stroke="#333"
+              :stroke-width="
+                year % 10 === 0
+                  ? decadeStrokeWidth
+                  : year % 5 === 0
+                    ? fiveYearStrokeWidth
+                    : singleYearStrokeWidth
+              "
+            />
           </g>
         </svg>
       </div>
-      <svg :width="svgWidth" :height="gridHeight">
-        <g v-for="year in years" :key="year">
-          <line
-            :x1="xScale(new Date(year, 0, 1))"
-            :y1="0"
-            :x2="xScale(new Date(year, 0, 1))"
-            :y2="gridHeight - margin.bottom"
-            stroke="#333"
-            :stroke-width="
-              year % 10 === 0
-                ? decadeStrokeWidth
-                : year % 5 === 0
-                  ? fiveYearStrokeWidth
-                  : singleYearStrokeWidth
-            "
+      <div
+        class="position-absolute left-0"
+        :style="{
+          top: svgHeight + 'px',
+          zIndex: 'var(--z-index-data-values)'
+        }"
+      >
+        <div
+          v-for="dataValue in dataValues"
+          :key="dataValue.id"
+          class="my-2 position-absolute"
+          :style="{
+            transform:
+              'translate(' +
+              xScale(dataValue.dateRange[0]) +
+              'px, ' +
+              (yScale(dataValues.indexOf(dataValue)) - props.minimumVerticalGap / 2) +
+              'px)'
+          }"
+        >
+          <SourcesOverviewDateValueItem
+            :dataValue="dataValue"
+            :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
           />
-        </g>
-        <g>
-          <!-- Data values visualization -->
-          <g v-for="(dataValue, index) in dataValues" :key="index">
-            <!-- Date range visualization -->
-            <g v-if="dataValue.dateRange">
-              <!-- Range rectangle -->
-              <rect
-                :x="xScale(dataValue.dateRange[0])"
-                :y="yScale(index) - 8"
-                :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
-                :height="16"
-                fill="rgba(0, 123, 255, 0.3)"
-                stroke="#007bff"
-                stroke-width="1"
-                rx="3"
-              />
-              <!-- Start date marker -->
-              <circle
-                :cx="xScale(dataValue.dateRange[0])"
-                :cy="yScale(index)"
-                r="3"
-                fill="#007bff"
-              />
-              <!-- End date marker -->
-              <circle
-                :cx="xScale(dataValue.dateRange[1])"
-                :cy="yScale(index)"
-                r="3"
-                fill="#007bff"
-              />
-            </g>
-
-            <!-- Single date visualization -->
-            <g v-else>
-              <circle
-                :cx="xScale(dataValue.date)"
-                :cy="yScale(index)"
-                r="4"
-                fill="#28a745"
-                stroke="#fff"
-                stroke-width="1"
-              />
-            </g>
-          </g>
-        </g>
-      </svg>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -128,27 +157,25 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import * as d3 from 'd3'
+import { b } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
+import SourcesOverviewDateValueItem, { DataValue } from './SourcesOverviewDateValueItem.vue'
 
 const singleYearStrokeWidth = 0.25
 const decadeStrokeWidth = 1
 const fiveYearStrokeWidth = 0.5
-
-export interface DataValue {
-  date: Date
-  dateRange?: [Date, Date]
-  value: number
-}
 
 export interface Props {
   startDate: Date
   endDate: Date
   dataValues?: DataValue[]
   minimumGap?: number
+  minimumVerticalGap?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataValues: () => [],
-  minimumGap: 5
+  minimumGap: 8,
+  minimumVerticalGap: 50
 })
 
 const emit = defineEmits<{
@@ -165,15 +192,34 @@ const containerClientY = ref(0)
 const containerScrollTop = ref(0)
 const containerScrollLeft = ref(0)
 const containerWidth = ref(800)
-const svgHeight = 120
-const gridHeight = 1000
+
+const svgHeight = computed(() => {
+  return margin.top + margin.bottom + tickHeight + 20
+})
+const gridHeight = computed(() => {
+  return Math.max(
+    props.dataValues.length * props.minimumVerticalGap + margin.bottom + margin.top,
+    1000
+  )
+})
 const margin = {
   top: 20,
   right: 40,
-  bottom: 40,
+  bottom: 10,
   left: 40
 }
-
+// Mouse position tracking for the follow line
+const currentDateRef = ref<{
+  x: number
+  y: number
+  show: boolean
+  year: number
+}>({
+  x: 0,
+  y: 0,
+  show: false,
+  year: 0
+})
 const tickHeight = 15
 
 const years = computed(() => {
@@ -205,7 +251,7 @@ const yScale = computed<ScalePointWithInvert>(() => {
   const scale = d3
     .scalePoint<number>()
     .domain(d3.range(props.dataValues.length))
-    .range([margin.top, margin.top + (props.dataValues.length - 1) * props.minimumGap])
+    .range([margin.top, margin.top + (props.dataValues.length - 1) * props.minimumVerticalGap])
 
   ;(scale as ScalePointWithInvert).invertIndex = (y: number) => {
     const step = scale.step()
@@ -240,14 +286,30 @@ const emitTooltipEvent = () => {
   // get current scrollLeft too to calculate actual position on the graphics
   const visX = containerClientX.value + containerScrollLeft.value
   const visY = containerClientY.value + containerScrollTop.value
+  const isInContainer = visX < margin.left || visX > svgWidth.value - margin.right
+  const date = xScale.value.invert(visX)
+  const year = date.getFullYear()
+  // set the x of the follow line to the year start position
+  const yearStartX = xScale.value(new Date(year, 0, 1)) - containerScrollLeft.value
+
+  // Update mouse position for the follow line
+  currentDateRef.value = {
+    x: yearStartX,
+    y: containerClientY.value,
+    show: !isInContainer,
+    year: date.getFullYear()
+  }
   // get current date from visX position, limit to data range
-  if (visX < margin.left || visX > svgWidth.value - margin.right) {
+  if (isInContainer) {
     emit('tooltipOut')
+
     return
   }
-  const date = xScale.value.invert(visX)
+
   const { dataValue, otherValuesOnDate } = getDataValuesAtPosition(visX, visY)
-  console.log('Emitting tooltipMove', { date, visX, visY, dataValue, otherValuesOnDate })
+  if (dataValue) {
+    console.log('dataValue', { date, visX, visY, dataValue, otherValuesOnDate })
+  }
   emit('tooltipMove', { date, x: visX, y: visY, value: dataValue, otherValuesOnDate })
 }
 /**
@@ -269,57 +331,26 @@ const getDataValuesAtPosition = (
 } => {
   // Find the closest data value to the given date
   const date = xScale.value.invert(x)
-  let closestValue: DataValue | undefined = undefined
+  const dataValuesIndex = yScale.value.invertIndex(y)
+  let dataValue: DataValue | undefined = undefined
   let otherValuesOnDate: DataValue[] = []
-  let minDiff = Infinity
-  // Check if we should consider date ranges
-  for (const value of props.dataValues) {
-    let diff: number
+  for (let i = 0; i < props.dataValues.length; i++) {
+    const value = props.dataValues[i]
 
-    if (value.dateRange) {
-      // For date ranges, calculate distance to the range
-      const [rangeStart, rangeEnd] = value.dateRange
-      if (date >= rangeStart && date <= rangeEnd) {
-        // Date is within range, perfect match
-        diff = 0
-      } else {
-        // Calculate distance to closest edge of range
-        const diffToStart = Math.abs(date.getTime() - rangeStart.getTime())
-        const diffToEnd = Math.abs(date.getTime() - rangeEnd.getTime())
-        diff = Math.min(diffToStart, diffToEnd)
+    if (dataValuesIndex === i) {
+      if (value.dateRange) {
+        if (date >= value.dateRange[0] && date <= value.dateRange[1]) {
+          dataValue = value
+        }
+      } else if (value.date.getTime() === date.getTime()) {
+        dataValue = value
       }
-    } else {
-      // Single date value
-      diff = Math.abs(value.date.getTime() - date.getTime())
-    }
-
-    if (diff < minDiff) {
-      minDiff = diff
-      closestValue = value
-      otherValuesOnDate = [value]
-    } else if (diff === minDiff) {
+    } else if (value.dateRange && date >= value.dateRange[0] && date <= value.dateRange[1]) {
       otherValuesOnDate.push(value)
     }
   }
 
-  for (const value of props.dataValues) {
-    const diff = Math.abs(value.date.getTime() - date.getTime())
-    if (diff < minDiff) {
-      minDiff = diff
-      closestValue = value
-      otherValuesOnDate = [value]
-    } else if (diff === minDiff) {
-      otherValuesOnDate.push(value)
-    }
-  }
-
-  // If multiple values exist on the same date, find the closest by Y position
-  if (otherValuesOnDate.length > 1) {
-    const closestIndex = yScale.value.invertIndex(y)
-    closestValue = otherValuesOnDate[closestIndex] || otherValuesOnDate[0]
-  }
-
-  return { dataValue: closestValue, otherValuesOnDate }
+  return { dataValue, otherValuesOnDate }
 }
 
 const containerOnScrollHandler = (event: Event) => {
@@ -336,6 +367,11 @@ const containerOnMousemove = ({ clientX, clientY }: MouseEvent) => {
   containerClientX.value = x
   containerClientY.value = y
   emitTooltipEvent()
+}
+
+const containerOnMouseout = () => {
+  currentDateRef.value.show = false
+  emit('tooltipOut')
 }
 
 let resizeObserver: ResizeObserver | null = null
