@@ -1,38 +1,3 @@
-<style lang="css">
-.SourcesOverviewTimeline {
-  --z-index-pointer: 10;
-  --z-index-x-axis: 5;
-  --z-index-data-values: 1;
-}
-.SourcesOverviewTimeline__pointer {
-  z-index: var(--z-index-pointer);
-  position: absolute;
-  top: 10px;
-  left: 0;
-  bottom: 0;
-  width: 2px;
-  background: purple;
-  pointer-events: none;
-  transition:
-    opacity 0.3s ease-out,
-    transform 0.1s ease-out;
-  opacity: 0;
-  transform: translate3d(0, 0, 0);
-}
-.SourcesOverviewTimeline__xAxis {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-index-x-axis);
-}
-.SourcesOverviewTimeline__xAxis svg {
-  background-color: rgba(220, 220, 220, 0.1);
-  backdrop-filter: blur(5px);
-}
-
-.SourcesOverviewTimeline__grid svg line {
-  stroke: var(--impresso-color-black-alpha-20);
-}
-</style>
 <template>
   <div class="SourcesOverviewTimeline position-relative">
     <slot name="tooltip"></slot>
@@ -61,7 +26,7 @@
       @mousemove="containerOnMousemove"
       @mouseout="containerOnMouseout"
       ref="containerRef"
-      style="height: 100%; overflow: auto"
+      :style="{ height: '100%', overflow: 'auto' }"
     >
       <div class="SourcesOverviewTimeline__xAxis">
         <svg :width="svgWidth" :height="svgHeight">
@@ -122,6 +87,19 @@
               "
             />
           </g>
+          <rect
+            :transform="`translate(0 ${yScale.invertIndex(currentDateRef.y - svgHeight + containerScrollTop) * props.minimumVerticalGap})`"
+            :x="0"
+            :y="0"
+            :width="svgWidth"
+            :height="props.minimumVerticalGap"
+            fill="rgba(128, 0, 128, 0.1)"
+            :style="{
+              transition: 'transform 0.1s ease-out',
+              opacity: currentDateRef.show ? 1 : 0
+            }"
+            rx="4"
+          />
         </svg>
       </div>
       <div
@@ -132,20 +110,21 @@
         }"
       >
         <div
-          v-for="dataValue in dataValues"
+          v-for="(dataValue, idx) in dataValues"
           :key="dataValue.id"
-          class="my-2 position-absolute"
+          class="position-absolute"
           :style="{
             transform:
               'translate(' +
               xScale(dataValue.dateRange[0]) +
               'px, ' +
-              (yScale(dataValues.indexOf(dataValue)) - props.minimumVerticalGap / 2) +
+              (yScale(idx) - margin.top) +
               'px)'
           }"
         >
           <SourcesOverviewDateValueItem
             :dataValue="dataValue"
+            :height="props.minimumVerticalGap"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
           />
         </div>
@@ -199,7 +178,7 @@ const svgHeight = computed(() => {
 const gridHeight = computed(() => {
   return Math.max(
     props.dataValues.length * props.minimumVerticalGap + margin.bottom + margin.top,
-    1000
+    svgHeight.value
   )
 })
 const margin = {
@@ -370,7 +349,7 @@ const containerOnMousemove = ({ clientX, clientY }: MouseEvent) => {
 }
 
 const containerOnMouseout = () => {
-  currentDateRef.value.show = false
+  // currentDateRef.value.show = false
   emit('tooltipOut')
 }
 
@@ -405,14 +384,38 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.timeline-container {
-  width: 100%;
-  min-height: 120px;
+<style lang="css">
+.SourcesOverviewTimeline {
+  --z-index-pointer: 10;
+  --z-index-x-axis: 5;
+  --z-index-data-values: 1;
+}
+.SourcesOverviewTimeline__pointer {
+  z-index: var(--z-index-pointer);
+  position: absolute;
+  top: 10px;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+  background: purple;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease-out,
+    transform 0.1s ease-out;
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+}
+.SourcesOverviewTimeline__xAxis {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-x-axis);
+}
+.SourcesOverviewTimeline__xAxis svg {
+  background-color: rgba(220, 220, 220, 0.1);
+  backdrop-filter: blur(5px);
 }
 
-svg {
-  display: block;
+.SourcesOverviewTimeline__grid svg line {
+  stroke: var(--impresso-color-black-alpha-20);
 }
 </style>

@@ -1,11 +1,16 @@
 <template>
   <div class="SourcesOverviewDateValueItem position-absolute">
-    <div class="position-absolute right-0 text-right border-right border-dark pr-2">
+    <div
+      class="position-absolute right-0 text-right border-right border-dark pr-2"
+      :style="{
+        height: height + 'px'
+      }"
+    >
       <div class="label font-weight-bold text-no-wrap">{{ dataValue.label }}</div>
       <div v-if="dataValue.dateRange" class="date-range text-no-wrap small">
-        ({{ $d(dataValue.dateRange[0], 'year') }} - {{ $d(dataValue.dateRange[1], 'year') }})
+        ({{ $d(dataValue.dateRange[0], 'month') }} - {{ $d(dataValue.dateRange[1], 'month') }})
       </div>
-      <div v-else class="date">{{ $d(dataValue.date, 'year') }}</div>
+      <div v-else class="date">{{ $d(dataValue.date, 'month') }}</div>
     </div>
 
     <div
