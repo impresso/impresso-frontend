@@ -170,6 +170,15 @@ onMounted(() => {
       contextTag="search"
       @changed="props.onFiltersChanged"
     >
+      <template #tabs>
+        <b-tabs pills class="mx-2 pt-2">
+          <template v-slot:tabs-end>
+            <b-nav-item :to="{ name: 'sources' }" class="active" active-class="none">
+              <span v-html="$t('pageLabel' + (isLoading ? '-loading' : ''))" />
+            </b-nav-item>
+          </template>
+        </b-tabs>
+      </template>
     </SearchSidebar>
     <i-layout-section main>
       <template v-slot:header>
