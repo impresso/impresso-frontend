@@ -47,3 +47,49 @@ export const Default: Story = {
     width: 200
   }
 }
+
+export const withZeroes: Story = {
+  args: {
+    normalizeLocally: true,
+    dataValue: {
+      id: '1',
+      date: new Date('2020-01-01'),
+      dateRange: [new Date('2020-01-01'), new Date('2024-12-31')],
+      value: 120,
+      label: 'Test Item',
+
+      dataValues: [
+        {
+          id: '1.1',
+          date: new Date('2020-01-01'),
+          dateRange: [new Date('2020-01-01'), new Date('2020-06-30')],
+          value: 60,
+          label: 'Sub Item 1'
+        },
+        {
+          id: '1.2',
+          date: new Date('2020-07-01'),
+          dateRange: [new Date('2020-07-01'), new Date('2020-12-31')],
+          value: 40,
+          label: 'Sub Item 2'
+        },
+        {
+          id: '1.3',
+          date: new Date('2023-01-01'),
+          dateRange: [new Date('2023-01-01'), new Date('2023-07-01')],
+          value: 1,
+          label: 'Sub Item 3'
+        },
+        {
+          id: '1.4',
+          date: new Date('2024-07-01'),
+          dateRange: [new Date('2024-07-01'), new Date('2024-12-31')],
+          value: 20,
+          label: 'Sub Item 4'
+        }
+      ]
+    },
+    height: 100,
+    width: 200
+  }
+}

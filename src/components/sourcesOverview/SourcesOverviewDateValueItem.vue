@@ -1,7 +1,7 @@
 <template>
   <div class="SourcesOverviewDateValueItem position-absolute" @click="onClick">
     <div
-      class="position-absolute right-0 text-right border-right border-dark pr-2 d-flex flex-row align-items-center gap-2 text-no-wrap"
+      class="position-absolute right-0 text-right pr-2 d-flex flex-row align-items-center gap-2 text-no-wrap"
       :style="{
         height: height + 'px'
       }"
@@ -12,7 +12,15 @@
       </div>
       <div v-else class="date very-small">{{ $d(dataValue.date, 'month') }}</div>
     </div>
-
+    <div
+      class="position-absolute left-0"
+      :style="{
+        width: width + 'px',
+        height: barHeight + 'px',
+        top: height / 2 - barHeight / 2 + 'px',
+        backgroundColor: 'var(--clr-grey-500)'
+      }"
+    />
     <div
       class="position-absolute left-0 top-0"
       :style="{
@@ -35,15 +43,7 @@
         }"
       ></div>
     </div>
-    <div
-      class="position-absolute left-0"
-      :style="{
-        width: width + 'px',
-        height: barHeight + 'px',
-        top: height / 2 - barHeight / 2 + 'px',
-        backgroundColor: 'purple'
-      }"
-    />
+
     <div
       class="position-absolute d-flex align-items-center justify-content-end pl-2 text-no-wrap very-small"
       :style="{
@@ -63,6 +63,8 @@ import { computed } from 'vue'
 export interface DataValue {
   id: string
   date: Date
+  startDate?: Date
+  endDate?: Date
   dateRange: [Date, Date]
   value: number
   label?: string
@@ -70,19 +72,22 @@ export interface DataValue {
   dataValues?: DataValue[]
 }
 
-const props = withDefaults(
-  defineProps<{
-    width?: number
-    height?: number
-    barHeight?: number
-    dataValue: DataValue
-  }>(),
-  {
-    width: 100,
-    height: 50,
-    barHeight: 2
-  }
-)
+export interface SourcesOverviewDateValueItemProps {
+  dataValue: DataValue
+  width?: number
+  height?: number
+  barHeight?: number
+  exponent?: number
+  normalizeLocally?: boolean
+}
+
+const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
+  width: 100,
+  height: 30,
+  barHeight: 1,
+  exponent: 1,
+  normalizeLocally: false
+})
 
 const nestedDataValues = computed(() => {
   return props.dataValue.dataValues || []
@@ -96,13 +101,14 @@ const xScale = computed(() => {
 })
 
 const yScale = computed(() => {
-  return (
-    scalePow()
-      // .domain([0, max(nestedDataValues.value, d => d.value) as number])
-      .domain([0, props.dataValue.value])
-      .range([0, props.height])
-      .clamp(true)
-  )
+  const maxValue = props.normalizeLocally
+    ? (max(nestedDataValues.value, d => d.value) as number)
+    : props.dataValue.value
+  return scalePow()
+    .exponent(props.exponent)
+    .domain([0, maxValue])
+    .range([2, props.height])
+    .clamp(true)
 })
 const onClick = (event: MouseEvent) => {
   event.stopPropagation()
