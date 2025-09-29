@@ -1,5 +1,5 @@
 <template>
-  <div class="SourcesOverviewDateValueItem position-absolute">
+  <div class="SourcesOverviewDateValueItem position-absolute" @click="onClick">
     <div
       class="position-absolute right-0 text-right border-right border-dark pr-2 d-flex flex-row align-items-center gap-2 text-no-wrap"
       :style="{
@@ -104,4 +104,8 @@ const yScale = computed(() => {
       .clamp(true)
   )
 })
+const onClick = (event: MouseEvent) => {
+  event.stopPropagation()
+  console.log('Clicked on', props.dataValue)
+}
 </script>
