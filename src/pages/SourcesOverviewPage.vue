@@ -65,6 +65,11 @@ const dataValues = ref<DataValue[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
 
+const normalizeOptions = [
+  { value: false, text: 'Show absolute values' },
+  { value: true, text: 'Show normalized values' }
+]
+const normalize = ref(false)
 watch(
   () => props.filters,
   async newVal => {
@@ -172,19 +177,37 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
+          <template #summaryActions>
+            <i-dropdown
+              v-model="normalize"
+              v-bind:options="normalizeOptions"
+              size="sm"
+              variant="outline-primary"
+              right
+              data-testid="order-by-dropdown"
+            ></i-dropdown>
+          </template>
           <template #summary>
             <Ellipsis v-bind:initialHeight="60">
               <div v-if="isLoading">Loading...</div>
               <div v-else>
-                totalContentItems: {{ totalContentItems }}
+                <span v-html="$tc('numbers.contentItems', { count: totalContentItems })"></span>
                 {{ $tc('sources_overview_page_summary', totalResults, { total: totalResults }) }}
-                {{ $d(minStartDate, 'long') }} - {{ $d(maxEndDate, 'long') }}
+                <span
+                  v-html="
+                    $t('dates.fromTo', {
+                      from: $d(minStartDate, 'short'),
+                      to: $d(maxEndDate, 'short')
+                    })
+                  "
+                ></span>
               </div>
             </Ellipsis>
           </template>
         </PageNavbarHeading>
       </template>
       <SourcesOverviewTimeline
+        :normalizeLocally="normalize"
         class="h-100"
         :startDate="minStartDate"
         :endDate="maxEndDate"
@@ -202,14 +225,7 @@ onMounted(() => {
     "pageTitle": "Explore the sources in the archive",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
-    "sources_overview_page_summary": "Ouch no result? | 1 source | {total} sources in the archive"
-  },
-  "de": {
-    "pageLabel": "Quellenübersicht",
-    "pageTitle": "Entdecken Sie die Quellen im Archiv",
-    "pageLabel-loading": "Lädt...",
-    "pageTitle-loading": "Lädt...",
-    "sources_overview_page_summary": "{total} Quellen im Archiv"
+    "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources"
   }
 }
 </i18n>

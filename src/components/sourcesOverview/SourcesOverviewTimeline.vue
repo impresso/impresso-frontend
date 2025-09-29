@@ -123,6 +123,7 @@
           }"
         >
           <SourcesOverviewDateValueItem
+            :normalizeLocally="props.normalizeLocally"
             :dataValue="dataValue"
             :height="props.minimumVerticalGap"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
@@ -149,12 +150,14 @@ export interface Props {
   dataValues?: DataValue[]
   minimumGap?: number
   minimumVerticalGap?: number
+  normalizeLocally?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataValues: () => [],
   minimumGap: 8,
-  minimumVerticalGap: 50
+  minimumVerticalGap: 30,
+  normalizeLocally: false
 })
 
 const emit = defineEmits<{
@@ -210,7 +213,12 @@ const years = computed(() => {
 })
 
 const svgWidth = computed(() => {
-  return years.value.length * props.minimumGap! + margin.left + margin.right
+  // check if gap should increase based on width minum margindivided by years length
+  const gap = (containerWidth.value - margin.left - margin.right) / years.value.length
+  if (gap < props.minimumGap!) {
+    return years.value.length * props.minimumGap! + margin.left + margin.right
+  }
+  return years.value.length * gap + margin.left + margin.right
 })
 // D3 scale for positioning
 const xScale = computed(() => {
