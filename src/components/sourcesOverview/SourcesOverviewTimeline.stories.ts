@@ -54,16 +54,48 @@ export const Default: Story = {
       {
         id: '1',
         date: new Date('1850-01-01'),
-        dateRange: [new Date('1850-01-01'), new Date('1850-12-31')],
+        dateRange: [new Date('1850-01-01'), new Date('1855-12-31')],
         label: 'Example from 1850',
-        value: 30
+        value: 100,
+        dataValues: [
+          {
+            id: '1.1',
+            date: new Date('1850-01-01'),
+            dateRange: [new Date('1850-01-01'), new Date('1850-12-31')],
+            label: 'Sub Example 2',
+            value: 20
+          },
+          {
+            id: '1.3',
+            date: new Date('1851-01-01'),
+            dateRange: [new Date('1851-01-01'), new Date('1852-12-31')],
+            label: 'Sub Example 3',
+            value: 15
+          },
+          {
+            id: '1.4',
+            date: new Date('1855-01-01'),
+            dateRange: [new Date('1855-01-01'), new Date('1855-12-31')],
+            label: 'Sub Example 4',
+            value: 25
+          }
+        ]
       },
       {
         id: '2',
         date: new Date('1880-01-08'),
-        dateRange: [new Date('1875-01-08'), new Date('1875-01-09')],
+        dateRange: [new Date('1875-01-08'), new Date('1875-12-31')],
         label: 'Example from 1880',
-        value: 35
+        value: 100,
+        dataValues: [
+          {
+            id: '2.1',
+            date: new Date('1875-01-08'),
+            dateRange: [new Date('1875-01-08'), new Date('1875-12-31')],
+            label: 'Sub Example 1',
+            value: 35
+          }
+        ]
       }
     ],
     minimumGap: 8
