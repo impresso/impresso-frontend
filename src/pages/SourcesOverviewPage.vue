@@ -191,7 +191,11 @@ onMounted(() => {
             <Ellipsis v-bind:initialHeight="60">
               <div v-if="isLoading">Loading...</div>
               <div v-else>
-                <span v-html="$tc('numbers.contentItems', { count: totalContentItems })"></span>
+                <span
+                  v-html="
+                    $tc('numbers.contentItems', totalContentItems, { n: $n(totalContentItems) })
+                  "
+                ></span>
                 {{ $tc('sources_overview_page_summary', totalResults, { total: totalResults }) }}
                 <span
                   v-html="
