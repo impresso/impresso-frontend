@@ -1,6 +1,53 @@
 <template>
   <div class="SourcesOverviewTimeline position-relative">
-    <slot name="tooltip"></slot>
+    <slot name="tooltip">
+      <Tooltip :tooltip="tooltip">
+        <div v-if="tooltip.dataValue">
+          <h4 class="text-white font-weight-normal">
+            {{ tooltip.dataValue.label }}
+          </h4>
+          <div v-if="tooltip.currentDate">
+            <div class="mb-2">
+              {{ $d(tooltip.currentDate, 'year') }} &mdash;
+
+              <span
+                v-html="
+                  $tc('numbers.contentItems', tooltip.exactDataValue?.value || 0, {
+                    n: $n(tooltip.exactDataValue?.value || 0)
+                  })
+                "
+              />&nbsp;
+              <span
+                v-if="tooltip.exactDataValue?.dateRange"
+                v-html="
+                  $t('dates.fromTo', {
+                    from: $d(tooltip.exactDataValue.dateRange[0], 'short'),
+                    to: $d(tooltip.exactDataValue.dateRange[1], 'short')
+                  })
+                "
+              ></span>
+            </div>
+            <div class="small" v-if="tooltip.dataValue.dateRange">
+              <span
+                v-html="
+                  $tc('numbers.contentItems', tooltip.dataValue?.value || 0, {
+                    n: $n(tooltip.dataValue?.value || 0)
+                  })
+                "
+              ></span
+              >&nbsp;<span
+                v-html="
+                  $t('dates.fromTo', {
+                    from: $d(tooltip.dataValue.dateRange[0], 'short'),
+                    to: $d(tooltip.dataValue.dateRange[1], 'short')
+                  })
+                "
+              ></span>
+            </div>
+          </div>
+        </div>
+      </Tooltip>
+    </slot>
     <div
       class="SourcesOverviewTimeline__pointer"
       :style="{
@@ -137,8 +184,8 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import * as d3 from 'd3'
-import { b } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
 import SourcesOverviewDateValueItem, { DataValue } from './SourcesOverviewDateValueItem.vue'
+import Tooltip from '../modules/tooltips/Tooltip.vue'
 
 const singleYearStrokeWidth = 0.25
 const decadeStrokeWidth = 1
@@ -151,13 +198,15 @@ export interface Props {
   minimumGap?: number
   minimumVerticalGap?: number
   normalizeLocally?: boolean
+  maxTooltipHeight?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataValues: () => [],
   minimumGap: 8,
   minimumVerticalGap: 30,
-  normalizeLocally: false
+  normalizeLocally: false,
+  maxTooltipHeight: 200
 })
 
 const emit = defineEmits<{
@@ -174,16 +223,19 @@ const containerClientY = ref(0)
 const containerScrollTop = ref(0)
 const containerScrollLeft = ref(0)
 const containerWidth = ref(800)
+const containerHeight = ref(600)
 
 const svgHeight = computed(() => {
   return margin.top + margin.bottom + tickHeight + 20
 })
+
 const gridHeight = computed(() => {
   return Math.max(
     props.dataValues.length * props.minimumVerticalGap + margin.bottom + margin.top,
     svgHeight.value
   )
 })
+
 const margin = {
   top: 20,
   right: 40,
@@ -229,6 +281,22 @@ const xScale = computed(() => {
     .clamp(true)
 })
 
+const tooltip = ref<{
+  x: number
+  y: number
+  isActive: boolean
+  dataValue?: DataValue
+  exactDataValue?: DataValue
+  currentDate?: Date
+}>({
+  x: 0,
+  y: 0,
+  isActive: false,
+  dataValue: undefined,
+  exactDataValue: undefined,
+  currentDate: undefined
+})
+
 // Y scale for positioning data values based on their index
 
 interface ScalePointWithInvert extends d3.ScalePoint<number> {
@@ -261,6 +329,7 @@ const shouldShowLabel = (year: number): boolean => {
 const updateContainerWidth = () => {
   if (containerRef.value) {
     containerWidth.value = containerRef.value.clientWidth
+    containerHeight.value = containerRef.value.clientHeight
   }
 }
 
@@ -273,29 +342,48 @@ const emitTooltipEvent = () => {
   // get current scrollLeft too to calculate actual position on the graphics
   const visX = containerClientX.value + containerScrollLeft.value
   const visY = containerClientY.value + containerScrollTop.value
-  const isInContainer = visX < margin.left || visX > svgWidth.value - margin.right
+  const isOutOfContainer = visX < margin.left || visX > svgWidth.value - margin.right
   const date = xScale.value.invert(visX)
   const year = date.getFullYear()
-  // set the x of the follow line to the year start position
-  const yearStartX = xScale.value(new Date(year, 0, 1)) - containerScrollLeft.value
-
   // Update mouse position for the follow line
   currentDateRef.value = {
-    x: yearStartX,
+    x: containerClientX.value,
     y: containerClientY.value,
-    show: !isInContainer,
+    show: !isOutOfContainer,
     year: date.getFullYear()
   }
+  const tooltipY =
+    containerClientY.value + margin.top > containerHeight.value - props.maxTooltipHeight
+      ? containerHeight.value - props.maxTooltipHeight
+      : containerClientY.value + margin.top
   // get current date from visX position, limit to data range
-  if (isInContainer) {
+  if (isOutOfContainer) {
     emit('tooltipOut')
-
+    tooltip.value = {
+      x: containerClientX.value,
+      y: tooltipY,
+      isActive: false
+    }
     return
   }
 
   const { dataValue, otherValuesOnDate } = getDataValuesAtPosition(visX, visY)
   if (dataValue) {
-    console.log('dataValue', { date, visX, visY, dataValue, otherValuesOnDate })
+    console.log('dataValue', dataValue.label)
+    tooltip.value = {
+      x: containerClientX.value,
+      y: tooltipY,
+      isActive: true,
+      dataValue,
+      exactDataValue: otherValuesOnDate[0],
+      currentDate: date
+    }
+  } else {
+    tooltip.value = {
+      x: containerClientX.value,
+      y: tooltipY,
+      isActive: false
+    }
   }
   emit('tooltipMove', { date, x: visX, y: visY, value: dataValue, otherValuesOnDate })
 }
@@ -318,23 +406,31 @@ const getDataValuesAtPosition = (
 } => {
   // Find the closest data value to the given date
   const date = xScale.value.invert(x)
-  const dataValuesIndex = yScale.value.invertIndex(y)
+  const dataValuesIndex = yScale.value.invertIndex(y - svgHeight.value)
   let dataValue: DataValue | undefined = undefined
   let otherValuesOnDate: DataValue[] = []
-  for (let i = 0; i < props.dataValues.length; i++) {
-    const value = props.dataValues[i]
 
-    if (dataValuesIndex === i) {
-      if (value.dateRange) {
-        if (date >= value.dateRange[0] && date <= value.dateRange[1]) {
-          dataValue = value
-        }
-      } else if (value.date.getTime() === date.getTime()) {
-        dataValue = value
-      }
-    } else if (value.dateRange && date >= value.dateRange[0] && date <= value.dateRange[1]) {
-      otherValuesOnDate.push(value)
+  // check if the props.datavalues at index has a date range that includes the date
+  const currentDataValue = props.dataValues[dataValuesIndex]
+  if (currentDataValue.dateRange) {
+    if (date >= currentDataValue.dateRange[0] && date <= currentDataValue.dateRange[1]) {
+      dataValue = currentDataValue
     }
+  }
+  if (!dataValue) {
+    return { dataValue: undefined, otherValuesOnDate: [] }
+  }
+  if (dataValue && !Array.isArray(dataValue.dataValues)) {
+    return { dataValue, otherValuesOnDate: [] }
+  }
+  // check current overlap
+  if (dataValue && Array.isArray(dataValue.dataValues)) {
+    otherValuesOnDate = dataValue.dataValues.filter(value => {
+      if (value.dateRange) {
+        return date >= value.dateRange[0] && date <= value.dateRange[1]
+      }
+      return false
+    })
   }
 
   return { dataValue, otherValuesOnDate }
@@ -425,5 +521,9 @@ onUnmounted(() => {
 
 .SourcesOverviewTimeline__grid svg line {
   stroke: var(--impresso-color-black-alpha-20);
+}
+
+.SourcesOverviewTimeline .tooltip-inner {
+  background-color: hsla(300, 100%, 16%, 0.8);
 }
 </style>
