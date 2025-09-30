@@ -315,8 +315,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
-  contentItems as contentItemsService,
-  collectionsItems as collectionsItemsService
+  contentItems as contentItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
@@ -557,57 +556,29 @@ export default defineComponent({
       }
     },
     async loadCollectionItems() {
+      if (!this.collectionUid) return
+
       this.fetching = true
-      const query = {
-        resolve: 'item',
-        page: this.paginationCurrentPage,
-        limit: this.paginationPerPage,
-        ...(this.collectionUid
-          ? {
-              collection_uids: [this.collectionUid]
-            }
-          : {})
-        // TODO Uncomment the following line when service is ready
-        // order_by: context.state.orderBy,
-      }
 
-      const collectionsItems = await collectionsItemsService
-        .find({ query })
-        .then(({ data, total }) => {
-          console.debug('[CollectionDetailPage] loadCollectionItems() success. Data:', data)
-          this.paginationTotalRows = total
-          return data
-        })
-
-      // const collectionsItemsById = collectionsItems.reduce((acc, item) => {
-      //   acc[item.itemId] = item
-      //   return acc
-      // }, {})
-
-      const contentItems = await contentItemsService
-        .find({
+      try {
+        const response = await contentItemsService.find({
           query: {
             filters: [
               {
-                type: 'uid',
-                q: collectionsItems.map(d => d.itemId)
+                type: 'collection',
+                q: this.collectionUid
               }
-            ]
-            // group_by: 'articles'
+            ],
+            limit: this.paginationPerPage,
+            offset: (this.paginationCurrentPage - 1) * this.paginationPerPage
           }
         })
-        .then(({ data }) => data)
-      // .then(({ data }) =>
-      //   data.map(d => {
-      //     return Article.fromContentItem({
-      //       ...d,
-      //       collections: collectionsItemsById[d.id]?.collections ?? []
-      //     })
-      //   })
-      // )
 
-      this.contentItems = contentItems
-      this.fetching = false
+        this.paginationTotalRows = response.total
+        this.contentItems = response.data
+      } finally {
+        this.fetching = false
+      }
     },
     gotoArticle(article) {
       if (
@@ -690,9 +661,11 @@ export default defineComponent({
     loadTimeline() {
       this.isTimelineLoading = true
       return this.collectionsStore
-        .loadTimeline(this.$route.params.collec as string)
+        .loadTimeline(this.collectionUid)
         .then(values => {
           this.timevalues = values
+        })
+        .finally(() => {
           this.isTimelineLoading = false
         })
     },

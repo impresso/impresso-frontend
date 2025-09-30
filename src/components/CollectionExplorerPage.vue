@@ -281,6 +281,9 @@ const fetchContentItems = async (query = {}) => {
     }
     return
   }
+
+  // This call does not exist anymore
+  /*
   const collectableItemsIndex = await collectableItemsService
     .find({
       query: {
@@ -294,12 +297,13 @@ const fetchContentItems = async (query = {}) => {
         return acc
       }, {})
     )
+  */
 
   contentItemsResponse.value = {
     status: 'success',
     data: response.data.map(d => {
       const a = Article.fromContentItem(d)
-      a.collections = collectableItemsIndex[d.id]?.collections ?? []
+      // a.collections = collectableItemsIndex[d.id]?.collections ?? []
       return a
     }),
     total: response.total

@@ -86,21 +86,21 @@ export const useCollectionsStore = defineStore('collections', {
             this.collectionsValue = results.data.map(
               result =>
                 new Collection({
-                  countArticles: result.count_articles,
-                  countEntities: result.count_entities,
-                  countIssues: result.count_issues,
-                  countPages: result.count_pages,
-                  creationDate: result.creation_date,
-                  lastModifiedDate: result.last_modified_date,
-                  ...result
+                  countItems: result.totalItems,
+                  description: result.description,
+                  name: result.title,
+                  uid: result.uid,
+                  creationDate: new Date(result.createdAt),
+                  lastModifiedDate: new Date(result.updatedAt)
                 })
             )
-            this.collectionsPaginationTotalRows = results.total
+            this.collectionsPaginationTotalRows = results.pagination.total
             resolve(results)
           })
       })
     },
     loadTimeline(collectionId: string) {
+      if (!collectionId) return Promise.resolve([])
       const query = {
         filters: [
           {
@@ -132,50 +132,52 @@ export const useCollectionsStore = defineStore('collections', {
     deleteCollection(uid: string) {
       return collectionsService.remove(uid)
     },
-    addCollectionItem({ item, collection, contentType }: AddCollectionItemDetails) {
-      return collectionsItemsService.create({
-        collection_uid: collection.uid,
-        items: [
-          {
-            content_type: contentType,
-            uid: item.uid
+    addCollectionItem({ item, collection }: AddCollectionItemDetails) {
+      console.log('Adding item to collection', item, collection.uid)
+
+      return collectionsItemsService.patch(
+        null,
+        { add: [item.uid] },
+        {
+          route: {
+            collection_id: collection.uid
           }
-        ]
-      })
+        }
+      )
     },
-    addCollectionItems({ items, collection, contentType }: AddCollectionItemsDetails) {
-      return collectionsItemsService.create({
-        collection_uid: collection.uid,
-        items: items.map(item => ({
-          uid: item.uid,
-          content_type: contentType
-        }))
-      })
+    addCollectionItems({ items, collection }: AddCollectionItemsDetails) {
+      console.log('Adding items to collection', items, collection.uid)
+      return collectionsItemsService.patch(
+        null,
+        { add: items.map(i => i.uid) },
+        {
+          route: {
+            collection_id: collection.uid
+          }
+        }
+      )
     },
     removeCollectionItem({ item, collection }: RemoveCollectionItemDetails) {
-      const contentType = item.constructor.name.toLowerCase()
-
-      return collectionsItemsService.remove(null, {
-        query: {
-          collection_uid: collection.uid,
-          items: [
-            {
-              content_type: contentType,
-              uid: item.uid
-            }
-          ]
+      return collectionsItemsService.patch(
+        null,
+        { remove: [item.uid] },
+        {
+          route: {
+            collection_id: collection.uid
+          }
         }
-      })
+      )
     },
     removeCollectionItems({ items, collection }: RemoveCollectionItemsDetails) {
-      return collectionsItemsService.remove(null, {
-        query: {
-          collection_uid: collection.uid,
-          items: items.map(item => ({
-            uid: item.uid
-          }))
+      return collectionsItemsService.patch(
+        null,
+        { remove: items.map(i => i.uid) },
+        {
+          route: {
+            collection_id: collection.uid
+          }
         }
-      })
+      )
     },
     updatePaginationListCurrentPage(page: number | string) {
       this.collectionsPaginationCurrentPage = typeof page === 'string' ? parseInt(page, 10) : page
