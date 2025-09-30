@@ -64,8 +64,8 @@
         <div class="row">
           <b-col
             cols="12"
-            v-for="(article, index) in contentItemsResponse.data"
-            v-bind:key="`${index}-${article.uid}`"
+            v-for="(ci, index) in contentItemsResponse.data"
+            v-bind:key="`${index}-${ci.id}`"
           >
             <SearchResultsListItem v-model="contentItemsResponse.data[index]" />
           </b-col>
@@ -141,16 +141,15 @@ import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   searchFacets as searchFacetsService,
-  contentItems as contentItemsService,
-  collectionsItems as collectableItemsService
+  contentItems as contentItemsService
 } from '@/services'
 import { useUserStore } from '@/stores/user'
 import { watch } from 'vue'
 import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
-import Article from '@/models/Article'
 import { FindQuery } from '@/services/types/contentItems'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
 
 const userStore = useUserStore()
 
@@ -228,7 +227,7 @@ const timelineResponse = ref({
 })
 
 const contentItemsResponse = ref<{
-  data: any[] | null
+  data: ContentItem[] | null
   total: number
   status: 'idle' | 'loading' | 'success' | 'error'
 }>({
@@ -301,11 +300,7 @@ const fetchContentItems = async (query = {}) => {
 
   contentItemsResponse.value = {
     status: 'success',
-    data: response.data.map(d => {
-      const a = Article.fromContentItem(d)
-      // a.collections = collectableItemsIndex[d.id]?.collections ?? []
-      return a
-    }),
+    data: response.data,
     total: response.total
   }
   console.debug('[CollectionExplorerPage] fetchContentItems success', response.data)
