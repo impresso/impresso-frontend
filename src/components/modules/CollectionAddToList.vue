@@ -198,7 +198,9 @@ const addCollection = collectionName => {
 }
 
 onUpdated(() => {
-  inputStringRef.value.focus()
+  if (inputStringRef.value) {
+    inputStringRef.value.focus()
+  }
 })
 </script>
 
