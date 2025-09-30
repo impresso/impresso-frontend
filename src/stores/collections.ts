@@ -133,8 +133,6 @@ export const useCollectionsStore = defineStore('collections', {
       return collectionsService.remove(uid)
     },
     addCollectionItem({ item, collection }: AddCollectionItemDetails) {
-      console.log('Adding item to collection', item, collection.uid)
-
       return collectionsItemsService.patch(
         null,
         { add: [item.uid] },
