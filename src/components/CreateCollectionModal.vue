@@ -37,7 +37,10 @@ import CreateCollectionForm from 'impresso-ui-components/components/CreateCollec
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import type { FeathersError } from '@feathersjs/errors'
-import { collections as collectionsService, search as searchService } from '@/services'
+import {
+  collections as collectionsService,
+  collectionsItems as collectionsItemsService
+} from '@/services'
 
 const isLoading = ref(true)
 const error = ref<FeathersError | null>(null)
@@ -80,25 +83,24 @@ async function createQueryCollection({ name, description }) {
     isLoading.value = false
     return
   }
-  await searchService
-    .create(
+
+  try {
+    await collectionsItemsService.create(
       {
-        group_by: 'articles',
-        filters: props.filters,
-        collection_uid: collection.uid
+        namespace: 'search',
+        filters: props.filters
       },
       {
-        ignoreErrors: true
+        route: { collection_id: collection.uid }
       }
     )
-    .then(() => {
-      emit('success')
-    })
-    .catch((err: FeathersError) => {
-      error.value = err
-      console.error('Error creating collection:', err)
-    })
-  isLoading.value = false
+    emit('success')
+  } catch (err) {
+    error.value = err
+    console.error('Error initializing collection items:', err)
+  } finally {
+    isLoading.value = false
+  }
 }
 
 watch(

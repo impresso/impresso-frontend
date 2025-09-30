@@ -142,7 +142,8 @@ import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import SearchPills from './SearchPills.vue'
 import { getFilterQuery } from '@/models/SearchQuery'
-import { search } from '@/services'
+import { contentItems as contentItemsService } from '@/services'
+import Article from '@/models/Article'
 
 export interface IssueViewerSidebarProps {
   issue?: Issue | null
@@ -228,19 +229,18 @@ async function fetchMatchingContentItems({
   offset: number
 }): Promise<ArticleBase[]> {
   console.debug('[IssueViewerSidebar] fetchMatchingContentItems')
-  return search
+  return contentItemsService
     .find({
       query: {
         // legacy parameter
         filters,
         limit,
-        offset,
-        group_by: 'articles'
+        offset
       }
     })
     .then(({ data, total }) => {
       paginationTotalRows.value = total
-      return data.map(article => new ArticleBase(article))
+      return data.map(article => Article.fromContentItem(article))
     })
     .catch(err => {
       console.warn('[IssueViewerPage] @serviceQuery Error', err)

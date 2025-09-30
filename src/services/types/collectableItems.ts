@@ -47,7 +47,7 @@ interface Params {
 }
 
 export type ICollectableItemsService = {
-  create(data: AddCollectableItemsFromFilters): Promise<unknown>
+  create(data: AddCollectableItemsFromFilters, params: Params): Promise<unknown>
 
   patch(
     id: NullableId,
