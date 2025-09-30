@@ -63,7 +63,7 @@
               </router-link>
               <a
                 class="dripicons dripicons-cross"
-                v-on:click="onRemoveCollection(collection, article)"
+                v-on:click="onRemoveCollection(collection.uid)"
               />
             </b-badge>
           </div>
@@ -73,7 +73,7 @@
           </router-link> -->
 
           <slot name="secondary-action">
-            <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
+            <collection-add-to :items="ciAsCollectableItems" :text="$t('add_to_collection')" />
           </slot>
 
           <div
@@ -128,6 +128,7 @@ import { defineComponent, PropType } from 'vue'
 import { ContentItem } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
+import { ItemWithCollections } from './CollectionAddToList.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -162,6 +163,7 @@ export default defineComponent({
       default: false
     }
   },
+  emits: ['toggleSelected', 'click'],
   computed: {
     ...mapStores(useCollectionsStore, useUserStore),
     contentItem(): ContentItem {
@@ -169,6 +171,14 @@ export default defineComponent({
     },
     article() {
       return Article.fromContentItem(this.contentItem)
+    },
+    ciAsCollectableItems() {
+      return [
+        {
+          itemId: this.contentItem.id,
+          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.uid)
+        }
+      ] as ItemWithCollections[]
     },
     pageViewerOptions() {
       return {
@@ -231,18 +241,22 @@ export default defineComponent({
     }
   },
   methods: {
-    onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => c.uid === collection.uid)
-      if (idx !== -1) {
-        this.collectionsStore
-          .removeCollectionItem({
-            collection,
-            item
-          })
-          .then(() => {
-            item.collections.splice(idx, 1)
-            // this.$forceUpdate();
-          })
+    async onRemoveCollection(collectionId: string) {
+      const item = this.modelValue
+      const itemId = item?.id
+      const collections = item?.semanticEnrichments?.collections ?? []
+      const collection = collections.find(c => c.uid === collectionId)
+
+      if (!itemId || !collection) return
+
+      await this.collectionsStore.removeCollectionItem({
+        item: { uid: itemId },
+        collection: { uid: collectionId }
+      })
+
+      if (this.modelValue?.semanticEnrichments?.collections) {
+        this.modelValue.semanticEnrichments.collections =
+          this.modelValue.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
       }
     },
     toggleSelected() {

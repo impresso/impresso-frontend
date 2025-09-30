@@ -14,7 +14,7 @@ const middleLayerPath = '../impresso-middle-layer'
 
 const basePath: string = `${middleLayerPath}/src/schema`
 const outputPath: string = './src/models/generated'
-const schemaBits: string[] = ['schemas', 'schemas/contentItem']
+const schemaBits: string[] = ['schemas', 'schemas/contentItem', 'schemasPublic']
 
 const directories = fs
   .readdirSync(basePath, {

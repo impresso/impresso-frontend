@@ -130,7 +130,7 @@
         :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
-        <collection-add-to-list :items="selectedItems" />
+        <collection-add-to-list :items="selectedCollectableItems" />
       </Modal>
 
       <CreateCollectionModal
@@ -219,8 +219,9 @@ import Pagination from '@/components/modules/Pagination.vue'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
-import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
-import CollectionAddToList from '@/components/modules/CollectionAddToList.vue'
+import CollectionAddToList, {
+  ItemWithCollections
+} from '@/components/modules/CollectionAddToList.vue'
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -329,6 +330,12 @@ export default defineComponent({
     ...mapStores(useCollectionsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
+    },
+    selectedCollectableItems(): ItemWithCollections[] {
+      return this.selectedItems.map(item => ({
+        itemId: item.id,
+        collectionIds: item.semanticEnrichments?.collections?.map(c => c.uid)
+      }))
     },
     searchQuery: {
       ...searchQueryGetter(),
@@ -701,7 +708,6 @@ export default defineComponent({
     SearchResultsListItem,
     SearchResultsTilesItem,
     SearchResultsSummary,
-    CollectionAddTo,
     CollectionAddToList,
     Ellipsis,
     EmbeddingsSearch,

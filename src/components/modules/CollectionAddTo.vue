@@ -16,41 +16,31 @@
         {{ $t('login') }}
       </b-button>
     </div>
-    <collection-add-to-list v-else :item="item" :items="items" />
+    <collection-add-to-list v-else :items="items" />
   </b-dropdown>
 </template>
 
-<script>
-import { mapStores } from 'pinia'
-import CollectionAddToList from './CollectionAddToList.vue';
+<script setup lang="ts">
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import CollectionAddToList, { ItemWithCollections } from './CollectionAddToList.vue'
 
-export default {
-  data: () => ({
-    show: false,
-  }),
-  props: {
-    text: String,
-    item: Object,
-    items: Array,
-  },
-  components: {
-    CollectionAddToList,
-  },
-  methods: {
-    fetch() {
-      if (this.isLoggedIn()) {
-        return this.collectionsStore.loadCollections()
-      }
-      return {}
-    },
-    isLoggedIn() {
-      return this.userStore.userData
-    },
-  },
-  computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
-  },
-};
+export interface Props {
+  items: ItemWithCollections[]
+  text?: string
+}
+const { items, text } = defineProps<Props>()
+
+const collectionsStore = useCollectionsStore()
+const userStore = useUserStore()
+
+const fetch = () => {
+  if (isLoggedIn()) {
+    return collectionsStore.loadCollections()
+  }
+  return {}
+}
+const isLoggedIn = () => {
+  return userStore.userData
+}
 </script>

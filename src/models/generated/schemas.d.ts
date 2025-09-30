@@ -876,7 +876,7 @@ export interface EntityMention {
   /**
    * Name of the entity
    */
-  name: string;
+  name?: string;
   /**
    * Surface text
    */
@@ -2879,6 +2879,14 @@ export interface VersionDetails {
       [k: string]: unknown;
     };
   };
+  partnerInstitutions?: {
+    id: string;
+    names: {
+      langCode: string;
+      name: string;
+    }[];
+    bitmapIndex: number;
+  }[];
 }
 
 
