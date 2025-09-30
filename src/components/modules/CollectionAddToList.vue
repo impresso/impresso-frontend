@@ -176,7 +176,7 @@ const toggleActive = (collection: Collection) => {
 }
 
 const addCollection = collectionName => {
-  if (isDisabled) {
+  if (isDisabled.value) {
     return
   }
   collectionsStore
