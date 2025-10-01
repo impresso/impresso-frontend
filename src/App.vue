@@ -302,10 +302,6 @@ $clr-grey-900: #ddd;
   border-color: $clr-tertiary;
 }
 
-.dropdown-toggle[aria-expanded='true'] {
-  border-bottom: 1px solid white !important;
-}
-
 .bg-dark .btn-primary {
   background-color: white;
   color: black;
@@ -442,20 +438,6 @@ input[type='range']:active::-ms-thumb {
   .dropdown.show::after {
     right: 0px;
   }
-}
-
-// fix size change on hover
-.dropdown-toggle::after {
-  height: 1rem;
-  margin: 0;
-  padding-left: 3px;
-}
-.dropdown-menu {
-  min-width: 100px;
-  padding: 0;
-  // top: -0.5px !important;
-  margin-top: -1px;
-  width: fit-content;
 }
 
 // change button color when bg-dark
