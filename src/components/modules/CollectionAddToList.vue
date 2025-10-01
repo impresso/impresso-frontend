@@ -132,7 +132,7 @@ const toggleActive = (collection: Collection) => {
   const checked = isIndeterminate(collection) === 'checked'
 
   items.forEach(item => {
-    const idx = item.collectionIds?.findIndex(c => c === collection.uid)
+    const idx = item.collectionIds?.findIndex(c => c === collection.uid) ?? -1
     if (checked && idx !== -1) {
       itemsFiltered.push(item)
     } else if (!checked && idx === -1) {
