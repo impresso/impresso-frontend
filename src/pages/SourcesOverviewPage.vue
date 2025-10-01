@@ -164,7 +164,7 @@ onMounted(() => {
 <template>
   <i-layout id="SearchPage">
     <SearchSidebar
-      width="400px"
+      width="300px"
       :filters="allowedFiltersWithItems"
       :facets="facets"
       contextTag="search"

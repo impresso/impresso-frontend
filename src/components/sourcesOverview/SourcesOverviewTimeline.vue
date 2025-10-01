@@ -172,6 +172,9 @@
           <SourcesOverviewDateValueItem
             :normalizeLocally="props.normalizeLocally"
             :dataValue="dataValue"
+            :min-value="dataValuesExtent.min"
+            :max-value="dataValuesExtent.max"
+            :xScale="xScale"
             :height="props.minimumVerticalGap"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
           />
@@ -302,6 +305,17 @@ const tooltip = ref<{
 interface ScalePointWithInvert extends d3.ScalePoint<number> {
   invertIndex: (y: number) => number
 }
+
+const dataValuesExtent = computed<{ min: number; max: number }>(() => {
+  let min = Infinity
+  let max = -Infinity
+  props.dataValues!.forEach(dv => {
+    if (dv.value < min) min = dv.value
+    if (dv.value > max) max = dv.value
+  })
+  return { min, max }
+})
+
 const yScale = computed<ScalePointWithInvert>(() => {
   const scale = d3
     .scalePoint<number>()

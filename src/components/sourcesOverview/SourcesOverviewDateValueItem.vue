@@ -57,7 +57,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { max, scalePow, scaleTime } from 'd3'
+import { max, min, scalePow, scaleTime } from 'd3'
 import { computed } from 'vue'
 
 export interface DataValue {
@@ -79,6 +79,8 @@ export interface SourcesOverviewDateValueItemProps {
   barHeight?: number
   exponent?: number
   normalizeLocally?: boolean
+  minValue?: number
+  maxValue?: number
 }
 
 const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
@@ -103,10 +105,17 @@ const xScale = computed(() => {
 const yScale = computed(() => {
   const maxValue = props.normalizeLocally
     ? (max(nestedDataValues.value, d => d.value) as number)
-    : props.dataValue.value
+    : isNaN(props.maxValue)
+      ? props.maxValue
+      : props.dataValue.value
+  const minValue = props.normalizeLocally
+    ? (min(nestedDataValues.value, d => d.value) as number)
+    : isNaN(props.minValue)
+      ? props.minValue
+      : 0
   return scalePow()
     .exponent(props.exponent)
-    .domain([0, maxValue])
+    .domain([minValue, maxValue])
     .range([2, props.height])
     .clamp(true)
 })
