@@ -3,8 +3,9 @@
     size="sm"
     variant="outline-primary"
     class="position-relative"
-    v-on:shown="fetch"
-    v-bind:text="text"
+    @shown="fetch"
+    :text="text"
+    :initialIsOpen="initialIsOpen"
   >
     <div v-if="!isLoggedIn()" class="p-2 bg-light">
       <b-button
@@ -28,6 +29,7 @@ import CollectionAddToList, { ItemWithCollections } from './CollectionAddToList.
 export interface Props {
   items: ItemWithCollections[]
   text?: string
+  initialIsOpen?: boolean
 }
 const { items, text } = defineProps<Props>()
 
