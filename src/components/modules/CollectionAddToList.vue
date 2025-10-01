@@ -1,6 +1,6 @@
 <template>
   <div class="CollectionAddToList">
-    <div class="header bg-light p-2 border-bottom">
+    <div class="header p-2">
       <div class="input-group">
         <input
           type="text"
@@ -39,10 +39,11 @@
       <li
         v-for="(collection, index) in filteredCollections"
         v-bind:key="index"
-        class="py-1"
+        class="py-1 px-2 d-flex align-items-center gap-2"
         :class="{
           active: isActive(collection)
         }"
+        v-on:click="toggleActive(collection)"
       >
         <input
           class="form-check-input"
@@ -51,15 +52,21 @@
           v-bind:checked="isActive(collection)"
           v-bind:class="isIndeterminate(collection)"
         />
-        <span class="checkmark checkmark-checked dripicons-checkmark" />
-        <span class="checkmark checkmark-indeterminate dripicons-minus" />
-        <span class="form-check-label" v-on:click="toggleActive(collection)" for="collection.uid">
+        <Icon
+          v-if="isActive(collection)"
+          :strokeWidth="2"
+          :scale="0.75"
+          name="checkCircle"
+          class="me-1"
+        />
+        <Icon v-else :strokeWidth="1.5" :scale="0.75" name="circle" class="me-1" />
+        <div class="form-check-label" for="collection.uid">
           <b>{{ collection.name }}</b>
           <br />
           <span class="description text-muted small" :title="$t('last_edited')">
             {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
           >
-        </span>
+        </div>
       </li>
     </ul>
   </div>
@@ -67,9 +74,9 @@
 
 <script setup lang="ts">
 import { useCollectionsStore } from '@/stores/collections'
-import { useUserStore } from '@/stores/user'
 import { ref, onUpdated, computed } from 'vue'
 import Collection from '@/models/Collection'
+import Icon from '../base/Icon.vue'
 
 export interface ItemWithCollections {
   itemId: string
@@ -204,13 +211,14 @@ onUpdated(() => {
 })
 </script>
 
-<style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
+<style lang="css">
 .CollectionAddToList {
-  min-width: 250px;
+  min-width: 300px;
   max-width: 350px;
-  --checkmark-width: 40px;
+}
+
+.CollectionAddToList .header {
+  border-bottom: 1px solid var(--clr-grey-200-rgba-20);
 }
 
 .CollectionAddToList ul {
@@ -220,42 +228,57 @@ onUpdated(() => {
 }
 .CollectionAddToList ul li {
   position: relative;
-  padding-inline-start: var(--checkmark-width);
+  cursor: pointer;
   border-radius: 0;
   margin-bottom: 0;
   border-bottom: 1px solid var(--clr-grey-200-rgba-20);
-}
-.CollectionAddToList ul li label {
-  font-variant: normal !important;
-  font-size: inherit;
 }
 .CollectionAddToList ul li input,
 .CollectionAddToList ul li .checkmark {
   display: none;
 }
-.CollectionAddToList ul li .checkmark {
-  position: absolute;
-  pointer-events: none;
-  height: 1em;
-  margin: auto;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--checkmark-width);
-  text-align: center;
-}
 .CollectionAddToList ul li.active {
-  // box-shadow: var(--bs-box-shadow-sm);
-  background-color: var(--clr-grey-200-rgba-20);
-  padding-inline-start: var(--checkmark-width);
+  background-color: var(--impresso-color-pastel-blue-alpha-20);
 }
-.CollectionAddToList ul li label .description {
-  font-size: var(--impresso-font-size-smaller);
-}
+/* 
+// .CollectionAddToList ul li {
+//   position: relative;
+//   padding-inline-start: var(--checkmark-width);
+//   border-radius: 0;
+//   margin-bottom: 0;
+//   border-bottom: 1px solid var(--clr-grey-200-rgba-20);
+// }
+// .CollectionAddToList ul li label {
+//   font-variant: normal !important;
+//   font-size: inherit;
+// }
+// .CollectionAddToList ul li input,
+// .CollectionAddToList ul li .checkmark {
+//   display: none;
+// }
+// .CollectionAddToList ul li .checkmark {
+//   position: absolute;
+//   pointer-events: none;
+//   height: 1em;
+//   margin: auto;
+//   top: 0;
+//   bottom: 0;
+//   left: 0;
+//   width: var(--checkmark-width);
+//   text-align: center;
+// }
+// .CollectionAddToList ul li.active {
+//   // box-shadow: var(--bs-box-shadow-sm);
+//   background-color: var(--clr-grey-200-rgba-20);
+//   padding-inline-start: var(--checkmark-width);
+// }
+// .CollectionAddToList ul li label .description {
+//   font-size: var(--impresso-font-size-smaller);
+// }
 
-.CollectionAddToList ul li input.checked ~ .checkmark-checked {
-  display: block;
-}
+// .CollectionAddToList ul li input.checked ~ .checkmark-checked {
+//   display: block;
+// } */
 </style>
 
 <i18n lang="json">
