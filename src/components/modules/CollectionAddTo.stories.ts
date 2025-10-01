@@ -65,6 +65,16 @@ const meta: Meta<typeof CollectionAddTo> = {
   title: 'Components/Modules/CollectionAddTo',
   tags: ['autodocs'],
   parameters: {},
+
+  render: args => {
+    return {
+      components: { CollectionAddTo },
+      setup() {
+        return { args }
+      },
+      template: '<CollectionAddTo  v-bind="args" />'
+    }
+  },
   decorators: [
     vueRouter([
       {
@@ -203,7 +213,8 @@ export const WithSearchFiltering: Story = {
 export const CreateNewCollection: Story = {
   args: {
     items: mockSingleItem,
-    text: 'Add to Collection'
+    text: 'Add to Collection',
+    initialIsOpen: true
   },
   parameters: {
     docs: {
