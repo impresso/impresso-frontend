@@ -4,20 +4,23 @@
       <div class="input-group">
         <input
           type="text"
-          class="form-control form-control-sm"
-          v-bind:placeholder="$t('placeholder')"
-          v-on:input="onInput"
-          v-on:keyup.enter="addCollection(inputString.trim())"
+          class="form-control form-control-md rounded-sm"
+          :placeholder="$t('placeholder')"
+          @input="onInput"
+          @keyup.enter="addCollection(inputString.trim())"
           ref="inputStringRef"
+          :disabled="isLoading"
           v-model="inputString"
         />
-        <div class="input-group-append">
+        <div
+          class="input-group-append"
+          v-if="!isDisabled && !isLoading && !filteredCollections.length"
+        >
           <b-button
             size="sm"
             variant="outline-primary"
             class="float-right"
-            v-bind:disabled="isDisabled"
-            v-on:click="addCollection(inputString.trim())"
+            @click="addCollection(inputString.trim())"
           >
             {{ $t('create_new') }}
           </b-button>
@@ -33,83 +36,164 @@
       </div>
     </div>
     <ul class="p-0">
-      <li v-if="!Object.keys(collections).length">
+      <li v-if="isFetchingCollections && !collections.length">
         <i-spinner class="text-center p-5" />
       </li>
-      <li
-        v-for="(collection, index) in filteredCollections"
-        v-bind:key="index"
-        class="py-1 px-2 d-flex align-items-center gap-2"
-        :class="{
-          active: isActive(collection)
-        }"
-        v-on:click="toggleActive(collection)"
-      >
-        <input
-          class="form-check-input"
-          type="checkbox"
-          v-bind:id="collection.uid"
-          v-bind:checked="isActive(collection)"
-          v-bind:class="isIndeterminate(collection)"
-        />
-        <Icon
-          v-if="isActive(collection)"
-          :strokeWidth="2"
-          :scale="0.75"
-          name="checkCircle"
-          class="me-1"
-        />
-        <Icon v-else :strokeWidth="1.5" :scale="0.75" name="circle" class="me-1" />
-        <div class="form-check-label" for="collection.uid">
-          <b>{{ collection.name }}</b>
-          <br />
-          <span class="description text-muted small" :title="$t('last_edited')">
-            {{ collection.lastModifiedDate.toString().substring(0, 15) }}</span
-          >
-        </div>
-      </li>
+      <CollectionAddToListItem
+        v-for="collection in filteredCollections"
+        :key="collection.uid"
+        :collection="collection"
+        :is-loading="isLoading"
+        :is-checked="collectionStates.get(collection.uid)?.isActive ?? false"
+        @toggle="toggleActive"
+      />
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useCollectionsStore } from '@/stores/collections'
-import { ref, onUpdated, computed } from 'vue'
+import { collections as collectionsService } from '@/services'
+import { collectionsItems as collectionsItemsService } from '@/services'
+import { ref, onUpdated, computed, watch } from 'vue'
 import Collection from '@/models/Collection'
-import Icon from '../base/Icon.vue'
+import CollectionAddToListItem from './CollectionAddToListItem.vue'
 
 export interface ItemWithCollections {
   itemId: string
   collectionIds?: string[]
+  added?: boolean
+  removed?: boolean
 }
 
 export interface Props {
   items: ItemWithCollections[]
+  loadingDelay?: number
+  isVisible?: boolean
 }
 
-const { items } = defineProps<Props>()
+interface CollectionState {
+  isActive: boolean
+  state: 'checked' | 'unchecked' | 'indeterminate'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  loadingDelay: 200
+})
 
 const isDisabled = ref(true)
 const inputString = ref('')
 const lastErrorMessage = ref('')
+const isFetchingCollections = ref(false)
+const isLoading = ref(false)
 
 const inputStringRef = ref<HTMLInputElement>()
-
-const collectionsStore = useCollectionsStore()
-
-const collections = computed(() => {
-  return collectionsStore.collections
-})
+const collections = ref<Collection[]>([])
 
 const filteredCollections = computed(() => {
-  return collections.value.filter(collection => {
-    const searchRegex = new RegExp(inputString.value, 'i')
-    return searchRegex.test(collection.name) || searchRegex.test(collection.description)
-  })
+  if (!inputString.value.trim()) {
+    return collections.value
+  }
+
+  const searchRegex = new RegExp(inputString.value.trim(), 'i')
+  return collections.value.filter(
+    collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
+  )
 })
 
-const fetch = async () =>
-  collectionsStore.loadCollections().catch(e => (lastErrorMessage.value = e.message))
+const emit = defineEmits<{
+  (e: 'change', payload: { items: ItemWithCollections[]; collection: Collection }): void
+}>()
+
+// Memoize collection states to avoid recalculating on every render
+const collectionStates = computed(() => {
+  const stateMap = new Map<string, CollectionState>()
+
+  collections.value.forEach(collection => {
+    const itemsWithCollection = props.items.filter(item =>
+      item.collectionIds?.includes(collection.uid)
+    )
+
+    const count = itemsWithCollection.length
+    let state: 'checked' | 'unchecked' | 'indeterminate'
+
+    if (count === 0) {
+      state = 'unchecked'
+    } else if (count === props.items.length) {
+      state = 'checked'
+    } else {
+      state = 'indeterminate'
+    }
+
+    stateMap.set(collection.uid, {
+      isActive: state === 'checked',
+      state
+    })
+  })
+
+  return stateMap
+})
+
+const fetch = async (
+  params = {
+    query: {
+      limit: 10,
+      offset: 0,
+      orderBy: 'createdAt'
+    }
+  } as {
+    query: {
+      limit?: number
+      offset?: number
+      orderBy?: string
+      q?: string
+    }
+  }
+) => {
+  isFetchingCollections.value = true
+  try {
+    const [results] = await Promise.all([
+      collectionsService.find(params).then(res => {
+        return res.data as {
+          accessLevel: 'private' | 'public'
+          createdAt: Date
+          description: string
+          title: string
+          totalItems: number
+          uid: string
+          updatedAt: Date
+        }[]
+      }),
+      // setTimeout with delay to show spinner for at least 300ms
+      new Promise(resolve => setTimeout(resolve, props.loadingDelay))
+    ])
+    collections.value = results.map(
+      item =>
+        new Collection({
+          uid: item.uid,
+          name: item.title,
+          countItems: item.totalItems,
+          status: item.accessLevel,
+          description: item.description,
+          lastModifiedDate: new Date(item.updatedAt),
+          creationDate: new Date(item.createdAt)
+        })
+    )
+  } catch (e: any) {
+    lastErrorMessage.value = e.message
+  } finally {
+    isFetchingCollections.value = false
+  }
+}
+
+watch(
+  () => props.isVisible,
+  newVal => {
+    if (newVal) {
+      fetch()
+    }
+  },
+  { immediate: false }
+)
 
 const onInput = () => {
   lastErrorMessage.value = ''
@@ -120,94 +204,92 @@ const onInput = () => {
     collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
 }
 
-const isIndeterminate = (targetCollection: Collection) => {
-  const itemsWithCollection = items.filter(item =>
-    item.collectionIds?.some(cid => cid === targetCollection.uid)
-  )
+const toggleActive = async (collection: Collection) => {
+  console.info('[CollectionAddToList] toggleActive', collection)
 
-  if (itemsWithCollection.length === 0) return 'unchecked'
-  if (itemsWithCollection.length === items.length) return 'checked'
-  return 'indeterminate'
-}
+  const itemsIdsToAdd = []
+  const itemsIdsToRemove = []
+  const updatedItems = []
 
-const isActive = (targetCollection: Collection) => {
-  return isIndeterminate(targetCollection) === 'checked'
-}
-
-const toggleActive = (collection: Collection) => {
-  const itemsFiltered: ItemWithCollections[] = []
-  const checked = isIndeterminate(collection) === 'checked'
-
-  items.forEach(item => {
-    const idx = item.collectionIds?.findIndex(c => c === collection.uid) ?? -1
-    if (checked && idx !== -1) {
-      itemsFiltered.push(item)
-    } else if (!checked && idx === -1) {
-      itemsFiltered.push(item)
+  for (const item of props.items) {
+    const itemCopy: ItemWithCollections = {
+      ...item,
+      collectionIds: item.collectionIds || [],
+      added: false,
+      removed: false
     }
-  })
+    if (item.collectionIds?.includes(collection.uid)) {
+      itemsIdsToRemove.push(item.itemId)
+      itemCopy.removed = true
+      itemCopy.collectionIds = itemCopy.collectionIds.filter(id => id !== collection.uid)
+    } else {
+      // to be added!
+      itemsIdsToAdd.push(item.itemId)
+      itemCopy.added = true
+      itemCopy.collectionIds = [collection.uid, ...itemCopy.collectionIds]
+    }
+    updatedItems.push(itemCopy)
+  }
 
-  if (!checked) {
-    // add items to collection
-    collectionsStore
-      .addCollectionItems({
-        items:
-          itemsFiltered?.map(i => ({
-            uid: i.itemId
-          })) || [],
-        collection,
-        contentType: 'article'
-      })
-      .then(() => {
-        itemsFiltered.forEach(item => {
-          item.collectionIds?.push(collection.uid)
-        })
-      })
-  } else {
-    // remove items from collection
-    collectionsStore
-      .removeCollectionItems({
-        items:
-          itemsFiltered?.map(i => ({
-            uid: i.itemId
-          })) || [],
-        collection
-      })
-      .then(() => {
-        itemsFiltered.forEach(item => {
-          const idx = item.collectionIds?.findIndex(c => c === collection.uid)
-          item.collectionIds?.splice(idx, 1)
-        })
-      })
-  } // end remove items from collection
-}
-
-const addCollection = collectionName => {
-  if (isDisabled.value) {
+  if (!itemsIdsToAdd.length && !itemsIdsToRemove.length) {
+    // nothing to do
     return
   }
-  collectionsStore
-    .addCollection({ name: collectionName })
-    .then(collection => {
-      toggleActive(collection)
-      inputString.value = ''
-      fetch()
-    })
-    .catch(e => {
-      if (e.code === 400) {
-        lastErrorMessage.value = 'NotValidLength'
-      } else if (e.code === 409) {
-        lastErrorMessage.value = 'name_already_exists'
-      } else {
-        throw e
-      }
-    })
+
+  try {
+    isLoading.value = true
+    if (itemsIdsToAdd.length) {
+      await collectionsItemsService.patch(
+        null,
+        { add: itemsIdsToAdd },
+        {
+          route: {
+            collection_id: collection.uid
+          }
+        }
+      )
+    }
+    if (itemsIdsToRemove.length) {
+      await collectionsItemsService.patch(
+        null,
+        { remove: itemsIdsToRemove },
+        {
+          route: {
+            collection_id: collection.uid
+          }
+        }
+      )
+    }
+    emit('change', { items: updatedItems, collection })
+  } catch (e: any) {
+    lastErrorMessage.value = e.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const addCollection = async (collectionName: string) => {
+  // if (isDisabled.value) {
+  //   return
+  // }
+  // try {
+  //   const collection = await collectionsStore.addCollection({ name: collectionName })
+  //   await toggleActive(collection)
+  //   inputString.value = ''
+  //   await fetch()
+  // } catch (e: any) {
+  //   if (e.code === 400) {
+  //     lastErrorMessage.value = 'NotValidLength'
+  //   } else if (e.code === 409) {
+  //     lastErrorMessage.value = 'name_already_exists'
+  //   } else {
+  //     lastErrorMessage.value = e.message || 'An error occurred'
+  //   }
+  // }
 }
 
 onUpdated(() => {
-  if (inputStringRef.value) {
-    inputStringRef.value.focus()
-  }
+  inputStringRef.value?.focus()
 })
 </script>
 
@@ -226,59 +308,6 @@ onUpdated(() => {
   overflow: scroll;
   list-style: none;
 }
-.CollectionAddToList ul li {
-  position: relative;
-  cursor: pointer;
-  border-radius: 0;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--clr-grey-200-rgba-20);
-}
-.CollectionAddToList ul li input,
-.CollectionAddToList ul li .checkmark {
-  display: none;
-}
-.CollectionAddToList ul li.active {
-  background-color: var(--impresso-color-pastel-blue-alpha-20);
-}
-/* 
-// .CollectionAddToList ul li {
-//   position: relative;
-//   padding-inline-start: var(--checkmark-width);
-//   border-radius: 0;
-//   margin-bottom: 0;
-//   border-bottom: 1px solid var(--clr-grey-200-rgba-20);
-// }
-// .CollectionAddToList ul li label {
-//   font-variant: normal !important;
-//   font-size: inherit;
-// }
-// .CollectionAddToList ul li input,
-// .CollectionAddToList ul li .checkmark {
-//   display: none;
-// }
-// .CollectionAddToList ul li .checkmark {
-//   position: absolute;
-//   pointer-events: none;
-//   height: 1em;
-//   margin: auto;
-//   top: 0;
-//   bottom: 0;
-//   left: 0;
-//   width: var(--checkmark-width);
-//   text-align: center;
-// }
-// .CollectionAddToList ul li.active {
-//   // box-shadow: var(--bs-box-shadow-sm);
-//   background-color: var(--clr-grey-200-rgba-20);
-//   padding-inline-start: var(--checkmark-width);
-// }
-// .CollectionAddToList ul li label .description {
-//   font-size: var(--impresso-font-size-smaller);
-// }
-
-// .CollectionAddToList ul li input.checked ~ .checkmark-checked {
-//   display: block;
-// } */
 </style>
 
 <i18n lang="json">
@@ -288,7 +317,6 @@ onUpdated(() => {
     "create_new": "Create New",
     "manage_collections": "Manage my Collections",
     "created": "Created:",
-    "last_edited": "Last edited",
     "items": "items",
     "name_already_exists": "This collection label has already been used, please choose another one",
     "NotValidLength": "Collection label must be between 3 and 50 characters long"
@@ -298,7 +326,6 @@ onUpdated(() => {
     "create_new": "Sammlung erstellen",
     "manage_collections": "Sammlungen verwalten",
     "created": "Erstellt:",
-    "last_edited": "Zuletzt bearbeitet",
     "items": " Artikel"
   }
 }

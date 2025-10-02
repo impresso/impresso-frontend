@@ -32,7 +32,7 @@ export default class Collection implements IEntity {
   name: string
   uid: string
   creator: { username?: string }
-
+  status: string
   checked?: boolean
 
   constructor({
@@ -50,7 +50,8 @@ export default class Collection implements IEntity {
     lastModifiedTime = 0,
     name = '',
     uid = '',
-    creator = {}
+    creator = {},
+    status = 'private'
   } = {}) {
     this.countItems = countItems
     this.countArticles = countArticles
@@ -67,5 +68,6 @@ export default class Collection implements IEntity {
     this.name = String(name)
     this.uid = String(uid)
     this.creator = creator
+    this.status = status
   }
 }

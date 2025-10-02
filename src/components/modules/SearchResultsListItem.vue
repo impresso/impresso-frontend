@@ -47,7 +47,7 @@
           >
           <div
             v-if="article.collections && article.collections.length > 0"
-            class="article-collections mb-2"
+            class="article-collections mb-2 d-inline-flex flex-wrap"
           >
             <b-badge
               v-for="(collection, i) in article.collections"
@@ -56,13 +56,13 @@
               class="mr-1"
             >
               <router-link
-                class="text-white"
+                class="text-white text-decoration-none"
                 v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
               >
                 {{ collection.name }}
               </router-link>
               <a
-                class="dripicons dripicons-cross"
+                class="dripicons dripicons-cross text-decoration-none"
                 v-on:click="onRemoveCollection(collection.uid)"
               />
             </b-badge>
@@ -73,7 +73,12 @@
           </router-link> -->
 
           <slot name="secondary-action">
-            <collection-add-to :items="ciAsCollectableItems" :text="$t('add_to_collection')" />
+            <CollectionAddTo
+              right
+              @change="onCollectionsAddToChangeHandler"
+              :items="ciAsCollectableItems"
+              :text="$t('add_to_collection')"
+            />
           </slot>
 
           <div
@@ -129,6 +134,7 @@ import { ContentItem } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
+import type Collection from '@/models/Collection'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -136,13 +142,15 @@ const MatchOverlayClass = 'overlay-match'
 export interface IData {
   showModalShare: boolean
   coordsFromArticleRegion?: { x: number; y: number; w: number; h: number } | null
+  collections: Collection[]
 }
 
 export default defineComponent({
   data(): IData {
     return {
       showModalShare: false,
-      coordsFromArticleRegion: undefined
+      coordsFromArticleRegion: undefined,
+      collections: []
     } satisfies IData
   },
   props: {
@@ -241,6 +249,29 @@ export default defineComponent({
     }
   },
   methods: {
+    onCollectionsAddToChangeHandler(payload: {
+      items: ItemWithCollections[]
+      collection: Collection
+    }) {
+      console.info('[SearchResultsListItem] onCollectionsAddToChangeHandler', payload)
+      const currentContentItem = this.modelValue
+      const currentContentItemId = currentContentItem?.id
+      if (!currentContentItemId) return
+      const updatedItem = payload.items.find(i => i.itemId === currentContentItemId)
+      if (!updatedItem || !updatedItem.collectionIds) return
+
+      if (updatedItem.added) {
+        this.modelValue.semanticEnrichments.collections = [
+          ...(this.modelValue?.semanticEnrichments?.collections ?? []),
+          payload.collection as any
+        ]
+      } else if (updatedItem.removed) {
+        this.modelValue.semanticEnrichments.collections =
+          this.modelValue?.semanticEnrichments?.collections?.filter(
+            c => c.uid !== payload.collection.uid
+          ) ?? []
+      }
+    },
     async onRemoveCollection(collectionId: string) {
       const item = this.modelValue
       const itemId = item?.id

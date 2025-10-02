@@ -82,20 +82,29 @@ export const useCollectionsStore = defineStore('collections', {
               q: this.collectionsQ
             }
           })
-          .then(results => {
-            this.collectionsValue = results.data.map(
-              result =>
+          .then((res: any) => {
+            this.collectionsValue = res.data.map(
+              (item: {
+                accessLevel: 'private' | 'public'
+                createdAt: Date
+                description: string
+                title: string
+                totalItems: number
+                uid: string
+                updatedAt: Date
+              }) =>
                 new Collection({
-                  countItems: result.totalItems,
-                  description: result.description,
-                  name: result.title,
-                  uid: result.uid,
-                  creationDate: new Date(result.createdAt),
-                  lastModifiedDate: new Date(result.updatedAt)
+                  uid: item.uid,
+                  name: item.title,
+                  countItems: item.totalItems,
+                  status: item.accessLevel,
+                  description: item.description,
+                  lastModifiedDate: new Date(item.updatedAt),
+                  creationDate: new Date(item.createdAt)
                 })
             )
-            this.collectionsPaginationTotalRows = results.pagination.total
-            resolve(results)
+            this.collectionsPaginationTotalRows = res.pagination.total
+            resolve(this.collectionsValue)
           })
       })
     },
