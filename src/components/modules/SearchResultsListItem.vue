@@ -35,34 +35,28 @@
             show-link
             class="mb-2"
           />
-          <ContentItemAccess :item="contentItem" class="mr-3" />
-
-          <b-badge
-            class="mb-2"
-            pill
-            v-for="tag in article.tags"
-            variant="secondary"
-            v-bind:key="tag.uid"
-            >{{ tag.name }}</b-badge
-          >
           <div
             v-if="article.collections && article.collections.length > 0"
-            class="article-collections mb-2 d-inline-flex flex-wrap"
+            class="d-flex flex-wrap align-items-center"
           >
+            <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
+
             <b-badge
               v-for="(collection, i) in article.collections"
               v-bind:key="i"
               variant="info"
-              class="mr-1"
+              class="m-1 font-size-inherit"
             >
               <router-link
                 class="text-white text-decoration-none"
                 v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+                title="View collection"
               >
                 {{ collection.name }}
               </router-link>
               <a
-                class="dripicons dripicons-cross text-decoration-none"
+                class="ml-1 text-white dripicons dripicons-cross text-decoration-none"
+                title="Remove from collection"
                 v-on:click="onRemoveCollection(collection.uid)"
               />
             </b-badge>
@@ -73,13 +67,17 @@
           </router-link> -->
 
           <slot name="secondary-action">
-            <CollectionAddTo
-              right
-              @change="onCollectionsAddToChangeHandler"
-              :items="ciAsCollectableItems"
-              :text="$t('add_to_collection')"
-            />
+            <div class="my-2">
+              <CollectionAddTo
+                right
+                @change="onCollectionsAddToChangeHandler"
+                :items="ciAsCollectableItems"
+                :text="$t('add_to_collection')"
+              />
+            </div>
           </slot>
+
+          <ContentItemAccess :item="contentItem" class="mr-3" />
 
           <div
             v-if="article.accessRight === 'OpenPublic'"
@@ -129,6 +127,7 @@ import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
 import { ContentItem } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
@@ -173,7 +172,7 @@ export default defineComponent({
   },
   emits: ['toggleSelected', 'click'],
   computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
+    ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
     contentItem(): ContentItem {
       return this.modelValue
     },
@@ -284,7 +283,11 @@ export default defineComponent({
         item: { uid: itemId },
         collection: { uid: collectionId }
       })
-
+      this.notificationsStore.addNotification({
+        type: 'info',
+        title: 'Collection',
+        message: `Removed from collection "${collection.name}"`
+      })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =
           this.modelValue.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
