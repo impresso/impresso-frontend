@@ -136,7 +136,7 @@
       <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
         @dismiss="hideModal"
-        @success="hideModal"
+        @success="handleCreateCollectionModalSuccess"
         :filters="searchServiceQuery.filters"
         :initial-payload="{
           name: inputName,
@@ -240,6 +240,7 @@ import {
   exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
+import { useNotificationsStore } from '@/stores/notifications'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
@@ -327,7 +328,7 @@ export default defineComponent({
     return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
+    ...mapStores(useCollectionsStore, useNotificationsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -505,6 +506,14 @@ export default defineComponent({
     },
     hideModal(name = undefined) {
       this.visibleModal = name
+    },
+    handleCreateCollectionModalSuccess() {
+      this.notificationsStore.addNotification({
+        title: this.$t('query_add_to_collection_success_title') as string,
+        message: this.$t('query_add_to_collection_success_message') as string,
+        type: 'info'
+      })
+      this.hideModal()
     },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
@@ -783,6 +792,8 @@ export default defineComponent({
     "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
+    "query_add_to_collection_success_title": "Collection Created",
+    "query_add_to_collection_success_message": "The collection has been created and the items are being added.",
     "Collection_Name": "Collection Name",
     "Collection_Description": "Collection Description",
     "query_export": "Export result list as ...",
