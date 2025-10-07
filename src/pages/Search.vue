@@ -135,8 +135,8 @@
 
       <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
-        @dismiss="hideModal('nameCollection')"
-        @success="hideModal('nameCollection')"
+        @dismiss="hideModal"
+        @success="hideModal"
         :filters="searchServiceQuery.filters"
         :initial-payload="{
           name: inputName,
