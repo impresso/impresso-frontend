@@ -26,7 +26,7 @@
             <CollectionAddTo
               right
               v-if="contentItem"
-              :item="contentItem"
+              :items="contentItemAsCollectableItems"
               :text="$t('add_to_collection')"
           /></template>
         </IssueViewerPageHeading>
@@ -187,6 +187,16 @@ const ignoredFilters = computed<Filter[]>(() => {
 })
 const allowedFilters = computed<Filter[]>(() => {
   return props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+})
+
+const contentItemAsCollectableItems = computed(() => {
+  if (!contentItem.value) return []
+  return [
+    {
+      itemId: contentItem.value.uid,
+      collectionIds: contentItem.value.collections?.map(c => c.uid)
+    }
+  ]
 })
 
 export interface IssueViewerPageProps {

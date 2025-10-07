@@ -64,8 +64,8 @@
         <div class="row">
           <b-col
             cols="12"
-            v-for="(article, index) in contentItemsResponse.data"
-            v-bind:key="`${index}-${article.uid}`"
+            v-for="(ci, index) in contentItemsResponse.data"
+            v-bind:key="`${index}-${ci.id}`"
           >
             <SearchResultsListItem v-model="contentItemsResponse.data[index]" />
           </b-col>
@@ -112,6 +112,7 @@
       <b-container fluid class="my-3">
         <b-row>
           <b-col
+            class="mb-3"
             sm="12"
             md="12"
             lg="6"
@@ -141,16 +142,15 @@ import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import {
   searchFacets as searchFacetsService,
-  contentItems as contentItemsService,
-  collectionsItems as collectableItemsService
+  contentItems as contentItemsService
 } from '@/services'
 import { useUserStore } from '@/stores/user'
 import { watch } from 'vue'
 import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
-import Article from '@/models/Article'
 import { FindQuery } from '@/services/types/contentItems'
+import { ContentItem } from '@/models/generated/schemas/contentItem'
 
 const userStore = useUserStore()
 
@@ -166,8 +166,7 @@ const FacetTypes = [
   'person',
   'location',
   'topic',
-  'partner',
-  'accessRight'
+  'partner'
 ]
 
 const orderByOptions: FindQuery['order_by'][] = ['-date', 'date']
@@ -228,7 +227,7 @@ const timelineResponse = ref({
 })
 
 const contentItemsResponse = ref<{
-  data: any[] | null
+  data: ContentItem[] | null
   total: number
   status: 'idle' | 'loading' | 'success' | 'error'
 }>({
@@ -281,6 +280,9 @@ const fetchContentItems = async (query = {}) => {
     }
     return
   }
+
+  // This call does not exist anymore
+  /*
   const collectableItemsIndex = await collectableItemsService
     .find({
       query: {
@@ -294,14 +296,11 @@ const fetchContentItems = async (query = {}) => {
         return acc
       }, {})
     )
+  */
 
   contentItemsResponse.value = {
     status: 'success',
-    data: response.data.map(d => {
-      const a = Article.fromContentItem(d)
-      a.collections = collectableItemsIndex[d.id]?.collections ?? []
-      return a
-    }),
+    data: response.data,
     total: response.total
   }
   console.debug('[CollectionExplorerPage] fetchContentItems success', response.data)
@@ -312,28 +311,19 @@ const searchFacetsResponse = ref<{
 }>({
   data: FacetTypes.map(type => new Facet({ type }))
 })
-const fetchSearchFacets = async () => {
-  Promise.all(
-    FacetTypes.map(type =>
-      searchFacetsService
-        .get(type, {
-          query: {
-            filters: [collectionFilter.value]
-          }
-        })
-        .then(response => {
-          const facet = searchFacetsResponse.value.data.find(facet => facet.type === type)
-          if (!facet) {
-            console.error('[CollectionExplorerPage] fetchSearchFacets failed for type', type)
-            return
-          }
-          console.debug('[CollectionExplorerPage] fetchSearchFacets loaded type:', type)
 
-          facet.numBuckets = response.numBuckets
-          facet.setBuckets(response.buckets)
-        })
-    )
-  )
+const fetchSearchFacets = async () => {
+  const response = await searchFacetsService.find({
+    query: {
+      facets: FacetTypes,
+      filters: [collectionFilter.value]
+    }
+  })
+  if (!response) {
+    console.error('[CollectionExplorerPage] fetchSearchFacets failed')
+    return
+  }
+  searchFacetsResponse.value.data = response.data.map(f => new Facet(f as any))
 }
 
 const fetchTimeline = async () => {
@@ -369,8 +359,8 @@ watch(
     if (_value === TabOverview) {
       // await fetchContentItems()
 
-      fetchTimeline()
-      fetchSearchFacets()
+      await fetchTimeline()
+      await fetchSearchFacets()
     } else if (_value === TabContentItems) {
       console.debug('[CollectionExplorerPage] selectedTab.value === TabContentItems')
       await fetchContentItems()

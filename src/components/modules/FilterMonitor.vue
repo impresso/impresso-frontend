@@ -97,7 +97,7 @@
             @update:modelValue="toggleFilterItem($event, item.uid)"
           >
           </b-form-checkbox>
-          <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
+          <item-selector hide-icon :uid="item.uid || item.id" :item="item" :type="type">
             <item-label :item="item" :type="type" />
             <span v-if="!item.uid">...</span>
             <span v-if="item.count"

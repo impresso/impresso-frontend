@@ -573,6 +573,21 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 .dropdown .dropdown-item {
   padding: var(--spacing-1) var(--spacing-3);
 }
+.dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid white !important;
+}
+
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+.dropdown-menu {
+  min-width: 100px;
+  padding: 0;
+  margin-top: -1px;
+  width: fit-content;
+}
 
 .bg-dark ::selection {
   background-color: var(--impresso-color-yellow);

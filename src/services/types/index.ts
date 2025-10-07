@@ -6,6 +6,7 @@ import { BaristaService } from './barista'
 import { ContentItemsService } from './contentItems'
 import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
+import { ICollectableItemsService } from './collectableItems'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -34,6 +35,7 @@ export interface Services extends UntypedServices {
   ['content-items']: ContentItemsService
   ['search-facets/search']: SearchFacetsService
   mentions: MentionsService
+  ['/collections/:collection_id/items']: ICollectableItemsService
 }
 
 export interface Group {
