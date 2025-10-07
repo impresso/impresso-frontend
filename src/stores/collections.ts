@@ -128,13 +128,13 @@ export const useCollectionsStore = defineStore('collections', {
     },
     editCollection({ uid, name, description }: EditCollectionDetails) {
       return collectionsService.patch(uid, {
-        name,
+        title: name,
         description
       })
     },
     addCollection({ name, description }: AddCollectionDetails) {
       return collectionsService.create({
-        name,
+        title: name,
         description
       })
     },
