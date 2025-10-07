@@ -14,7 +14,10 @@
     >
       <template #form-errors>
         <Alert v-if="error" type="warning" class="mb-3 p-3" role="alert">
-          <p class="m-0" v-if="error.code === 409">
+          <p class="m-0" v-if="error.code === 500">
+            An unexpected error occurred while creating the collection. Please try again later.
+          </p>
+          <p class="m-0" v-else-if="error.code === 409">
             A collection with this name already exists. Please choose a different name.
           </p>
           <p class="m-0" v-else-if="error.code === 501">
