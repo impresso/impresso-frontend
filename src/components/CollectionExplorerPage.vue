@@ -112,6 +112,7 @@
       <b-container fluid class="my-3">
         <b-row>
           <b-col
+            class="mb-3"
             sm="12"
             md="12"
             lg="6"
@@ -165,8 +166,7 @@ const FacetTypes = [
   'person',
   'location',
   'topic',
-  'partner',
-  'accessRight'
+  'partner'
 ]
 
 const orderByOptions: FindQuery['order_by'][] = ['-date', 'date']
@@ -311,28 +311,19 @@ const searchFacetsResponse = ref<{
 }>({
   data: FacetTypes.map(type => new Facet({ type }))
 })
-const fetchSearchFacets = async () => {
-  Promise.all(
-    FacetTypes.map(type =>
-      searchFacetsService
-        .get(type, {
-          query: {
-            filters: [collectionFilter.value]
-          }
-        })
-        .then(response => {
-          const facet = searchFacetsResponse.value.data.find(facet => facet.type === type)
-          if (!facet) {
-            console.error('[CollectionExplorerPage] fetchSearchFacets failed for type', type)
-            return
-          }
-          console.debug('[CollectionExplorerPage] fetchSearchFacets loaded type:', type)
 
-          facet.numBuckets = response.numBuckets
-          facet.setBuckets(response.buckets)
-        })
-    )
-  )
+const fetchSearchFacets = async () => {
+  const response = await searchFacetsService.find({
+    query: {
+      facets: FacetTypes,
+      filters: [collectionFilter.value]
+    }
+  })
+  if (!response) {
+    console.error('[CollectionExplorerPage] fetchSearchFacets failed')
+    return
+  }
+  searchFacetsResponse.value.data = response.data.map(f => new Facet(f as any))
 }
 
 const fetchTimeline = async () => {
@@ -368,8 +359,8 @@ watch(
     if (_value === TabOverview) {
       // await fetchContentItems()
 
-      fetchTimeline()
-      fetchSearchFacets()
+      await fetchTimeline()
+      await fetchSearchFacets()
     } else if (_value === TabContentItems) {
       console.debug('[CollectionExplorerPage] selectedTab.value === TabContentItems')
       await fetchContentItems()
