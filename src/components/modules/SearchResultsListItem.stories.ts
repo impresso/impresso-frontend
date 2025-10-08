@@ -9,10 +9,6 @@ const meta: Meta<typeof SearchResultsListItem> = {
   component: SearchResultsListItem,
   title: 'Components/Modules/SearchResultsListItem',
   tags: ['autodocs'],
-  argTypes: {
-    toggleSelected: fn(),
-    click: fn()
-  },
   parameters: {},
   decorators: [
     vueRouter([
