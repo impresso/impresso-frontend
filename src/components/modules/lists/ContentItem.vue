@@ -57,7 +57,7 @@
       </b-badge>
     </div>
     <div v-if="showSemanticEnrichments" class="mt-1">
-      <div v-for="entityType in ['persons', 'locations', 'newsagencies', 'organisations']">
+      <div v-for="entityType in ['persons', 'locations', 'newsagencies', 'organisations']" :key="entityType">
         <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
           <Ellipsis :initialHeight="100" :maxHeight="200">
             <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
