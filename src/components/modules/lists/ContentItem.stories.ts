@@ -261,7 +261,22 @@ export const Default: Story = {
   args: {
     item: MockContentItem,
     showLink: true,
-    showMatches: true
+    showMatches: false,
+    showSnippet: true,
+    showMeta: true,
+    showTranscriptLength: true
+  }
+}
+
+export const NewspaperIssueTableOfContents: Story = {
+  args: {
+    item: MockContentItem,
+    showLink: true,
+    showMatches: true,
+    showSnippet: false,
+    showMeta: false,
+    showTranscriptLength: true,
+    showSemanticEnrichments: true
   }
 }
 

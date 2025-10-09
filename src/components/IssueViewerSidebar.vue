@@ -133,6 +133,8 @@
           }"
           showLink
           showMatches
+          showType
+          showSemanticEnrichments
           v-for="item in matchingContentItems"
           :key="item.id"
           :item="item"
@@ -269,6 +271,14 @@ const handleSubmitSuggestionQuery = async () => {
   isLoadingServiceQuery.value = true
   showMatchingContentItems.value = true
 
+  if (suggestionQuery.value.length === 0 && !applyCurrentSearchFilters.value) {
+    // reset
+    showMatchingContentItems.value = false
+    matchingContentItems.value = []
+    paginationTotalRows.value = 0
+    isLoadingServiceQuery.value = false
+    return
+  }
   const sq = serviceQuery.value
   matchingContentItems.value = await fetchMatchingContentItems({
     filters: sq.filters,
@@ -281,6 +291,8 @@ const handleSubmitSuggestionQuery = async () => {
 watch(applyCurrentSearchFilters, v => {
   if (v) {
     handleSubmitSuggestionQuery()
+  } else {
+    showMatchingContentItems.value = false
   }
 })
 </script>

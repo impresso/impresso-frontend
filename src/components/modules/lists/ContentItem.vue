@@ -1,5 +1,5 @@
 <template>
-  <div class="ContentItem">
+  <div class="ContentItem" @click="emit('click', item)">
     <h2>
       <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="item.text.title"></RouterLink>
       <span v-else v-html="item.text.title"></span>
@@ -15,10 +15,10 @@
           class="d-inline-block"
         />
         &nbsp;
-        <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'long') : '' }}</span>
+        <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
           v-if="item.image?.pagesCount"
-          v-html="`– ${$tc('pp', item.image?.pagesCount, { pages })}`"
+          v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
         >
         </span>
       </p>
@@ -32,6 +32,54 @@
         ></DataProviderLabel>
       </p>
     </div>
+    <div v-if="!showMeta" class="ContentItem__typePages">
+      <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
+      <span
+        v-if="item.image?.pagesCount"
+        v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
+      >
+      </span>
+    </div>
+    <div
+      v-if="showSnippet && !showMatches && item.text?.snippet?.length > 0"
+      class="ContentItem__excerpt mt-1"
+    >
+      <blockquote class="text-muted">{{ item.text.snippet }}</blockquote>
+      <b-badge
+        v-if="showTranscriptLength && item.text.contentLength"
+        variant="light"
+        class="mr-1 pt-1"
+      >
+        <span v-if="item.text.contentLength > 1200">{{
+          $t('readingTime', { min: item.text.contentLength / 1200 })
+        }}</span>
+        <span v-else>{{ $t('reducedReadingTime') }}</span>
+      </b-badge>
+    </div>
+    <div v-if="showSemanticEnrichments" class="mt-1">
+      <div v-for="entityType in ['persons', 'locations', 'newsagencies', 'organisations']">
+        <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
+          <Ellipsis :initialHeight="100" :maxHeight="200">
+            <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
+            <div
+              v-for="(entity, idx) in item.semanticEnrichments.namedEntities[entityType]"
+              v-bind:key="idx"
+              class="d-inline small"
+            >
+              <ItemSelector
+                :uid="entity.id"
+                :label="entity.label"
+                :item="entity"
+                :type="entityType"
+              />
+              <span v-if="idx !== item.semanticEnrichments.namedEntities[entityType].length - 1"
+                >,
+              </span>
+            </div>
+          </Ellipsis>
+        </div>
+      </div>
+    </div>
     <div v-if="showMatches && item.text?.matches?.length">
       <ul class="ContentItem__textMatches d-flex flex-wrap mt-1 p-0">
         <li
@@ -43,7 +91,8 @@
         />
       </ul>
     </div>
-    <pre>{{ JSON.stringify(item, null, 2) }}</pre>
+
+    <slot name="actions"></slot>
   </div>
 </template>
 
@@ -53,17 +102,25 @@ import type { ContentItem } from '@/models/generated/schemas/contentItem'
 import { computed } from 'vue'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import DataProviderLabel from './DataProviderLabel.vue'
+import { getShortArticleId } from '@/logic/ids'
+import ItemSelector from '../ItemSelector.vue'
+import Ellipsis from '../Ellipsis.vue'
 
 export interface Props {
   item: ContentItem
   showLink?: boolean
   showMeta?: boolean
-  showExcerpt?: boolean
+  showSnippet?: boolean
   showMatches?: boolean
+  showTranscriptLength?: boolean
+  showSemanticEnrichments?: boolean
 }
 
 const props = defineProps<Props>()
 const route = useRoute()
+const emit = defineEmits<{
+  click: [item: ContentItem]
+}>()
 
 const routerLinkUrl = computed(() => {
   if (props.item.meta.sourceType === 'newspaper') {
@@ -74,7 +131,8 @@ const routerLinkUrl = computed(() => {
       },
       query: {
         ...route?.query,
-        articleId: props.item.id,
+        // TODO: replace query params with contentItemId.
+        articleId: getShortArticleId(props.item.id),
         p: props.item.image?.pages[0]?.number
       }
     }
@@ -95,6 +153,14 @@ const pages = computed(() => {
     return imagepages.join(',')
   }
   return 'no page info'
+})
+
+const itemType = computed(() => {
+  if (props.item.meta.sourceType === 'newspaper') {
+    return props.item.text.itemType
+  }
+  // TODO: handle other sourceTypes
+  return 'N/A'
 })
 </script>
 <style type="css">
