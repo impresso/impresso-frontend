@@ -160,6 +160,10 @@
                   :placeholder="$t('form_institutional_url_placeholder')"
                 ></b-form-input>
               </b-form-group>
+              <p
+                class="text-muted very-small pt-0 px-3"
+                v-html="$t('form_institutional_url_note')"
+              ></p>
             </div>
           </b-row>
           <b-row>
@@ -642,8 +646,9 @@ h3::before {
     "form_password_repeat": "Verify Password *",
     "form_affiliation": "Affiliation",
     "form_affiliation_placeholder": "University, Company, etc.",
-    "form_institutional_url": "Institutional URL",
+    "form_institutional_url": "Personal webpage at home institution ",
     "form_institutional_url_placeholder": "https://...",
+    "form_institutional_url_note": "Note: for Academic User plan this link is <b>required</b>.",
     "registration_successful": "Registration successful",
     "register": "Register",
     "signUp": "(sign up)"
