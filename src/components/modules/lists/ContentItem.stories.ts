@@ -94,7 +94,7 @@ const MockContentItem: ContentItemType = {
         ],
         iiif: {
           manifestUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/info.json',
-          thumnbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
+          thumbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
         }
       }
     ]
