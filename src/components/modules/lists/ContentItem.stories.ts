@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/vue3'
 import ContentItem from './ContentItem.vue'
 import { vueRouter } from 'storybook-vue3-router'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas'
+import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import { fn } from '@storybook/test'
 
 const MockContentItem: ContentItemType = {
@@ -94,7 +94,7 @@ const MockContentItem: ContentItemType = {
         ],
         iiif: {
           manifestUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/info.json',
-          thumbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
+          thumnbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
         }
       }
     ]
@@ -206,31 +206,26 @@ const MockContentItem: ContentItemType = {
       {
         id: 'tm-de-all-v2.0_tp77_de',
         relevance: 0.252,
-        language: 'de',
         label: 'regierung · afp · sowjetunion · reuter · moskau'
       },
       {
         id: 'tm-de-all-v2.0_tp50_de',
         relevance: 0.22,
-        language: 'de',
         label: 'china · japan · indien · peking · tokio'
       },
       {
         id: 'tm-de-all-v2.0_tp91_de',
         relevance: 0.158,
-        language: 'de',
         label: 'wasser · betrieb · arbeit · energie · firma'
       },
       {
         id: 'tm-de-all-v2.0_tp93_de',
         relevance: 0.154,
-        language: 'de',
         label: 'schiff · flugzeug · bord · dampfer · hafen'
       },
       {
         id: 'tm-de-all-v2.0_tp24_de',
         relevance: 0.057,
-        language: 'de',
         label: 'könig · kaiser · königin · prinz · prinzessin'
       }
     ]
