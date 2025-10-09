@@ -163,7 +163,7 @@ const itemType = computed(() => {
   return 'N/A'
 })
 </script>
-<style type="css">
+<style>
 .ContentItem ul.ContentItem__textMatches {
   list-style-type: none;
 }
