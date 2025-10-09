@@ -296,7 +296,7 @@ watch(applyCurrentSearchFilters, v => {
   }
 })
 </script>
-<style type="css">
+<style>
 .IssueViewerSidebar .ContentItem h2 {
   font-size: inherit;
   font-weight: var(--impresso-wght-bold);
