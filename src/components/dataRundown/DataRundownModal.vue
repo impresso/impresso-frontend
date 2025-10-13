@@ -60,8 +60,12 @@
             <div class="col-sm-4 d-flex align-items-center">
               {{ mod.taskName }}
             </div>
-            <div class="col-sm-4 d-flex align-items-center">
-              <a :href="mod.huggingFaceLink" target="_blank">{{ mod.modelId }}</a>
+
+            <div class="col-sm-6 d-flex align-items-center">
+              <a :href="mod.huggingfaceLink || mod.githubLink" target="_blank">{{ mod.modelId }}</a>
+            </div>
+            <div class="col-sm-2 d-flex align-items-center">
+              {{ $t(mod.huggingfaceLink ? 'huggingFace' : mod.githubLink ? 'GitHub' : 'URL') }}
             </div>
           </div>
         </template>
@@ -79,6 +83,7 @@ import LoadingBlock from '../LoadingBlock.vue'
 import { fetchJsonData } from '@/services/data'
 import type { DataReleaseExtended } from '@/services/types'
 import DataReleaseCard from './DataReleaseCard.vue'
+import Icon from '../base/Icon.vue'
 
 export type DataRundownModalProps = {
   dialogClass?: string
