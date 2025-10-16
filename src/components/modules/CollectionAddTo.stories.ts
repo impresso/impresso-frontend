@@ -1,5 +1,5 @@
 import { BaseFindResponse, Collection } from '@/models/generated/schemasPublic'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'
