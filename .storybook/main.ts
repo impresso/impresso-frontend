@@ -5,9 +5,8 @@ const config: StorybookConfig = {
 
   addons: [
     '@storybook/addon-links',
-    '@storybook/addon-essentials',
     '@chromatic-com/storybook',
-    '@storybook/addon-interactions'
+    '@storybook/addon-docs'
   ],
 
   framework: {
@@ -22,10 +21,6 @@ const config: StorybookConfig = {
     // use rest transport in storybook to make mocking easier
     VITE_API_TRANSPORT: 'rest',
     VITE_MIDDLELAYER_API_BASE_URL: '/api'
-  }),
-
-  docs: {
-    autodocs: true
-  }
+  })
 }
 export default config

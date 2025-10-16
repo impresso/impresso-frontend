@@ -252,6 +252,14 @@ const router = createRouter({
       })
     },
     {
+      path: '/sources',
+      name: 'sources',
+      component: () => import('@/pages/SourcesOverviewPage.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/newspapers',
       component: () => import('@/pages/Newspapers.vue'),
       children: [

@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
-import { fn } from '@storybook/test'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { fn } from 'storybook/test'
 import { http, HttpResponse } from 'msw'
 import OpenSeadragonArticleViewer from '../OpenSeadragonArticleViewer.vue'
 

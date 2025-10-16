@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/vue3'
 import ContentItem from './ContentItem.vue'
 import { vueRouter } from 'storybook-vue3-router'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 
 const MockContentItem: ContentItemType = {
   id: 'DTT-1968-09-04-a-i0190',

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DataRundownModal from './DataRundownModal.vue'
 import type { DataRundownModalProps } from './DataRundownModal.vue'
 import type { DataReleaseExtended } from '@/services/types'

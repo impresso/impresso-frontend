@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterTimeline from './FilterTimeline.vue'
 import FilterDaterange from '@/models/FilterDaterange'
 import Daterange from '@/models/Daterange'

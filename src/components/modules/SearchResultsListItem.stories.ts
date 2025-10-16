@@ -1,5 +1,5 @@
 import { ContentItem } from '@/models/generated/schemas/contentItem'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'

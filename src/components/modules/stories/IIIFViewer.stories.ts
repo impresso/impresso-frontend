@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import IIIFViewer, { IIIFViewerProps } from '@/components/modules/IIIFViewer.vue'
 import { http, HttpResponse } from 'msw'
 

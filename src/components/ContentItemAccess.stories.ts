@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ContentItemAccess from '@/components/ContentItemAccess.vue'
 import type { ContentItemAccessProps } from '@/components/ContentItemAccess.vue'
 import { useUserStore } from '@/stores/user'

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import UserRequestsModal from '@/components/UserRequestsModal.vue'
 import { SubscriptionDataset, UserRequest } from '@/services/types'
 

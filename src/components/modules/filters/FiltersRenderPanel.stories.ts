@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FiltersRenderPanel from './FiltersRenderPanel.vue'
 import { Filter, protobuf } from 'impresso-jscommons'
 

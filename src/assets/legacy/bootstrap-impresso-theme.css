@@ -8977,7 +8977,8 @@ button.bg-dark:focus {
   white-space: normal !important;
 }
 
-.text-nowrap {
+.text-nowrap,
+.text-no-wrap {
   white-space: nowrap !important;
 }
 

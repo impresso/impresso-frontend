@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ChangePlanModal from '@/components/ChangePlanModal.vue'
 import { AvailablePlans, PlanLabels } from '@/constants'
 import { UserChangePlanRequest } from '@/services/types'

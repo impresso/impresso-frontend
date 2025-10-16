@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DivergingBarsChartPanel from '../DivergingBarsChartPanel.vue'
 import type { FacetContainer, FacetItem } from '../DivergingBarsChartPanel.vue'
 

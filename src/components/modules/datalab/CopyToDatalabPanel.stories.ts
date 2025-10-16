@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CopyToDatalabPanel from './CopyToDatalabPanel.vue'
 
 const meta: Meta<typeof CopyToDatalabPanel> = {

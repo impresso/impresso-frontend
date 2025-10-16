@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
 import FilterRange from './FilterRange.vue'
 import { Facet, Filter } from '@/models'

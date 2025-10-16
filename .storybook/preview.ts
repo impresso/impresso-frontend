@@ -1,5 +1,5 @@
-import type { Preview } from '@storybook/vue3'
-import { setup } from '@storybook/vue3'
+import type { Preview } from '@storybook/vue3-vite'
+import { setup } from '@storybook/vue3-vite'
 import { initialize, mswLoader } from 'msw-storybook-addon'
 import globalComponents from '../src/plugins/globalComponents'
 import { newI18n } from '../src/plugins/i18n'
@@ -51,7 +51,9 @@ const preview: Preview = {
       handlers: mswHandlers
     }
   },
-  loaders: [mswLoader]
+
+  loaders: [mswLoader],
+  tags: ['autodocs']
 }
 
 export default preview
