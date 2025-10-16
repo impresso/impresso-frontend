@@ -1,7 +1,7 @@
 <template>
   <div class="collection-recommendation-panel d-flex h-100 flex-column">
     <b-navbar type="light" variant="light" class="flex-shrink-1 p-2 border-bottom">
-    <!-- header -->
+      <!-- header -->
       <recommender-pill
         v-for="(settings, index) in recommendersSettings"
         :key="settings.type"
@@ -9,21 +9,20 @@
         :recommendations="recommendations[index]"
         :loading-recommendations="isLoadingRecommendations"
         @changed="handleSettingsChanged"
-        @search-parameters-changed="handleSearchparametersChanged"/>
+        @search-parameters-changed="handleSearchparametersChanged"
+      />
       <slot name="additional-navbar" />
     </b-navbar>
 
     <div style="overflow: auto">
-      <div v-if="!isLoadingRecommendations && !isLoadingArticles" class=" p-3">
+      <div v-if="!isLoadingRecommendations && !isLoadingArticles" class="p-3">
         <div v-if="articlesLoaded && recommendedArticles.length > 0">
           <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
               <b-col cols="12" v-for="(article, idx) in recommendedArticles" :key="article.uid">
                 <search-results-list-item v-model="recommendedArticles[idx]">
                   <template v-slot:secondary-action>
-                    <b-button
-                      variant="outline-primary" size="sm"
-                      @click="addToCollection(article)">
+                    <b-button variant="outline-primary" size="sm" @click="addToCollection(article)">
                       {{ $t('label.addToCollection') }}
                     </b-button>
                   </template>
@@ -31,33 +30,47 @@
               </b-col>
             </b-row>
             <b-row v-if="displayStyle === DisplayStyle.Tiles">
-              <b-col cols="6" sm="12" md="4" lg="3" v-for="(article, idx) in recommendedArticles" :key="article.uid">
+              <b-col
+                cols="6"
+                sm="12"
+                md="4"
+                lg="3"
+                v-for="(article, idx) in recommendedArticles"
+                :key="article.uid"
+              >
                 <search-results-tiles-item
                   v-if="article.type === ArticleType"
                   @click="goToArticle(article)"
-                  v-model="recommendedArticles[idx]" />
+                  v-model="recommendedArticles[idx]"
+                />
                 <search-results-image-item
                   v-if="article.type !== ArticleType"
                   @click="goToArticle(article)"
                   v-bind:searchResult="article"
-                  :article="article" />
+                  :article="article"
+                />
               </b-col>
             </b-row>
           </div>
-        </div><!-- v-if="articlesLoaded && recommendedArticles.length > 0" -->
+        </div>
+        <!-- v-if="articlesLoaded && recommendedArticles.length > 0" -->
 
         <div v-else-if="articlesLoaded && recommendedArticles.length === 0">
           <span>{{ $t('label.notfound') }}</span>
         </div>
 
-        <div class="fixed-pagination-footer p-1 m-0"  v-if="articlesLoaded && recommendedArticles.length > 0">
+        <div
+          class="fixed-pagination-footer p-1 m-0"
+          v-if="articlesLoaded && recommendedArticles.length > 0"
+        >
           <pagination
             v-if="recommendedArticles.length"
             :current-page="paginationCurrentPage"
-            @change="$event => paginationCurrentPage = $event"
+            @change="$event => (paginationCurrentPage = $event)"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
-            class="float-left small-caps" />
+            class="float-left small-caps"
+          />
         </div>
       </div>
       <spinner v-if="isLoadingRecommendations || isLoadingArticles" />
@@ -88,7 +101,7 @@ import {
   parametersToApiRequestParameters
 } from '@/logic/collectionRecommendations'
 
-const ArticleType =  'ar'
+const ArticleType = 'ar'
 const DisplayStyle = Object.freeze({
   Tiles: 'tiles',
   List: 'list'
@@ -139,7 +152,7 @@ export default {
     /** @type {import('vue').PropOptions<import('impresso-jscommons').CollectionRecommendersSettings>} */
     collectionRecommendersSettings: {
       type: Object,
-      default: () => ({ recommenders: [] }),
+      default: () => ({ recommenders: [] })
     }
   },
   watch: {
@@ -189,30 +202,32 @@ export default {
       /** @returns {RecommenderSettings[]} */
       get() {
         return ['timeRange', 'entities', 'topics', 'textReuseClusters'].map(t => {
-          const recommender = (this.collectionRecommendersSettings.recommenders ?? []).find(({ type }) => type === t)
-          if (recommender == null) return { enabled: t !== 'textReuseClusters', type: t, parameters: {} }
+          const recommender = (this.collectionRecommendersSettings.recommenders ?? []).find(
+            ({ type }) => type === t
+          )
+          if (recommender == null)
+            return { enabled: t !== 'textReuseClusters', type: t, parameters: {} }
 
           return {
             enabled: recommender.enabled,
             type: recommender.type,
             weight: recommender.weight,
             parameters: (recommender.parameters ?? []).reduce((acc, param) => {
-              return { ...acc, [param.key]: param.value };
+              return { ...acc, [param.key]: param.value }
             }, {})
           }
-        });
+        })
       },
       /** @param {RecommenderSettings[]} val */
       set(val) {
-        const recommenders = val
-          .map(({ type, weight, parameters, enabled }) => {
-            const o = { type, enabled }
-            if (weight != null && weight !== 1.0) o.weight = weight
-            o.parameters = Object.entries(parameters)
-              .map(([key, value]) => ({ key, value }))
-              .filter(({ value }) => value != null)
-            return o
-          });
+        const recommenders = val.map(({ type, weight, parameters, enabled }) => {
+          const o = { type, enabled }
+          if (weight != null && weight !== 1.0) o.weight = weight
+          o.parameters = Object.entries(parameters)
+            .map(([key, value]) => ({ key, value }))
+            .filter(({ value }) => value != null)
+          return o
+        })
         this.$emit('settings-updated', { recommenders })
       }
     },
@@ -224,7 +239,9 @@ export default {
       return this.recommendersSettings
         .map(({ type }) => type)
         .map(type => {
-          return this.response?.results?.find(({ name }) => name === RecommenderResponseTagMap[type])?.params
+          return this.response?.results?.find(
+            ({ name }) => name === RecommenderResponseTagMap[type]
+          )?.params
         })
     },
     /** @returns {any[]} */
@@ -232,7 +249,9 @@ export default {
       return (this.articlesResponse?.data ?? []).map(article => {
         // If this article has been added to current collection manually, add current collection
         // to the list of collections of this article.
-        const extraCollections = this.articlesAddedToCollection.map(({ uid }) => uid).includes(article.uid)
+        const extraCollections = this.articlesAddedToCollection
+          .map(({ uid }) => uid)
+          .includes(article.uid)
           ? [this.collection]
           : []
 
@@ -249,7 +268,7 @@ export default {
     },
     /** @returns {number} */
     paginationTotalRows() {
-      return this.articlesResponse?.total ?? 0;
+      return this.articlesResponse?.total ?? 0
     },
     /** @returns {any} */
     recommendationRequest() {
@@ -257,7 +276,8 @@ export default {
         .filter(({ enabled }) => enabled)
         .map(({ type, parameters }) => ({
           name: RecommenderNameMap[type],
-          params: Object.keys(parameters).length > 0 ? parametersToApiRequestParameters(parameters) : {}
+          params:
+            Object.keys(parameters).length > 0 ? parametersToApiRequestParameters(parameters) : {}
         }))
       return { coll_id: this.collectionId, recommenders }
     },
@@ -270,8 +290,13 @@ export default {
         context: 'exclude'
       }
       const request = {
-        filters: recommenderResponseToFilters(this.response, this.recommendersSettings).concat(collectionExlusionFilter),
-        relevanceContext: recommenderResponseToRelevanceContext(this.response, this.recommendersSettings),
+        filters: recommenderResponseToFilters(this.response, this.recommendersSettings).concat(
+          collectionExlusionFilter
+        ),
+        relevanceContext: recommenderResponseToRelevanceContext(
+          this.response,
+          this.recommendersSettings
+        ),
         pagination: {
           offset: (this.paginationCurrentPage - 1) * this.paginationPerPage,
           limit: this.paginationPerPage
@@ -305,19 +330,23 @@ export default {
           issue_uid: article.issue.uid,
           page_number: article.pages[0]?.num,
           page_uid: article.pages[0]?.uid,
-          article_uid: article.uid,
-        },
-      });
+          article_uid: article.uid
+        }
+      })
     },
     async addToCollection(article) {
       try {
-        await collectionsItemsService.create({
-          collection_uid: this.collectionId,
-          items: [{
-            content_type: 'article',
-            uid: article.uid,
-          }],
-        })
+        await collectionsItemsService.patch(
+          null,
+          {
+            add: [article.uid]
+          },
+          {
+            route: {
+              collection_id: this.collectionId
+            }
+          }
+        )
       } catch (e) {
         // Ignore "Conflict" (409) error which means the item
         // has already been added to collection but has not been synchronised yet.

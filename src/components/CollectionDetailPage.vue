@@ -18,7 +18,13 @@
           </span>
 
           <h3>{{ collection.name }}</h3>
-          <p>{{ collection.description }}</p>
+          <blockquote class="m-2 pl-2 border-left border-dark">
+            {{ collection.description }}
+          </blockquote>
+          <p class="m-0 small">
+            Last modified on {{ $d(collection.lastModifiedDate, 'long') }}. Created on
+            {{ $d(collection.creationDate, 'long') }}.
+          </p>
         </section>
 
         <section class="ml-auto py-3 text-right">
@@ -253,7 +259,15 @@
 
       <b-container fluid class="my-3">
         <b-row>
-          <b-col sm="12" md="12" lg="6" xl="4" v-for="(facet, idx) in facets" v-bind:key="idx">
+          <b-col
+            sm="12"
+            md="12"
+            lg="6"
+            xl="4"
+            class="mb-3"
+            v-for="(facet, idx) in facets"
+            v-bind:key="facet.type"
+          >
             <stacked-bars-panel
               class=""
               :label="facet.type"
@@ -315,8 +329,7 @@ import {
   exporter as exporterService,
   collections as collectionsService,
   searchFacets as searchFacetsService,
-  contentItems as contentItemsService,
-  collectionsItems as collectionsItemsService
+  contentItems as contentItemsService
 } from '@/services'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
@@ -381,7 +394,7 @@ export default defineComponent({
         'location',
         'topic',
         'partner',
-        'copyright'
+        'accessRight'
       ],
       isConfirmDeleteModalVisible: false
     }) as IData,
@@ -459,7 +472,7 @@ export default defineComponent({
           name: TAB_OVERVIEW
         },
         {
-          label: this.$tc('tabs.articles', this.paginationTotalRows, {
+          label: this.$tc('numbers.contentItems', this.paginationTotalRows, {
             count: this.$n(this.paginationTotalRows)
           }),
           name: TAB_ARTICLES
@@ -502,18 +515,22 @@ export default defineComponent({
         // load collection
         if (params.collection_uid) {
           this.fetching = true
-          this.collection = await collectionsService
-            .get(this.collectionUid)
-            .then(collection => new Collection(collection))
+          this.collection = await collectionsService.get(this.collectionUid).then(collection => {
+            return new Collection({
+              name: collection.title,
+              description: collection.description,
+              uid: collection.uid,
+              lastModifiedDate: collection.updatedAt,
+              creationDate: collection.createdAt,
+              countItems: collection.totalItems
+            })
+          })
           this.fetching = false
         }
         this.loadCollectionItems()
         if (this.tab.name === TAB_OVERVIEW) {
-          this.loadTimeline()
-          this.facets = []
-          for (const type of this.facetTypes) {
-            this.facets.push(await this.loadFacets(type))
-          }
+          await this.loadTimeline()
+          await this.loadFacets()
         }
       }
     }
@@ -557,57 +574,29 @@ export default defineComponent({
       }
     },
     async loadCollectionItems() {
+      if (!this.collectionUid) return
+
       this.fetching = true
-      const query = {
-        resolve: 'item',
-        page: this.paginationCurrentPage,
-        limit: this.paginationPerPage,
-        ...(this.collectionUid
-          ? {
-              collection_uids: [this.collectionUid]
-            }
-          : {})
-        // TODO Uncomment the following line when service is ready
-        // order_by: context.state.orderBy,
-      }
 
-      const collectionsItems = await collectionsItemsService
-        .find({ query })
-        .then(({ data, total }) => {
-          console.debug('[CollectionDetailPage] loadCollectionItems() success. Data:', data)
-          this.paginationTotalRows = total
-          return data
-        })
-
-      // const collectionsItemsById = collectionsItems.reduce((acc, item) => {
-      //   acc[item.itemId] = item
-      //   return acc
-      // }, {})
-
-      const contentItems = await contentItemsService
-        .find({
+      try {
+        const response = await contentItemsService.find({
           query: {
             filters: [
               {
-                type: 'uid',
-                q: collectionsItems.map(d => d.itemId)
+                type: 'collection',
+                q: this.collectionUid
               }
-            ]
-            // group_by: 'articles'
+            ],
+            limit: this.paginationPerPage,
+            offset: (this.paginationCurrentPage - 1) * this.paginationPerPage
           }
         })
-        .then(({ data }) => data)
-      // .then(({ data }) =>
-      //   data.map(d => {
-      //     return Article.fromContentItem({
-      //       ...d,
-      //       collections: collectionsItemsById[d.id]?.collections ?? []
-      //     })
-      //   })
-      // )
 
-      this.contentItems = contentItems
-      this.fetching = false
+        this.paginationTotalRows = response.total
+        this.contentItems = response.data
+      } finally {
+        this.fetching = false
+      }
     },
     gotoArticle(article) {
       if (
@@ -687,35 +676,32 @@ export default defineComponent({
       }
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
     },
-    loadTimeline() {
+    async loadTimeline() {
       this.isTimelineLoading = true
       return this.collectionsStore
-        .loadTimeline(this.$route.params.collec as string)
+        .loadTimeline(this.collectionUid)
         .then(values => {
           this.timevalues = values
+        })
+        .finally(() => {
           this.isTimelineLoading = false
         })
     },
-    loadFacets(type: FacetType) {
-      return searchFacetsService
-        .get(type, {
-          query: {
-            filters: [
-              {
-                type: 'collection',
-                q: this.collectionUid
-              }
-            ]
-            // group_by: 'articles',
-          }
-        })
-        .then(facet => {
-          return new Facet({
-            type,
-            buckets: facet.buckets.map(b => new Bucket({ ...b, type })),
-            numBuckets: facet.numBuckets
-          })
-        })
+    async loadFacets() {
+      this.facets = []
+      const response = await searchFacetsService.find({
+        query: {
+          facets: this.facetTypes,
+          filters: [
+            {
+              type: 'collection',
+              q: this.collectionUid
+            }
+          ]
+          // group_by: 'articles',
+        }
+      })
+      this.facets = response.data.map(f => new Facet(f as any))
     }
   }
 })
@@ -747,7 +733,6 @@ export default defineComponent({
     "label_display": "Display As",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
-    "articles": "No article | <b>1</b> article | <b>{n}</b> articles",
     "edit_collection": "Edit collection",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",

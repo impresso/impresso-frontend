@@ -154,6 +154,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       ) ?? []
 
     // Map collections to tags
+    /*
     const tags =
       semanticEnrichments?.collections?.map(
         collection =>
@@ -162,6 +163,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
             name: collection.name
           })
       ) ?? []
+    */
+    const tags = []
 
     // Map pages
     const pages =

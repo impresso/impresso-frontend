@@ -1,5 +1,6 @@
 <template>
   <List
+    class="IssueViewerSidebar"
     :hide-pagination="!displayOnlyMatchingArticles"
     :paginationList="paginationList"
     @change-page="paginationCurrentPage = $event"
@@ -124,8 +125,24 @@
       </b-tabs>
     </template>
     <template v-slot:default>
+      <div v-if="showMatchingContentItems">
+        <ContentItem
+          class="p-3 border-bottom"
+          :class="{
+            active: item.id === selectedContentItemUid
+          }"
+          showLink
+          showMatches
+          showType
+          showSemanticEnrichments
+          v-for="item in matchingContentItems"
+          :key="item.id"
+          :item="item"
+        />
+      </div>
       <IssueViewerTableOfContents
-        :items="showMatchingContentItems ? matchingContentItems : contentItems"
+        v-if="!showMatchingContentItems"
+        :items="contentItems"
         :selected-article-id="selectedContentItemUid"
         @article-selected="$emit('content-item-selected', $event)"
       />
@@ -135,6 +152,7 @@
 
 <script setup lang="ts">
 import type { Issue, Filter } from '@/models'
+import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import IssueViewerTableOfContents from './IssueViewerTableOfContents.vue'
 import List from './modules/lists/List.vue'
 import ArticleBase from '@/models/ArticleBase'
@@ -142,7 +160,8 @@ import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import SearchPills from './SearchPills.vue'
 import { getFilterQuery } from '@/models/SearchQuery'
-import { search } from '@/services'
+import { contentItems as contentItemsService } from '@/services'
+import ContentItem from './modules/lists/ContentItem.vue'
 
 export interface IssueViewerSidebarProps {
   issue?: Issue | null
@@ -163,7 +182,7 @@ const emit = defineEmits<{
 
 const displayOnlyMatchingArticles = ref(false)
 const applyCurrentSearchFilters = ref(false)
-const matchingContentItems = ref<ArticleBase[]>([])
+const matchingContentItems = ref<ContentItemType[]>([])
 const paginationPerPage = ref(10)
 const paginationCurrentPage = ref(1)
 const paginationTotalRows = ref(0)
@@ -226,21 +245,20 @@ async function fetchMatchingContentItems({
   filters: Filter[]
   limit: number
   offset: number
-}): Promise<ArticleBase[]> {
+}): Promise<ContentItemType[]> {
   console.debug('[IssueViewerSidebar] fetchMatchingContentItems')
-  return search
+  return contentItemsService
     .find({
       query: {
         // legacy parameter
         filters,
         limit,
-        offset,
-        group_by: 'articles'
+        offset
       }
     })
     .then(({ data, total }) => {
       paginationTotalRows.value = total
-      return data.map(article => new ArticleBase(article))
+      return data as ContentItemType[]
     })
     .catch(err => {
       console.warn('[IssueViewerPage] @serviceQuery Error', err)
@@ -252,6 +270,14 @@ const handleSubmitSuggestionQuery = async () => {
   isLoadingServiceQuery.value = true
   showMatchingContentItems.value = true
 
+  if (suggestionQuery.value.length === 0 && !applyCurrentSearchFilters.value) {
+    // reset
+    showMatchingContentItems.value = false
+    matchingContentItems.value = []
+    paginationTotalRows.value = 0
+    isLoadingServiceQuery.value = false
+    return
+  }
   const sq = serviceQuery.value
   matchingContentItems.value = await fetchMatchingContentItems({
     filters: sq.filters,
@@ -264,9 +290,30 @@ const handleSubmitSuggestionQuery = async () => {
 watch(applyCurrentSearchFilters, v => {
   if (v) {
     handleSubmitSuggestionQuery()
+  } else {
+    showMatchingContentItems.value = false
   }
 })
 </script>
+<style>
+.IssueViewerSidebar .ContentItem h2 {
+  font-size: inherit;
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
+}
+.IssueViewerSidebar .ContentItem.active {
+  box-shadow: inset 0.15em 0 #343a40;
+  background-color: #f2f2f2;
+}
+.IssueViewerSidebar .ContentItem h2 a {
+  color: var(--impresso-color-black);
+  text-decoration: underline;
+}
+.IssueViewerSidebar .ContentItem .ContentItem__textMatches {
+  font-size: smaller;
+  font-weight: inherit;
+}
+</style>
 <i18n lang="json">
 {
   "en": {

@@ -239,7 +239,11 @@ import TextReusePassageItem from '@/components/modules/lists/TextReusePassageIte
 import TextReuseStatistics from '@/components/modules/textReuse/TextReuseStatistics.vue'
 import TextReuseOverview from '@/components/modules/textReuse/TextReuseOverview.vue'
 import { mapPagination, mapOrderBy } from '@/logic/queryParams'
-import { textReusePassages, search as searchService, collections } from '@/services'
+import {
+  textReusePassages,
+  collectionsItems as collectionsItemsService,
+  collections
+} from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
@@ -466,13 +470,10 @@ export default {
         )
         return
       }
-      searchService
+      collectionsItemsService
         .create(
           {
-            taskname: 'add_to_collection_from_tr_passages_query',
-            group_by: 'articles',
-            index: 'tr_passages',
-            collection_uid: this.selectedCollection.uid,
+            namespace: 'tr_passages',
             filters: optimizeFilters([
               ...this.supportedFilters,
               {
@@ -481,7 +482,9 @@ export default {
               }
             ])
           },
-          { ignoreErrors: true }
+          {
+            route: { collection_id: this.selectedCollection.uid }
+          }
         )
         .then(() => {
           console.debug('[TextReuseExplorer]  success')

@@ -13,7 +13,7 @@ const ERRORS_DO_NOT_FORWARD = ['BadGateway', 'TransportError', 'NotAuthenticated
 export interface Notification {
   title: string
   message: string
-  type: 'success' | 'error'
+  type: 'success' | 'error' | 'info'
 }
 
 export interface StoredNotification extends Notification {
