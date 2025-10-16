@@ -83,8 +83,17 @@ watch(
         }
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = facetsItems
 
+    const timelineFacets = await searchFacets
+      .find({
+        query: {
+          facets: ['year'],
+          filters: newVal,
+          limit: 300 // get all values
+        }
+      })
+      .then(response => response.data.map(f => new FacetModel(f as any)))
+    facets.value = [...timelineFacets, ...facetsItems]
     const statsItems = await stats.find({
       query: {
         facet: 'newspaper',
@@ -162,7 +171,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <i-layout id="SearchPage">
+  <i-layout class="SearchOverviewPage">
     <SearchSidebar
       width="300px"
       :filters="allowedFiltersWithItems"

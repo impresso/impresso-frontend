@@ -11,12 +11,17 @@
               {{ $d(tooltip.currentDate, 'year') }} &mdash;
 
               <span
+                v-if="tooltip.exactDataValue?.value > 0"
                 v-html="
                   $tc('numbers.contentItems', tooltip.exactDataValue?.value || 0, {
                     n: $n(tooltip.exactDataValue?.value || 0)
                   })
                 "
-              />&nbsp;
+              />
+              <span v-else class="SourcesOverviewTimeline__empty">
+                <span class="number">0</span> content items
+              </span>
+              &nbsp;
               <span
                 v-if="tooltip.exactDataValue?.dateRange"
                 v-html="
@@ -55,17 +60,8 @@
         transform: 'translate3d(' + currentDateRef.x + 'px, 0, 0)'
       }"
     >
-      <div
-        :style="{
-          position: 'absolute',
-          top: '0',
-          left: '-50px',
-          width: '100px',
-          textAlign: 'center',
-          color: 'white'
-        }"
-      >
-        <span style="background: purple" class="py-1 px-2 rounded">{{ currentDateRef.year }} </span>
+      <div class="SourcesOverviewTimeline__pointer__label">
+        <span class="py-1 px-2 rounded">{{ currentDateRef.year }} </span>
       </div>
     </div>
     <div
@@ -515,13 +511,24 @@ onUnmounted(() => {
   left: 0;
   bottom: 0;
   width: 2px;
-  background: purple;
+  background: var(--impresso-color-black-alpha-20);
   pointer-events: none;
   transition:
     opacity 0.3s ease-out,
     transform 0.1s ease-out;
   opacity: 0;
   transform: translate3d(0, 0, 0);
+}
+.SourcesOverviewTimeline__pointer__label {
+  position: absolute;
+  top: 0;
+  left: -50px;
+  width: 100px;
+  text-align: center;
+  color: white;
+}
+.SourcesOverviewTimeline__pointer__label span {
+  background-color: var(--impresso-color-black);
 }
 .SourcesOverviewTimeline__xAxis {
   position: sticky;
@@ -538,6 +545,25 @@ onUnmounted(() => {
 }
 
 .SourcesOverviewTimeline .tooltip-inner {
-  background-color: hsla(300, 100%, 16%, 0.8);
+  background-color: var(--impresso-color-black-deeper);
+}
+.SourcesOverviewTimeline .tooltip-inner .number {
+  color: var(--impresso-color-black);
+  background-color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+  min-width: 25px;
+  text-align: center;
+  display: inline-block;
+}
+.SourcesOverviewTimeline .tooltip-inner .small .number {
+  color: white;
+  background-color: transparent;
+  display: inline;
+  padding: 0;
+}
+
+.SourcesOverviewTimeline .tooltip-inner .SourcesOverviewTimeline__empty .number {
+  background-color: var(--impresso-color-white-alpha-50);
 }
 </style>
