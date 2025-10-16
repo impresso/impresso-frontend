@@ -6,7 +6,11 @@ import SourcesOverviewTimeline from '@/components/sourcesOverview/SourcesOvervie
 import { buildEmptyFacets } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
-import { searchFacets, stats } from '@/services'
+import {
+  mediaSources as mediaSourcesService,
+  searchFacets as searchFacetsService,
+  stats as statsService
+} from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
@@ -59,6 +63,7 @@ const dateRangeBounds = computed<{ min: Date; max: Date }>(() => {
 
 const minStartDate = computed(() => dateRangeBounds.value.min)
 const maxEndDate = computed(() => dateRangeBounds.value.max)
+
 const totalContentItems = computed(() => dataValues.value.reduce((sum, dv) => sum + dv.value, 0))
 const facets = ref([])
 const dataValues = ref<DataValue[]>([])
@@ -75,7 +80,7 @@ watch(
   async newVal => {
     isLoading.value = true
     totalResults.value = 0
-    const facetsItems = await searchFacets
+    const facetsItems = await searchFacetsService
       .find({
         query: {
           facets: FacetTypes,
@@ -84,7 +89,7 @@ watch(
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
 
-    const timelineFacets = await searchFacets
+    const timelineFacets = await searchFacetsService
       .find({
         query: {
           facets: ['year'],
@@ -94,7 +99,7 @@ watch(
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
     facets.value = [...timelineFacets, ...facetsItems]
-    const statsItems = await stats.find({
+    const statsItems = await statsService.find({
       query: {
         facet: 'newspaper',
         domain: 'time',
@@ -144,12 +149,13 @@ watch(
       {} as Record<string, DataValue[]>
     )
     console.log('dataValuesByMediaSourceId', dataValuesByMediaSourceId)
+
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
       const allDates = values.flatMap(v => [v.dateRange[0], v.dateRange[1]])
       const minDate = new Date(Math.min(...allDates.map(d => d.getTime())))
       const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())))
       const totalValue = values.reduce((sum, v) => sum + v.value, 0)
-      const label = mediaSourceId
+      const label = statsItems.itemsDictionary[mediaSourceId] ?? mediaSourceId
       return {
         id: mediaSourceId,
         date: minDate,

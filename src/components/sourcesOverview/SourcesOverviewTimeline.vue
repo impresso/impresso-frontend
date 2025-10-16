@@ -3,9 +3,10 @@
     <slot name="tooltip">
       <Tooltip :tooltip="tooltip">
         <div v-if="tooltip.dataValue">
-          <h4 class="text-white font-weight-normal">
+          <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
           </h4>
+          <div className="small-caps mb-1">press</div>
           <div v-if="tooltip.currentDate">
             <div class="mb-2">
               {{ $d(tooltip.currentDate, 'year') }} &mdash;
@@ -198,6 +199,7 @@ export interface Props {
   minimumVerticalGap?: number
   normalizeLocally?: boolean
   maxTooltipHeight?: number
+  timeResolution?: 'year' | 'month' | 'day'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -205,7 +207,8 @@ const props = withDefaults(defineProps<Props>(), {
   minimumGap: 8,
   minimumVerticalGap: 30,
   normalizeLocally: false,
-  maxTooltipHeight: 200
+  maxTooltipHeight: 200,
+  timeResolution: 'year'
 })
 
 const emit = defineEmits<{
@@ -296,21 +299,27 @@ const tooltip = ref<{
   currentDate: undefined
 })
 
+const dataValuesExtent = computed<{ min: number; max: number }>(() => {
+  let min = Infinity
+  let max = -Infinity
+  props.dataValues!.forEach(dv => {
+    if (Array.isArray(dv.dataValues) && dv.dataValues.length > 0) {
+      dv.dataValues.forEach(nestedDv => {
+        if (nestedDv.value < min) min = nestedDv.value
+        if (nestedDv.value > max) max = nestedDv.value
+      })
+    } else {
+      if (dv.value < min) min = dv.value
+      if (dv.value > max) max = dv.value
+    }
+  })
+  return { min, max }
+})
 // Y scale for positioning data values based on their index
 
 interface ScalePointWithInvert extends d3.ScalePoint<number> {
   invertIndex: (y: number) => number
 }
-
-const dataValuesExtent = computed<{ min: number; max: number }>(() => {
-  let min = Infinity
-  let max = -Infinity
-  props.dataValues!.forEach(dv => {
-    if (dv.value < min) min = dv.value
-    if (dv.value > max) max = dv.value
-  })
-  return { min, max }
-})
 
 const yScale = computed<ScalePointWithInvert>(() => {
   const scale = d3

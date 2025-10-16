@@ -6,7 +6,7 @@
         height: height + 'px'
       }"
     >
-      <div class="label font-weight-bold">{{ dataValue.label }} {{ dataValue.value }}</div>
+      <div class="label font-weight-bold small">{{ dataValue.label }}</div>
       <div v-if="dataValue.dateRange" class="date-range text-no-wrap very-small">
         {{ $d(dataValue.dateRange[0], 'month') }}
       </div>
@@ -26,7 +26,7 @@
       :style="{
         width: width + 'px',
         height: height + 'px',
-        backgroundColor: 'var(--clr-grey-100-rgba-20)'
+        backgroundColor: 'var(--clr-grey-100-rgba-10)'
       }"
     >
       <div
@@ -39,7 +39,7 @@
           top: height / 2 - yScale(nestedValue.value) / 2 + 'px',
           width: xScale(nestedValue.dateRange[1]) - xScale(nestedValue.dateRange[0]) + 'px',
           height: yScale(nestedValue.value) + 'px',
-          backgroundColor: 'rgba(128, 0, 128, 0.7)'
+          backgroundColor: colorScale(nestedValue.value)
         }"
       ></div>
     </div>
@@ -57,7 +57,15 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { max, min, scalePow, scaleTime } from 'd3'
+import {
+  interpolateCool,
+  interpolateYlGn,
+  max,
+  min,
+  scalePow,
+  scaleSequential,
+  scaleTime
+} from 'd3'
 import { computed } from 'vue'
 
 export interface DataValue {
@@ -81,6 +89,7 @@ export interface SourcesOverviewDateValueItemProps {
   normalizeLocally?: boolean
   minValue?: number
   maxValue?: number
+  backgroundColor?: string
 }
 
 const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
@@ -88,11 +97,27 @@ const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
   height: 30,
   barHeight: 1,
   exponent: 1,
-  normalizeLocally: false
+  normalizeLocally: false,
+  backgroundColor: 'purple'
 })
 
 const nestedDataValues = computed(() => {
   return props.dataValue.dataValues || []
+})
+
+const maxValue = computed(() => {
+  return props.normalizeLocally
+    ? (max(nestedDataValues.value, d => d.value) as number)
+    : !isNaN(props.maxValue)
+      ? props.maxValue
+      : props.dataValue.value
+})
+const minValue = computed(() => {
+  return props.normalizeLocally
+    ? (min(nestedDataValues.value, d => d.value) as number)
+    : !isNaN(props.minValue)
+      ? props.minValue
+      : 0
 })
 
 const xScale = computed(() => {
@@ -102,20 +127,14 @@ const xScale = computed(() => {
     .clamp(true)
 })
 
+const colorScale = computed(() => {
+  return scaleSequential(t => interpolateYlGn(0.5 + t * 0.5)).domain([0, props.maxValue])
+})
+
 const yScale = computed(() => {
-  const maxValue = props.normalizeLocally
-    ? (max(nestedDataValues.value, d => d.value) as number)
-    : isNaN(props.maxValue)
-      ? props.maxValue
-      : props.dataValue.value
-  const minValue = props.normalizeLocally
-    ? (min(nestedDataValues.value, d => d.value) as number)
-    : isNaN(props.minValue)
-      ? props.minValue
-      : 0
   return scalePow()
     .exponent(props.exponent)
-    .domain([minValue, maxValue])
+    .domain([minValue.value, maxValue.value])
     .range([2, props.height])
     .clamp(true)
 })
