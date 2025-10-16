@@ -107,7 +107,6 @@ watch(
         filters: serializeFilters(newVal)
       }
     })
-    console.log('statsItems', statsItems)
 
     const dataValuesByMediaSourceId: Record<string, DataValue[]> = statsItems.items.reduce(
       (
@@ -148,7 +147,6 @@ watch(
       },
       {} as Record<string, DataValue[]>
     )
-    console.log('dataValuesByMediaSourceId', dataValuesByMediaSourceId)
 
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
       const allDates = values.flatMap(v => [v.dateRange[0], v.dateRange[1]])
