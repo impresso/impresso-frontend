@@ -9,7 +9,9 @@
     <h1>{{ $t('BaristaTitle') }}</h1>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-6">PROMPTS and messages here</div>
+        <div class="col-6">
+          <slot></slot>
+        </div>
         <div>Results filters here</div>
       </div>
     </div>
