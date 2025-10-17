@@ -10,7 +10,9 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
-    <BaristaModal :isVisible="isChatOpen" @dismiss="closeChat" />
+    <BaristaModal :isVisible="isChatOpen" @dismiss="closeChat">
+      <BaristaChat @search="handleSearch" />
+    </BaristaModal>
     <!-- Chat popup -->
     <!-- <Transition name="fade">
       <div v-if="isChatOpen" class="barista-popup" ref="chatPopup">
