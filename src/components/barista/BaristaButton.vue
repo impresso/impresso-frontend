@@ -2,7 +2,7 @@
   <div class="barista-button-container">
     <!-- Floating button -->
     <button
-      class="barista-button"
+      class="btn btn-primary rounded-md d-flex gap-2"
       @click="toggleChat"
       :class="{ active: isChatOpen }"
       aria-label="Toggle Barista Chat"
@@ -10,9 +10,9 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
-
+    <BaristaModal :isVisible="isChatOpen" @dismiss="closeChat" />
     <!-- Chat popup -->
-    <Transition name="fade">
+    <!-- <Transition name="fade">
       <div v-if="isChatOpen" class="barista-popup" ref="chatPopup">
         <div class="barista-popup-header">
           <h3>Impresso Barista</h3>
@@ -24,13 +24,14 @@
           <BaristaChat @search="handleSearch" />
         </div>
       </div>
-    </Transition>
+    </Transition> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import BaristaChat from './BaristaChat.vue'
+import BaristaModal from './BaristaModal.vue'
 
 const isChatOpen = ref(false)
 const chatPopup = ref<HTMLElement | null>(null)
