@@ -4,7 +4,7 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector"
+        v-if="showItemSelector && item.uid?.length"
         hideIcon
         :uid="item.uid"
         :item="item"
@@ -32,7 +32,12 @@
           "
           >{{ $t(`buckets.${filter.type}.${item.uid}`) }}</span
         >
-        <span v-else-if="['contentLength'].includes(filter.type)"> </span>
+        <template v-else-if="filter.type === 'topic'">
+          <span class="small-caps" v-if="Array.isArray(item.excerpt) && item.excerpt.length">
+            {{ item.excerpt.map(d => d.w).join(' · ') }}
+          </span>
+          <span v-else>{{ item.uid }}</span>
+        </template>
         <span v-else>{{ item.name ?? item.uid }}</span>
       </ItemSelector>
       <span
@@ -56,16 +61,20 @@
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
 
+interface FilterItem {
+  uid: string
+  name?: string
+  precision?: number
+  start?: string | number
+  end?: string | number
+  // for topics
+  excerpt?: { w: string }[]
+}
+
 interface FilterAsLabelProps {
   filter: {
     type: string
-    items?: {
-      uid: string
-      name?: string
-      precision?: number
-      start?: string | number
-      end?: string | number
-    }[]
+    items?: FilterItem[]
     q?: string | string[]
     op?: string
     [key: string]: any
@@ -123,64 +132,12 @@ const showItemSelector = computed(() => {
   )
 })
 
-const filterItems = computed(() => {
+const filterItems = computed<FilterItem[]>(() => {
   if (!props.filter?.items && Array.isArray(props.filter.q)) {
     return props.filter.q.map(q => ({ uid: q, name: q }))
   }
   return props.filter?.items || []
 })
-
-// getFilterAsLabel(filter) {
-//       if (filter.items) {
-//         const { op = 'OR' } = filter
-//         const operator = this.$t(`op.${op.toLowerCase()}`)
-//         if (
-//           this.limitNumberOfFilterItems > 0 &&
-//           filter.items.length > this.limitNumberOfFilterItems
-//         ) {
-//           return (
-//             filter.items
-//               .slice(0, this.limitNumberOfFilterItems)
-//               .map(item =>
-//                 [
-//                   `<span class="item ${filter.type}">`,
-//                   this.getLabel({
-//                     item,
-//                     type: filter.type,
-//                     filter
-//                   }),
-//                   '</span>'
-//                 ].join('')
-//               )
-//               .join(` <span class="operator">${operator}</span> `) +
-//             ` [... ${
-//               filter.items.length - this.limitNumberOfFilterItems
-//             } additional options]</span>`
-//           )
-//         }
-//         return filter.items
-//           .map(item =>
-//             [
-//               `<span class="item ${filter.type}">`,
-//               this.getLabel({
-//                 item,
-//                 type: filter.type,
-//                 filter
-//               }),
-//               '</span>'
-//             ].join('')
-//           )
-//           .join(` <span class="operator">${operator}</span> `)
-//       } else if (filter.type === 'string') {
-//         return this.getLabel({
-//           item: filter,
-//           type: filter.type,
-//           filter
-//         })
-//       }
-//       console.warn('filter not valid:', filter)
-//       return ''
-//     },
 </script>
 <i18n lang="json">
 {
@@ -191,7 +148,7 @@ const filterItems = computed(() => {
       "accessRight": "available as",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "copyright": "&copy;",
-      "topic": "with topic",
+      "topic": "tagged with topic",
       "isFront": "appearing on the <em>front page</em>",
       "pub": {
         "newspaper": "published in",
@@ -226,7 +183,7 @@ const filterItems = computed(() => {
       "contentLength": "textual content not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "isFront": "not appearing on the <em>front page</em>",
       "copyright": "not available as",
-      "topic": "without topic",
+      "topic": "not tagged with topic",
       "pub": {
         "newspaper": "not published in",
         "textReuseCluster": "not in clusters"
