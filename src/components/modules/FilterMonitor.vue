@@ -570,6 +570,12 @@ export default {
       "addUsingEmbeddings": "add similar ..."
     },
     "label": {
+      "nag": {
+        "context": {
+          "include": "reported by",
+          "exclude": "<b>NOT</b> reported by"
+        }
+      },
       "title": {
         "context": {
           "include": "Contains",
