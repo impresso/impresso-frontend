@@ -28,6 +28,14 @@ export default {
         w: 'weather news (other)',
         picture: 'picture'
       },
+      sourceType: {
+        newspaper: 'newspapers',
+        radio: 'radio'
+      },
+      sourceMedium: {
+        print: 'print',
+        digital: 'digital'
+      },
       language: {
         de: 'German',
         fr: 'French',
