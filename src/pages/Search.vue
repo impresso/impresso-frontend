@@ -103,6 +103,9 @@
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows"
+                :style="{
+                  paddingBottom: '30px'
+                }"
               />
             </ellipsis>
           </template>
