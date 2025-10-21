@@ -128,6 +128,10 @@
     <hr class="py-4" />
     <b-container fluid class="similar-items px-0">
       <h3>Similar Articles</h3>
+      <ListOfSimilarContentItems
+        v-if="contentItem"
+        :contentItem="contentItem"
+      ></ListOfSimilarContentItems>
       <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
       <b-row>
         <b-col
@@ -185,6 +189,7 @@ import {
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import IIIFFragment from '../IIIFFragment.vue'
+import ListOfSimilarContentItems from '../ListOfSimilarContentItems.vue'
 
 const colourScheme = [
   '#8dd3c7',
@@ -342,6 +347,7 @@ export default {
   },
   components: {
     ContentItem,
+    ListOfSimilarContentItems,
     SearchResultsSimilarItem,
     AnnotatedText,
     InfoButton,
