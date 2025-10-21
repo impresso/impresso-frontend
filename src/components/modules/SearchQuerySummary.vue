@@ -13,7 +13,6 @@
 
 <script setup lang="ts">
 import Filter from '@/models/FilterBase'
-import Helpers from '../../plugins/Helpers'
 import { computed, nextTick, ref, watch } from 'vue'
 import FilterLabel from './lists/FilterLabel.vue'
 
@@ -123,63 +122,6 @@ watch(
   },
   { deep: false, immediate: true }
 )
-
-// const getLabel = ({ item, type, filter }) => {
-//       let t = ''
-//       switch (type) {
-//         case 'daterange':
-//           {
-//             const [start, end] = [item.start, item.end].map(v => new Date(v))
-//             t = `from <span class="date">${this.$d(
-//               start,
-//               'compactUtc'
-//             )}</span> to <span class="date">${this.$d(end, 'compactUtc')}</span>`
-//           }
-//           break
-//         case 'location':
-//         case 'person':
-//         case 'collection':
-//           t = item.name
-//           break
-//         case 'newspaper':
-//           if (item.name) {
-//             t = item.name
-//           } else {
-//             t = (this.newspaperLabels || {})[filter.q] || filter.q
-//           }
-//           break
-//         case 'textReuseCluster':
-//           t = (item.id || item.uid || '').split('-').pop()
-//           t = `<span class="number">${t}</span>`
-//           break
-//         case 'title':
-//         case 'string':
-//           t = `<span class="highlight precision-${item.precision}">${
-//             item.uid || item.q
-//           }</span>${item.distance || ''}`
-//           break
-//         case 'topic':
-//           if (item.htmlExcerpt) {
-//             t = item.htmlExcerpt
-//           } else if (item.excerpt.length) {
-//             t = item.excerpt.map(d => d.w).join(' · ')
-//           } else {
-//             t = item.uid
-//           }
-//           break
-//         case 'year':
-//           // console.log('____', item, type, filter);
-//           t = Array.isArray(filter.q) ? filter.q.join(', ') : filter.q
-//           break
-//         default:
-//           t = this.$t(`buckets.${type}.${item.uid}`)
-//           break
-//       }
-//       if (!t && item.uid) {
-//         t = item.uid
-//       }
-//       return t
-//     },
 </script>
 <style lang="scss">
 .search-query-summary {
@@ -250,6 +192,8 @@ watch(
       "newspaper": "published in",
       "person": "mentioning",
       "location": "mentioning",
+      "newsagency": "mentioning",
+      "organisation": "mentioning",
       "string": "containing",
       "title": "where title includes",
       "daterange": "published",
@@ -279,6 +223,8 @@ watch(
       "newspaper": "not published in",
       "person": "not mentioning",
       "location": "not mentioning",
+      "newsagency": "not mentioning",
+      "organisation": "not mentioning",
       "string": "not containing",
       "title": "where title does not include",
       "daterange": "not published",

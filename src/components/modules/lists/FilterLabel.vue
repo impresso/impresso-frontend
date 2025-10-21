@@ -12,7 +12,7 @@
         class="position-relative"
       >
         <span
-          v-if="filter.type !== 'string'"
+          v-if="showType && filter.type !== 'string'"
           class="position-absolute sans very-small-caps text-muted"
           :style="{
             top: '-4px',
@@ -33,7 +33,10 @@
           >{{ $t(`buckets.${filter.type}.${item.uid}`) }}</span
         >
         <template v-else-if="filter.type === 'topic'">
-          <span class="small-caps" v-if="Array.isArray(item.excerpt) && item.excerpt.length">
+          <span class="small-caps" v-if="item.label">
+            {{ item.label }}
+          </span>
+          <span class="small-caps" v-else-if="Array.isArray(item.excerpt) && item.excerpt.length">
             {{ item.excerpt.map(d => d.w).join(' · ') }}
           </span>
           <span v-else>{{ item.uid }}</span>
@@ -50,7 +53,6 @@
         "
       >
       </span>
-
       <template v-if="index < filterItems.length - 1">
         <span class="separator m-1">{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span>
       </template>
@@ -60,25 +62,27 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
+import Filter from '@/models/FilterBase'
 
 interface FilterItem {
+  id?: string
   uid: string
   name?: string
   precision?: number
-  start?: string | number
-  end?: string | number
+  start?: string | number | Date
+  end?: string | number | Date
+
   // for topics
+  label?: string
   excerpt?: { w: string }[]
 }
 
 interface FilterAsLabelProps {
-  filter: {
-    type: string
-    items?: FilterItem[]
-    q?: string | string[]
-    op?: string
-    [key: string]: any
-  }
+  filter: Filter & {
+    items?: any[] | FilterItem[]
+  } // extends Filter but without strong typing on items
+
+  showType?: boolean
   limitNumberOfFilterItems?: number
 }
 
@@ -134,7 +138,7 @@ const showItemSelector = computed(() => {
 
 const filterItems = computed<FilterItem[]>(() => {
   if (!props.filter?.items && Array.isArray(props.filter.q)) {
-    return props.filter.q.map(q => ({ uid: q, name: q }))
+    return props.filter.q.map(q => ({ id: q, uid: q, name: q }))
   }
   return props.filter?.items || []
 })
@@ -147,7 +151,7 @@ const filterItems = computed<FilterItem[]>(() => {
       "sourceMedium": "only",
       "accessRight": "available as",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
-      "copyright": "&copy;",
+      "copyright": "©",
       "topic": "tagged with topic",
       "isFront": "appearing on the <em>front page</em>",
       "pub": {
@@ -163,6 +167,8 @@ const filterItems = computed<FilterItem[]>(() => {
       "partner": "from",
       "person": "mentioning",
       "location": "mentioning",
+      "organisation": "mentioning",
+      "newsagency": "mentioning",
       "string": "containing",
       "title": "where title includes",
       "daterange": "published",
@@ -196,6 +202,8 @@ const filterItems = computed<FilterItem[]>(() => {
       "partner": "not from",
       "person": "not mentioning",
       "location": "not mentioning",
+      "organisation": "not mentioning",
+      "newsagency": "not mentioning",
       "string": "not containing",
       "title": "where title does not include",
       "daterange": "not published",

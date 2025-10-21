@@ -53,7 +53,11 @@
             <template v-slot="{ tooltip }">
               <div v-if="tooltip.item">
                 {{ $d(tooltip.item?.t ?? 0, 'year') }} &middot;
-                <b>{{ tooltip.item?.w ?? 0 }}</b>
+                <div
+                  class="d-inline"
+                  v-if="tooltip.item?.w"
+                  v-html="$tc('numbers.contentItems', tooltip.item.w, { n: $n(tooltip.item.w) })"
+                />
               </div>
             </template>
           </timeline>
@@ -71,7 +75,8 @@
             </b-form-checkbox>
           </b-form-group>
           <p class="ml-1 SelectionMonitor_summary">
-            <span v-html="statsLabel" />
+            <span v-html="statsLabel" />{{ ' ' }}
+
             <SearchQuerySummary
               class="d-inline"
               :search-query="{
@@ -242,7 +247,8 @@ export default defineComponent({
         type: this.monitor.type,
         q: Array.isArray(this.monitor.item?.q)
           ? this.monitor.item?.q?.map(d => String(d))
-          : [this.monitor.item?.id ?? this.monitor.item?.uid]
+          : [this.monitor.item?.id ?? this.monitor.item?.uid],
+        items: this.monitor.item ? [this.monitor.item] : []
       })
     },
     isMonitorFilterChanged() {
@@ -388,7 +394,10 @@ export default defineComponent({
     },
     loadTimeline() {
       // eslint-disable-next-line
-      console.debug('[ItemSelector] loadTimeline index:', this.timelineApiQueryParams.query.index)
+      console.debug(
+        '[SelectionMonitor] loadTimeline index:',
+        this.timelineApiQueryParams.query.index
+      )
       const searchFacets = getSearchFacetsService(this.timelineApiQueryParams.query.index)
       searchFacets
         .get(
@@ -400,9 +409,13 @@ export default defineComponent({
         )
         .then(response => {
           // eslint-disable-next-line no-console
-          console.debug('[ItemSelector] loadTimeline success', response)
+          console.debug('[SelectionMonitor] loadTimeline success', response)
           this.timelineValues = Helpers.timeline.fromBuckets(response.buckets)
           this.total = response.buckets.reduce((acc, bucket) => acc + bucket.count, 0)
+        })
+        .catch(error => {
+          // eslint-disable-next-line no-console
+          console.error('[SelectionMonitor] loadTimeline error', error)
         })
     }
   },
@@ -502,6 +515,7 @@ export default defineComponent({
   }
 }
 </style>
+
 <i18n lang="json">
 {
   "en": {
@@ -528,6 +542,7 @@ export default defineComponent({
     "types_textReuseClusterDayDelta": "time span in days",
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs_collection_overview": "collection",
+    "tabs_string_overview": "Text search",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
     "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
     "tabs_textReusePassage_comparePassages": "compare text reuse passages",
@@ -544,9 +559,13 @@ export default defineComponent({
     "tabs_sourceType_overview": "source type",
     "tabs_sourceMedium_overview": "source medium",
     "tabs_country_overview": "country of publication",
+    "tabs_person_overview": "person",
     "tabs_persons_overview": "person",
     "tabs_location_overview": "location",
+    "tabs_locations_overview": "location",
     "tabs_organisation_overview": "organisation",
+    "tabs_organisations_overview": "organisation",
+    "tabs_newsagencies_overview": "news agency",
     "tabs_nag_overview": "news agency",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
