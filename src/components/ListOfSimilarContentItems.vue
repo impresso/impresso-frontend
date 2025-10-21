@@ -1,12 +1,14 @@
 <template>
   <div
+    class="ListOfSimilarContentItems"
     :style="{
       minHeight: `${minHeight}px`
     }"
   >
     <LazyObserver @onIntersect="fetchSimilarItems" />
-    <ContentItem v-for="item in similarItems" :key="item.id" :item="item" />
+    <slot v-bind:items="similarItems"></slot>
     <LoadingBlock
+      class="w-100"
       v-if="isLoading || !isFetched"
       :label="$t(isLoading ? 'loading' : 'fetching')"
       :height="minHeight"
@@ -14,8 +16,14 @@
     <FeathersErrorManager v-if="error" :error="error" />
   </div>
 </template>
+<style>
+.ListOfSimilarContentItems .ContentItem h2 {
+  font-size: inherit;
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
+}
+</style>
 <script lang="ts" setup>
-import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import { contentItems as ContentItemsService } from '@/services'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import LazyObserver from './LazyObserver.vue'
@@ -50,9 +58,8 @@ const fetchSimilarItems = async () => {
     return data.semanticEnrichments?.embeddings?.[0] || ('' as string)
   })
 
-  isLoading.value = false
-
   if (!embedding) {
+    isLoading.value = false
     error.value = new Error('No embeddings found for the content item.')
     console.warn('No embeddings found for content item:', props.contentItem.id)
     return
@@ -66,11 +73,19 @@ const fetchSimilarItems = async () => {
           q: embedding
         }
       ],
-      limit: 6
+      limit: 12
     }
-  }).then(res => {
-    res.data
-    return res.data
   })
+    .then(res => {
+      res.data
+      return res.data
+    })
+    .catch(err => {
+      error.value = err
+      console.error('Error fetching similar content items:', err)
+      return []
+    })
+
+  isLoading.value = false
 }
 </script>

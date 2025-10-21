@@ -125,31 +125,28 @@
         </div>
       </b-container>
     </div>
+    <hr class="pt-2" />
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h3>{{ $t('similarContentItems') }}</h3>
+        </div>
+      </div>
+      <ListOfSimilarContentItems class="row mt-3" v-if="contentItem" :contentItem="contentItem">
+        <template #default="{ items }">
+          <div class="col-md-6 col-lg-4 col-xl-3" v-for="item in items" :key="item.id">
+            <ContentItem
+              :item="item"
+              class="p-3 rounded-md border shadow mb-4"
+              showLink
+              showSnippet
+              showSemanticEnrichments
+            />
+          </div>
+        </template>
+      </ListOfSimilarContentItems>
+    </div>
     <hr class="py-4" />
-    <b-container fluid class="similar-items px-0">
-      <h3>Similar Articles</h3>
-      <ListOfSimilarContentItems
-        v-if="contentItem"
-        :contentItem="contentItem"
-      ></ListOfSimilarContentItems>
-      <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
-      <b-row>
-        <b-col
-          cols="12"
-          sm="12"
-          md="12"
-          lg="6"
-          xl="4"
-          v-for="(searchResult, index) in articlesSuggestions"
-          v-bind:key="`${index}_ra`"
-        >
-          <search-results-similar-item
-            :searchResult="searchResult"
-            :topics="commonTopics(searchResult.topics)"
-          />
-        </b-col>
-      </b-row>
-    </b-container>
     <div
       :style="`top:${hoverPassageLineTopOffset}px`"
       class="passage-control bs-tooltip-left"
@@ -587,6 +584,7 @@ export default {
 <i18n lang="json">
 {
   "en": {
+    "similarContentItems": "Similar Content Items",
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",
