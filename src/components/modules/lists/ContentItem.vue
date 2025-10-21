@@ -1,7 +1,7 @@
 <template>
   <div class="ContentItem" @click="emit('click', item)">
     <h2 v-if="showTitle">
-      <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="item.text.title"></RouterLink>
+      <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
       <span v-else v-html="item.text.title"></span>
     </h2>
     <div v-if="showMeta">
@@ -155,6 +155,12 @@ const emit = defineEmits<{
   click: [item: ContentItem]
 }>()
 
+const contentItemTitle = computed(() => {
+  if (props.item.text.title?.length > 0) {
+    return props.item.text.title
+  }
+  return '[Untitled]'
+})
 const routerLinkUrl = computed(() => {
   if (props.item.meta.sourceType === 'newspaper') {
     return {
