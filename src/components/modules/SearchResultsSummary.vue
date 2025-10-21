@@ -3,7 +3,7 @@
     class="SearchResultsSummary search-results-summary text-serif textbox-fancy border-tertiary"
     :class="{ loading: isLoading }"
   >
-    <span v-html="incipit" />
+    <span v-html="incipit" />{{ ' ' }}
     <search-query-summary
       class="d-inline"
       :search-query="searchQuery"

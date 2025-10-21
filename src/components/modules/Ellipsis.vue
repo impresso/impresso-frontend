@@ -9,12 +9,17 @@
       <slot></slot>
     </div>
     <div
-      class="more w-100"
+      class="more w-100 pe-none"
       :class="moreClass"
       v-bind:style="gradientStyle"
       v-if="contentHeight > initialHeight"
     >
-      <b-button size="sm" variant="outline-secondary" v-on:click.prevent.stop="onClick">
+      <b-button
+        size="sm"
+        class="pe-auto"
+        variant="outline-secondary"
+        v-on:click.prevent.stop="onClick"
+      >
         {{ $t(this.isCollapsed ? 'more' : 'less') }}</b-button
       >
     </div>
@@ -43,7 +48,7 @@ export default {
     },
     additionalHeight: {
       type: Number,
-      default: 0
+      default: 50
     },
     backgroundColor: {
       type: String,

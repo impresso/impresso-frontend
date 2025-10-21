@@ -8,6 +8,7 @@
       :item="{ uid: item.id, name: title }"
       type="partner"
       :class="titleClass"
+      hideIcon
     />
     <span v-else :class="titleClass">{{ title }}</span>
   </div>

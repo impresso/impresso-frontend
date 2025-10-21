@@ -26,15 +26,16 @@
       <div class="d-flex">
         <div class="list-item-details me-3 mr-3">
           <!-- if article -->
-          <article-item
-            :item="article"
+          <ContentItem
+            :item="contentItem"
             show-meta
-            show-excerpt
-            show-entities
+            showSnippet
+            show-semantic-enrichments
             show-matches
             show-link
             class="mb-2"
           />
+
           <div
             v-if="article.collections && article.collections.length > 0"
             class="d-flex flex-wrap align-items-center"
@@ -122,18 +123,18 @@
 <script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
-import ArticleItem from './lists/ArticleItem.vue'
 import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
 import type Collection from '@/models/Collection'
+import ContentItem from './lists/ContentItem.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -154,7 +155,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Object as PropType<ContentItem>
+      type: Object as PropType<ContentItemSchema>
       // default: () => ({})
     },
     checkbox: {
@@ -173,7 +174,7 @@ export default defineComponent({
   emits: ['toggleSelected', 'click'],
   computed: {
     ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
-    contentItem(): ContentItem {
+    contentItem(): ContentItemSchema {
       return this.modelValue
     },
     article() {
@@ -349,10 +350,10 @@ export default defineComponent({
   },
   components: {
     CollectionAddTo,
-    ArticleItem,
     CopyToClipboard,
     IIIFFragment,
-    ContentItemAccess
+    ContentItemAccess,
+    ContentItem
   }
 })
 </script>
@@ -382,6 +383,10 @@ export default defineComponent({
 
 .SearchResultListItem .article-collections .badge {
   font-size: inherit;
+}
+.SearchResultListItem .ContentItem h2 {
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
 }
 </style>
 

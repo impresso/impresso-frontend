@@ -1,16 +1,14 @@
 <template>
   <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
+    <ContentItem
+      v-if="contentItem"
+      :item="contentItem"
+      :show-title="false"
+      :show-type="false"
+      showSemanticEnrichments
+    />
     <i-spinner v-if="!article" class="text-center p-5" />
     <div v-if="article">
-      <ArticleItem
-        :item="article"
-        showEntities
-        showTopics
-        :minTopicRelevance="0.1"
-        class="container-fluid pl-0"
-      >
-        <template #title>&nbsp;</template>
-      </ArticleItem>
       <b-badge
         v-for="(collection, i) in article.collections"
         v-bind:key="`co_${i}`"
@@ -169,7 +167,9 @@ import {
   contentItems as contentItemsService
 } from '@/services'
 import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
-import ArticleItem from './lists/ArticleItem.vue'
+
+import ContentItem from './lists/ContentItem.vue'
+import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import IIIFViewer from './IIIFViewer.vue'
@@ -334,13 +334,14 @@ export default {
   },
   props: {
     article_uid: String,
+    contentItem: Object as () => ContentItemType | null,
     withIIIFViewer: {
       type: Boolean,
       default: false
     }
   },
   components: {
-    ArticleItem,
+    ContentItem,
     SearchResultsSimilarItem,
     AnnotatedText,
     InfoButton,

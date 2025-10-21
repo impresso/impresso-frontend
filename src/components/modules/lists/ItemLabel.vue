@@ -7,6 +7,7 @@
     </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
+      <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
       <div class="d-inline-block word" v-for="(word, idx) in item.words" :key="idx">
         <span :style="{ opacity: word.l }">{{ word.w }}</span>
         <span v-if="idx < item.words.length - 1">&nbsp;&middot;&nbsp;</span>
@@ -45,7 +46,7 @@ export default defineComponent({
     label() {
       let t = ''
       if (this.type === 'topic') {
-        t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt}`
+        t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt ?? this.item.label}`
       } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'textReusePassage') {

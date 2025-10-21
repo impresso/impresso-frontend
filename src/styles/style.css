@@ -726,3 +726,10 @@ svg path.domain {
   max-width: 100%;
   z-index: var(--z-index-pagination);
 }
+
+.pe-none {
+  pointer-events: none;
+}
+.pe-auto {
+  pointer-events: auto;
+}
