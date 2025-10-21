@@ -77,7 +77,6 @@ const fetchSimilarItems = async () => {
     }
   })
     .then(res => {
-      res.data
       return res.data
     })
     .catch(err => {
