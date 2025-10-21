@@ -167,7 +167,6 @@ import {
   articleTextReusePassages,
   contentItems as contentItemsService
 } from '@/services'
-import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
 
 import ContentItem from './lists/ContentItem.vue'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
@@ -206,7 +205,6 @@ export default {
   data() {
     return {
       article: null,
-      articlesSuggestions: [],
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: 0,
@@ -217,7 +215,6 @@ export default {
     } as {
       article: Article
       textReusePassages: any[]
-      articlesSuggestions: any[]
       selectedPassageId: string | number | undefined
       hoverPassageLineTopOffset: number
       viewerTopOffset: number
@@ -236,18 +233,7 @@ export default {
   computed: {
     ...mapStores(useCollectionsStore),
     ...mapStores(useSelectionMonitorStore),
-    articlePages() {
-      if (!this.article.pages || !this.article.pages.length) {
-        return this.$t('no_page_info')
-      }
-      if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0]?.num })
-      }
-      return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') })
-    },
-    topics() {
-      return this.article.topics.filter(rel => rel.topic)
-    },
+
     hasValidRegions() {
       // verify that regions exist and conform to this:
       // "regions": [{
@@ -345,7 +331,6 @@ export default {
   components: {
     ContentItem,
     ListOfSimilarContentItems,
-    SearchResultsSimilarItem,
     AnnotatedText,
     InfoButton,
     IIIFViewer,
@@ -376,11 +361,6 @@ export default {
       }
       this.viewerTopOffset = height
     },
-    commonTopics(suggestionTopics) {
-      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid))
-      // sort by master topics relevance
-      // .sort((a, b) => b.relevance - a.relevance);
-    },
     onRemoveCollection(collection, item) {
       const idx = item.collections.findIndex(c => c.uid === collection.uid)
       if (idx !== -1) {
@@ -406,7 +386,6 @@ export default {
     },
     passageClickHandler() {
       // create a filter for the selected cluster
-
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
