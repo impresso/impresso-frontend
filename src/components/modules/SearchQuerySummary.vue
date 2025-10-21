@@ -108,15 +108,12 @@ const translatableFilterTypes = computed(() => {
 watch(
   translationTable,
   async value => {
-    console.log('Computed content changed. Now updating DOM...')
-    // Just to trigger recomputation
-    console.log('Search query updated:', value)
     await nextTick()
     if (summaryRef.value) {
       const finalHtml = summaryRef.value.textContent?.trim() || ''
       if (summaryTextContent.value !== finalHtml) {
         summaryTextContent.value = finalHtml
-        console.log('Emitting updated summary:', finalHtml)
+        emit('updated', finalHtml)
       }
     }
   },
