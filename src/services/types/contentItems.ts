@@ -18,7 +18,17 @@ export interface FindQuery {
   offset?: number
 }
 
+export interface GetQuery {
+  include_embeddings?: boolean
+}
+
 export type ContentItemsService = Pick<
-  ClientService<ContentItem, unknown, unknown, FindResponse<ContentItem>, { query: FindQuery }>,
+  ClientService<
+    ContentItem,
+    unknown,
+    unknown,
+    FindResponse<ContentItem>,
+    { query: FindQuery } | { query: GetQuery }
+  >,
   'find' | 'get'
 >

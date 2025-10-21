@@ -4,7 +4,7 @@ import { vueRouter } from 'storybook-vue3-router'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import { fn } from 'storybook/test'
 
-const MockContentItem: ContentItemType = {
+export const MockContentItem: ContentItemType = {
   id: 'DTT-1968-09-04-a-i0190',
   issueId: 'DTT-1968-09-04-a',
   meta: {
