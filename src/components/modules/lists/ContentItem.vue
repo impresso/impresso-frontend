@@ -13,8 +13,7 @@
             type: item.meta.sourceType
           }"
           class="d-inline-block"
-        />
-        &nbsp;
+        />{{ '' }}
         <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
           v-if="item.image?.pagesCount"

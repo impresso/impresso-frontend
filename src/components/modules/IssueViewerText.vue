@@ -134,11 +134,12 @@
       </div>
       <ListOfSimilarContentItems class="row mt-3" v-if="contentItem" :contentItem="contentItem">
         <template #default="{ items }">
-          <div class="col-md-6 col-lg-4 col-xl-3" v-for="item in items" :key="item.id">
+          <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
             <ContentItem
               :item="item"
               class="p-3 rounded-md border shadow mb-4"
               showLink
+              showMeta
               showSnippet
               showSemanticEnrichments
             />
