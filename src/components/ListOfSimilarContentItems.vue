@@ -9,13 +9,30 @@
     <slot v-bind:items="similarItems"></slot>
     <LoadingBlock
       class="w-100"
-      v-if="isLoading || !isFetched"
-      :label="$t(isLoading ? 'loading' : 'fetching')"
+      v-if="!error && (isLoading || !isObserved)"
+      :label="$t(isLoading ? 'actions.loading' : 'actions.idle')"
       :height="minHeight"
     />
-    <FeathersErrorManager v-if="error" :error="error" />
+    <FeathersErrorManager
+      class="w-100"
+      :style="{
+        height: 'min-content'
+      }"
+      v-if="error"
+      :error="error"
+      :defaultLabel="$t('fetchingSimilarContentItems.errorLabel')"
+    />
   </div>
 </template>
+<i18n lang="json">
+{
+  "en": {
+    "fetchingSimilarContentItems": {
+      "errorLabel": "Error fetching similar content items. Please try again later. Received: "
+    }
+  }
+}
+</i18n>
 <style>
 .ListOfSimilarContentItems .ContentItem h2 {
   font-size: inherit;
@@ -27,7 +44,7 @@
 import { contentItems as ContentItemsService } from '@/services'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import LazyObserver from './LazyObserver.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 
@@ -39,13 +56,13 @@ const props = withDefaults(defineProps<ListOfSimilarContentItemsProps>(), {
   minHeight: 150
 })
 const similarItems = ref<ContentItemType[]>([])
-const isFetched = ref(false)
+const isObserved = ref(false)
 const isLoading = ref(false)
 const error = ref<Error | null>(null)
 
 const fetchSimilarItems = async () => {
-  if (isFetched.value) return
-  isFetched.value = true
+  if (isObserved.value) return
+  isObserved.value = true
   // Logic to fetch similar content items goes here
   console.log('Fetching similar content items for:', props.contentItem.id)
   isLoading.value = true
@@ -87,4 +104,18 @@ const fetchSimilarItems = async () => {
 
   isLoading.value = false
 }
+
+watch(
+  () => props.contentItem.id,
+  async () => {
+    // Reset state when content item changes, wait for the next intersection to fetch new items
+    similarItems.value = []
+    isLoading.value = false
+    error.value = null
+    if (isObserved.value) {
+      isObserved.value = false
+      await fetchSimilarItems()
+    }
+  }
+)
 </script>

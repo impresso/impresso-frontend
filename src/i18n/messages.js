@@ -141,6 +141,7 @@ export default {
       reset: 'Reset',
       highlightItemOff: 'remove from the "observing" list',
       highlightItemOn: 'add to the "observing" list',
+      idle: 'Please wait...',
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',

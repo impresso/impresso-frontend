@@ -162,11 +162,7 @@
 
 <script lang="ts">
 import { mapStores } from 'pinia'
-import {
-  articlesSuggestions,
-  articleTextReusePassages,
-  contentItems as contentItemsService
-} from '@/services'
+import { articleTextReusePassages, contentItems as contentItemsService } from '@/services'
 
 import ContentItem from './lists/ContentItem.vue'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
@@ -431,7 +427,6 @@ export default {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
-        this.articlesSuggestions = []
         console.info(
           '[IssueViewerText] watch@article_uid',
           articleUid,
@@ -462,9 +457,6 @@ export default {
         this.article = article
         this.textReusePassages = textReusePassages
         this.resize()
-        articlesSuggestions.get(articleUid).then(res => {
-          this.articlesSuggestions = res.data
-        })
       }
     }
   }
