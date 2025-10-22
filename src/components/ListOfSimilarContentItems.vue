@@ -196,6 +196,7 @@ watch(
     similarItems.value = []
     isLoading.value = false
     error.value = null
+    contentItemEmbedding.value = ''
   },
   {
     immediate: false
