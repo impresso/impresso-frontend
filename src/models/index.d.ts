@@ -1,6 +1,7 @@
 import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
 
-export interface Entity {
+export interface FilterItem {
+  id?: string
   uid: string
 
   name?: string
@@ -14,12 +15,17 @@ export interface Entity {
   firstIssue?: { date: Date }
   lastIssue?: { date: Date }
 
-  countArticles?: Number
-  countIssues?: Number
+  countArticles?: number
+  countIssues?: number
 
-  start?: Number | Date
-  end?: Number | Date
+  start?: number | Date
+  end?: number | Date
+  // for topics
+  label?: string
+  excerpt?: { w: string }[]
 }
+
+export type Entity = FilterItem
 
 export interface Filter {
   q?: string[] | string
@@ -28,7 +34,7 @@ export interface Filter {
   precision?: string
   op?: string
 
-  items?: Entity[]
+  items?: FilterItem[]
 }
 
 export interface FilterInterface extends Filter {

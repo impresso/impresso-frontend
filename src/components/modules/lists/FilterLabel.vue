@@ -62,26 +62,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
-import Filter from '@/models/FilterBase'
-
-interface FilterItem {
-  id?: string
-  uid: string
-  name?: string
-  precision?: number
-  start?: string | number | Date
-  end?: string | number | Date
-
-  // for topics
-  label?: string
-  excerpt?: { w: string }[]
-}
+import type { Filter, FilterItem } from '@/models'
 
 interface FilterAsLabelProps {
-  filter: Filter & {
-    items?: any[] | FilterItem[]
-  } // extends Filter but without strong typing on items
-
+  filter: Filter
   showType?: boolean
   limitNumberOfFilterItems?: number
 }
