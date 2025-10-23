@@ -1,6 +1,6 @@
 <template>
   <div class="Ellipsis">
-    <div ref="contentsRef" class="contents" :style="`height:${height}px;overflow:${overflow}`">
+    <div ref="contentsRef" class="contents" :style="`max-height:${height}px;overflow:${overflow}`">
       <slot></slot>
     </div>
     <div

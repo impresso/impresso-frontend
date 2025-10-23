@@ -154,7 +154,15 @@ export default {
     },
     explorerIncludedTypes: {
       type: Array,
-      default: () => ['newspaper', 'topic', 'location', 'person', 'collection']
+      default: () => [
+        'mediaSource',
+        'topic',
+        'location',
+        'person',
+        'organisation',
+        'nag',
+        'collection'
+      ]
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {

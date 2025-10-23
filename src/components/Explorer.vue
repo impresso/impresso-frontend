@@ -1,6 +1,7 @@
 <template>
   <Modal
     class="Explorer"
+    dialogClass="modal-dialog-scrollable modal-lg"
     :id="id"
     :show="isVisible"
     body-class="p-0"
@@ -60,7 +61,12 @@
       <LoadingBlock v-if="isLoading" :label="$t('actions.loading')" :height="50" class="m-3" />
       <FacetExplorer
         v-if="!RangeFacets.includes(currentType)"
-        :filter-type="currentType"
+        :filterType="
+          currentType === 'mediaSource'
+            ? 'newspaper' /* TODO add mediaSource in API to make this work */
+            : currentType
+        "
+        :itemType="currentType"
         :buckets="buckets"
         v-model="filter"
       >
@@ -101,7 +107,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { v4 } from 'uuid'
 // Assuming these imports are available and correctly typed
-import { entities, topics, newspapers, collections, getSearchFacetsService } from '@/services'
+import { entities, topics, mediaSources, collections, getSearchFacetsService } from '@/services'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import FacetExplorer from './modules/FacetExplorer.vue'
 import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'
@@ -112,19 +118,22 @@ import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filter
 import type { Filter } from '@/models'
 import { useUserStore } from '@/stores/user'
 import LoadingBlock from './LoadingBlock.vue'
+import { FacetType } from '@/models/Facet'
 
 const userStore = useUserStore()
 // --- Constants ---
 const TypeToServiceMap = Object.freeze({
   person: entities,
   location: entities,
+  organisation: entities,
+  nag: entities,
   topic: topics,
-  newspaper: newspapers,
+  mediaSource: mediaSources,
   collection: collections
 }) as Readonly<
   Record<
     string,
-    typeof entities | typeof topics | typeof newspapers | typeof collections | undefined
+    typeof entities | typeof topics | typeof mediaSources | typeof collections | undefined
   >
 >
 
@@ -134,13 +143,15 @@ const Events = Object.freeze({
   Hide: 'onHide'
 })
 
-const AllSupportedFilterTypes = [
+const AllSupportedFacetTypes: ReadonlyArray<FacetType> = [
   'location',
   'country',
   'person',
+  // 'organisation',
+  // 'nag',
   'language',
   'topic',
-  'newspaper',
+  'mediaSource',
   'year',
   'month',
   'textReuseClusterSize',
@@ -149,8 +160,6 @@ const AllSupportedFilterTypes = [
   'daterange'
 ] as const // Use 'as const' for literal types
 
-type FilterType = (typeof AllSupportedFilterTypes)[number]
-
 // --- Props & Emits ---
 export interface ExplorerProps {
   modelValue: Filter[]
@@ -158,7 +167,7 @@ export interface ExplorerProps {
   initialQ?: string
   isVisible: boolean
   initialType?: string
-  includedTypes?: FilterType[]
+  includedTypes?: FacetType[]
   index?: string
 }
 
@@ -178,7 +187,7 @@ const emit = defineEmits<{
 const id = ref<string | undefined>(undefined)
 const uid = ref<string | undefined>(undefined)
 const events = Events
-const currentType = ref<FilterType>('newspaper')
+const currentType = ref<FacetType>('mediaSource')
 const currentPage = ref(1)
 const totalResults = ref(0)
 const buckets = ref<any[]>([]) // Use your actual Bucket type
@@ -188,7 +197,7 @@ const isLoading = ref(false)
 const pageSize = ref(PageSize)
 
 // --- Helper Functions ---
-function buildServiceQueryParam(page: number, limit: number, type: FilterType, q?: string) {
+function buildServiceQueryParam(page: number, limit: number, type: FacetType, q?: string) {
   const query: Record<string, any> = {
     offset: (page - 1) * limit,
     limit
@@ -210,7 +219,11 @@ function buildServiceQueryParam(page: number, limit: number, type: FilterType, q
     ]
   }
   if (q != null && q.length > 0) {
-    query.q = q
+    if (type !== 'mediaSource') {
+      query.q = `name:${q}*`
+    } else {
+      query.term = q
+    }
   }
   return query
 }
@@ -218,7 +231,7 @@ function buildServiceQueryParam(page: number, limit: number, type: FilterType, q
 interface SearchParams {
   filters: Filter[]
   searchingEnabled: boolean
-  type: FilterType
+  type: FacetType
   searchQuery?: string
   currentPage: number
   pageSize: number
@@ -245,6 +258,7 @@ async function searchWithFacetService(searchParams: SearchParams): Promise<{
       (d: any) =>
         new Bucket({
           ...d,
+          item: d.item,
           type: searchParams.type
         })
     ) as any[],
@@ -279,6 +293,22 @@ async function searchWithService(searchParams: SearchParams): Promise<{
     .find({
       query
     })
+    .then((res: { total?: number; pagination?: { total: number }; data: any[] }) => {
+      console.info(
+        `[Explorer] Successfully fetched data from service  ${searchParams.type} with query:`,
+        query
+      )
+      if (res.pagination) {
+        return {
+          total: res.pagination.total,
+          data: res.data
+        }
+      }
+      return {
+        total: res.total || 0,
+        data: res.data
+      }
+    })
     .catch(err => {
       console.error(
         `[Explorer] Error fetching data from service  ${searchParams.type} with query:`,
@@ -312,7 +342,7 @@ const handlePageChange = (page: number) => {
 }
 
 // --- Methods ---
-const handleTypeChange = (type: FilterType) => {
+const handleTypeChange = (type: FacetType) => {
   currentType.value = type
 }
 
@@ -351,17 +381,17 @@ const searchParameters = computed<SearchParams>(() => {
   }
 })
 
-const typeOptions = computed<FilterType[]>(() => {
-  let types = [] as FilterType[]
+const typeOptions = computed<FacetType[]>(() => {
+  let types = [] as FacetType[]
   if (props.includedTypes) {
     types = props.includedTypes.filter(type =>
-      (AllSupportedFilterTypes as readonly string[]).includes(type)
+      (AllSupportedFacetTypes as readonly string[]).includes(type)
     )
   } else if (props.searchingEnabled) {
-    types = ['newspaper', 'person', 'location', 'topic'] as FilterType[]
+    types = ['newspaper', 'topic'] as FacetType[]
   }
   if (userStore.isLoggedIn) {
-    types.push('collection' as FilterType)
+    types.push('collection')
   }
   return types
 })
@@ -402,7 +432,7 @@ watch(
         currentType.value = typeOptions.value[0]
       }
     } else {
-      currentType.value = props.initialType as FilterType
+      currentType.value = props.initialType as FacetType
     }
   },
   { immediate: true }
@@ -465,6 +495,7 @@ watch(
       "language": "language",
       "topic": "topic",
       "newspaper": "newspaper",
+      "mediaSource": "media source",
       "collection": "collection",
       "year": "year",
       "month": "month",

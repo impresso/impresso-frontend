@@ -49,8 +49,16 @@ export default class Bucket implements IBucket {
       case 'newspaper':
         this.item = new Newspaper(item)
         break
+      case 'mediaSource':
+        this.item = item
+        break
       case 'collection':
-        this.item = new Collection(item)
+        this.item = new Collection({
+          ...item,
+          creationDate: item?.createdAt,
+          lastModifiedDate: item?.updatedAt,
+          name: item.title
+        })
         break
       case 'year':
         this.item = new Year(item)

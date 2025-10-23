@@ -468,10 +468,10 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper title',
+        filterTitle: 'media source',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
-        description: 'check one or more newspaper to filter results',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> media sources',
+        description: 'check one or more media sources to filter results',
         empty: '(no results)'
       },
       partner: {
