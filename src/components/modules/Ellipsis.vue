@@ -1,6 +1,6 @@
 <template>
   <div class="Ellipsis">
-    <div ref="contentsRef" class="contents" :style="`max-height:${height}px;overflow:${overflow}`">
+    <div ref="contentsRef" class="contents" :style="contentStyle">
       <slot></slot>
     </div>
     <div
@@ -65,12 +65,6 @@ const height = ref(0)
 const collapsedHeight = ref(0)
 // this is the final content height
 const contentHeight = ref(0)
-const overflow = computed(() => {
-  if (props.maxHeight && isCollapsed.value) {
-    return 'hidden'
-  }
-  return 'auto'
-})
 
 const gradientStyle = computed(() => {
   if (!isCollapsed.value) {
@@ -83,6 +77,18 @@ const gradientStyle = computed(() => {
   }
 })
 
+const contentStyle = computed(() => {
+  const overflow = props.maxHeight && isCollapsed.value ? 'hidden' : 'auto'
+  return isCollapsed.value
+    ? {
+        maxHeight: `${height.value}px`,
+        overflow
+      }
+    : {
+        height: `${height.value}px`,
+        overflow: 'auto'
+      }
+})
 const updateContentHeight = () => {
   if (contentsRef.value) {
     contentHeight.value = contentsRef.value.scrollHeight
