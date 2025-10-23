@@ -54,7 +54,6 @@
             </div>
           </div>
         </form>
-        {{ searchParameters }}
       </div>
     </template>
     <div class="bg-light">
