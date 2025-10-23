@@ -102,7 +102,7 @@
     :is-visible="explorerVisible"
     @onHide="handleExplorerHide"
     :searching-enabled="true"
-    :initial-search-query="q"
+    :initial-q="q"
     :initial-type="explorerInitialType"
     :included-types="explorerIncludedTypes"
   />
