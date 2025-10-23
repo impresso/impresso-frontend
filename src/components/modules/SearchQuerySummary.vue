@@ -12,9 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import Filter from '@/models/FilterBase'
+import type FilterBase from '@/models/FilterBase'
 import { computed, nextTick, ref, watch } from 'vue'
 import FilterLabel from './lists/FilterLabel.vue'
+import { Filter } from '@/models'
 
 export interface SearchQuerySummaryProps {
   searchQuery: {

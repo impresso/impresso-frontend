@@ -96,18 +96,15 @@
             </b-dropdown>
           </template>
           <template #summary>
-            <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
+            <Ellipsis v-bind:initialHeight="60" :additional-height="50">
+              <SearchResultsSummary
                 :isLoading="isLoadingResults"
                 @onSummary="onSummary"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows"
-                :style="{
-                  paddingBottom: '30px'
-                }"
               />
-            </ellipsis>
+            </Ellipsis>
           </template>
           <template #summaryActions>
             <div class="d-flex align-items-center">
@@ -669,14 +666,13 @@ export default defineComponent({
             }
           })
           .then(response => {
-            console.log('[Search] data:', response.data)
             return response
           })
         this.paginationTotalRows = total
         this.searchResults = data
         this.isLoadingResults = false
         // this.searchInfo = info
-        console.debug(
+        console.info(
           '[Search] @searchServiceQuery: took',
           new Date().getTime() - startTime.getTime(),
           'ms. Total results:',
