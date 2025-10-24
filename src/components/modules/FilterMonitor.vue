@@ -654,9 +654,9 @@ export default {
         }
       },
       "newspaper": {
-        "title": "newspaper titles",
-        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
-        "description": "check one or more newspaper to filter results",
+        "title": "media sources",
+        "selected": "filter results if they appear in <b>one of {count} selected</b> media sources",
+        "description": "check one or more media sources to filter results",
         "clear": "reset",
         "apply": "apply changes",
         "update": "apply changes (added: {added}, removed: {removed})",

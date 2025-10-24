@@ -1,10 +1,22 @@
 <template>
-  <div v-if="!detailed" class="ItemLabel d-inline" v-html="label" />
+  <div v-if="!detailed" class="ItemLabel d-inline">
+    <template v-if="['mediaSource', 'newspaper'].includes(itemType)">
+      <span>{{ item.name }}</span> &mdash; <span class="small-caps">{{ itemType }}</span>
+    </template>
+    <template v-else-if="itemType === 'collection'">
+      <b>{{ item.name }}</b
+      >{{ ' ' }}
+      <span class="date small">{{ $t('created', { date: $d(item.creationDate, 'short') }) }}</span>
+    </template>
+    <template v-else-if="itemType === 'topic'">
+      <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.label }}
+    </template>
+    <span v-else-if="['type', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)">
+      {{ $t(`buckets.${itemType}.${item.uid}`) }}
+    </span>
+    <span v-else v-html="label"></span>
+  </div>
   <div v-else class="ItemLabel">
-    <div v-if="type === 'newspaper'">
-      <div><label className="small-caps">newspaper's metadata</label></div>
-      <p class="m-0" v-html="newspaperDetailedLabel"></p>
-    </div>
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
@@ -21,7 +33,6 @@
 
 <script lang="ts">
 import { FacetType } from '@/models/Facet'
-import Newspaper from '@/models/Newspaper'
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
@@ -43,84 +54,23 @@ export default defineComponent({
     }
   },
   computed: {
+    itemType() {
+      return String(this.item.type ?? this.type)
+    },
     label() {
       let t = ''
-      if (this.type === 'topic') {
-        t = `<span class="small-caps">${this.item.language}</span> ${this.item.htmlExcerpt ?? this.item.label}`
-      } else if (this.type === 'textReuseCluster') {
+      if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'textReusePassage') {
         t = this.getTextReusePassageSummary(this.item)
-      } else if (this.type === 'collection') {
-        if (this.item.name) {
-          const usernameValue = this.item.creator ? this.item.creator.username : 'unknown'
-          const username = this.hideuser ? '' : `@${usernameValue}<br/>`
-          t = [
-            `<b>${this.item.name}</b><br/>`,
-            username,
-            '<span class="small-caps">',
-            this.$t('dates.lastModifiedDate'),
-            this.item.lastModifiedDate ? this.$d(this.item.lastModifiedDate, 'short') : '(unknown)',
-            '</span>'
-          ].join(' ')
-        } else {
-          t = this.item.uid
-        }
       } else if (this.type === 'year') {
         t = this.item ? this.item.y : this.item.val
-      } else if (['type', 'country', 'language', 'copyright', 'dataDomain'].includes(this.type)) {
-        t = this.$t(`buckets.${this.type}.${this.item.uid}`)
-        if (t.startsWith('buckets.')) {
-          t = `"${this.item.uid}"`
-        }
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
         t = this.item.uid ?? this.item.id
       }
       return t
-    },
-    newspaperDetailedLabel() {
-      const newspaperItem = this.item as Newspaper
-
-      if (!newspaperItem) {
-        return 'No detailed information available.'
-      }
-      const parts = [
-        `<span class="number">${this.$n(newspaperItem.countPages)}</span> pages,`,
-        `<span class="number">${this.$n(newspaperItem.countIssues)}</span> issues.`
-      ]
-      if (newspaperItem.startYear != null && newspaperItem.endYear != null) {
-        const firstYear = newspaperItem.startYear
-        const lastYear = newspaperItem.endYear
-        if (firstYear === lastYear) {
-          parts.push(`Published in ${firstYear}.`)
-        } else {
-          parts.push(`Published from ${firstYear} to ${lastYear}.`)
-        }
-      }
-
-      if (Array.isArray(newspaperItem.properties)) {
-        // push institution names
-        const institutionsNames = newspaperItem.properties
-          .filter(p => p.name === 'institutionNames')
-          .map(p => p.value)
-        if (institutionsNames.length > 0) {
-          parts.push(`Owned by ${institutionsNames.join(', ')}.`)
-        } else {
-          parts.push('No institution information available.')
-        }
-
-        const bibRecText = newspaperItem.properties
-          .filter(p => p.name === 'bibRecText')
-          .map(p => p.value)
-          .join(', ')
-        if (bibRecText) {
-          parts.push('<blockquote class="m-2 pl-2 small border-left">', bibRecText, '</blockquote>')
-        }
-      }
-
-      return parts.join(' ')
     }
   },
   methods: {
@@ -185,6 +135,7 @@ export default defineComponent({
 <i18n lang="json">
 {
   "en": {
+    "created": "created on {date}",
     "numbers": {
       "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
     },

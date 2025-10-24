@@ -19,12 +19,18 @@ export type FacetType =
   | 'location'
   | 'sourceType'
   | 'sourceMedium'
+  | 'mediaSource'
   | 'dataDomain'
   | 'copyright'
   | 'partner'
   | 'contentLength'
   | 'nag'
   | 'organisation'
+  | 'month'
+  | 'textReuseClusterSize'
+  | 'textReuseClusterLexicalOverlap'
+  | 'textReuseClusterDayDelta'
+  | 'daterange'
 
 /**
  * Read-only array of all supported facet types.

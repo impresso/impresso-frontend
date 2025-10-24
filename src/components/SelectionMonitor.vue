@@ -141,7 +141,7 @@
         @close="hide"
       />
       <div
-        v-else-if="['topic', 'newspaper'].includes(monitor.type)"
+        v-else-if="['topic'].includes(monitor.type)"
         class="mx-3 border-top border-bottom"
         style="max-height: 150px; overflow: scroll"
       >
@@ -542,6 +542,7 @@ export default defineComponent({
     "types_textReuseClusterDayDelta": "time span in days",
     "types_textReuseClusterLexicalOverlap": "lexical overlap",
     "tabs_collection_overview": "collection",
+    "tabs_mediaSource_overview": "media source",
     "tabs_string_overview": "Text search",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
     "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
@@ -549,7 +550,7 @@ export default defineComponent({
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
     "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",
     "tabs_textReuseClusterDayDelta_closeUp": "Time span in days  - close-up view",
-    "tabs_newspaper_overview": "newspaper",
+    "tabs_newspaper_overview": "media source",
     "tabs_topic_overview": "topic",
     "tabs_partner_overview": "provider",
     "tabs_accessRight_overview": "access right",

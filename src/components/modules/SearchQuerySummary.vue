@@ -12,9 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import Filter from '@/models/FilterBase'
+import type FilterBase from '@/models/FilterBase'
 import { computed, nextTick, ref, watch } from 'vue'
 import FilterLabel from './lists/FilterLabel.vue'
+import { Filter } from '@/models'
 
 export interface SearchQuerySummaryProps {
   searchQuery: {
@@ -35,6 +36,7 @@ const AvailableFilterTypes = [
   'sourceType',
   'sourceMedium',
   'newspaper',
+  'mediaSource',
   'partner',
   'daterange',
   'year',
@@ -187,6 +189,7 @@ watch(
         "textReuseCluster": "clustered in"
       },
       "newspaper": "published in",
+      "mediaSource": "published in",
       "person": "mentioning",
       "location": "mentioning",
       "newsagency": "mentioning",
@@ -218,6 +221,7 @@ watch(
         "newspaper": "not published in"
       },
       "newspaper": "not published in",
+      "mediaSource": "not published in",
       "person": "not mentioning",
       "location": "not mentioning",
       "newsagency": "not mentioning",
