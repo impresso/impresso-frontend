@@ -193,7 +193,7 @@ const events = Events
 const currentType = ref<FacetType>('mediaSource')
 const currentPage = ref(1)
 const totalResults = ref(0)
-const buckets = ref<any[]>([]) // Use your actual Bucket type
+const buckets = ref<Bucket[]>([]) // Use your actual Bucket type
 const range = ref<number[]>([])
 const isLoading = ref(false)
 // const isTimelineLoading = ref(false) // Not used in the original component, removed
@@ -282,8 +282,6 @@ async function searchWithService(searchParams: SearchParams): Promise<{
     searchParams.type,
     searchParams.searchQuery
   )
-  // await 500ms delay to wait for loading spinner to be visible
-  await new Promise(resolve => setTimeout(resolve, 500))
   console.info(`[Explorer] Fetching data from service  ${searchParams.type} with query:`, query)
   const response = await service
     .find({
