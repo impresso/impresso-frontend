@@ -36,14 +36,11 @@
             class="mb-2"
           />
 
-          <div
-            v-if="article.collections && article.collections.length > 0"
-            class="d-flex flex-wrap align-items-center"
-          >
+          <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
             <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
 
             <b-badge
-              v-for="(collection, i) in article.collections"
+              v-for="(collection, i) in contentItemCollections"
               v-bind:key="i"
               variant="info"
               class="m-1 font-size-inherit"
@@ -133,7 +130,7 @@ import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/con
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
-import type Collection from '@/models/Collection'
+import Collection from '@/models/Collection'
 import ContentItem from './lists/ContentItem.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
@@ -176,6 +173,18 @@ export default defineComponent({
     ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
     contentItem(): ContentItemSchema {
       return this.modelValue
+    },
+    contentItemCollections(): Collection[] {
+      const collections = this.contentItem.semanticEnrichments?.collections || []
+      return collections.map(
+        (c: any) =>
+          new Collection({
+            ...c,
+
+            name: c.title || '',
+            uid: c.uid
+          })
+      )
     },
     article() {
       return Article.fromContentItem(this.contentItem)
