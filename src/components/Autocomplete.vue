@@ -28,12 +28,12 @@
         </button>
         <button
           type="button"
-          class="btn btn-outline-primary"
+          class="btn btn-outline-primary d-flex align-content-center px-2"
           :title="$t('actions.addFilter')"
           @click="showExplorer"
           data-testid="add-filter-button"
         >
-          <div class="d-flex dripicons-experiment"></div>
+          <Icon name="arrowEnlargeTag" :stroke-width="1.25" :scale="1" />
         </button>
       </div>
     </div>

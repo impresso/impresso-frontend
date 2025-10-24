@@ -27,7 +27,8 @@
             v-else-if="searchQueryModel.length === 0"
             v-html="
               $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel
+                searchQuery: searchQueryModel,
+                count: $n(totalResults)
               })
             "
           />
@@ -35,7 +36,9 @@
             v-else
             v-html="
               $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel
+                searchQuery: searchQueryModel,
+
+                count: $n(totalResults)
               })
             "
           ></span>
@@ -147,8 +150,8 @@ const AllSupportedFacetTypes: ReadonlyArray<FacetType> = [
   'location',
   'country',
   'person',
-  // 'organisation',
-  // 'nag',
+  'organisation',
+  'nag',
   'language',
   'topic',
   'mediaSource',
@@ -202,28 +205,21 @@ function buildServiceQueryParam(page: number, limit: number, type: FacetType, q?
     offset: (page - 1) * limit,
     limit
   }
-
-  if (type === 'person') {
+  if (['person', 'location', 'nag', 'organisation'].includes(type)) {
     query.filters = [
       {
         type: 'type',
-        q: 'Person'
+        q: type
       }
     ]
-  } else if (type === 'location') {
-    query.filters = [
-      {
-        type: 'type',
-        q: 'Location'
-      }
-    ]
-  }
-  if (q != null && q.length > 0) {
-    if (type !== 'mediaSource') {
-      query.q = `name:${q}*`
-    } else {
-      query.term = q
+    if (q != null && q.length > 0) {
+      query.filters.push({
+        type: 'string',
+        q
+      })
     }
+  } else if (q != null && q.length > 0) {
+    query.term = q
   }
   return query
 }
@@ -478,7 +474,7 @@ watch(
 <i18n lang="json">
 {
   "en": {
-    "explore": "Refine your search query",
+    "explore": "Refine your search with additional filters",
     "description": {
       "search": "It looks like there are <b>no available options</b> matching '{searchQuery}' | ... Just <b>one</b> option matching '{searchQuery}' | Select among <b>{count}</b> options matching '{searchQuery}'",
       "facets": "It looks like there are <b>no available options</b> using current search  | ... Just <b>one</b> option to refine your search | Select among <b>{count}</b> options to refine your search "
@@ -490,6 +486,8 @@ watch(
     "labels": {
       "daterange": "by date",
       "location": "location",
+      "organisation": "organisation",
+      "nag": "news agency",
       "country": "country",
       "person": "person",
       "language": "language",

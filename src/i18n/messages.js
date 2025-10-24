@@ -119,7 +119,7 @@ export default {
     actions: {
       search: 'Search',
       register: 'Create account',
-      addFilter: 'Add filter ...',
+      addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
