@@ -296,7 +296,7 @@ export default defineComponent({
       this.notificationsStore.addNotification({
         type: 'info',
         title: 'Collection',
-        message: `Removed from collection "${collection.name}"`
+        message: `Removed from collection "${collection.title}"`
       })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =

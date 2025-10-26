@@ -274,7 +274,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       collections:
         semanticEnrichments?.collections?.map(c => ({
           uid: c.uid,
-          name: c.name
+          name: c.title
         })) ?? [],
       matches:
         text?.matches?.map(match => ({
