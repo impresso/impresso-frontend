@@ -65,6 +65,15 @@ export default defineComponent({
         t = this.getTextReusePassageSummary(this.item)
       } else if (this.type === 'year') {
         t = this.item ? this.item.y : this.item.val
+      } else if (
+        [
+          'imageVisualContent',
+          'imageTechnique',
+          'imageCommunicationGoal',
+          'imageContentType'
+        ].includes(this.type)
+      ) {
+        t = this.item.label ?? this.item.uid
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {

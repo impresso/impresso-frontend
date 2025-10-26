@@ -58,10 +58,6 @@ export interface Collection {
    * Total number of items in the collection.
    */
   totalItems?: number;
-  /**
-   * Identifier of the user who created the collection.
-   */
-  creatorId?: string;
 }
 
 
@@ -113,6 +109,10 @@ export interface ContentItem {
    * Topics mentioned in the content item.
    */
   topics?: TopicMention[];
+  /**
+   * Precomputed embeddings for the content item in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
   /**
    * The length of the transcript in characters.
    */
@@ -391,6 +391,25 @@ export interface EntityMention {
 
 
 /**
+ * Information about an available experiment including its identifier, name, and description.
+ */
+export interface ExperimentInfo {
+  /**
+   * The unique identifier of the experiment.
+   */
+  id: string;
+  /**
+   * The display name of the experiment.
+   */
+  name: string;
+  /**
+   * A description of what the experiment does.
+   */
+  description?: string;
+}
+
+
+/**
  * Freeform schema - a schema that allows any property to be added to the object.
  */
 export interface Freeform {
@@ -426,6 +445,24 @@ export interface Image {
    * The page numbers of the issue that the image belongs to.
    */
   pageNumbers?: number[];
+  imageTypes?: {
+    /**
+     * Whether the content is an image or not.
+     */
+    visualContent?: string;
+    /**
+     * Determines if the image is a photograph.
+     */
+    technique?: string;
+    /**
+     * Purpose or communicative function of the image.
+     */
+    communicationGoal?: string;
+    /**
+     * Classification of the visual content.
+     */
+    visualContentType?: string;
+  };
   /**
    * The media source of the image
    */
@@ -447,6 +484,10 @@ export interface Image {
    * The date of the image or the date of the issue that the image belongs to.
    */
   date: string;
+  /**
+   * Precomputed embeddings for the image in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
 }
 
 

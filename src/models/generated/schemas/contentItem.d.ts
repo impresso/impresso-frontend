@@ -7,11 +7,6 @@
  */
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * Unified schema for media content items in the Impresso project, with modular field groups.
  */
@@ -168,7 +163,10 @@ export interface ContentItemSemanticEnrichments {
    * List of user collections the content item belongs to.
    */
   collections?: Collection[];
-  [k: string]: unknown;
+  /**
+   * Precomputed embeddings for the content item in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
 }
 /**
  * Content item named entity
@@ -230,23 +228,41 @@ export interface ContentItemTopic {
   languageCode?: string;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 /**
  * Image-related information for digitized content
@@ -785,11 +801,6 @@ export interface IIIFContentItemPageDetails {
 }
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * Semantic enrichments information
  */
@@ -824,7 +835,10 @@ export interface ContentItemSemanticEnrichments {
    * List of user collections the content item belongs to.
    */
   collections?: Collection[];
-  [k: string]: unknown;
+  /**
+   * Precomputed embeddings for the content item in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
 }
 /**
  * Content item named entity
@@ -886,23 +900,41 @@ export interface ContentItemTopic {
   languageCode?: string;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 
 

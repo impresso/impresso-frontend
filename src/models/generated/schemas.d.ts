@@ -40,11 +40,6 @@ export interface BaseUser {
 }
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * Collectable item group object
  */
@@ -76,56 +71,82 @@ export interface CollectableItemGroup {
   [k: string]: unknown;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 
-
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
 
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 
-
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
 
 /**
  * A journal/magazine content item (article, advertisement, etc.)
@@ -377,23 +398,41 @@ export interface ContentItemRegion {
   g?: string[];
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 /**
  * A newspaper
@@ -852,11 +891,6 @@ export interface WikidataEntityDetailsTODOAddPersonLocationSpecificFields {
 }
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * An entity mention in a content item
  */
@@ -1059,7 +1093,10 @@ export interface ContentItemSemanticEnrichments {
    * List of user collections the content item belongs to.
    */
   collections?: Collection[];
-  [k: string]: unknown;
+  /**
+   * Precomputed embeddings for the content item in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
 }
 /**
  * Content item named entity
@@ -1121,23 +1158,41 @@ export interface ContentItemTopic {
   languageCode?: string;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 /**
  * Image-related information for digitized content
@@ -1426,10 +1481,32 @@ export interface Image {
      */
     type?: "newspaper";
   };
+  imageTypes?: {
+    /**
+     * Whether the content is an image or not.
+     */
+    visualContent?: string;
+    /**
+     * Determines if the image is a photograph.
+     */
+    technique?: string;
+    /**
+     * Purpose or communicative function of the image.
+     */
+    communicationGoal?: string;
+    /**
+     * Classification of the visual content.
+     */
+    visualContentType?: string;
+  };
   /**
    * The date of the image or the date of the issue that the image belongs to.
    */
   date: string;
+  /**
+   * Precomputed embeddings for the image in the format: <model_type>:<base64_embedding_vector>.
+   */
+  embeddings?: string[];
 }
 
 
@@ -1736,11 +1813,6 @@ export interface Partner {
 }
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * An object containing search results for a facet
  */
@@ -1792,7 +1864,7 @@ export interface SearchFacetBucket {
   /**
    * The item in the bucket. Particular objct schema depends on the facet type
    */
-  item?: Newspaper | Collection | Entity | Topic | Year | Partner;
+  item?: Newspaper | Collection | Entity | Topic | Year | Partner | FacetWithLabel;
 }
 /**
  * A newspaper
@@ -1901,23 +1973,41 @@ export interface NewspaperIssue {
   year?: string;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 /**
  * An entity like location, person, etc
@@ -2091,6 +2181,19 @@ export interface Partner {
    * URL of the partner's website
    */
   url?: string;
+}
+/**
+ * An facet that has a value and a label
+ */
+export interface FacetWithLabel {
+  /**
+   * Unique identifier of the facet
+   */
+  id: string;
+  /**
+   * Label of the facet
+   */
+  label: string;
 }
 /**
  * Facet bucket
@@ -2115,11 +2218,6 @@ export interface SearchFacetRangeBucket {
 }
 
 
-export type StatusOfTheCollection = string;
-export type NumberOfItemsInTheCollection = number | string;
-export type UniqueIdentifierForTheUser = string;
-export type UniqueUsernameForTheUserForOtherHumans = string;
-
 /**
  * Facet bucket
  */
@@ -2139,7 +2237,7 @@ export interface SearchFacetBucket {
   /**
    * The item in the bucket. Particular objct schema depends on the facet type
    */
-  item?: Newspaper | Collection | Entity | Topic | Year | Partner;
+  item?: Newspaper | Collection | Entity | Topic | Year | Partner | FacetWithLabel;
 }
 /**
  * A newspaper
@@ -2248,23 +2346,41 @@ export interface NewspaperIssue {
   year?: string;
 }
 /**
- * Description of the collection object (Collection class)
+ * Collection details.
  */
 export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
   uid: string;
-  name: string;
-  description: string;
-  status: StatusOfTheCollection;
-  creationDate: string;
-  lastModifiedDate: string;
-  countItems: NumberOfItemsInTheCollection;
-  creator: BaseUser;
-  labels?: string[];
-}
-export interface BaseUser {
-  uid: UniqueIdentifierForTheUser;
-  username: UniqueUsernameForTheUserForOtherHumans;
-  [k: string]: unknown;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 /**
  * An entity like location, person, etc
@@ -2438,6 +2554,19 @@ export interface Partner {
    * URL of the partner's website
    */
   url?: string;
+}
+/**
+ * An facet that has a value and a label
+ */
+export interface FacetWithLabel {
+  /**
+   * Unique identifier of the facet
+   */
+  id: string;
+  /**
+   * Label of the facet
+   */
+  label: string;
 }
 
 
