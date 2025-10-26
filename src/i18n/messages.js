@@ -558,6 +558,54 @@ export default {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
         optionsDescription: 'Total number of articles per year'
+      },
+      imageVisualContent: {
+        title: 'Visual Content | Visual Content | Visual Contents',
+        filterTitle: 'visual content',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> visual contents applies',
+        description: 'check one or more visual contents to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageTechnique: {
+        title: 'Technique | Technique | Techniques',
+        filterTitle: 'technique',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> techniques applies',
+        description: 'check one or more techniques to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageCommunicationGoal: {
+        title: 'Communication Goal | Communication Goal | Communication Goals',
+        filterTitle: 'communication goal',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> communication goals applies',
+        description: 'check one or more communication goals to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageContentType: {
+        title: 'Content Type | Content Type | Content Types',
+        filterTitle: 'content type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> content types applies',
+        description: 'check one or more content types to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
       }
     },
     tabs: {

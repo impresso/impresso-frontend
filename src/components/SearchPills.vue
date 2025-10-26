@@ -116,6 +116,30 @@
             :class="filter.context"
           >
           </span>
+          <!--  type:image types -->
+          <span
+            class="label sp-generic-item"
+            v-if="
+              [
+                'imageVisualContent',
+                'imageTechnique',
+                'imageCommunicationGoal',
+                'imageContentType'
+              ].indexOf(filter.type) !== -1
+            "
+            v-html="
+              labelByItems({
+                items: filter.items,
+                max: 2,
+                prop: 'label',
+                translate: true,
+                type: filter.type,
+                op: filter.op
+              })
+            "
+            :class="filter.context"
+          >
+          </span>
           <!--  type:generic -->
           <span
             class="label sp-generic-item"
