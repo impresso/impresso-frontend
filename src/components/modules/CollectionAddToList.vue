@@ -49,6 +49,15 @@
       />
     </ul>
   </div>
+  <Teleport to="body">
+    <CreateCollectionModal
+      :show="isCreateCollectionModalVisible"
+      :title="$t('create_new')"
+      @dismiss="handleCreateCollectionModalDismiss"
+      @success="handleCreateCollectionModalSuccess"
+      :initial-payload="createCollectionInitialPayload"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -57,6 +66,7 @@ import { collectionsItems as collectionsItemsService } from '@/services'
 import { ref, onUpdated, computed, watch } from 'vue'
 import Collection from '@/models/Collection'
 import CollectionAddToListItem from './CollectionAddToListItem.vue'
+import CreateCollectionModal from '../CreateCollectionModal.vue'
 
 export interface ItemWithCollections {
   itemId: string
@@ -85,7 +95,7 @@ const inputString = ref('')
 const lastErrorMessage = ref('')
 const isFetchingCollections = ref(false)
 const isLoading = ref(false)
-
+const isCreateCollectionModalVisible = ref(false)
 const inputStringRef = ref<HTMLInputElement>()
 const collections = ref<Collection[]>([])
 
@@ -98,6 +108,13 @@ const filteredCollections = computed(() => {
   return collections.value.filter(
     collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
   )
+})
+
+const createCollectionInitialPayload = computed(() => {
+  return {
+    name: inputString.value.trim(),
+    description: ''
+  }
 })
 
 const emit = defineEmits<{
@@ -204,6 +221,15 @@ const onInput = () => {
     collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
 }
 
+const handleCreateCollectionModalSuccess = async (collection: Collection) => {
+  isCreateCollectionModalVisible.value = false
+  inputString.value = ''
+}
+
+const handleCreateCollectionModalDismiss = () => {
+  isCreateCollectionModalVisible.value = false
+}
+
 const toggleActive = async (collection: Collection) => {
   console.info('[CollectionAddToList] toggleActive', collection)
 
@@ -269,6 +295,8 @@ const toggleActive = async (collection: Collection) => {
 }
 
 const addCollection = async (collectionName: string) => {
+  console.info('[CollectionAddToList] addCollection', collectionName)
+  isCreateCollectionModalVisible.value = true
   // if (isDisabled.value) {
   //   return
   // }
