@@ -8,21 +8,30 @@
       showSemanticEnrichments
     />
     <i-spinner v-if="!article" class="text-center p-5" />
-    <div v-if="article">
+    <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
+      <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
+
       <b-badge
-        v-for="(collection, i) in article.collections"
-        v-bind:key="`co_${i}`"
+        v-for="(collection, i) in contentItemCollections"
+        v-bind:key="i"
         variant="info"
-        class="mt-1 mr-1"
+        class="m-1 font-size-inherit"
       >
         <router-link
-          class="text-white"
           v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+          title="View collection"
         >
           {{ collection.name }}
         </router-link>
-        <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
+
+        <a
+          class="ml-1 dripicons dripicons-cross text-decoration-none"
+          title="Remove from collection"
+          v-on:click="onRemoveCollection(collection.uid)"
+        />
       </b-badge>
+    </div>
+    <div v-if="article">
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
         <p>{{ $t('wrongLayout') }}</p>
       </div>
@@ -183,6 +192,8 @@ import {
 import TextReuseCluster from '@/models/TextReuseCluster'
 import IIIFFragment from '../IIIFFragment.vue'
 import ListOfSimilarContentItems from '../ListOfSimilarContentItems.vue'
+import Collection from '@/models/Collection'
+import { useNotificationsStore } from '@/stores/notifications'
 
 const colourScheme = [
   '#8dd3c7',
@@ -229,8 +240,21 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore),
+    ...mapStores(useNotificationsStore),
     ...mapStores(useSelectionMonitorStore),
+    contentItemCollections(): Collection[] {
+      if (!this.contentItem) return []
+      const collections = this.contentItem.semanticEnrichments?.collections || []
+      return collections.map(
+        (c: any) =>
+          new Collection({
+            ...c,
 
+            name: c.title || c.name,
+            uid: c.uid
+          })
+      )
+    },
     hasValidRegions() {
       // verify that regions exist and conform to this:
       // "regions": [{
@@ -358,18 +382,26 @@ export default {
       }
       this.viewerTopOffset = height
     },
-    onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => c.uid === collection.uid)
-      if (idx !== -1) {
-        this.collectionsStore
-          .removeCollectionItem({
-            collection,
-            item
-          })
-          .then(() => {
-            item.collections.splice(idx, 1)
-            this.$forceUpdate()
-          })
+    async onRemoveCollection(collectionId: string) {
+      const item = this.contentItem
+      const itemId = item?.id
+      const collections = item?.semanticEnrichments?.collections ?? []
+      const collection = collections.find(c => c.uid === collectionId)
+
+      if (!itemId || !collection) return
+
+      await this.collectionsStore.removeCollectionItem({
+        item: { uid: itemId },
+        collection: { uid: collectionId }
+      })
+      this.notificationsStore.addNotification({
+        type: 'info',
+        title: 'Collection',
+        message: `Removed from collection "${collection.title || (collection as any)?.name}"`
+      })
+      if (this.contentItem?.semanticEnrichments?.collections) {
+        this.contentItem.semanticEnrichments.collections =
+          this.contentItem.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
       }
     },
     mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {

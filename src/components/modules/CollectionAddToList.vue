@@ -221,9 +221,19 @@ const onInput = () => {
     collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
 }
 
+/**
+ * Adds items from props to an existing collection.
+ *
+ * This function is called after a collection has been created and is responsible
+ * for populating it with the items provided through the component's props.
+ *
+ * @param {Object} collection - The collection object to which items will be added
+ * @throws {Error} May throw an error if the collection is invalid or items cannot be added
+ */
 const handleCreateCollectionModalSuccess = async (collection: Collection) => {
   isCreateCollectionModalVisible.value = false
   inputString.value = ''
+  await toggleActive(collection)
 }
 
 const handleCreateCollectionModalDismiss = () => {
@@ -297,23 +307,6 @@ const toggleActive = async (collection: Collection) => {
 const addCollection = async (collectionName: string) => {
   console.info('[CollectionAddToList] addCollection', collectionName)
   isCreateCollectionModalVisible.value = true
-  // if (isDisabled.value) {
-  //   return
-  // }
-  // try {
-  //   const collection = await collectionsStore.addCollection({ name: collectionName })
-  //   await toggleActive(collection)
-  //   inputString.value = ''
-  //   await fetch()
-  // } catch (e: any) {
-  //   if (e.code === 400) {
-  //     lastErrorMessage.value = 'NotValidLength'
-  //   } else if (e.code === 409) {
-  //     lastErrorMessage.value = 'name_already_exists'
-  //   } else {
-  //     lastErrorMessage.value = e.message || 'An error occurred'
-  //   }
-  // }
 }
 
 onUpdated(() => {
