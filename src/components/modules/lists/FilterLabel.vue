@@ -53,6 +53,13 @@
         "
       >
       </span>
+      <RouterLink
+        class="collection"
+        v-else-if="filter.type === 'collection'"
+        :to="`/collections/${item.id}`"
+      >
+        {{ item.name }}
+      </RouterLink>
       <template v-if="index < filterItems.length - 1">
         <span class="separator m-1">{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span>
       </template>
@@ -63,6 +70,7 @@
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
 import type { Filter, FilterItem } from '@/models'
+import { RouterLink } from 'vue-router'
 
 interface FilterAsLabelProps {
   filter: Filter
@@ -204,3 +212,15 @@ const filterItems = computed<FilterItem[]>(() => {
   }
 }
 </i18n>
+<style scoped>
+a.collection {
+  --impresso-text-decoration-color: currentColor;
+  font-family: var(--bs-font-sans-serif);
+
+  background-color: var(--impresso-color-pastel-blue-alpha-50);
+
+  padding: 2px 7px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+</style>
