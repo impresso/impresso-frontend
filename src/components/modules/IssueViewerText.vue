@@ -249,7 +249,6 @@ export default {
         (c: any) =>
           new Collection({
             ...c,
-
             name: c.title || c.name,
             uid: c.uid
           })
