@@ -11,11 +11,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, type Ref, onMounted } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { barista } from '@/services'
 import type { ChatMessage } from './BaristaChatPanel.vue'
 import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
+import type { AdditionalKwargs } from '@/services/types/barista'
+
+
+const lastResponseFilters: Ref<string | null> = ref(null)
+
 
 const emit = defineEmits<{
   (e: 'search', searchFilters: string): void
@@ -30,28 +35,17 @@ const ChatTypeConverter: Record<BaristaMessage['type'], ChatMessage['type']> = {
   human: 'user'
 }
 
-// Convert service message to panel message format
+
 const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | undefined => {
   if (!Object.keys(ChatTypeConverter).includes(message.type)) return undefined
-  const searchFilters = message.additional_kwargs
-    ? getSearchFiltersAsBase64(message.additional_kwargs)
-    : undefined
   return {
     content: message.content,
     timestamp: new Date(),
-    type: ChatTypeConverter[message.type],
-    actions: searchFilters
-      ? [
-          {
-            type: 'search',
-            context: searchFilters
-          }
-        ]
-      : undefined
+    type: ChatTypeConverter[message.type]
   }
 }
 
-// Handler for sending messages
+//  Handles user input + Barista response
 const handleMessageSubmit = async (text: string) => {
   if (!text.trim()) return
 
@@ -66,27 +60,40 @@ const handleMessageSubmit = async (text: string) => {
   isLoading.value = true
 
   try {
-    // Send message to barista service
-    const response = await barista.create({
+    const response = await barista.create({ 
       message: text
-    })
+     })
 
-    // Add barista response to panel
+     let filterMessageShown = false
+
+    
     response.messages.forEach(message => {
-      messages.value.push(convertServiceMessageToPanel(message))
+      const panelMessage = convertServiceMessageToPanel(message)
+      if (panelMessage) messages.value.push(panelMessage)
 
-      const searchFilters = message.additional_kwargs
-        ? getSearchFiltersAsBase64(message.additional_kwargs)
-        : undefined
-
-      if (searchFilters) {
-        emit('search', searchFilters)
+     
+      if (message.additional_kwargs) {
+        const stringified = JSON.stringify(message.additional_kwargs, null, 2)
+        lastResponseFilters.value = stringified
+        emit('search', stringified) // send string to parent (for modal display)
+            if (!filterMessageShown) {
+        messages.value.push(
+          convertServiceMessageToPanel({
+            content:
+              'I’ve prepared some filters for you. Check them on the right and click Apply Filters to use them.',
+            type: 'ai'
+          })!
+        )
+        filterMessageShown = true
       }
+
+      }
+
     })
   } catch (error) {
     console.error('Error sending message to barista service:', error)
 
-    // Add error message
+   // Add error message
     messages.value.push(
       convertServiceMessageToPanel({
         content: 'Sorry, there was an error processing your message.',

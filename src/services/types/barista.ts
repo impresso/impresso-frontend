@@ -6,13 +6,13 @@ interface FunctionCall {
   name: string
 }
 
-interface ToolCall {
+export interface ToolCall {
   id: string
   function: FunctionCall
   type: 'function'
 }
 
-interface AdditionalKwargs {
+export interface AdditionalKwargs {
   tool_calls?: ToolCall[]
 }
 

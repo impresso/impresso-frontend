@@ -10,8 +10,9 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
-    <BaristaModal :isVisible="isChatOpen" @dismiss="closeChat">
-      <BaristaChat @search="handleSearch" />
+    <BaristaModal :isVisible="isChatOpen":filters="filtersFromChat" @dismiss="closeChat"  @applyFilters="handleApplyFilters">
+      <!--<BaristaChat @search="handleSearch" />-->
+    <BaristaChat @search="filtersFromChat = $event" /> 
     </BaristaModal>
     <!-- Chat popup -->
     <!-- <Transition name="fade">
@@ -37,6 +38,8 @@ import BaristaModal from './BaristaModal.vue'
 
 const isChatOpen = ref(false)
 const chatPopup = ref<HTMLElement | null>(null)
+const showModal = ref(true)
+const filtersFromChat = ref<string | Record<string, any> | null>(null)
 
 const emit = defineEmits<{
   search: [filters: string]
@@ -50,12 +53,18 @@ const toggleChat = () => {
 // Close chat
 const closeChat = () => {
   isChatOpen.value = false
+   filtersFromChat.value = null
 }
 
 // Handle search action from BaristaChat
-const handleSearch = (searchFilters: string) => {
-  // Emit the search event so parent components can listen
-  emit('search', searchFilters)
+// const handleSearch = (searchFilters: string) => {
+//   // Emit the search event so parent components can listen
+//   emit('search', searchFilters)
+// }
+
+const handleApplyFilters = (encodedFilters: string) => {
+  emit('search', encodedFilters)  // pass to parent (main app)
+  closeChat()                     
 }
 
 // Close chat when clicking outside
