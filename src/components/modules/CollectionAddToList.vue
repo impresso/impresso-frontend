@@ -49,6 +49,15 @@
       />
     </ul>
   </div>
+  <Teleport to="body">
+    <CreateCollectionModal
+      :show="isCreateCollectionModalVisible"
+      :title="$t('create_new')"
+      @dismiss="handleCreateCollectionModalDismiss"
+      @success="handleCreateCollectionModalSuccess"
+      :initial-payload="createCollectionInitialPayload"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -57,6 +66,7 @@ import { collectionsItems as collectionsItemsService } from '@/services'
 import { ref, onUpdated, computed, watch } from 'vue'
 import Collection from '@/models/Collection'
 import CollectionAddToListItem from './CollectionAddToListItem.vue'
+import CreateCollectionModal from '../CreateCollectionModal.vue'
 
 export interface ItemWithCollections {
   itemId: string
@@ -85,7 +95,7 @@ const inputString = ref('')
 const lastErrorMessage = ref('')
 const isFetchingCollections = ref(false)
 const isLoading = ref(false)
-
+const isCreateCollectionModalVisible = ref(false)
 const inputStringRef = ref<HTMLInputElement>()
 const collections = ref<Collection[]>([])
 
@@ -98,6 +108,13 @@ const filteredCollections = computed(() => {
   return collections.value.filter(
     collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
   )
+})
+
+const createCollectionInitialPayload = computed(() => {
+  return {
+    name: inputString.value.trim(),
+    description: ''
+  }
 })
 
 const emit = defineEmits<{
@@ -204,6 +221,25 @@ const onInput = () => {
     collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
 }
 
+/**
+ * Adds items from props to an existing collection.
+ *
+ * This function is called after a collection has been created and is responsible
+ * for populating it with the items provided through the component's props.
+ *
+ * @param {Object} collection - The collection object to which items will be added
+ * @throws {Error} May throw an error if the collection is invalid or items cannot be added
+ */
+const handleCreateCollectionModalSuccess = async (collection: Collection) => {
+  isCreateCollectionModalVisible.value = false
+  inputString.value = ''
+  await toggleActive(collection)
+}
+
+const handleCreateCollectionModalDismiss = () => {
+  isCreateCollectionModalVisible.value = false
+}
+
 const toggleActive = async (collection: Collection) => {
   console.info('[CollectionAddToList] toggleActive', collection)
 
@@ -269,23 +305,8 @@ const toggleActive = async (collection: Collection) => {
 }
 
 const addCollection = async (collectionName: string) => {
-  // if (isDisabled.value) {
-  //   return
-  // }
-  // try {
-  //   const collection = await collectionsStore.addCollection({ name: collectionName })
-  //   await toggleActive(collection)
-  //   inputString.value = ''
-  //   await fetch()
-  // } catch (e: any) {
-  //   if (e.code === 400) {
-  //     lastErrorMessage.value = 'NotValidLength'
-  //   } else if (e.code === 409) {
-  //     lastErrorMessage.value = 'name_already_exists'
-  //   } else {
-  //     lastErrorMessage.value = e.message || 'An error occurred'
-  //   }
-  // }
+  console.info('[CollectionAddToList] addCollection', collectionName)
+  isCreateCollectionModalVisible.value = true
 }
 
 onUpdated(() => {

@@ -46,14 +46,14 @@
               class="m-1 font-size-inherit"
             >
               <router-link
-                class="text-white text-decoration-none"
                 v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
                 title="View collection"
               >
                 {{ collection.name }}
               </router-link>
+
               <a
-                class="ml-1 text-white dripicons dripicons-cross text-decoration-none"
+                class="ml-1 dripicons dripicons-cross text-decoration-none"
                 title="Remove from collection"
                 v-on:click="onRemoveCollection(collection.uid)"
               />
@@ -180,8 +180,7 @@ export default defineComponent({
         (c: any) =>
           new Collection({
             ...c,
-
-            name: c.title || '',
+            name: c.title || (c as any)?.name,
             uid: c.uid
           })
       )
@@ -288,7 +287,6 @@ export default defineComponent({
       const collection = collections.find(c => c.uid === collectionId)
 
       if (!itemId || !collection) return
-
       await this.collectionsStore.removeCollectionItem({
         item: { uid: itemId },
         collection: { uid: collectionId }
@@ -296,7 +294,7 @@ export default defineComponent({
       this.notificationsStore.addNotification({
         type: 'info',
         title: 'Collection',
-        message: `Removed from collection "${collection.title}"`
+        message: `Removed from collection "${collection.title || (collection as any)?.name}"`
       })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =

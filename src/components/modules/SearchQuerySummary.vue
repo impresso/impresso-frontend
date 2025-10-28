@@ -122,54 +122,7 @@ watch(
   { deep: false, immediate: true }
 )
 </script>
-<style lang="scss">
-.search-query-summary {
-  span.item.person,
-  span.item.topic,
-  span.item.location,
-  span.item.copyright,
-  span.item.daterange > span.date {
-    text-transform: uppercase;
-    font-family: var(--bs-font-sans-serif);
-    font-size: var(--impresso-font-size-smallcaps);
-    font-variant: normal;
-    letter-spacing: var(--impresso-letter-spacing-smallcaps);
-    font-weight: var(--impresso-wght-smallcaps);
-    font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
-  }
-  span.item.collection {
-    font-family: var(--bs-font-sans-serif);
-    color: #049dae;
-  }
 
-  span.item.newspaper,
-  span.item.country {
-    font-weight: var(--impresso-wght-bold);
-    font-variation-settings: 'wght' var(--impresso-wght-bold);
-  }
-
-  .precision-exact::before,
-  .precision-exact::after {
-    content: '"';
-    font-weight: bold;
-  }
-
-  .precision-fuzzy::after {
-    content: '~';
-    font-weight: bold;
-  }
-
-  .precision-soft::before {
-    content: '[';
-    font-weight: bold;
-  }
-
-  .precision-soft::after {
-    content: ']';
-    font-weight: bold;
-  }
-}
-</style>
 <i18n lang="json">
 {
   "en": {
