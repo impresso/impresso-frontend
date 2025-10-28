@@ -52,10 +52,6 @@ const emit = defineEmits<{
   (e: 'dismiss'): void
   (e: 'success', collection: Collection): void
 }>()
-/**
- * TestComponent: A great component for testing.
- * @component
- */
 export interface Props {
   show?: boolean
   title?: string
