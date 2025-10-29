@@ -11,7 +11,7 @@
         @click.prevent.stop
         name="inputEmbeddings"
         v-model.trim="query"
-        debounce="250"
+        :debounce="250"
       />
       <b-form-select
         name="languageEmbeddings"
