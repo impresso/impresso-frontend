@@ -197,7 +197,7 @@
               @click.prevent.stop="addStringItem(type)"
               :disabled="hasEmptyStringItems"
             >
-              {{ $t('actions.addItem') }}
+              {{ $t(`actions.${editedFilter.op}.addItem`) }}
             </b-button>
           </div>
         </b-col>
@@ -209,7 +209,7 @@
               block
               v-on:click.prevent="showEmbeddings = !showEmbeddings"
             >
-              {{ $t('actions.addUsingEmbeddings') }}
+              {{ $t(`actions.${editedFilter.op}.addUsingEmbeddings`) }}
             </b-button>
           </div>
         </b-col>
@@ -566,8 +566,14 @@ export default {
       }
     },
     "actions": {
-      "addItem": "add new ...",
-      "addUsingEmbeddings": "add similar ..."
+      "AND": {
+        "addItem": "'AND' ...",
+        "addUsingEmbeddings": "'AND' similar ..."
+      },
+      "OR": {
+        "addItem": "'OR' ...",
+        "addUsingEmbeddings": "'OR' similar ..."
+      }
     },
     "label": {
       "nag": {
