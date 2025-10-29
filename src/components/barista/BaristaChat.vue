@@ -1,12 +1,11 @@
 <template>
-  <div class="barista-chat">
-    <div class="barista-chat-container">
-      <BaristaChatPanel
-        :messages="messages.filter(m => m != null)"
-        :isLoading="isLoading"
-        @submit="handleMessageSubmit"
-      />
-    </div>
+  <div class="barista-chat h-100">
+    <BaristaChatPanel
+      class="h-100"
+      :messages="messages.filter(m => m != null)"
+      :isLoading="isLoading"
+      @submit="handleMessageSubmit"
+    />
   </div>
 </template>
 
@@ -18,9 +17,7 @@ import type { ChatMessage } from './BaristaChatPanel.vue'
 import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
 import type { AdditionalKwargs } from '@/services/types/barista'
 
-
 const lastResponseFilters: Ref<string | null> = ref(null)
-
 
 const emit = defineEmits<{
   (e: 'search', searchFilters: string): void
@@ -34,7 +31,6 @@ const ChatTypeConverter: Record<BaristaMessage['type'], ChatMessage['type']> = {
   ai: 'system',
   human: 'user'
 }
-
 
 const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | undefined => {
   if (!Object.keys(ChatTypeConverter).includes(message.type)) return undefined
@@ -60,40 +56,36 @@ const handleMessageSubmit = async (text: string) => {
   isLoading.value = true
 
   try {
-    const response = await barista.create({ 
+    const response = await barista.create({
       message: text
-     })
+    })
 
-     let filterMessageShown = false
+    let filterMessageShown = false
 
-    
     response.messages.forEach(message => {
       const panelMessage = convertServiceMessageToPanel(message)
       if (panelMessage) messages.value.push(panelMessage)
 
-     
       if (message.additional_kwargs) {
         const stringified = JSON.stringify(message.additional_kwargs, null, 2)
         lastResponseFilters.value = stringified
         emit('search', stringified) // send string to parent (for modal display)
-            if (!filterMessageShown) {
-        messages.value.push(
-          convertServiceMessageToPanel({
-            content:
-              'I’ve prepared some filters for you. Check them on the right and click Apply Filters to use them.',
-            type: 'ai'
-          })!
-        )
-        filterMessageShown = true
+        if (!filterMessageShown) {
+          messages.value.push(
+            convertServiceMessageToPanel({
+              content:
+                'I’ve prepared some filters for you. Check them on the right and click Apply Filters to use them.',
+              type: 'ai'
+            })!
+          )
+          filterMessageShown = true
+        }
       }
-
-      }
-
     })
   } catch (error) {
     console.error('Error sending message to barista service:', error)
 
-   // Add error message
+    // Add error message
     messages.value.push(
       convertServiceMessageToPanel({
         content: 'Sorry, there was an error processing your message.',
@@ -115,27 +107,3 @@ onMounted(() => {
   )
 })
 </script>
-
-<style lang="scss" scoped>
-.barista-chat {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  background-color: var(--clr-grey-100);
-
-  &-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border-radius: var(--impresso-border-radius-md);
-    box-shadow: var(--bs-box-shadow-sm);
-  }
-}
-</style>

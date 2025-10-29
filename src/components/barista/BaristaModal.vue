@@ -6,27 +6,21 @@
     :dialogClass="props.dialogClass"
     @close="dismiss"
   >
-    <h1>{{ $t('BaristaTitle') }}</h1>
+    <p>{{ $t('BaristaTitle') }}</p>
     <div class="container-fluid">
       <div class="row">
         <div class="col-6">
           <slot></slot>
         </div>
 
-         <div class="col-6 results-section">
-  <h5>Results (JSON)</h5>
-  <div v-if="formattedJSON">
-    <pre class="json-display">{{ formattedJSON }}</pre>
-    <button
-              class="btn btn-sm btn-primary mt-2"
-              @click="applyFilters"
-            >
-              Apply Filters
-            </button>
-  </div>
-  <p v-else>No results yet</p>
-</div>
-
+        <div class="col-6 results-section">
+          <h5>Results (JSON)</h5>
+          <div v-if="formattedJSON">
+            <pre class="json-display">{{ formattedJSON }}</pre>
+            <button class="btn btn-sm btn-primary mt-2" @click="applyFilters">Apply Filters</button>
+          </div>
+          <p v-else>No results yet</p>
+        </div>
       </div>
     </div>
     <template v-slot:modal-footer>
@@ -45,12 +39,12 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 export type BaristaModalProps = {
   dialogClass?: string
   isVisible?: boolean
-  filters?:string | object 
+  filters?: string | object
 }
 
 const props = withDefaults(defineProps<BaristaModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-dialog-centered  modal-lg',
-   isVisible: false,
+  isVisible: false,
   filters: null
 })
 
@@ -59,7 +53,6 @@ const emit = defineEmits(['dismiss', 'applyFilters'])
 function dismiss() {
   emit('dismiss')
 }
-
 
 function tryParseJSON(value: any): any {
   if (typeof value === 'string') {
@@ -85,9 +78,7 @@ function tryParseJSON(value: any): any {
 const formattedJSON = computed(() => {
   if (!props.filters) return ''
   try {
-    const base = typeof props.filters === 'string'
-      ? JSON.parse(props.filters)
-      : props.filters
+    const base = typeof props.filters === 'string' ? JSON.parse(props.filters) : props.filters
 
     const clean = tryParseJSON(base)
     return JSON.stringify(clean, null, 2)
@@ -96,30 +87,24 @@ const formattedJSON = computed(() => {
   }
 })
 
-
-
 const applyFilters = () => {
   if (!props.filters) return
   try {
-    const parsed =
-      typeof props.filters === 'string'
-        ? JSON.parse(props.filters)
-        : props.filters
+    const parsed = typeof props.filters === 'string' ? JSON.parse(props.filters) : props.filters
 
     const encoded = getSearchFiltersAsBase64(parsed)
 
-    emit('applyFilters', encoded) 
+    emit('applyFilters', encoded)
   } catch (err) {
     console.error('Error applying filters:', err)
   }
 }
-
 </script>
 
 <i18n lang="json">
 {
   "en": {
-    "BaristaTitle": "Ask Barista",
+    "BaristaTitle": "Barista is our AI assistant that helps you find a good search query based on your questions.",
     "BaristaModalTitle": "Ask Barista"
   }
 }
