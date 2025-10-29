@@ -13,13 +13,19 @@
           <slot></slot>
         </div>
 
-        <div class="col-6 results-section">
-          <h5>Results (JSON)</h5>
-          <div v-if="formattedJSON">
-            <pre class="json-display">{{ formattedJSON }}</pre>
+        <div class="col-6 results-section position-relative">
+          <div class="position-sticky top-0 bg-white pb-2">
+            <SearchPills :filters="searchFilters" @changed="handleFiltersChanged" />
             <button class="btn btn-sm btn-primary mt-2" @click="applyFilters">Apply Filters</button>
           </div>
-          <p v-else>No results yet</p>
+          <h5>Results (JSON)</h5>
+          <div class="bg-light p-2 my-2 rounded small">
+            {{ searchFilters }}
+            <div v-if="formattedJSON">
+              <pre class="json-display">{{ formattedJSON }}</pre>
+            </div>
+            <p v-else>No results yet</p>
+          </div>
         </div>
       </div>
     </div>
@@ -32,9 +38,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { getSearchFiltersAsBase64 } from '@/services/types/barista'
+import { computed, ref, watch } from 'vue'
+import { getSearchFilters, getSearchFiltersAsBase64 } from '@/services/types/barista'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import SearchPills from '../SearchPills.vue'
+import { toSerializedFilters } from '@/logic/filters'
 
 export type BaristaModalProps = {
   dialogClass?: string
@@ -86,19 +94,30 @@ const formattedJSON = computed(() => {
     return String(props.filters)
   }
 })
+const searchFilters = ref([])
+const handleFiltersChanged = (newFilters: any) => {
+  searchFilters.value = newFilters
+}
+const searchFiltersFromBarista = computed(() => {
+  if (!props.filters) return []
+  return getSearchFilters(
+    typeof props.filters === 'string' ? JSON.parse(props.filters) : props.filters
+  )
+})
 
 const applyFilters = () => {
   if (!props.filters) return
-  try {
-    const parsed = typeof props.filters === 'string' ? JSON.parse(props.filters) : props.filters
-
-    const encoded = getSearchFiltersAsBase64(parsed)
-
-    emit('applyFilters', encoded)
-  } catch (err) {
-    console.error('Error applying filters:', err)
-  }
+  emit('applyFilters', toSerializedFilters(searchFilters.value))
 }
+
+watch(
+  () => searchFiltersFromBarista.value,
+  newFilters => {
+    // merge filters
+    searchFilters.value = newFilters
+  },
+  { immediate: true }
+)
 </script>
 
 <i18n lang="json">

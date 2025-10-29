@@ -162,20 +162,15 @@
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">
-      <b-row no-gutters>
-        <b-col cols="6">
-          <div class="mr-1">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
-            >
-              {{ $t('actions.addUsingEmbeddings') }}
-            </b-button>
-          </div>
-        </b-col>
-      </b-row>
+      <b-button
+        class="my-2"
+        size="sm"
+        variant="outline-primary"
+        block
+        v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+      >
+        {{ $t('actions.addUsingEmbeddings') }}
+      </b-button>
       <entity-suggester
         v-if="showEntitySuggester"
         :filter="filter"
@@ -573,7 +568,8 @@ export default {
       "OR": {
         "addItem": "'OR' ...",
         "addUsingEmbeddings": "'OR' similar ..."
-      }
+      },
+      "addUsingEmbeddings": "Add using semantic embeddings"
     },
     "label": {
       "nag": {

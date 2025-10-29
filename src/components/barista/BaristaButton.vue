@@ -10,9 +10,14 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
-    <BaristaModal :isVisible="isChatOpen":filters="filtersFromChat" @dismiss="closeChat"  @applyFilters="handleApplyFilters">
+    <BaristaModal
+      :isVisible="isChatOpen"
+      :filters="filtersFromChat"
+      @dismiss="closeChat"
+      @applyFilters="handleApplyFilters"
+    >
       <!--<BaristaChat @search="handleSearch" />-->
-    <BaristaChat @search="filtersFromChat = $event" /> 
+      <BaristaChat @search="filtersFromChat = $event" />
     </BaristaModal>
     <!-- Chat popup -->
     <!-- <Transition name="fade">
@@ -53,7 +58,7 @@ const toggleChat = () => {
 // Close chat
 const closeChat = () => {
   isChatOpen.value = false
-   filtersFromChat.value = null
+  filtersFromChat.value = null
 }
 
 // Handle search action from BaristaChat
@@ -63,8 +68,8 @@ const closeChat = () => {
 // }
 
 const handleApplyFilters = (encodedFilters: string) => {
-  emit('search', encodedFilters)  // pass to parent (main app)
-  closeChat()                     
+  emit('search', encodedFilters) // pass to parent (main app)
+  closeChat()
 }
 
 // Close chat when clicking outside
