@@ -69,7 +69,6 @@ import { ref, onUpdated, computed, watch, nextTick } from 'vue'
 import Collection from '@/models/Collection'
 import CollectionAddToListItem from './CollectionAddToListItem.vue'
 import CreateCollectionModal from '../CreateCollectionModal.vue'
-import { p } from 'node_modules/msw/lib/core/GraphQLHandler-Pox7fIFM'
 
 export interface ItemWithCollections {
   itemId: string
