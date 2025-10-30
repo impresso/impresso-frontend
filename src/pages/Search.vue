@@ -33,7 +33,11 @@
         </b-form-group>
       </div>
       <template v-slot:after-facets>
-        <button v-if="!loadCollectionsFlag" @click="toggleLoadCollections">load collections</button>
+        <div class="p-3">
+          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+            {{ $t('label_loadCollection') }}
+          </b-form-checkbox>
+        </div>
       </template>
     </search-sidebar>
 
@@ -812,6 +816,7 @@ export default defineComponent({
     "label_isFront": "Frontpage",
     "label_embeddings": "add similar words",
     "label_hasTextContents": "Contains Text",
+    "label_loadCollection": "Enable Collections",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "order_issues": "Issue",
