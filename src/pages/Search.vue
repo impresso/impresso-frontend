@@ -32,6 +32,9 @@
           </b-form-checkbox>
         </b-form-group>
       </div>
+      <template v-slot:after-facets>
+        <button v-if="!loadCollectionsFlag" @click="toggleLoadCollections">load collections</button>
+      </template>
     </search-sidebar>
 
     <i-layout-section main>
@@ -383,6 +386,9 @@ export default defineComponent({
     isLoggedIn() {
       return !!this.userStore.userData
     },
+    shouldLoadCollections() {
+      return this.isLoggedIn && this.loadCollectionsFlag
+    },
     orderBy: {
       get() {
         // If the user explicitly set an orderBy parameter, we use that.
@@ -418,6 +424,16 @@ export default defineComponent({
       set(displayStyle: string) {
         this.$navigation.updateQueryParametersWithHistory({
           displayStyle
+        })
+      }
+    },
+    loadCollectionsFlag: {
+      get() {
+        return (this.$route.query.c as string) === '1'
+      },
+      set(loadCollections: boolean) {
+        this.$navigation.updateQueryParametersWithHistory({
+          c: loadCollections ? '1' : undefined
         })
       }
     },
@@ -469,7 +485,8 @@ export default defineComponent({
         groupBy: this.groupBy,
         orderBy: this.orderBy,
         limit: this.paginationPerPage,
-        page: this.paginationCurrentPage
+        page: this.paginationCurrentPage,
+        loadCollections: this.loadCollectionsFlag
       }
       return query
     },
@@ -502,6 +519,9 @@ export default defineComponent({
     this.timelineFacets = buildEmptyFacets(['year'])
   },
   methods: {
+    toggleLoadCollections() {
+      this.loadCollectionsFlag = !this.loadCollectionsFlag
+    },
     isModalVisible(name) {
       return this.visibleModal === name
     },
@@ -701,7 +721,7 @@ export default defineComponent({
           })
           .then(response => response.data.map(f => new FacetModel(f as any)))
 
-        this.userFacets = this.isLoggedIn
+        this.userFacets = this.shouldLoadCollections
           ? await searchFacetsService
               .find({
                 query: {
