@@ -11,9 +11,13 @@
           v-model.trim="inputString"
           :debounce="250"
           ref="inputStringRef"
+          :placeholder="$t('placeholder')"
         />
 
-        <div class="input-group-append" v-if="!isDisabled && !isLoading && !collections.length">
+        <div
+          class="input-group-append"
+          v-if="inputString.length && !isLoading && !collections.length"
+        >
           <b-button
             size="sm"
             variant="outline-primary"
@@ -65,6 +69,7 @@ import { ref, onUpdated, computed, watch, nextTick } from 'vue'
 import Collection from '@/models/Collection'
 import CollectionAddToListItem from './CollectionAddToListItem.vue'
 import CreateCollectionModal from '../CreateCollectionModal.vue'
+import { p } from 'node_modules/msw/lib/core/GraphQLHandler-Pox7fIFM'
 
 export interface ItemWithCollections {
   itemId: string
@@ -88,7 +93,6 @@ const props = withDefaults(defineProps<Props>(), {
   loadingDelay: 200
 })
 
-const isDisabled = ref(true)
 const inputString = ref('')
 const lastErrorMessage = ref('')
 const isFetchingCollections = ref(false)
@@ -96,17 +100,6 @@ const isLoading = ref(false)
 const isCreateCollectionModalVisible = ref(false)
 const inputStringRef = ref<HTMLInputElement>()
 const collections = ref<Collection[]>([])
-
-// const filteredCollections = computed(() => {
-//   if (!inputString.value.trim()) {
-//     return collections.value
-//   }
-
-//   const searchRegex = new RegExp(inputString.value.trim(), 'i')
-//   return collections.value.filter(
-//     collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
-//   )
-// })
 
 const createCollectionInitialPayload = computed(() => {
   return {
@@ -198,15 +191,6 @@ const fetch = async (
   } finally {
     isFetchingCollections.value = false
   }
-}
-
-const onInput = () => {
-  lastErrorMessage.value = ''
-  const input = inputString.value.trim()
-  isDisabled.value =
-    input.length < 3 ||
-    input.length > 50 ||
-    collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
 }
 
 /**
