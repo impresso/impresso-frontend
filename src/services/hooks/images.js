@@ -14,9 +14,9 @@ export default {
   after: {
     all: [],
     find: [],
-    get: [(context) => {
-      context.result = new Article(context.result);
-    }],
+    // get: [(context) => {
+    //   context.result = new Article(context.result);
+    // }],
     create: [],
     update: [],
     patch: [],
