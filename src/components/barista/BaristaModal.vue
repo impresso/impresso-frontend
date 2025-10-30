@@ -4,6 +4,7 @@
     :title="$t('BaristaModalTitle')"
     modalClasses="InfoModal"
     :dialogClass="props.dialogClass"
+    body-class="p-0"
     @close="dismiss"
   >
     <p>{{ $t('BaristaTitle') }}</p>
@@ -13,8 +14,8 @@
           <slot></slot>
         </div>
 
-        <div class="col-6 results-section position-relative">
-          <div class="position-sticky top-0 bg-white pb-2">
+        <div class="col-6 results-section position-relative" v-if="searchFilters.length">
+          <div class="position-sticky top-0 bg-white py-2">
             <SearchPills :filters="searchFilters" @changed="handleFiltersChanged" />
             <button class="btn btn-sm btn-primary mt-2" @click="applyFilters">Apply Filters</button>
           </div>
@@ -42,7 +43,8 @@ import { computed, ref, watch } from 'vue'
 import { getSearchFilters, getSearchFiltersAsBase64 } from '@/services/types/barista'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
-import { toSerializedFilters } from '@/logic/filters'
+import { joinFiltersWithItems, toSerializedFilters } from '@/logic/filters'
+import { filtersItems } from '@/services'
 
 export type BaristaModalProps = {
   dialogClass?: string
@@ -112,9 +114,16 @@ const applyFilters = () => {
 
 watch(
   () => searchFiltersFromBarista.value,
-  newFilters => {
+  async newFilters => {
     // merge filters
     searchFilters.value = newFilters
+
+    const filtersWithItems = await filtersItems
+      .find({ query: { filters: toSerializedFilters(newFilters) } })
+      .then(joinFiltersWithItems)
+    searchFilters.value = filtersWithItems
+    // eslint-disable-next-line
+    console.debug('[BaristaModal] loadFilterItems', filtersWithItems)
   },
   { immediate: true }
 )

@@ -14,8 +14,7 @@ import { ref, type Ref, onMounted } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { barista } from '@/services'
 import type { ChatMessage } from './BaristaChatPanel.vue'
-import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
-import type { AdditionalKwargs } from '@/services/types/barista'
+import { BaristaMessage } from '@/services/types/barista'
 
 const lastResponseFilters: Ref<string | null> = ref(null)
 
