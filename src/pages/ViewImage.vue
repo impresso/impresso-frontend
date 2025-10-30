@@ -2,6 +2,7 @@
   <div class="view-image">
     <SearchResultsImageItem
       v-if="image"
+      :is-checked="false"
       :item="image"
       :enable-checkbox="false"
       :enable-similar-to="false"
