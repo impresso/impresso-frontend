@@ -37,6 +37,10 @@ export default defineComponent({
     authCondition: {
       type: Function,
       default: defaultAuthCondition
+    },
+    defaultVisibility: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -65,6 +69,9 @@ export default defineComponent({
     this.observer.observe(this.$el)
     const rect = this.$el.getBoundingClientRect()
     this.width = rect.width
+    if (this.defaultVisibility) {
+      this.isVisible = true
+    }
   },
   beforeUnmount() {
     this.observer.disconnect()
@@ -90,6 +97,7 @@ export default defineComponent({
     isVisible: {
       async handler() {
         const imageUrl = this.src
+        console.log('Fetching image:', imageUrl)
 
         const authCondition = this.authCondition ?? defaultAuthCondition
         const headers = authCondition(imageUrl) ? getAuthHeaders(getAuthenticationToken()) : {}

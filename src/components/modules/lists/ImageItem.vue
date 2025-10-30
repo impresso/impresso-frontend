@@ -5,6 +5,7 @@
       :height="height"
       class="image"
       :src="item?.previewUrl"
+      :default-visibility="defaultVisibility"
     >
       <template v-slot:loading>
         <LoadingIndicator />
@@ -58,7 +59,8 @@ export default defineComponent({
     fluidGrow: Boolean,
     item: Object as PropType<IImage>,
     showMeta: Boolean,
-    showArticle: Boolean
+    showArticle: Boolean,
+    defaultVisibility: Boolean
   },
   computed: {
     imageClass() {

@@ -7,6 +7,7 @@
       :enable-checkbox="false"
       :enable-similar-to="false"
       :userPlan="userPlan"
+      :default-visibility="true"
     />
   </div>
 </template>

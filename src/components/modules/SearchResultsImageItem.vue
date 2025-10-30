@@ -8,7 +8,7 @@
           v-bind:checked="isChecked"
           v-on:change="$emit('toggleSelected', item)"
         />
-        <image-item v-if="isImageAvailable" fluid-grow :item="item" show-meta />
+        <image-item v-if="isImageAvailable" fluid-grow :item="item" show-meta :default-visibility="defaultVisibility" />
         <div v-else v-html="$t(messageKey)" class="p-3 my-3 text-center font-style-italic"></div>
       </p>
     </div>
@@ -37,6 +37,7 @@ const props = defineProps<{
   enableSimilarTo: boolean
   isChecked: boolean
   userPlan: string
+  defaultVisibility?: boolean
 }>()
 
 const isImageAvailable = computed(() => {
