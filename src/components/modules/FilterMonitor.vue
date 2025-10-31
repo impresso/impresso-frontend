@@ -1,6 +1,9 @@
 <template>
   <div class="FilterMonitor filter-monitor">
-    <div v-if="checkbox">
+    <div v-if="filter.type === 'embedding'">
+      <p class="small" v-html="$t('label.embedding.context.' + currentContext)"></p>
+    </div>
+    <div v-else-if="checkbox">
       <!--  context -->
       <b-form-group>
         <radio-group
@@ -75,6 +78,15 @@
               @changed="handleRangeChanged"
             />
           </div>
+        </div>
+        <div v-else-if="type === 'embedding'">
+          <!-- Embedding filter item representation can go here -->
+
+          <pre
+            class="bg-light shadow-sm rounded-sm border p-1 very-small"
+            style="word-break: break-all; white-space: normal; max-height: 100px; overflow: scroll"
+            >{{ item.uid }}</pre
+          >
         </div>
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
@@ -576,6 +588,13 @@ export default {
       }
     },
     "label": {
+      "embedding": {
+        "title": "semantic embedding",
+        "context": {
+          "include": "similar to",
+          "exclude": "<b>NOT</b> similar to"
+        }
+      },
       "nag": {
         "context": {
           "include": "reported by",
