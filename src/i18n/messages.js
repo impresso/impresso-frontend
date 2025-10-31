@@ -341,6 +341,18 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      embedding: {
+        title: 'Embedding | Embedding | Embeddings',
+        filterTitle: 'embedding',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> embeddings applies',
+        description: 'check one or more embeddings to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'similar to selected embeddings',
+          exclude: '<b>NOT</b> similar to selected embeddings'
+        }
+      },
       sourceType: {
         title: 'Media Type | Media Type | Media Types',
         filterTitle: 'media type',

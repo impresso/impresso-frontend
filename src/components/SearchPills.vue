@@ -162,7 +162,22 @@
             :class="filter.context"
           >
           </span>
-
+          <!-- type:embedding -->
+          <span
+            class="label sp-embedding"
+            v-if="filter.type === 'embedding'"
+            v-html="
+              labelByItems({
+                items: filter.items,
+                max: 2,
+                prop: 'uid',
+                op: filter.op,
+                maxLength: 20
+              })
+            "
+            :class="filter.context"
+          >
+          </span>
           <!--  type: (with slider) -->
           <span
             class="label sp-collection"
@@ -245,6 +260,7 @@ import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 import Icon from './base/Icon.vue'
+import { max } from 'd3'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -367,7 +383,8 @@ export default {
       max = 1,
       op = 'OR',
       translate = false,
-      type = 'label'
+      type = 'label',
+      maxLength = -1
     } = {}) {
       let labels = items
         .slice(0, max)
@@ -379,7 +396,13 @@ export default {
             }
             return translation
           }
-          return d[prop] || '...'
+          if (!d[prop]) {
+            return '...'
+          }
+          if (maxLength < 0) {
+            return d[prop]
+          }
+          return d[prop].length > maxLength ? d[prop].slice(0, maxLength) + '…' : d[prop]
         })
         .join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`)
       if (items.slice(max).length) {

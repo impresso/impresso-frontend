@@ -101,6 +101,66 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  soil: {
+    paths: [
+      {
+        d: 'M2 4L22 4'
+      },
+      {
+        d: 'M3 8.01L3.01 7.99889'
+      },
+      {
+        d: 'M3 16.01L3.01 15.9989'
+      },
+      {
+        d: 'M6 12.01L6.01 11.9989'
+      },
+      {
+        d: 'M6 20.01L6.01 19.9989'
+      },
+      {
+        d: 'M9 8.01L9.01 7.99889'
+      },
+      {
+        d: 'M9 16.01L9.01 15.9989'
+      },
+      {
+        d: 'M12 12.01L12.01 11.9989'
+      },
+      {
+        d: 'M12 20.01L12.01 19.9989'
+      },
+      {
+        d: 'M15 8.01L15.01 7.99889'
+      },
+      {
+        d: 'M15 16.01L15.01 15.9989'
+      },
+      {
+        d: 'M18 12.01L18.01 11.9989'
+      },
+      {
+        d: 'M18 20.01L18.01 19.9989'
+      },
+      {
+        d: 'M21 8.01L21.01 7.99889'
+      },
+      {
+        d: 'M21 16.01L21.01 15.9989'
+      }
+    ]
+  },
+  codeBracketSquare: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" stroke-width="1.5" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M10 17L9.33334 17C8.22877 17 7.33334 16.1047 7.33334 15.0002C7.33334 14.3284 7.33334 13.6211 7.33333 13.1111C7.33333 12.5556 6 12 6 12C6 12 7.33333 11.4444 7.33334 10.8889C7.33334 10.4359 7.33334 9.70586 7.33334 8.99998C7.33334 7.89541 8.22877 7 9.33334 7L10 7" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 17L14.6667 17C15.7712 17 16.6667 16.1047 16.6667 15.0002C16.6667 14.3284 16.6667 13.6211 16.6667 13.1111C16.6667 12.5556 18 12 18 12C18 12 16.6667 11.4444 16.6667 10.8889C16.6667 10.4359 16.6667 9.70586 16.6667 8.99998C16.6667 7.89541 15.7712 7 14.6667 7L14 7" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        d: 'M7 2H3V22H7'
+      },
+      {
+        d: 'M17 2H21V22H17'
+      }
+    ]
+  },
   newsagency: {
     paths: [
       {
@@ -608,7 +668,8 @@ const IconAliases: Record<string, string> = {
   organisation: 'organisation',
   sourceType: 'sourceType',
   sourceMedium: 'sourceMedium',
-  collection: 'boxIso'
+  collection: 'boxIso',
+  embedding: 'codeBracketSquare'
 }
 
 const computedPaths = computed(() => {
