@@ -233,11 +233,10 @@ export default {
       iiifViewerMarginTop: number
     }
   },
-  updated() {
-    this.resize()
-  },
+
   mounted() {
     window.addEventListener('resize', this.resize)
+    this.resize()
   },
   computed: {
     ...mapStores(useCollectionsStore),
@@ -487,7 +486,6 @@ export default {
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-        this.resize()
       }
     }
   }
