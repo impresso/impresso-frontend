@@ -26,36 +26,34 @@
       <div class="d-flex">
         <div class="list-item-details me-3 mr-3">
           <!-- if article -->
-          <article-item
-            :item="article"
+          <ContentItem
+            :item="contentItem"
             show-meta
-            show-excerpt
-            show-entities
+            showSnippet
+            show-semantic-enrichments
             show-matches
             show-link
             class="mb-2"
           />
-          <div
-            v-if="article.collections && article.collections.length > 0"
-            class="d-flex flex-wrap align-items-center"
-          >
+
+          <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
             <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
 
             <b-badge
-              v-for="(collection, i) in article.collections"
+              v-for="(collection, i) in contentItemCollections"
               v-bind:key="i"
               variant="info"
               class="m-1 font-size-inherit"
             >
               <router-link
-                class="text-white text-decoration-none"
                 v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
                 title="View collection"
               >
                 {{ collection.name }}
               </router-link>
+
               <a
-                class="ml-1 text-white dripicons dripicons-cross text-decoration-none"
+                class="ml-1 dripicons dripicons-cross text-decoration-none"
                 title="Remove from collection"
                 v-on:click="onRemoveCollection(collection.uid)"
               />
@@ -122,18 +120,18 @@
 <script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
-import ArticleItem from './lists/ArticleItem.vue'
 import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
-import type Collection from '@/models/Collection'
+import Collection from '@/models/Collection'
+import ContentItem from './lists/ContentItem.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -154,7 +152,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Object as PropType<ContentItem>
+      type: Object as PropType<ContentItemSchema>
       // default: () => ({})
     },
     checkbox: {
@@ -173,8 +171,19 @@ export default defineComponent({
   emits: ['toggleSelected', 'click'],
   computed: {
     ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
-    contentItem(): ContentItem {
+    contentItem(): ContentItemSchema {
       return this.modelValue
+    },
+    contentItemCollections(): Collection[] {
+      const collections = this.contentItem.semanticEnrichments?.collections || []
+      return collections.map(
+        (c: any) =>
+          new Collection({
+            ...c,
+            name: c.title || (c as any)?.name,
+            uid: c.uid
+          })
+      )
     },
     article() {
       return Article.fromContentItem(this.contentItem)
@@ -278,7 +287,6 @@ export default defineComponent({
       const collection = collections.find(c => c.uid === collectionId)
 
       if (!itemId || !collection) return
-
       await this.collectionsStore.removeCollectionItem({
         item: { uid: itemId },
         collection: { uid: collectionId }
@@ -286,7 +294,7 @@ export default defineComponent({
       this.notificationsStore.addNotification({
         type: 'info',
         title: 'Collection',
-        message: `Removed from collection "${collection.name}"`
+        message: `Removed from collection "${collection.title || (collection as any)?.name}"`
       })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =
@@ -349,10 +357,10 @@ export default defineComponent({
   },
   components: {
     CollectionAddTo,
-    ArticleItem,
     CopyToClipboard,
     IIIFFragment,
-    ContentItemAccess
+    ContentItemAccess,
+    ContentItem
   }
 })
 </script>
@@ -382,6 +390,10 @@ export default defineComponent({
 
 .SearchResultListItem .article-collections .badge {
   font-size: inherit;
+}
+.SearchResultListItem .ContentItem h2 {
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
 }
 </style>
 

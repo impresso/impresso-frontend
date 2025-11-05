@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { PlanEducational } from '../src/constants'
-import { BaseFindResponse, Collection } from '@/models/generated/schemasPublic'
+import { BaseFindResponse } from '@/models/generated/schemasPublic'
+import { Collection } from '@/models/generated/schemas'
 import {
   CollectableItemsUpdatedResponse,
   UpdateCollectableItemsRequest

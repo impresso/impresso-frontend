@@ -96,16 +96,12 @@ const mockContentItem: ContentItem = {
     collections: [
       {
         uid: 'coll1',
-        name: 'My Research Collection',
+        title: 'My Research Collection',
         description: 'A collection for research purposes',
-        status: 'active',
-        creationDate: '2024-01-01T00:00:00Z',
-        lastModifiedDate: '2024-01-15T00:00:00Z',
-        countItems: 25,
-        creator: {
-          uid: 'user1',
-          username: 'researcher'
-        }
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-15T00:00:00Z',
+        totalItems: 25,
+        creatorId: 'user1'
       }
     ]
   },

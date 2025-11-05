@@ -162,20 +162,15 @@
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">
-      <b-row no-gutters>
-        <b-col cols="6">
-          <div class="mr-1">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
-            >
-              {{ $t('actions.addUsingEmbeddings') }}
-            </b-button>
-          </div>
-        </b-col>
-      </b-row>
+      <b-button
+        class="my-2"
+        size="sm"
+        variant="outline-primary"
+        block
+        v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+      >
+        {{ $t('actions.addUsingEmbeddings') }}
+      </b-button>
       <entity-suggester
         v-if="showEntitySuggester"
         :filter="filter"
@@ -197,7 +192,7 @@
               @click.prevent.stop="addStringItem(type)"
               :disabled="hasEmptyStringItems"
             >
-              {{ $t('actions.addItem') }}
+              {{ $t(`actions.${editedFilter.op}.addItem`) }}
             </b-button>
           </div>
         </b-col>
@@ -209,7 +204,7 @@
               block
               v-on:click.prevent="showEmbeddings = !showEmbeddings"
             >
-              {{ $t('actions.addUsingEmbeddings') }}
+              {{ $t(`actions.${editedFilter.op}.addUsingEmbeddings`) }}
             </b-button>
           </div>
         </b-col>
@@ -566,10 +561,23 @@ export default {
       }
     },
     "actions": {
-      "addItem": "add new ...",
-      "addUsingEmbeddings": "add similar ..."
+      "AND": {
+        "addItem": "'AND' ...",
+        "addUsingEmbeddings": "'AND' similar ..."
+      },
+      "OR": {
+        "addItem": "'OR' ...",
+        "addUsingEmbeddings": "'OR' similar ..."
+      },
+      "addUsingEmbeddings": "Add using semantic embeddings"
     },
     "label": {
+      "nag": {
+        "context": {
+          "include": "reported by",
+          "exclude": "<b>NOT</b> reported by"
+        }
+      },
       "title": {
         "context": {
           "include": "Contains",
@@ -648,9 +656,9 @@ export default {
         }
       },
       "newspaper": {
-        "title": "newspaper titles",
-        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
-        "description": "check one or more newspaper to filter results",
+        "title": "media sources",
+        "selected": "filter results if they appear in <b>one of {count} selected</b> media sources",
+        "description": "check one or more media sources to filter results",
         "clear": "reset",
         "apply": "apply changes",
         "update": "apply changes (added: {added}, removed: {removed})",

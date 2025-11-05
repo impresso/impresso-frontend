@@ -36,6 +36,9 @@
         :end-year="endYear"
         @changed="handleFiltersChanged"
       />
+      <slot name="after-facets">
+        <!-- slot for extras at the end -->
+      </slot>
     </div>
   </i-layout-section>
 </template>

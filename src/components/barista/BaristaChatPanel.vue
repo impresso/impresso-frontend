@@ -1,6 +1,6 @@
 <template>
   <div class="barista-chat-panel">
-    <div class="chat-history" ref="chatHistoryRef">
+    <div class="chat-history h-100" ref="chatHistoryRef">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.type]">
         <div class="message-content">{{ message.content }}</div>
         <div class="message-actions" v-if="message.actions && message.actions.length > 0">
@@ -23,22 +23,24 @@
       </div>
     </div>
 
-    <div class="chat-input">
-      <input
+    <div class="chat-input position-sticky bottom-0 bg-white input-group">
+      <b-form-input
         type="text"
         v-model="inputMessage"
         @keyup.enter="handleSubmit"
         placeholder="Type your message..."
         :disabled="isLoading"
       />
-      <button
-        @click="handleSubmit"
-        :disabled="!inputMessage.trim() || isLoading"
-        class="submit-button"
-      >
-        <span v-if="isLoading">Sending...</span>
-        <span v-else>Send</span>
-      </button>
+      <div class="input-group-append">
+        <button
+          @click="handleSubmit"
+          :disabled="!inputMessage.trim() || isLoading"
+          class="btn btn-outline-primary"
+        >
+          <span v-if="isLoading">Sending...</span>
+          <span v-else>Send</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -111,28 +113,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.barista-chat-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 .chat-history {
   flex: 1;
-  padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #f5f5f5;
 }
 
 .message {
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--impresso-border-radius-xs);
   max-width: 80%;
   word-break: break-word;
   position: relative;
@@ -219,40 +210,5 @@ onMounted(() => {
 
 .icon {
   display: inline-block;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  border-top: 1px solid #e0e0e0;
-  background-color: white;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  margin-right: 8px;
-  font-size: 1rem;
-}
-
-.submit-button {
-  padding: 10px 16px;
-  background-color: #0084ff;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.submit-button:hover:not(:disabled) {
-  background-color: #0073e6;
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 </style>

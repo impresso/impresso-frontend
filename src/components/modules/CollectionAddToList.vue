@@ -2,20 +2,18 @@
   <div class="CollectionAddToList">
     <div class="header p-2">
       <div class="input-group">
-        <input
+        <b-form-input
           type="text"
           class="form-control form-control-md rounded-sm"
-          :placeholder="$t('placeholder')"
-          @input="onInput"
-          @keyup.enter="addCollection(inputString.trim())"
-          ref="inputStringRef"
+          @keydown.space.prevent
+          @click.prevent.stop
           :disabled="isLoading"
-          v-model="inputString"
+          v-model.trim="inputString"
+          :debounce="250"
+          ref="inputStringRef"
         />
-        <div
-          class="input-group-append"
-          v-if="!isDisabled && !isLoading && !filteredCollections.length"
-        >
+
+        <div class="input-group-append" v-if="!isDisabled && !isLoading && !collections.length">
           <b-button
             size="sm"
             variant="outline-primary"
@@ -40,7 +38,7 @@
         <i-spinner class="text-center p-5" />
       </li>
       <CollectionAddToListItem
-        v-for="collection in filteredCollections"
+        v-for="collection in collections"
         :key="collection.uid"
         :collection="collection"
         :is-loading="isLoading"
@@ -49,14 +47,24 @@
       />
     </ul>
   </div>
+  <Teleport to="body">
+    <CreateCollectionModal
+      :show="isCreateCollectionModalVisible"
+      :title="$t('create_new')"
+      @dismiss="handleCreateCollectionModalDismiss"
+      @success="handleCreateCollectionModalSuccess"
+      :initial-payload="createCollectionInitialPayload"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { collections as collectionsService } from '@/services'
 import { collectionsItems as collectionsItemsService } from '@/services'
-import { ref, onUpdated, computed, watch } from 'vue'
+import { ref, onUpdated, computed, watch, nextTick } from 'vue'
 import Collection from '@/models/Collection'
 import CollectionAddToListItem from './CollectionAddToListItem.vue'
+import CreateCollectionModal from '../CreateCollectionModal.vue'
 
 export interface ItemWithCollections {
   itemId: string
@@ -85,19 +93,26 @@ const inputString = ref('')
 const lastErrorMessage = ref('')
 const isFetchingCollections = ref(false)
 const isLoading = ref(false)
-
+const isCreateCollectionModalVisible = ref(false)
 const inputStringRef = ref<HTMLInputElement>()
 const collections = ref<Collection[]>([])
 
-const filteredCollections = computed(() => {
-  if (!inputString.value.trim()) {
-    return collections.value
-  }
+// const filteredCollections = computed(() => {
+//   if (!inputString.value.trim()) {
+//     return collections.value
+//   }
 
-  const searchRegex = new RegExp(inputString.value.trim(), 'i')
-  return collections.value.filter(
-    collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
-  )
+//   const searchRegex = new RegExp(inputString.value.trim(), 'i')
+//   return collections.value.filter(
+//     collection => searchRegex.test(collection.name) || searchRegex.test(collection.description)
+//   )
+// })
+
+const createCollectionInitialPayload = computed(() => {
+  return {
+    name: inputString.value.trim(),
+    description: ''
+  }
 })
 
 const emit = defineEmits<{
@@ -145,7 +160,7 @@ const fetch = async (
       limit?: number
       offset?: number
       orderBy?: string
-      q?: string
+      term?: string
     }
   }
 ) => {
@@ -185,16 +200,6 @@ const fetch = async (
   }
 }
 
-watch(
-  () => props.isVisible,
-  newVal => {
-    if (newVal) {
-      fetch()
-    }
-  },
-  { immediate: false }
-)
-
 const onInput = () => {
   lastErrorMessage.value = ''
   const input = inputString.value.trim()
@@ -202,6 +207,25 @@ const onInput = () => {
     input.length < 3 ||
     input.length > 50 ||
     collections.value.some(item => item.name.toLowerCase() === input.toLowerCase())
+}
+
+/**
+ * Adds items from props to an existing collection.
+ *
+ * This function is called after a collection has been created and is responsible
+ * for populating it with the items provided through the component's props.
+ *
+ * @param {Object} collection - The collection object to which items will be added
+ * @throws {Error} May throw an error if the collection is invalid or items cannot be added
+ */
+const handleCreateCollectionModalSuccess = async (collection: Collection) => {
+  isCreateCollectionModalVisible.value = false
+  inputString.value = ''
+  await toggleActive(collection)
+}
+
+const handleCreateCollectionModalDismiss = () => {
+  isCreateCollectionModalVisible.value = false
 }
 
 const toggleActive = async (collection: Collection) => {
@@ -269,27 +293,42 @@ const toggleActive = async (collection: Collection) => {
 }
 
 const addCollection = async (collectionName: string) => {
-  // if (isDisabled.value) {
-  //   return
-  // }
-  // try {
-  //   const collection = await collectionsStore.addCollection({ name: collectionName })
-  //   await toggleActive(collection)
-  //   inputString.value = ''
-  //   await fetch()
-  // } catch (e: any) {
-  //   if (e.code === 400) {
-  //     lastErrorMessage.value = 'NotValidLength'
-  //   } else if (e.code === 409) {
-  //     lastErrorMessage.value = 'name_already_exists'
-  //   } else {
-  //     lastErrorMessage.value = e.message || 'An error occurred'
-  //   }
-  // }
+  console.info('[CollectionAddToList] addCollection', collectionName)
+  isCreateCollectionModalVisible.value = true
 }
 
+watch(
+  () => props.isVisible,
+  newVal => {
+    if (newVal) {
+      fetch()
+      nextTick(() => {
+        inputStringRef.value?.focus()
+      })
+    }
+  },
+  { immediate: false }
+)
+
+watch(
+  () => inputString.value,
+  () => {
+    console.info('[CollectionAddToList] input changed:', inputString.value)
+    fetch({
+      query: {
+        limit: 10,
+        offset: 0,
+        orderBy: 'createdAt',
+        term: inputString.value
+      }
+    })
+  }
+)
+
 onUpdated(() => {
-  inputStringRef.value?.focus()
+  nextTick(() => {
+    inputStringRef.value?.focus()
+  })
 })
 </script>
 

@@ -28,12 +28,12 @@
         </button>
         <button
           type="button"
-          class="btn btn-outline-primary"
+          class="btn btn-outline-primary d-flex align-content-center px-2"
           :title="$t('actions.addFilter')"
           @click="showExplorer"
           data-testid="add-filter-button"
         >
-          <div class="d-flex dripicons-experiment"></div>
+          <Icon name="arrowEnlargeTag" :stroke-width="1.25" :scale="1" />
         </button>
       </div>
     </div>
@@ -102,7 +102,7 @@
     :is-visible="explorerVisible"
     @onHide="handleExplorerHide"
     :searching-enabled="true"
-    :initial-search-query="q"
+    :initial-q="q"
     :initial-type="explorerInitialType"
     :included-types="explorerIncludedTypes"
   />
@@ -154,7 +154,15 @@ export default {
     },
     explorerIncludedTypes: {
       type: Array,
-      default: () => ['newspaper', 'topic', 'location', 'person', 'collection']
+      default: () => [
+        'mediaSource',
+        'topic',
+        'location',
+        'person',
+        'organisation',
+        'nag',
+        'collection'
+      ]
     },
     /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {

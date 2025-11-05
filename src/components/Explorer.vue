@@ -1,38 +1,49 @@
 <template>
   <Modal
     class="Explorer"
+    dialogClass="modal-dialog-scrollable modal-lg"
     :id="id"
     :show="isVisible"
     body-class="p-0"
     :title="$t('explore')"
-    @close="$emit(events.Hide)"
+    @close="emit(events.Hide)"
   >
     <template v-slot:modal-header-extra>
       <div class="p-3 border-bottom">
         <b-button
           v-for="(availableType, i) in typeOptions"
-          v-bind:key="i"
+          :key="i"
           class="mr-1 mt-1"
           variant="outline-primary"
           size="sm"
-          v-on:click="handleTypeChange(availableType)"
-          v-bind:class="{ active: currentType === availableType }"
+          @click="handleTypeChange(availableType)"
+          :class="{ active: currentType === availableType }"
         >
           {{ $t(`labels.${availableType}`) }}
         </b-button>
-
         <div class="small mt-2">
-          <span v-if="isLoading">{{ $t('loading') }}</span>
+          <span v-if="isLoading">{{ $t('actions.loading') }}</span>
+          <span
+            v-else-if="searchQueryModel.length === 0"
+            v-html="
+              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
+                searchQuery: searchQueryModel,
+                count: $n(totalResults)
+              })
+            "
+          />
           <span
             v-else
             v-html="
               $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery
+                searchQuery: searchQueryModel,
+
+                count: $n(totalResults)
               })
             "
           ></span>
         </div>
-        <form v-if="searchingEnabled" v-on:submit.prevent="search" class="mt-2">
+        <form v-if="searchingEnabled" @submit.prevent="search" class="mt-2">
           <div class="input-group">
             <b-form-input
               :placeholder="$tc('searchField.placeholder', totalResults)"
@@ -41,11 +52,7 @@
               data-testid="search-field"
             />
             <div class="input-group-append">
-              <button
-                type="button"
-                class="btn btn-outline-primary pt-2 pb-1 px-2"
-                v-on:click="search"
-              >
+              <button type="button" class="btn btn-outline-primary pt-2 pb-1 px-2" @click="search">
                 <div class="search-submit dripicons-search"></div>
               </button>
             </div>
@@ -53,31 +60,29 @@
         </form>
       </div>
     </template>
-    <!-- .modal-body -->
     <div class="bg-light">
-      <div
-        v-if="isLoading"
-        class="position-absolute w-100 h-100"
-        style="z-index: 1; left: -1px; background: rgba(255, 255, 255, 0.8)"
-      >
-        <i-spinner class="text-center pt-4" />
-      </div>
-      <facet-explorer
+      <LoadingBlock v-if="isLoading" :label="$t('actions.loading')" :height="50" class="m-3" />
+      <FacetExplorer
         v-if="!RangeFacets.includes(currentType)"
-        :filter-type="currentType"
+        :filterType="
+          currentType === 'mediaSource'
+            ? 'newspaper' /* TODO add mediaSource in API to make this work */
+            : currentType
+        "
+        :itemType="currentType"
         :buckets="buckets"
         v-model="filter"
       >
         <template v-slot:pagination>
           <pagination
-            :current-page="currentPageModel"
-            @change="$event => (currentPageModel = $event)"
-            v-bind:perPage="pageSize"
-            v-bind:totalRows="totalResults"
-            v-bind:showDescription="false"
+            :current-page="currentPage"
+            @change="handlePageChange"
+            :perPage="pageSize"
+            :totalRows="totalResults"
+            :showDescription="false"
           />
         </template>
-      </facet-explorer>
+      </FacetExplorer>
       <range-facet-explorer
         class="p-3"
         v-if="NumericRangeFacets.includes(currentType)"
@@ -93,8 +98,6 @@
         :buckets="buckets"
       />
     </div>
-    <!-- .modal-body -->
-    <!-- footer -->
     <template v-slot:modal-footer="{ close }">
       <b-button @click="close()" size="sm" variant="outline-primary">{{
         $t('actions.close')
@@ -103,25 +106,39 @@
   </Modal>
 </template>
 
-<script>
-import { entities, topics, newspapers, collections, getSearchFacetsService } from '@/services'
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { v4 } from 'uuid'
+// Assuming these imports are available and correctly typed
+import { entities, topics, mediaSources, collections, getSearchFacetsService } from '@/services'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import Icon from '@/components/base/Icon.vue'
 import FacetExplorer from './modules/FacetExplorer.vue'
 import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'
 import RangeFacetExplorer from './modules/RangeFacetExplorer.vue'
 import Pagination from './modules/Pagination.vue'
 import Bucket from '@/models/Bucket'
 import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
-import { v4 } from 'uuid'
+import type { Filter } from '@/models'
+import { useUserStore } from '@/stores/user'
+import LoadingBlock from './LoadingBlock.vue'
+import { FacetType } from '@/models/Facet'
 
+const userStore = useUserStore()
+// --- Constants ---
 const TypeToServiceMap = Object.freeze({
   person: entities,
   location: entities,
+  organisation: entities,
+  nag: entities,
   topic: topics,
-  newspaper: newspapers,
+  mediaSource: mediaSources,
   collection: collections
-})
+}) as Readonly<
+  Record<
+    string,
+    typeof entities | typeof topics | typeof mediaSources | typeof collections | undefined
+  >
+>
 
 const PageSize = 20
 
@@ -129,278 +146,316 @@ const Events = Object.freeze({
   Hide: 'onHide'
 })
 
-function buildEntitySearchQuery(page, limit, type, q) {
-  const query = {
-    page,
-    limit
-  }
-
-  if (type === 'person') {
-    query.filters = [
-      {
-        type: 'type',
-        q: 'Person'
-      }
-    ]
-  } else if (type === 'location') {
-    query.filters = [
-      {
-        type: 'type',
-        q: 'Location'
-      }
-    ]
-  }
-  if (q != null && q.length > 0) {
-    query.q = q
-  }
-  return query
-}
-
-async function search(
-  { searchingEnabled, filters, type, searchQuery, currentPage, pageSize },
-  index
-) {
-  const service = TypeToServiceMap[type]
-  if (searchingEnabled) {
-    const query = buildEntitySearchQuery(currentPage, pageSize, type, searchQuery)
-    const response = await service.find({ query })
-    return {
-      totalResults: response.total,
-      buckets: response.data
-        .filter(d => d.uid.length)
-        .map(
-          item =>
-            new Bucket({
-              val: item.uid,
-              item,
-              type
-            })
-        )
-    }
-  } else {
-    const query = {
-      filters: filters,
-      page: currentPage,
-      limit: pageSize,
-      order_by: '-count'
-    }
-    const response = await getSearchFacetsService(index).get(type, { query })
-    const result = response
-    return {
-      totalResults: result.numBuckets,
-      buckets: result.buckets.map(
-        d =>
-          new Bucket({
-            ...d,
-            type
-          })
-      ),
-      range:
-        Number.isFinite(result.min) && Number.isFinite(result.max)
-          ? [result.min, result.max]
-          : undefined
-    }
-  }
-}
-
-const AllSupportedFilterTypes = [
+const AllSupportedFacetTypes: ReadonlyArray<FacetType> = [
   'location',
   'country',
   'person',
+  'organisation',
+  'nag',
   'language',
   'topic',
-  'newspaper',
-  'collection',
+  'mediaSource',
   'year',
   'month',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
   'daterange'
-]
+] as const // Use 'as const' for literal types
 
-const DefaultFilterTypes = [
-  'location',
-  'country',
-  'person',
-  'language',
-  'topic',
-  'newspaper',
-  'collection',
-  'year',
-  'month'
-]
+// --- Props & Emits ---
+export interface ExplorerProps {
+  modelValue: Filter[]
+  searchingEnabled: boolean
+  initialQ?: string
+  isVisible: boolean
+  initialType?: string
+  includedTypes?: FacetType[]
+  index?: string
+}
 
-export default {
-  data: () => ({
-    /** @type {string | undefined} */
-    id: undefined,
-    uid: undefined,
-    events: Events,
-    currentType: 'person',
-    searchQuery: undefined,
-    currentPage: 1,
-    totalResults: 0,
-    buckets: [],
-    range: [],
-    isLoading: false,
-    isTimelineLoading: false,
-    pageSize: PageSize,
-    RangeFacets,
-    NumericRangeFacets,
-    TimeRangeFacets
-  }),
-  props: {
-    /** @type {import('vue').PropOptions<import('@/models').Filter[]>} */
-    modelValue: {
-      type: Array,
-      default: () => []
-    },
-    searchingEnabled: {
-      type: Boolean,
-      default: false
-    },
-    // Only used when "searchingEnabled" is on
-    initialSearchQuery: String,
-    isVisible: Boolean,
-    initialType: String,
-    includedTypes: {
-      type: Array,
-      default: () => undefined
-    },
-    index: {
-      type: String,
-      default: 'search'
-    }
-  },
-  emits: ['update:modelValue', 'hide'],
-  methods: {
-    handleTypeChange(type) {
-      this.currentType = type
-    },
-    async search() {
-      if (!this.isVisible) return
-      try {
-        this.buckets = []
-        this.isLoading = true
-        const { totalResults, buckets, range } = await search(this.searchParameters, this.index)
-        this.totalResults = totalResults
-        this.buckets = buckets
-        if (range != null) this.range = range
-      } finally {
-        this.isLoading = false
-      }
-    }
-  },
-  computed: {
-    filters() {
-      return this.modelValue
-    },
-    filter: {
-      get() {
-        return this.filters.find(({ type }) => type === this.currentType)
-      },
-      /** @param {import('../models/models').Filter} filter */
-      set(filter) {
-        const index = this.filters.findIndex(({ type }) => type === filter.type)
-        const updatedFilters = [...this.filters]
-        if (index >= 0) updatedFilters[index] = filter
-        else updatedFilters.push(filter)
+const props = withDefaults(defineProps<ExplorerProps>(), {
+  modelValue: () => [],
+  searchingEnabled: false,
+  index: 'search'
+})
 
-        this.$emit('update:modelValue', updatedFilters)
-        this.$emit(this.events.Hide)
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: Filter[]): void
+  (e: 'hide'): void
+  (e: 'onHide'): void
+}>()
+
+// --- State ---
+const id = ref<string | undefined>(undefined)
+const uid = ref<string | undefined>(undefined)
+const events = Events
+const currentType = ref<FacetType>('mediaSource')
+const currentPage = ref(1)
+const totalResults = ref(0)
+const buckets = ref<Bucket[]>([]) // Use your actual Bucket type
+const range = ref<number[]>([])
+const isLoading = ref(false)
+// const isTimelineLoading = ref(false) // Not used in the original component, removed
+const pageSize = ref(PageSize)
+
+// --- Helper Functions ---
+function buildServiceQueryParam(page: number, limit: number, type: FacetType, q?: string) {
+  const query: Record<string, any> = {
+    offset: (page - 1) * limit,
+    limit
+  }
+  if (['person', 'location', 'nag', 'organisation'].includes(type)) {
+    query.filters = [
+      {
+        type: 'type',
+        q: type
       }
-    },
-    currentPageModel: {
-      get() {
-        return this.currentPage
-      },
-      set(val) {
-        this.currentPage = val
-      }
-    },
-    searchQueryModel: {
-      get() {
-        return this.searchQuery
-      },
-      set(q) {
-        this.searchQuery = q
-      }
-    },
-    typeOptions() {
-      if (this.includedTypes) {
-        return this.includedTypes.filter(type => AllSupportedFilterTypes.includes(type))
-      }
-      if (this.searchingEnabled) {
-        return ['newspaper', 'person', 'location', 'topic', 'collection']
-      }
-      return DefaultFilterTypes
-    },
-    searchParameters() {
-      const {
-        filters,
-        searchingEnabled,
-        currentType: type,
-        searchQuery,
-        currentPage,
-        pageSize
-      } = this
-      return {
-        filters,
-        searchingEnabled,
-        type,
-        searchQuery,
-        currentPage,
-        pageSize
-      }
+    ]
+    if (q != null && q.length > 0) {
+      query.filters.push({
+        type: 'string',
+        q
+      })
     }
-  },
-  mounted() {
-    this.uid = v4()
-    this.id = `facet-explorer-modal-${this.uid}`
-  },
-  components: {
-    FacetExplorer,
-    Pagination,
-    RangeFacetExplorer,
-    TimeFacetExplorer,
-    Modal,
-    Icon
-  },
-  watch: {
-    searchParameters: {
-      async handler() {
-        return this.search()
-      },
-      immediate: true
-    },
-    isVisible: {
-      async handler() {
-        if (this.isVisible) return this.search()
-      },
-      immediate: true
-    },
-    initialSearchQuery: {
-      handler() {
-        this.searchQuery = this.initialSearchQuery
-      },
-      immediate: true
-    },
-    currentType() {
-      this.currentPage = 1
-    },
-    initialType: {
-      handler() {
-        if (this.initialType == null) {
-          this.currentType = this.typeOptions[0]
-        } else {
-          this.currentType = this.initialType
-        }
-      },
-      immediate: true
-    }
+  } else if (q != null && q.length > 0) {
+    query.term = q
+  }
+  return query
+}
+
+interface SearchParams {
+  filters: Filter[]
+  searchingEnabled: boolean
+  type: FacetType
+  searchQuery?: string
+  currentPage: number
+  pageSize: number
+}
+/**
+ * Modality: refine existing search quereies using facets
+ */
+async function searchWithFacetService(searchParams: SearchParams): Promise<{
+  totalResults: number
+  buckets: Bucket[]
+  range?: [number, number]
+}> {
+  const query = {
+    filters: searchParams.filters,
+    offset: (searchParams.currentPage - 1) * searchParams.pageSize,
+    limit: searchParams.pageSize
+  }
+  const result = await getSearchFacetsService(props.index).get(searchParams.type, {
+    query
+  })
+  return {
+    totalResults: result.numBuckets,
+    buckets: result.buckets.map(
+      (d: any) =>
+        new Bucket({
+          ...d,
+          item: d.item,
+          type: searchParams.type
+        })
+    ) as any[],
+    range:
+      Number.isFinite(result.min) && Number.isFinite(result.max)
+        ? ([result.min, result.max] as [number, number])
+        : undefined
   }
 }
+
+async function searchWithService(searchParams: SearchParams): Promise<{
+  totalResults: number
+  buckets: Bucket[]
+  range?: [number, number]
+}> {
+  const service = TypeToServiceMap[searchParams.type]
+  if (!service) {
+    console.warn(
+      `[Explorer] No service found for filter type: ${searchParams.type}. Returning empty results.`
+    )
+  }
+  const query = buildServiceQueryParam(
+    searchParams.currentPage,
+    searchParams.pageSize,
+    searchParams.type,
+    searchParams.searchQuery
+  )
+  console.info(`[Explorer] Fetching data from service  ${searchParams.type} with query:`, query)
+  const response = await service
+    .find({
+      query
+    })
+    .then((res: { total?: number; pagination?: { total: number }; data: any[] }) => {
+      console.info(
+        `[Explorer] Successfully fetched data from service  ${searchParams.type} with query:`,
+        query
+      )
+      if (res.pagination) {
+        return {
+          total: res.pagination.total,
+          data: res.data
+        }
+      }
+      return {
+        total: res.total || 0,
+        data: res.data
+      }
+    })
+    .catch(err => {
+      console.error(
+        `[Explorer] Error fetching data from service  ${searchParams.type} with query:`,
+        query,
+        '\nError:',
+        err
+      )
+      return {
+        total: 0,
+        data: []
+      }
+    })
+
+  return {
+    totalResults: response.total,
+    buckets: response.data.map(
+      (item: any) =>
+        new Bucket({
+          val: item.uid,
+          item,
+          type: searchParams.type
+        })
+    ) as any[],
+    range: undefined
+  }
+}
+
+const handlePageChange = (page: number) => {
+  currentPage.value = page
+  search()
+}
+
+// --- Methods ---
+const handleTypeChange = (type: FacetType) => {
+  currentType.value = type
+}
+
+/**
+ * Triggers a search based on the current search parameters.
+ */
+async function search(): Promise<void> {
+  if (!props.isVisible) return
+  if (isLoading.value) return
+
+  buckets.value = []
+  isLoading.value = true
+
+  if (props.searchingEnabled) {
+    await searchWithService(searchParameters.value).then(result => {
+      totalResults.value = result.totalResults
+      buckets.value = result.buckets
+    })
+  } else {
+    await searchWithFacetService(searchParameters.value).then(result => {
+      totalResults.value = result.totalResults
+      buckets.value = result.buckets
+    })
+  }
+  isLoading.value = false
+}
+
+const searchParameters = computed<SearchParams>(() => {
+  return {
+    filters: props.modelValue,
+    searchingEnabled: props.searchingEnabled,
+    type: currentType.value,
+    searchQuery: searchQueryModel.value,
+    currentPage: currentPage.value,
+    pageSize: pageSize.value
+  }
+})
+
+const typeOptions = computed<FacetType[]>(() => {
+  let types = [] as FacetType[]
+  if (props.includedTypes) {
+    types = props.includedTypes.filter(type =>
+      (AllSupportedFacetTypes as readonly string[]).includes(type)
+    )
+  } else if (props.searchingEnabled) {
+    types = ['newspaper', 'topic'] as FacetType[]
+  }
+  if (userStore.isLoggedIn) {
+    types.push('collection')
+  }
+  return types
+})
+
+// Two-way binding for `v-model` on child components
+const filter = computed({
+  get() {
+    return props.modelValue.find(({ type }) => type === currentType.value)
+  },
+  set(filterToSet) {
+    if (!filterToSet) return
+
+    const index = props.modelValue.findIndex(({ type }) => type === filterToSet.type)
+    const updatedFilters = [...props.modelValue]
+    if (index >= 0) updatedFilters[index] = filterToSet
+    else updatedFilters.push(filterToSet)
+
+    emit('update:modelValue', updatedFilters)
+    emit(events.Hide)
+  }
+})
+
+const searchQueryModel = ref<string>(props.initialQ || '')
+
+// --- Lifecycle & Watchers ---
+onMounted(() => {
+  uid.value = v4()
+  id.value = `facet-explorer-modal-${uid.value}`
+})
+
+// Watch initialType to set currentType
+watch(
+  () => props.initialType,
+  () => {
+    if (props.initialType == null) {
+      // Must check if typeOptions has data before accessing index 0
+      if (typeOptions.value.length > 0) {
+        currentType.value = typeOptions.value[0]
+      }
+    } else {
+      currentType.value = props.initialType as FacetType
+    }
+  },
+  { immediate: true }
+)
+
+// Watch currentType to reset pagination
+watch(currentType, () => {
+  currentPage.value = 1
+  search()
+})
+
+// Watch searchParameters to trigger search
+// watch(
+//   searchParameters,
+//   async val => {
+//     console.debug('@watch searchParameters', val)
+//     await search()
+//   },
+//   { deep: true, immediate: false }
+// )
+
+watch(
+  () => props.isVisible,
+  isVisible => {
+    if (isVisible) {
+      search()
+    }
+  }
+)
 </script>
 
 <style lang="css">
@@ -417,10 +472,10 @@ export default {
 <i18n lang="json">
 {
   "en": {
-    "explore": "Refine your search query",
+    "explore": "Refine your search with additional filters",
     "description": {
-      "search": "It looks like there are <b>no available options</b> matching for type: | ... Just <b>one</b> option matching for type:| Select among<b> {count}</b> options matching {q} for type:",
-      "facets": "It looks like there are <b>no available options</b> using current search for type: | ... Just <b>one</b> option to refine your search for type:| Select among<b> {count}</b> options to refine your search for type:"
+      "search": "It looks like there are <b>no available options</b> matching '{searchQuery}' | ... Just <b>one</b> option matching '{searchQuery}' | Select among <b>{count}</b> options matching '{searchQuery}'",
+      "facets": "It looks like there are <b>no available options</b> using current search  | ... Just <b>one</b> option to refine your search | Select among <b>{count}</b> options to refine your search "
     },
     "searchField": {
       "placeholder": "...|There is only one choice...|Search one of {n} available choices",
@@ -429,11 +484,14 @@ export default {
     "labels": {
       "daterange": "by date",
       "location": "location",
+      "organisation": "organisation",
+      "nag": "news agency",
       "country": "country",
       "person": "person",
       "language": "language",
       "topic": "topic",
       "newspaper": "newspaper",
+      "mediaSource": "media source",
       "collection": "collection",
       "year": "year",
       "month": "month",

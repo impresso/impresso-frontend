@@ -28,6 +28,14 @@ export default {
         w: 'weather news (other)',
         picture: 'picture'
       },
+      sourceType: {
+        newspaper: 'newspapers',
+        radio: 'radio'
+      },
+      sourceMedium: {
+        print: 'print',
+        digital: 'digital'
+      },
       language: {
         de: 'German',
         fr: 'French',
@@ -111,7 +119,7 @@ export default {
     actions: {
       search: 'Search',
       register: 'Create account',
-      addFilter: 'Add filter ...',
+      addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
@@ -133,6 +141,7 @@ export default {
       reset: 'Reset',
       highlightItemOff: 'remove from the "observing" list',
       highlightItemOn: 'add to the "observing" list',
+      idle: 'Please wait...',
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
@@ -459,10 +468,10 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper title',
+        filterTitle: 'media source',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
-        description: 'check one or more newspaper to filter results',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> media sources',
+        description: 'check one or more media sources to filter results',
         empty: '(no results)'
       },
       partner: {
@@ -549,6 +558,54 @@ export default {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
         optionsDescription: 'Total number of articles per year'
+      },
+      imageVisualContent: {
+        title: 'Visual Content | Visual Content | Visual Contents',
+        filterTitle: 'visual content',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> visual contents applies',
+        description: 'check one or more visual contents to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageTechnique: {
+        title: 'Technique | Technique | Techniques',
+        filterTitle: 'technique',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> techniques applies',
+        description: 'check one or more techniques to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageCommunicationGoal: {
+        title: 'Communication Goal | Communication Goal | Communication Goals',
+        filterTitle: 'communication goal',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> communication goals applies',
+        description: 'check one or more communication goals to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageContentType: {
+        title: 'Content Type | Content Type | Content Types',
+        filterTitle: 'content type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> content types applies',
+        description: 'check one or more content types to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
       }
     },
     tabs: {

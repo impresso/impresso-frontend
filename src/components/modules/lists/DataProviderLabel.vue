@@ -1,16 +1,15 @@
 <template>
-  <div class="DataProviderLabel">
-    &mdash; {{ $t('label_providedBy') }}
-    <ItemSelector
-      v-if="showLink"
-      :uid="item.id"
-      :label="title"
-      :item="{ uid: item.id, name: title }"
-      type="partner"
-      :class="titleClass"
-    />
-    <span v-else :class="titleClass">{{ title }}</span>
-  </div>
+  &mdash; {{ $t('label_providedBy') }}
+  <ItemSelector
+    v-if="showLink"
+    :uid="item.id"
+    :label="title"
+    :item="{ uid: item.id, name: title }"
+    type="partner"
+    :class="titleClass"
+    hideIcon
+  />
+  <span v-else :class="titleClass">{{ title }}</span>
 </template>
 
 <i18n lang="json">
@@ -31,12 +30,13 @@ export interface DataProviderLabelProps {
   item: DataProvider
   showLink?: boolean
   titleClass?: string
+  class?: string
 }
 
-const glob = window as any
 const props = withDefaults(defineProps<DataProviderLabelProps>(), {
   showLink: true,
-  titleClass: ''
+  titleClass: '',
+  class: ''
 })
 
 const title = computed(() => {

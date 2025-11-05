@@ -44,6 +44,9 @@
 
   --impresso-color-pastel-blue: rgba(86, 204, 242);
   --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
+  --impresso-color-pastel-blue-alpha-30: rgba(86, 204, 242, 0.3);
+  --impresso-color-pastel-blue-alpha-50: rgba(86, 204, 242, 0.5);
+  --impresso-color-pastel-blue-alpha-80: rgba(86, 204, 242, 0.8);
 
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
@@ -255,7 +258,9 @@ a:hover,
 }
 
 .badge-info {
-  background-color: #049dae;
+  --impresso-text-decoration-color: currentColor;
+  --bs-box-shadow-sm: none;
+  background-color: var(--impresso-color-pastel-blue-alpha-50);
 }
 .badge-language {
   background-color: #e1e6ea;
@@ -725,4 +730,11 @@ svg path.domain {
   transform: translateX(-50%);
   max-width: 100%;
   z-index: var(--z-index-pagination);
+}
+
+.pe-none {
+  pointer-events: none;
+}
+.pe-auto {
+  pointer-events: auto;
 }

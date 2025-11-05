@@ -63,7 +63,7 @@ const collectionAddToListChangeHandler = (payload: {
     addNotification({
       type: 'info',
       title: '',
-      message: `${item.added ? 'added to' : 'removed from'} collection "${payload.collection.name}"`
+      message: `${item.added ? 'added to' : 'removed from'} collection "${(payload.collection as any).title || (payload.collection as any)?.name}"`
     })
   }
 

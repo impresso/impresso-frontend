@@ -32,6 +32,13 @@
           </b-form-checkbox>
         </b-form-group>
       </div>
+      <template v-slot:after-facets>
+        <div class="p-3">
+          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+            {{ $t('label_loadCollection') }}
+          </b-form-checkbox>
+        </div>
+      </template>
     </search-sidebar>
 
     <i-layout-section main>
@@ -96,15 +103,15 @@
             </b-dropdown>
           </template>
           <template #summary>
-            <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
+            <Ellipsis v-bind:initialHeight="60" :additional-height="50">
+              <SearchResultsSummary
                 :isLoading="isLoadingResults"
                 @onSummary="onSummary"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows"
               />
-            </ellipsis>
+            </Ellipsis>
           </template>
           <template #summaryActions>
             <div class="d-flex align-items-center">
@@ -383,6 +390,9 @@ export default defineComponent({
     isLoggedIn() {
       return !!this.userStore.userData
     },
+    shouldLoadCollections() {
+      return this.isLoggedIn && this.loadCollectionsFlag
+    },
     orderBy: {
       get() {
         // If the user explicitly set an orderBy parameter, we use that.
@@ -418,6 +428,16 @@ export default defineComponent({
       set(displayStyle: string) {
         this.$navigation.updateQueryParametersWithHistory({
           displayStyle
+        })
+      }
+    },
+    loadCollectionsFlag: {
+      get() {
+        return (this.$route.query.c as string) === '1'
+      },
+      set(loadCollections: boolean) {
+        this.$navigation.updateQueryParametersWithHistory({
+          c: loadCollections ? '1' : undefined
         })
       }
     },
@@ -469,7 +489,8 @@ export default defineComponent({
         groupBy: this.groupBy,
         orderBy: this.orderBy,
         limit: this.paginationPerPage,
-        page: this.paginationCurrentPage
+        page: this.paginationCurrentPage,
+        loadCollections: this.loadCollectionsFlag
       }
       return query
     },
@@ -502,6 +523,9 @@ export default defineComponent({
     this.timelineFacets = buildEmptyFacets(['year'])
   },
   methods: {
+    toggleLoadCollections() {
+      this.loadCollectionsFlag = !this.loadCollectionsFlag
+    },
     isModalVisible(name) {
       return this.visibleModal === name
     },
@@ -666,14 +690,13 @@ export default defineComponent({
             }
           })
           .then(response => {
-            console.log('[Search] data:', response.data)
             return response
           })
         this.paginationTotalRows = total
         this.searchResults = data
         this.isLoadingResults = false
         // this.searchInfo = info
-        console.debug(
+        console.info(
           '[Search] @searchServiceQuery: took',
           new Date().getTime() - startTime.getTime(),
           'ms. Total results:',
@@ -702,7 +725,7 @@ export default defineComponent({
           })
           .then(response => response.data.map(f => new FacetModel(f as any)))
 
-        this.userFacets = this.isLoggedIn
+        this.userFacets = this.shouldLoadCollections
           ? await searchFacetsService
               .find({
                 query: {
@@ -793,6 +816,7 @@ export default defineComponent({
     "label_isFront": "Frontpage",
     "label_embeddings": "add similar words",
     "label_hasTextContents": "Contains Text",
+    "label_loadCollection": "Enable Collections",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "order_issues": "Issue",

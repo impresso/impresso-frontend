@@ -1,4 +1,5 @@
-import { BaseFindResponse, Collection } from '@/models/generated/schemasPublic'
+import { BaseFindResponse } from '@/models/generated/schemasPublic'
+import { Collection } from '@/models/generated/schemas'
 import { fn } from 'storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { http, HttpResponse } from 'msw'
