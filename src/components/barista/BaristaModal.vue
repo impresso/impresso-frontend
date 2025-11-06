@@ -7,9 +7,9 @@
     body-class="p-0"
     @close="dismiss"
   >
-    <p>{{ $t('BaristaTitle') }}</p>
+    <p class="p-3">{{ $t('BaristaTitle') }}</p>
     <div class="container-fluid">
-      <div class="row">
+      <div class="row" style="min-height: 50vh">
         <div class="col-6">
           <slot></slot>
         </div>
