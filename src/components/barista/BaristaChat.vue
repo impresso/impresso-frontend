@@ -44,7 +44,8 @@ const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | un
 const handleMessageSubmit = async (text: string) => {
   if (!text.trim()) return
 
-  // Add user message to panel
+  // // Add user message to panel
+  
   messages.value.push(
     convertServiceMessageToPanel({
       content: text,
@@ -62,6 +63,7 @@ const handleMessageSubmit = async (text: string) => {
     let filterMessageShown = false
 
     response.messages.forEach(message => {
+       if (message.type === 'human') return // skip echoing user messages
       const panelMessage = convertServiceMessageToPanel(message)
       if (panelMessage) messages.value.push(panelMessage)
 
