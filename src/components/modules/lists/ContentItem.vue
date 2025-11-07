@@ -57,7 +57,7 @@
     </div>
     <div v-if="showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2">
       <div v-for="entityType in ContentItemSemanticEnrichmentTypes" :key="entityType">
-        <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
+        <div v-if="item.semanticEnrichments?.namedEntities?.[entityType]?.length">
           <Ellipsis :maxHeight="200">
             <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
             <div
