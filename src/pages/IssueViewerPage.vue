@@ -81,6 +81,10 @@
           :visible="viewMode === FacsimileMode"
           @click-full-text="changeViewMode(RegionTranscriptMode)"
         />
+        <ListOfTextReusePassages
+          v-if="contentItem && viewMode === TextReuseMode"
+          :contentItem="contentItemOriginal"
+        />
       </div>
     </i-layout-section>
   </i-layout>
@@ -112,12 +116,19 @@ import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
 const RegionTranscriptMode = '1'
 const IIIFViewerTranscriptMode = '2'
-const AvailableViewModes = [FacsimileMode, RegionTranscriptMode, IIIFViewerTranscriptMode]
+const TextReuseMode = '3'
+const AvailableViewModes = [
+  FacsimileMode,
+  RegionTranscriptMode,
+  IIIFViewerTranscriptMode,
+  TextReuseMode
+]
 // Route parameters
 const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -472,7 +483,8 @@ watch(
     "viewModes": {
       "0": "Facsimile",
       "1": "Region Transcript",
-      "2": "Facsimile + Transcript"
+      "2": "Facsimile + Transcript",
+      "3": "Text Reuse"
     },
     "add_to_collection": "Add to collection"
   },
