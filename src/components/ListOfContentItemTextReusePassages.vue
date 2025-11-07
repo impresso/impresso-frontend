@@ -17,9 +17,6 @@
           "
         >
         </b-nav-item>
-        <b-nav-item class="navbar-text d-inline-block ml-3 mr-2 text-muted small-caps">
-          {{ $t('sortBy') }}
-        </b-nav-item>
       </b-navbar-nav>
     </template>
     <div class="container-fluid my-3 position-relative">
