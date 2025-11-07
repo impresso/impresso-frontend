@@ -212,7 +212,11 @@
 
       <AuthGate v-if="isBaristaEnabled">
         <template #authenticated>
-          <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
+          <BaristaButton
+            class="float-right mr-3"
+            :filters="filtersWithItems"
+            @search="updateSearchFromBarista"
+          />
         </template>
       </AuthGate>
     </i-layout-section>

@@ -23,13 +23,15 @@
       </div>
     </div>
 
-    <div class="chat-input position-sticky bottom-0 bg-white input-group">
+    <div class="chat-input position-sticky bottom-0 bg-white input-group pb-3">
       <b-form-input
         type="text"
         v-model="inputMessage"
         @keyup.enter="handleSubmit"
         placeholder="Type your message..."
         :disabled="isLoading"
+        ref="humanPrompt"
+        class="BaristaChatPanel__humanPrompt"
       />
       <div class="input-group-append">
         <button
@@ -106,13 +108,19 @@ watch(
   },
   { deep: true }
 )
-
+const humanPrompt = ref<HTMLInputElement | null>(null)
 onMounted(() => {
+  humanPrompt.value?.focus()
   scrollToBottom()
 })
 </script>
 
 <style scoped>
+.BaristaChatPanel__humanPrompt {
+  border: 1px solid var(--impresso-color-black);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
+}
 .chat-history {
   flex: 1;
   overflow-y: auto;

@@ -43,8 +43,11 @@ import BaristaModal from './BaristaModal.vue'
 
 const isChatOpen = ref(false)
 const chatPopup = ref<HTMLElement | null>(null)
-const showModal = ref(true)
 const filtersFromChat = ref<string | Record<string, any> | null>(null)
+
+const props = defineProps<{
+  filters?: string | Record<string, any>
+}>()
 
 const emit = defineEmits<{
   search: [filters: string]
