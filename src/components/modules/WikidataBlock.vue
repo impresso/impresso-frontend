@@ -4,7 +4,7 @@
       <div class="images mr-2" v-if="preferredImage">
         <div class="image" :style="imageStyle(preferredImage)" />
       </div>
-      <div class="labels">
+      <div class="labels" v-if="item.wikidata">
         <strong>{{ title }}</strong> ({{ item.wikidata.id }})
         <br />
         <span class="small-caps">{{ $t(`types.${item.wikidata.type}`) }}</span>
@@ -32,7 +32,7 @@
       </div>
     </div>
     <!--  description or other contents here -->
-    <div class="wikidata-contents" v-if="item.wikidata.descriptions">
+    <div class="wikidata-contents" v-if="item.wikidata?.descriptions">
       <span class="text-serif px-1 mr-1 white border">W</span>
       <em>{{ description }}</em>
       <br />
@@ -96,7 +96,7 @@ export default {
       return this.getTranslation(this.item.wikidata.descriptions)
     },
     title() {
-      return this.getTranslation(this.item.wikidata.labels)
+      return this.getTranslation(this.item.wikidata?.labels)
     }
   },
   methods: {
