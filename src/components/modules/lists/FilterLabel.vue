@@ -61,7 +61,9 @@
         {{ item.name }}
       </RouterLink>
       <template v-if="index < filterItems.length - 1">
-        <span class="separator m-1">{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span>
+        <span class="separator small-caps m-1"
+          >{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span
+        >
       </template>
     </template>
   </template>
