@@ -2,7 +2,10 @@
   <div class="d-inline" ref="summaryRef">
     <template v-for="(itemKey, idx) in translatableFilterTypes" :key="itemKey">
       <template v-if="translationTable[itemKey]">
-        <FilterLabel v-for="filter in translationTable[itemKey]" :filter="filter"></FilterLabel>
+        <template v-for="(filter, j) in translationTable[itemKey]" :key="filter.type">
+          <FilterLabel :filter="filter"></FilterLabel>
+          <span class="small-caps" v-if="j < translationTable[itemKey].length - 1"> AND </span>
+        </template>
       </template>
       <template v-if="idx < translatableFilterTypes.length - 1"
         >{{ ' ' }}&middot;{{ ' ' }}</template
@@ -12,7 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import type FilterBase from '@/models/FilterBase'
 import { computed, nextTick, ref, watch } from 'vue'
 import FilterLabel from './lists/FilterLabel.vue'
 import { Filter } from '@/models'
@@ -109,10 +111,10 @@ const translatableFilterTypes = computed(() => {
 
 watch(
   translationTable,
-  async value => {
+  async _value => {
     await nextTick()
     if (summaryRef.value) {
-      const finalHtml = summaryRef.value.textContent?.trim() || ''
+      const finalHtml = summaryRef.value.textContent?.trim().replace(/\s+/g, ' ') || ''
       if (summaryTextContent.value !== finalHtml) {
         summaryTextContent.value = finalHtml
         emit('updated', finalHtml)

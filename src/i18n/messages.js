@@ -113,8 +113,8 @@ export default {
       }
     },
     op: {
-      or: 'or',
-      and: 'and'
+      or: 'OR',
+      and: 'AND'
     },
     actions: {
       search: 'Search',

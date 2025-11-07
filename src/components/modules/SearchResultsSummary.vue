@@ -19,7 +19,7 @@
     <SearchQuerySummary
       class="d-inline"
       :search-query="searchQuery"
-      @updated="summary => emit('onSummary', summary)"
+      @updated="(summary: string) => emit('onSummary', summary)"
     />
   </section>
 </template>
