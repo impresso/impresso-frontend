@@ -2,7 +2,7 @@
   <div class="barista-button-container">
     <!-- Floating button -->
     <button
-      class="barista-button"
+      class="btn btn-primary rounded-md d-flex gap-2"
       @click="toggleChat"
       :class="{ active: isChatOpen }"
       aria-label="Toggle Barista Chat"
@@ -10,9 +10,25 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
+    <BaristaModal
+      :isVisible="isChatOpen"
+      :filters="filtersFromChat"
+      @dismiss="closeChat"
+        :aiFilters="aiFilters"
+      @applyFilters="handleApplyFilters"
+  
+    >
+      <!--<BaristaChat @search="handleSearch" />-->
+      <BaristaChat 
+  :initialFilters="filters"  
+@search="filtersFromChat = JSON.parse(JSON.stringify($event))"
+  @filtersDetected="aiFilters = $event" 
+/>
 
+  
+    </BaristaModal>
     <!-- Chat popup -->
-    <Transition name="fade">
+    <!-- <Transition name="fade">
       <div v-if="isChatOpen" class="barista-popup" ref="chatPopup">
         <div class="barista-popup-header">
           <h3>Impresso Barista</h3>
@@ -24,20 +40,40 @@
           <BaristaChat @search="handleSearch" />
         </div>
       </div>
-    </Transition>
+    </Transition> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import BaristaChat from './BaristaChat.vue'
+import BaristaModal from './BaristaModal.vue'
+import { watch } from 'vue'
+const aiFilters = ref(null)
 
 const isChatOpen = ref(false)
 const chatPopup = ref<HTMLElement | null>(null)
+const filtersFromChat = ref<string | Record<string, any> | null>(null)
+
+const props = defineProps<{
+  filters?: string | Record<string, any> | Record<string, any>[]
+}>()
 
 const emit = defineEmits<{
   search: [filters: string]
 }>()
+
+
+watch(
+  () => props.filters,
+  (newFilters) => {
+    if (newFilters) {
+      filtersFromChat.value = newFilters
+      aiFilters.value = newFilters
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 // Toggle chat visibility
 const toggleChat = () => {
@@ -47,12 +83,18 @@ const toggleChat = () => {
 // Close chat
 const closeChat = () => {
   isChatOpen.value = false
+  filtersFromChat.value = null
 }
 
 // Handle search action from BaristaChat
-const handleSearch = (searchFilters: string) => {
-  // Emit the search event so parent components can listen
-  emit('search', searchFilters)
+// const handleSearch = (searchFilters: string) => {
+//   // Emit the search event so parent components can listen
+//   emit('search', searchFilters)
+// }
+
+const handleApplyFilters = (encodedFilters: string) => {
+  emit('search', encodedFilters) // pass to parent (main app)
+  closeChat()
 }
 
 // Close chat when clicking outside
