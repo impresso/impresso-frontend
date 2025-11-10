@@ -14,20 +14,25 @@
           <slot></slot>
         </div>
 
-        <div class="col-6 results-section position-relative" v-if="searchFilters.length">
-          <div class="position-sticky top-0 bg-white py-2">
-            <SearchPills :filters="searchFilters" @changed="handleFiltersChanged" />
-            <button class="btn btn-sm btn-primary mt-2" @click="applyFilters">Apply Filters</button>
-          </div>
-          <h5>Results (JSON)</h5>
-          <div class="bg-light p-2 my-2 rounded small">
-            {{ searchFilters }}
-            <div v-if="formattedJSON">
-              <pre class="json-display">{{ formattedJSON }}</pre>
-            </div>
-            <p v-else>No results yet</p>
-          </div>
-        </div>
+  <div class="col-6 results-section position-relative">
+  <div class="position-sticky top-0 bg-white py-2">
+    <SearchPills :filters="searchFilters" @changed="handleFiltersChanged" />
+    <button
+      class="btn btn-sm btn-primary mt-2"
+      @click="applyFilters"
+    >
+      Apply Filters
+    </button>
+  </div>
+  <h5>Results (JSON)</h5>
+  <div class="bg-light p-2 my-2 rounded small">
+        <div v-if="props.aiFilters && Object.keys(props.aiFilters).length">
+      <!-- {{ searchFilters }} -->
+     <pre class="json-display">{{ JSON.stringify(props.aiFilters, null, 2) }}</pre> 
+    </div>
+    <p v-else>No results yet</p>
+  </div>
+</div>
       </div>
     </div>
     <template v-slot:modal-footer>
@@ -50,12 +55,14 @@ export type BaristaModalProps = {
   dialogClass?: string
   isVisible?: boolean
   filters?: string | object
+  aiFilters?: any    
 }
 
 const props = withDefaults(defineProps<BaristaModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-dialog-centered  modal-lg',
   isVisible: false,
-  filters: null
+  filters: null,
+  aiFilters: null
 })
 
 const emit = defineEmits(['dismiss', 'applyFilters'])
@@ -64,38 +71,28 @@ function dismiss() {
   emit('dismiss')
 }
 
-function tryParseJSON(value: any): any {
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value)
-      // Recursively process any nested "arguments" fields
-      return tryParseJSON(parsed)
-    } catch {
-      return value
-    }
-  } else if (Array.isArray(value)) {
-    return value.map(tryParseJSON)
-  } else if (value && typeof value === 'object') {
-    const parsedObj: Record<string, any> = {}
-    for (const [key, val] of Object.entries(value)) {
-      parsedObj[key] = tryParseJSON(val)
-    }
-    return parsedObj
-  }
-  return value
-}
+// function tryParseJSON(value: any): any {
+//   if (typeof value === 'string') {
+//     try {
+//       const parsed = JSON.parse(value)
+//       // Recursively process any nested "arguments" fields
+//       return tryParseJSON(parsed)
+//     } catch {
+//       return value
+//     }
+//   } else if (Array.isArray(value)) {
+//     return value.map(tryParseJSON)
+//   } else if (value && typeof value === 'object') {
+//     const parsedObj: Record<string, any> = {}
+//     for (const [key, val] of Object.entries(value)) {
+//       parsedObj[key] = tryParseJSON(val)
+//     }
+//     return parsedObj
+//   }
+//   return value
+// }
 
-const formattedJSON = computed(() => {
-  if (!props.filters) return ''
-  try {
-    const base = typeof props.filters === 'string' ? JSON.parse(props.filters) : props.filters
 
-    const clean = tryParseJSON(base)
-    return JSON.stringify(clean, null, 2)
-  } catch {
-    return String(props.filters)
-  }
-})
 const searchFilters = ref([])
 const handleFiltersChanged = (newFilters: any) => {
   searchFilters.value = newFilters
