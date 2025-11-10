@@ -556,12 +556,11 @@ export default defineComponent({
     nameSelectedCollectionOnShown() {
       return this.collectionsStore.loadCollections()
     },
-    onSummary(msg) {
+    onSummary(msg: string) {
       const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
-      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
-        total: this.paginationTotalRows,
+      this.inputDescription = this.$t('collectionDescription', {
         inputDescription: searchQueryDescription
       })
     },
@@ -841,7 +840,7 @@ export default defineComponent({
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
     "Based on search query with": "Based on search query with",
-    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
+    "collectionDescription": "Based on search query: {inputDescription}"
   }
 }
 </i18n>

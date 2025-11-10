@@ -56,7 +56,7 @@
       </b-badge>
     </div>
     <div v-if="showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2">
-      <div v-for="entityType in ContentItemSemanticEnrichmentTypes" :key="entityType">
+      <div v-for="entityType in contentItemSemanticEnrichmentTypes" :key="entityType">
         <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
           <Ellipsis :maxHeight="200">
             <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
@@ -137,7 +137,6 @@ export interface Props {
   showSemanticEnrichments?: boolean
 }
 
-const ContentItemSemanticEnrichmentTypes = ['persons', 'locations', 'organisations', 'newsagencies']
 const ItemSelectorEntityTypes = {
   persons: 'person',
   locations: 'location',
@@ -153,6 +152,13 @@ const route = useRoute()
 const emit = defineEmits<{
   click: [item: ContentItem]
 }>()
+
+const contentItemSemanticEnrichmentTypes = computed(() => {
+  if (!props.item?.semanticEnrichments?.namedEntities) {
+    return []
+  }
+  return Object.keys(props.item.semanticEnrichments.namedEntities)
+})
 
 const contentItemTitle = computed(() => {
   if (props.item.text.title?.length > 0) {

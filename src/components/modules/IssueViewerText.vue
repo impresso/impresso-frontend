@@ -1,35 +1,37 @@
 <template>
   <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
-    <ContentItem
-      v-if="contentItem"
-      :item="contentItem"
-      :show-title="false"
-      :show-type="false"
-      showSemanticEnrichments
-    />
-    <i-spinner v-if="!article" class="text-center p-5" />
-    <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
-      <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
+    <div ref="contentItemHeader">
+      <ContentItem
+        v-if="contentItem"
+        :item="contentItem"
+        :show-title="false"
+        :show-type="false"
+        showSemanticEnrichments
+      />
+      <i-spinner v-if="!article" class="text-center p-5" />
+      <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
+        <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
 
-      <b-badge
-        v-for="(collection, i) in contentItemCollections"
-        v-bind:key="i"
-        variant="info"
-        class="m-1 font-size-inherit"
-      >
-        <router-link
-          v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
-          title="View collection"
+        <b-badge
+          v-for="(collection, i) in contentItemCollections"
+          v-bind:key="i"
+          variant="info"
+          class="m-1 font-size-inherit"
         >
-          {{ collection.name }}
-        </router-link>
+          <router-link
+            v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+            title="View collection"
+          >
+            {{ collection.name }}
+          </router-link>
 
-        <a
-          class="ml-1 dripicons dripicons-cross text-decoration-none"
-          title="Remove from collection"
-          v-on:click="onRemoveCollection(collection.uid)"
-        />
-      </b-badge>
+          <a
+            class="ml-1 dripicons dripicons-cross text-decoration-none"
+            title="Remove from collection"
+            v-on:click="onRemoveCollection(collection.uid)"
+          />
+        </b-badge>
+      </div>
     </div>
     <div v-if="article">
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
@@ -62,7 +64,7 @@
               <IIIFViewer
                 class="bg-dark rounded-md shadow border"
                 openseadragonCssClass="overflow-hidden rounded-md"
-                :style="{ height: `${availableOffsetHeight - iiifViewerMarginTop * 2}px` }"
+                :style="{ height: `${iiifViewerHeight}px` }"
                 v-if="article"
                 :manifestUrls="
                   computedIIIFViewerOverlays.map((d: any) => {
@@ -84,19 +86,7 @@
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
                 @click="() => annotatedTextClickHandler([pageIdx, i])"
-              >
-                <AnnotatedText
-                  class="text-serif"
-                  v-if="regionsAnnotationTree[region.idx]"
-                  :children="regionsAnnotationTree[region.idx].children"
-                  :cluster-colours="clusterColourMap"
-                  :selected-cluster-id="selectedClusterId"
-                  @clusterSelected="clusterSelectedHandler"
-                  @passageClicked="passageSelectedHandler"
-                  @passageMouseenter="mouseenterPassageHandler"
-                  @passageMouseleave="mouseleavePassageHandler"
-                />
-              </div>
+              ></div>
             </div>
           </div>
         </div>
@@ -216,32 +206,31 @@ export default {
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: 0,
-      viewerTopOffset: 0,
       fitBoundsToOverlayIdx: [0, 0],
-      availableOffsetHeight: 500,
+      iiifViewerMinHeight: 500,
+      iiifViewerHeight: 500,
       iiifViewerMarginTop: 20
     } as {
       article: Article
       textReusePassages: any[]
       selectedPassageId: string | number | undefined
       hoverPassageLineTopOffset: number
-      viewerTopOffset: number
       fitBoundsToOverlayIdx: [number, number]
-      availableOffsetHeight: number
+      iiifViewerMinHeight: number
+      iiifViewerHeight: number
       iiifViewerMarginTop: number
     }
   },
-  updated() {
-    this.resize()
-  },
+
   mounted() {
-    this.viewerTopOffset = document.querySelector('#TheHeader').getBoundingClientRect().height
     window.addEventListener('resize', this.resize)
+    this.resize()
   },
   computed: {
     ...mapStores(useCollectionsStore),
     ...mapStores(useNotificationsStore),
     ...mapStores(useSelectionMonitorStore),
+
     contentItemCollections(): Collection[] {
       if (!this.contentItem) return []
       const collections = this.contentItem.semanticEnrichments?.collections || []
@@ -360,26 +349,23 @@ export default {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
       this.fitBoundsToOverlayIdx = fitBoundsToOverlayIdx
     },
-    resize() {
-      const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
-      if (this.$refs.root) {
-        const rootAsDiv = this.$refs.root as HTMLDivElement
-        try {
-          const { top: offsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
-          const availableOffsetHeight = (rootAsDiv.parentNode as HTMLElement)?.offsetHeight
-          console.debug(
-            '[IssueViewerText] resize() availableOffsetHeight:',
-            availableOffsetHeight,
-            'offsetTop:',
-            offsetTop
-          )
 
-          this.availableOffsetHeight = Math.max(200, availableOffsetHeight - offsetTop)
-        } catch (e) {
-          console.warn('[IssueViewerText] @updated parentNode not found', e)
-        }
+    resize() {
+      if (!this.$refs.root && this.$refs.contentItemHeader) {
+        return
       }
-      this.viewerTopOffset = height
+      const rootAsDiv = this.$refs.root as HTMLDivElement
+      const contentItemHeaderAsDiv = this.$refs.contentItemHeader as HTMLDivElement
+      try {
+        const { top: rootOffsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
+        const headerHeight = contentItemHeaderAsDiv.offsetHeight
+        const iiifViewerHeight =
+          window.innerHeight - rootOffsetTop - this.iiifViewerMarginTop - headerHeight
+        // add minimum height for the openseadragonviewer
+        this.iiifViewerHeight = Math.max(this.iiifViewerMinHeight, iiifViewerHeight)
+      } catch (e) {
+        console.warn('[IssueViewerText] @updated parentNode not found', e)
+      }
     },
     async onRemoveCollection(collectionId: string) {
       const item = this.contentItem
@@ -488,7 +474,6 @@ export default {
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-        this.resize()
       }
     }
   }

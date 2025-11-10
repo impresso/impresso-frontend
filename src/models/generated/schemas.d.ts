@@ -525,7 +525,7 @@ export interface ContentItemTopic {
   topicUid?: string;
 }
 /**
- * A topic (TODO)
+ * A topic
  */
 export interface Topic {
   /**
@@ -579,30 +579,15 @@ export interface Topic {
     avg?: number;
   }[];
   relatedTopicsStats?: {
-    /**
-     * TODO
-     */
     MinArticlesIncommon?: number;
-    /**
-     * TODO
-     */
     MaxRelatedTopicsToKeep?: number;
-    /**
-     * TODO
-     */
     RelatedThreshold?: number;
-    /**
-     * TODO
-     */
     Threshold?: number;
   };
   /**
    * Number of content items with this topic
    */
   countItems?: number;
-  /**
-   * TODO
-   */
   excerpt?: TopicWord[];
   /**
    * Top N words associated with the topic
@@ -612,23 +597,27 @@ export interface Topic {
    * ID of the model used to generate the topic
    */
   model?: string;
+  /**
+   * List of matched topic suggestions (if any)
+   */
+  matches?: string[];
 }
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 
 
@@ -691,7 +680,7 @@ export interface ContentItemTopic {
   topicUid?: string;
 }
 /**
- * A topic (TODO)
+ * A topic
  */
 export interface Topic {
   /**
@@ -745,30 +734,15 @@ export interface Topic {
     avg?: number;
   }[];
   relatedTopicsStats?: {
-    /**
-     * TODO
-     */
     MinArticlesIncommon?: number;
-    /**
-     * TODO
-     */
     MaxRelatedTopicsToKeep?: number;
-    /**
-     * TODO
-     */
     RelatedThreshold?: number;
-    /**
-     * TODO
-     */
     Threshold?: number;
   };
   /**
    * Number of content items with this topic
    */
   countItems?: number;
-  /**
-   * TODO
-   */
   excerpt?: TopicWord[];
   /**
    * Top N words associated with the topic
@@ -778,23 +752,27 @@ export interface Topic {
    * ID of the model used to generate the topic
    */
   model?: string;
+  /**
+   * List of matched topic suggestions (if any)
+   */
+  matches?: string[];
 }
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 
 
@@ -814,6 +792,38 @@ export interface ContentPermissions {
    * Bitmap representing the 'get images' permissions of the content item
    */
   getImagesBitmap?: number;
+}
+
+
+/**
+ * A data provider is a partner institution that provides content to Impresso (e.g., libraries, archives, media organizations).
+ */
+export interface DataProvider {
+  /**
+   * The unique identifier of the data provider.
+   */
+  id: string;
+  /**
+   * The default name of the data provider.
+   */
+  name: string;
+  /**
+   * Names of the data provider in different languages.
+   */
+  names: {
+    /**
+     * ISO 639-1 language code.
+     */
+    langCode: string;
+    /**
+     * Name of the data provider in this language.
+     */
+    name: string;
+  }[];
+  /**
+   * Bitmap index used for efficient data provider filtering.
+   */
+  bitmapIndex?: number;
 }
 
 
@@ -949,6 +959,10 @@ export interface ContentItem {
    * Unique issue identifier
    */
   issueId?: string;
+  /**
+   * Relevance score for this content item relative to the search query
+   */
+  relevanceScore?: number;
   meta?: ContentItemMeta;
   text?: ContentItemText;
   semanticEnrichments?: ContentItemSemanticEnrichments;
@@ -2027,7 +2041,7 @@ export interface Entity {
   name?: string;
 }
 /**
- * A topic (TODO)
+ * A topic
  */
 export interface Topic {
   /**
@@ -2081,30 +2095,15 @@ export interface Topic {
     avg?: number;
   }[];
   relatedTopicsStats?: {
-    /**
-     * TODO
-     */
     MinArticlesIncommon?: number;
-    /**
-     * TODO
-     */
     MaxRelatedTopicsToKeep?: number;
-    /**
-     * TODO
-     */
     RelatedThreshold?: number;
-    /**
-     * TODO
-     */
     Threshold?: number;
   };
   /**
    * Number of content items with this topic
    */
   countItems?: number;
-  /**
-   * TODO
-   */
   excerpt?: TopicWord[];
   /**
    * Top N words associated with the topic
@@ -2114,23 +2113,27 @@ export interface Topic {
    * ID of the model used to generate the topic
    */
   model?: string;
+  /**
+   * List of matched topic suggestions (if any)
+   */
+  matches?: string[];
 }
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 /**
  * A year (TODO)
@@ -2400,7 +2403,7 @@ export interface Entity {
   name?: string;
 }
 /**
- * A topic (TODO)
+ * A topic
  */
 export interface Topic {
   /**
@@ -2454,30 +2457,15 @@ export interface Topic {
     avg?: number;
   }[];
   relatedTopicsStats?: {
-    /**
-     * TODO
-     */
     MinArticlesIncommon?: number;
-    /**
-     * TODO
-     */
     MaxRelatedTopicsToKeep?: number;
-    /**
-     * TODO
-     */
     RelatedThreshold?: number;
-    /**
-     * TODO
-     */
     Threshold?: number;
   };
   /**
    * Number of content items with this topic
    */
   countItems?: number;
-  /**
-   * TODO
-   */
   excerpt?: TopicWord[];
   /**
    * Top N words associated with the topic
@@ -2487,23 +2475,27 @@ export interface Topic {
    * ID of the model used to generate the topic
    */
   model?: string;
+  /**
+   * List of matched topic suggestions (if any)
+   */
+  matches?: string[];
 }
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 /**
  * A year (TODO)
@@ -2830,7 +2822,7 @@ export interface ClusterDetails {
 
 
 /**
- * A topic (TODO)
+ * A topic
  */
 export interface Topic {
   /**
@@ -2884,30 +2876,15 @@ export interface Topic {
     avg?: number;
   }[];
   relatedTopicsStats?: {
-    /**
-     * TODO
-     */
     MinArticlesIncommon?: number;
-    /**
-     * TODO
-     */
     MaxRelatedTopicsToKeep?: number;
-    /**
-     * TODO
-     */
     RelatedThreshold?: number;
-    /**
-     * TODO
-     */
     Threshold?: number;
   };
   /**
    * Number of content items with this topic
    */
   countItems?: number;
-  /**
-   * TODO
-   */
   excerpt?: TopicWord[];
   /**
    * Top N words associated with the topic
@@ -2917,42 +2894,46 @@ export interface Topic {
    * ID of the model used to generate the topic
    */
   model?: string;
+  /**
+   * List of matched topic suggestions (if any)
+   */
+  matches?: string[];
 }
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 
 
 /**
- * TODO
+ * A word included in a topic
  */
 export interface TopicWord {
   /**
-   * Word
+   * Word surface form
    */
   w: string;
   /**
-   * TODO
+   * Probability of the word in topic
    */
   p: number;
   /**
-   * TODO
+   * If word is highlighted
    */
-  h?: string[];
+  h?: boolean;
 }
 
 

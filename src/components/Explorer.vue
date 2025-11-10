@@ -205,7 +205,7 @@ function buildServiceQueryParam(page: number, limit: number, type: FacetType, q?
     offset: (page - 1) * limit,
     limit
   }
-  if (['person', 'location', 'nag', 'organisation'].includes(type)) {
+  if (['person', 'location', 'nag', 'organisation', 'topic'].includes(type)) {
     query.filters = [
       {
         type: 'type',

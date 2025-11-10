@@ -10,6 +10,11 @@
         </div>
       </div>
     </div>
+    <div class="fullscreen-toggle position-absolute bottom-0 p-2" style="z-index: 1">
+      <button class="btn btn-sm small-caps btn-primary" @click="toggleFullscreen">
+        {{ fullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen' }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -48,13 +53,16 @@ export interface IIIFViewerProps {
   openseadragonCssClass?: string
 }
 
+const fullscreen = ref(false)
+
 const currentOverlayIdx = ref<[number, number]>([-1, -1])
 
 // Define props with defaults.
 const props = withDefaults(defineProps<IIIFViewerProps>(), {
   overlays: () => [],
   margin: 50,
-  fitBoundsToOverlayIdx: () => [-1, -1]
+  fitBoundsToOverlayIdx: () => [-1, -1],
+  fullscreen: false
 })
 
 // define emits
@@ -298,6 +306,22 @@ watch(
   }
 )
 
+const toggleFullscreen = () => {
+  if (!viewerContainer.value) return
+  fullscreen.value = !fullscreen.value
+  if (fullscreen.value) {
+    viewerContainer.value.requestFullscreen().catch(err => {
+      console.error('[IIIFViewer] Error attempting to enable fullscreen mode:', err)
+    })
+  } else {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => {
+        console.error('[IIIFViewer] Error attempting to exit fullscreen mode:', err)
+      })
+    }
+  }
+}
+
 onMounted(() => {
   console.debug('[IIIFViewer] onMounted')
   createViewer()
@@ -307,6 +331,12 @@ onMounted(() => {
       ...(isAuthRequired(url) ? getAuthOptions() : {})
     }))
   )
+  // get fullscreen listener
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      fullscreen.value = false
+    }
+  })
 })
 
 onBeforeUnmount(() => {

@@ -20,6 +20,7 @@
     </div>
     <div v-else-if="tab === 'overview'">
       <WikidataBlock :item="item" v-if="item && item.wikidataId" />
+
       <div class="text-center m-2 mb-3">
         <router-link
           class="btn btn-primary px-5 btn-sm"
