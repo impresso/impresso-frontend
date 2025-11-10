@@ -14,10 +14,18 @@
       :isVisible="isChatOpen"
       :filters="filtersFromChat"
       @dismiss="closeChat"
+        :aiFilters="aiFilters"
       @applyFilters="handleApplyFilters"
+  
     >
       <!--<BaristaChat @search="handleSearch" />-->
-      <BaristaChat @search="filtersFromChat = $event" />
+      <BaristaChat 
+  :initialFilters="filters"  
+@search="filtersFromChat = JSON.parse(JSON.stringify($event))"
+  @filtersDetected="aiFilters = $event" 
+/>
+
+  
     </BaristaModal>
     <!-- Chat popup -->
     <!-- <Transition name="fade">
@@ -40,18 +48,32 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import BaristaChat from './BaristaChat.vue'
 import BaristaModal from './BaristaModal.vue'
+import { watch } from 'vue'
+const aiFilters = ref(null)
 
 const isChatOpen = ref(false)
 const chatPopup = ref<HTMLElement | null>(null)
 const filtersFromChat = ref<string | Record<string, any> | null>(null)
 
 const props = defineProps<{
-  filters?: string | Record<string, any>
+  filters?: string | Record<string, any> | Record<string, any>[]
 }>()
 
 const emit = defineEmits<{
   search: [filters: string]
 }>()
+
+
+watch(
+  () => props.filters,
+  (newFilters) => {
+    if (newFilters) {
+      filtersFromChat.value = newFilters
+      aiFilters.value = newFilters
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 // Toggle chat visibility
 const toggleChat = () => {
