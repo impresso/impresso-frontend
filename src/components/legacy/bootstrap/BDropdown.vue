@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown b-dropdown btn-group" :class="{ show: isOpen }">
+  <div :class="dropdownClass">
     <button
       aria-haspopup="menu"
       :aria-expanded="isOpen"
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAttrs, ref, watch } from 'vue'
+import { useAttrs, ref, watch, computed } from 'vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from '@/components/base/Icon.vue'
 
@@ -41,7 +41,8 @@ const props = defineProps({
   variant: String,
   text: String,
   right: Boolean,
-  initialIsOpen: Boolean
+  initialIsOpen: Boolean,
+  class: String
 })
 const emit = defineEmits(['shown', 'hidden'])
 const attrs = useAttrs()
@@ -56,6 +57,9 @@ if (unknownAttrs.length) {
 
 const dropdownRef = ref()
 const buttonRef = ref()
+const dropdownClass = computed(
+  () => `dropdown b-dropdown btn-group ${props.class || ''} ${isOpen.value ? 'show' : ''}`
+)
 
 useClickOutside(dropdownRef, () => (isOpen.value = false), buttonRef)
 

@@ -118,6 +118,7 @@ export default {
     },
     actions: {
       search: 'Search',
+
       register: 'Create account',
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
@@ -137,6 +138,7 @@ export default {
       clear: 'clear',
       close: 'close',
       dismiss: 'dismiss',
+      discard: 'discard changes',
       loading: 'loading...',
       reset: 'Reset',
       highlightItemOff: 'remove from the "observing" list',
@@ -145,6 +147,7 @@ export default {
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
+      applyChangesDetailedAddedOnly: 'apply changes (added: {added})',
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Remove filter from current search',
       resetPassword: 'Reset my password',

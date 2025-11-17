@@ -174,27 +174,14 @@
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">
-      <b-row no-gutters>
-        <b-col cols="6">
-          <div class="mr-1">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
-            >
-              {{ $t('actions.addUsingEmbeddings') }}
-            </b-button>
-          </div>
-        </b-col>
-      </b-row>
-      <entity-suggester
-        v-if="showEntitySuggester"
-        :filter="filter"
-        :type="type"
-        @filter-changed="handleFilterChanged"
-        class="border p-2 bg-light"
-      />
+      <b-button
+        size="sm"
+        variant="outline-primary"
+        block
+        v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+      >
+        {{ $t(`actions.${editedFilter.op}.addUsingSuggest`) }}
+      </b-button>
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
@@ -254,6 +241,15 @@
       <span v-else>{{ $t(`actions.applyChanges`) }}</span>
     </b-button>
   </div>
+  <Teleport to="body">
+    <entity-suggester
+      :isVisible="showEntitySuggester"
+      :filter="filter"
+      :type="type"
+      @filter-changed="handleFilterChanged"
+      @dismiss="showEntitySuggester = false"
+    />
+  </Teleport>
 </template>
 
 <script>
@@ -264,7 +260,7 @@ import ItemSelector from '@/components/modules/ItemSelector.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
-import EntitySuggester from '@/components/modules/EntitySuggester.vue'
+import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
   toCanonicalFilter,
@@ -503,9 +499,8 @@ export default {
       if (!NumericRangeFacets.includes(this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
-    handleFilterChanged({ items }) {
-      this.itemsToAdd.splice(0, this.itemsToAdd.length, ...items) // eslint-disable-line
-      // TODO:  exclude item already present
+    handleFilterChanged(newFilter) {
+      this.$emit('changed', newFilter)
     }
   },
   components: {
@@ -578,13 +573,16 @@ export default {
       }
     },
     "actions": {
+      "addUsingEmbeddings": "add using semantic embeddings",
       "AND": {
         "addItem": "'AND' ...",
-        "addUsingEmbeddings": "'AND' similar ..."
+        "addUsingEmbeddings": "'AND' similar ...",
+        "addUsingSuggest": "'AND' suggest..."
       },
       "OR": {
         "addItem": "'OR' ...",
-        "addUsingEmbeddings": "'OR' similar ..."
+        "addUsingEmbeddings": "'OR' similar ...",
+        "addUsingSuggest": "'OR' suggest..."
       }
     },
     "label": {
