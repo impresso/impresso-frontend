@@ -36,14 +36,17 @@ import { useAttrs, ref, watch, computed } from 'vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from '@/components/base/Icon.vue'
 
-const props = defineProps({
-  size: String,
-  variant: String,
-  text: String,
-  right: Boolean,
-  initialIsOpen: Boolean,
-  class: String
-})
+export interface BDropdownProps {
+  size?: string
+  variant?: string
+  text?: string
+  right?: boolean
+  initialIsOpen?: boolean
+  class?: string
+  containsForm?: boolean
+}
+
+const props = defineProps<BDropdownProps>()
 const emit = defineEmits(['shown', 'hidden'])
 const attrs = useAttrs()
 
@@ -57,9 +60,15 @@ if (unknownAttrs.length) {
 
 const dropdownRef = ref()
 const buttonRef = ref()
-const dropdownClass = computed(
-  () => `dropdown b-dropdown btn-group ${props.class || ''} ${isOpen.value ? 'show' : ''}`
-)
+const dropdownClass = computed(() => {
+  const classes = ['dropdown', 'b-dropdown', 'btn-group']
+
+  if (props.class) classes.push(props.class)
+  if (isOpen.value) classes.push('show')
+  if (props.containsForm) classes.push('contains-form')
+
+  return classes.join(' ')
+})
 
 useClickOutside(dropdownRef, () => (isOpen.value = false), buttonRef)
 

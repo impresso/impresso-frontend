@@ -14,6 +14,7 @@ import {
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
@@ -70,11 +71,11 @@ const dataValues = ref<DataValue[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
 
-const normalizeOptions = [
-  { value: false, text: 'Show absolute values' },
-  { value: true, text: 'Show normalized values' }
-]
 const normalize = ref(false)
+const fitToContainerWidth = ref(false)
+const minimumGap = ref<number>(10)
+const minimumVerticalGap = ref<number>(50)
+
 watch(
   () => props.filters,
   async newVal => {
@@ -200,14 +201,53 @@ onMounted(() => {
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
           <template #summaryActions>
-            <i-dropdown
-              v-model="normalize"
-              v-bind:options="normalizeOptions"
-              size="sm"
-              variant="outline-primary"
-              right
-              data-testid="order-by-dropdown"
-            ></i-dropdown>
+            <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
+              <template #button-content> {{ $t('visualisationSettings') }}</template>
+              <section style="min-width: 280px">
+                <div
+                  class="d-flex align-items-center justify-content-between mx-3 py-2 gap-2 border-bottom"
+                >
+                  <b-form-checkbox v-model="normalize" switch>
+                    <span class="no-small-caps">{{ $t('normalizeLocally') }}</span>
+                  </b-form-checkbox>
+                  <InfoButton
+                    :name="$t('normalizeLocallyInfoTitle')"
+                    :defaultContent="$t('normalizeLocallyInfoDescription')"
+                  >
+                  </InfoButton>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between px-3 py-2 gap-2">
+                  <b-form-checkbox v-model="fitToContainerWidth" switch>
+                    <span class="no-small-caps">{{ $t('fitToContainerWidth') }}</span>
+                  </b-form-checkbox>
+                  <InfoButton
+                    :name="$t('fitToContainerWidthInfoTitle')"
+                    :defaultContent="$t('fitToContainerWidthInfoDescription')"
+                  >
+                  </InfoButton>
+                </div>
+                <div class="mx-3 my-2">
+                  <span class="text-muted small">{{ $t('minimumGap') }}</span>
+                  <b-form-input
+                    type="number"
+                    v-model.number="minimumGap"
+                    min="10"
+                    step="1"
+                    :disabled="fitToContainerWidth"
+                  ></b-form-input>
+                </div>
+                <div class="mx-3 my-2">
+                  <span class="text-muted small">{{ $t('minimumVerticalGap') }}</span>
+                  <b-form-input
+                    type="number"
+                    v-model.number="minimumVerticalGap"
+                    min="15"
+                    step="1"
+                  ></b-form-input>
+                </div>
+              </section>
+            </b-dropdown>
           </template>
           <template #summary>
             <Ellipsis v-bind:initialHeight="60">
@@ -235,10 +275,12 @@ onMounted(() => {
       <SourcesOverviewTimeline
         :normalizeLocally="normalize"
         class="h-100"
+        :fitToContainerWidth="fitToContainerWidth"
         :startDate="minStartDate"
         :endDate="maxEndDate"
         :dataValues="dataValues"
-        :minimumGap="10"
+        :minimumGap="minimumGap"
+        :minimumVerticalGap="minimumVerticalGap"
       />
     </i-layout-section>
   </i-layout>
@@ -251,7 +293,16 @@ onMounted(() => {
     "pageTitle": "Explore the sources in the archive",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
-    "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources"
+    "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources",
+    "visualisationSettings": "Visualisation Settings",
+    "normalizeLocally": "Normalize Data per source",
+    "normalizeLocallyInfoTitle": "Normalize Data per Source",
+    "normalizeLocallyInfoDescription": "When enabled, the data for each media source is normalized individually, allowing for better comparison between sources with varying content volumes.",
+    "fitToContainerWidth": "Fit to Container Width",
+    "fitToContainerWidthInfoTitle": "Fit to Container Width",
+    "fitToContainerWidthInfoDescription": "When enabled, the timeline will adjust its width to fit the container, providing an optimal viewing experience across different screen sizes.",
+    "minimumVerticalGap": "Vertical bar height (px)",
+    "minimumGap": "Horizontal bar width (px)"
   }
 }
 </i18n>
