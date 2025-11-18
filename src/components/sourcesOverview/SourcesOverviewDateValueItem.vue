@@ -57,15 +57,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {
-  interpolateCool,
-  interpolateYlGn,
-  max,
-  min,
-  scalePow,
-  scaleSequential,
-  scaleTime
-} from 'd3'
+import { interpolateYlGn, max, min, scalePow, scaleSequential, scaleTime } from 'd3'
 import { computed } from 'vue'
 
 export interface DataValue {

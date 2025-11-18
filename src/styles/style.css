@@ -346,6 +346,14 @@ label {
   font-weight: var(--impresso-wght-verysmallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-verysmallcaps);
 }
+.no-small-caps {
+  text-transform: none;
+  font-variant: normal;
+  letter-spacing: normal;
+  font-size: var(--bs-font-size-base);
+  font-weight: inherit;
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .small {
   font-size: 0.875em;
   font-weight: inherit;
@@ -593,6 +601,19 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
   padding: 0;
   margin-top: -1px;
   width: fit-content;
+}
+.dropdown.show.contains-form .dropdown-menu {
+  z-index: 1003;
+  min-width: 120%;
+  border-top-left-radius: var(--impresso-border-radius-xs);
+  border-top-right-radius: var(--impresso-border-radius-xs);
+  margin-right: -3px;
+}
+.dropdown-menu .custom-switch {
+  padding-inline-start: 35px;
+}
+.dropdown-menu .custom-switch .custom-control-label::before {
+  position: absolute;
 }
 
 .bg-dark ::selection {

@@ -171,7 +171,6 @@
             :dataValue="dataValue"
             :min-value="dataValuesExtent.min"
             :max-value="dataValuesExtent.max"
-            :xScale="xScale"
             :height="props.minimumVerticalGap"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
           />
@@ -200,15 +199,19 @@ export interface Props {
   normalizeLocally?: boolean
   maxTooltipHeight?: number
   timeResolution?: 'year' | 'month' | 'day'
+  addExtraHorizontalSpace?: boolean
+  fitToContainerWidth?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataValues: () => [],
   minimumGap: 8,
-  minimumVerticalGap: 30,
+  minimumVerticalGap: 20,
   normalizeLocally: false,
   maxTooltipHeight: 200,
-  timeResolution: 'year'
+  timeResolution: 'year',
+  addExtraHorizontalSpace: true,
+  fitToContainerWidth: true
 })
 
 const emit = defineEmits<{
@@ -267,20 +270,25 @@ const years = computed(() => {
 })
 
 const svgWidth = computed(() => {
+  if (props.fitToContainerWidth) {
+    console.log('fitToContainerWidth', containerWidth.value)
+    return containerWidth.value
+  }
   // check if gap should increase based on width minum margindivided by years length
   const gap = (containerWidth.value - margin.left - margin.right) / years.value.length
   if (gap < props.minimumGap!) {
     return years.value.length * props.minimumGap! + margin.left + margin.right
   }
+
   return years.value.length * gap + margin.left + margin.right
 })
 // D3 scale for positioning
 const xScale = computed(() => {
-  return d3
-    .scaleTime()
-    .domain([props.startDate, props.endDate])
-    .range([margin.left, svgWidth.value - margin.right])
-    .clamp(true)
+  const range = props.addExtraHorizontalSpace
+    ? [margin.left * 3, svgWidth.value - margin.right * 3]
+    : [margin.left, svgWidth.value - margin.right]
+
+  return d3.scaleTime().domain([props.startDate, props.endDate]).range(range).clamp(true)
 })
 
 const tooltip = ref<{
@@ -339,6 +347,17 @@ const yScale = computed<ScalePointWithInvert>(() => {
 // Determine which years should show labels
 const shouldShowLabel = (year: number): boolean => {
   // Always show decades (bold)
+  // get available width in pixel per year
+  const yearWidth = (svgWidth.value - margin.left - margin.right) / years.value.length
+  console.debug('yearWidth', yearWidth)
+  if (yearWidth < 5) {
+    return year % 20 === 0
+  }
+  if (yearWidth < 8) {
+    // if less than 20px per year, show only decades
+    return year % 10 === 0
+  }
+
   if (year % 10 === 0 || year % 5 === 0) return true
 
   return false
