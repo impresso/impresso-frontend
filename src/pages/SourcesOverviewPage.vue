@@ -203,7 +203,7 @@ onMounted(() => {
           <template #summaryActions>
             <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
               <template #button-content> {{ $t('visualisationSettings') }}</template>
-              <section style="min-width: 280px">
+              <section class="py-2">
                 <div
                   class="d-flex align-items-center justify-content-between mx-3 py-2 gap-2 border-bottom"
                 >
@@ -235,6 +235,7 @@ onMounted(() => {
                     min="10"
                     step="1"
                     :disabled="fitToContainerWidth"
+                    class="rounded-sm"
                   ></b-form-input>
                 </div>
                 <div class="mx-3 my-2">
@@ -244,6 +245,7 @@ onMounted(() => {
                     v-model.number="minimumVerticalGap"
                     min="15"
                     step="1"
+                    class="rounded-sm"
                   ></b-form-input>
                 </div>
               </section>
