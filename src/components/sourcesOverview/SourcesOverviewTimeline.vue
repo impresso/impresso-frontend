@@ -171,7 +171,6 @@
             :dataValue="dataValue"
             :min-value="dataValuesExtent.min"
             :max-value="dataValuesExtent.max"
-            :xScale="xScale"
             :height="props.minimumVerticalGap"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
           />
