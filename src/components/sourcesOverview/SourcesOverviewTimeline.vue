@@ -166,13 +166,28 @@
               'px)'
           }"
         >
+          <div
+            class="position-absolute very-small rounded-sm px-2 text-muted"
+            v-if="props.minimumVerticalGap >= 40"
+            style="
+              white-space: nowrap;
+              right: 8px;
+              top: 4px;
+              background-color: var(--clr-grey-100-rgba-10);
+            "
+          >
+            {{ idx }} of {{ dataValues.length }}
+          </div>
           <SourcesOverviewDateValueItem
             :normalizeLocally="props.normalizeLocally"
             :dataValue="dataValue"
             :min-value="dataValuesExtent.min"
             :max-value="dataValuesExtent.max"
+            :minBarHeight="props.minimumVerticalHeight"
             :height="props.minimumVerticalGap"
+            :reducedLabel="xScale(dataValue.dateRange[0]) < 200"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
+            :exponent="props.scaleExponent"
           />
         </div>
       </div>
@@ -196,22 +211,26 @@ export interface Props {
   dataValues?: DataValue[]
   minimumGap?: number
   minimumVerticalGap?: number
+  minimumVerticalHeight?: number
   normalizeLocally?: boolean
   maxTooltipHeight?: number
   timeResolution?: 'year' | 'month' | 'day'
   addExtraHorizontalSpace?: boolean
   fitToContainerWidth?: boolean
+  scaleExponent?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataValues: () => [],
   minimumGap: 8,
   minimumVerticalGap: 20,
+  minimumVerticalHeight: 4,
   normalizeLocally: false,
   maxTooltipHeight: 200,
   timeResolution: 'year',
   addExtraHorizontalSpace: true,
-  fitToContainerWidth: true
+  fitToContainerWidth: true,
+  scaleExponent: 2
 })
 
 const emit = defineEmits<{

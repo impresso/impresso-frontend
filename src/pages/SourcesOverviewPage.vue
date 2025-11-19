@@ -15,6 +15,7 @@ import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import SourceOverviewLegend from '@/components/sourcesOverview/SourceOverviewLegend.vue'
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
@@ -75,6 +76,8 @@ const normalize = ref(false)
 const fitToContainerWidth = ref(false)
 const minimumGap = ref<number>(10)
 const minimumVerticalGap = ref<number>(50)
+const minimumVerticalHeight = ref<number>(4)
+const withPowerScale = ref(true)
 
 watch(
   () => props.filters,
@@ -178,7 +181,7 @@ onMounted(() => {
 <template>
   <i-layout class="SearchOverviewPage">
     <SearchSidebar
-      width="300px"
+      width="350px"
       :filters="allowedFiltersWithItems"
       :facets="facets"
       contextTag="search"
@@ -200,6 +203,14 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
+          <template #actions>
+            <!-- Future action buttons can be added here -->
+            <SourceOverviewLegend
+              style="width: 150px"
+              :dataValues="dataValues"
+              :normalizeLocally="normalize"
+            />
+          </template>
           <template #summaryActions>
             <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
               <template #button-content> {{ $t('visualisationSettings') }}</template>
@@ -227,7 +238,8 @@ onMounted(() => {
                   >
                   </InfoButton>
                 </div>
-                <div class="mx-3 my-2">
+
+                <div class="mx-3 my-2 pb-3 border-bottom">
                   <span class="text-muted small">{{ $t('minimumGap') }}</span>
                   <b-form-input
                     type="number"
@@ -235,7 +247,7 @@ onMounted(() => {
                     min="10"
                     step="1"
                     :disabled="fitToContainerWidth"
-                    class="rounded-sm"
+                    class="rounded-sm form-control-sm"
                   ></b-form-input>
                 </div>
                 <div class="mx-3 my-2">
@@ -245,8 +257,29 @@ onMounted(() => {
                     v-model.number="minimumVerticalGap"
                     min="15"
                     step="1"
-                    class="rounded-sm"
+                    class="rounded-sm form-control-sm"
                   ></b-form-input>
+                </div>
+                <div class="mx-3 my-2">
+                  <span class="text-muted small">{{ $t('minimumVerticalHeight') }}</span>
+                  <b-form-input
+                    type="number"
+                    v-model.number="minimumVerticalHeight"
+                    :min="1"
+                    :max="minimumVerticalGap"
+                    step="1"
+                    class="rounded-sm form-control-sm"
+                  ></b-form-input>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mx-3 py-2 gap-2">
+                  <b-form-checkbox v-model="withPowerScale" switch>
+                    <span class="no-small-caps">{{ $t('withPowerScale') }}</span>
+                  </b-form-checkbox>
+                  <InfoButton
+                    :name="$t('withPowerScaleInfoTitle')"
+                    :defaultContent="$t('withPowerScaleInfoDescription')"
+                  >
+                  </InfoButton>
                 </div>
               </section>
             </b-dropdown>
@@ -283,6 +316,8 @@ onMounted(() => {
         :dataValues="dataValues"
         :minimumGap="minimumGap"
         :minimumVerticalGap="minimumVerticalGap"
+        :minimumVerticalHeight="minimumVerticalHeight"
+        :scaleExponent="withPowerScale ? 4 : 1"
       />
     </i-layout-section>
   </i-layout>
@@ -304,7 +339,11 @@ onMounted(() => {
     "fitToContainerWidthInfoTitle": "Fit to Container Width",
     "fitToContainerWidthInfoDescription": "When enabled, the timeline will adjust its width to fit the container, providing an optimal viewing experience across different screen sizes.",
     "minimumVerticalGap": "Vertical bar height (px)",
-    "minimumGap": "Horizontal bar width (px)"
+    "minimumGap": "Horizontal bar width (px)",
+    "minimumVerticalHeight": "Minimum height for lower values (px)",
+    "withPowerScale": "With Power Scale",
+    "withPowerScaleInfoTitle": "With Power Scale",
+    "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes."
   }
 }
 </i18n>

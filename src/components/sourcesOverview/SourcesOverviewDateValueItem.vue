@@ -6,7 +6,13 @@
         height: height + 'px'
       }"
     >
-      <div class="label font-weight-bold small">{{ dataValue.label }}</div>
+      <div
+        class="label font-weight-bold small position-relative"
+        :class="{ 'reduced-label': reducedLabel }"
+        :title="dataValue.label"
+      >
+        {{ dataValue.label }}
+      </div>
       <div v-if="dataValue.dateRange" class="date-range text-no-wrap very-small">
         {{ $d(dataValue.dateRange[0], 'month') }}
       </div>
@@ -74,9 +80,11 @@ export interface DataValue {
 
 export interface SourcesOverviewDateValueItemProps {
   dataValue: DataValue
+  reducedLabel?: boolean
   width?: number
   height?: number
   barHeight?: number
+  minBarHeight?: number
   exponent?: number
   normalizeLocally?: boolean
   minValue?: number
@@ -85,9 +93,11 @@ export interface SourcesOverviewDateValueItemProps {
 }
 
 const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
+  reducedLabel: false,
   width: 100,
   height: 30,
   barHeight: 1,
+  minBarHeight: 4,
   exponent: 1,
   normalizeLocally: false,
   backgroundColor: 'purple'
@@ -127,7 +137,7 @@ const yScale = computed(() => {
   return scalePow()
     .exponent(props.exponent)
     .domain([minValue.value, maxValue.value])
-    .range([2, props.height])
+    .range([props.minBarHeight, props.height])
     .clamp(true)
 })
 const onClick = (event: MouseEvent) => {
@@ -135,3 +145,17 @@ const onClick = (event: MouseEvent) => {
   console.log('Clicked on', props.dataValue)
 }
 </script>
+<style>
+.SourcesOverviewDateValueItem .label {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.SourcesOverviewDateValueItem .reduced-label {
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
