@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import UserRequestsModal from '@/components/UserRequestsModal.vue'
-import { SubscriptionDataset, UserRequest } from '@/services/types'
+import { SpecialMembershipAccess, UserRequest } from '@/services/types'
 
 const meta: Meta<typeof UserRequestsModal> = {
   title: 'Components/UserRequestsModal',
@@ -75,13 +75,13 @@ export const Default: Story = {
         name: 'Dataset 10',
         bitmapPosition: 10
       }
-    ] as SubscriptionDataset[],
+    ] as SpecialMembershipAccess[],
     userRequests: [
       {
         // id: number
         // reviewerId: number | null
         // subscriberId: number
-        // subscription: SubscriptionDataset | null
+        // subscription: SpecialMembershipAccess | null
         // dateCreated: Date
         // dateLastModified: Date
         // status: 'pending' | 'approved' | 'rejected'
@@ -98,7 +98,7 @@ export const Default: Story = {
       }
     ] as UserRequest[],
     isVisible: true,
-    isLoadingSubscriptionDatasets: false,
+    isLoadingSpecialMembershipAccesss: false,
     isLoadingUserRequests: false,
     title: 'Current subscriptions'
   }

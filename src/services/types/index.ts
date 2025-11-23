@@ -50,7 +50,7 @@ export interface ChangelogEntry {
   status: string
 }
 
-export interface UserRequestChangelogEntry {
+export interface UserSpecialMembershipRequestChangelogEntry {
   subscription: string
   date: string
   reviewer: string
@@ -75,23 +75,27 @@ export interface TermsOfUse {
   dateAcceptedTerms: string | null
 }
 
-export interface SubscriptionDataset {
+export interface SpecialMembershipAccess {
   id: number
   reviewerId?: number | null
-  name: string
+  title: string
   bitmapPosition: number
-  metadata?: object
+  metadata?: {
+    provider?: string
+    note?: string
+  }
 }
 
-export interface UserRequest {
+export interface UserSpecialMembershipRequest {
   id: number
   reviewerId: number | null
-  subscriberId: number
-  subscription: SubscriptionDataset | null
-  dateCreated: Date
-  dateLastModified: Date
+  specialMembershipAccessId: number | null
+  userId: number
+  specialMembershipAccess?: SpecialMembershipAccess
+  dateCreated: string
+  dateLastModified: string
   status: 'pending' | 'approved' | 'rejected'
-  changelog: UserRequestChangelogEntry[]
+  changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
 // new type from media endpoint

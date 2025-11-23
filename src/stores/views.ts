@@ -8,5 +8,13 @@ export interface State {
 export const useViewsStore = defineStore('views', {
   state: (): State => ({
     view: null
-  })
+  }),
+  actions: {
+    setView(newView: State['view']) {
+      this.view = newView
+    },
+    resetView() {
+      this.view = null
+    }
+  }
 })

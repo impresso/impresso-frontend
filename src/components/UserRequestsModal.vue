@@ -50,15 +50,15 @@
       >
         Available subscriptions
       </h2>
-      <div v-if="isLoadingSubscriptionDatasets" class="my-2">
+      <div v-if="isLoadingSpecialMembershipAccesss" class="my-2">
         <LoadingBlock :height="50" label="please wait ...."> </LoadingBlock>
       </div>
-      <div v-if="!isLoadingSubscriptionDatasets && !subscriptionDatasets.length">
+      <div v-if="!isLoadingSpecialMembershipAccesss && !subscriptionDatasets.length">
         <p class="text-muted">There are no available subscriptions.</p>
       </div>
       <ul
         class="list-unstyled"
-        v-if="!isLoadingSubscriptionDatasets && subscriptionDatasets.length"
+        v-if="!isLoadingSpecialMembershipAccesss && subscriptionDatasets.length"
       >
         <li
           class="py-2 border-bottom d-flex align-items-center"
@@ -74,7 +74,7 @@
               })
             }}
           </div>
-          <SubscriptionDatasetItem :item="subscriptionDataset" />
+          <SpecialMembershipAccessItem :item="subscriptionDataset" />
           <div
             class="ml-auto"
             v-if="userRequests.find(d => d.subscription.id === subscriptionDataset.id)"
@@ -85,7 +85,7 @@
           </div>
           <div class="ml-auto" v-else>
             <Icon
-              v-if="selectedSubscriptionDatasets.includes(subscriptionDataset)"
+              v-if="selectedSpecialMembershipAccesss.includes(subscriptionDataset)"
               name="checkSquare"
               :stroke-width="1.5"
             />
@@ -98,11 +98,11 @@
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
       <button
         type="button"
-        :disabled="!selectedSubscriptionDatasets.length"
+        :disabled="!selectedSpecialMembershipAccesss.length"
         class="btn btn-sm btn-primary"
         @click="dismiss"
       >
-        Request access to {{ selectedSubscriptionDatasets.length }} datasets
+        Request access to {{ selectedSpecialMembershipAccesss.length }} datasets
       </button>
     </template>
   </Modal>
@@ -110,9 +110,9 @@
 
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import type { UserRequest, SubscriptionDataset } from '@/services/types'
+import type { UserRequest, SpecialMembershipAccess } from '@/services/types'
 import Alert from './Alert.vue'
-import SubscriptionDatasetItem from './modules/lists/SubscriptionDatasetItem.vue'
+import SpecialMembershipAccessItem from './modules/lists/SpecialMembershipAccessItem.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import { ref } from 'vue'
 import Icon from './base/Icon.vue'
@@ -124,11 +124,15 @@ const props = withDefaults(
     title?: string
     isVisible?: boolean
     userRequests: UserRequest[]
-    subscriptionDatasets: SubscriptionDataset[]
+    subscriptionDatasets: SpecialMembershipAccess[]
 
-    isLoadingSubscriptionDatasets?: boolean
+    isLoadingSpecialMembershipAccesss?: boolean
     isLoadingUserRequests?: boolean
-    onSubmit?: ({ subscriptionDatasets }: { subscriptionDatasets: SubscriptionDataset[] }) => void
+    onSubmit?: ({
+      subscriptionDatasets
+    }: {
+      subscriptionDatasets: SpecialMembershipAccess[]
+    }) => void
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-lg',
@@ -137,19 +141,19 @@ const props = withDefaults(
 )
 const emit = defineEmits(['dismiss', 'confirm'])
 
-const selectedSubscriptionDatasets = ref<SubscriptionDataset[]>([])
+const selectedSpecialMembershipAccesss = ref<SpecialMembershipAccess[]>([])
 
-const toggleSelection = (subscriptionDataset: SubscriptionDataset) => {
-  console.debug('[UserRequestsModal] toggleSelection', selectedSubscriptionDatasets.value)
+const toggleSelection = (subscriptionDataset: SpecialMembershipAccess) => {
+  console.debug('[UserRequestsModal] toggleSelection', selectedSpecialMembershipAccesss.value)
   // only if the dataset is not already one of userrequests subscription
   if (props.userRequests.find(d => d.subscription.id === subscriptionDataset.id)) {
     return
   }
-  const idx = selectedSubscriptionDatasets.value.findIndex(s => s.id === subscriptionDataset.id)
+  const idx = selectedSpecialMembershipAccesss.value.findIndex(s => s.id === subscriptionDataset.id)
   if (idx === -1) {
-    selectedSubscriptionDatasets.value.push(subscriptionDataset)
+    selectedSpecialMembershipAccesss.value.push(subscriptionDataset)
   } else {
-    selectedSubscriptionDatasets.value.splice(idx, 1)
+    selectedSpecialMembershipAccesss.value.splice(idx, 1)
   }
 }
 const dismiss = () => {

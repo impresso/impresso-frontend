@@ -164,7 +164,7 @@
       :userRequests="userRequestResponse.data"
       :isLoadingUserRequests="userRequestResponse.status === 'loading'"
       :subscriptionDatasets="subscriptionDatasetResponse.data"
-      :isLoadingSubscriptionDatasets="
+      :isLoadingSpecialMembershipAccesss="
         subscriptionDatasetResponse.status === 'loading' ||
         subscriptionDatasetResponse.status === 'idle'
       "
@@ -210,7 +210,7 @@ import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
 import type {
-  SubscriptionDataset,
+  SpecialMembershipAccess,
   TermsOfUse,
   UserChangePlanRequest,
   UserRequest
@@ -324,7 +324,7 @@ const userRequestResponse = ref<{
 })
 
 const subscriptionDatasetResponse = ref<{
-  data: SubscriptionDataset[]
+  data: SpecialMembershipAccess[]
   status: 'idle' | 'loading' | 'success' | 'error'
 }>({
   status: 'idle',
@@ -387,7 +387,7 @@ watch(
     } else if (_view === ViewUserRequests) {
       console.debug('[Modals] @watch view = ViewUserRequests')
       fetchUserRequest()
-      fetchSubscriptionDatasets()
+      fetchSpecialMembershipAccesss()
     } else if (_view === ViewCorpusOverview) {
       console.debug('[Modals] @watch view = ViewCorpusOverview')
       fetchCorpusOverview()
@@ -498,8 +498,8 @@ const fetchUserRequest = async () => {
     })
   // fetch subscription datasets
 }
-const fetchSubscriptionDatasets = async () => {
-  console.debug('[Modals] fetchSubscriptionDatasets')
+const fetchSpecialMembershipAccesss = async () => {
+  console.debug('[Modals] fetchSpecialMembershipAccesss')
   // load current status
   if (!isLoggedIn.value) {
     return
