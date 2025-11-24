@@ -22,6 +22,19 @@ export interface ErrorsCollectorService
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
+/**
+ * Generic interface for Feathers service find method parameters.
+ * Includes query object for filtering, pagination, and other options.
+ */
+export interface ServiceFindParams {
+  query: {
+    offset?: number
+    limit?: number
+    [key: string]: any
+  }
+  [key: string]: any
+}
+
 interface UntypedServices {
   [key: string]: UntypedService
 }
