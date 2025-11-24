@@ -53,7 +53,7 @@ import { ServiceFindParams } from '@/services/types'
  * for debugging and logging purposes.
  */
 interface FeathersServiceWithName<T> extends FeathersService<T> {
-  name: string
+  name?: string
 }
 
 export interface ListOfFindResponseItemsProps<T> {

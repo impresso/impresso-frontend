@@ -5,7 +5,6 @@ import type { UserSpecialMembershipRequest } from '@/services/types'
 import { userSpecialMembershipRequests as userSpecialMembershipRequestsService } from '@/services'
 import { http, HttpResponse } from 'msw'
 import { ref, watch } from 'vue'
-import { FeathersService } from '@feathersjs/feathers'
 
 const mockRequests: UserSpecialMembershipRequest[] = [
   {
@@ -65,7 +64,7 @@ const mockRequests: UserSpecialMembershipRequest[] = [
 ]
 
 const meta: Meta<typeof ListOfFindResponseItems> = {
-  title: 'specialMembership/ListOfFindResponseItems',
+  title: 'components/ListOfFindResponseItems',
   component: ListOfFindResponseItems,
   tags: ['autodocs'],
   render: args => {
