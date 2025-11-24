@@ -3,6 +3,7 @@ import SpecialMembershipModal from './SpecialMembershipModal.vue'
 import type { SpecialMembershipModalProps } from './SpecialMembershipModal.vue'
 import type { UserSpecialMembershipRequest } from '@/services/types'
 import { http, HttpResponse } from 'msw'
+import { ref, watch } from 'vue'
 
 const mockRequests: UserSpecialMembershipRequest[] = [
   {
@@ -62,17 +63,28 @@ const mockRequests: UserSpecialMembershipRequest[] = [
 ]
 
 const meta: Meta<typeof SpecialMembershipModal> = {
-  title: 'modals/SpecialMembershipModal',
+  title: 'specialMembership/SpecialMembershipModal',
   component: SpecialMembershipModal,
   tags: ['autodocs'],
   render: args => {
     return {
       setup() {
-        return { args }
+        const isVisible = ref(false)
+        watch(
+          () => args.isVisible,
+          newVal => {
+            // debounce change to local state
+            setTimeout(() => {
+              isVisible.value = newVal
+            }, 300)
+          },
+          { immediate: true }
+        )
+        return { args, isVisible }
       },
       components: { SpecialMembershipModal },
       template:
-        '<div style="height: 500px; width: 100%"><SpecialMembershipModal v-bind="args"></SpecialMembershipModal></div>'
+        '<div style="height: 500px; width: 100%"><SpecialMembershipModal :isVisible="isVisible"></SpecialMembershipModal></div>'
     }
   },
   parameters: {
@@ -100,4 +112,27 @@ export const Default: Story = {
   args: {
     isVisible: true
   } as SpecialMembershipModalProps
+}
+
+export const empty: Story = {
+  args: {
+    isVisible: true
+  } as SpecialMembershipModalProps,
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/user-special-membership-requests', async ({ params }) => {
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          return HttpResponse.json({
+            data: [],
+            pagination: {
+              total: 0,
+              offset: 0,
+              limit: 10
+            }
+          })
+        })
+      ]
+    }
+  }
 }
