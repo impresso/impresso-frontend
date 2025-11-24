@@ -157,18 +157,7 @@
         </p>
       </div>
     </ChangePlanModal>
-    <UserRequestsModal
-      :title="$t('User Requests')"
-      :isVisible="view === ViewUserRequests"
-      @dismiss="resetView"
-      :userRequests="userRequestResponse.data"
-      :isLoadingUserRequests="userRequestResponse.status === 'loading'"
-      :subscriptionDatasets="subscriptionDatasetResponse.data"
-      :isLoadingSpecialMembershipAccesss="
-        subscriptionDatasetResponse.status === 'loading' ||
-        subscriptionDatasetResponse.status === 'idle'
-      "
-    ></UserRequestsModal>
+
     <CorpusOverviewModal
       :title="$t('Corpus Overview')"
       :isVisible="view === ViewCorpusOverview"
@@ -205,16 +194,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
-import type {
-  SpecialMembershipAccess,
-  TermsOfUse,
-  UserChangePlanRequest,
-  UserRequest
-} from '@/services/types'
+import type { SpecialMembershipAccess, TermsOfUse } from '@/services/types'
 import {
   Views,
   ViewTermsOfUse,
@@ -232,13 +216,7 @@ import {
   PlanNone
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
-import {
-  userChangePlanRequest as userChangePlanRequestService,
-  termsOfUse as termsOfUseService,
-  userRequests as userRequestsService,
-  subscriptionDatasets as subscriptionDatasetsService,
-  feedback as feedbackService
-} from '@/services'
+import { termsOfUse as termsOfUseService, feedback as feedbackService } from '@/services'
 import { BadRequest, type FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
 import { PlanLabels } from '@/constants'
@@ -246,7 +224,6 @@ import TermsOfUseStatus from './TermsOfUseStatus.vue'
 import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
-import UserRequestsModal from './UserRequestsModal.vue'
 import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
@@ -315,22 +292,6 @@ const termsOfUseResponse = ref<{
   data: null
 })
 
-const userRequestResponse = ref<{
-  data: UserRequest[]
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: []
-})
-
-const subscriptionDatasetResponse = ref<{
-  data: SpecialMembershipAccess[]
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: []
-})
-
 const fetchCorpusOverviewResponse = ref<{
   data: Dataset[]
   status: 'idle' | 'loading' | 'success' | 'error'
@@ -384,10 +345,6 @@ watch(
     if (_view === ViewPlans) {
       console.debug('[Modals] @watch view = ViewPlans')
       fetchPlansContent()
-    } else if (_view === ViewUserRequests) {
-      console.debug('[Modals] @watch view = ViewUserRequests')
-      fetchUserRequest()
-      fetchSpecialMembershipAccesss()
     } else if (_view === ViewCorpusOverview) {
       console.debug('[Modals] @watch view = ViewCorpusOverview')
       fetchCorpusOverview()
@@ -474,53 +431,6 @@ const createFeedback = async (payload: FeedbackFormPayload) => {
     .catch((err: FeathersError) => {
       console.error('[FeedbackModal] create', err.message, err.data)
       feedbackCollectorResponse.value = { data: err.data, status: 'error' }
-    })
-}
-
-const fetchUserRequest = async () => {
-  console.debug('[Modals] fetchUserRequest')
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  userRequestResponse.value = { data: [], status: 'loading' }
-
-  // fetch user requests
-  userRequestsService
-    .find()
-    .then(data => {
-      console.info('[Modals] @useEffect - userRequestsService', data)
-      userRequestResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error('[Modals] @useEffect - userRequestsService', err.message, err.data, err.code)
-      userRequestResponse.value = { data: [], status: 'error' }
-    })
-  // fetch subscription datasets
-}
-const fetchSpecialMembershipAccesss = async () => {
-  console.debug('[Modals] fetchSpecialMembershipAccesss')
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  subscriptionDatasetResponse.value = { data: [], status: 'loading' }
-
-  // fetch subscription datasets
-  subscriptionDatasetsService
-    .find()
-    .then(data => {
-      console.info('[Modals] @useEffect - subscriptionDatasetsService', data)
-      subscriptionDatasetResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] @useEffect - subscriptionDatasetsService',
-        err.message,
-        err.data,
-        err.code
-      )
-      subscriptionDatasetResponse.value = { data: [], status: 'error' }
     })
 }
 
