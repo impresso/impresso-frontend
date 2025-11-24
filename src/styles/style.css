@@ -305,6 +305,10 @@ a:hover,
 .alert p {
   margin: 0;
 }
+
+.border-info {
+  border-color: rgb(var(--info-darker-rgb)) !important;
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);
