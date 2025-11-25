@@ -97,6 +97,7 @@ export interface SpecialMembershipAccess {
     provider?: string
     note?: string
   }
+  request: null | UserSpecialMembershipRequest
 }
 
 export interface UserSpecialMembershipRequest {
