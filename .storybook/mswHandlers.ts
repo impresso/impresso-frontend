@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpHandler, HttpResponse } from 'msw'
 import { PlanEducational } from '../src/constants'
 import { BaseFindResponse } from '@/models/generated/schemasPublic'
 import { Collection } from '@/models/generated/schemas'
@@ -6,6 +6,10 @@ import {
   CollectableItemsUpdatedResponse,
   UpdateCollectableItemsRequest
 } from '@/services/types/collectableItems'
+import {
+  MockSpecialMembershipAccessWithRequests,
+  MockUserSpecialMembershipRequests
+} from './mockData/specialMembership'
 
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
@@ -203,6 +207,90 @@ const getCollectionHandler = http.get('/api/collections/:collection_id', ({ para
     creatorId: 'user1'
   } satisfies Collection)
 })
+
+export const findSpecialMembershipAccessHandler = http.get(
+  '/api/special-membership-access',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '10')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+    const items = MockSpecialMembershipAccessWithRequests.slice(offset, offset + limit)
+    return HttpResponse.json({
+      data: items,
+      pagination: {
+        total: MockSpecialMembershipAccessWithRequests.length,
+        offset: offset,
+        limit: limit
+      }
+    })
+  }
+)
+
+export const findUserSpecialMembershipRequestsHandler = http.get(
+  '/api/user-special-membership-requests',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '10')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+    const items = MockUserSpecialMembershipRequests.slice(offset, offset + limit)
+    return HttpResponse.json({
+      data: items,
+      pagination: {
+        total: MockUserSpecialMembershipRequests.length,
+        offset: offset,
+        limit: limit
+      }
+    })
+  }
+)
+
+export const createUserSpecialMembershipRequestHandler = http.post(
+  '/api/user-special-membership-requests',
+  async ({ request }) => {
+    const body = (await request.json()) as {
+      specialMembershipAccessId: number
+      note?: string
+    }
+    const newRequest = {
+      id: Math.floor(Math.random() * 1000) + 100,
+      reviewerId: null,
+      specialMembershipAccessId: body.specialMembershipAccessId,
+      userId: 42,
+      specialMembershipAccess: {
+        id: body.specialMembershipAccessId,
+        reviewerId: null,
+        title: 'New Access Request',
+        bitmapPosition: 1,
+        metadata: { provider: 'New Provider', note: body.note || '' }
+      },
+      dateCreated: new Date().toISOString(),
+      dateLastModified: new Date().toISOString(),
+      status: 'pending',
+      changelog: []
+    }
+    return HttpResponse.json(newRequest)
+  }
+)
+
+export const findEmpty = (mswHandler: HttpHandler) => {
+  const path = mswHandler.info.path
+  return http.get(path, async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '10')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+    return HttpResponse.json({
+      data: [],
+      pagination: {
+        total: 0,
+        offset: offset,
+        limit: limit
+      }
+    })
+  })
+}
 
 export const handlers = {
   getYearFacetHandler,
