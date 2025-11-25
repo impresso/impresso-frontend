@@ -2,10 +2,13 @@
   <List
     :items="serviceResponse.data"
     class="ListOfFindResponseItems"
-    :hidePagination="serviceResponse.data.length < 10"
+    :paginationList="paginationForList"
+    @change-page="paginationChangePageHandler"
+    :hidePagination="paginationForList.totalRows < paginationForList.perPage"
   >
-    <template #header v-if="props.title && props.title.length">
-      <div class="p-3 d-flex gap-2 justify-content-between align-items-center border-bottom">
+    <template #header>
+      <slot name="beforeHeader"></slot>
+      <div class="p-3 d-flex gap-2 justify-content-between align-items-center">
         <h5 class="m-0 font-size-inherit" v-html="props.title"></h5>
       </div>
     </template>
@@ -17,9 +20,12 @@
           v-if="serviceResponse.status == 'success' && serviceResponse.data.length === 0"
           class="p-3"
         >
-          <Alert type="info" class="border border-info" :closable="false">
-            {{ $t('listIsEmpty') }}
-          </Alert>
+          <Alert
+            type="info"
+            class="border border-info"
+            :closable="false"
+            v-html="listIsEmptyMessage"
+          />
         </div>
         <div v-if="serviceResponse.status === 'error'" class="p-3">
           <Alert type="warning" :closable="false">
@@ -40,7 +46,7 @@
   </List>
 </template>
 <script setup lang="ts">
-import { ref, toRaw, watch } from 'vue'
+import { computed, ref, toRaw, watch } from 'vue'
 import type { FeathersError } from '@feathersjs/errors'
 import List from './modules/lists/List.vue'
 import LoadingBlock from './LoadingBlock.vue'
@@ -94,7 +100,11 @@ export interface ListOfFindResponseItemsProps<T> {
    * Each option should have 'label' and 'value' properties.
    */
   orderByOptions?: { label: string; value: string }[]
+  /**
+   * Custom messages for common cases
+   */
   errorLoadingItemsMessage?: string
+  listIsEmptyMessage?: string
   /**
    * The Feathers service to fetch data from.
    * Must include a 'name' property for logging.
@@ -112,6 +122,7 @@ const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
   // ],
   title: '',
   errorLoadingItemsMessage: 'errorLoadingItems',
+  listIsEmptyMessage: 'listIsEmpty',
   params: () => ({
     query: {
       limit: 5,
@@ -120,7 +131,7 @@ const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
   })
 })
 /** Current sort order selection */
-const orderByModel = ref<string | undefined>(props.orderBy!)
+// const orderByModel = ref<string | undefined>(props.orderBy!)
 const error = ref<FeathersError | null>(null)
 
 const serviceResponse = ref<{
@@ -137,8 +148,28 @@ const serviceResponse = ref<{
   data: []
 })
 
+const paginationForList = computed(() => {
+  return {
+    perPage: serviceResponse.value.pagination.limit,
+    currentPage:
+      Math.floor(serviceResponse.value.pagination.offset / serviceResponse.value.pagination.limit) +
+      1,
+    totalRows: serviceResponse.value.pagination.total
+  }
+})
+
+const paginationChangePageHandler = (newPage: number) => {
+  console.debug('[ListOfFindResponseItems] paginationChangePageHandler', newPage)
+  const newOffset = (newPage - 1) * serviceResponse.value.pagination.limit
+  serviceResponse.value.pagination = {
+    ...serviceResponse.value.pagination,
+    offset: newOffset
+  }
+  fetchFindMethod()
+}
+
 const fetchFindMethod = async () => {
-  console.debug('[ListOfFindResponseItems] fetchFindMethod')
+  console.debug('[ListOfFindResponseItems] fetchFindMethod', props.service.name)
 
   serviceResponse.value = {
     data: [],
@@ -148,9 +179,17 @@ const fetchFindMethod = async () => {
   const service = toRaw(props.service)
   // fetch user requests
   service
-    .find(props.params)
+    .find({
+      ...props.params,
+      query: {
+        ...props.params?.query,
+        offset: serviceResponse.value.pagination.offset,
+        limit: serviceResponse.value.pagination.limit
+        // $sort: orderByModel.value ? { [orderByModel.value]: -1 } : undefined
+      }
+    })
     .then(({ data, pagination }) => {
-      console.info('[ListOfFindResponseItems] @useEffect - userRequestsService', data)
+      console.info('[ListOfFindResponseItems] @success', props.service.name)
       serviceResponse.value = { data, status: 'success', pagination }
     })
     .catch((err: FeathersError) => {
@@ -187,5 +226,13 @@ watch(
     }
   },
   { immediate: true }
+)
+
+watch(
+  () => props.service.name,
+  () => {
+    console.debug('[ListOfFindResponseItems] Service ID changed, refetching:', props.service.name)
+    fetchFindMethod()
+  }
 )
 </script>
