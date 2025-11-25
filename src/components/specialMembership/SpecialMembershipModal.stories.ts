@@ -1,66 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SpecialMembershipModal from './SpecialMembershipModal.vue'
 import type { SpecialMembershipModalProps } from './SpecialMembershipModal.vue'
-import type { UserSpecialMembershipRequest } from '@/services/types'
-import { http, HttpResponse } from 'msw'
 import { ref, watch } from 'vue'
-
-const mockRequests: UserSpecialMembershipRequest[] = [
-  {
-    id: 1,
-    reviewerId: null,
-    specialMembershipAccessId: 10,
-    userId: 42,
-    specialMembershipAccess: {
-      id: 10,
-      reviewerId: null,
-      title: 'Data domain Access 10',
-      bitmapPosition: 1,
-      metadata: { note: 'Test subscription 10' }
-    },
-    dateCreated: new Date().toISOString(),
-    dateLastModified: new Date().toISOString(),
-    status: 'pending',
-    changelog: [
-      {
-        subscription: 'Data domain Access 10',
-        date: new Date().toISOString(),
-        reviewer: null,
-        status: 'pending'
-      }
-    ]
-  },
-  {
-    id: 2,
-    reviewerId: null,
-    specialMembershipAccessId: 13,
-    userId: 42,
-    specialMembershipAccess: {
-      id: 13,
-      reviewerId: null,
-      title: 'Data domain Access 13',
-      bitmapPosition: 1,
-      metadata: { note: 'Test subscription 13' }
-    },
-    dateCreated: new Date().toISOString(),
-    dateLastModified: new Date().toISOString(),
-    status: 'approved',
-    changelog: [
-      {
-        subscription: 'Data domain Access 13',
-        date: new Date().toISOString(),
-        reviewer: 'Admin User',
-        status: 'pending'
-      },
-      {
-        subscription: 'Data domain Access 13',
-        date: new Date().toISOString(),
-        reviewer: 'Admin User',
-        status: 'approved'
-      }
-    ]
-  }
-]
+import {
+  findEmpty,
+  findSpecialMembershipAccessHandler,
+  findUserSpecialMembershipRequestsHandler
+} from '.storybook/mswHandlers'
 
 const meta: Meta<typeof SpecialMembershipModal> = {
   title: 'specialMembership/SpecialMembershipModal',
@@ -89,18 +35,7 @@ const meta: Meta<typeof SpecialMembershipModal> = {
   },
   parameters: {
     msw: {
-      handlers: [
-        http.get('/api/user-special-membership-requests', ({ params }) => {
-          return HttpResponse.json({
-            data: mockRequests,
-            pagination: {
-              total: mockRequests.length,
-              offset: 0,
-              limit: 10
-            }
-          })
-        })
-      ]
+      handlers: [findUserSpecialMembershipRequestsHandler, findSpecialMembershipAccessHandler]
     }
   }
 }
@@ -121,17 +56,8 @@ export const empty: Story = {
   parameters: {
     msw: {
       handlers: [
-        http.get('/api/user-special-membership-requests', async ({ params }) => {
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          return HttpResponse.json({
-            data: [],
-            pagination: {
-              total: 0,
-              offset: 0,
-              limit: 10
-            }
-          })
-        })
+        findEmpty(findUserSpecialMembershipRequestsHandler),
+        findEmpty(findSpecialMembershipAccessHandler)
       ]
     }
   }

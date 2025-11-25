@@ -9,7 +9,7 @@
 
   <SpecialMembershipModal :isVisible="isModalVisible" @dismiss="() => viewStore.resetView()">
     <template #specialMembershipAccess v-if="item">
-      <div class="m-3">
+      <div class="mx-3 mt-3 pb-3 border-bottom">
         <p>Request for access could take 3 working days on average.</p>
         <div
           class="rounded-md shadow-sm p-3 border d-flex align-items-center gap-2 justify-content-between"
