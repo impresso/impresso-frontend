@@ -35,40 +35,44 @@ export default {
     hidePagination: Boolean,
     width: {
       type: String,
-      default: '400px',
+      default: '400px'
     },
     items: {
-      type: Array,
+      type: Array
     },
     paginationList: {
       type: Object,
       default: () => ({
         perPage: 10,
         currentPage: 1,
-        totalRows: 0,
-      }),
-    },
+        totalRows: 0
+      })
+    }
   },
   methods: {
     onInputPagination(page) {
       this.$emit('change-page', page)
-    },
+    }
   },
   components: {
-    Pagination,
-  },
+    Pagination
+  }
 }
 </script>
 
 <style lang="scss">
 .items {
   &.with-pagination {
-    margin-bottom: 3rem;
+    padding-bottom: 35px;
   }
   .item.active {
     background: white;
-    -webkit-box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
-    box-shadow: inset 3px 0px #343a40, inset 0px 1px 0px #343a4063;
+    -webkit-box-shadow:
+      inset 3px 0px #343a40,
+      inset 0px 1px 0px #343a4063;
+    box-shadow:
+      inset 3px 0px #343a40,
+      inset 0px 1px 0px #343a4063;
   }
 }
 </style>
