@@ -74,8 +74,7 @@ const iconArgs = computed<IconProps>(() => {
 <i18n lang="json">
 {
   "en": {
-    "access requested": "Access requested:",
-    "dateCreated": "Created:",
+    "dateCreated": "Requested: ",
     "status": {
       "approved": "Approved",
       "pending": "Pending",
@@ -89,7 +88,7 @@ const iconArgs = computed<IconProps>(() => {
 </i18n>
 <style>
 .SpecialMembershipAccessItem__requestAccess {
-  opacity: 0.25;
+  opacity: 0.8;
   transition: opacity 0.2s;
 }
 
