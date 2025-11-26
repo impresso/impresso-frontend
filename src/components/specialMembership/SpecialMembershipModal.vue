@@ -63,7 +63,7 @@
             <textarea
               class="form-control form-control-sm rounded-sm shadow-sm"
               rows="3"
-              placeholder="Please describe why you need special membership access..."
+              :placeholder="$t('specialMembershipAccessPlaceholder')"
             ></textarea>
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-sm btn-primary mt-3">
@@ -113,7 +113,8 @@
     "ModeSpecialMembershipAccess": "All Special Membership Access",
     "specialMembershipAccessTitle": "Membership and Provider",
     "userSpecialMembershipRequestsStatus": "Status",
-    "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>"
+    "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>",
+    "specialMembershipAccessPlaceholder": "Please provide a reason for your request."
   }
 }
 </i18n>

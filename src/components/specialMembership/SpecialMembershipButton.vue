@@ -58,7 +58,7 @@ function handleOnSubmit(specialMembershipAccess: SpecialMembershipAccess) {
   console.debug('[UserSpecialMembershipRequestModal] handleOnSubmit', specialMembershipAccess)
   userSpecialMembershipRequestsService
     .create({
-      specialMembershipAccess: specialMembershipAccess,
+      specialMembershipAccessId: specialMembershipAccess.id,
       ignoreErrors: true
     })
     .then((res: any) => {
