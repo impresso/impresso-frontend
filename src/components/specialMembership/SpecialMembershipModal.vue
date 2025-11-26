@@ -78,6 +78,7 @@
             </div>
           </form>
         </slot>
+        <FeathersErrorManager v-if="error" :error="error" class="m-3" />
       </template>
       <template #default="{ items }">
         <div class="border-bottom py-2 mb-2" v-for="item in items" :key="item.id">
@@ -130,6 +131,8 @@ import SpecialMembershipRequestItem from '../modules/lists/SpecialMembershipRequ
 import SpecialMembershipAccessItem from '../modules/lists/SpecialMembershipAccessItem.vue'
 import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
 import { SpecialMembershipAccess } from '@/services/types'
+import type { FeathersError } from '@feathersjs/errors'
+import FeathersErrorManager from '../FeathersErrorManager.vue'
 
 export type SpecialMembershipModalProps = {
   dialogClass?: string
@@ -159,9 +162,28 @@ const emit = defineEmits<{
 }>()
 
 const specialMembershipAccessToRequest = ref<SpecialMembershipAccess | null>(null)
+const isLoading = ref(false)
+const error = ref<FeathersError | null>(null)
 
-const createRequest = () => {
-  console.log('Creating special membership request...')
+const createRequest = async () => {
+  if (!specialMembershipAccessToRequest.value) {
+    return
+  }
+  try {
+    isLoading.value = true
+    await userSpecialMembershipRequestsService.create({
+      specialMembershipAccessId: specialMembershipAccessToRequest.value.id
+    })
+    mode.value = ModeUserSpecialMembershipRequests
+    // emit('success');
+  } catch (error) {
+    // Optionally, handle error (emit, set error state, etc.)
+    console.error('Failed to create special membership request:', error)
+    error.value = error as FeathersError
+  } finally {
+    isLoading.value = false
+    specialMembershipAccessToRequest.value = null
+  }
 }
 </script>
 

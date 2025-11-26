@@ -15,7 +15,7 @@ const props = defineProps<SpecialMembershipRequestItemProps>()
 
 const specialMembershipAccessWithRequest = computed(() => {
   return {
-    ...props.item.specialMembershipAccess,
+    ...(props.item.specialMembershipAccess ?? {}),
     request: props.item
   }
 })

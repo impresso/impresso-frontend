@@ -1,4 +1,7 @@
-import { UserSpecialMembershipRequest } from '@/services/types'
+import {
+  UserSpecialMembershipRequest,
+  UserSpecialMembershipRequestChangelogEntry
+} from '@/services/types'
 
 export const MockProviders = [
   'National Library of Scotland',
@@ -60,13 +63,17 @@ export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] =
       dateCreated: new Date().toISOString(),
       dateLastModified: new Date().toISOString(),
       status,
-      changelog: Array.from({ length: numOfChangelogs }, (_, j) => ({
-        subscription: 'Data domain Access ' + i,
-        date: new Date().toISOString(),
-        reviewer: null,
-        status: j === numOfChangelogs - 1 ? status : 'pending',
-        note: 'Changelog entry ' + (j + 1)
-      }))
+      changelog: Array.from(
+        { length: numOfChangelogs },
+        (_, j) =>
+          ({
+            subscription: 'Data domain Access ' + i,
+            date: new Date().toISOString(),
+            reviewer: null,
+            status: j === numOfChangelogs - 1 ? status : 'pending',
+            notes: 'Changelog entry ' + (j + 1)
+          }) as UserSpecialMembershipRequestChangelogEntry
+      )
     }
   }
 )

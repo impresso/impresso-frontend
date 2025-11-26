@@ -68,6 +68,7 @@ export interface UserSpecialMembershipRequestChangelogEntry {
   date: string
   reviewer: string
   status: string
+  notes?: string
 }
 
 export interface UserChangePlanRequest {

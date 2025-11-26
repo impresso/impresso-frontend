@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-7">
         <h3 class="font-size-inherit m-0 font-weight-bold">{{ item.title }}</h3>
-        <p class="small m-0">{{ item.metadata.provider }}</p>
+        <p class="small m-0">{{ item.metadata?.provider }}</p>
       </div>
       <div v-if="item.request" class="col-5 d-flex align-items-center justify-content-start gap-2">
         <Icon v-bind="iconArgs" />
@@ -66,6 +66,7 @@ const iconArgs = computed<IconProps>(() => {
   } else {
     return {
       name: 'xCircle',
+
       color: 'var(--bs-danger)'
     }
   }
