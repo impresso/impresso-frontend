@@ -30,7 +30,7 @@ const meta: Meta<typeof SpecialMembershipModal> = {
       },
       components: { SpecialMembershipModal },
       template:
-        '<div style="height: 500px; width: 100%"><SpecialMembershipModal :isVisible="isVisible"></SpecialMembershipModal></div>'
+        '<div style="height: 500px; width: 100%"><SpecialMembershipModal :isVisible="isVisible" :params="args.params"></SpecialMembershipModal></div>'
     }
   },
   parameters: {

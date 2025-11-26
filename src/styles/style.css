@@ -67,6 +67,9 @@
   --impresso-wght-smallcaps-bold: 800;
   --impresso-wght-verysmallcaps: 550;
 
+  --impresso-color-light-grey: #f8f9fa;
+  --impresso-color-light-grey-alpha-50: rgba(248, 249, 250, 0.5);
+
   --info: #c3fcf1;
   --info-rgb: 195, 252, 241;
 

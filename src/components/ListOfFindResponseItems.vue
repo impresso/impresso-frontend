@@ -8,9 +8,12 @@
   >
     <template #header>
       <slot name="beforeHeader"></slot>
-      <div class="p-3 d-flex gap-2 justify-content-between align-items-center">
-        <h5 class="m-0 font-size-inherit" v-html="props.title"></h5>
-      </div>
+      <slot name="header">
+        <div class="p-3 d-flex gap-2 justify-content-between align-items-center">
+          <h5 class="m-0 font-size-inherit" v-html="props.title"></h5>
+        </div>
+      </slot>
+      <slot name="afterHeader"></slot>
     </template>
 
     <template #default>

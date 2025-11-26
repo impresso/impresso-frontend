@@ -8,7 +8,7 @@
       </div>
     </template>
     <!-- </div> -->
-    <div class="items bg-light" :class="{ 'with-pagination': !hidePagination }">
+    <div class="items" :class="{ 'with-pagination': !hidePagination }">
       <!-- main loop -->
       <slot></slot>
     </div>
