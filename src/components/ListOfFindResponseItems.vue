@@ -61,8 +61,9 @@ import { ServiceFindParams } from '@/services/types'
  * Extended Feathers service interface that includes a name property
  * for debugging and logging purposes.
  */
-interface FeathersServiceWithName<T> extends FeathersService<T> {
+interface FeathersServiceWithPath<T> extends FeathersService<T> {
   name?: string
+  path?: string
 }
 
 export interface ListOfFindResponseItemsProps<T> {
@@ -113,7 +114,7 @@ export interface ListOfFindResponseItemsProps<T> {
    * Must include a 'name' property for logging.
    * @required
    */
-  service: FeathersServiceWithName<T>
+  service: FeathersServiceWithPath<T>
 }
 
 const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
@@ -172,7 +173,7 @@ const paginationChangePageHandler = (newPage: number) => {
 }
 
 const fetchFindMethod = async () => {
-  console.debug('[ListOfFindResponseItems] fetchFindMethod', props.service.name)
+  console.debug('[ListOfFindResponseItems] fetchFindMethod', props.service.path)
 
   serviceResponse.value = {
     data: [],
@@ -192,7 +193,7 @@ const fetchFindMethod = async () => {
       }
     })
     .then(({ data, pagination }) => {
-      console.info('[ListOfFindResponseItems] @success', props.service.name)
+      console.info('[ListOfFindResponseItems] @success', props.service.path)
       serviceResponse.value = { data, status: 'success', pagination }
     })
     .catch((err: FeathersError) => {
@@ -223,7 +224,7 @@ watch(
       }
       console.debug(
         '[ListOfFindResponseItems] @fetchItemsWhenVisible is true, fetching:',
-        props.service.name
+        props.service.path
       )
       fetchFindMethod()
     }
@@ -232,9 +233,12 @@ watch(
 )
 
 watch(
-  () => props.service.name,
+  () => props.service.path || props.service.name,
   () => {
-    console.debug('[ListOfFindResponseItems] Service ID changed, refetching:', props.service.name)
+    console.debug(
+      '[ListOfFindResponseItems] Service ID changed, refetching:',
+      props.service.path || props.service.name
+    )
     fetchFindMethod()
   }
 )

@@ -198,4 +198,7 @@ const createRequest = async () => {
   padding-right: var(--spacing-1);
   padding-bottom: var(--spacing-1);
 }
+.SpecialMembershipRequestModal .container-fluid {
+  display: block;
+}
 </style>

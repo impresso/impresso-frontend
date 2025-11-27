@@ -1,12 +1,13 @@
 <template>
-  <time :datetime="new Date(props.date).toISOString()">
+  <time :datetime="datetime">
     <span
       v-html="
         $tc(timeAgoData.key, timeAgoData.elapsedTime, {
           // For 'Yesterday' and 'Older' cases, format the date/time part
-          date: timeAgoData.params.format
-            ? $d(timeAgoData.params.date, timeAgoData.params.format)
-            : '',
+          date:
+            timeAgoData.params.format && timeAgoData.params.date
+              ? $d(timeAgoData.params.date, timeAgoData.params.format)
+              : '',
 
           // For 'Minutes' and 'Hours' cases, format the number
           n: $n(timeAgoData.elapsedTime)
@@ -73,7 +74,16 @@ onUnmounted(() => {
     clearInterval(timer)
   }
 })
-
+const datetime = computed(() => {
+  if (!props.date) {
+    return new Date().toISOString()
+  }
+  if (props.date instanceof Date) {
+    return props.date.toISOString()
+  } else {
+    return new Date(props.date).toISOString()
+  }
+})
 // --- 4. Core Logic Function (Integrated) ---
 
 /**
