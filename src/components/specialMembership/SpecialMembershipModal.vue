@@ -8,7 +8,18 @@
     @close="emit('dismiss')"
     hideBackdrop
   >
+    <SpecialMembershipRequestForm
+      v-if="specialMembershipAccessToRequest"
+      :isLoading="isLoading"
+      :specialMembershipAccess="specialMembershipAccessToRequest"
+      @dismiss="specialMembershipAccessToRequest = null"
+      @submit="createRequest"
+    >
+      {{ error }}
+      <FeathersErrorManager v-if="error" :error="error" class="m-3" />
+    </SpecialMembershipRequestForm>
     <ListOfFindResponseItems
+      v-else
       :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
       :list-is-empty-message="$t('listIsEmpty')"
       :service="serviceByMode"
@@ -46,39 +57,6 @@
             </li>
           </template>
         </b-tabs>
-
-        <slot name="specialMembershipAccess">
-          <form
-            class="form p-4"
-            v-if="specialMembershipAccessToRequest"
-            @submit.prevent="createRequest"
-          >
-            <p
-              v-html="
-                $t('userRequestSpecialMembershipAccess', {
-                  title: specialMembershipAccessToRequest.title
-                })
-              "
-            ></p>
-            <textarea
-              class="form-control form-control-sm rounded-sm shadow-sm"
-              rows="3"
-              :placeholder="$t('specialMembershipAccessPlaceholder')"
-            ></textarea>
-            <div class="d-flex gap-2">
-              <button type="submit" class="btn btn-sm btn-primary mt-3">
-                {{ $t('requestSpecialMembershipAccess') }}
-              </button>
-              <button
-                class="btn btn-sm btn-outline-secondary mt-3"
-                @click="specialMembershipAccessToRequest = null"
-              >
-                {{ $t('actions.discard') }}
-              </button>
-            </div>
-          </form>
-        </slot>
-        <FeathersErrorManager v-if="error" :error="error" class="m-3" />
       </template>
       <template #default="{ items }">
         <div class="border-bottom py-2 mb-2" v-for="item in items" :key="item.id">
@@ -94,6 +72,7 @@
         </div>
       </template>
     </ListOfFindResponseItems>
+
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="emit('dismiss')">
         {{ $t('actions.close') }}
@@ -133,6 +112,8 @@ import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
 import { SpecialMembershipAccess } from '@/services/types'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '../FeathersErrorManager.vue'
+import SpecialMembershipRequestForm from './SpecialMembershipRequestForm.vue'
+import LoadingBlock from '../LoadingBlock.vue'
 
 export type SpecialMembershipModalProps = {
   dialogClass?: string
@@ -165,25 +146,26 @@ const specialMembershipAccessToRequest = ref<SpecialMembershipAccess | null>(nul
 const isLoading = ref(false)
 const error = ref<FeathersError | null>(null)
 
-const createRequest = async () => {
+const createRequest = async ({ notes = '' }: { notes: string }) => {
   if (!specialMembershipAccessToRequest.value) {
     return
   }
-  try {
-    isLoading.value = true
-    await userSpecialMembershipRequestsService.create({
-      specialMembershipAccessId: specialMembershipAccessToRequest.value.id
+  isLoading.value = true
+  await userSpecialMembershipRequestsService
+    .create({
+      specialMembershipAccessId: specialMembershipAccessToRequest.value.id,
+      notes
     })
-    mode.value = ModeUserSpecialMembershipRequests
-    // emit('success');
-  } catch (error) {
-    // Optionally, handle error (emit, set error state, etc.)
-    console.error('Failed to create special membership request:', error)
-    error.value = error as FeathersError
-  } finally {
-    isLoading.value = false
-    specialMembershipAccessToRequest.value = null
-  }
+    .then(() => {
+      console.debug('Special membership request created successfully')
+      mode.value = ModeUserSpecialMembershipRequests
+    })
+    .catch(err => {
+      console.error('Failed to create special membership request:', err)
+      error.value = err as FeathersError
+    })
+
+  isLoading.value = false
 }
 </script>
 
