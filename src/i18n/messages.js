@@ -200,6 +200,8 @@ export default {
       options: '&nbsp; | (1 option) | ({n} options)',
       moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
+      itemsGeneric:
+        'no items | <span class="number">1</span> item | <span class="number">{n}</span> items',
       clusterSize: '&nbsp; | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
       ofPassages:

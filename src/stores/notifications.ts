@@ -146,10 +146,12 @@ export const useNotificationsStore = defineStore('notifications', {
         // do not force if BadGateway or polling error (risk of having endless and useless loops)
         const errorType = isFeathersError(error) ? error.type : undefined
         const className = isFeathersError(error) ? error.className : undefined
-
-        if (import.meta.env.MODE === 'development') {
+        if (error.name === 'NotAuthenticated') {
+          // do not forward authentication errors
+          return
+        } else if (import.meta.env.MODE === 'development') {
           console.warn(
-            '[NotificationsStore] displayError',
+            '[NotificationsStore] ONLY VISIBLE IN DEVELOPMENT displayError',
             error.name,
             error.message,
             error.stack,

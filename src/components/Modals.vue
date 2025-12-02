@@ -12,15 +12,25 @@
     />
     <!-- generic message Modal -->
     <InfoModal
-      :isVisible="[ViewChangePasswordSuccess].includes(view as any)"
+      :isVisible="
+        [ViewChangePasswordSuccess, ViewCreateSpecialMembershipRequestSuccess].includes(view as any)
+      "
       :modalTitle="$t('view_' + view + '_modalTitle')"
       :title="$t('view_' + view + '_title')"
       dialogClass="modal-md modal-dialog-centered"
       @dismiss="resetView"
     >
-      <p v-html="$t('view_' + view + '_content')"></p>
+      <p class="m-0" v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
-    <!--  -->
+
+    <SpecialMembershipModal :isVisible="view === ViewSpecialMembership" @dismiss="resetView" />
+    <SpecialMembershipRequestModal
+      :isVisible="view === ViewCreateSpecialMembershipRequest"
+      :item="store.specialMembershipAccessItem"
+      @dismiss="resetView"
+      @success="changeView(ViewCreateSpecialMembershipRequestSuccess)"
+    />
+
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
       <template v-slot:terms-of-use-status>
         <Alert
@@ -157,18 +167,7 @@
         </p>
       </div>
     </ChangePlanModal>
-    <UserRequestsModal
-      :title="$t('User Requests')"
-      :isVisible="view === ViewUserRequests"
-      @dismiss="resetView"
-      :userRequests="userRequestResponse.data"
-      :isLoadingUserRequests="userRequestResponse.status === 'loading'"
-      :subscriptionDatasets="subscriptionDatasetResponse.data"
-      :isLoadingSubscriptionDatasets="
-        subscriptionDatasetResponse.status === 'loading' ||
-        subscriptionDatasetResponse.status === 'idle'
-      "
-    ></UserRequestsModal>
+
     <CorpusOverviewModal
       :title="$t('Corpus Overview')"
       :isVisible="view === ViewCorpusOverview"
@@ -187,7 +186,7 @@
       :isVisible="view === ViewFeedback"
       @dismiss="resetView"
       @submit="createFeedback"
-      :errorMessages="errorMessages as ErrorMessage[]"
+      :errorMessages="errorMessages"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
     <div class="position-fixed" style="right: 0; top: 50%">
@@ -205,22 +204,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
-import type {
-  SubscriptionDataset,
-  TermsOfUse,
-  UserChangePlanRequest,
-  UserRequest
-} from '@/services/types'
+import type { TermsOfUse } from '@/services/types'
 import {
   Views,
   ViewTermsOfUse,
   ViewPlans,
   ViewChangePlanRequest,
-  ViewUserRequests,
   ViewConfirmChangePlanRequest,
   ViewInfoModal,
   ViewCorpusOverview,
@@ -229,16 +222,13 @@ import {
   ViewChangePassword,
   ViewChangePasswordSuccess,
   PlanGuest,
-  PlanNone
+  PlanNone,
+  ViewSpecialMembership,
+  ViewCreateSpecialMembershipRequest,
+  ViewCreateSpecialMembershipRequestSuccess
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
-import {
-  userChangePlanRequest as userChangePlanRequestService,
-  termsOfUse as termsOfUseService,
-  userRequests as userRequestsService,
-  subscriptionDatasets as subscriptionDatasetsService,
-  feedback as feedbackService
-} from '@/services'
+import { termsOfUse as termsOfUseService, feedback as feedbackService } from '@/services'
 import { BadRequest, type FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
 import { PlanLabels } from '@/constants'
@@ -246,7 +236,6 @@ import TermsOfUseStatus from './TermsOfUseStatus.vue'
 import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
 import Alert from './Alert.vue'
 import InfoModal from './InfoModal.vue'
-import UserRequestsModal from './UserRequestsModal.vue'
 import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
@@ -257,6 +246,8 @@ import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
 import LinkToModal from './LinkToModal.vue'
+import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
+import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -266,9 +257,9 @@ const userPlan = computed(() => userStore.userPlan)
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
 const isLoggedIn = computed(() => !!userStore.userData)
-const errorMessages = computed(() => {
+const errorMessages = computed<ErrorMessage[] | null>(() => {
   if (feedbackCollectorResponse.value.status === 'error') {
-    return [new BadRequest('Error', feedbackCollectorResponse.value.data)]
+    return [new BadRequest('Error', feedbackCollectorResponse.value.data) as any as ErrorMessage]
   }
   return notificationsStore.errorMessages
 })
@@ -315,22 +306,6 @@ const termsOfUseResponse = ref<{
   data: null
 })
 
-const userRequestResponse = ref<{
-  data: UserRequest[]
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: []
-})
-
-const subscriptionDatasetResponse = ref<{
-  data: SubscriptionDataset[]
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: []
-})
-
 const fetchCorpusOverviewResponse = ref<{
   data: Dataset[]
   status: 'idle' | 'loading' | 'success' | 'error'
@@ -373,10 +348,13 @@ const fetchPlansResponse = ref<{
 const resetView = () => {
   store.view = null
 }
+
 const changeView = (view: (typeof Views)[number]) => {
   console.debug('[Modals] changeView', view)
   store.view = view
 }
+
+// watcher for store.view changes
 watch(
   () => store.view,
   _view => {
@@ -384,10 +362,6 @@ watch(
     if (_view === ViewPlans) {
       console.debug('[Modals] @watch view = ViewPlans')
       fetchPlansContent()
-    } else if (_view === ViewUserRequests) {
-      console.debug('[Modals] @watch view = ViewUserRequests')
-      fetchUserRequest()
-      fetchSubscriptionDatasets()
     } else if (_view === ViewCorpusOverview) {
       console.debug('[Modals] @watch view = ViewCorpusOverview')
       fetchCorpusOverview()
@@ -477,53 +451,6 @@ const createFeedback = async (payload: FeedbackFormPayload) => {
     })
 }
 
-const fetchUserRequest = async () => {
-  console.debug('[Modals] fetchUserRequest')
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  userRequestResponse.value = { data: [], status: 'loading' }
-
-  // fetch user requests
-  userRequestsService
-    .find()
-    .then(data => {
-      console.info('[Modals] @useEffect - userRequestsService', data)
-      userRequestResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error('[Modals] @useEffect - userRequestsService', err.message, err.data, err.code)
-      userRequestResponse.value = { data: [], status: 'error' }
-    })
-  // fetch subscription datasets
-}
-const fetchSubscriptionDatasets = async () => {
-  console.debug('[Modals] fetchSubscriptionDatasets')
-  // load current status
-  if (!isLoggedIn.value) {
-    return
-  }
-  subscriptionDatasetResponse.value = { data: [], status: 'loading' }
-
-  // fetch subscription datasets
-  subscriptionDatasetsService
-    .find()
-    .then(data => {
-      console.info('[Modals] @useEffect - subscriptionDatasetsService', data)
-      subscriptionDatasetResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error(
-        '[Modals] @useEffect - subscriptionDatasetsService',
-        err.message,
-        err.data,
-        err.code
-      )
-      subscriptionDatasetResponse.value = { data: [], status: 'error' }
-    })
-}
-
 watch(
   showChangePlanToLegacyUsers,
   () => {
@@ -550,23 +477,26 @@ watch(
   }
 )
 </script>
-<i18n>
-  {
-    "en": {
-      "user_plan_label": "User Plan",
-      "user_bitmap_label": "User Bitmap",
-      "user_accept_terms_date_local_label": "User Accept Terms Date Local",
-      "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
-      "verbose_info_label": "[staff only] Verbose Info",
-      "not_accepted_local_label": "Not accepted on this device",
-      "not_accepted_on_db_label": "Not accepted on the server",
-      "label_feedback_modal": "Help us improve Impresso",
-      "label_trigger_feedback_modal": "Send feedback",
-      "view_change-password-success_modalTitle": "Password changed",
-      "view_change-password-success_title": "Password changed",
-      "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
-    }
+<i18n lang="json">
+{
+  "en": {
+    "user_plan_label": "User Plan",
+    "user_bitmap_label": "User Bitmap",
+    "user_accept_terms_date_local_label": "User Accept Terms Date Local",
+    "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
+    "verbose_info_label": "[staff only] Verbose Info",
+    "not_accepted_local_label": "Not accepted on this device",
+    "not_accepted_on_db_label": "Not accepted on the server",
+    "label_feedback_modal": "Help us improve Impresso",
+    "label_trigger_feedback_modal": "Send feedback",
+    "view_change-password-success_modalTitle": "Password changed",
+    "view_change-password-success_title": "Password changed successfully",
+    "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
+    "view_create-special-membership-request-success_modalTitle": "Special Membership Request Submitted",
+    "view_create-special-membership-request-success_title": "Special Membership request submitted successfully",
+    "view_create-special-membership-request-success_content": "Your special membership access request has been submitted successfully. We will notify you via email once your request has been processed."
   }
+}
 </i18n>
 <style lang="css">
 .Modals__feedback-button {

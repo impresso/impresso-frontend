@@ -216,7 +216,9 @@ const goToLast = () => {
 
 .fixed-pagination-footer .Pagination {
   border-radius: var(--impresso-border-radius-xs);
-  box-shadow: var(--bs-box-shadow-md);
+  box-shadow:
+    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 }
 .Pagination .pagination li.page-item > a,
 .Pagination .pagination li.page-item > .page-link {

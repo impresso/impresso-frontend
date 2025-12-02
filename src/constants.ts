@@ -55,7 +55,9 @@ export const ViewChangePassword = 'change-password'
 export const ViewChangePasswordSuccess = 'change-password-success'
 export const ViewConfirmChangePlanRequest = 'confirm-change-plan-request'
 export const ViewInfoModal = 'info-modal'
-export const ViewUserRequests = 'user-requests'
+export const ViewSpecialMembership = 'special-membership'
+export const ViewCreateSpecialMembershipRequest = 'create-special-membership-request'
+export const ViewCreateSpecialMembershipRequestSuccess = 'create-special-membership-request-success'
 export const ViewPlans = 'plans'
 export const ViewCorpusOverview = 'corpus-overview'
 export const ViewDataRundown = 'data-rundown'
@@ -66,11 +68,14 @@ export const Views: string[] = [
   ViewChangePassword,
   ViewChangePasswordSuccess,
   ViewConfirmChangePlanRequest,
-  ViewUserRequests,
+  ViewInfoModal,
   ViewPlans,
   ViewCorpusOverview,
   ViewFeedback,
-  ViewDataRundown
+  ViewDataRundown,
+  ViewSpecialMembership,
+  ViewCreateSpecialMembershipRequest,
+  ViewCreateSpecialMembershipRequestSuccess
 ]
 
 const FeedbackOptionContentItemMetadataIssue = 'ContentItemMetadataIssue'

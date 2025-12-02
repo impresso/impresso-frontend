@@ -58,7 +58,7 @@
 }
 </i18n>
 <script lang="ts" setup>
-import { defineProps, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import List from '@/components/modules/lists/List.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'

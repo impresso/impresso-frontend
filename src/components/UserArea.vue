@@ -33,10 +33,12 @@
     <b-dropdown-item v-if="user && user.isStaff" v-on:click="test()">{{
       $t('send_test_job')
     }}</b-dropdown-item>
-    <!-- <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewUserRequests">
-      {{ $t('label_user_requests') }}
-    </LinkToModal> -->
 
+    <SpecialMembershipButton
+      class="dropdown-item"
+      v-if="user && user.isStaff"
+      @click="triggerClickOutside"
+    />
     <LinkToModal
       v-if="user && user.isStaff && isViewPlansFeatureEnabled"
       class="dropdown-item"
@@ -95,6 +97,8 @@ import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services
 import { useUserStore } from '@/stores/user'
 import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
+import SpecialMembershipButton from './specialMembership/SpecialMembershipButton.vue'
+import { triggerClickOutside } from '@/composables/useClickOutside'
 
 const userStore = useUserStore()
 
