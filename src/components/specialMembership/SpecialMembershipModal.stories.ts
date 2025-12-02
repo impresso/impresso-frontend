@@ -40,7 +40,7 @@ const meta: Meta<typeof SpecialMembershipModal> = {
   }
 }
 
-export default meta // ← ADD THIS LINE
+export default meta
 
 type Story = StoryObj<typeof meta>
 export const Default: Story = {
