@@ -5,23 +5,26 @@
         <h3 class="font-size-inherit m-0 font-weight-bold">{{ item.title }}</h3>
         <p class="small m-0">{{ item.metadata?.provider }}</p>
       </div>
-      <div v-if="item.request" class="col-5 d-flex align-items-center justify-content-start gap-2">
+      <div
+        v-if="item.requests && item.requests.length > 0"
+        class="col-5 d-flex align-items-center justify-content-start gap-2"
+      >
         <Icon v-bind="iconArgs" />
         <div class="small">
           <span
             :class="{
-              'text-success font-weight-bold': item.request.status === 'approved'
+              'text-success font-weight-bold': item.requests[0].status === 'approved'
             }"
-            >{{ $t(`status.${item.request.status}`) }}
+            >{{ $t(`status.${item.requests[0].status}`) }}
           </span>
           <div class="text-muted small">
             {{ $t('dateCreated') }}
-            <TimeAgo :date="item.request.dateCreated" />
+            <TimeAgo :date="item.requests[0].dateCreated" />
           </div>
         </div>
       </div>
       <div
-        v-else-if="withActions && !item.request"
+        v-else-if="withActions && (!item.requests || item.requests.length === 0)"
         class="col-5 SpecialMembershipAccessItem__requestAccess"
       >
         <button
@@ -52,16 +55,16 @@ const emit = defineEmits<{
 }>()
 
 const iconArgs = computed<IconProps>(() => {
-  if (!props.item.request) {
+  if (!props.item.requests || props.item.requests.length === 0) {
     return {}
   }
-  if (props.item.request.status === 'approved') {
+  if (props.item.requests[0].status === 'approved') {
     return {
       name: 'check',
       strokeWidth: 1.5,
       color: 'green'
     }
-  } else if (props.item.request.status === 'pending') {
+  } else if (props.item.requests[0].status === 'pending') {
     return {
       name: 'warningCircle',
       strokeWidth: 1.5,
