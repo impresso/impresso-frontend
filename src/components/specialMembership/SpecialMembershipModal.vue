@@ -129,8 +129,6 @@ const emit = defineEmits<{
   dismiss: []
   success: []
 }>()
-
-const specialMembershipAccessToRequest = ref<SpecialMembershipAccess | null>(null)
 </script>
 
 <style>

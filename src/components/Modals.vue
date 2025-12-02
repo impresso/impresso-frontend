@@ -20,7 +20,7 @@
       dialogClass="modal-md modal-dialog-centered"
       @dismiss="resetView"
     >
-      <p v-html="$t('view_' + view + '_content')"></p>
+      <p class="m-0" v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
 
     <SpecialMembershipModal :isVisible="view === ViewSpecialMembership" @dismiss="resetView" />
@@ -477,23 +477,26 @@ watch(
   }
 )
 </script>
-<i18n>
-  {
-    "en": {
-      "user_plan_label": "User Plan",
-      "user_bitmap_label": "User Bitmap",
-      "user_accept_terms_date_local_label": "User Accept Terms Date Local",
-      "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
-      "verbose_info_label": "[staff only] Verbose Info",
-      "not_accepted_local_label": "Not accepted on this device",
-      "not_accepted_on_db_label": "Not accepted on the server",
-      "label_feedback_modal": "Help us improve Impresso",
-      "label_trigger_feedback_modal": "Send feedback",
-      "view_change-password-success_modalTitle": "Password changed",
-      "view_change-password-success_title": "Password changed",
-      "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
-    }
+<i18n lang="json">
+{
+  "en": {
+    "user_plan_label": "User Plan",
+    "user_bitmap_label": "User Bitmap",
+    "user_accept_terms_date_local_label": "User Accept Terms Date Local",
+    "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
+    "verbose_info_label": "[staff only] Verbose Info",
+    "not_accepted_local_label": "Not accepted on this device",
+    "not_accepted_on_db_label": "Not accepted on the server",
+    "label_feedback_modal": "Help us improve Impresso",
+    "label_trigger_feedback_modal": "Send feedback",
+    "view_change-password-success_modalTitle": "Password changed",
+    "view_change-password-success_title": "Password changed successfully",
+    "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
+    "view_create-special-membership-request-success_modalTitle": "Special Membership Request Submitted",
+    "view_create-special-membership-request-success_title": "Special Membership request submitted successfully",
+    "view_create-special-membership-request-success_content": "Your special membership access request has been submitted successfully. We will notify you via email once your request has been processed."
   }
+}
 </i18n>
 <style lang="css">
 .Modals__feedback-button {
