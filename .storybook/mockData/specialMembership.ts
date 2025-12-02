@@ -1,4 +1,5 @@
 import {
+  SpecialMembershipAccess,
   UserSpecialMembershipRequest,
   UserSpecialMembershipRequestChangelogEntry
 } from '@/services/types'
@@ -21,32 +22,38 @@ export const MockProviders = [
   'Royal Library of Belgium'
 ]
 
-export const MockSpecialMembershipAccess = MockProviders.map((provider, index) => ({
-  id: index + 10,
-  reviewerId: null,
-  title: 'Data domain Access ' + index,
-  bitmapPosition: 1,
-  metadata: { provider, note: 'Test subscription ' + index },
-  request: null
-}))
+export const MockSpecialMembershipAccess = MockProviders.map(
+  (provider, index) =>
+    ({
+      id: index + 10,
+      reviewerId: null,
+      title: 'Data domain Access ' + index,
+      bitmapPosition: 1,
+      metadata: { provider, note: 'Test subscription ' + index },
+      requests: null
+    }) as SpecialMembershipAccess
+)
 
 export const MockSpecialMembershipAccessWithRequests = MockSpecialMembershipAccess.map(
-  (item, index) => ({
-    ...item,
-    request:
-      index % 3 === 0
-        ? {
-            id: index + 1,
-            reviewerId: null,
-            specialMembershipAccessId: item.id,
-            userId: 42,
-            dateCreated: new Date().toISOString(),
-            dateLastModified: new Date().toISOString(),
-            status: 'pending',
-            changelog: []
-          }
-        : null
-  })
+  (item, index) =>
+    ({
+      ...item,
+      requests:
+        index % 3 === 0
+          ? [
+              {
+                id: index + 1,
+                reviewerId: null,
+                specialMembershipAccessId: item.id,
+                userId: 42,
+                dateCreated: new Date().toISOString(),
+                dateLastModified: new Date().toISOString(),
+                status: 'pending',
+                changelog: []
+              }
+            ]
+          : null
+    }) as SpecialMembershipAccess
 )
 
 export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] = Array.from(

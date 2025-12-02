@@ -89,6 +89,11 @@ export interface TermsOfUse {
   dateAcceptedTerms: string | null
 }
 
+/**
+ * Special Membership Access item interface,
+ * it defines the structure of a special membership access item, with bitmap position.
+ * It could handle optionally a associated list of UserSpecialMembershipRequest items.
+ */
 export interface SpecialMembershipAccess {
   id: number
   reviewerId?: number | null
@@ -98,15 +103,15 @@ export interface SpecialMembershipAccess {
     provider?: string
     note?: string
   }
-  request: null | UserSpecialMembershipRequest
+  requests?: UserSpecialMembershipRequest[]
 }
 
 export interface UserSpecialMembershipRequest {
   id: number
   reviewerId: number | null
-  specialMembershipAccessId: number | null
+  specialMembershipAccessId: number
   userId: number
-  specialMembershipAccess?: SpecialMembershipAccess
+  specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
   status: 'pending' | 'approved' | 'rejected'
