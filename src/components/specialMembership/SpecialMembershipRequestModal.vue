@@ -8,7 +8,7 @@
     @close="emit('dismiss')"
     hideFooter
   >
-    <SpecialMembershipAccessItem :item="props.item" />
+    <SpecialMembershipAccessItem :item="props.item" class="mt-3" />
     <SpecialMembershipRequestForm
       class="p-3"
       :isLoading="isLoading"
