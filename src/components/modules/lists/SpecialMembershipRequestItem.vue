@@ -2,7 +2,7 @@
   <SpecialMembershipAccessItem :item="specialMembershipAccessWithRequest" />
 </template>
 <script setup lang="ts">
-import type { UserSpecialMembershipRequest } from '@/services/types'
+import type { SpecialMembershipAccess, UserSpecialMembershipRequest } from '@/services/types'
 import SpecialMembershipAccessItem from './SpecialMembershipAccessItem.vue'
 
 import { computed } from 'vue'
@@ -13,10 +13,10 @@ export interface SpecialMembershipRequestItemProps {
 
 const props = defineProps<SpecialMembershipRequestItemProps>()
 
-const specialMembershipAccessWithRequest = computed(() => {
+const specialMembershipAccessWithRequest = computed<SpecialMembershipAccess>(() => {
   return {
-    ...(props.item.specialMembershipAccess ?? {}),
-    request: props.item
+    ...props.item.specialMembershipAccess,
+    requests: [props.item]
   }
 })
 </script>
