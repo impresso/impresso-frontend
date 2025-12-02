@@ -12,7 +12,9 @@
     />
     <!-- generic message Modal -->
     <InfoModal
-      :isVisible="[ViewChangePasswordSuccess].includes(view as any)"
+      :isVisible="
+        [ViewChangePasswordSuccess, ViewCreateSpecialMembershipRequestSuccess].includes(view as any)
+      "
       :modalTitle="$t('view_' + view + '_modalTitle')"
       :title="$t('view_' + view + '_title')"
       dialogClass="modal-md modal-dialog-centered"
@@ -21,14 +23,14 @@
       <p v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
 
-    <SpecialMembershipModal v-if="view === ViewSpecialMembership" isVisible @dismiss="resetView" />
+    <SpecialMembershipModal :isVisible="view === ViewSpecialMembership" @dismiss="resetView" />
     <SpecialMembershipRequestModal
-      v-if="view === ViewCreateSpecialMembershipRequest"
-      isVisible
+      :isVisible="view === ViewCreateSpecialMembershipRequest"
       :item="store.specialMembershipAccessItem"
       @dismiss="resetView"
-      @success="changeView(ViewSpecialMembership)"
+      @success="changeView(ViewCreateSpecialMembershipRequestSuccess)"
     />
+
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
       <template v-slot:terms-of-use-status>
         <Alert
@@ -184,7 +186,7 @@
       :isVisible="view === ViewFeedback"
       @dismiss="resetView"
       @submit="createFeedback"
-      :errorMessages="errorMessages as ErrorMessage[]"
+      :errorMessages="errorMessages"
       :is-loading="feedbackCollectorResponse.status === 'loading'"
     ></FeedbackModal>
     <div class="position-fixed" style="right: 0; top: 50%">
@@ -206,13 +208,12 @@ import { computed, ref, watch } from 'vue'
 import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
-import type { SpecialMembershipAccess, TermsOfUse } from '@/services/types'
+import type { TermsOfUse } from '@/services/types'
 import {
   Views,
   ViewTermsOfUse,
   ViewPlans,
   ViewChangePlanRequest,
-  ViewUserRequests,
   ViewConfirmChangePlanRequest,
   ViewInfoModal,
   ViewCorpusOverview,
@@ -223,7 +224,8 @@ import {
   PlanGuest,
   PlanNone,
   ViewSpecialMembership,
-  ViewCreateSpecialMembershipRequest
+  ViewCreateSpecialMembershipRequest,
+  ViewCreateSpecialMembershipRequestSuccess
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import { termsOfUse as termsOfUseService, feedback as feedbackService } from '@/services'
@@ -245,6 +247,7 @@ import Icon from './base/Icon.vue'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
 import LinkToModal from './LinkToModal.vue'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
+import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -254,9 +257,9 @@ const userPlan = computed(() => userStore.userPlan)
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
 const isLoggedIn = computed(() => !!userStore.userData)
-const errorMessages = computed(() => {
+const errorMessages = computed<ErrorMessage[] | null>(() => {
   if (feedbackCollectorResponse.value.status === 'error') {
-    return [new BadRequest('Error', feedbackCollectorResponse.value.data)]
+    return [new BadRequest('Error', feedbackCollectorResponse.value.data) as any as ErrorMessage]
   }
   return notificationsStore.errorMessages
 })
@@ -345,10 +348,13 @@ const fetchPlansResponse = ref<{
 const resetView = () => {
   store.view = null
 }
+
 const changeView = (view: (typeof Views)[number]) => {
   console.debug('[Modals] changeView', view)
   store.view = view
 }
+
+// watcher for store.view changes
 watch(
   () => store.view,
   _view => {
