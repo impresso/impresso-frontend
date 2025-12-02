@@ -6,7 +6,6 @@
     :dialogClass="props.dialogClass"
     bodyClass="p-0"
     @close="emit('dismiss')"
-    hideBackdrop
     hideFooter
   >
     <SpecialMembershipAccessItem :item="props.item" />
