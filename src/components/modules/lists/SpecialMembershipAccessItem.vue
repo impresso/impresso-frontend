@@ -20,7 +20,10 @@
           </div>
         </div>
       </div>
-      <div v-else-if="!item.request" class="col-5 SpecialMembershipAccessItem__requestAccess">
+      <div
+        v-else-if="withActions && !item.request"
+        class="col-5 SpecialMembershipAccessItem__requestAccess"
+      >
         <button
           class="btn btn-sm btn-outline-secondary"
           @click="() => emit('request-access', props.item)"
@@ -39,9 +42,10 @@ import { computed } from 'vue'
 
 export interface SpecialMembershipAccessItemProps {
   item: SpecialMembershipAccess
+  withActions?: boolean
 }
 
-const props = defineProps<{ item: SpecialMembershipAccess }>()
+const props = defineProps<SpecialMembershipAccessItemProps>()
 
 const emit = defineEmits<{
   (e: 'request-access', item: SpecialMembershipAccess): void

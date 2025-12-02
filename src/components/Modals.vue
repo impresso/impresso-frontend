@@ -20,7 +20,15 @@
     >
       <p v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
-    <!--  -->
+
+    <SpecialMembershipModal v-if="view === ViewSpecialMembership" isVisible @dismiss="resetView" />
+    <SpecialMembershipRequestModal
+      v-if="view === ViewCreateSpecialMembershipRequest"
+      isVisible
+      :item="store.specialMembershipAccessItem"
+      @dismiss="resetView"
+      @success="changeView(ViewSpecialMembership)"
+    />
     <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
       <template v-slot:terms-of-use-status>
         <Alert
@@ -213,7 +221,9 @@ import {
   ViewChangePassword,
   ViewChangePasswordSuccess,
   PlanGuest,
-  PlanNone
+  PlanNone,
+  ViewSpecialMembership,
+  ViewCreateSpecialMembershipRequest
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
 import { termsOfUse as termsOfUseService, feedback as feedbackService } from '@/services'
@@ -234,6 +244,7 @@ import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
 import Icon from './base/Icon.vue'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
 import LinkToModal from './LinkToModal.vue'
+import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()

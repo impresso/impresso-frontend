@@ -1,15 +1,9 @@
 <template>
-  <form class="form p-4" @submit.prevent="submitHandler">
-    <p
-      v-html="
-        $t('userRequestSpecialMembershipAccess', {
-          title: props.specialMembershipAccess.title
-        })
-      "
-    ></p>
+  <form class="form" @submit.prevent="submitHandler">
     <LoadingBlock v-if="isLoading"></LoadingBlock>
     <section v-else>
       <textarea
+        autofocus
         class="form-control form-control-sm rounded-sm shadow-sm"
         rows="3"
         :placeholder="$t('specialMembershipAccessPlaceholder')"

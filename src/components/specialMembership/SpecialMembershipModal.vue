@@ -8,18 +8,7 @@
     @close="emit('dismiss')"
     hideBackdrop
   >
-    <SpecialMembershipRequestForm
-      v-if="specialMembershipAccessToRequest"
-      :isLoading="isLoading"
-      :specialMembershipAccess="specialMembershipAccessToRequest"
-      @dismiss="specialMembershipAccessToRequest = null"
-      @submit="createRequest"
-    >
-      {{ error }}
-      <FeathersErrorManager v-if="error" :error="error" class="m-3" />
-    </SpecialMembershipRequestForm>
     <ListOfFindResponseItems
-      v-else
       :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
       :list-is-empty-message="$t('listIsEmpty')"
       :service="serviceByMode"
@@ -145,28 +134,6 @@ const emit = defineEmits<{
 const specialMembershipAccessToRequest = ref<SpecialMembershipAccess | null>(null)
 const isLoading = ref(false)
 const error = ref<FeathersError | null>(null)
-
-const createRequest = async ({ notes = '' }: { notes: string }) => {
-  if (!specialMembershipAccessToRequest.value) {
-    return
-  }
-  isLoading.value = true
-  await userSpecialMembershipRequestsService
-    .create({
-      specialMembershipAccessId: specialMembershipAccessToRequest.value.id,
-      notes
-    })
-    .then(() => {
-      console.debug('Special membership request created successfully')
-      mode.value = ModeUserSpecialMembershipRequests
-    })
-    .catch(err => {
-      console.error('Failed to create special membership request:', err)
-      error.value = err as FeathersError
-    })
-
-  isLoading.value = false
-}
 </script>
 
 <style>
