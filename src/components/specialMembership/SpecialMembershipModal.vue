@@ -6,7 +6,6 @@
     :dialogClass="props.dialogClass"
     bodyClass="p-0"
     @close="emit('dismiss')"
-    hideBackdrop
   >
     <ListOfFindResponseItems
       :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
@@ -54,9 +53,10 @@
             :item="item"
           />
           <SpecialMembershipAccessItem
+            withActions
             v-else-if="mode === ModeSpecialMembershipAccess"
             :item="item"
-            @request-access="specialMembershipAccessToRequest = $event"
+            @request-access="viewStore.openSpecialMembershipModal($event)"
           />
         </div>
       </template>
@@ -99,10 +99,9 @@ import SpecialMembershipRequestItem from '../modules/lists/SpecialMembershipRequ
 import SpecialMembershipAccessItem from '../modules/lists/SpecialMembershipAccessItem.vue'
 import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
 import { SpecialMembershipAccess } from '@/services/types'
-import type { FeathersError } from '@feathersjs/errors'
-import FeathersErrorManager from '../FeathersErrorManager.vue'
-import SpecialMembershipRequestForm from './SpecialMembershipRequestForm.vue'
-import LoadingBlock from '../LoadingBlock.vue'
+import { useViewsStore } from '@/stores/views'
+
+const viewStore = useViewsStore()
 
 export type SpecialMembershipModalProps = {
   dialogClass?: string
@@ -132,8 +131,6 @@ const emit = defineEmits<{
 }>()
 
 const specialMembershipAccessToRequest = ref<SpecialMembershipAccess | null>(null)
-const isLoading = ref(false)
-const error = ref<FeathersError | null>(null)
 </script>
 
 <style>
