@@ -1,11 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import TimeAgo from './TimeAgo.vue'
 import type { TimeAgoProps } from './TimeAgo.vue'
-import { MockUserSpecialMembershipRequests } from '.storybook/mockData/specialMembership'
-import {
-  findSpecialMembershipAccessHandler,
-  findUserSpecialMembershipRequestsHandler
-} from '.storybook/mswHandlers'
 
 const meta: Meta<typeof TimeAgo> = {
   title: 'components/TimeAgo',
