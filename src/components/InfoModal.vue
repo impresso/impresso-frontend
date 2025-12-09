@@ -2,11 +2,11 @@
   <Modal
     :show="isVisible"
     :title="modalTitle ?? title"
-    modalClasses="InfoModal"
+    modalClass="InfoModal"
     :dialogClass="props.dialogClass"
     @close="dismiss"
   >
-    <h1>{{ title }}</h1>
+    <h5 class="mb-4">{{ title }}</h5>
     <slot></slot>
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
@@ -35,3 +35,16 @@ function dismiss() {
   emit('dismiss')
 }
 </script>
+<style>
+.InfoModal .modal-header {
+  border-bottom: none;
+  padding-right: var(--spacing-1);
+  padding-bottom: var(--spacing-1);
+}
+
+.InfoModal .modal-footer {
+  border-top: none;
+  padding-right: var(--spacing-2);
+  padding-bottom: var(--spacing-2);
+}
+</style>

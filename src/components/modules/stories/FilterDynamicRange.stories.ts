@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterDynamicRange, {
   type StatsDataProvider,
   type FacetSearchDataProvider
 } from '@/components/modules/FilterDynamicRange.vue'
 import type { Facet } from '@/models'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 
 const statsProvider: StatsDataProvider = async (type: string, { query }) => {
   return Promise.resolve({

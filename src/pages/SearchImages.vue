@@ -173,9 +173,25 @@ import { Navigation } from '@/plugins/Navigation'
 import { defineComponent, PropType } from 'vue'
 import { IImage, Filter } from '@/models'
 
-const AllowedFilterTypes = ['newspaper', 'isFront', 'daterange', 'title']
+const AllowedFilterTypes = [
+  'newspaper',
+  'isFront',
+  'daterange',
+  'title',
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+]
 
-const AllowedFacetTypes = ['newspaper', 'year']
+const AllowedFacetTypes = [
+  'newspaper',
+  'year',
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+]
 
 interface IData {
   q: string

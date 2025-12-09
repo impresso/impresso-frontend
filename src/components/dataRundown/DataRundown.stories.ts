@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DataRundown from './DataRundown.vue'
 import type { DataRelease } from '@/services/types'
 import { http, HttpResponse } from 'msw'

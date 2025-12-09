@@ -78,10 +78,14 @@
 import { getAuthHeaders } from '@/util/auth'
 import Job from '@/models/Job'
 import Icon from '@/components/base/Icon.vue'
-import { MIDDLELAYER_MEDIA_URL, getAuthenticationToken, jobs as jobsService } from '@/services'
+import { getAuthenticationToken, jobs as jobsService } from '@/services'
 import { computed } from 'vue'
 import router from '@/router'
 import type { PropType } from 'vue'
+
+const BasePath = import.meta.env.VITE_USE_PROXY_MIDDLEWARE
+  ? ''
+  : import.meta.env.VITE_MIDDLELAYER_API
 
 const props = defineProps({
   item: {
@@ -118,10 +122,10 @@ const onExport = () => {
   const anchor = document.createElement('a')
   document.body.appendChild(anchor)
   const headers = new Headers(getAuthHeaders(getAuthenticationToken()))
-  fetch(
-    `${import.meta.env.VITE_MIDDLELAYER_API}${import.meta.env.VITE_MIDDLELAYER_API_PATH}/media/jobs/${props.item.id}`,
-    { headers }
-  )
+  const jobUrl = `${BasePath}${import.meta.env.VITE_MIDDLELAYER_API_PATH.replace(/\/+$/, '')}/media/jobs/${props.item.id}`
+  fetch(jobUrl, {
+    headers
+  })
     .then(res => res.blob())
     .then(blobby => {
       const objectUrl = window.URL.createObjectURL(blobby)

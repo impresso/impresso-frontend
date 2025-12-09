@@ -28,6 +28,14 @@ export default {
         w: 'weather news (other)',
         picture: 'picture'
       },
+      sourceType: {
+        newspaper: 'newspapers',
+        radio: 'radio'
+      },
+      sourceMedium: {
+        print: 'print',
+        digital: 'digital'
+      },
       language: {
         de: 'German',
         fr: 'French',
@@ -105,13 +113,14 @@ export default {
       }
     },
     op: {
-      or: 'or',
-      and: 'and'
+      or: 'OR',
+      and: 'AND'
     },
     actions: {
       search: 'Search',
+
       register: 'Create account',
-      addFilter: 'Add filter ...',
+      addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
       agree: 'I agree to the terms of use',
@@ -129,13 +138,16 @@ export default {
       clear: 'clear',
       close: 'close',
       dismiss: 'dismiss',
+      discard: 'discard changes',
       loading: 'loading...',
       reset: 'Reset',
       highlightItemOff: 'remove from the "observing" list',
       highlightItemOn: 'add to the "observing" list',
+      idle: 'Please wait...',
       apply: 'Apply',
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
+      applyChangesDetailedAddedOnly: 'apply changes (added: {added})',
       addToCurrentFilters: 'Add as search filter',
       removeFromCurrentFilters: 'Remove filter from current search',
       resetPassword: 'Reset my password',
@@ -188,6 +200,8 @@ export default {
       options: '&nbsp; | (1 option) | ({n} options)',
       moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
+      itemsGeneric:
+        'no items | <span class="number">1</span> item | <span class="number">{n}</span> items',
       clusterSize: '&nbsp; | single cluster | <span class="number">{n}</span> passages',
       lexicalOverlap: '<span class="number">{n}%</span> lexical overlap',
       ofPassages:
@@ -332,6 +346,18 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      embedding: {
+        title: 'Embedding | Embedding | Embeddings',
+        filterTitle: 'embedding',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> embeddings applies',
+        description: 'check one or more embeddings to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'similar to selected embeddings',
+          exclude: '<b>NOT</b> similar to selected embeddings'
+        }
+      },
       sourceType: {
         title: 'Media Type | Media Type | Media Types',
         filterTitle: 'media type',
@@ -459,10 +485,10 @@ export default {
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
-        filterTitle: 'newspaper title',
+        filterTitle: 'media source',
         filtered: 'results are filtered when:',
-        selected: 'filter results if they appear in <b>one of {count} selected</b> newspapers',
-        description: 'check one or more newspaper to filter results',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> media sources',
+        description: 'check one or more media sources to filter results',
         empty: '(no results)'
       },
       partner: {
@@ -549,6 +575,54 @@ export default {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
         optionsDescription: 'Total number of articles per year'
+      },
+      imageVisualContent: {
+        title: 'Visual Content | Visual Content | Visual Contents',
+        filterTitle: 'visual content',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> visual contents applies',
+        description: 'check one or more visual contents to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageTechnique: {
+        title: 'Technique | Technique | Techniques',
+        filterTitle: 'technique',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> techniques applies',
+        description: 'check one or more techniques to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageCommunicationGoal: {
+        title: 'Communication Goal | Communication Goal | Communication Goals',
+        filterTitle: 'communication goal',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> communication goals applies',
+        description: 'check one or more communication goals to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
+      },
+      imageContentType: {
+        title: 'Content Type | Content Type | Content Types',
+        filterTitle: 'content type',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> content types applies',
+        description: 'check one or more content types to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'tagged as',
+          exclude: '<b>NOT</b> tagged as'
+        }
       }
     },
     tabs: {

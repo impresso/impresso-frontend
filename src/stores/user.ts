@@ -49,7 +49,9 @@ export const useUserStore = defineStore('user', {
     user(state) {
       return state.userData
     },
-
+    isLoggedIn(state) {
+      return state.userData !== false
+    },
     userPlan(state) {
       if (!state.acceptTermsDate) {
         return PlanGuest

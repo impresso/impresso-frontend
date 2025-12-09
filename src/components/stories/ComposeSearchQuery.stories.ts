@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ComposeSearchQuery from '../ComposeSearchQuery.vue'
 import type { Props } from '../ComposeSearchQuery.vue'
 

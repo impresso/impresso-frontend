@@ -4,35 +4,37 @@
       <div class="images mr-2" v-if="preferredImage">
         <div class="image" :style="imageStyle(preferredImage)" />
       </div>
-      <div class="labels">
+      <div class="labels" v-if="item.wikidata">
         <strong>{{ title }}</strong> ({{ item.wikidata.id }})
-        <br />
         <span class="small-caps">{{ $t(`types.${item.wikidata.type}`) }}</span>
-        <span v-if="item.wikidata.type === 'location'">
-          <a :href="geographicUrl" taget="_blank">{{ geoCoordinates }}</a>
-        </span>
-        <a
-          v-if="item.wikidata.birthPlace"
-          :href="`https://www.wikidata.org/wiki/${item.wikidata.birthPlace.id}`"
-          target="_blank"
-        >
-          {{ getTranslation(item.wikidata.birthPlace.labels) }},</a
-        >
-        <span v-if="item.wikidata.birthDate"> {{ parseWkDate(item.wikidata.birthDate) }} - </span>
-        <a
-          v-if="item.wikidata.deathPlace"
-          :href="`https://www.wikidata.org/wiki/${item.wikidata.deathPlace.id}`"
-          target="_blank"
-        >
-          {{ getTranslation(item.wikidata.deathPlace.labels) }},</a
-        >
-        <span v-if="item.wikidata.deathDate">
-          {{ parseWkDate(item.wikidata.deathDate) }}
-        </span>
+
+        <p>
+          <span v-if="item.wikidata.type === 'location'">
+            <a :href="geographicUrl" taget="_blank">{{ geoCoordinates }}</a>
+          </span>
+          <a
+            v-if="item.wikidata.birthPlace"
+            :href="`https://www.wikidata.org/wiki/${item.wikidata.birthPlace.id}`"
+            target="_blank"
+          >
+            {{ getTranslation(item.wikidata.birthPlace.labels) }},</a
+          >
+          <span v-if="item.wikidata.birthDate"> {{ parseWkDate(item.wikidata.birthDate) }} - </span>
+          <a
+            v-if="item.wikidata.deathPlace"
+            :href="`https://www.wikidata.org/wiki/${item.wikidata.deathPlace.id}`"
+            target="_blank"
+          >
+            {{ getTranslation(item.wikidata.deathPlace.labels) }},</a
+          >
+          <span v-if="item.wikidata.deathDate">
+            {{ parseWkDate(item.wikidata.deathDate) }}
+          </span>
+        </p>
       </div>
     </div>
     <!--  description or other contents here -->
-    <div class="wikidata-contents" v-if="item.wikidata.descriptions">
+    <div class="wikidata-contents" v-if="item.wikidata?.descriptions">
       <span class="text-serif px-1 mr-1 white border">W</span>
       <em>{{ description }}</em>
       <br />
@@ -96,7 +98,7 @@ export default {
       return this.getTranslation(this.item.wikidata.descriptions)
     },
     title() {
-      return this.getTranslation(this.item.wikidata.labels)
+      return this.getTranslation(this.item.wikidata?.labels)
     }
   },
   methods: {
@@ -117,7 +119,7 @@ export default {
       if (typeof translatable !== 'object') {
         return ''
       }
-      const value = translatable[this.currentLanguage]
+      const value = translatable[this.currentLanguage]?.value
       if (value) {
         return value
       }

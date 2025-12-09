@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterTextInput from './FilterTextInput.vue'
 import { Filter } from 'impresso-jscommons'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 import { toSerializedFilters } from '@/logic/filters'
 
 // Generate a sample valid filters base64 string for the stories

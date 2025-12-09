@@ -44,6 +44,9 @@
 
   --impresso-color-pastel-blue: rgba(86, 204, 242);
   --impresso-color-pastel-blue-alpha-20: rgba(86, 204, 242, 0.2);
+  --impresso-color-pastel-blue-alpha-30: rgba(86, 204, 242, 0.3);
+  --impresso-color-pastel-blue-alpha-50: rgba(86, 204, 242, 0.5);
+  --impresso-color-pastel-blue-alpha-80: rgba(86, 204, 242, 0.8);
 
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
@@ -63,6 +66,9 @@
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
   --impresso-wght-verysmallcaps: 550;
+
+  --impresso-color-light-grey: #f8f9fa;
+  --impresso-color-light-grey-alpha-50: rgba(248, 249, 250, 0.5);
 
   --info: #c3fcf1;
   --info-rgb: 195, 252, 241;
@@ -94,6 +100,7 @@
   --clr-grey-700: #e1e1ee;
   --clr-grey-800: #ececfb;
   --clr-grey-900: #f8f8ff;
+  --clr-grey-100-rgba-10: #464d5320;
   --clr-grey-100-rgba-20: #464d5333;
   --clr-grey-200-rgba-20: #585d6633;
   --clr-grey-300-rgba-20: #7c7f8c33;
@@ -254,7 +261,9 @@ a:hover,
 }
 
 .badge-info {
-  background-color: #049dae;
+  --impresso-text-decoration-color: currentColor;
+  --bs-box-shadow-sm: none;
+  background-color: var(--impresso-color-pastel-blue-alpha-50);
 }
 .badge-language {
   background-color: #e1e6ea;
@@ -299,6 +308,10 @@ a:hover,
 .alert p {
   margin: 0;
 }
+
+.border-info {
+  border-color: rgb(var(--info-darker-rgb)) !important;
+}
 b {
   font-weight: var(--impresso-wght-bold);
   font-variation-settings: 'wght' var(--impresso-wght-bold);
@@ -339,6 +352,14 @@ label {
   letter-spacing: var(--impresso-letter-spacing-verysmallcaps);
   font-weight: var(--impresso-wght-verysmallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-verysmallcaps);
+}
+.no-small-caps {
+  text-transform: none;
+  font-variant: normal;
+  letter-spacing: normal;
+  font-size: var(--bs-font-size-base);
+  font-weight: inherit;
+  font-variation-settings: 'wght' var(--impresso-wght);
 }
 .small {
   font-size: 0.875em;
@@ -573,6 +594,34 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 .dropdown .dropdown-item {
   padding: var(--spacing-1) var(--spacing-3);
 }
+.dropdown-toggle[aria-expanded='true'] {
+  border-bottom: 1px solid white !important;
+}
+
+.dropdown-toggle::after {
+  height: 1rem;
+  margin: 0;
+  padding-left: 3px;
+}
+.dropdown-menu {
+  min-width: 100px;
+  padding: 0;
+  margin-top: -1px;
+  width: fit-content;
+}
+.dropdown.show.contains-form .dropdown-menu {
+  z-index: 1003;
+  min-width: 120%;
+  border-top-left-radius: var(--impresso-border-radius-xs);
+  border-top-right-radius: var(--impresso-border-radius-xs);
+  margin-right: -3px;
+}
+.dropdown-menu .custom-switch {
+  padding-inline-start: 35px;
+}
+.dropdown-menu .custom-switch .custom-control-label::before {
+  position: absolute;
+}
 
 .bg-dark ::selection {
   background-color: var(--impresso-color-yellow);
@@ -620,11 +669,13 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 
 .modal-backdrop {
-  background-image: linear-gradient(
-    to top,
-    var(--impresso-color-black) 0%,
-    var(--clr-grey-900) 100%
+  background-image: radial-gradient(
+    ellipse at center,
+    var(--impresso-color-yellow) 0%,
+    var(--impresso-color-yellow) 20%,
+    transparent 75%
   );
+  background-color: transparent;
 }
 /* SVGs */
 svg text {
@@ -709,4 +760,11 @@ svg path.domain {
   transform: translateX(-50%);
   max-width: 100%;
   z-index: var(--z-index-pagination);
+}
+
+.pe-none {
+  pointer-events: none;
+}
+.pe-auto {
+  pointer-events: auto;
 }

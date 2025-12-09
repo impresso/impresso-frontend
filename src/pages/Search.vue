@@ -32,6 +32,13 @@
           </b-form-checkbox>
         </b-form-group>
       </div>
+      <template v-slot:after-facets>
+        <div class="p-3">
+          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+            {{ $t('label_loadCollection') }}
+          </b-form-checkbox>
+        </div>
+      </template>
     </search-sidebar>
 
     <i-layout-section main>
@@ -96,15 +103,15 @@
             </b-dropdown>
           </template>
           <template #summary>
-            <ellipsis v-bind:initialHeight="60">
-              <search-results-summary
+            <Ellipsis v-bind:initialHeight="60" :additional-height="50">
+              <SearchResultsSummary
                 :isLoading="isLoadingResults"
                 @onSummary="onSummary"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows"
               />
-            </ellipsis>
+            </Ellipsis>
           </template>
           <template #summaryActions>
             <div class="d-flex align-items-center">
@@ -130,13 +137,13 @@
         :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
-        <collection-add-to-list :items="selectedItems" />
+        <collection-add-to-list :items="selectedCollectableItems" />
       </Modal>
 
       <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
-        @dismiss="hideModal('nameCollection')"
-        @success="hideModal('nameCollection')"
+        @dismiss="hideModal"
+        @success="handleCreateCollectionModalSuccess"
         :filters="searchServiceQuery.filters"
         :initial-payload="{
           name: inputName,
@@ -219,8 +226,9 @@ import Pagination from '@/components/modules/Pagination.vue'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
-import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
-import CollectionAddToList from '@/components/modules/CollectionAddToList.vue'
+import CollectionAddToList, {
+  ItemWithCollections
+} from '@/components/modules/CollectionAddToList.vue'
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -239,6 +247,7 @@ import {
   exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
+import { useNotificationsStore } from '@/stores/notifications'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
@@ -328,9 +337,15 @@ export default defineComponent({
     return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
+    ...mapStores(useCollectionsStore, useNotificationsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
+    },
+    selectedCollectableItems(): ItemWithCollections[] {
+      return this.selectedItems.map(item => ({
+        itemId: item.id,
+        collectionIds: item.semanticEnrichments?.collections?.map(c => c.uid)
+      }))
     },
     searchQuery: {
       ...searchQueryGetter(),
@@ -375,6 +390,9 @@ export default defineComponent({
     isLoggedIn() {
       return !!this.userStore.userData
     },
+    shouldLoadCollections() {
+      return this.isLoggedIn && this.loadCollectionsFlag
+    },
     orderBy: {
       get() {
         // If the user explicitly set an orderBy parameter, we use that.
@@ -410,6 +428,16 @@ export default defineComponent({
       set(displayStyle: string) {
         this.$navigation.updateQueryParametersWithHistory({
           displayStyle
+        })
+      }
+    },
+    loadCollectionsFlag: {
+      get() {
+        return (this.$route.query.c as string) === '1'
+      },
+      set(loadCollections: boolean) {
+        this.$navigation.updateQueryParametersWithHistory({
+          c: loadCollections ? '1' : undefined
         })
       }
     },
@@ -461,7 +489,8 @@ export default defineComponent({
         groupBy: this.groupBy,
         orderBy: this.orderBy,
         limit: this.paginationPerPage,
-        page: this.paginationCurrentPage
+        page: this.paginationCurrentPage,
+        loadCollections: this.loadCollectionsFlag
       }
       return query
     },
@@ -494,6 +523,9 @@ export default defineComponent({
     this.timelineFacets = buildEmptyFacets(['year'])
   },
   methods: {
+    toggleLoadCollections() {
+      this.loadCollectionsFlag = !this.loadCollectionsFlag
+    },
     isModalVisible(name) {
       return this.visibleModal === name
     },
@@ -502,6 +534,14 @@ export default defineComponent({
     },
     hideModal(name = undefined) {
       this.visibleModal = name
+    },
+    handleCreateCollectionModalSuccess() {
+      this.notificationsStore.addNotification({
+        title: this.$t('query_add_to_collection_success_title') as string,
+        message: this.$t('query_add_to_collection_success_message') as string,
+        type: 'info'
+      })
+      this.hideModal()
     },
     handleFiltersChanged(filters) {
       // add back ignored filters so that we can reuse them in other views
@@ -512,12 +552,11 @@ export default defineComponent({
     nameSelectedCollectionOnShown() {
       return this.collectionsStore.loadCollections()
     },
-    onSummary(msg) {
+    onSummary(msg: string) {
       const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
-      this.inputDescription = this.$tc('collectionDescription', this.paginationTotalRows, {
-        total: this.paginationTotalRows,
+      this.inputDescription = this.$t('collectionDescription', {
         inputDescription: searchQueryDescription
       })
     },
@@ -650,14 +689,13 @@ export default defineComponent({
             }
           })
           .then(response => {
-            console.log('[Search] data:', response.data)
             return response
           })
         this.paginationTotalRows = total
         this.searchResults = data
         this.isLoadingResults = false
         // this.searchInfo = info
-        console.debug(
+        console.info(
           '[Search] @searchServiceQuery: took',
           new Date().getTime() - startTime.getTime(),
           'ms. Total results:',
@@ -686,7 +724,7 @@ export default defineComponent({
           })
           .then(response => response.data.map(f => new FacetModel(f as any)))
 
-        this.userFacets = this.isLoggedIn
+        this.userFacets = this.shouldLoadCollections
           ? await searchFacetsService
               .find({
                 query: {
@@ -714,7 +752,6 @@ export default defineComponent({
     SearchResultsListItem,
     SearchResultsTilesItem,
     SearchResultsSummary,
-    CollectionAddTo,
     CollectionAddToList,
     Ellipsis,
     EmbeddingsSearch,
@@ -778,6 +815,7 @@ export default defineComponent({
     "label_isFront": "Frontpage",
     "label_embeddings": "add similar words",
     "label_hasTextContents": "Contains Text",
+    "label_loadCollection": "Enable Collections",
     "display_button_list": "List",
     "display_button_tiles": "Tiles",
     "order_issues": "Issue",
@@ -790,13 +828,15 @@ export default defineComponent({
     "add_n_to_collection": "Add selected item to collection ... | Add {count} selected items to collection ...",
     "query_actions": "Save / Export",
     "query_add_to_collection": "Create Collection from Search Results",
+    "query_add_to_collection_success_title": "Collection Created",
+    "query_add_to_collection_success_message": "The collection has been created and the items are being added.",
     "Collection_Name": "Collection Name",
     "Collection_Description": "Collection Description",
     "query_export": "Export result list as ...",
     "query_export_csv": "Export result list as CSV",
     "selected_export_csv": "Export selected items as CSV",
     "Based on search query with": "Based on search query with",
-    "collectionDescription": "1 content item{inputDescription} | {total} content items{inputDescription}"
+    "collectionDescription": "Based on search query: {inputDescription}"
   }
 }
 </i18n>

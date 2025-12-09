@@ -1,7 +1,7 @@
 <template>
   <div class="ContentItem" @click="emit('click', item)">
-    <h2>
-      <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="item.text.title"></RouterLink>
+    <h2 v-if="showTitle">
+      <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
       <span v-else v-html="item.text.title"></span>
     </h2>
     <div v-if="showMeta">
@@ -13,8 +13,7 @@
             type: item.meta.sourceType
           }"
           class="d-inline-block"
-        />
-        &nbsp;
+        />{{ '' }}
         <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
           v-if="item.image?.pagesCount"
@@ -32,7 +31,7 @@
         ></DataProviderLabel>
       </p>
     </div>
-    <div v-if="!showMeta" class="ContentItem__typePages">
+    <div v-if="!showMeta && showType" class="ContentItem__typePages">
       <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
       <span
         v-if="item.image?.pagesCount"
@@ -41,7 +40,7 @@
       </span>
     </div>
     <div
-      v-if="showSnippet && !showMatches && item.text?.snippet?.length > 0"
+      v-if="showSnippet && (!showMatches || item.text?.snippet?.length > 0)"
       class="ContentItem__excerpt mt-1"
     >
       <blockquote class="text-muted">{{ item.text.snippet }}</blockquote>
@@ -56,10 +55,10 @@
         <span v-else>{{ $t('reducedReadingTime') }}</span>
       </b-badge>
     </div>
-    <div v-if="showSemanticEnrichments" class="mt-1">
-      <div v-for="entityType in ['persons', 'locations', 'newsagencies', 'organisations']" :key="entityType">
+    <div v-if="showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2">
+      <div v-for="entityType in contentItemSemanticEnrichmentTypes" :key="entityType">
         <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
-          <Ellipsis :initialHeight="100" :maxHeight="200">
+          <Ellipsis :maxHeight="200">
             <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
             <div
               v-for="(entity, idx) in item.semanticEnrichments.namedEntities[entityType]"
@@ -69,8 +68,13 @@
               <ItemSelector
                 :uid="entity.id"
                 :label="entity.label"
-                :item="entity"
-                :type="entityType"
+                :item="{
+                  uid: entity.id,
+                  ...entity,
+                  name: entity.label
+                }"
+                :type="ItemSelectorEntityTypes[entityType]"
+                hideIcon
               />
               <span v-if="idx !== item.semanticEnrichments.namedEntities[entityType].length - 1"
                 >,
@@ -78,6 +82,19 @@
             </div>
           </Ellipsis>
         </div>
+      </div>
+    </div>
+    <div v-if="showTopics && item.semanticEnrichments.topics?.length" class="mt-2">
+      <b-badge variant="light" class="mr-1 very-small-caps d-inline-block">{{
+        $t('topics')
+      }}</b-badge>
+      <div class="d-flex flex-wrap gap-2">
+        <ContentItemTopicItem
+          :item="topic"
+          v-for="topic in item.semanticEnrichments.topics"
+          v-bind:key="topic.id"
+          :style="{ minWidth: '400px', maxWidth: '30%' }"
+        />
       </div>
     </div>
     <div v-if="showMatches && item.text?.matches?.length">
@@ -105,23 +122,50 @@ import DataProviderLabel from './DataProviderLabel.vue'
 import { getShortArticleId } from '@/logic/ids'
 import ItemSelector from '../ItemSelector.vue'
 import Ellipsis from '../Ellipsis.vue'
+import ContentItemTopicItem from './ContentItemTopicItem.vue'
 
 export interface Props {
   item: ContentItem
   showLink?: boolean
+  showTitle?: boolean
   showMeta?: boolean
   showSnippet?: boolean
   showMatches?: boolean
+  showType?: boolean
+  showTopics?: boolean
   showTranscriptLength?: boolean
   showSemanticEnrichments?: boolean
 }
 
-const props = defineProps<Props>()
+const ItemSelectorEntityTypes = {
+  persons: 'person',
+  locations: 'location',
+  organisations: 'organisation',
+  newsagencies: 'newsagency'
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  showTitle: true,
+  showType: true
+})
 const route = useRoute()
 const emit = defineEmits<{
   click: [item: ContentItem]
 }>()
 
+const contentItemSemanticEnrichmentTypes = computed(() => {
+  if (!props.item?.semanticEnrichments?.namedEntities) {
+    return []
+  }
+  return Object.keys(props.item.semanticEnrichments.namedEntities)
+})
+
+const contentItemTitle = computed(() => {
+  if (props.item.text.title?.length > 0) {
+    return props.item.text.title
+  }
+  return '[Untitled]'
+})
 const routerLinkUrl = computed(() => {
   if (props.item.meta.sourceType === 'newspaper') {
     return {

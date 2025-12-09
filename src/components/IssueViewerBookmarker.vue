@@ -1,7 +1,7 @@
 <template>
   <div
     class="issue-viewer-bookmarker d-flex align-items-center justify-content-center"
-    :class="{ active, visible }"
+    :class="{ active, visible, 'pe-none': !visible }"
   >
     <div
       class="bg-dark p-2 drop-shadow d-flex align-items-center justify-content-center"

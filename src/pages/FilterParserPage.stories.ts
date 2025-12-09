@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterParserPage from './FilterParserPage.vue'
 import { Filter } from 'impresso-jscommons'
 import { toSerializedFilters } from '@/logic/filters'
-import { userEvent, within } from '@storybook/test'
+import { userEvent, within } from 'storybook/test'
 
 // Generate sample valid filters for the stories
 const sampleFilters: Filter[] = [

@@ -46,19 +46,17 @@ const latestRelease = computed<DataRelease>(() => {
     }
   } as DataRelease
 })
+const controller = ref(new AbortController())
 
 onMounted(async () => {
-  const controller = new AbortController()
-
   await fetchJsonData<DataRelease[]>(
     import.meta.env.VITE_DATA_RELEASE_CARDS_JSON_URL,
     dataReleaseResponse,
-    controller.signal
+    controller.value.signal
   )
   console.info('[DataRundown] dataReleaseResponse', dataReleaseResponse.value)
-
-  onBeforeUnmount(() => {
-    controller.abort() // cancels the request if component is unmounted
-  })
+})
+onBeforeUnmount(() => {
+  controller.value.abort() // cancels the request if component is unmounted
 })
 </script>

@@ -26,7 +26,7 @@
             <CollectionAddTo
               right
               v-if="contentItem"
-              :item="contentItem"
+              :items="contentItemAsCollectableItems"
               :text="$t('add_to_collection')"
           /></template>
         </IssueViewerPageHeading>
@@ -71,6 +71,7 @@
         <IssueViewerText
           v-if="viewMode === IIIFViewerTranscriptMode"
           :article_uid="contentItemId"
+          :contentItem="contentItemOriginal"
           withIIIFViewer
         />
         <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_uid="contentItemId" />
@@ -79,6 +80,10 @@
           :article="contentItem"
           :visible="viewMode === FacsimileMode"
           @click-full-text="changeViewMode(RegionTranscriptMode)"
+        />
+        <ListOfTextReusePassages
+          v-if="contentItem && viewMode === TextReuseMode"
+          :contentItem="contentItemOriginal"
         />
       </div>
     </i-layout-section>
@@ -111,12 +116,19 @@ import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
 const RegionTranscriptMode = '1'
 const IIIFViewerTranscriptMode = '2'
-const AvailableViewModes = [FacsimileMode, RegionTranscriptMode, IIIFViewerTranscriptMode]
+const TextReuseMode = '3'
+const AvailableViewModes = [
+  FacsimileMode,
+  RegionTranscriptMode,
+  IIIFViewerTranscriptMode,
+  TextReuseMode
+]
 // Route parameters
 const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -187,6 +199,16 @@ const ignoredFilters = computed<Filter[]>(() => {
 })
 const allowedFilters = computed<Filter[]>(() => {
   return props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+})
+
+const contentItemAsCollectableItems = computed(() => {
+  if (!contentItem.value) return []
+  return [
+    {
+      itemId: contentItem.value.uid,
+      collectionIds: contentItem.value.collections?.map(c => c.uid)
+    }
+  ]
 })
 
 export interface IssueViewerPageProps {
@@ -461,7 +483,8 @@ watch(
     "viewModes": {
       "0": "Facsimile",
       "1": "Region Transcript",
-      "2": "Facsimile + Transcript"
+      "2": "Facsimile + Transcript",
+      "3": "Text Reuse"
     },
     "add_to_collection": "Add to collection"
   },

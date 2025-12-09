@@ -1,13 +1,13 @@
 export default {
   en: {
     year: {
-      year: 'numeric',
+      year: 'numeric'
     },
     long: {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      weekday: 'long',
+      weekday: 'long'
     },
     longUtc: {
       year: 'numeric',
@@ -22,12 +22,12 @@ export default {
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
-      hour12: false,
+      hour12: false
     },
     compact: {
       day: 'numeric',
       month: 'short',
-      year: 'numeric',
+      year: 'numeric'
     },
     compactUtc: {
       day: 'numeric',
@@ -39,16 +39,22 @@ export default {
       weekday: 'short',
       day: 'numeric',
       month: 'short',
-      year: 'numeric',
+      year: 'numeric'
     },
     month: {
       month: 'short',
-      year: 'numeric',
+      year: 'numeric'
     },
     day: {
       month: 'long',
       day: 'numeric',
-      year: 'numeric',
+      year: 'numeric'
     },
-  },
-};
+    // 1. You need the 'shortTime' key for the TimeAgo component
+    shortTime: {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false // Use false for 24-hour format
+    }
+  }
+}

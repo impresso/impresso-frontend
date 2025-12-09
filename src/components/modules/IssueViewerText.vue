@@ -1,30 +1,39 @@
 <template>
   <div id="IssueViewerText" ref="root" class="px-3 bg-light w-100">
-    <i-spinner v-if="!article" class="text-center p-5" />
-    <div v-if="article">
-      <ArticleItem
-        :item="article"
-        showEntities
-        showTopics
-        :minTopicRelevance="0.1"
-        class="container-fluid pl-0"
-      >
-        <template #title>&nbsp;</template>
-      </ArticleItem>
-      <b-badge
-        v-for="(collection, i) in article.collections"
-        v-bind:key="`co_${i}`"
-        variant="info"
-        class="mt-1 mr-1"
-      >
-        <router-link
-          class="text-white"
-          v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+    <div ref="contentItemHeader">
+      <ContentItem
+        v-if="contentItem"
+        :item="contentItem"
+        :show-title="false"
+        :show-type="false"
+        showSemanticEnrichments
+      />
+      <i-spinner v-if="!article" class="text-center p-5" />
+      <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
+        <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
+
+        <b-badge
+          v-for="(collection, i) in contentItemCollections"
+          v-bind:key="i"
+          variant="info"
+          class="m-1 font-size-inherit"
         >
-          {{ collection.name }}
-        </router-link>
-        <a class="dripicons dripicons-cross" v-on:click="onRemoveCollection(collection, article)" />
-      </b-badge>
+          <router-link
+            v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+            title="View collection"
+          >
+            {{ collection.name }}
+          </router-link>
+
+          <a
+            class="ml-1 dripicons dripicons-cross text-decoration-none"
+            title="Remove from collection"
+            v-on:click="onRemoveCollection(collection.uid)"
+          />
+        </b-badge>
+      </div>
+    </div>
+    <div v-if="article">
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
         <p>{{ $t('wrongLayout') }}</p>
       </div>
@@ -55,7 +64,7 @@
               <IIIFViewer
                 class="bg-dark rounded-md shadow border"
                 openseadragonCssClass="overflow-hidden rounded-md"
-                :style="{ height: `${availableOffsetHeight - iiifViewerMarginTop * 2}px` }"
+                :style="{ height: `${iiifViewerHeight}px` }"
                 v-if="article"
                 :manifestUrls="
                   computedIIIFViewerOverlays.map((d: any) => {
@@ -77,19 +86,7 @@
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
                 @click="() => annotatedTextClickHandler([pageIdx, i])"
-              >
-                <AnnotatedText
-                  class="text-serif"
-                  v-if="regionsAnnotationTree[region.idx]"
-                  :children="regionsAnnotationTree[region.idx].children"
-                  :cluster-colours="clusterColourMap"
-                  :selected-cluster-id="selectedClusterId"
-                  @clusterSelected="clusterSelectedHandler"
-                  @passageClicked="passageSelectedHandler"
-                  @passageMouseenter="mouseenterPassageHandler"
-                  @passageMouseleave="mouseleavePassageHandler"
-                />
-              </div>
+              ></div>
             </div>
           </div>
         </div>
@@ -127,27 +124,29 @@
         </div>
       </b-container>
     </div>
+    <hr class="pt-2" />
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <h3>{{ $t('similarContentItems') }}</h3>
+        </div>
+      </div>
+      <ListOfSimilarContentItems class="row mt-3" v-if="contentItem" :contentItem="contentItem">
+        <template #default="{ items }">
+          <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
+            <ContentItem
+              :item="item"
+              class="p-3 rounded-md border shadow mb-4"
+              showLink
+              showMeta
+              showSnippet
+              showSemanticEnrichments
+            />
+          </div>
+        </template>
+      </ListOfSimilarContentItems>
+    </div>
     <hr class="py-4" />
-    <b-container fluid class="similar-items px-0">
-      <h3>Similar Articles</h3>
-      <i-spinner v-if="!articlesSuggestions.length" class="text-center p-5" />
-      <b-row>
-        <b-col
-          cols="12"
-          sm="12"
-          md="12"
-          lg="6"
-          xl="4"
-          v-for="(searchResult, index) in articlesSuggestions"
-          v-bind:key="`${index}_ra`"
-        >
-          <search-results-similar-item
-            :searchResult="searchResult"
-            :topics="commonTopics(searchResult.topics)"
-          />
-        </b-col>
-      </b-row>
-    </b-container>
     <div
       :style="`top:${hoverPassageLineTopOffset}px`"
       class="passage-control bs-tooltip-left"
@@ -163,13 +162,10 @@
 
 <script lang="ts">
 import { mapStores } from 'pinia'
-import {
-  articlesSuggestions,
-  articleTextReusePassages,
-  contentItems as contentItemsService
-} from '@/services'
-import SearchResultsSimilarItem from './SearchResultsSimilarItem.vue'
-import ArticleItem from './lists/ArticleItem.vue'
+import { articleTextReusePassages, contentItems as contentItemsService } from '@/services'
+
+import ContentItem from './lists/ContentItem.vue'
+import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import IIIFViewer from './IIIFViewer.vue'
@@ -185,6 +181,9 @@ import {
 } from '@/logic/articleAnnotations'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import IIIFFragment from '../IIIFFragment.vue'
+import ListOfSimilarContentItems from '../ListOfSimilarContentItems.vue'
+import Collection from '@/models/Collection'
+import { useNotificationsStore } from '@/stores/notifications'
 
 const colourScheme = [
   '#8dd3c7',
@@ -204,47 +203,45 @@ export default {
   data() {
     return {
       article: null,
-      articlesSuggestions: [],
       textReusePassages: [],
       selectedPassageId: undefined,
       hoverPassageLineTopOffset: 0,
-      viewerTopOffset: 0,
       fitBoundsToOverlayIdx: [0, 0],
-      availableOffsetHeight: 500,
+      iiifViewerMinHeight: 500,
+      iiifViewerHeight: 500,
       iiifViewerMarginTop: 20
     } as {
       article: Article
       textReusePassages: any[]
-      articlesSuggestions: any[]
       selectedPassageId: string | number | undefined
       hoverPassageLineTopOffset: number
-      viewerTopOffset: number
       fitBoundsToOverlayIdx: [number, number]
-      availableOffsetHeight: number
+      iiifViewerMinHeight: number
+      iiifViewerHeight: number
       iiifViewerMarginTop: number
     }
   },
-  updated() {
-    this.resize()
-  },
+
   mounted() {
-    this.viewerTopOffset = document.querySelector('#TheHeader').getBoundingClientRect().height
     window.addEventListener('resize', this.resize)
+    this.resize()
   },
   computed: {
     ...mapStores(useCollectionsStore),
+    ...mapStores(useNotificationsStore),
     ...mapStores(useSelectionMonitorStore),
-    articlePages() {
-      if (!this.article.pages || !this.article.pages.length) {
-        return this.$t('no_page_info')
-      }
-      if (this.article.pages.length === 1) {
-        return this.$t('page', { num: this.article.pages[0]?.num })
-      }
-      return this.$t('pages', { nums: this.article.pages.map(d => d.num).join(', ') })
-    },
-    topics() {
-      return this.article.topics.filter(rel => rel.topic)
+
+    contentItemCollections(): Collection[] {
+      if (!this.contentItem) return []
+      const collections = this.contentItem.semanticEnrichments?.collections || []
+      return collections.map(
+        (c: any) =>
+          new Collection({
+            ...c,
+            name: c.title || c.name,
+            uid: c.uid
+          })
+      )
     },
     hasValidRegions() {
       // verify that regions exist and conform to this:
@@ -334,14 +331,15 @@ export default {
   },
   props: {
     article_uid: String,
+    contentItem: Object as () => ContentItemType | null,
     withIIIFViewer: {
       type: Boolean,
       default: false
     }
   },
   components: {
-    ArticleItem,
-    SearchResultsSimilarItem,
+    ContentItem,
+    ListOfSimilarContentItems,
     AnnotatedText,
     InfoButton,
     IIIFViewer,
@@ -351,44 +349,44 @@ export default {
     annotatedTextClickHandler(fitBoundsToOverlayIdx: [number, number]) {
       this.fitBoundsToOverlayIdx = fitBoundsToOverlayIdx
     },
-    resize() {
-      const { height } = document.querySelector('#TheHeader').getBoundingClientRect()
-      if (this.$refs.root) {
-        const rootAsDiv = this.$refs.root as HTMLDivElement
-        try {
-          const { top: offsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
-          const availableOffsetHeight = (rootAsDiv.parentNode as HTMLElement)?.offsetHeight
-          console.debug(
-            '[IssueViewerText] resize() availableOffsetHeight:',
-            availableOffsetHeight,
-            'offsetTop:',
-            offsetTop
-          )
 
-          this.availableOffsetHeight = Math.max(200, availableOffsetHeight - offsetTop)
-        } catch (e) {
-          console.warn('[IssueViewerText] @updated parentNode not found', e)
-        }
+    resize() {
+      if (!this.$refs.root && this.$refs.contentItemHeader) {
+        return
       }
-      this.viewerTopOffset = height
+      const rootAsDiv = this.$refs.root as HTMLDivElement
+      const contentItemHeaderAsDiv = this.$refs.contentItemHeader as HTMLDivElement
+      try {
+        const { top: rootOffsetTop } = rootAsDiv.getBoundingClientRect() as DOMRect
+        const headerHeight = contentItemHeaderAsDiv.offsetHeight
+        const iiifViewerHeight =
+          window.innerHeight - rootOffsetTop - this.iiifViewerMarginTop - headerHeight
+        // add minimum height for the openseadragonviewer
+        this.iiifViewerHeight = Math.max(this.iiifViewerMinHeight, iiifViewerHeight)
+      } catch (e) {
+        console.warn('[IssueViewerText] @updated parentNode not found', e)
+      }
     },
-    commonTopics(suggestionTopics) {
-      return this.topics.filter(a => suggestionTopics.some(b => a.topicUid === b.topicUid))
-      // sort by master topics relevance
-      // .sort((a, b) => b.relevance - a.relevance);
-    },
-    onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => c.uid === collection.uid)
-      if (idx !== -1) {
-        this.collectionsStore
-          .removeCollectionItem({
-            collection,
-            item
-          })
-          .then(() => {
-            item.collections.splice(idx, 1)
-            this.$forceUpdate()
-          })
+    async onRemoveCollection(collectionId: string) {
+      const item = this.contentItem
+      const itemId = item?.id
+      const collections = item?.semanticEnrichments?.collections ?? []
+      const collection = collections.find(c => c.uid === collectionId)
+
+      if (!itemId || !collection) return
+
+      await this.collectionsStore.removeCollectionItem({
+        item: { uid: itemId },
+        collection: { uid: collectionId }
+      })
+      this.notificationsStore.addNotification({
+        type: 'info',
+        title: 'Collection',
+        message: `Removed from collection "${collection.title || (collection as any)?.name}"`
+      })
+      if (this.contentItem?.semanticEnrichments?.collections) {
+        this.contentItem.semanticEnrichments.collections =
+          this.contentItem.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
       }
     },
     mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {
@@ -402,7 +400,6 @@ export default {
     },
     passageClickHandler() {
       // create a filter for the selected cluster
-
       this.$router.push({
         name: 'text-reuse-clusters',
         query: {
@@ -448,7 +445,6 @@ export default {
     article_uid: {
       immediate: true,
       async handler(articleUid) {
-        this.articlesSuggestions = []
         console.info(
           '[IssueViewerText] watch@article_uid',
           articleUid,
@@ -478,10 +474,6 @@ export default {
         ])
         this.article = article
         this.textReusePassages = textReusePassages
-        this.resize()
-        articlesSuggestions.get(articleUid).then(res => {
-          this.articlesSuggestions = res.data
-        })
       }
     }
   }
@@ -580,6 +572,7 @@ export default {
 <i18n lang="json">
 {
   "en": {
+    "similarContentItems": "Similar Content Items",
     "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
     "page": "pag. {num}",
     "pages": "pp. {nums}",

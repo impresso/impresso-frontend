@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
-import { action } from '@storybook/addon-actions'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { action } from 'storybook/actions'
 import { ref } from 'vue'
 import OSViewer from './OSViewer.vue'
 

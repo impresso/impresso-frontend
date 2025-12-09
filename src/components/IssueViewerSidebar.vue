@@ -160,8 +160,8 @@ import { computed, watch } from 'vue'
 import { ref } from 'vue'
 import SearchPills from './SearchPills.vue'
 import { getFilterQuery } from '@/models/SearchQuery'
-import { search } from '@/services'
-import ContentItem from '@/components/modules/lists/ContentItem.vue'
+import { contentItems as contentItemsService } from '@/services'
+import ContentItem from './modules/lists/ContentItem.vue'
 
 export interface IssueViewerSidebarProps {
   issue?: Issue | null
@@ -247,14 +247,13 @@ async function fetchMatchingContentItems({
   offset: number
 }): Promise<ContentItemType[]> {
   console.debug('[IssueViewerSidebar] fetchMatchingContentItems')
-  return search
+  return contentItemsService
     .find({
       query: {
         // legacy parameter
         filters,
         limit,
-        offset,
-        group_by: 'articles'
+        offset
       }
     })
     .then(({ data, total }) => {

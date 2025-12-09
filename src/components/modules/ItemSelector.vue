@@ -1,82 +1,67 @@
 <template>
   <button
     class="ItemSelector d-inline btn btn-link"
-    v-on:click.prevent.stop="selectItem"
+    @click.prevent.stop="selectItem"
     title="See details"
   >
     <slot></slot>
     <span v-if="label" class="ItemSelector_label">{{ label }}</span>
-    <span v-else-if="!hideIcon" class="dripicons-enter icon-link"></span>
+    <Icon name="arrowEnlargeTag" v-if="!hideIcon" class="ml-1"></Icon>
   </button>
 </template>
 
-<script>
-import { mapStores } from 'pinia'
+<script setup lang="ts">
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import Icon from '../base/Icon.vue'
 
-/**
- * Item selector component: given a specific item, display it on the Monitor component
- * <item-selector :uid="your-item.uid" :type="person" :search-index="search" >
- */
-export default {
-  name: 'ItemSelector',
-  props: {
-    uid: {
-      type: String,
-      required: true
-    },
+export interface ItemSelectorProps {
+  uid: string
+  item: Record<string, any> // Using a generic object type here. You might want to define a more specific type for 'item'
+  type: string
+  defaultClickActionDisabled?: boolean
+  label?: string
+  searchIndex?: string
+  hideIcon?: boolean
+}
+
+const props = withDefaults(defineProps<ItemSelectorProps>(), {
+  defaultClickActionDisabled: false,
+  searchIndex: 'search',
+  hideIcon: false
+})
+
+const emit = defineEmits<{
+  (
+    e: 'click',
+    payload: { params: { item: Record<string, any>; type: string }; defaultActionExecuted: boolean }
+  ): void
+}>()
+
+const selectionMonitorStore = useSelectionMonitorStore()
+
+function selectItem(): void {
+  const params = {
     item: {
-      type: Object,
-      required: true
+      ...props.item,
+      uid: props.uid
     },
-    type: {
-      type: String,
-      required: true
-    },
-    defaultClickActionDisabled: {
-      type: Boolean,
-      default: false
-    },
-    label: {
-      type: String
-    },
-    searchIndex: {
-      type: String,
-      default: 'search'
-    },
-    hideIcon: {
-      type: Boolean,
-      default: false
-    }
-  },
-  emits: ['click'],
-  methods: {
-    selectItem() {
-      const params = {
-        item: {
-          ...this.item,
-          uid: this.uid
-        },
-        type: this.type
-      }
-      if (!this.defaultClickActionDisabled) {
-        this.selectionMonitorStore.show({
-          item: this.item,
-          searchIndex: this.searchIndex,
-          type: this.type,
-          applyCurrentSearchFilters: true,
-          displayCurrentSearchFilters: true
-        })
-      }
-
-      this.$emit('click', {
-        params,
-        defaultActionExecuted: !this.defaultClickActionDisabled
-      })
-    }
-  },
-  computed: {
-    ...mapStores(useSelectionMonitorStore)
+    type: props.type
   }
+
+  if (!props.defaultClickActionDisabled) {
+    selectionMonitorStore.show({
+      item: props.item,
+      searchIndex: props.searchIndex,
+      type: props.type,
+      applyCurrentSearchFilters: true,
+      displayCurrentSearchFilters: true
+    })
+  }
+
+  // The payload's type is inferred from the defineEmits definition
+  emit('click', {
+    params,
+    defaultActionExecuted: !props.defaultClickActionDisabled
+  })
 }
 </script>

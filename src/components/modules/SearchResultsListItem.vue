@@ -26,44 +26,36 @@
       <div class="d-flex">
         <div class="list-item-details me-3 mr-3">
           <!-- if article -->
-          <article-item
-            :item="article"
+          <ContentItem
+            :item="contentItem"
             show-meta
-            show-excerpt
-            show-entities
+            showSnippet
+            show-semantic-enrichments
             show-matches
             show-link
             class="mb-2"
           />
-          <ContentItemAccess :item="contentItem" class="mr-3" />
 
-          <b-badge
-            class="mb-2"
-            pill
-            v-for="tag in article.tags"
-            variant="secondary"
-            v-bind:key="tag.uid"
-            >{{ tag.name }}</b-badge
-          >
-          <div
-            v-if="article.collections && article.collections.length > 0"
-            class="article-collections mb-2"
-          >
+          <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
+            <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>
+
             <b-badge
-              v-for="(collection, i) in article.collections"
+              v-for="(collection, i) in contentItemCollections"
               v-bind:key="i"
               variant="info"
-              class="mr-1"
+              class="m-1 font-size-inherit"
             >
               <router-link
-                class="text-white"
                 v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+                title="View collection"
               >
                 {{ collection.name }}
               </router-link>
+
               <a
-                class="dripicons dripicons-cross"
-                v-on:click="onRemoveCollection(collection, article)"
+                class="ml-1 dripicons dripicons-cross text-decoration-none"
+                title="Remove from collection"
+                v-on:click="onRemoveCollection(collection.uid)"
               />
             </b-badge>
           </div>
@@ -73,8 +65,17 @@
           </router-link> -->
 
           <slot name="secondary-action">
-            <collection-add-to v-bind:item="article" v-bind:text="$t('add_to_collection')" />
+            <div class="my-2">
+              <CollectionAddTo
+                right
+                @change="onCollectionsAddToChangeHandler"
+                :items="ciAsCollectableItems"
+                :text="$t('add_to_collection')"
+              />
+            </div>
           </slot>
+
+          <ContentItemAccess :item="contentItem" class="mr-3" />
 
           <div
             v-if="article.accessRight === 'OpenPublic'"
@@ -119,15 +120,18 @@
 <script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
-import ArticleItem from './lists/ArticleItem.vue'
 import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
+import { ItemWithCollections } from './CollectionAddToList.vue'
+import Collection from '@/models/Collection'
+import ContentItem from './lists/ContentItem.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -135,18 +139,20 @@ const MatchOverlayClass = 'overlay-match'
 export interface IData {
   showModalShare: boolean
   coordsFromArticleRegion?: { x: number; y: number; w: number; h: number } | null
+  collections: Collection[]
 }
 
 export default defineComponent({
   data(): IData {
     return {
       showModalShare: false,
-      coordsFromArticleRegion: undefined
+      coordsFromArticleRegion: undefined,
+      collections: []
     } satisfies IData
   },
   props: {
     modelValue: {
-      type: Object as PropType<ContentItem>
+      type: Object as PropType<ContentItemSchema>
       // default: () => ({})
     },
     checkbox: {
@@ -162,13 +168,33 @@ export default defineComponent({
       default: false
     }
   },
+  emits: ['toggleSelected', 'click'],
   computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
-    contentItem(): ContentItem {
+    ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
+    contentItem(): ContentItemSchema {
       return this.modelValue
+    },
+    contentItemCollections(): Collection[] {
+      const collections = this.contentItem.semanticEnrichments?.collections || []
+      return collections.map(
+        (c: any) =>
+          new Collection({
+            ...c,
+            name: c.title || (c as any)?.name,
+            uid: c.uid
+          })
+      )
     },
     article() {
       return Article.fromContentItem(this.contentItem)
+    },
+    ciAsCollectableItems() {
+      return [
+        {
+          itemId: this.contentItem.id,
+          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.uid)
+        }
+      ] as ItemWithCollections[]
     },
     pageViewerOptions() {
       return {
@@ -231,18 +257,48 @@ export default defineComponent({
     }
   },
   methods: {
-    onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => c.uid === collection.uid)
-      if (idx !== -1) {
-        this.collectionsStore
-          .removeCollectionItem({
-            collection,
-            item
-          })
-          .then(() => {
-            item.collections.splice(idx, 1)
-            // this.$forceUpdate();
-          })
+    onCollectionsAddToChangeHandler(payload: {
+      items: ItemWithCollections[]
+      collection: Collection
+    }) {
+      console.info('[SearchResultsListItem] onCollectionsAddToChangeHandler', payload)
+      const currentContentItem = this.modelValue
+      const currentContentItemId = currentContentItem?.id
+      if (!currentContentItemId) return
+      const updatedItem = payload.items.find(i => i.itemId === currentContentItemId)
+      if (!updatedItem || !updatedItem.collectionIds) return
+
+      if (updatedItem.added) {
+        this.modelValue.semanticEnrichments.collections = [
+          ...(this.modelValue?.semanticEnrichments?.collections ?? []),
+          payload.collection as any
+        ]
+      } else if (updatedItem.removed) {
+        this.modelValue.semanticEnrichments.collections =
+          this.modelValue?.semanticEnrichments?.collections?.filter(
+            c => c.uid !== payload.collection.uid
+          ) ?? []
+      }
+    },
+    async onRemoveCollection(collectionId: string) {
+      const item = this.modelValue
+      const itemId = item?.id
+      const collections = item?.semanticEnrichments?.collections ?? []
+      const collection = collections.find(c => c.uid === collectionId)
+
+      if (!itemId || !collection) return
+      await this.collectionsStore.removeCollectionItem({
+        item: { uid: itemId },
+        collection: { uid: collectionId }
+      })
+      this.notificationsStore.addNotification({
+        type: 'info',
+        title: 'Collection',
+        message: `Removed from collection "${collection.title || (collection as any)?.name}"`
+      })
+      if (this.modelValue?.semanticEnrichments?.collections) {
+        this.modelValue.semanticEnrichments.collections =
+          this.modelValue.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
       }
     },
     toggleSelected() {
@@ -301,10 +357,10 @@ export default defineComponent({
   },
   components: {
     CollectionAddTo,
-    ArticleItem,
     CopyToClipboard,
     IIIFFragment,
-    ContentItemAccess
+    ContentItemAccess,
+    ContentItem
   }
 })
 </script>
@@ -334,6 +390,10 @@ export default defineComponent({
 
 .SearchResultListItem .article-collections .badge {
   font-size: inherit;
+}
+.SearchResultListItem .ContentItem h2 {
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
 }
 </style>
 

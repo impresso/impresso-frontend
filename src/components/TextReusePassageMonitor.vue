@@ -99,7 +99,7 @@ interface TextReuseItem {
   textReuseCluster: TextReuseCluster
 }
 
-interface Filter {
+export interface Filter {
   type: string
   q: string
   context?: string
@@ -131,7 +131,7 @@ interface ApiResponse {
 }
 
 // Props
-interface Props {
+export interface Props {
   item: TextReuseItem
   filters?: Filter[]
 }

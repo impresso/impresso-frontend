@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import CorpusOverviewModal from '@/components/CorpusOverviewModal.vue'
 import type { Dataset } from '@/components/CorpusOverviewModal.vue'
 import { AvailablePlans, PlanLabels } from '@/constants'

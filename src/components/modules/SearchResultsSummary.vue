@@ -1,63 +1,84 @@
-<template lang="html">
+<template>
   <section
     class="SearchResultsSummary search-results-summary text-serif textbox-fancy border-tertiary"
     :class="{ loading: isLoading }"
   >
-    <span v-html="incipit" />
-    <search-query-summary
+    <span
+      v-html="
+        props.isLoading
+          ? $t(`loading.${props.groupBy}`)
+          : $tc('incipit', props.totalRows, {
+              n: $n(props.totalRows),
+              groupByLabel: $tc(`numbers.${props.groupBy}`, props.totalRows, {
+                n: $n(props.totalRows)
+              })
+            })
+      "
+    />
+    {{ ' ' }}
+    <SearchQuerySummary
       class="d-inline"
       :search-query="searchQuery"
-      v-on:updated="onSummaryUpdated"
+      @updated="(summary: string) => emit('onSummary', summary)"
     />
   </section>
 </template>
 
-<script>
+<script setup lang="ts">
+/**
+ * SearchResultsSummary Component
+ *
+ * Displays a formatted summary of search results, including:
+ * - Total number of results found
+ * - Grouped results label (e.g., "articles", "items")
+ * - Loading state with visual feedback
+ * - Embedded search query summary component
+ *
+ * @example
+ * ```vue
+ * <SearchResultsSummary
+ *   :total-rows="42"
+ *   group-by="articles"
+ *   :search-query="{ query: 'example', filters: {...} }"
+ *   :is-loading="false"
+ *   @on-summary="handleSummaryUpdate"
+ * />
+ * ```
+ */
 import SearchQuerySummary from './SearchQuerySummary.vue'
+import type { Filter } from '@/models'
 
-export default {
-  props: {
-    totalRows: Number,
-    groupBy: String,
-    searchQuery: Object,
-    isLoading: Boolean
-  },
-  computed: {
-    incipit() {
-      if (this.isLoading) {
-        return this.$t(`loading.${this.groupBy}`)
-      }
-      const n = this.$n(this.totalRows)
-      return this.$tc('incipit', this.totalRows, {
-        n,
-        groupByLabel: this.$tc(`numbers.${this.groupBy}`, this.totalRows, { n })
-      })
-    }
-  },
-  methods: {
-    onSummaryUpdated(summary) {
-      this.$emit('onSummary', summary)
-    }
-  },
-  components: {
-    SearchQuerySummary
+export interface SearchResultsSummaryProps {
+  totalRows: number
+  groupBy: string
+  searchQuery: {
+    filters: Filter[]
   }
+  isLoading?: boolean
 }
+
+const props = defineProps<SearchResultsSummaryProps>()
+const emit = defineEmits<{
+  (e: 'onSummary', summary: string): void
+}>()
 </script>
 
 <i18n lang="json">
 {
   "en": {
     "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found",
-    "loading": { "articles": "... loading matching content items" }
+    "loading": {
+      "articles": "... loading matching content items"
+    }
   }
 }
 </i18n>
 
-<style lang="css">
+<style>
 .SearchResultsSummary {
   transition: opacity 0.5s;
 }
+
 .SearchResultsSummary.loading {
   opacity: 0.5;
 }

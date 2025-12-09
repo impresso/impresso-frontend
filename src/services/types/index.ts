@@ -6,6 +6,7 @@ import { BaristaService } from './barista'
 import { ContentItemsService } from './contentItems'
 import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
+import { ICollectableItemsService } from './collectableItems'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -21,6 +22,19 @@ export interface ErrorsCollectorService
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
+/**
+ * Generic interface for Feathers service find method parameters.
+ * Includes query object for filtering, pagination, and other options.
+ */
+export interface ServiceFindParams {
+  query: {
+    offset?: number
+    limit?: number
+    [key: string]: any
+  }
+  [key: string]: any
+}
+
 interface UntypedServices {
   [key: string]: UntypedService
 }
@@ -34,6 +48,7 @@ export interface Services extends UntypedServices {
   ['content-items']: ContentItemsService
   ['search-facets/search']: SearchFacetsService
   mentions: MentionsService
+  ['/collections/:collection_id/items']: ICollectableItemsService
 }
 
 export interface Group {
@@ -48,11 +63,12 @@ export interface ChangelogEntry {
   status: string
 }
 
-export interface UserRequestChangelogEntry {
+export interface UserSpecialMembershipRequestChangelogEntry {
   subscription: string
   date: string
   reviewer: string
   status: string
+  notes?: string
 }
 
 export interface UserChangePlanRequest {
@@ -73,23 +89,33 @@ export interface TermsOfUse {
   dateAcceptedTerms: string | null
 }
 
-export interface SubscriptionDataset {
+/**
+ * Special Membership Access item interface,
+ * it defines the structure of a special membership access item, with bitmap position.
+ * It could handle optionally a associated list of UserSpecialMembershipRequest items.
+ */
+export interface SpecialMembershipAccess {
   id: number
   reviewerId?: number | null
-  name: string
+  title: string
   bitmapPosition: number
-  metadata?: object
+  metadata?: {
+    provider?: string
+    note?: string
+  }
+  requests?: UserSpecialMembershipRequest[]
 }
 
-export interface UserRequest {
+export interface UserSpecialMembershipRequest {
   id: number
   reviewerId: number | null
-  subscriberId: number
-  subscription: SubscriptionDataset | null
-  dateCreated: Date
-  dateLastModified: Date
+  specialMembershipAccessId: number
+  userId: number
+  specialMembershipAccess: SpecialMembershipAccess
+  dateCreated: string
+  dateLastModified: string
   status: 'pending' | 'approved' | 'rejected'
-  changelog: UserRequestChangelogEntry[]
+  changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
 // new type from media endpoint

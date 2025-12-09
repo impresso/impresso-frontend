@@ -1,6 +1,9 @@
 <template>
   <div class="FilterMonitor filter-monitor">
-    <div v-if="checkbox">
+    <div v-if="filter.type === 'embedding'">
+      <p class="small" v-html="$t('label.embedding.context.' + currentContext)"></p>
+    </div>
+    <div v-else-if="checkbox">
       <!--  context -->
       <b-form-group>
         <radio-group
@@ -76,6 +79,15 @@
             />
           </div>
         </div>
+        <div v-else-if="type === 'embedding'">
+          <!-- Embedding filter item representation can go here -->
+
+          <pre
+            class="bg-light shadow-sm rounded-sm border p-1 very-small"
+            style="word-break: break-all; white-space: normal; max-height: 100px; overflow: scroll"
+            >{{ item.uid }}</pre
+          >
+        </div>
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
           v-model="checkedItems[item.uid]"
@@ -97,7 +109,7 @@
             @update:modelValue="toggleFilterItem($event, item.uid)"
           >
           </b-form-checkbox>
-          <item-selector hide-icon :uid="item.uid" :item="item" :type="type">
+          <item-selector hide-icon :uid="item.uid || item.id" :item="item" :type="type">
             <item-label :item="item" :type="type" />
             <span v-if="!item.uid">...</span>
             <span v-if="item.count"
@@ -162,27 +174,14 @@
       </div>
     </div>
     <div v-if="EntityTypes.includes(type)">
-      <b-row no-gutters>
-        <b-col cols="6">
-          <div class="mr-1">
-            <b-button
-              size="sm"
-              variant="outline-primary"
-              block
-              v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
-            >
-              {{ $t('actions.addUsingEmbeddings') }}
-            </b-button>
-          </div>
-        </b-col>
-      </b-row>
-      <entity-suggester
-        v-if="showEntitySuggester"
-        :filter="filter"
-        :type="type"
-        @filter-changed="handleFilterChanged"
-        class="border p-2 bg-light"
-      />
+      <b-button
+        size="sm"
+        variant="outline-primary"
+        block
+        v-on:click.prevent="showEntitySuggester = !showEntitySuggester"
+      >
+        {{ $t(`actions.${editedFilter.op}.addUsingSuggest`) }}
+      </b-button>
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
@@ -197,7 +196,7 @@
               @click.prevent.stop="addStringItem(type)"
               :disabled="hasEmptyStringItems"
             >
-              {{ $t('actions.addItem') }}
+              {{ $t(`actions.${editedFilter.op}.addItem`) }}
             </b-button>
           </div>
         </b-col>
@@ -209,7 +208,7 @@
               block
               v-on:click.prevent="showEmbeddings = !showEmbeddings"
             >
-              {{ $t('actions.addUsingEmbeddings') }}
+              {{ $t(`actions.${editedFilter.op}.addUsingEmbeddings`) }}
             </b-button>
           </div>
         </b-col>
@@ -242,6 +241,15 @@
       <span v-else>{{ $t(`actions.applyChanges`) }}</span>
     </b-button>
   </div>
+  <Teleport to="body">
+    <entity-suggester
+      :isVisible="showEntitySuggester"
+      :filter="filter"
+      :type="type"
+      @filter-changed="handleFilterChanged"
+      @dismiss="showEntitySuggester = false"
+    />
+  </Teleport>
 </template>
 
 <script>
@@ -252,7 +260,7 @@ import ItemSelector from '@/components/modules/ItemSelector.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
-import EntitySuggester from '@/components/modules/EntitySuggester.vue'
+import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import {
   toCanonicalFilter,
@@ -491,9 +499,8 @@ export default {
       if (!NumericRangeFacets.includes(this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
-    handleFilterChanged({ items }) {
-      this.itemsToAdd.splice(0, this.itemsToAdd.length, ...items) // eslint-disable-line
-      // TODO:  exclude item already present
+    handleFilterChanged(newFilter) {
+      this.$emit('changed', newFilter)
     }
   },
   components: {
@@ -566,10 +573,32 @@ export default {
       }
     },
     "actions": {
-      "addItem": "add new ...",
-      "addUsingEmbeddings": "add similar ..."
+      "addUsingEmbeddings": "add using semantic embeddings",
+      "AND": {
+        "addItem": "'AND' ...",
+        "addUsingEmbeddings": "'AND' similar ...",
+        "addUsingSuggest": "'AND' suggest..."
+      },
+      "OR": {
+        "addItem": "'OR' ...",
+        "addUsingEmbeddings": "'OR' similar ...",
+        "addUsingSuggest": "'OR' suggest..."
+      }
     },
     "label": {
+      "embedding": {
+        "title": "semantic embedding",
+        "context": {
+          "include": "similar to",
+          "exclude": "<b>NOT</b> similar to"
+        }
+      },
+      "nag": {
+        "context": {
+          "include": "reported by",
+          "exclude": "<b>NOT</b> reported by"
+        }
+      },
       "title": {
         "context": {
           "include": "Contains",
@@ -648,9 +677,9 @@ export default {
         }
       },
       "newspaper": {
-        "title": "newspaper titles",
-        "selected": "filter results if they appear in <b>one of {count} selected</b> newspapers",
-        "description": "check one or more newspaper to filter results",
+        "title": "media sources",
+        "selected": "filter results if they appear in <b>one of {count} selected</b> media sources",
+        "description": "check one or more media sources to filter results",
         "clear": "reset",
         "apply": "apply changes",
         "update": "apply changes (added: {added}, removed: {removed})",

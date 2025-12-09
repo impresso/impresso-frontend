@@ -94,6 +94,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/search/images/:image_uid',
+      name: 'viewImage',
+      component: () => import('@/pages/ViewImage.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/helpers/filters',
       name: 'filtersParser',
       component: () => import('@/pages/FilterParserPage.vue'),
@@ -250,6 +258,14 @@ const router = createRouter({
           articleId: getShortArticleId(to.params.article_uid as string)
         }
       })
+    },
+    {
+      path: '/sources',
+      name: 'sources',
+      component: () => import('@/pages/SourcesOverviewPage.vue'),
+      meta: {
+        requiresAuth: false
+      }
     },
     {
       path: '/newspapers',

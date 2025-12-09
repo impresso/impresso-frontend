@@ -5,6 +5,7 @@
       :height="height"
       class="image"
       :src="item?.previewUrl"
+      :default-visibility="defaultVisibility"
     >
       <template v-slot:loading>
         <LoadingIndicator />
@@ -58,7 +59,8 @@ export default defineComponent({
     fluidGrow: Boolean,
     item: Object as PropType<IImage>,
     showMeta: Boolean,
-    showArticle: Boolean
+    showArticle: Boolean,
+    defaultVisibility: Boolean
   },
   computed: {
     imageClass() {
@@ -87,18 +89,28 @@ export default defineComponent({
         console.error('No item to go to page')
         return
       }
-      const articleId = this.item.uid.split('-').pop()
 
-      this.$router.push({
-        name: 'issue-viewer',
-        params: {
-          issue_uid: this.item?.issueUid
-        },
-        query: {
-          articleId,
-          p: this.item?.pageNumbers?.[0]
-        }
-      })
+      if (this.item.contentItemUid) {
+        const articleId = this.item.contentItemUid.split('-').pop()
+
+        this.$router.push({
+          name: 'issue-viewer',
+          params: {
+            issue_uid: this.item?.issueUid
+          },
+          query: {
+            articleId,
+            p: this.item?.pageNumbers?.[0]
+          }
+        })
+      } else {
+        this.$router.push({
+          name: 'viewImage',
+          params: {
+            image_uid: this.item.uid
+          }
+        })
+      }
     }
   },
   components: {

@@ -7,6 +7,7 @@
       :item="cachedItem"
       type="newspaper"
       :class="titleClass"
+      hideIcon
     />
     <span v-else :class="titleClass">{{ title }}</span>
     {{ ' ' }}

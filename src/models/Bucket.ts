@@ -6,6 +6,7 @@ import Year from '@/models/Year'
 import Collection from '@/models/Collection'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import Partner, { fromPartnerFacet } from '@/models/Partner'
+import { FacetWithLabel } from './generated/schemas'
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -17,7 +18,16 @@ import Partner, { fromPartnerFacet } from '@/models/Partner'
 export default class Bucket implements IBucket {
   val: string | number
   count: number
-  item?: IEntity | Entity | Topic | Newspaper | Year | Collection | TextReuseCluster | Partner
+  item?:
+    | IEntity
+    | Entity
+    | Topic
+    | Newspaper
+    | Year
+    | Collection
+    | TextReuseCluster
+    | Partner
+    | (FacetWithLabel & { uid: string })
   included?: boolean
   upper?: number
   lower?: number
@@ -49,8 +59,16 @@ export default class Bucket implements IBucket {
       case 'newspaper':
         this.item = new Newspaper(item)
         break
+      case 'mediaSource':
+        this.item = item
+        break
       case 'collection':
-        this.item = new Collection(item)
+        this.item = new Collection({
+          ...item,
+          creationDate: item?.createdAt,
+          lastModifiedDate: item?.updatedAt,
+          name: item.title
+        })
         break
       case 'year':
         this.item = new Year(item)
@@ -60,6 +78,16 @@ export default class Bucket implements IBucket {
         break
       case 'partner':
         this.item = fromPartnerFacet(item)
+        break
+      case 'imageVisualContent':
+      case 'imageTechnique':
+      case 'imageCommunicationGoal':
+      case 'imageContentType':
+        this.item = {
+          uid: this.val,
+          id: this.val,
+          label: item?.label || String(this.val)
+        } satisfies FacetWithLabel & { uid: string }
         break
       default:
         this.item = {

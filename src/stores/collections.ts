@@ -82,25 +82,34 @@ export const useCollectionsStore = defineStore('collections', {
               q: this.collectionsQ
             }
           })
-          .then(results => {
-            this.collectionsValue = results.data.map(
-              result =>
+          .then((res: any) => {
+            this.collectionsValue = res.data.map(
+              (item: {
+                accessLevel: 'private' | 'public'
+                createdAt: Date
+                description: string
+                title: string
+                totalItems: number
+                uid: string
+                updatedAt: Date
+              }) =>
                 new Collection({
-                  countArticles: result.count_articles,
-                  countEntities: result.count_entities,
-                  countIssues: result.count_issues,
-                  countPages: result.count_pages,
-                  creationDate: result.creation_date,
-                  lastModifiedDate: result.last_modified_date,
-                  ...result
+                  uid: item.uid,
+                  name: item.title,
+                  countItems: item.totalItems,
+                  status: item.accessLevel,
+                  description: item.description,
+                  lastModifiedDate: new Date(item.updatedAt),
+                  creationDate: new Date(item.createdAt)
                 })
             )
-            this.collectionsPaginationTotalRows = results.total
-            resolve(results)
+            this.collectionsPaginationTotalRows = res.pagination.total
+            resolve(this.collectionsValue)
           })
       })
     },
     loadTimeline(collectionId: string) {
+      if (!collectionId) return Promise.resolve([])
       const query = {
         filters: [
           {
@@ -119,63 +128,62 @@ export const useCollectionsStore = defineStore('collections', {
     },
     editCollection({ uid, name, description }: EditCollectionDetails) {
       return collectionsService.patch(uid, {
-        name,
+        title: name,
         description
       })
     },
     addCollection({ name, description }: AddCollectionDetails) {
       return collectionsService.create({
-        name,
+        title: name,
         description
       })
     },
     deleteCollection(uid: string) {
       return collectionsService.remove(uid)
     },
-    addCollectionItem({ item, collection, contentType }: AddCollectionItemDetails) {
-      return collectionsItemsService.create({
-        collection_uid: collection.uid,
-        items: [
-          {
-            content_type: contentType,
-            uid: item.uid
+    addCollectionItem({ item, collection }: AddCollectionItemDetails) {
+      return collectionsItemsService.patch(
+        null,
+        { add: [item.uid] },
+        {
+          route: {
+            collection_id: collection.uid
           }
-        ]
-      })
+        }
+      )
     },
-    addCollectionItems({ items, collection, contentType }: AddCollectionItemsDetails) {
-      return collectionsItemsService.create({
-        collection_uid: collection.uid,
-        items: items.map(item => ({
-          uid: item.uid,
-          content_type: contentType
-        }))
-      })
+    addCollectionItems({ items, collection }: AddCollectionItemsDetails) {
+      return collectionsItemsService.patch(
+        null,
+        { add: items.map(i => i.uid) },
+        {
+          route: {
+            collection_id: collection.uid
+          }
+        }
+      )
     },
     removeCollectionItem({ item, collection }: RemoveCollectionItemDetails) {
-      const contentType = item.constructor.name.toLowerCase()
-
-      return collectionsItemsService.remove(null, {
-        query: {
-          collection_uid: collection.uid,
-          items: [
-            {
-              content_type: contentType,
-              uid: item.uid
-            }
-          ]
+      return collectionsItemsService.patch(
+        null,
+        { remove: [item.uid] },
+        {
+          route: {
+            collection_id: collection.uid
+          }
         }
-      })
+      )
     },
     removeCollectionItems({ items, collection }: RemoveCollectionItemsDetails) {
-      return collectionsItemsService.remove(null, {
-        query: {
-          collection_uid: collection.uid,
-          items: items.map(item => ({
-            uid: item.uid
-          }))
+      return collectionsItemsService.patch(
+        null,
+        { remove: items.map(i => i.uid) },
+        {
+          route: {
+            collection_id: collection.uid
+          }
         }
-      })
+      )
     },
     updatePaginationListCurrentPage(page: number | string) {
       this.collectionsPaginationCurrentPage = typeof page === 'string' ? parseInt(page, 10) : page

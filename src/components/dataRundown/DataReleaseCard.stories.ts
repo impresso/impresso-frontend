@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import DataRelease from './DataReleaseCard.vue'
 import type { DataReleaseCardProps } from './DataReleaseCard.vue'
 import type { DataRelease as DataReleaseType } from '@/services/types'

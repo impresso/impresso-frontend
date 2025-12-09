@@ -3,10 +3,13 @@
     size="sm"
     variant="outline-primary"
     class="position-relative"
-    v-on:shown="fetch"
-    v-bind:text="text"
+    @shown="() => (isVisible = true)"
+    @hidden="() => (isVisible = false)"
+    :text="text"
+    :initialIsOpen="initialIsOpen"
+    :right="right"
   >
-    <div v-if="!isLoggedIn()" class="p-2 bg-light">
+    <div v-if="!isLoggedIn" class="p-2 bg-light">
       <b-button
         size="sm"
         class="w-100"
@@ -16,41 +19,54 @@
         {{ $t('login') }}
       </b-button>
     </div>
-    <collection-add-to-list v-else :item="item" :items="items" />
+    <CollectionAddToList
+      v-else
+      :items="items"
+      :is-visible="isVisible"
+      @change="payload => collectionAddToListChangeHandler(payload)"
+    />
   </b-dropdown>
 </template>
 
-<script>
-import { mapStores } from 'pinia'
-import CollectionAddToList from './CollectionAddToList.vue';
-import { useCollectionsStore } from '@/stores/collections'
+<script setup lang="ts">
 import { useUserStore } from '@/stores/user'
+import { useNotificationsStore } from '@/stores/notifications'
+import { computed, ref } from 'vue'
+import CollectionAddToList, { ItemWithCollections } from './CollectionAddToList.vue'
+import type Collection from '@/models/Collection'
 
-export default {
-  data: () => ({
-    show: false,
-  }),
-  props: {
-    text: String,
-    item: Object,
-    items: Array,
-  },
-  components: {
-    CollectionAddToList,
-  },
-  methods: {
-    fetch() {
-      if (this.isLoggedIn()) {
-        return this.collectionsStore.loadCollections()
-      }
-      return {}
-    },
-    isLoggedIn() {
-      return this.userStore.userData
-    },
-  },
-  computed: {
-    ...mapStores(useCollectionsStore, useUserStore),
-  },
-};
+export interface Props {
+  items: ItemWithCollections[]
+  text?: string
+  initialIsOpen?: boolean
+  right?: boolean
+}
+
+const { items, text, right } = defineProps<Props>()
+
+const emit = defineEmits<{
+  (e: 'change', payload: { items: ItemWithCollections[]; collection: Collection }): void
+}>()
+
+const isVisible = ref(false)
+const userStore = useUserStore()
+const { addNotification } = useNotificationsStore()
+const isLoggedIn = computed<boolean>(() => {
+  return !!userStore.userData
+})
+
+const collectionAddToListChangeHandler = (payload: {
+  items: ItemWithCollections[]
+  collection: Collection
+}) => {
+  for (const item of payload.items) {
+    addNotification({
+      type: 'info',
+      title: '',
+      message: `${item.added ? 'added to' : 'removed from'} collection "${(payload.collection as any).title || (payload.collection as any)?.name}"`
+    })
+  }
+
+  emit('change', { items: payload.items, collection: payload.collection })
+}
 </script>

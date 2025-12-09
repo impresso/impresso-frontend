@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import UserArea from '@/components/UserArea.vue'
 import type { UserAreaProps } from '@/components/UserArea.vue'
 

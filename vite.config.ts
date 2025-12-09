@@ -54,7 +54,8 @@ export default ({ mode }: { mode: string }) => {
     },
     resolve: {
       alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '.storybook': fileURLToPath(new URL('./.storybook', import.meta.url))
       }
     },
     server: {

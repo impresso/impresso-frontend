@@ -1,38 +1,50 @@
 <template>
-  <input ref="inputRef" :type="props.type" :class="iClass" :value="props.modelValue" @input="handleChanged"
-    v-bind="$attrs" :data-testid="dataTestid" />
+  <input
+    ref="inputRef"
+    :type="props.type"
+    :class="iClass"
+    :value="props.modelValue"
+    :disabled="props.disabled"
+    @input="handleChanged"
+    v-bind="$attrs"
+    :data-testid="dataTestid"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed, useAttrs, onMounted, nextTick, ref } from 'vue'
+import { computed, useAttrs, onMounted, nextTick, ref, onBeforeUnmount } from 'vue'
 
-const props = defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: '',
-  },
-  autofocus: {
-    type: Boolean,
-    default: false,
-  },
-  type: {
-    type: String,
-    default: 'text',
-  },
-  size: {
-    type: String,
-    default: 'md',
-  },
-  dataTestid: {
-    type: String,
-    default: undefined,
-  },
-})
-const emit = defineEmits(['update:modelValue'])
+const props = defineProps<{
+  modelValue?: string | number
+  autofocus?: boolean
+  type?: string
+  size?: string
+  dataTestid?: string
+  disabled?: boolean
+  debounce?: number
+}>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
 
 const attrs = useAttrs()
+const inputRef = ref<HTMLInputElement | null>(null)
+const debounceTimer = ref<number | null>(null)
 
-const inputRef = ref<HTMLElement | null>(null)
+const focus = () => {
+  inputRef.value?.focus()
+}
+
+const blur = () => {
+  inputRef.value?.blur()
+}
+
+defineExpose({
+  focus,
+  blur,
+  inputRef
+})
 
 const allowedAttrs = ['onClick', 'placeholder', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
@@ -42,7 +54,7 @@ if (unknownAttrs.length) {
 
 const iClass = computed(() => ({
   'form-control': true,
-  [`form-control-${props.size}`]: true,
+  [`form-control-${props.size ?? 'md'}`]: true
 }))
 
 onMounted(() => {
@@ -53,9 +65,27 @@ onMounted(() => {
   })
 })
 
+onBeforeUnmount(() => {
+  if (debounceTimer.value !== null) {
+    clearTimeout(debounceTimer.value)
+  }
+})
+
 const handleChanged = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:modelValue', target.value)
-}
+  const value = target.value
 
+  if (props.debounce && props.debounce > 0) {
+    if (debounceTimer.value !== null) {
+      clearTimeout(debounceTimer.value)
+    }
+
+    debounceTimer.value = window.setTimeout(() => {
+      emit('update:modelValue', value)
+      debounceTimer.value = null
+    }, props.debounce)
+  } else {
+    emit('update:modelValue', value)
+  }
+}
 </script>
