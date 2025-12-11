@@ -1,6 +1,6 @@
 {
   "name": "impresso-frontend",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Frontend app for Impresso project",
   "author": "impresso <info@impresso-project.ch>",
   "contributors": [
@@ -48,7 +48,7 @@
     "filepond-plugin-file-validate-size": "2.2.0",
     "filepond-plugin-file-validate-type": "1.2.4",
     "highlight.js": "^11.11.1",
-    "impresso-jscommons": "github:impresso/impresso-jscommons#v1.10.0",
+    "impresso-jscommons": "github:impresso/impresso-jscommons#v1.11.0",
     "impresso-ui-components": "github:impresso/impresso-ui-components#develop",
     "marked": "^15.0.7",
     "mitt": "^3.0.1",
