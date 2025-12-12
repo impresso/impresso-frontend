@@ -74,6 +74,14 @@ export default class Bucket implements IBucket {
         this.item = new Year(item)
         break
       case 'textReuseCluster':
+        if (!item) {
+          this.item = {
+            uid: this.val,
+            id: this.val,
+            label: String(this.val)
+          } satisfies FacetWithLabel & { uid: string }
+          break
+        }
         this.item = TextReuseCluster.fromTextReusePassage(item)
         break
       case 'partner':
