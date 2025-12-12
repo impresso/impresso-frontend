@@ -86,7 +86,19 @@
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
                 @click="() => annotatedTextClickHandler([pageIdx, i])"
-              ></div>
+              >
+                <AnnotatedText
+                  class="text-serif"
+                  v-if="regionsAnnotationTree[region.idx]"
+                  :children="regionsAnnotationTree[region.idx].children"
+                  :cluster-colours="clusterColourMap"
+                  :selected-cluster-id="selectedClusterId"
+                  @clusterSelected="clusterSelectedHandler"
+                  @passageClicked="passageSelectedHandler"
+                  @passageMouseenter="mouseenterPassageHandler"
+                  @passageMouseleave="mouseleavePassageHandler"
+                />
+              </div>
             </div>
           </div>
         </div>

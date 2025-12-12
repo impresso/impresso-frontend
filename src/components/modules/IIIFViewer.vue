@@ -27,7 +27,7 @@ import {
   isAuthRequired
 } from '@/services/openseadragon'
 
-interface OverlayCoords {
+export interface OverlayCoords {
   x: number // x coordinate (in image pixel units)
   y: number // y coordinate (in image pixel units)
   w: number // width (in image pixel units)
