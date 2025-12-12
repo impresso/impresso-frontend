@@ -358,6 +358,28 @@ export default {
     focusHandler(value) {
       this.hasFocus = !!value
     },
+    loadFacets(types) {
+      types.forEach(type => {
+        this.loadFacet(type)
+      })
+      getSearchFacetsService('tr_passages')
+        .find({
+          query: {
+            facets: types,
+            ...this.searchFacetApiQueryParams.query
+          }
+        })
+        .then(result => {
+          console.debug('[TextReuse] loadFacets', result)
+          result.data.forEach(result => {
+            const facet = this.facets.find(facet => result.type === facet.type)
+            if (facet) {
+              facet.numBuckets = result.numBuckets
+              facet.setBuckets(result.buckets)
+            }
+          })
+        })
+    },
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
       console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
@@ -368,6 +390,7 @@ export default {
             ...opts
           }
         })
+
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
           console.debug('[TextReuse] loadFacet', response)
@@ -390,18 +413,20 @@ export default {
         }
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
-        await this.loadFacet('newspaper')
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
         await this.loadFacet('collection')
-        await this.loadFacet('textReuseCluster')
-        await this.loadFacet('topic')
-        await this.loadFacet('type')
-        await this.loadFacet('country')
-        await this.loadFacet('language')
-        await this.loadFacet('person')
-        await this.loadFacet('location')
-        await this.loadFacet('organisation')
-        await this.loadFacet('nag')
+
+        await this.loadFacets([
+          'newspaper',
+          'textReuseCluster',
+          'topic',
+          'country',
+          'language',
+          'person',
+          'location',
+          'organisation',
+          'nag'
+        ])
       },
       immediate: true,
       deep: false
