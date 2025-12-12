@@ -270,6 +270,7 @@ export default {
         }
       }
     },
+    pageNumber: 'p. {n}',
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     ppOf: 'p.{num} of {pages}',
     providedBy: 'provided by',
