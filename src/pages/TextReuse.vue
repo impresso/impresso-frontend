@@ -371,11 +371,11 @@ export default {
         })
         .then(result => {
           console.debug('[TextReuse] loadFacets', result)
-          result.data.forEach(result => {
-            const facet = this.facets.find(facet => result.type === facet.type)
+          result.data.forEach(facetResult => {
+            const facet = this.facets.find(facet => facetResult.type === facet.type)
             if (facet) {
-              facet.numBuckets = result.numBuckets
-              facet.setBuckets(result.buckets)
+              facet.numBuckets = facetResult.numBuckets
+              facet.setBuckets(facetResult.buckets)
             }
           })
         })
