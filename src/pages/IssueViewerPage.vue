@@ -68,13 +68,17 @@
           :current-page-uid="page?.uid"
           @update:current-page-uid="changePageFromNavigator"
         />
-        <IssueViewerText
+        <ContentItemViewerText
           v-if="viewMode === IIIFViewerTranscriptMode"
+          :isLoading="isLoading"
+          :contentItem="contentItemOriginal"
+          class="w-100 px-3"
+        />
+        <IssueViewerText
+          v-if="viewMode === RegionTranscriptMode"
           :article_uid="contentItemId"
           :contentItem="contentItemOriginal"
-          withIIIFViewer
         />
-        <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_uid="contentItemId" />
 
         <IssueViewerBookmarker
           :article="contentItem"
@@ -117,6 +121,7 @@ import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
+import ContentItemViewerText from '@/components/ContentItemViewerText.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
