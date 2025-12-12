@@ -359,9 +359,6 @@ export default {
       this.hasFocus = !!value
     },
     loadFacets(types) {
-      types.forEach(type => {
-        this.loadFacet(type)
-      })
       getSearchFacetsService('tr_passages')
         .find({
           query: {
@@ -379,6 +376,9 @@ export default {
             }
           })
         })
+        .catch(error => {
+          console.error('[TextReuse] loadFacets error', error)
+        })
     },
     loadFacet(type, opts = {}) {
       // eslint-disable-next-line
@@ -390,7 +390,6 @@ export default {
             ...opts
           }
         })
-
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
           console.debug('[TextReuse] loadFacet', response)
@@ -398,6 +397,9 @@ export default {
             facet.numBuckets = response.numBuckets
             facet.setBuckets(response.buckets)
           }
+        })
+        .catch(error => {
+          console.error('[TextReuse] loadFacets error', error)
         })
     }
   },
