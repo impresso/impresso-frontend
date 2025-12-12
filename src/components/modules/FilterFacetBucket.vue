@@ -2,7 +2,6 @@
   <div class="FilterFacetBucket d-flex text-small">
     <b-form-checkbox v-model="isChecked" data-testid="filter-facet-bucket-checkbox">
     </b-form-checkbox>
-
     <item-selector
       v-if="bucket.item"
       hide-icon
@@ -26,6 +25,7 @@
         <!-- {{ type }}-->
       </span>
     </item-selector>
+    <item-label v-else="bucket.item" :item="{ ...bucket.item, uid: bucket.val }" :type="type" />
   </div>
 </template>
 
