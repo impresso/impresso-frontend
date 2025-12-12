@@ -84,6 +84,9 @@ export default defineComponent({
   },
   methods: {
     getTextReuseClusterSummary(item) {
+      if (!item.clusterSize) {
+        return item.uid
+      }
       const clusterSizeLabel =
         item.clusterSize != null
           ? this.$tc('numbers.clusterSize', item.clusterSize, {
