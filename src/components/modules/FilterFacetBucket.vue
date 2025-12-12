@@ -25,7 +25,7 @@
         <!-- {{ type }}-->
       </span>
     </item-selector>
-    <item-label v-else="bucket.item" :item="{ ...bucket.item, uid: bucket.val }" :type="type" />
+    <item-label v-else :item="{ ...bucket.item, uid: bucket.val }" :type="type" />
   </div>
 </template>
 
