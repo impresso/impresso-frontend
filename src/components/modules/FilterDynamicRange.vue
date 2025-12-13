@@ -203,7 +203,7 @@ export default defineComponent({
       this.$emit('changed', [...this.otherFilters])
     },
     getTooltipLabel(bucket: Bucket) {
-      if (bucket.upper == null || bucket.lower == null) return ''
+      if (isNaN(bucket.upper) || isNaN(bucket.lower)) return ''
 
       if (this.isPercentage) {
         // 1. values are different

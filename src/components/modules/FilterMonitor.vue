@@ -215,9 +215,11 @@
       </b-row>
       <embeddings-search
         v-if="showEmbeddings"
-        :filter="editedFilter"
+        :filters="[editedFilter]"
         @click.stop.prevent
         @embdding-selected="addEmbeddingSuggestion"
+        reduced
+        class="mb-2"
       />
     </div>
     <b-button

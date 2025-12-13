@@ -151,15 +151,23 @@
         }"
       />
 
-      <Modal
-        hide-footer
-        id="embeddings"
-        :title="$t('label_embeddings')"
+      <InfoModal
+        :modalTitle="$t('label_embeddings')"
         :show="isModalVisible('embeddings')"
         @close="hideModal()"
+        hide-footer
       >
-        <embeddings-search @embdding-selected="addFilterFromEmbedding" />
-      </Modal>
+        <EmbeddingsSearch
+          :withPreview="true"
+          :filters="searchServiceQuery.filters"
+          @filters-changed="
+            filters => {
+              handleFiltersChanged(filters)
+              hideModal('embeddings')
+            }
+          "
+        />
+      </InfoModal>
 
       <div class="p-1">
         <b-container fluid>
@@ -237,6 +245,7 @@ import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import FacetModel, { FacetType } from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+import InfoModal from '@/components/InfoModal.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
 import { SupportedFiltersByContext } from '@/logic/filters'
@@ -650,16 +659,6 @@ export default defineComponent({
         filters: this.ignoredFilters
       })
     },
-    addFilterFromEmbedding(embedding) {
-      this.handleFiltersChanged(
-        this.filters.concat([
-          FilterFactory.create({
-            q: [embedding],
-            type: 'string'
-          })
-        ])
-      )
-    },
     updateSearchFromBarista(filters) {
       console.log('Barista suggests', filters)
       this.$router.push({
@@ -761,7 +760,8 @@ export default defineComponent({
     CopyToDatalabButton,
     BaristaButton,
     AuthGate,
-    PageNavbarHeading
+    PageNavbarHeading,
+    InfoModal
   }
 })
 </script>

@@ -6,7 +6,7 @@
     :dialogClass="props.dialogClass"
     @close="dismiss"
   >
-    <h5 class="mb-4">{{ title }}</h5>
+    <h5 v-if="title" class="mb-4">{{ title }}</h5>
     <slot></slot>
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
@@ -26,7 +26,7 @@ export type InfoModalProps = {
 
 const props = withDefaults(defineProps<InfoModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-md',
-  title: 'Info'
+  modalTitle: 'Info'
 })
 
 const emit = defineEmits(['dismiss'])

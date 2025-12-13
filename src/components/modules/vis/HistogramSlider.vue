@@ -324,7 +324,9 @@ export default {
         .join('text')
         .attr('dy', -5)
         .text(bucket => {
-          const tlabel = bucket.upper && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
+          const tlabel =
+            !isNaN(bucket.upper) && bucket.upper !== bucket.lower ? 'maxvalrange' : 'maxval'
+
           return this.$t(tlabel, {
             n: this.$n(Math.round(bucket.count)),
 
