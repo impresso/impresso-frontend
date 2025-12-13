@@ -3,7 +3,7 @@
     <div
       class="m-2"
       :class="{
-        small: 'reduced'
+        small: reduced
       }"
       v-html="$t('embedding_howto')"
     />
@@ -66,7 +66,6 @@
           </button>
         </div>
       </div>
-      <div v-if="reduced" class="mt-1 d-flex very-small"></div>
     </form>
 
     <div class="my-2">
