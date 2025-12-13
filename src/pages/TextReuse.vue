@@ -390,6 +390,7 @@ export default {
             ...opts
           }
         })
+
         .then(response => {
           const facet = this.facets.find(facet => facet.type === type)
           console.debug('[TextReuse] loadFacet', response)
