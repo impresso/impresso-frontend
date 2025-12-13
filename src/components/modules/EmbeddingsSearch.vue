@@ -88,16 +88,14 @@
         class="embeddings mt-2 d-flex flex-wrap"
         :class="{ 'gap-1': reduced, 'gap-2': !reduced }"
         v-if="!isLoading && words.length"
+        style="max-height: 300px; overflow-y: auto"
       >
         <button
           v-for="(word, i) in words"
           :key="i"
           @click.prevent.stop="updateFilter(word.word)"
           :title="$t('filter.add', { word: word.word })"
-          class="text-decoration-none border px-2 py-1 bg-light shadow-sm rounded border"
-          :class="{
-            small: reduced
-          }"
+          class="text-decoration-none small border px-2 py-1 bg-light shadow-sm rounded border"
           :disabled="isInFilter(word.word)"
         >
           {{ word.word }}
@@ -204,7 +202,8 @@ const props = withDefaults(defineProps<Props>(), {
   limitEmbeddingsOptions: () => [
     { value: '10', text: '10' },
     { value: '25', text: '25' },
-    { value: '50', text: '50' }
+    { value: '50', text: '50' },
+    { value: '100', text: '100' }
   ],
   withPreview: false,
   reduced: false
@@ -350,16 +349,7 @@ const fetchEmbeddings = async ({ term, language, limit }: ServiceQuery): Promise
   }
 }
 
-// Watch for changes in service query and fetch new embeddings
-// watch(
-//   serviceQuery,
-//   newQuery => {
-//     fetchEmbeddings(newQuery)
-//   },
-//   { immediate: true }
-// )
 const performSearch = () => {
-  console.log('Performing search with query:', serviceQuery.value)
   fetchEmbeddings(serviceQuery.value)
 }
 
@@ -390,7 +380,7 @@ onMounted(() => {
       "typeMoreChars": "press search to find similar words"
     },
     "error_NotFound": "Ops, it looks like <b>{query}</b> is not available in our embeddings",
-    "error_GeneralError": "Service not availble at the moment, try again in a couple of minutes",
+    "error_GeneralError": "Service not available at the moment, try again in a couple of minutes",
     "error_BadRequest": "<b>{query}</b> contains invalid characters, only a-z A-Z and accented letters are allowed",
     "filter": {
       "add": "Add {word} to filter"

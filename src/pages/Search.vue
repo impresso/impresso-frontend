@@ -659,16 +659,6 @@ export default defineComponent({
         filters: this.ignoredFilters
       })
     },
-    // addFilterFromEmbedding(embedding) {
-    //   this.handleFiltersChanged(
-    //     this.filters.concat([
-    //       FilterFactory.create({
-    //         q: [embedding],
-    //         type: 'string'
-    //       })
-    //     ])
-    //   )
-    // },
     updateSearchFromBarista(filters) {
       console.log('Barista suggests', filters)
       this.$router.push({
