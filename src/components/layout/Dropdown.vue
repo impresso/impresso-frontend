@@ -7,7 +7,8 @@
       class="btn dropdown-toggle d-flex align-items-center"
       :class="{
         [`btn-${size}`]: size != undefined,
-        [`btn-${variant}`]: variant != undefined
+        [`btn-${variant}`]: variant != undefined,
+        [buttonClass]: buttonClass !== ''
       }"
       @click="isOpen = !isOpen"
       ref="buttonRef"
@@ -64,6 +65,10 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary'
+  },
+  buttonClass: {
+    type: String,
+    default: ''
   },
   right: {
     type: Boolean,
