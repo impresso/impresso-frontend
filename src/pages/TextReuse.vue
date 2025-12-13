@@ -400,7 +400,7 @@ export default {
           }
         })
         .catch(error => {
-          console.error('[TextReuse] loadFacets error', error)
+          console.error('[TextReuse] loadFacet error', error)
         })
     }
   },
