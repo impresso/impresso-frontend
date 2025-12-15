@@ -7,6 +7,7 @@
         :show-title="false"
         :show-type="false"
         showSemanticEnrichments
+        showTopics
       />
       <i-spinner v-if="!article" class="text-center p-5" />
       <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
