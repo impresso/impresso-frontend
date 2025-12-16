@@ -103,3 +103,8 @@ export const DatalabPublicApiUrl =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_DATALAB_PUBLIC_API_URL
     ? import.meta.env.VITE_DATALAB_PUBLIC_API_URL
     : ''
+
+export const PlansJsonUrl: string =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_PLANS_JSON_URL
+    ? import.meta.env.VITE_PLANS_JSON_URL
+    : ''

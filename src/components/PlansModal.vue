@@ -188,31 +188,25 @@ import PlansModalFeatureRow from './modules/PlansModalFeatureRow.vue'
 import type { Plan } from './modules/PlansModalFeatureRow.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import LinkToModal from './LinkToModal.vue'
-import { ViewCorpusOverview } from '@/constants'
+import { PlansJsonUrl, ViewCorpusOverview } from '@/constants'
+import { computed, ref, watch } from 'vue'
+import axios from 'axios'
+import { reducedTimeoutPromise } from '../services/utils'
 
-const props = withDefaults(
-  defineProps<{
-    dialogClass?: string
-    modalTitle?: string
-    title?: string
-    content?: string
-    url?: string
-    acceptTermsDate?: Date
-    isVisible?: boolean
-    isLoading?: boolean
-    userPlan: string
-    acceptedTermsDate?: string | null
-    plans: Plan[]
-    values: Record<string, string>
-    dataFeatureLabels: Record<string, string>
-    requirementsLabels: Record<string, string>
-  }>(),
-  {
-    dialogClass: 'modal-dialog-scrollable modal-xl',
-    title: 'Terms Of Use',
-    url: import.meta.env.VITE_PLANS_MD_URL
-  }
-)
+export interface PlansModalProps {
+  isVisible: boolean
+  dialogClass?: string
+  title?: string
+  url?: string
+  modalTitle?: string
+  userPlan?: string
+  acceptedTermsDate?: string | null
+}
+const props = withDefaults(defineProps<PlansModalProps>(), {
+  dialogClass: 'modal-dialog-scrollable modal-xl',
+  title: 'Terms Of Use',
+  url: import.meta.env.VITE_PLANS_MD_URL
+})
 
 const emit = defineEmits(['dismiss'])
 
@@ -220,6 +214,109 @@ const dismiss = () => {
   console.debug('[TermsOfUseModal] dismiss')
   emit('dismiss')
 }
+
+const fetchPlansResponse = ref<{
+  data: {
+    plans: {
+      title: string
+      icon: string
+      id: string
+      features: {
+        ref: string
+        icon?: string
+      }[]
+      requirements: string[]
+      body: string
+    }[]
+    AvailablePlans: string[]
+    DataFeatureLabels: Record<string, string>
+    ExportFeatureLabels: Record<string, string>
+    GenericFeatureLabels: Record<string, string>
+    RequirementsLabels: Record<string, string>
+    values: Record<string, string>
+    planContent: {
+      excerpt: string
+      body: string
+    }
+    features: string[]
+  } | null
+  status: 'idle' | 'loading' | 'success' | 'error'
+}>({
+  status: 'idle',
+  data: null
+})
+
+const plans = computed<Plan[]>(() => fetchPlansResponse.value.data?.plans || [])
+const content = computed<string>(() => {
+  return (
+    fetchPlansResponse.value.data?.planContent.body.replace(
+      '[Impresso Corpus](/datalab/corpus-overview)',
+      'Impresso Corpus'
+    ) || ''
+  )
+})
+const isLoading = computed<boolean>(
+  () => fetchPlansResponse.value.status === 'loading' || fetchPlansResponse.value.status === 'idle'
+)
+const values = computed<Record<string, string>>(() => fetchPlansResponse.value.data?.values || {})
+const dataFeatureLabels = computed<Record<string, string>>(
+  () => fetchPlansResponse.value.data?.DataFeatureLabels || {}
+)
+const requirementsLabels = computed<Record<string, string>>(
+  () => fetchPlansResponse.value.data?.RequirementsLabels || {}
+)
+// :content="
+//   fetchPlansResponse.data?.planContent.body.replace(
+//     '[Impresso Corpus](/datalab/corpus-overview)',
+//     'Impresso Corpus'
+//   ) || ''
+// "
+
+// :plans="fetchPlansResponse.data?.plans || []"
+// :dataFeatureLabels="fetchPlansResponse.data?.DataFeatureLabels || {}"
+// :requirementsLabels="fetchPlansResponse.data?.RequirementsLabels || {}"
+// :isLoading="fetchPlansResponse.status === 'loading' || fetchPlansResponse.status === 'idle'"
+// :values="fetchPlansResponse.data?.values || {}"
+/**
+ * Fetches the plans content from a JSON URL specified in the environment variables.
+ *
+ * Logs the URL being fetched from for debugging purposes.
+ * If the user is not available, the function returns early.
+ * Sets the fetchPlansResponse to a loading state before making the request.
+ *
+ * Upon successful response, updates fetchPlansResponse with the fetched data and sets the status to 'success'.
+ *
+ * @async
+ * @function fetchPlansContent
+ * @returns {Promise<void>} A promise that resolves when the fetch operation is complete.
+ */
+const fetchPlansContent = async (): Promise<void> => {
+  console.debug('[PlansModal] fetchPlansContent from JSON:', PlansJsonUrl)
+  if (PlansJsonUrl.length === 0) {
+    console.warn('[PlansModal] fetchPlansContent - VITE_PLANS_JSON_URL is empty. Aborting fetch.')
+    return
+  }
+  fetchPlansResponse.value = { data: null, status: 'loading' }
+  const [data] = await Promise.all([
+    axios.get(PlansJsonUrl).then(response => {
+      console.info('[PlansModal] fetchPlansContent success:', PlansJsonUrl)
+      return response.data
+    }),
+    reducedTimeoutPromise({ ms: 500, service: 'getPlansJsonUrl', silent: true })
+  ])
+  fetchPlansResponse.value = { data, status: 'success' }
+}
+
+watch(
+  () => props.isVisible,
+  isVisible => {
+    if (isVisible && fetchPlansResponse.value.status === 'idle') {
+      console.debug('[PlansModal] isVisible changed to true, fetching plans content')
+      fetchPlansContent()
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style>
