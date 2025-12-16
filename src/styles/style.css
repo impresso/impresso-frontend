@@ -154,7 +154,7 @@
   --impresso-font-size-4: 1.5rem;
 
   --impresso-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-
+  --impresso-transition-duration: 0.2s;
   --z-index-pagination: 1001;
   --z-index-modals: 1039;
   --z-index-modals-feedback: 1039;
@@ -354,6 +354,14 @@ label {
   letter-spacing: var(--impresso-letter-spacing-verysmallcaps);
   font-weight: var(--impresso-wght-verysmallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-verysmallcaps);
+}
+.very-small-caps-bold {
+  text-transform: uppercase;
+  font-size: var(--impresso-font-size-verysmallcaps);
+  font-variant: normal;
+  letter-spacing: var(--impresso-letter-spacing-verysmallcaps);
+  font-weight: var(--impresso-wght-smallcaps-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
 }
 .no-small-caps {
   text-transform: none;
@@ -623,6 +631,10 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .dropdown-menu .custom-switch .custom-control-label::before {
   position: absolute;
+}
+
+.bg-accent {
+  background-color: var(--impresso-color-yellow) !important;
 }
 
 .bg-dark ::selection {

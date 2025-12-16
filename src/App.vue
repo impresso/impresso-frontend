@@ -259,10 +259,6 @@ $clr-grey-900: #ddd;
   background-color: $clr-tertiary;
 }
 
-.bg-accent {
-  background-color: $clr-accent;
-}
-
 .bg-accent-secondary {
   background-color: $clr-accent-secondary;
   color: $clr-white;
