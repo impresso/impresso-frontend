@@ -499,14 +499,16 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.name === 'catchAll') {
-    console.warn(`[router/index] Redirecting unknown path '${to.fullPath}'`)
-    if (Views.includes(to.params.catchAll as string)) {
-      useViewsStore().setView(to.params.catchAll as string)
+    if (!Views.includes(to.params.catchAll as string)) {
+      next()
+      return
     }
+    useViewsStore().setView(to.params.catchAll as string)
+
     // Check if there is a previous history entry to go back to
     if (from.name !== null && from.name !== 'catchAll') {
       // Ensure we don't infinitely redirect
-      next({ path: from.fullPath, replace: true }) // Go back to the 'from' route
+      next({ path: from.fullPath, ...from, replace: true }) // Go back to the 'from' route
     } else {
       next({ name: 'home', replace: true }) // Default to home
     }

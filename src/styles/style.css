@@ -161,6 +161,7 @@
 
   --impresso-text-decoration-color: var(--impresso-color-black-alpha-30);
   --impresso-text-decoration-color-hover: var(--impresso-color-black-alpha-50);
+  --impresso-text-underline-offset: 3px;
 }
 
 body {
@@ -245,6 +246,7 @@ a,
   text-decoration: underline;
   text-decoration-color: var(--impresso-text-decoration-color);
   color: var(--impresso-color-black-deeper);
+  text-underline-offset: var(--impresso-text-underline-offset);
 }
 a.btn {
   text-decoration: none;
