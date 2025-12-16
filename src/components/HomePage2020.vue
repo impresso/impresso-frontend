@@ -246,7 +246,7 @@ import TermsOfUseStatus from '@/components/TermsOfUseStatus.vue'
 import HomePageFooter from './HomePageFooter.vue'
 import Recipe from './Recipe.vue'
 import DataRundown from './dataRundown/DataRundown.vue'
-import { optimizeFilters, serializeFilters } from '@/logic/filters'
+import { optimizeFilters, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 // import SearchQuery from '@/models/SearchQuery';
 import content from '@/assets/homepage.json'
 import { mapStores } from 'pinia'
@@ -254,9 +254,8 @@ import { useUserStore } from '@/stores/user'
 import Icon from './base/Icon.vue'
 import LinkToModal from './LinkToModal.vue'
 import { ViewDataRundown, ViewPlans } from '@/constants'
-import { FacetTypes } from '../pages/Search.vue'
 
-const AllowedFilterTypes = FacetTypes
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 export default {
   data: () => ({

@@ -17,8 +17,10 @@ import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
 import IssueViewerPage from '@/pages/IssueViewerPage.vue'
 import { getShortArticleId } from '@/logic/ids'
 import { useUserStore } from '@/stores/user'
+import { useViewsStore } from '@/stores/views'
 import { useNotificationsStore } from '@/stores/notifications'
 import { AnalyticsObject } from '@/plugins/analytics'
+import { Views } from '@/constants'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
@@ -483,8 +485,34 @@ const router = createRouter({
       component: PowerUserVisualisation,
       name: 'powervis',
       meta: { requiresAuth: false }
+    },
+    {
+      path: '/:catchAll(.*)',
+      name: 'catchAll',
+      component: () => import('@/pages/NotFoundPage.vue'),
+      meta: {
+        requiresAuth: false
+      }
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name === 'catchAll') {
+    console.warn(`[router/index] Redirecting unknown path '${to.fullPath}'`)
+    if (Views.includes(to.params.catchAll as string)) {
+      useViewsStore().setView(to.params.catchAll as string)
+    }
+    // Check if there is a previous history entry to go back to
+    if (from.name !== null && from.name !== 'catchAll') {
+      // Ensure we don't infinitely redirect
+      next({ path: from.fullPath, replace: true }) // Go back to the 'from' route
+    } else {
+      next({ name: 'home', replace: true }) // Default to home
+    }
+  } else {
+    next()
+  }
 })
 
 router.beforeEach((to, from, next) => {

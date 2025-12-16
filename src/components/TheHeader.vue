@@ -69,12 +69,10 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-        <b-nav-item v-if="viewPlansEnabled">
-          <LinkToModal class="nav-link" :view="ViewPlans">
-            <span>
-              {{ $t('label_plans') }}
-            </span>
-          </LinkToModal>
+        <b-nav-item to="/plans">
+          <span>
+            {{ $t('label_plans') }}
+          </span>
         </b-nav-item>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
@@ -223,7 +221,6 @@ import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
 import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
-import LinkToModal from './LinkToModal.vue'
 
 export default defineComponent({
   // props: {
@@ -418,8 +415,7 @@ export default defineComponent({
     JobItem,
     Pagination,
     InfoButton,
-    UserArea,
-    LinkToModal
+    UserArea
   }
 })
 </script>
