@@ -71,11 +71,13 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-        <b-nav-item to="/plans">
-          <span>
-            {{ $t('label_plans') }}
-          </span>
-        </b-nav-item>
+        <li class="nav-item">
+          <RouterLink class="nav-link" to="/plans">
+            <span>
+              {{ $t('label_plans') }}
+            </span>
+          </RouterLink>
+        </li>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -224,6 +226,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
 import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
 import LogoImpressoDatalab from 'impresso-ui-components/components/logos/LogoImpressoDatalab.vue'
+import { RouterLink } from 'vue-router'
 
 export default defineComponent({
   // props: {
