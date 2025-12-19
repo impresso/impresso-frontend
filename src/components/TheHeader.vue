@@ -1,24 +1,14 @@
 <template>
   <div>
-    <div class="progress" v-if="processingStatus" style="height: 4px">
-      <div
-        class="progress-bar bg-info progress-bar-animated progress-bar-striped"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="100"
-        :style="`width: ${100}%;`"
-      ></div>
-    </div>
     <b-navbar toggleable="md" type="dark" variant="dark" class="TheHeader py-0 pr-1 border-primary">
-      <a href="/datalab" class="TheHeader_switchToDatalab very-small-caps-bold">
-        <LogoImpressoDatalab
-          :width="90"
-          style="top: 10px; left: 50%; transform: translateX(-50%)"
-          class="position-absolute"
-        />
+      <SwitchBetweenAppDatalab
+        isDatalab
+        href="/datalab"
+        class="very-small-caps-medium shadow-sm"
+        style="background-color: var(--impresso-color-yellow)"
+      >
         switch to DataLab
-      </a>
+      </SwitchBetweenAppDatalab>
       <a
         class="navbar-brand"
         @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))"
@@ -225,8 +215,8 @@ import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
 import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
-import LogoImpressoDatalab from 'impresso-ui-components/components/logos/LogoImpressoDatalab.vue'
 import { RouterLink } from 'vue-router'
+import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/SwitchBetweenAppDatalab.vue'
 
 export default defineComponent({
   // props: {
@@ -422,7 +412,7 @@ export default defineComponent({
     Pagination,
     InfoButton,
     UserArea,
-    LogoImpressoDatalab
+    SwitchBetweenAppDatalab
   }
 })
 </script>
