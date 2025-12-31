@@ -56,15 +56,18 @@
       </div>
       <div class="container bg-light border shadow rounded-md">
         <div
-          class="row font-weight-medium position-sticky bg-light top-0 border-bottom border-dark"
+          class="row small font-weight-medium position-sticky bg-light top-0 border-bottom border-dark"
           style="
             z-index: 2;
             border-top-left-radius: var(--border-radius-md);
             border-top-right-radius: var(--border-radius-md);
           "
         >
-          <div class="col-sm-2 border-left d-flex align-items-center">
+          <div class="col-sm-1 d-flex align-items-center">
             {{ $t('label_time_period') }}
+          </div>
+          <div class="col-sm-1 border-left d-flex align-items-center">
+            {{ $t('label_media_medium') }}
           </div>
           <div class="col-sm-4 border-left d-flex align-items-center">
             {{ $t('label_media_outlet') }}
@@ -96,9 +99,9 @@
           v-for="dataset in sortedDatasets"
           :key="dataset.id"
         >
-          <div class="col-sm-2">{{ dataset.timePeriod }}</div>
-
-          <div class="col-sm-4">
+          <div class="col-sm-1 very-small-caps">{{ dataset.timePeriod }}</div>
+          <div class="col-sm-1 very-small-caps">{{ dataset.medium }}</div>
+          <div class="col-sm-4 d-flex flex-wrap align-items-center gap-1 small">
             <MediaSourceLabel
               :item="{
                 uid: dataset.mediaId,
@@ -108,17 +111,18 @@
               }"
               :showLink="showLink"
             />
-            provided by {{ dataset.dataPartnerInstitution }}
-            <div class="badge bg-transparent small-caps rounded-sm border border-dark">
-              {{ dataset.medium }}
-            </div>
+            <DataProviderLabel
+              :item="{ id: dataset.associatedPartner.toString() }"
+              :showLink="showLink"
+              titleClass="p-0"
+            />
           </div>
 
           <div class="col-sm-2">
-            <span class="small-caps">{{ dataset.copyright }}</span>
+            <span class="very-small-caps">{{ dataset.copyright }}</span>
           </div>
           <div class="col-sm-4">
-            <div class="row small-caps d-flex align-items-center">
+            <div class="row small-caps d-flex align-items-center very-small-caps">
               <div class="col-sm-4">
                 {{ plansLabels[dataset.minimumUserPlanRequiredToExploreInWebapp] }}
               </div>
@@ -135,11 +139,11 @@
     </section>
   </Modal>
 </template>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "label_time_period": "Time Period",
-    "label_media_medium": "Media / Medium",
+    "label_media_medium": "Medium",
     "label_media_outlet": "Media title, media outlet and data partner",
     "label_sort_order": "Order by",
     "label_copyright": "Copyright",
@@ -147,10 +151,11 @@
     "label_show": "filter by",
     "label_public_domain_only": "Available as Public Domain",
     "label_available_to_me": "Available to me",
+
     "label_minimul_user_plan": "Minimum User Plan",
-    "label_minimum_user_plan_explore": "Explore",
-    "label_minimum_user_plan_transcripts": "Transcripts",
-    "label_minimum_user_plan_illustrations": "Illustrations",
+    "label_minimum_user_plan_explore": "Web App access",
+    "label_minimum_user_plan_transcripts": "Transcript access",
+    "label_minimum_user_plan_illustrations": "Facsimile access",
     "selected_label_show_all": "Show all ({total})",
     "selected_label_public_domain_only": "Available as Public Domain ({n} of {total})",
     "selected_label_available_to_me": "Available to me ({n} of {total}, {userPlan})",
@@ -162,11 +167,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import Icon from './base/Icon.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import Dropdown from './layout/Dropdown.vue'
 import MediaSourceLabel from './modules/lists/MediaSourceLabel.vue'
-import { filter } from 'd3'
+import DataProviderLabel from './modules/lists/DataProviderLabel.vue'
 
 export type Dataset = {
   id: string
