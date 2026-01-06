@@ -26,18 +26,45 @@ export default ({ mode }: { mode: string }) => {
   const SocketIoProxyPath = `^${env.VITE_MIDDLELAYER_API_SOCKET_PATH}`
   const DatalabContentProxyPath = `^${env.VITE_DATALAB_CONTENT_API_PATH}`
   const AssetsProxyPath = `^${env.VITE_ASSETS_PATH}`
+
   const ApiIiifProxyPath = [
     '^',
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
     '/proxy/'
   ].join('')
+  const WebAppBaseUrl: string = env.VITE_BASE_URL ?? '/'
+  const WidgetBaseUrl: string = env.VITE_WIDGET_BASE_URL ?? '/widget/'
   if (mode === 'development') {
     console.log('SocketIoProxyPath', SocketIoProxyPath)
     console.log('ApiIiifProxyPath', ApiIiifProxyPath)
+    console.log('DatalabContentProxyPath', DatalabContentProxyPath)
+    console.log('AssetsProxyPath', AssetsProxyPath)
+    console.log('WebAppBaseUrl', WebAppBaseUrl)
+    console.log('WidgetBaseUrl', WidgetBaseUrl)
   }
+
   // https://vitejs.dev/config/
   return defineConfig({
+    base: '/',
     plugins: [
+      {
+        name: 'widget-rewriter',
+        enforce: 'pre', // Ensures this runs before Vite's internal HTML middleware
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = req.url?.split('?')[0] || ''
+
+            // 1. Check if the request is for the widget area
+            // 2. Ensure we aren't intercepting actual files (js, css, png, etc.)
+            if (url.startsWith(WidgetBaseUrl) && !url.includes('.')) {
+              console.log(`[Vite MPA] Intercepted: ${url} -> Serving: /widget/index.html`)
+
+              req.url = '/widget/index.html'
+            }
+            next()
+          })
+        }
+      },
       vue(),
       vueJsx(),
       // VueDevTools(),
