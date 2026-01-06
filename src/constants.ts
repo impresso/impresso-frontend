@@ -108,3 +108,13 @@ export const PlansJsonUrl: string =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_PLANS_JSON_URL
     ? import.meta.env.VITE_PLANS_JSON_URL
     : ''
+
+export const WebAppBaseUrl: string =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_BASE_URL
+    ? import.meta.env.VITE_BASE_URL
+    : '/'
+
+export const WidgetBaseUrl: string =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_WIDGET_BASE_URL
+    ? import.meta.env.VITE_WIDGET_BASE_URL
+    : '/widget/'
