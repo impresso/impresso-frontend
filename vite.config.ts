@@ -32,7 +32,8 @@ export default ({ mode }: { mode: string }) => {
     String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
     '/proxy/'
   ].join('')
-  const WebAppBaseUrl: string = env.VITE_BASE_URL ?? '/'
+  const WebAppBaseUrl: string = env.VITE_APP_BASE_URL ?? '/'
+  const WebAppHost: string = env.VITE_APP_HOST ?? 'http://localhost:5173'
   const WidgetBaseUrl: string = env.VITE_WIDGET_BASE_URL ?? '/widget/'
   if (mode === 'development') {
     console.log('SocketIoProxyPath', SocketIoProxyPath)
@@ -41,6 +42,7 @@ export default ({ mode }: { mode: string }) => {
     console.log('AssetsProxyPath', AssetsProxyPath)
     console.log('WebAppBaseUrl', WebAppBaseUrl)
     console.log('WidgetBaseUrl', WidgetBaseUrl)
+    console.log('WebAppHost', WebAppHost)
   }
 
   // https://vitejs.dev/config/

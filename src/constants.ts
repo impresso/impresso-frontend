@@ -111,9 +111,14 @@ export const PlansJsonUrl: string =
     ? import.meta.env.VITE_PLANS_JSON_URL
     : ''
 
+export const WebAppHost: string =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_APP_HOST
+    ? import.meta.env.VITE_APP_HOST
+    : 'http://localhost:5173'
+
 export const WebAppBaseUrl: string =
-  typeof import.meta !== 'undefined' && import.meta.env?.VITE_BASE_URL
-    ? import.meta.env.VITE_BASE_URL
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_APP_BASE_URL
+    ? import.meta.env.VITE_APP_BASE_URL
     : '/'
 
 export const WidgetBaseUrl: string =

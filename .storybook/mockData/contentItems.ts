@@ -1,12 +1,12 @@
 import { ContentItem } from '@/models/generated/schemas/contentItem'
 
 export const MockContentItem: ContentItem = {
-  id: 'DTT-1968-09-04-a-i0190',
-  issueId: 'DTT-1968-09-04-a',
+  id: 'waeschfra-1876-04-08-a-i0004',
+  issueId: 'waeschfra-1876-04-08-a',
   meta: {
     sourceType: 'newspaper',
-    date: '1968-09-04T00:00:00Z',
-    mediaId: 'DTT',
+    date: '1876-04-08T00:00:00Z',
+    mediaId: 'waeschfra',
     sourceMedium: 'print',
     countryCode: 'CH',
     provinceCode: 'na',
@@ -78,7 +78,7 @@ export const MockContentItem: ContentItem = {
     pagesCount: 1,
     pages: [
       {
-        id: 'DTT-1968-09-04-a-p0003',
+        id: 'waeschfra-1876-04-08-a-p0004',
         number: 3,
         regionCoordinates: [
           [2214, 2404, 1226, 207],
