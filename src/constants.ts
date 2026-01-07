@@ -62,6 +62,7 @@ export const ViewPlans = 'plans'
 export const ViewCorpusOverview = 'corpus-overview'
 export const ViewDataRundown = 'data-rundown'
 export const ViewFeedback = 'feedback'
+export const ViewShareContentItem = 'share-content-item'
 export const Views: string[] = [
   ViewTermsOfUse,
   ViewChangePlanRequest,
@@ -75,7 +76,8 @@ export const Views: string[] = [
   ViewDataRundown,
   ViewSpecialMembership,
   ViewCreateSpecialMembershipRequest,
-  ViewCreateSpecialMembershipRequestSuccess
+  ViewCreateSpecialMembershipRequestSuccess,
+  ViewShareContentItem
 ]
 
 const FeedbackOptionContentItemMetadataIssue = 'ContentItemMetadataIssue'
