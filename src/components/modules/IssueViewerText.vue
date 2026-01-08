@@ -9,6 +9,7 @@
         showSemanticEnrichments
         showTopics
       />
+      {{ contentItem }}
       <i-spinner v-if="!article" class="text-center p-5" />
       <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
         <div class="badge badge-light my-1 mr-1 very-small-caps">collections</div>

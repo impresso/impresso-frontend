@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ShareContentItemModal from './ShareContentItemModal.vue'
 import type { ShareContentItemModalProps } from './ShareContentItemModal.vue'
-import { MockContentItem } from '.storybook/mockData/contentItems'
+import { MockContentItemPublicDomain } from '.storybook/mockData/contentItems'
 
 import { useViewsStore } from '@/stores/views'
 import { ViewShareContentItem } from '@/constants'
@@ -40,6 +40,6 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    item: MockContentItem
+    item: MockContentItemPublicDomain
   } as ShareContentItemModalProps
 }
