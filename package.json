@@ -31,6 +31,8 @@
     "generate-types": "node src/scripts/generateTypes.ts"
   },
   "dependencies": {
+    "@citation-js/core": "^0.7.21",
+    "@citation-js/plugin-csl": "^0.7.22",
     "@feathersjs/authentication-client": "5.0.25",
     "@feathersjs/feathers": "5.0.25",
     "@feathersjs/rest-client": "5.0.25",

@@ -20,14 +20,13 @@ import { useUserStore } from '@/stores/user'
 import { useViewsStore } from '@/stores/views'
 import { useNotificationsStore } from '@/stores/notifications'
 import { AnalyticsObject } from '@/plugins/analytics'
-import { Views } from '@/constants'
+import { Views, WebAppBaseUrl } from '@/constants'
 
-const BASE_URL = import.meta.env.BASE_URL || '/'
 // eslint-disable-next-line
-console.debug('[router] Router with BASE_URL to:', BASE_URL)
+console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(WebAppBaseUrl),
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
@@ -365,6 +364,7 @@ const router = createRouter({
     },
     {
       path: '/article/:article_uid',
+      alias: '/content-item/:article_uid',
       component: () => null,
       beforeEnter: async to => {
         const ci = await services.contentItems.get(to.params.article_uid as string)
@@ -381,6 +381,7 @@ const router = createRouter({
         }
       }
     },
+
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_uid',
@@ -489,6 +490,7 @@ const router = createRouter({
     {
       path: '/:catchAll(.*)',
       name: 'catchAll',
+
       component: () => import('@/pages/NotFoundPage.vue'),
       meta: {
         requiresAuth: false
@@ -498,27 +500,75 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.name === 'catchAll') {
-    if (!Views.includes(to.params.catchAll as string)) {
-      next()
-      return
-    }
-    useViewsStore().setView(to.params.catchAll as string)
-
-    // Check if there is a previous history entry to go back to
-    if (from.name !== null && from.name !== 'catchAll') {
-      // Ensure we don't infinitely redirect
-      next({ path: from.fullPath, ...from, replace: true }) // Go back to the 'from' route
-    } else {
-      next({ name: 'home', replace: true }) // Default to home
-    }
-  } else {
-    next()
+  console.debug(
+    '[router/index] Navigation \- to :',
+    to.name,
+    to.path,
+    'from',
+    from.name,
+    from.path,
+    window.location.pathname
+  )
+  // If the URL is actually for the widget, STOP everything.
+  // The browser should have handled this, but if the Main App caught it:
+  if (window.location.pathname.startsWith('/widget')) {
+    console.info(
+      '[router/index] Navigation to /widget detected in Main App, stopping navigation to let the browser load the Widget App.'
+    )
+    window.location.href = to.fullPath
+    return // Do not call next(), let the browser finish loading the other page
   }
+  next()
 })
 
+router.beforeEach(
+  /**
+   * First Navigation guard that handles catch-all routes and checks if they represent modal dialog views.
+   *
+   * If the catch-all parameter matches a valid view in the Views constant, it sets the view in the store
+   * and redirects to the appropriate route. If not, allows normal 404 handling.
+   *
+   * This guard intercepts undefined routes and attempts to match them against registered modal/dialog views
+   * before treating them as actual 404 errors. If a match is found, it triggers the corresponding modal
+   * dialog view and preserves navigation history.
+   *
+   * @param to - The target Route Object being navigated to.
+   * @param from - The current route being navigated away from.
+   * @param next - Function to resolve the navigation.
+   *
+   * @remarks
+   * - If the catch-all route matches a valid view, it updates the views store and performs a redirect
+   * - Attempts to return to the previous route if available, otherwise defaults to home
+   * - If the catch-all parameter is not a valid view, navigation proceeds normally (likely to 404)
+   *
+   * @example
+   * // User navigates to /invalid-view-name (not defined in routes)
+   * // If 'invalid-view-name' exists in Views constant, the modal dialog is triggered
+   * // Otherwise, the user is directed to NotFoundPage
+   */
+  (to, from, next) => {
+    if (to.name === 'catchAll') {
+      if (!Views.includes(to.params.catchAll as string)) {
+        next()
+        return
+      }
+      useViewsStore().setView(to.params.catchAll as string)
+
+      // Check if there is a previous history entry to go back to
+      if (from.name !== null && from.name !== 'catchAll') {
+        // Ensure we don't infinitely redirect
+        next({ path: from.fullPath, ...from, replace: true }) // Go back to the 'from' route
+      } else {
+        next({ name: 'home', replace: true }) // Default to home
+      }
+    } else {
+      next()
+    }
+  }
+)
+
 router.beforeEach((to, from, next) => {
-  const pathWithPrefix = String(BASE_URL + to.path).replace(/\/+/g, '/')
+  const pathWithPrefix = String(WebAppBaseUrl + to.path).replace(/\/+/g, '/')
   // console.info('[router/index] Routing \-to : to', to.name, to.path, 'from', from.name, from.path)
   // Vue.prototype.$renderMetaTags({ title: to.name })
   // # forward page to matomo analytics using base.URL
