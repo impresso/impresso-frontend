@@ -5,6 +5,8 @@ import { MockContentItemPublicDomain } from '.storybook/mockData/contentItems'
 
 import { useViewsStore } from '@/stores/views'
 import { ViewShareContentItem } from '@/constants'
+import { getMediaSourceHandler } from '.storybook/mswHandlers'
+import { MockDataProviders } from '.storybook/mockData/dataProviders'
 
 const meta: Meta<typeof ShareContentItemModal> = {
   title: 'modals/ShareContentItemModal',
@@ -15,6 +17,9 @@ const meta: Meta<typeof ShareContentItemModal> = {
       setup() {
         const viewStore = useViewsStore()
         viewStore.resetView()
+
+        // Inject the mock data into the global window object
+        ;(window as any).impressoDataProviders = MockDataProviders
         return { args, viewStore, ViewShareContentItem }
       },
       components: {
@@ -31,6 +36,12 @@ const meta: Meta<typeof ShareContentItemModal> = {
           </Teleport>
         </div>
       `
+    }
+  },
+
+  parameters: {
+    msw: {
+      handlers: [getMediaSourceHandler]
     }
   }
 }
