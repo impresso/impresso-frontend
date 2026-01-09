@@ -9,7 +9,7 @@ import { WebAppBaseUrl, WebAppHost } from '@/constants'
 export function getArticleParameters(articleId: string, pageNumber: number) {
   const parts = articleId.split('-')
   const issueId = parts.slice(0, parts.length - 1).join('-')
-  const pageId = [issueId, `p${String(pageNumber).padStart(4, 0)}`].join('-')
+  const pageId = [issueId, `p${String(pageNumber).padStart(4, '0')}`].join('-')
 
   return {
     issue_uid: issueId,
