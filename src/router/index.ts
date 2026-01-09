@@ -364,6 +364,7 @@ const router = createRouter({
     },
     {
       path: '/article/:article_uid',
+      alias: '/content-item/:article_uid',
       component: () => null,
       beforeEnter: async to => {
         const ci = await services.contentItems.get(to.params.article_uid as string)
@@ -380,6 +381,7 @@ const router = createRouter({
         }
       }
     },
+
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_uid',
