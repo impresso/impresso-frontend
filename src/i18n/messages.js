@@ -131,6 +131,7 @@ export default {
       detail: 'more details...',
       downloadCsv: 'download csv',
       share: 'share...',
+      embed: 'embed...',
       more: 'more...',
       searchMore: 'open in search page...',
       remove: 'remove',
