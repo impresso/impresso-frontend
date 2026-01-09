@@ -42,7 +42,6 @@ const generateCitation = async () => {
     .get(props.item.meta.mediaId)
     .then(media => media?.name ?? props.item.meta.mediaId)
 
-  console.log('Generating citation for item ID:', props.item.id, dateParts)
   try {
     const cslData: CSLJSON = {
       type: 'article-newspaper',
@@ -66,7 +65,7 @@ const generateCitation = async () => {
     emit('citationGenerated', citationHtml.value)
   } catch (error) {
     citationHtml.value = 'Invalid citation data.'
-    console.error('Error generating citation:', error)
+    console.warn('Error generating citation:', error)
   }
 }
 

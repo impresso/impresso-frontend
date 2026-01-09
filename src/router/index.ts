@@ -515,6 +515,7 @@ router.beforeEach((to, from, next) => {
     console.info(
       '[router/index] Navigation to /widget detected in Main App, stopping navigation to let the browser load the Widget App.'
     )
+    window.location.href = to.fullPath
     return // Do not call next(), let the browser finish loading the other page
   }
   next()

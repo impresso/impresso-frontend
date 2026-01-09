@@ -1,28 +1,20 @@
 <template>
   <div class="content-item-viewer d-flex" :style="backgroundStyle">
-    <IIIFViewer
-      class="h-100"
-      :manifestUrls="[
-        'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f8/info.json',
-        'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f9/info.json'
-      ]"
-      v-if="isViewerReady"
-    />
-    <ContentItem
-      v-if="contentItem && !props.hideContentItem"
-      showMeta
+    <IIIFViewer class="h-100" :manifestUrls="manifestUrls" v-if="isViewerReady" />
+    <ContentItemCitation
+      v-if="!props.hideContentItem && contentItem"
       :item="contentItem"
-    ></ContentItem>
+    ></ContentItemCitation>
   </div>
 </template>
 <script setup lang="ts">
 import IIIFViewer from '@/components/modules/IIIFViewer.vue'
 
-import ContentItem from '../../components/modules/lists/ContentItem.vue'
 import type { ContentItem as ContentItemType } from '../../models/generated/schemas/contentItem'
 
 import { contentItems as contentItemsService } from '../../services'
 import { computed, ref, watch } from 'vue'
+import ContentItemCitation from '@/components/ContentItemCitation.vue'
 
 export interface ContentItemViewerProps {
   backgroundSize?: string
@@ -37,7 +29,7 @@ export interface ContentItemViewerProps {
 }
 
 const isViewerReady = ref<boolean>(true)
-const contentItem = ref<any>(null)
+const contentItem = ref<ContentItemType | null>(null)
 const props = withDefaults(defineProps<ContentItemViewerProps>(), {
   hideContentItem: false
 })
@@ -60,22 +52,31 @@ watch(
   async newContentItemId => {
     isViewerReady.value = false
     if (newContentItemId) {
-      contentItem.value = await contentItemsService
+      const data = (contentItem.value = await contentItemsService
         .get(newContentItemId)
         .catch(err => {
           console.error('[ContentItemViewer] error loading content item:', err)
           return null
-        })
-        .then((data: ContentItemType) => {
-          if (data.text?.title && props.alternativeTitle) {
-            data.text.title = props.alternativeTitle
-          }
-          return data
-        })
+        }))
+      if (data && data.text?.title && props.alternativeTitle) {
+        data.text.title = props.alternativeTitle
+      }
+      contentItem.value = data
 
       isViewerReady.value = true
     }
   },
   { immediate: true }
 )
+const manifestUrls = computed<string[]>(() => {
+  if (
+    !contentItem.value ||
+    (Array.isArray(contentItem.value.image?.pages) && contentItem.value.image.pages.length === 0)
+  ) {
+    return []
+  }
+  return contentItem.value.image.pages
+    .map(page => page.iiif?.manifestUrl || '')
+    .filter(url => url.length > 0)
+})
 </script>

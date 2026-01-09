@@ -306,7 +306,6 @@ const iframeCode = computed(() => {
 const iframeCodeTextarea = ref<HTMLTextAreaElement | null>(null)
 const iframeCaption = ref<string>('')
 const onCitationGenerated = (citation: string) => {
-  console.log('Citation generated:', citation)
   iframeCaption.value =
     citation +
     `<a href="${getContentItemPermalink(props.item.id)}" target="_blank" rel="noopener noreferrer">→ link</a>`

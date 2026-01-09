@@ -1,7 +1,6 @@
 import { WidgetBaseUrl } from '@/constants'
 import { createRouter, createWebHistory } from 'vue-router'
-import { ValidationRule } from '@vuelidate/core'
-import { helpers, required } from '@vuelidate/validators'
+import { helpers, maxLength, required } from '@vuelidate/validators'
 
 const routeParamsValidators = {
   backgroundColor: {
@@ -13,7 +12,7 @@ const routeParamsValidators = {
     format: helpers.regex(/^[a-zA-Z0-9\-]+$/)
   },
   alternativeTitle: {
-    maxLength: helpers.len(100),
+    maxLength: maxLength(200),
     format: helpers.regex(/^[\w\s\-.,'"]*$/)
   }
 }
@@ -102,7 +101,11 @@ const router = createRouter({
     {
       path: '/error',
       name: 'Error',
-      component: () => import('../views/ErrorView.vue')
+      component: () => import('../views/ErrorView.vue'),
+      props: route => ({
+        errorType: 'validation',
+        message: route.query.message
+      })
     }
   ]
 })
@@ -117,7 +120,6 @@ router.beforeEach(async (to, from, next) => {
 
   let isValid = true
   const errorMessages: string[] = []
-  console.log(validators)
   // Manually iterate through the validators defined in meta
   for (const [field, rules] of Object.entries(validators)) {
     const value = dataToValidate[field as keyof typeof dataToValidate]
