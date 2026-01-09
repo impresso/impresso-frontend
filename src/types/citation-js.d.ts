@@ -52,6 +52,7 @@ declare module '@citation-js/core' {
     'collection-title'?: string
     'publisher-place'?: string
     issued?: CSLDate
+    URL?: string
   }
   export class Cite {
     constructor(data: CSLJSON | CSLJSON[])
