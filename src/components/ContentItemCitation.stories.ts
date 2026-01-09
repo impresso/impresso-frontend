@@ -3,7 +3,7 @@ import ContentItemCitation from './ContentItemCitation.vue'
 import type { ContentItemCitationProps } from './ContentItemCitation.vue'
 import { MockContentItemPublicDomain } from '.storybook/mockData/contentItems'
 import { getMediaSourceHandler } from '.storybook/mswHandlers'
-import { MockDataProviders } from '.storybook/mockData/dataproviders'
+import { MockDataProviders } from '.storybook/mockData/dataProviders'
 
 const meta: Meta<typeof ContentItemCitation> = {
   title: 'components/ContentItemCitation',

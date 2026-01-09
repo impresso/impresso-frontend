@@ -13,14 +13,19 @@ import {
   dataProviders as dataProvidersService,
   mediaSources as mediaSourceService
 } from '@/services'
+import { WebAppBaseUrl, WebAppHost } from '@/constants'
+import { getContentItemPermalink } from '@/logic/ids'
 
 export interface ContentItemCitationProps {
   item: ContentItemType
 }
 
 const props = defineProps<ContentItemCitationProps>()
+const emit = defineEmits<{
+  (e: 'citationGenerated', citation: string): void
+}>()
 
-const citationHtml = ref<string>('')
+const citationHtml = ref<string>('...')
 
 const generateCitation = async () => {
   // Prepare CSL data
@@ -46,6 +51,7 @@ const generateCitation = async () => {
       publisher: archive,
       archive: archive,
       page: props.item.image?.pages?.map(page => page.number).join(', ') ?? '',
+      URL: getContentItemPermalink(props.item.id),
       issued: {
         'date-parts': dateParts
       }
@@ -57,6 +63,7 @@ const generateCitation = async () => {
       template: 'chicago-fullnote-bibliography',
       lang: 'en-GB'
     })
+    emit('citationGenerated', citationHtml.value)
   } catch (error) {
     citationHtml.value = 'Invalid citation data.'
     console.error('Error generating citation:', error)
