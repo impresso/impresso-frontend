@@ -4,7 +4,6 @@
     :dialogClass="dialogClass"
     modalClass="ShareContentItemModal"
     bodyClass="pt-0 px-3"
-    @shown="delayIframePreview"
     @close="emit('dismiss')"
     :title="$t('titles.shareContentItemModal')"
   >
@@ -30,7 +29,7 @@
               <iframe
                 ref="iframePreviewRef"
                 :src="iframeSrc"
-                @load="onIframeLoad"
+                @load="isIframeLoaded = true"
                 :style="{
                   position: 'absolute',
                   top: 0,
@@ -57,32 +56,34 @@
                 }"
               ></div>
             </div>
-            <div class="ShareContentItemModal__iframe-caption d-none" ref="iframeCaptionPreview">
-              <ContentItem
+            <div class="ShareContentItemModal__iframe-caption d-none">
+              <ContentItemCitation
                 :item="props.item"
-                showMeta
                 :style="{
                   padding: form.captionPadding + 'px'
                 }"
-              ></ContentItem>
+                @citation-generated="onCitationGenerated"
+              ></ContentItemCitation>
             </div>
           </div>
-          <div v-if="iframeCaption.length" :style="{ padding: form.captionPadding + 'px' }">
-            {{ iframeCaption }}
-          </div>
+          <div
+            v-if="iframeCaption.length"
+            :style="{ padding: form.captionPadding + 'px' }"
+            v-html="iframeCaption"
+          ></div>
           <div>
             <h5 class="my-3">{{ $t('labels.iFrameCode') }}</h5>
             <textarea
               ref="iframeCodeTextarea"
               readonly
               :value="iframeCode"
-              class="mb-2 form-control shadow-sm rounded-sm border bg-light"
+              class="mb-2 form-control shadow-sm rounded-sm border bg-light small"
             ></textarea>
           </div>
         </div>
         <div class="col-4">
           <h5 class="my-3">{{ $t('labels.customizationOptions') }}</h5>
-          <div class="row border-bottom pb-3 mb-3">
+          <div class="row">
             <div class="col-12">
               <label>{{ $t('labels.alternativeTitle') }}</label>
               <bFormInput
@@ -93,6 +94,7 @@
                 :placeholder="props.item.text?.title ?? ''"
               />
             </div>
+
             <div class="col-12">
               <label>{{ $t('labels.page') }}</label>
 
@@ -119,6 +121,7 @@
               />
             </div>
           </div>
+          <hr />
           <div class="row">
             <div class="col-12">
               <BFormCheckbox switch v-model="fitCoords">
@@ -126,13 +129,38 @@
               </BFormCheckbox>
             </div>
           </div>
-          <div class="row border-bottom pb-3 mb-3">
+          <div class="row">
             <template v-if="availablePageRegions">
-              <div v-for="(region, index) in availablePageRegions" :key="index" class="col-6">
-                <label>{{ $t('labels.region') }} {{ index + 1 }}</label>
-                <input type="checkbox" :value="index" v-model="selectedPageRegionsIndices" />
+              <p class="small text-muted mx-3">
+                {{
+                  $t('labels.selectRegionsToFitCoords', {
+                    n: availablePageRegions.length
+                  })
+                }}
+              </p>
+              <div v-for="(_, index) in availablePageRegions" :key="index" class="col-6">
+                <div class="custom-control custom-checkbox">
+                  <input
+                    :id="`region-${index}`"
+                    type="checkbox"
+                    :value="index"
+                    v-model="selectedPageRegionsIndices"
+                    class="custom-control-input"
+                  />
+                  <label
+                    class="custom-control-label"
+                    :for="`region-${index}`"
+                    v-html="
+                      $t('labels.region', {
+                        n: index + 1,
+                        w: availablePageRegions[index][2],
+                        h: availablePageRegions[index][3]
+                      })
+                    "
+                  ></label>
+                </div>
               </div>
-              <hr class="my-2" />
+              <div class="w-100 mb-2"></div>
             </template>
             <div class="col-6" v-for="coord in ['x', 'y', 'w', 'h']" :key="coord">
               <label>{{ $t(`labels.${coord}`) }}</label>
@@ -145,6 +173,7 @@
               />
             </div>
           </div>
+          <hr />
           <div class="row mt-2">
             <div
               class="col-6"
@@ -160,7 +189,7 @@
               />
             </div>
           </div>
-
+          <hr />
           <div class="row mt-2">
             <div class="col-6" v-for="field in ['coordsMargin', 'captionPadding']" :key="field">
               <label>{{ $t(`labels.${field}`) }}</label>
@@ -193,8 +222,11 @@ import type { ContentItem as ContentItemType } from '@/models/generated/schemas/
 import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import { WebAppHost, WidgetBaseUrl } from '@/constants'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
-import ContentItem from '../modules/lists/ContentItem.vue'
+import ContentItemCitation from '../ContentItemCitation.vue'
+import { Notification, useNotificationsStore } from '@/stores/notifications'
+import { getContentItemPermalink } from '@/logic/ids'
 
+const { addNotification } = useNotificationsStore()
 /** Content Item to share */
 export type ShareContentItemModalProps = {
   item: ContentItemType
@@ -214,7 +246,7 @@ export type ShareContentItemModalsFormPayload = {
 
 const fitCoords = ref(true)
 const props = withDefaults(defineProps<ShareContentItemModalProps>(), {
-  dialogClass: ' modal-xl p-0 modal-dialog-scrollable '
+  dialogClass: ' modal-xl p-0 modal-dialog-scrollable modal-dialog-centered'
 })
 const selectedPageId = ref<string | null>(props.item.image?.pages?.[0]?.id ?? null)
 
@@ -223,7 +255,7 @@ const form = reactive<ShareContentItemModalsFormPayload>({
   overlayBackgroundColor: '#B7F1F8AA',
   height: 600,
   coordsMargin: 50,
-  captionPadding: 8,
+  captionPadding: 20,
   coords: { x: 0, y: 0, w: 100, h: 100 },
   alternativeTitle: ''
 })
@@ -247,9 +279,7 @@ const iframeSrcParams = computed<string[]>(() => {
     params.push(`fitCoords=true`)
     params.push(`coords=${form.coords.x},${form.coords.y},${form.coords.w},${form.coords.h}`)
   }
-  if (form.alternativeTitle.trim().length > 0) {
-    params.push(`alternativeTitle=${encodeURIComponent(form.alternativeTitle.trim())}`)
-  }
+
   return params
 })
 
@@ -274,12 +304,13 @@ const iframeCode = computed(() => {
 })
 
 const iframeCodeTextarea = ref<HTMLTextAreaElement | null>(null)
-const iframeCaptionPreview = ref<HTMLElement | null>(null)
-
-const iframeCaption = computed(() => {
-  const captionHtml = iframeCaptionPreview.value?.textContent ?? ''
-  return captionHtml.trim()
-})
+const iframeCaption = ref<string>('')
+const onCitationGenerated = (citation: string) => {
+  console.log('Citation generated:', citation)
+  iframeCaption.value =
+    citation +
+    `<a href="${getContentItemPermalink(props.item.id)}" target="_blank" rel="noopener noreferrer">→ link</a>`
+}
 
 const copyIframeCodeToClipboard = async () => {
   if (!iframeCodeTextarea.value) return
@@ -287,23 +318,19 @@ const copyIframeCodeToClipboard = async () => {
   try {
     await navigator.clipboard.writeText(iframeCodeTextarea.value.value)
     iframeCodeTextarea.value.select()
-    // Show success notification
-    // addNotification({ title: 'Copied!', message: 'Code copied to clipboard', type: 'success' })
+    addNotification({
+      title: 'Copied!',
+      message: 'Code copied to clipboard',
+      type: 'info'
+    } as Notification)
   } catch (err) {
     console.error('Failed to copy to clipboard:', err)
-    // Optionally show error notification
-    // addNotification({ title: 'Error', message: 'Failed to copy to clipboard', type: 'error' })
+    addNotification({
+      title: 'Error',
+      message: '...Failed to copy to clipboard',
+      type: 'info'
+    } as Notification)
   }
-}
-
-const delayIframePreview = () => {
-  // Placeholder for any logic needed when the modal is shown
-}
-
-const onIframeLoad = () => {
-  console.log('Iframe preview is ready')
-  // Your logic here
-  isIframeLoaded.value = true
 }
 
 const emit = defineEmits(['dismiss'])
@@ -368,7 +395,7 @@ onUnmounted(() => {
 {
   "en": {
     "titles": {
-      "shareContentItemModal": "Share Content Item"
+      "shareContentItemModal": "Embed Content Item"
     },
     "labels": {
       "iFramePreview": "iFrame Preview",
@@ -377,15 +404,17 @@ onUnmounted(() => {
       "alternativeTitle": "Alternative Title",
       "height": "Height (px)",
       "fitCoords": "Fit Coords",
+      "page": "Page",
       "x": "X",
       "y": "Y",
       "w": "Width",
       "h": "Height",
-      "region": "Region",
+      "region": "Region #{ n } <br> ({ w} x { h })",
       "backgroundColor": "Background Color",
-      "overlayBackgroundColor": "Overlay Background Color",
+      "overlayBackgroundColor": "Overlay Color",
       "coordsMargin": "Coords Margin (px)",
-      "captionPadding": "Caption Padding (px)"
+      "captionPadding": "Caption Padding (px)",
+      "selectRegionsToFitCoords": "Select regions to auto-fill coords ({ n } available)"
     },
     "copy_to_clipboard": "Copy to Clipboard",
     "close": "Close"
