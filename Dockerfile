@@ -4,6 +4,7 @@ FROM node:23-alpine AS frontend_builder
 ARG GIT_TAG
 ARG GIT_BRANCH
 ARG GIT_REVISION
+ARG APP_HOST
 
 WORKDIR /impresso_frontend
 
@@ -23,6 +24,8 @@ COPY .env .env.production ./
 
 ENV PUBLIC_PATH=/app/
 ENV NODE_ENV=production
+
+ENV VITE_APP_HOST=${APP_HOST}
 ENV VITE_GIT_TAG=${GIT_TAG}
 ENV VITE_GIT_BRANCH=${GIT_BRANCH}
 ENV VITE_GIT_REVISION=${GIT_REVISION}

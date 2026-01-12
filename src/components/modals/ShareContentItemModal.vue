@@ -58,7 +58,7 @@
             </div>
             <div class="ShareContentItemModal__iframe-caption d-none">
               <ContentItemCitation
-                :item="props.item"
+                :item="contentItemCustomized"
                 :style="{
                   padding: form.captionPadding + 'px'
                 }"
@@ -252,7 +252,7 @@ const selectedPageId = ref<string | null>(props.item.image?.pages?.[0]?.id ?? nu
 
 const form = reactive<ShareContentItemModalsFormPayload>({
   backgroundColor: '#393939',
-  overlayBackgroundColor: '#B7F1F8AA',
+  overlayBackgroundColor: '#B7F1F811',
   height: 600,
   coordsMargin: 50,
   captionPadding: 20,
@@ -293,7 +293,7 @@ const iframeCode = computed(() => {
   return [
     `<div><div style="height:${form.height}px;width:100%;padding:0;position:relative;">`,
     `<iframe src="${iframeSrc.value}" style="position:absolute;top:0;left:0;width:100%;height:100%;"
-            frameborder="0" allow="autoplay; fullscreen"
+            frameborder="0" allow="fullscreen"
             allowfullscreen></iframe>`,
     '</div>',
     iframeCaption.value
@@ -310,6 +310,16 @@ const onCitationGenerated = (citation: string) => {
     citation +
     `<a href="${getContentItemPermalink(props.item.id)}" target="_blank" rel="noopener noreferrer">→ link</a>`
 }
+
+const contentItemCustomized = computed(() => {
+  return {
+    ...props.item,
+    text: {
+      ...props.item.text,
+      title: form.alternativeTitle || props.item.text?.title || ''
+    }
+  }
+})
 
 const copyIframeCodeToClipboard = async () => {
   if (!iframeCodeTextarea.value) return
@@ -394,7 +404,7 @@ onUnmounted(() => {
 {
   "en": {
     "titles": {
-      "shareContentItemModal": "Embed Content Item"
+      "shareContentItemModal": "Share Content Item"
     },
     "labels": {
       "iFramePreview": "iFrame Preview",

@@ -9,24 +9,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-      id: extract_branch
-    - name: Extract commit hash
-      shell: bash
-      run: echo "##[set-output name=hash;]$(git rev-parse --short ${GITHUB_SHA})"
-      id: extract_hash
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      env:
-        GIT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
-        GIT_REVISION: ${{ steps.extract_hash.outputs.hash }}
-        GIT_TAG: "latest"
-      with:
-        name: impresso/impresso-frontend
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        buildargs: GIT_BRANCH,GIT_REVISION,GIT_TAG
-        tags: "latest"
+      - uses: actions/checkout@master
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Extract commit hash
+        shell: bash
+        run: echo "##[set-output name=hash;]$(git rev-parse --short ${GITHUB_SHA})"
+        id: extract_hash
+      - name: Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        env:
+          GIT_BRANCH: ${{ steps.extract_branch.outputs.branch }}
+          GIT_REVISION: ${{ steps.extract_hash.outputs.hash }}
+          GIT_TAG: 'latest'
+          APP_HOST: 'https://dev.impresso-project.ch'
+        with:
+          name: impresso/impresso-frontend
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          buildargs: GIT_BRANCH,GIT_REVISION,GIT_TAG,APP_HOST
+          tags: 'latest'

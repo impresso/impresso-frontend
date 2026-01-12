@@ -85,12 +85,12 @@
               variant="outline-success"
               size="sm"
               v-on:click="showShareContentItemModal()"
-              :title="$t('actions.embed')"
+              :title="$t('actions.share')"
             >
               <div class="d-flex flex-row align-items-center">
                 <div class="d-flex dripicons dripicons-web mr-1" />
                 <div>
-                  {{ $t('actions.embed') }}
+                  {{ $t('actions.share') }}
                 </div>
               </div>
             </b-button>

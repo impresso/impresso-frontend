@@ -13,7 +13,6 @@ import {
   dataProviders as dataProvidersService,
   mediaSources as mediaSourceService
 } from '@/services'
-import { WebAppBaseUrl, WebAppHost } from '@/constants'
 import { getContentItemPermalink } from '@/logic/ids'
 
 export interface ContentItemCitationProps {
@@ -69,8 +68,8 @@ const generateCitation = async () => {
   }
 }
 
-// Only re-run the logic when the ID changes
-watch(() => props.item.id, generateCitation)
+// Only re-run the logic when the ID changes, or text.title changes.
+watch(() => [props.item.id, props.item.text?.title], generateCitation)
 
 onMounted(generateCitation)
 </script>
