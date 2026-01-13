@@ -8,7 +8,7 @@
           </div>
           <div class="ml-4">
             <h1 class="user-fullname m-0 sans font-weight-bold">
-              {{ userLabel }}
+              {{ userLabel || $t('signUp') }}
             </h1>
             <div class="user-displayname small-caps">
               {{ userPlanLabel }}
@@ -360,7 +360,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import useVuelidate from '@vuelidate/core'
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { users as usersService } from '@/services'
@@ -390,8 +389,6 @@ interface Props {
 withDefaults(defineProps<Props>(), {
   allowUploadOfNDA: false
 })
-
-const { t } = useI18n()
 
 // Refs
 const errorManager = ref<HTMLElement | null>(null)
@@ -540,7 +537,7 @@ const userLabel = computed(() => {
   if (user.value.firstname.length || user.value.lastname.length) {
     return `${user.value.firstname} ${user.value.lastname}`
   }
-  return t('signUp')
+  return ''
 })
 
 const userPlanLabel = computed(() => {
@@ -604,7 +601,7 @@ const createUser = () => {
     .catch(err => {
       console.warn(err)
       if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
-        featherError.value = new Error(t('errors.Conflict.UsernameExistError'))
+        featherError.value = new Error('This username is already taken!')
         scrollToError()
       } else {
         featherError.value = err
