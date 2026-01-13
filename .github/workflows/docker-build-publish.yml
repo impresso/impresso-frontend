@@ -10,6 +10,7 @@ on:
       - 'LICENSE'
       - '**/*.md'
       - '.github/**'
+      - '.cursorrules'
   workflow_dispatch:
 
 concurrency:
