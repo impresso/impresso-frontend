@@ -38,7 +38,7 @@ src/components/legacy/bootstrap contains vue3 components as we removed the vue-b
 Must be reused when creating or editing app components:
 
 - BDropdown component
-- BFormInput component as it has a nice debounce impplementation
+- BFormInput component as it has a nice debounce implementation
 - BFormCheckbox, as it has a nice `switch` property set
 
 Deprecated legacy components:
@@ -79,7 +79,7 @@ When generating or editing Vue components in src/components:
 
 ### How to use i18n for dynamic translations in components
 
-Never never use the `useI18n` hook from 'vue-i18n' to access. Instead, use dynamic translation keys in the template section of the component.
+Never use the `useI18n` hook from 'vue-i18n' to access. Instead, use dynamic translation keys in the template section of the component.
 
 - do not use $n, $t or useI18n in components, as the current implementation is very fragile. You can use $n $t and $tc for translation inside the <template> section only.
 - for dynamic translations, use computed properties to build the translation key based on props or other reactive data.
@@ -251,7 +251,7 @@ export interface BaseFindResponse {
 
 When generating release notes for a new tag, take the auto‑generated release notes for tag vX.Y.Z and rewrite them as:
 
-- concise,but without bullet points whenever possible
+- concise, but without bullet points whenever possible
 - grouped into Features / Improvements / Bug fixes
 - excluding chore/CI‑only changes
 - written in full, nice sentences
