@@ -30,6 +30,23 @@ Finally run with:
 npm run dev
 ```
 
+## AI Coding Assistant Configuration
+
+This project includes configuration files for AI coding assistants to help maintain consistency and follow project conventions:
+
+- **`.github/copilot-instructions.md`**: Instructions for GitHub Copilot
+- **`.cursorrules`**: Instructions for Claude (Cursor IDE) and other AI assistants
+
+These files contain important information about:
+- Project structure and architecture
+- Vue 3 composition API patterns
+- TypeScript conventions
+- Component development guidelines
+- i18n usage patterns
+- Storybook story conventions
+
+When working with AI coding assistants, these configurations ensure generated code follows the project's established patterns and conventions.
+
 ## Build Setup
 
 ```bash
