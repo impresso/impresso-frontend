@@ -479,7 +479,6 @@ const institutionalEmailValidator = helpers.withMessage(
     // Only validate if the plan requires institutional email
     if (
       selectedPlan.value &&
-      selectedPlan.value !== PlanImpressoUser &&
       (selectedPlan.value === PlanEducational || selectedPlan.value === PlanResearcher)
     ) {
       if (!value || value.length === 0) {
@@ -521,7 +520,7 @@ const rules = computed(() => ({
         if (!value || value.length === 0) {
           return true
         }
-        const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w._~:/?#[\]@!$&'()*+,;=]*)?$/
+        const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w._~:/?#[\]@!$&'()*+,;=-]*)?$/
         return urlPattern.test(value)
       })
     },
