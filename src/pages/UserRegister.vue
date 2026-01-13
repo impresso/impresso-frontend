@@ -339,10 +339,28 @@
       </div>
     </b-row>
   </b-container>
+
+  <!-- Confirmation Modal for Student/Academic plans -->
+  <ConfirmModal
+    :show="showConfirmModal"
+    id="confirm-registration-modal"
+    :title="$t('confirm_registration_title')"
+    :ok-label="$t('confirm_and_register')"
+    @ok="handleConfirmModalOk"
+    @close="handleConfirmModalClose"
+  >
+    <p>
+      {{ $t('confirm_registration_message') }}
+    </p>
+    <p class="font-weight-bold">
+      {{ $t('confirm_registration_reminder') }}
+    </p>
+  </ConfirmModal>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import useVuelidate from '@vuelidate/core'
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
 import { users as usersService } from '@/services'
@@ -352,249 +370,319 @@ import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
 import AcceptTermsOfUse from '@/components/AcceptTermsOfUse.vue'
 import { useUserStore } from '@/stores/user'
 import ChangePlanForm, { ChangePlanRequestFormPayload } from '@/components/ChangePlanForm.vue'
-import { AvailablePlans, PlanLabels, PlanEducational, PlanResearcher } from '@/constants'
-import { mapStores } from 'pinia'
+import {
+  AvailablePlans,
+  PlanLabels,
+  PlanEducational,
+  PlanResearcher,
+  PlanImpressoUser
+} from '@/constants'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
 import LinkToModal from '@/components/LinkToModal.vue'
+import ConfirmModal from '@/components/modules/collections/ConfirmModal.vue'
 import { ViewPlans } from '../constants'
 
-const userRegex = helpers.withMessage(
-  'Please use only lowercase alpha-numeric characters',
-  (value: string) => UserRegex.exec(value) != null
-)
+// Props
+interface Props {
+  allowUploadOfNDA?: boolean
+}
 
+withDefaults(defineProps<Props>(), {
+  allowUploadOfNDA: false
+})
+
+const { t } = useI18n()
+
+// Refs
+const errorManager = ref<HTMLElement | null>(null)
+const userStore = useUserStore()
+
+// Data
+const availablePlansLabels = PlanLabels
+const availablePlans = AvailablePlans
+const selectedPlan = ref<string | null>(null)
+const user = ref({
+  username: '',
+  email: '',
+  password: '',
+  firstname: '',
+  lastname: '',
+  displayName: '',
+  affiliation: '',
+  institutionalUrl: '',
+  pattern: [] as string[]
+})
+const isCreated = ref(false)
+const isLoading = ref(false)
+const repeatPassword = ref('')
+const featherError = ref<Error | null>(null)
+const palettes = [
+  '#96ceb4',
+  '#ffeead',
+  '#ffcc5c',
+  '#ff6f69',
+  '#588c7e',
+  '#f2e394',
+  '#f2ae72',
+  '#d96459',
+  '#a9bdc8',
+  '#677e96',
+  '#4a9bb1',
+  '#ccd6e6',
+  '#4f615b',
+  '#3d95a6',
+  '#d3deec',
+  '#3c4b54',
+  '#3e8696',
+  '#dce5f4',
+  '#45535f',
+  '#4a818a',
+  '#b2bdcc',
+  '#2e4051',
+  '#62797d',
+  '#EF476F',
+  '#06D6A0',
+  '#EE6123',
+  '#21295C',
+  '#FA003F',
+  '#00916E'
+]
+const numColors = ref(5)
+
+// Modal state
+const showConfirmModal = ref(false)
+
+// Common email providers to block for non-basic plans
+const commonEmailProviders = [
+  'gmail.com',
+  'yahoo.com',
+  'outlook.com',
+  'hotmail.com',
+  'live.com',
+  'aol.com',
+  'icloud.com',
+  'mail.com',
+  'protonmail.com',
+  'yandex.com',
+  'zoho.com'
+]
+
+// Custom validation rules
 const complexPassword = helpers.withMessage(
   'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character',
   (value: string) => PasswordRegex.exec(value) != null
 )
 
-export default defineComponent({
-  setup() {
-    const errorManager = ref(null)
-    return { v$: useVuelidate(), errorManager }
-  },
-
-  props: {
-    allowUploadOfNDA: Boolean
-  },
-  components: {
-    FeathersErrorManager,
-    AcceptTermsOfUse,
-    ChangePlanForm,
-    Sunset,
-    LinkToModal
-  },
-  data: () => ({
-    availablePlansLabels: PlanLabels,
-    availablePlans: AvailablePlans,
-    selectedPlan: null,
-    passwordRegex: PasswordRegex,
-    userRegex: UserRegex,
-    user: {
-      username: '',
-      email: '',
-      password: '',
-      firstname: '',
-      lastname: '',
-      displayName: '',
-      affiliation: '',
-      institutionalUrl: '',
-      pattern: Array()
-    } as User & { password: string; affiliation: string; institutionalUrl: string },
-    isCreated: false,
-    isLoading: false,
-    nda: null,
-    repeatPassword: '',
-    errors: [],
-    featherError: null,
-    palettes: [
-      '#96ceb4',
-      '#ffeead',
-      '#ffcc5c',
-      '#ff6f69',
-      '#588c7e',
-      '#f2e394',
-      '#f2ae72',
-      '#d96459',
-      '#a9bdc8',
-      '#677e96',
-      '#4a9bb1',
-      '#ccd6e6',
-      '#4f615b',
-      '#3d95a6',
-      '#d3deec',
-      '#3c4b54',
-      '#3e8696',
-      '#dce5f4',
-      '#45535f',
-      '#4a818a',
-      '#b2bdcc',
-      '#2e4051',
-      '#62797d',
-      '#EF476F',
-      '#06D6A0',
-      '#EE6123',
-      '#21295C',
-      '#FA003F',
-      '#00916E'
-    ],
-    numColors: 5,
-    ViewPlans
-  }),
-  computed: {
-    ...mapStores(useUserStore),
-    userLabel() {
-      if (this.user.firstname.length || this.user.lastname.length) {
-        return `${this.user.firstname} ${this.user.lastname}`
+const institutionalEmailValidator = helpers.withMessage(
+  'For Student or Academic plans, please use your institutional email address (common email providers like gmail, yahoo, etc. are not accepted)',
+  (value: string) => {
+    // Only validate if the plan requires institutional email
+    if (
+      selectedPlan.value &&
+      selectedPlan.value !== PlanImpressoUser &&
+      (selectedPlan.value === PlanEducational || selectedPlan.value === PlanResearcher)
+    ) {
+      if (!value || value.length === 0) {
+        return false
       }
-      return this.$t('signUp')
-    },
-    userPlanLabel() {
-      if (!this.selectedPlan) {
-        return ''
+      // Extract domain from email
+      const domain = value.split('@')[1]?.toLowerCase()
+      if (!domain) {
+        return false
       }
-      return this.availablePlansLabels[this.selectedPlan]
-    },
-    doesPlanRequireAffiliation() {
-      return this.selectedPlan === PlanEducational || this.selectedPlan === PlanResearcher
-    },
-    patternAsText: {
-      get() {
-        if (this.user) {
-          return this.user.pattern.join(', ')
-        }
-        return ''
-      },
-      set(v: string) {
-        this.user.pattern = v.split(',').map(v => v.trim())
-      }
-    },
-    isTermsOfUseAccepted() {
-      return this.userStore.acceptTermsDateOnLocalStorage !== null
+      // Check if domain is in the list of common email providers
+      return !commonEmailProviders.includes(domain)
     }
-  },
-  methods: {
-    scrollToError() {
-      if (this.$refs.errorManager) {
-        ;(this.$refs.errorManager as HTMLElement).scrollIntoView({ behavior: 'smooth' })
-      }
-    },
-    toggleAcceptTermsDate(isChecked: boolean) {
-      if (isChecked) {
-        this.userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
-      } else {
-        this.userStore.acceptTermsDateOnLocalStorage = null
-      }
-    },
-    onSubmit() {
-      // check vuelidate form
-      this.v$.$touch()
-      if (this.v$.$error) {
-        console.warn('UserRegister#onSubmit() form is invalid', this.v$.$error)
-        this.featherError = new Error(
-          'Form submission failed: Please correct the highlighted errors and try again.'
-        )
-        this.scrollToError()
-        return
-      }
-      // console.info('UserRegister#onSubmit()', this.user, this.nda);
-      // to be checked for validity...
-      if (!this.isTermsOfUseAccepted) {
-        this.featherError = new Error('Please accept the Terms of Use')
-        this.scrollToError()
-        return
-      }
-      if (!this.selectedPlan) {
-        this.featherError = new Error('Please select the plan')
-        this.scrollToError()
-        return
-      }
-      this.featherError = null
-      this.isLoading = true
-      this.user.username = this.user.email.replace(/[^a-z]/g, '')
-      console.info('[UserRegister] onSubmit calling service...')
-      usersService
-        .create({
-          ...this.user,
-          username: this.user.email.replace(/[^a-z]/g, ''),
-          pattern: this.user.pattern.join(','),
-          plan: this.selectedPlan
-        })
-        .then(res => {
-          console.info('UserRegister#onSubmit() success, received:', res)
-          this.isCreated = true
-        })
-        .catch(err => {
-          console.warn(err)
-          if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
-            this.featherError = new Error(this.$t('errors.Conflict.UsernameExistError'))
-            this.scrollToError()
-          } else {
-            this.featherError = err
-            this.scrollToError()
-          }
-        })
-        .finally(() => {
-          this.isLoading = false
-        })
-    },
-    onGeneratePattern() {
-      const colors = []
-      // let palette = Math.floor(Math.random()*this.palettes.length);
-      for (let i = 0; i < this.numColors; i++) {
-        const mycolor = this.palettes[Math.floor(Math.random() * this.palettes.length)]
-        colors.push(mycolor)
-      }
-      this.user.pattern = colors
-    },
-    onChangePlan(payload: ChangePlanRequestFormPayload) {
-      console.info('UserRegister#onChangePlanSubmit()', payload.plan)
-      this.selectedPlan = payload.plan
-    },
-    getColorBandStyle(color: string) {
-      const width = this.user.pattern.length ? `${100 / this.user.pattern.length}%` : '0%'
-      return {
-        'background-color': color,
-        width
-      }
-    }
-  },
-  created() {
-    this.onGeneratePattern()
-  },
-  validations() {
-    return {
-      user: {
-        // username: { required, minLength: minLength(4), userRegex, $autoDirty: true }, // required|min:4|userRegex
-        firstname: {
-          required,
-          minLength: minLength(2),
-          $autoDirty: true
-        }, // required|min:2
-        lastname: { required, minLength: minLength(2), $autoDirty: true }, // required|min:2
-        email: { required, minLength: minLength(4), email, $autoDirty: true }, // required|email
-        password: { minLength: minLength(8), complexPassword, $autoDirty: true }, // min: 8, regex: passwordRegex
-        institutionalUrl: {
-          $autoDirty: true,
-          required: false,
-          urlRegex: helpers.withMessage('Please enter a valid URL', (value: string) => {
-            if (!value || value.length === 0) {
-              return true
-            }
-            const urlPattern =
-              /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/
-            return urlPattern.test(value)
-          })
-        },
-        affiliation: {
-          $autoDirty: true,
-          required: false,
-          minLength: minLength(2)
-        }
-      },
-      repeatPassword: { required, sameAsPassword: sameAs(this.user.password), $autoDirty: true } // required|confirmed:repeatPassword
-    }
+    return true
   }
+)
+
+// Validation rules
+const rules = computed(() => ({
+  user: {
+    firstname: {
+      required,
+      minLength: minLength(2),
+      $autoDirty: true
+    },
+    lastname: { required, minLength: minLength(2), $autoDirty: true },
+    email: {
+      required,
+      minLength: minLength(4),
+      email,
+      institutionalEmailValidator,
+      $autoDirty: true
+    },
+    password: { minLength: minLength(8), complexPassword, $autoDirty: true },
+    institutionalUrl: {
+      $autoDirty: true,
+      required: false,
+      urlRegex: helpers.withMessage('Please enter a valid URL', (value: string) => {
+        if (!value || value.length === 0) {
+          return true
+        }
+        const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w._~:/?#[\]@!$&'()*+,;=]*)?$/
+        return urlPattern.test(value)
+      })
+    },
+    affiliation: {
+      $autoDirty: true,
+      required: false,
+      minLength: minLength(2)
+    }
+  },
+  repeatPassword: { required, sameAsPassword: sameAs(user.value.password), $autoDirty: true }
+}))
+
+const v$ = useVuelidate(rules, { user, repeatPassword })
+
+// Computed
+const userLabel = computed(() => {
+  if (user.value.firstname.length || user.value.lastname.length) {
+    return `${user.value.firstname} ${user.value.lastname}`
+  }
+  return t('signUp')
+})
+
+const userPlanLabel = computed(() => {
+  if (!selectedPlan.value) {
+    return ''
+  }
+  return availablePlansLabels[selectedPlan.value]
+})
+
+const doesPlanRequireAffiliation = computed(() => {
+  return selectedPlan.value === PlanEducational || selectedPlan.value === PlanResearcher
+})
+
+const patternAsText = computed({
+  get() {
+    if (user.value) {
+      return user.value.pattern.join(', ')
+    }
+    return ''
+  },
+  set(v: string) {
+    user.value.pattern = v.split(',').map(v => v.trim())
+  }
+})
+
+const isTermsOfUseAccepted = computed(() => {
+  return userStore.acceptTermsDateOnLocalStorage !== null
+})
+
+// Methods
+const scrollToError = () => {
+  if (errorManager.value) {
+    errorManager.value.scrollIntoView({ behavior: 'smooth' })
+  }
+}
+
+const toggleAcceptTermsDate = (isChecked: boolean) => {
+  if (isChecked) {
+    userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
+  } else {
+    userStore.acceptTermsDateOnLocalStorage = null
+  }
+}
+
+const createUser = () => {
+  featherError.value = null
+  isLoading.value = true
+  user.value.username = user.value.email.replace(/[^a-z]/g, '')
+  console.info('[UserRegister] createUser calling service...')
+  usersService
+    .create({
+      ...user.value,
+      username: user.value.email.replace(/[^a-z]/g, ''),
+      pattern: user.value.pattern.join(','),
+      plan: selectedPlan.value
+    })
+    .then(res => {
+      console.info('UserRegister#createUser() success, received:', res)
+      isCreated.value = true
+    })
+    .catch(err => {
+      console.warn(err)
+      if (err.code === 409 && err.message.indexOf('auth_user.username') !== -1) {
+        featherError.value = new Error(t('errors.Conflict.UsernameExistError'))
+        scrollToError()
+      } else {
+        featherError.value = err
+        scrollToError()
+      }
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+const handleConfirmModalOk = () => {
+  showConfirmModal.value = false
+  createUser()
+}
+
+const handleConfirmModalClose = () => {
+  showConfirmModal.value = false
+}
+
+const onSubmit = () => {
+  // check vuelidate form
+  v$.value.$touch()
+  if (v$.value.$error) {
+    console.warn('UserRegister#onSubmit() form is invalid', v$.value.$error)
+    featherError.value = new Error(
+      'Form submission failed: Please correct the highlighted errors and try again.'
+    )
+    scrollToError()
+    return
+  }
+  // to be checked for validity...
+  if (!isTermsOfUseAccepted.value) {
+    featherError.value = new Error('Please accept the Terms of Use')
+    scrollToError()
+    return
+  }
+  if (!selectedPlan.value) {
+    featherError.value = new Error('Please select the plan')
+    scrollToError()
+    return
+  }
+
+  // Show confirmation modal for Student or Academic plans
+  if (selectedPlan.value === PlanEducational || selectedPlan.value === PlanResearcher) {
+    showConfirmModal.value = true
+  } else {
+    // For Basic plan, proceed directly
+    createUser()
+  }
+}
+
+const onGeneratePattern = () => {
+  const colors = []
+  for (let i = 0; i < numColors.value; i++) {
+    const mycolor = palettes[Math.floor(Math.random() * palettes.length)]
+    colors.push(mycolor)
+  }
+  user.value.pattern = colors
+}
+
+const onChangePlan = (payload: ChangePlanRequestFormPayload) => {
+  console.info('UserRegister#onChangePlanSubmit()', payload.plan)
+  selectedPlan.value = payload.plan
+}
+
+const getColorBandStyle = (color: string) => {
+  const width = user.value.pattern.length ? `${100 / user.value.pattern.length}%` : '0%'
+  return {
+    'background-color': color,
+    width
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  onGeneratePattern()
 })
 </script>
 
@@ -651,7 +739,11 @@ h3::before {
     "form_institutional_url_note": "Note: for Academic User plan this link is <b>required</b>.",
     "registration_successful": "Registration successful",
     "register": "Register",
-    "signUp": "(sign up)"
+    "signUp": "(sign up)",
+    "confirm_registration_title": "Confirm Registration",
+    "confirm_registration_message": "You are about to register with a Student or Academic User plan. Please make sure you have provided your institutional email address and have the required documentation ready for verification.",
+    "confirm_registration_reminder": "After submission, your account will be reviewed by our team before activation.",
+    "confirm_and_register": "Confirm and Register"
   }
 }
 </i18n>
