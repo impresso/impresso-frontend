@@ -359,7 +359,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useVuelidate from '@vuelidate/core'
 import { email, helpers, minLength, required, sameAs } from '@vuelidate/validators'
@@ -678,6 +678,15 @@ const getColorBandStyle = (color: string) => {
     width
   }
 }
+
+// Watchers
+// Re-validate email when plan changes to ensure validation state is up-to-date
+watch(selectedPlan, () => {
+  // Touch the email field to trigger re-validation when plan changes
+  if (v$.value.user?.email?.$dirty) {
+    v$.value.user.email.$touch()
+  }
+})
 
 // Lifecycle
 onMounted(() => {
