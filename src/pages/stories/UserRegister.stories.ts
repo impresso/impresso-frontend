@@ -25,7 +25,13 @@ const meta: Meta<typeof UserRegister> = {
         // Mock successful user creation
         http.post('/api/users', async ({ request }) => {
           await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-          const body = await request.json()
+          const body = (await request.json()) as {
+            email: string
+            firstname: string
+            lastname: string
+            username: string
+            plan: string
+          }
           return HttpResponse.json({
             uid: 'test-user-123',
             email: body.email,
@@ -46,16 +52,9 @@ const meta: Meta<typeof UserRegister> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  args: {
-    allowUploadOfNDA: false
-  }
-}
+export const Default: Story = {}
 
 export const WithConflictError: Story = {
-  args: {
-    allowUploadOfNDA: false
-  },
   parameters: {
     msw: {
       handlers: [
@@ -79,9 +78,6 @@ export const WithConflictError: Story = {
 }
 
 export const WithNetworkError: Story = {
-  args: {
-    allowUploadOfNDA: false
-  },
   parameters: {
     msw: {
       handlers: [
