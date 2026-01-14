@@ -5,11 +5,19 @@
     modalClass="InfoModal"
     :dialogClass="props.dialogClass"
     @close="dismiss"
+    :hideFooter="props.hideFooter"
   >
     <h5 v-if="title" class="mb-4">{{ title }}</h5>
     <slot></slot>
     <template v-slot:modal-footer>
-      <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">close</button>
+      <button
+        v-if="!hideFooter"
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        @click="dismiss"
+      >
+        {{ $t('actions.dismiss') }}
+      </button>
     </template>
   </Modal>
 </template>
@@ -22,11 +30,13 @@ export type InfoModalProps = {
   modalTitle?: string
   title?: string
   isVisible?: boolean
+  hideFooter?: boolean
 }
 
 const props = withDefaults(defineProps<InfoModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-md',
-  modalTitle: 'Info'
+  modalTitle: 'Info',
+  hideFooter: false
 })
 
 const emit = defineEmits(['dismiss'])
