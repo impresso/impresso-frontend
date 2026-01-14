@@ -31,21 +31,24 @@ export const AvailablePlansWithLabels = [
     label: PlanLabels[PlanImpressoUser],
     description: 'Select if not enrolled in an academic institution',
     requireAffiliation: false,
-    requireInstitutionalUrl: false
+    requireInstitutionalUrl: false,
+    excludeCommonEmailProviders: false
   },
   {
     name: PlanEducational,
     label: PlanLabels[PlanEducational],
     description: 'Select if you are enrolled as a student in an academic institution',
     requireAffiliation: true,
-    requireInstitutionalUrl: false
+    requireInstitutionalUrl: false,
+    excludeCommonEmailProviders: true
   },
   {
     name: PlanResearcher,
     label: PlanLabels[PlanResearcher],
     description: 'Select if you are research staff in an academic institution',
     requireAffiliation: true,
-    requireInstitutionalUrl: true
+    requireInstitutionalUrl: true,
+    excludeCommonEmailProviders: true
   }
 ]
 
