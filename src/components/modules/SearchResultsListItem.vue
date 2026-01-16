@@ -78,14 +78,14 @@
           <ContentItemAccess :item="contentItem" class="mr-3" />
 
           <div
-            v-if="article.accessRight === 'OpenPublic'"
+            v-if="contentItem.access?.copyright === 'pbl'"
             class="shareArticleControl d-inline ml-1"
           >
             <b-button
               variant="outline-success"
               size="sm"
-              v-on:click="showModalShareArticle()"
-              :title="$t('share_article')"
+              v-on:click="showShareContentItemModal()"
+              :title="$t('actions.share')"
             >
               <div class="d-flex flex-row align-items-center">
                 <div class="d-flex dripicons dripicons-web mr-1" />
@@ -112,7 +112,11 @@
           />
         </div>
       </div>
-      <copy-to-clipboard :article="article" v-if="showModalShare" @closed="hideModalShareArticle" />
+      <ShareContentItemModal
+        :isVisible="showModalShare"
+        :item="contentItem"
+        @dismiss="hideShareContentItemModal"
+      />
     </div>
   </div>
 </template>
@@ -120,7 +124,6 @@
 <script lang="ts">
 import { mapStores } from 'pinia'
 import CollectionAddTo from './CollectionAddTo.vue'
-import CopyToClipboard from '../modals/CopyToClipboard.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
@@ -132,6 +135,7 @@ import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
 import Collection from '@/models/Collection'
 import ContentItem from './lists/ContentItem.vue'
+import ShareContentItemModal from '../modals/ShareContentItemModal.vue'
 
 const RegionOverlayClass = 'overlay-region selected'
 const MatchOverlayClass = 'overlay-match'
@@ -313,10 +317,10 @@ export default defineComponent({
       }
       return this.userStore.userData
     },
-    showModalShareArticle() {
+    showShareContentItemModal() {
       this.showModalShare = true
     },
-    hideModalShareArticle() {
+    hideShareContentItemModal() {
       this.showModalShare = false
     },
     goToArticle() {
@@ -357,10 +361,10 @@ export default defineComponent({
   },
   components: {
     CollectionAddTo,
-    CopyToClipboard,
     IIIFFragment,
     ContentItemAccess,
-    ContentItem
+    ContentItem,
+    ShareContentItemModal
   }
 })
 </script>
@@ -402,8 +406,7 @@ export default defineComponent({
   "en": {
     "view": "View",
     "add_to_collection": "Save to Collection ...",
-    "login_message": "You need to be signed in to view this image",
-    "share_article": "Share ..."
+    "login_message": "You need to be signed in to view this image"
   }
 }
 </i18n>

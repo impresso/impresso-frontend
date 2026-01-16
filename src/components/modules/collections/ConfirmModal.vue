@@ -1,34 +1,14 @@
 <template>
-  <Modal
-    :show="show"
-    :id="id"
-    :title="title"
-    class="rounded"
-    no-fade
-    hide-backdrop
-    modal-class="ConfirmModal"
-    content-class="rounded drop-shadow"
-    @close="$emit('close')"
-  >
+  <Modal :show="show" :id="id" :title="title" no-fade hide-backdrop @close="$emit('close')">
     <slot></slot>
 
     <template v-slot:modal-footer>
-      <b-button
-        size="sm"
-        class="shadow-sm rounded"
-        variant="outline-secondary"
-        @click="$emit('close')"
-      >
+      <button class="btn btn-sm btn-outline-secondary" @click="$emit('close')">
         {{ $t('actions.dismiss') }}
-      </b-button>
-      <b-button
-        size="sm"
-        class="shadow-sm rounded"
-        variant="outline-primary"
-        @click="e => $emit('ok')"
-      >
+      </button>
+      <button class="btn btn-sm btn-outline-primary" @click="e => $emit('ok')">
         {{ $t(okLabel) }}
-      </b-button>
+      </button>
     </template>
   </Modal>
 </template>

@@ -22,6 +22,7 @@
 
 :root {
   --impresso-color-paper: #fafbf2;
+  --impresso-color-paper-dark: #fff3ad;
   --impresso-color-white: #ffffff;
   --impresso-color-white-alpha-20: rgba(255, 255, 255, 0.2);
   --impresso-color-white-alpha-30: rgba(255, 255, 255, 0.3);
@@ -66,6 +67,7 @@
   --impresso-wght-smallcaps: 580;
   --impresso-wght-smallcaps-bold: 800;
   --impresso-wght-verysmallcaps: 550;
+  --impresso-wght-verysmallcaps-medium: 700;
 
   --impresso-color-light-grey: #f8f9fa;
   --impresso-color-light-grey-alpha-50: rgba(248, 249, 250, 0.5);
@@ -154,13 +156,14 @@
   --impresso-font-size-4: 1.5rem;
 
   --impresso-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-
+  --impresso-transition-duration: 0.2s;
   --z-index-pagination: 1001;
   --z-index-modals: 1039;
   --z-index-modals-feedback: 1039;
 
   --impresso-text-decoration-color: var(--impresso-color-black-alpha-30);
   --impresso-text-decoration-color-hover: var(--impresso-color-black-alpha-50);
+  --impresso-text-underline-offset: 3px;
 }
 
 body {
@@ -245,6 +248,7 @@ a,
   text-decoration: underline;
   text-decoration-color: var(--impresso-text-decoration-color);
   color: var(--impresso-color-black-deeper);
+  text-underline-offset: var(--impresso-text-underline-offset);
 }
 a.btn {
   text-decoration: none;
@@ -327,31 +331,51 @@ label {
 }
 
 .checkbox label,
-.small-caps {
+.small-caps,
+.smallcaps,
+.small-caps-bold,
+.very-small-caps,
+.very-small-caps-medium,
+.very-small-caps-bold {
   text-transform: uppercase;
-  font-size: var(--impresso-font-size-smallcaps);
   font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  font-weight: var(--impresso-wght-smallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
-.small-caps-bold {
-  text-transform: uppercase;
-  font-family: var(--bs-font-sans-serif);
+
+.small-caps,
+.smallcaps {
   font-size: var(--impresso-font-size-smallcaps);
-  font-variant: normal;
   letter-spacing: var(--impresso-letter-spacing-smallcaps);
-  font-weight: var(--impresso-wght-smallcaps-bold);
-  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
+  font-weight: var(--impresso-wght-smallcaps);
+}
+
+.small-caps-bold {
+  font-size: var(--impresso-font-size-smallcaps);
+  letter-spacing: var(--impresso-letter-spacing-smallcaps);
+  font-weight: var(--impresso-wght-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-bold);
+}
+
+.very-small-caps,
+.very-small-caps-medium,
+.very-small-caps-bold {
+  font-size: var(--impresso-font-size-verysmallcaps);
+  letter-spacing: var(--impresso-letter-spacing-verysmallcaps);
 }
 
 .very-small-caps {
-  text-transform: uppercase;
-  font-size: var(--impresso-font-size-verysmallcaps);
-  font-variant: normal;
-  letter-spacing: var(--impresso-letter-spacing-verysmallcaps);
   font-weight: var(--impresso-wght-verysmallcaps);
   font-variation-settings: 'wght' var(--impresso-wght-verysmallcaps);
+}
+
+.very-small-caps-medium {
+  font-weight: var(--impresso-wght-verysmallcaps-medium);
+  font-variation-settings: 'wght' var(--impresso-wght-verysmallcaps-medium);
+}
+
+.very-small-caps-bold {
+  font-weight: var(--impresso-wght-smallcaps-bold);
+  font-variation-settings: 'wght' var(--impresso-wght-smallcaps-bold);
 }
 .no-small-caps {
   text-transform: none;
@@ -621,6 +645,10 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 .dropdown-menu .custom-switch .custom-control-label::before {
   position: absolute;
+}
+
+.bg-accent {
+  background-color: var(--impresso-color-yellow) !important;
 }
 
 .bg-dark ::selection {

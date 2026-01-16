@@ -29,7 +29,7 @@
 import ImageItem from '@/components/modules/lists/ImageItem.vue'
 import { PlanGuest } from '@/constants';
 import { IImage } from '@/models'
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
   item: IImage

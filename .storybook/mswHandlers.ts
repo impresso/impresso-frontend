@@ -10,6 +10,7 @@ import {
   MockSpecialMembershipAccessWithRequests,
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
+import { MockMediaSources } from './mockData/mediaSources'
 
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
@@ -206,6 +207,28 @@ const getCollectionHandler = http.get('/api/collections/:collection_id', ({ para
     totalItems: 15,
     creatorId: 'user1'
   } satisfies Collection)
+})
+
+export const getMediaSourceHandler = http.get('/api/media-sources/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  return HttpResponse.json(MockMediaSources.find(source => source.uid === id) || null)
+})
+
+export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ request }) => {
+  const url = new URL(request.url)
+  const limit = parseInt(url.searchParams.get('limit') || '10')
+  const offset = parseInt(url.searchParams.get('offset') || '0')
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  const items = MockMediaSources.slice(offset, offset + limit)
+  return HttpResponse.json({
+    data: items,
+    pagination: {
+      total: MockMediaSources.length,
+      offset: offset,
+      limit: limit
+    }
+  } satisfies BaseFindResponse)
 })
 
 export const findSpecialMembershipAccessHandler = http.get(

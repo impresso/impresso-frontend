@@ -1,22 +1,14 @@
 <template>
   <div>
-    <div class="progress" v-if="processingStatus" style="height: 4px">
-      <div
-        class="progress-bar bg-info progress-bar-animated progress-bar-striped"
-        role="progressbar"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="100"
-        :style="`width: ${100}%;`"
-      ></div>
-    </div>
-    <b-navbar
-      id="TheHeader"
-      toggleable="md"
-      type="dark"
-      variant="dark"
-      class="py-0 pr-1 border-primary"
-    >
+    <b-navbar toggleable="md" type="dark" variant="dark" class="TheHeader py-0 pr-1 border-primary">
+      <SwitchBetweenAppDatalab
+        isDatalab
+        href="/datalab"
+        class="very-small-caps-medium shadow-sm"
+        style="background-color: var(--impresso-color-yellow)"
+      >
+        switch to DataLab
+      </SwitchBetweenAppDatalab>
       <a
         class="navbar-brand"
         @click="$router.push(getRouteWithSearchQuery({ name: 'home' }))"
@@ -69,13 +61,13 @@
         >
           <span>{{ $t('label_text_reuse') }}</span>
         </b-nav-item>
-        <b-nav-item v-if="viewPlansEnabled">
-          <LinkToModal class="nav-link" :view="ViewPlans">
+        <li class="nav-item">
+          <RouterLink class="nav-link" to="/plans">
             <span>
               {{ $t('label_plans') }}
             </span>
-          </LinkToModal>
-        </b-nav-item>
+          </RouterLink>
+        </li>
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -223,7 +215,8 @@ import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
 import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
-import LinkToModal from './LinkToModal.vue'
+import { RouterLink } from 'vue-router'
+import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/SwitchBetweenAppDatalab.vue'
 
 export default defineComponent({
   // props: {
@@ -419,15 +412,13 @@ export default defineComponent({
     Pagination,
     InfoButton,
     UserArea,
-    LinkToModal
+    SwitchBetweenAppDatalab
   }
 })
 </script>
 
-<style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-
-#TheHeader {
+<style lang="css">
+.TheHeader {
   height: 56px;
 }
 
@@ -439,202 +430,219 @@ export default defineComponent({
   min-width: 50px;
 }
 
-#app-header {
-  .Cookie--blood-orange {
-    background: $clr-secondary;
-    border-bottom: 2px solid $clr-accent;
-    box-shadow: 0 0 5vh 0vw rgba(0, 0, 0, 0.8);
-    a {
-      color: white;
-      text-decoration: underline;
-    }
-    .Cookie__button {
-      background: $clr-accent;
-      color: black;
-    }
+#app-header .Cookie--blood-orange {
+  background: var(--impresso-clr-secondary);
+  border-bottom: 2px solid var(--impresso-clr-accent);
+  box-shadow: 0 0 5vh 0vw rgba(0, 0, 0, 0.8);
+}
 
-    .Cookie__message {
-      color: yellow;
-    }
-  }
-  .progress {
-    position: absolute;
-    width: 100%;
-    z-index: 100;
-    top: 0;
-    left: 0;
-  }
+#app-header .Cookie--blood-orange a {
+  color: white;
+  text-decoration: underline;
+}
 
-  .badge-pill {
-    position: absolute;
-    line-height: 0.9;
-    top: -5px;
-    right: -15px;
-    border-radius: 10px;
-    min-width: 20px;
-    height: 20px;
+#app-header .Cookie--blood-orange .Cookie__button {
+  background: var(--impresso-clr-accent);
+  color: black;
+}
 
-    &.badge-tiny {
-      right: 0;
-      top: 18px;
-      width: 0.4rem;
-      padding: 0;
-      height: 0.4rem;
-      overflow: hidden;
-      background: var(--impresso-yellow);
-      display: block;
-      min-width: auto;
-      // border: 1px solid black!important;
-    }
-  }
+#app-header .Cookie--blood-orange .Cookie__message {
+  color: yellow;
+}
 
-  .toaster {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-  }
-  .jobs {
-    min-width: 400px;
-  }
-  nav {
-    margin-top: 0;
-    .navbar-collapse {
-      height: 44px;
-    }
-    .border-left {
-      border-color: $clr-tertiary !important;
-    }
-  }
-  .navbar-brand {
-    img {
-      height: 30px;
-    }
-  }
-  .nav-title {
-    margin: auto;
-    h1 {
-      background: transparent;
-      color: white;
-      text-align: center;
-      padding: 1px 4px;
-      .title {
-        font-weight: normal;
-      }
-      .subtitle {
-        font-weight: bold;
-      }
-    }
-  }
+#app-header .progress {
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+  top: 0;
+  left: 0;
+}
 
-  .navbar-dark .navbar-nav .nav-link {
-    color: $clr-grey-800;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    min-width: 50px;
+#app-header .badge-pill {
+  position: absolute;
+  line-height: 0.9;
+  top: -5px;
+  right: -15px;
+  border-radius: 10px;
+  min-width: 20px;
+  height: 20px;
+}
 
-    text-decoration: none;
-    > span {
-      position: relative;
-    }
-    > span:before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 0px;
-      border-bottom: 1px solid var(--impresso-yellow);
-      bottom: 0px;
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.2s ease-in;
-    }
-    &:hover > span:before {
-      border-color: white;
-    }
-    &:hover > span:before,
-    &.active > span:before {
-      transform: scaleX(1);
-    }
-    &.active > span {
-      color: white;
-    }
-  }
-  .navbar-dark .dropdown.show .dropdown-toggle {
-    background-color: var(--clr-grey-100);
-    color: #fff;
-  }
-  .navbar-dark .navbar-nav .nav-link:focus,
-  .navbar-dark .navbar-nav .nav-link:hover {
-    color: $clr-white;
-    background: var(--clr-grey-100) !important;
-  }
-  &::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    height: 2px;
-    background-color: $clr-accent-light;
-    content: '';
-  }
+#app-header .badge-pill.badge-tiny {
+  right: 0;
+  top: 18px;
+  width: 0.4rem;
+  padding: 0;
+  height: 0.4rem;
+  overflow: hidden;
+  background: var(--impresso-yellow);
+  display: block;
+  min-width: auto;
+}
 
-  .navbar-dark .b-nav-dropdown {
-    border-left: 1px solid transparent;
-    border-right: 1px solid transparent;
+#app-header .toaster {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
 
-    &.show {
-      background: var(--clr-grey-100) !important;
-    }
+#app-header .jobs {
+  min-width: 400px;
+}
 
-    &.show > a {
-      color: $clr-white;
-    }
-  }
-  .navbar-dark .b-nav-dropdown .dropdown-menu {
-    background: var(--clr-grey-100) !important;
-    padding: 0.5rem 0;
-    margin-top: 0px;
-    top: auto !important;
+#app-header nav {
+  margin-top: 0;
+}
 
-    border: 0px solid;
-    border-bottom-left-radius: var(--border-radius-sm);
-    border-bottom-right-radius: var(--border-radius-sm);
+#app-header nav .navbar-collapse {
+  height: 44px;
+}
 
-    &.dropdown-menu-right {
-      margin-right: -1px;
-    }
-    .dropdown-item {
-      color: $clr-grey-800;
-      padding: 0.5rem 1rem;
-    }
-    .dropdown-item.disabled {
-      text-decoration: line-through;
-    }
+#app-header nav .border-left {
+  border-color: var(--impresso-clr-tertiary) !important;
+}
 
-    .dropdown-item.active {
-      color: $clr-white;
-      background: var(--clr-grey-400);
-    }
+#app-header .navbar-brand img {
+  height: 30px;
+}
 
-    .btn-outline-primary {
-      border: 1px solid #caccce;
-      color: #caccce;
-      &:hover {
-        border-color: $clr-white;
-        color: $clr-white;
-      }
-    }
-  }
+#app-header .nav-title {
+  margin: auto;
+}
 
-  .dropdown-toggle::after {
-    position: absolute;
-    top: 50%;
-    right: 0.75rem;
-    line-height: 2.25rem;
-    margin-top: -1rem;
-  }
+#app-header .nav-title h1 {
+  background: transparent;
+  color: white;
+  text-align: center;
+  padding: 1px 4px;
+}
+
+#app-header .nav-title h1 .title {
+  font-weight: normal;
+}
+
+#app-header .nav-title h1 .subtitle {
+  font-weight: bold;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link {
+  color: var(--clr-grey-800);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 50px;
+  text-decoration: none;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link > span {
+  position: relative;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link > span:before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 0px;
+  border-bottom: 1px solid var(--impresso-yellow);
+  bottom: 0px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease-in;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link:hover > span:before {
+  border-color: white;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link:hover > span:before,
+#app-header .navbar-dark .navbar-nav .nav-link.active > span:before {
+  transform: scaleX(1);
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link.active > span {
+  color: white;
+}
+
+#app-header .navbar-dark .dropdown.show .dropdown-toggle {
+  background-color: var(--clr-grey-100);
+  color: #fff;
+}
+
+#app-header .navbar-dark .navbar-nav .nav-link:focus,
+#app-header .navbar-dark .navbar-nav .nav-link:hover {
+  color: var(--impresso-color-white);
+  background: var(--clr-grey-100) !important;
+}
+
+#app-header::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 2px;
+  background-color: var(--impresso-color-yellow);
+  content: '';
+}
+
+#app-header .navbar-dark .b-nav-dropdown {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+
+#app-header .navbar-dark .b-nav-dropdown.show {
+  background: var(--clr-grey-100) !important;
+}
+
+#app-header .navbar-dark .b-nav-dropdown.show > a {
+  color: var(--impresso-color-white);
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu {
+  background: var(--clr-grey-100) !important;
+  padding: 0.5rem 0;
+  margin-top: 0px;
+  top: auto !important;
+  border: 0px solid;
+  border-bottom-left-radius: var(--impresso-border-radius-sm);
+  border-bottom-right-radius: var(--impresso-border-radius-sm);
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu.dropdown-menu-right {
+  margin-right: -1px;
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu .dropdown-item {
+  color: var(--clr-grey-800);
+  padding: 0.5rem 1rem;
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu .dropdown-item.disabled {
+  text-decoration: line-through;
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu .dropdown-item.active {
+  color: var(--impresso-color-white);
+  background: var(--clr-grey-400);
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu .btn-outline-primary {
+  border: 1px solid #caccce;
+  color: #caccce;
+}
+
+#app-header .navbar-dark .b-nav-dropdown .dropdown-menu .btn-outline-primary:hover {
+  border-color: var(--impresso-color-white);
+  color: var(--impresso-color-white);
+}
+
+#app-header .dropdown-toggle::after {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  line-height: 2.25rem;
+  margin-top: -1rem;
 }
 
 .jobs-list > .list {
@@ -650,11 +658,13 @@ export default defineComponent({
     height: auto;
   }
 }
+
 @media (min-width: 992px) {
   #app-header .navbar-nav .nav-link {
     max-width: 120px;
   }
 }
+
 @media (min-width: 1200px) {
   #app-header .navbar-nav .nav-link {
     max-width: 220px;
@@ -665,42 +675,68 @@ export default defineComponent({
   display: flex;
   justify-content: space-between;
   padding-right: 2rem;
-
-  .error-id {
-    margin-left: 1rem;
-    white-space: nowrap;
-  }
 }
 
-#TheHeader.bg-dark .dropdown .dropdown-menu {
+.error-alert .error-id {
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+
+.TheHeader.bg-dark .dropdown .dropdown-menu {
   border-color: transparent;
   background-color: var(--clr-grey-100);
   color: var(--impresso-color-paper);
   border-top-left-radius: var(--impresso-border-radius-sm);
 }
-#TheHeader.bg-dark .dropdown .btn.dropdown-toggle {
+
+.TheHeader.bg-dark .dropdown .btn.dropdown-toggle {
   display: flex;
   align-items: center;
   color: var(--impresso-color-paper);
   border-color: transparent;
-  padding: 0 var(--spacing-2);
+  padding: 0 var(--impresso-spacing-2);
 }
-#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
+
+.TheHeader.bg-dark .dropdown .btn.dropdown-toggle:focus-visible {
   outline: none;
   box-shadow: none;
 }
-#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
-#TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
+
+.TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):hover,
+.TheHeader.bg-dark .dropdown .btn.dropdown-toggle:not(.disabled):focus {
   background-color: var(--clr-grey-100);
   border-radius: var(--impresso-border-radius-sm);
   box-shadow: none;
 }
-#TheHeader.bg-dark .dropdown.show .btn.dropdown-toggle {
+
+.TheHeader.bg-dark .dropdown.show .btn.dropdown-toggle {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
-#TheHeader.bg-dark .dropdown-toggle[aria-expanded='true'] {
+
+.TheHeader.bg-dark .dropdown-toggle[aria-expanded='true'] {
   border-bottom: 1px solid var(--clr-grey-100) !important;
+}
+
+.TheHeader_switchToDatalab {
+  color: var(--impresso-color-black);
+  background-color: var(--impresso-color-yellow);
+  z-index: 1100;
+  text-decoration: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -48px);
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  padding: 50px var(--spacing-3) 2px;
+  border-bottom-left-radius: var(--impresso-border-radius-xs);
+  border-bottom-right-radius: var(--impresso-border-radius-xs);
+  transition: transform var(--impresso-transition-duration) var(--impresso-transition-ease);
+  box-shadow: var(--bs-box-shadow-lg);
+}
+.TheHeader_switchToDatalab:hover {
+  transform: translate(-50%, 0);
 }
 </style>
 

@@ -31,7 +31,7 @@ export const Default: Story = {
     plansLabels: PlanLabels,
     datasets: [
       {
-        dataPartnerInstitution: 'SNL',
+        associatedPartner: 'SNL',
         mediaId: 'BLB',
         mediaTitle: 'Bündner Landbote',
         timePeriod: '1846-1847',
@@ -45,7 +45,7 @@ export const Default: Story = {
         partnerBitmapIndex: 5
       },
       {
-        dataPartnerInstitution: 'SNL',
+        associatedPartner: 'SNL',
         mediaId: 'BNN',
         mediaTitle: 'Bündner Nachrichten',
         timePeriod: '1885-1892',
@@ -59,7 +59,7 @@ export const Default: Story = {
         partnerBitmapIndex: 5
       },
       {
-        dataPartnerInstitution: 'BCUL',
+        associatedPartner: 'BCUL',
         mediaId: 'ACI',
         mediaTitle: 'Almanach pour le commerce',
         timePeriod: '1832-1832',
@@ -73,7 +73,7 @@ export const Default: Story = {
         partnerBitmapIndex: 22
       },
       {
-        dataPartnerInstitution: 'BCUL',
+        associatedPartner: 'BCUL',
         mediaId: 'RN',
         mediaTitle: 'Bulletins du Grand Conseil',
         timePeriod: '1829-2020',
@@ -87,7 +87,7 @@ export const Default: Story = {
         partnerBitmapIndex: 22
       },
       {
-        dataPartnerInstitution: 'BNL',
+        associatedPartner: 'BNL',
         mediaId: 'waeschfra',
         mediaTitle: "D'Wäschfra",
         timePeriod: '1882-1884',
@@ -101,7 +101,7 @@ export const Default: Story = {
         partnerBitmapIndex: 6
       },
       {
-        dataPartnerInstitution: 'BNL',
+        associatedPartner: 'BNL',
         mediaId: 'waechtersauer',
         mediaTitle: 'Der Wächter an der Sauer',
         timePeriod: '1849-1869',

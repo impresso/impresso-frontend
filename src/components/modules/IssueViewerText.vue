@@ -7,6 +7,7 @@
         :show-title="false"
         :show-type="false"
         showSemanticEnrichments
+        showTopics
       />
       <i-spinner v-if="!article" class="text-center p-5" />
       <div v-if="contentItemCollections.length > 0" class="d-flex flex-wrap align-items-center">
@@ -136,28 +137,7 @@
         </div>
       </b-container>
     </div>
-    <hr class="pt-2" />
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <h3>{{ $t('similarContentItems') }}</h3>
-        </div>
-      </div>
-      <ListOfSimilarContentItems class="row mt-3" v-if="contentItem" :contentItem="contentItem">
-        <template #default="{ items }">
-          <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
-            <ContentItem
-              :item="item"
-              class="p-3 rounded-md border shadow mb-4"
-              showLink
-              showMeta
-              showSnippet
-              showSemanticEnrichments
-            />
-          </div>
-        </template>
-      </ListOfSimilarContentItems>
-    </div>
+
     <hr class="py-4" />
     <div
       :style="`top:${hoverPassageLineTopOffset}px`"

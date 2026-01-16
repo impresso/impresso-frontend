@@ -30,7 +30,7 @@
           <div v-if="pagination.totalRows === 0" class="col-12 mb-3">
             {{ $t('textReusePassages.noPassagesFound') }}
           </div>
-          <div class="col-3 mb-3" v-for="item in items" :key="item.id">
+          <div class="col-md-12 col-lg-6 col-xl-4 mb-3" v-for="item in items" :key="item.id">
             <TextReusePassageItem :item="item" />
           </div>
         </template>

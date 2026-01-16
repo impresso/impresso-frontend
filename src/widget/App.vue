@@ -27,6 +27,12 @@
   }
 }
 
+button {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+}
+
 .h-100 {
   height: 100% !important;
 }
@@ -88,6 +94,23 @@ body {
 
 .position-fixed {
   position: fixed;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.bottom-0 {
+  bottom: 0;
+}
+.left-0 {
+  left: 0;
+}
+.d-flex {
+  display: flex;
+}
+.flex-column {
+  flex-direction: column;
 }
 
 .wrapper {

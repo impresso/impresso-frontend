@@ -267,10 +267,7 @@ const searchApiEndPassageQueryParameters = computed((): SearchQueryParameters | 
     offset: parseInt(endPassageOffset.value.toString(), 10),
     limit: 1,
     order_by: endPassageOrderBy.value,
-    filters: [
-      { type: 'textReuseCluster', q: props.item.textReuseCluster.id },
-      { type: 'id', q: startPassage.value.id, context: 'exclude' }
-    ],
+    filters: [{ type: 'textReuseCluster', q: props.item.textReuseCluster.id }],
     addons: { newspaper: 'text' }
   }
 

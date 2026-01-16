@@ -85,6 +85,24 @@
           v-if="contentItem && viewMode === TextReuseMode"
           :contentItem="contentItemOriginal"
         />
+        <ListOfSimilarContentItems
+          class="w-100 p-3"
+          v-if="contentItemOriginal && viewMode === SimilarArticlesMode"
+          :contentItem="contentItemOriginal"
+        >
+          <template #default="{ items }">
+            <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
+              <ContentItem
+                :item="item"
+                class="p-3 rounded-md border shadow mb-4"
+                showLink
+                showMeta
+                showSnippet
+                showSemanticEnrichments
+              />
+            </div>
+          </template>
+        </ListOfSimilarContentItems>
       </div>
     </i-layout-section>
   </i-layout>
@@ -117,17 +135,21 @@ import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
+import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vue'
+import ContentItem from '@/components/modules/lists/ContentItem.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
 const RegionTranscriptMode = '1'
 const IIIFViewerTranscriptMode = '2'
 const TextReuseMode = '3'
+const SimilarArticlesMode = '4'
 const AvailableViewModes = [
   FacsimileMode,
   RegionTranscriptMode,
   IIIFViewerTranscriptMode,
-  TextReuseMode
+  TextReuseMode,
+  SimilarArticlesMode
 ]
 // Route parameters
 const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
@@ -484,17 +506,10 @@ watch(
       "0": "Facsimile",
       "1": "Region Transcript",
       "2": "Facsimile + Transcript",
-      "3": "Text Reuse"
+      "3": "Text Reuse",
+      "4": "Similar Articles"
     },
     "add_to_collection": "Add to collection"
-  },
-  "de": {
-    "viewModes": {
-      "0": "Faksimile",
-      "1": "Region Transkript",
-      "2": "Faksimile + Transkript"
-    },
-    "add_to_collection": "Zur Sammlung hinzufügen"
   }
 }
 </i18n>
