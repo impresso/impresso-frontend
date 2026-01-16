@@ -11,15 +11,80 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { barista } from '@/services'
 import type { ChatMessage } from './BaristaChatPanel.vue'
 import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
+import {
+  useBaristaStore,
+  type BaristaMessageItem,
+  type AIMessage,
+  type ToolMessage
+} from '@/stores/barista'
 
 const emit = defineEmits<{
   (e: 'search', searchFilters: string): void
 }>()
+
+// Barista store for socket messages
+const baristaStore = useBaristaStore()
+
+// Convert barista socket message to chat message format
+const convertBaristaMessageToChat = (
+  message: BaristaMessageItem,
+  timestamp: Date
+): ChatMessage | undefined => {
+  if (message.type === 'human') {
+    return {
+      content: message.content,
+      timestamp,
+      type: 'user'
+    }
+  }
+
+  if (message.type === 'ai') {
+    const aiMsg = message as AIMessage
+    const toolCallNames = aiMsg.toolCalls?.map(tc => {
+      if (typeof tc === 'object' && tc !== null && 'name' in tc) {
+        return String(tc.name)
+      }
+      return 'unknown'
+    })
+
+    return {
+      content: aiMsg.content,
+      timestamp,
+      type: 'system',
+      reasoning: aiMsg.reasoningContent ?? undefined,
+      toolCalls: toolCallNames?.length ? toolCallNames : undefined,
+      structuredResponse: aiMsg.structuredResponse ?? undefined
+    }
+  }
+
+  if (message.type === 'tool') {
+    const toolMsg = message as ToolMessage
+    return {
+      content: `[${toolMsg.name}] ${toolMsg.content}`,
+      timestamp,
+      type: 'tool',
+      structuredResponse: toolMsg.structuredResponse ?? undefined
+    }
+  }
+
+  return undefined
+}
+
+// Watch for new socket messages and add them to the chat
+watch(
+  () => baristaStore.latestMessage,
+  newMessage => {
+    if (newMessage && !newMessage.isLast) {
+      const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
+      messages.value.push(chatMessage)
+    }
+  }
+)
 
 // State for messages
 const messages = ref<ChatMessage[]>([])

@@ -3,6 +3,45 @@
     <div class="chat-history" ref="chatHistoryRef">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.type]">
         <div class="message-content">{{ message.content }}</div>
+
+        <!-- Reasoning content (collapsible) -->
+        <div v-if="message.reasoning" class="message-expandable">
+          <button class="expand-toggle" @click="toggleExpanded(index, 'reasoning')" type="button">
+            <span class="expand-icon">{{ isExpanded(index, 'reasoning') ? '▼' : '▶' }}</span>
+            <span>Reasoning</span>
+          </button>
+          <div v-if="isExpanded(index, 'reasoning')" class="expandable-content reasoning-content">
+            <p>{{ message.reasoning }}</p>
+          </div>
+        </div>
+
+        <!-- Tool calls -->
+        <div v-if="message.toolCalls && message.toolCalls.length > 0" class="message-tools">
+          <div class="tools-label">🔧 Tools called:</div>
+          <div class="tools-list">
+            <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
+              {{ tool }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Structured response (collapsible) -->
+        <div v-if="message.structuredResponse" class="message-expandable">
+          <button class="expand-toggle" @click="toggleExpanded(index, 'structured')" type="button">
+            <span class="expand-icon">{{ isExpanded(index, 'structured') ? '▼' : '▶' }}</span>
+            <span>Structured Response</span>
+          </button>
+          <div v-if="isExpanded(index, 'structured')" class="expandable-content">
+            <div v-if="message.structuredResponse.impresso_help" class="structured-item">
+              <strong>Help:</strong> {{ message.structuredResponse.impresso_help }}
+            </div>
+            <div v-if="message.structuredResponse.search_query" class="structured-item">
+              <strong>Search Query:</strong>
+              <pre>{{ JSON.stringify(message.structuredResponse.search_query, null, 2) }}</pre>
+            </div>
+          </div>
+        </div>
+
         <div class="message-actions" v-if="message.actions && message.actions.length > 0">
           <div class="action-dropdown">
             <span class="action-icon">
@@ -44,7 +83,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick, reactive } from 'vue'
+import type { BaristaFormattedResponse } from '@/stores/barista'
 
 interface Action {
   type: 'search'
@@ -54,8 +94,11 @@ interface Action {
 export interface ChatMessage {
   content: string
   timestamp: Date
-  type: 'user' | 'system'
+  type: 'user' | 'system' | 'tool'
   actions?: Action[]
+  reasoning?: string
+  toolCalls?: string[]
+  structuredResponse?: BaristaFormattedResponse
 }
 
 const props = defineProps<{
@@ -69,6 +112,20 @@ const emit = defineEmits<{
 
 const inputMessage = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
+const expandedMessages = reactive<Record<string, boolean>>({})
+
+function getExpandKey(index: number, section: string): string {
+  return `${index}-${section}`
+}
+
+function toggleExpanded(index: number, section: string) {
+  const key = getExpandKey(index, section)
+  expandedMessages[key] = !expandedMessages[key]
+}
+
+function isExpanded(index: number, section: string): boolean {
+  return expandedMessages[getExpandKey(index, section)] ?? false
+}
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
@@ -254,5 +311,130 @@ onMounted(() => {
 .submit-button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+}
+
+.message-expandable {
+  margin-top: 8px;
+}
+
+.expand-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: inherit;
+  opacity: 0.8;
+}
+
+.expand-toggle:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.expand-icon {
+  font-size: 0.7rem;
+}
+
+.expandable-content {
+  margin-top: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.expandable-content pre {
+  margin: 0;
+  padding: 8px;
+  font-size: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message.system .expandable-content pre {
+  background-color: #d8d8d8;
+  color: #333;
+}
+
+.message.user .expandable-content pre {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.message.tool {
+  align-self: flex-start;
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 3px solid #ffc107;
+}
+
+.message-tools {
+  margin-top: 8px;
+  padding: 6px 0;
+}
+
+.tools-label {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.tools-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tool-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  border-radius: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.message.system .tool-badge {
+  background-color: #c8c8ca;
+}
+
+.message.user .tool-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.reasoning-content p {
+  margin: 0;
+  padding: 8px;
+  font-size: 0.85rem;
+  font-style: italic;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  border-left: 3px solid rgba(0, 0, 0, 0.2);
+}
+
+.structured-item {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.structured-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.structured-item pre {
+  margin: 4px 0 0;
+  padding: 8px;
+  font-size: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow-x: auto;
 }
 </style>
