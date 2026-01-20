@@ -1,5 +1,5 @@
 <template>
-  <div class="barista-chat-panel">
+  <div class="barista-chat-panel my-3">
     <div class="chat-history" ref="chatHistoryRef">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.type]">
         <div class="message-content">{{ message.content }}</div>
@@ -58,26 +58,41 @@
             </span>
           </div>
         </div>
-        <div class="message-timestamp">{{ formatTimestamp(message.timestamp) }}</div>
+        <div class="message-timestamp">
+          <TimeAgo :date="message.timestamp" />
+        </div>
       </div>
     </div>
+    <div class="p-3"></div>
+    <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
+      <div class="border border-dark shadow-sm rounded p-2">
+        <BFormCheckbox switch v-model="shouldSendFilterToBarista" class="mb-2 ml-1">
+          Also Send current search filters to Barista
+        </BFormCheckbox>
 
-    <div class="chat-input">
-      <input
-        type="text"
-        v-model="inputMessage"
-        @keyup.enter="handleSubmit"
-        placeholder="Type your message..."
-        :disabled="isLoading"
-      />
-      <button
-        @click="handleSubmit"
-        :disabled="!inputMessage.trim() || isLoading"
-        class="submit-button"
-      >
-        <span v-if="isLoading">Sending...</span>
-        <span v-else>Send</span>
-      </button>
+        <div class="input-group">
+          <b-form-input
+            type="text"
+            v-model="inputMessage"
+            :debounce="300"
+            @keyup.enter="handleSubmit"
+            placeholder="Type your message..."
+            :disabled="isLoading"
+            ref="humanPrompt"
+            class="BaristaChatPanel__humanPrompt"
+          />
+          <div class="input-group-append">
+            <button
+              @click="handleSubmit"
+              :disabled="!inputMessage.trim() || isLoading"
+              class="btn btn-outline-primary"
+            >
+              <span v-if="isLoading">Sending...</span>
+              <span v-else>Send</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -85,6 +100,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick, reactive } from 'vue'
 import type { BaristaFormattedResponse } from '@/stores/barista'
+import TimeAgo from '../TimeAgo.vue'
+import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 
 interface Action {
   type: 'search'
@@ -113,6 +130,7 @@ const emit = defineEmits<{
 const inputMessage = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
 const expandedMessages = reactive<Record<string, boolean>>({})
+const shouldSendFilterToBarista = ref(true)
 
 function getExpandKey(index: number, section: string): string {
   return `${index}-${section}`
@@ -132,13 +150,6 @@ function handleSubmit() {
 
   emit('submit', inputMessage.value)
   inputMessage.value = ''
-}
-
-function formatTimestamp(timestamp: Date): string {
-  return new Intl.DateTimeFormat('en-US', {
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(timestamp)
 }
 
 function formatActionType(type: string): string {
@@ -161,35 +172,30 @@ watch(
   },
   { deep: true }
 )
-
+const humanPrompt = ref<HTMLInputElement | null>(null)
 onMounted(() => {
+  humanPrompt.value?.focus()
   scrollToBottom()
 })
 </script>
 
 <style scoped>
-.barista-chat-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
+.BaristaChatPanel__humanPrompt {
+  border: 1px solid var(--impresso-color-black);
+  border-top-left-radius: var(--border-radius-sm);
+  border-bottom-left-radius: var(--border-radius-sm);
 }
-
 .chat-history {
   flex: 1;
-  padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #f5f5f5;
 }
 
 .message {
   padding: 10px 14px;
-  border-radius: 8px;
+  border-radius: var(--impresso-border-radius-xs);
   max-width: 80%;
   word-break: break-word;
   position: relative;
@@ -276,165 +282,5 @@ onMounted(() => {
 
 .icon {
   display: inline-block;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  border-top: 1px solid #e0e0e0;
-  background-color: white;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  margin-right: 8px;
-  font-size: 1rem;
-}
-
-.submit-button {
-  padding: 10px 16px;
-  background-color: #0084ff;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.submit-button:hover:not(:disabled) {
-  background-color: #0073e6;
-}
-
-.submit-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.message-expandable {
-  margin-top: 8px;
-}
-
-.expand-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  color: inherit;
-  opacity: 0.8;
-}
-
-.expand-toggle:hover {
-  opacity: 1;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.expand-icon {
-  font-size: 0.7rem;
-}
-
-.expandable-content {
-  margin-top: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.expandable-content pre {
-  margin: 0;
-  padding: 8px;
-  font-size: 0.75rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow-x: auto;
-  max-height: 200px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.message.system .expandable-content pre {
-  background-color: #d8d8d8;
-  color: #333;
-}
-
-.message.user .expandable-content pre {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-
-.message.tool {
-  align-self: flex-start;
-  background-color: #fff3cd;
-  color: #856404;
-  border-left: 3px solid #ffc107;
-}
-
-.message-tools {
-  margin-top: 8px;
-  padding: 6px 0;
-}
-
-.tools-label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  margin-bottom: 4px;
-}
-
-.tools-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.tool-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.message.system .tool-badge {
-  background-color: #c8c8ca;
-}
-
-.message.user .tool-badge {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.reasoning-content p {
-  margin: 0;
-  padding: 8px;
-  font-size: 0.85rem;
-  font-style: italic;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  border-left: 3px solid rgba(0, 0, 0, 0.2);
-}
-
-.structured-item {
-  margin-bottom: 8px;
-  font-size: 0.85rem;
-}
-
-.structured-item strong {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.structured-item pre {
-  margin: 4px 0 0;
-  padding: 8px;
-  font-size: 0.75rem;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  overflow-x: auto;
 }
 </style>

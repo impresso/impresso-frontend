@@ -1,12 +1,11 @@
 <template>
   <div class="barista-chat">
-    <div class="barista-chat-container">
-      <BaristaChatPanel
-        :messages="messages.filter(m => m != null)"
-        :isLoading="isLoading"
-        @submit="handleMessageSubmit"
-      />
-    </div>
+    <BaristaChatPanel
+      class=""
+      :messages="messages.filter(m => m != null)"
+      :isLoading="isLoading"
+      @submit="handleMessageSubmit"
+    />
   </div>
 </template>
 
@@ -22,6 +21,16 @@ import {
   type AIMessage,
   type ToolMessage
 } from '@/stores/barista'
+import type { Filter } from '@/models'
+
+const props = withDefaults(
+  defineProps<{
+    filters?: Filter[]
+  }>(),
+  {
+    filters: () => []
+  }
+)
 
 const emit = defineEmits<{
   (e: 'search', searchFilters: string): void
@@ -149,7 +158,12 @@ const handleMessageSubmit = async (text: string) => {
       }
     })
   } catch (error) {
-    console.error('Error sending message to barista service:', error)
+    console.error(
+      'Error sending message to barista service:',
+      error.name,
+      error.type,
+      error.message
+    )
 
     // Add error message
     messages.value.push(
@@ -165,35 +179,24 @@ const handleMessageSubmit = async (text: string) => {
 
 // Initialize with a welcome message
 onMounted(() => {
-  messages.value.push(
-    convertServiceMessageToPanel({
-      content: 'Hello! I am Barista, your Impresso assistant. How can I help you today?',
-      type: 'ai'
-    })
-  )
+  if (!baristaStore.messages.length) {
+    messages.value = [
+      convertServiceMessageToPanel({
+        content:
+          'Hello! I am Barista, I can serve you a query search and listen to your prompts. Tell me what you would like to find! I can also help you understanding better the Impresso ecosystem, just ask.',
+        type: 'ai'
+      })
+    ]
+  } else {
+    messages.value = baristaStore.messages
+      .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
+      .filter((msg): msg is ChatMessage => msg != null)
+  }
+  //  .push(
+  //   convertServiceMessageToPanel({
+  //     content: 'Hello! I am Barista, your Impresso assistant. How can I help you today?',
+  //     type: 'ai'
+  //   })
+  // )
 })
 </script>
-
-<style lang="scss" scoped>
-.barista-chat {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  background-color: var(--clr-grey-100);
-
-  &-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    max-width: 800px;
-    margin: 0 auto;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border-radius: var(--impresso-border-radius-md);
-    box-shadow: var(--bs-box-shadow-sm);
-  }
-}
-</style>

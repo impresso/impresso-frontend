@@ -220,7 +220,11 @@
 
       <AuthGate v-if="isBaristaEnabled">
         <template #authenticated>
-          <BaristaButton class="float-right mr-3" @search="updateSearchFromBarista" />
+          <BaristaButton
+            class="float-right mr-3"
+            :filters="filtersWithItems"
+            @search="updateSearchFromBarista"
+          />
         </template>
       </AuthGate>
     </i-layout-section>
@@ -659,13 +663,12 @@ export default defineComponent({
         filters: this.ignoredFilters
       })
     },
-    updateSearchFromBarista(filters) {
-      console.log('Barista suggests', filters)
+    updateSearchFromBarista(serializedSearchQuery: string) {
       this.$router.push({
         name: 'search',
         query: {
           ...this.$route.query,
-          sq: filters
+          sq: serializedSearchQuery
         }
       })
     }

@@ -62,6 +62,7 @@
                 top: `${iiifViewerMarginTop}px`
               }"
             >
+              {{ computedIIIFViewerOverlays }}
               <IIIFViewer
                 class="bg-dark rounded-md shadow border"
                 openseadragonCssClass="overflow-hidden rounded-md"
