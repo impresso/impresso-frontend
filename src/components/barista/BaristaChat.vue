@@ -1,9 +1,9 @@
 <template>
   <div class="barista-chat">
     <BaristaChatPanel
-      class=""
+      :filters="simplifiedFilters"
       :messages="messages.filter(m => m != null)"
-      :isLoading="isLoading"
+      :isLoading="isWorking"
       @submit="handleMessageSubmit"
     />
   </div>
@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
-import { barista } from '@/services'
+import { barista as baristaService } from '@/services'
 import type { ChatMessage } from './BaristaChatPanel.vue'
 import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
 import {
@@ -22,7 +22,12 @@ import {
   type ToolMessage
 } from '@/stores/barista'
 import type { Filter } from '@/models'
+import { computed } from 'vue'
+import { SupportedFiltersByContext } from '@/logic/filters'
 
+// Barista store for socket messages
+const baristaStore = useBaristaStore()
+const isWorking = computed(() => baristaStore.isWorking)
 const props = withDefaults(
   defineProps<{
     filters?: Filter[]
@@ -32,12 +37,23 @@ const props = withDefaults(
   }
 )
 
+const simplifiedFilters = computed(() => {
+  return props.filters
+    ?.filter(f => SupportedFiltersByContext.search.includes(f.type) && f.type !== 'hasTextContents')
+    .map(
+      f =>
+        ({
+          type: f.type,
+          context: f.context,
+          op: f.op,
+          q: f.q
+        }) satisfies Filter
+    )
+})
+
 const emit = defineEmits<{
   (e: 'search', searchFilters: string): void
 }>()
-
-// Barista store for socket messages
-const baristaStore = useBaristaStore()
 
 // Convert barista socket message to chat message format
 const convertBaristaMessageToChat = (
@@ -128,7 +144,6 @@ const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | un
 // Handler for sending messages
 const handleMessageSubmit = async (text: string) => {
   if (!text.trim()) return
-
   // Add user message to panel
   messages.value.push(
     convertServiceMessageToPanel({
@@ -138,24 +153,12 @@ const handleMessageSubmit = async (text: string) => {
   )
 
   isLoading.value = true
+  baristaStore.setIsWorking(true)
 
   try {
     // Send message to barista service
-    const response = await barista.create({
+    const response = await baristaService.create({
       message: text
-    })
-
-    // Add barista response to panel
-    response.messages.forEach(message => {
-      messages.value.push(convertServiceMessageToPanel(message))
-
-      const searchFilters = message.additional_kwargs
-        ? getSearchFiltersAsBase64(message.additional_kwargs)
-        : undefined
-
-      if (searchFilters) {
-        emit('search', searchFilters)
-      }
     })
   } catch (error) {
     console.error(
@@ -164,7 +167,6 @@ const handleMessageSubmit = async (text: string) => {
       error.type,
       error.message
     )
-
     // Add error message
     messages.value.push(
       convertServiceMessageToPanel({
@@ -172,6 +174,7 @@ const handleMessageSubmit = async (text: string) => {
         type: 'ai'
       })
     )
+    baristaStore.setIsWorking(false)
   } finally {
     isLoading.value = false
   }

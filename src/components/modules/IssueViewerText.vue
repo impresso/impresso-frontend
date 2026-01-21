@@ -62,7 +62,7 @@
                 top: `${iiifViewerMarginTop}px`
               }"
             >
-              {{ computedIIIFViewerOverlays }}
+              {{ contentItem }}
               <IIIFViewer
                 class="bg-dark rounded-md shadow border"
                 openseadragonCssClass="overflow-hidden rounded-md"
@@ -266,7 +266,9 @@ export default {
       const overlays = this.article.pages.map(page => {
         return {
           id: page.uid,
-          manifestUrls: page.iiif,
+          manifestUrls: page.iiif
+            .replace('https://dev.impresso-project.ch/', '/')
+            .replace('http://dev.impresso-project.ch/', '/'),
           regions: regionsByPageIndex[page.uid] || []
         }
       })

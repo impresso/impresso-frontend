@@ -12,17 +12,17 @@
     </button>
     <BaristaModal
       :isVisible="isChatOpen"
-      :filters="filters"
+      :filters="baristaSearchFilters"
       @dismiss="closeChat"
       @applyFilters="handleApplyFilters"
     >
-      <BaristaChat @search="handleSearch" :filters="filters" />
+      <BaristaChat @search="handleSearch" :filters="baristaSearchFilters" />
     </BaristaModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import BaristaChat from './BaristaChat.vue'
 import BaristaModal from './BaristaModal.vue'
 import { toSerializedFilters } from '@/logic/filters'
@@ -45,6 +45,7 @@ const props = withDefaults(
   }
 )
 
+const baristaSearchFilters = ref<Filter[]>([])
 // Toggle chat visibility
 const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value
@@ -57,8 +58,20 @@ const closeChat = () => {
 
 // Handle search action from BaristaChat
 const handleSearch = (serializedSearchQuery: string) => {
+  console.log('BaristaButton: Emitting search with filters:', serializedSearchQuery)
+
   emit('search', serializedSearchQuery)
 }
+
+watch(
+  () => props.filters,
+  (newFilters: Filter[]) => {
+    console.log('BaristaModal: Detected filters change:', newFilters)
+    // reset local filters based on external influences
+    baristaSearchFilters.value = newFilters
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped>

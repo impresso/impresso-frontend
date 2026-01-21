@@ -62,11 +62,17 @@
           <TimeAgo :date="message.timestamp" />
         </div>
       </div>
+      <div v-if="isLoading">working...</div>
     </div>
     <div class="p-3"></div>
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
       <div class="border border-dark shadow-sm rounded p-2">
-        <BFormCheckbox switch v-model="shouldSendFilterToBarista" class="mb-2 ml-1">
+        <BFormCheckbox
+          :disabled="!filters.length"
+          switch
+          v-model="shouldSendFilterToBarista"
+          class="mb-2 ml-1"
+        >
           Also Send current search filters to Barista
         </BFormCheckbox>
 
@@ -98,10 +104,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick, reactive } from 'vue'
+import { ref, watch, onMounted, nextTick, reactive, computed } from 'vue'
 import type { BaristaFormattedResponse } from '@/stores/barista'
 import TimeAgo from '../TimeAgo.vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
+import type { Filter } from '@/models'
 
 interface Action {
   type: 'search'
@@ -117,12 +124,16 @@ export interface ChatMessage {
   toolCalls?: string[]
   structuredResponse?: BaristaFormattedResponse
 }
-
-const props = defineProps<{
+export interface BaristaChatPanelProps {
   messages: ChatMessage[]
   isLoading?: boolean
-}>()
-
+  filters?: Filter[]
+}
+const props = withDefaults(defineProps<BaristaChatPanelProps>(), {
+  messages: () => [],
+  isLoading: false,
+  filters: () => []
+})
 const emit = defineEmits<{
   (e: 'submit', message: string): void
 }>()
@@ -147,8 +158,14 @@ function isExpanded(index: number, section: string): boolean {
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
-
-  emit('submit', inputMessage.value)
+  let extraContext = ''
+  if (shouldSendFilterToBarista.value && props.filters && props.filters.length > 0) {
+    extraContext +=
+      ' --- Consider the following filters as existing context: ' +
+      JSON.stringify(props.filters || []) +
+      ' ---'
+  }
+  emit('submit', inputMessage.value + extraContext)
   inputMessage.value = ''
 }
 

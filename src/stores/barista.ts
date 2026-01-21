@@ -16,18 +16,24 @@ export interface BaristaStoreMessage {
 
 export interface BaristaState {
   messages: BaristaStoreMessage[]
+  isWorking: boolean
 }
 
 export const useBaristaStore = defineStore('barista', {
   state: (): BaristaState => ({
-    messages: []
+    messages: [],
+    isWorking: false
   }),
+
   getters: {
     latestMessage: (state): BaristaStoreMessage | undefined => {
       return state.messages.length > 0 ? state.messages[state.messages.length - 1] : undefined
     }
   },
   actions: {
+    setIsWorking(value: boolean) {
+      this.isWorking = value
+    },
     addMessage(payload: BaristaMessageItem, isLast: boolean) {
       const message: BaristaStoreMessage = {
         id: crypto.randomUUID(),
@@ -36,6 +42,9 @@ export const useBaristaStore = defineStore('barista', {
         message: payload
       }
       this.messages.push(message)
+      if (isLast) {
+        this.isWorking = false
+      }
     },
     clearMessages() {
       this.messages = []

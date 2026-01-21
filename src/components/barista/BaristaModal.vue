@@ -15,8 +15,8 @@
         </div>
         <div class="col-6 results-section position-relative">
           Here you can see your current filters, click on apply to update search results.
-          <div class="position-sticky top-0 bg-white py-2" v-if="baristaSearchFilters.length">
-            <SearchPills :filters="baristaSearchFilters" @changed="handleFiltersChanged" />
+          <div class="position-sticky top-0 bg-white py-2" v-if="filters.length">
+            <SearchPills :filters="filters" @changed="handleFiltersChanged" />
             <button class="btn btn-sm btn-primary mt-2">Apply Filters</button>
           </div>
           <h5>Results (JSON)</h5>
@@ -35,7 +35,6 @@
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
-import { computed, ref, watch } from 'vue'
 import type { Filter } from '@/models'
 
 export type BaristaModalProps = {
@@ -53,8 +52,6 @@ const emit = defineEmits<{
   applyFilters: [updatedFilters: Filter[]]
 }>()
 
-const baristaSearchFilters = ref<Filter[]>([])
-
 const handleFiltersChanged = (updatedFilters: Filter[]) => {
   emit('applyFilters', updatedFilters)
 }
@@ -62,16 +59,6 @@ const handleFiltersChanged = (updatedFilters: Filter[]) => {
 function dismiss() {
   emit('dismiss')
 }
-
-// watch(
-//   () => props.filters,
-//   (newFilters: Filter[]) => {
-//     console.log('BaristaModal: Detected filters change:', newFilters)
-//     // reset local filters based on external influences
-//     baristaSearchFilters.value = newFilters
-//   },
-//   { immediate: true }
-// )
 </script>
 
 <i18n lang="json">

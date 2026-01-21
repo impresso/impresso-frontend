@@ -29,8 +29,8 @@ export default ({ mode }: { mode: string }) => {
 
   const ApiIiifProxyPath = [
     '^',
-    String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
-    '/proxy/'
+    // String(env.VITE_MIDDLELAYER_API_PATH).replace(/\/+$/, ''),
+    '/media/iiif/'
   ].join('')
   const WebAppBaseUrl: string = env.VITE_APP_BASE_URL ?? '/'
   const WebAppHost: string = env.VITE_APP_HOST ?? 'http://localhost:5173'
@@ -119,7 +119,8 @@ export default ({ mode }: { mode: string }) => {
           ws: false,
           secure: false,
           // not changing origin on localhost to allow iiif proxy get the address of the web app instead of the downstream service
-          changeOrigin: !isLocalhost(env.VITE_MIDDLELAYER_API)
+          changeOrigin: true
+          // !isLocalhost(env.VITE_MIDDLELAYER_API)
         }
       }
     },
