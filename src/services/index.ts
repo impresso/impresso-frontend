@@ -2,7 +2,7 @@
 import auth from '@feathersjs/authentication-client'
 import { feathers } from '@feathersjs/feathers'
 
-import { BaristaMessageItem, useBaristaStore } from '@/stores/barista'
+import { useBaristaStore } from '@/stores/barista'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'

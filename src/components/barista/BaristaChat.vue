@@ -7,7 +7,6 @@
       @submit="handleMessageSubmit"
       @updateHeight="handleUpdateHeight"
     >
-      <slot></slot>
     </BaristaChatPanel>
   </div>
 </template>

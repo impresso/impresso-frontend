@@ -13,10 +13,11 @@
         <h5 class="modal-title">{{ $t('BaristaModalTitle') }}</h5>
         <button
           type="button"
+          :disabled="!hasMessages"
           class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
           @click="resetChat"
         >
-          {{ $t('close') }}
+          {{ $t('new chat') }}
           <Icon name="dots" class="ms-1" :scale="0.25" :stroke-width="5" />
         </button>
       </div>
@@ -65,7 +66,7 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
 import type { Filter } from '@/models'
 import BaristaChat from './BaristaChat.vue'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import Icon from '../base/Icon.vue'
@@ -86,7 +87,7 @@ const resetChat = () => {
   console.debug('[BaristaModal] Reset chat requested')
   baristaStore.clearMessages()
 }
-
+const hasMessages = computed(() => baristaStore.messages.length > 0)
 const handleUpdateHeight = (height: number) => {
   console.debug('[BaristaModal] Height update requested:', height)
   const scrollableModalBody = containerRef.value?.parentElement

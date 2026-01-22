@@ -1,19 +1,25 @@
 <template>
   <div class="barista-chat-panel my-3">
     <div class="chat-history pb-5" ref="chatHistoryRef">
-      <div v-for="(message, index) in messages" :key="index" :class="['message', message.type]">
-        <div class="message-content" v-if="message.type === 'tool'">
-          <h5 class="small-caps text-muted">{{ $t('barista.tool') }}</h5>
-          <pre class="small text-white">{{ message.content }}</pre>
-        </div>
-        <div class="message-content" v-else>
+      <div
+        v-for="(message, index) in messages"
+        :key="index"
+        :class="['message', message.type, message.reasoning ? 'with-reasoning' : '']"
+      >
+        <h5
+          class="small-caps"
+          :class="{ 'text-white': message.type === 'user', 'text-muted': message.type !== 'user' }"
+        >
+          {{ $t(`barista.persona.${message.type}`) }}
+        </h5>
+        <div class="message-content">
           {{ message.content }}
         </div>
         <!-- Reasoning content (collapsible) -->
         <div v-if="message.reasoning" class="message-expandable">
           <h5 class="small-caps text-muted">{{ $t('barista.reasoning') }}</h5>
           <div class="border-top border-bottom border-tertiary pb-2 mb-3">
-            <Ellipsis backgroundColor="#e9e9eb" :initialHeight="100" :maxHeight="0">
+            <Ellipsis backgroundColor="#f4f4f6" :initialHeight="100" :maxHeight="0">
               <p class="small text-muted pt-2 pb-4">{{ message.reasoning }}</p>
             </Ellipsis>
           </div>
@@ -205,12 +211,15 @@ onMounted(() => {
   color: white;
 }
 
-.message.system {
+.message.system,
+.message.tool {
   align-self: flex-start;
   background-color: #e9e9eb;
   color: #333;
 }
-
+.message.system.with-reasoning {
+  background-color: #f4f4f6;
+}
 .message-content {
   margin-bottom: 4px;
 }
@@ -274,10 +283,7 @@ onMounted(() => {
   background-color: #d8d8d8;
 }
 
-.message.user .action-icon:hover {
-  background-color: #007af2;
-}
-.message.tool {
+.message.user {
   background-color: var(--impresso-color-black);
   color: var(--impresso-color-white);
 }
@@ -289,11 +295,16 @@ onMounted(() => {
 {
   "en": {
     "barista": {
+      "persona": {
+        "user": "You",
+        "system": "Barista",
+        "tool": "Tool"
+      },
       "reasoning": "Reasoning",
-      "tool": "Tool result",
       "tools": {
         "BaristaFormattedResponse": "Suggest filters",
-        "find_entities_ids": "Find Entities"
+        "find_entities_ids": "Find Entities",
+        "get_impresso_feature_explanation": "Explain Feature"
       }
     }
   }
