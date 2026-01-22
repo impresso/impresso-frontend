@@ -15,15 +15,12 @@
       :filters="baristaSearchFilters"
       @dismiss="closeChat"
       @applyFilters="handleApplyFilters"
-    >
-      <BaristaChat @search="handleSearch" :filters="baristaSearchFilters" />
-    </BaristaModal>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import BaristaChat from './BaristaChat.vue'
 import BaristaModal from './BaristaModal.vue'
 import { toSerializedFilters } from '@/logic/filters'
 import type { Filter } from '@/models'

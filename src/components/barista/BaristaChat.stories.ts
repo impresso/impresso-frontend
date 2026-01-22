@@ -2,6 +2,9 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BaristaChat from './BaristaChat.vue'
 import { fn } from 'storybook/test'
 import { useBaristaStore } from '@/stores/barista'
+import { type BaristaMessageItem } from '@/services/types/barista'
+import { type Filter } from '@/models'
+import { nextTick, ref } from 'vue'
 
 const meta = {
   title: 'Barista/BaristaChat',
@@ -16,19 +19,59 @@ const meta = {
   },
   tags: ['autodocs'],
   argTypes: {},
-  args: {
-    onSearch: fn()
-  },
+  args: {},
   render: args => ({
     components: { BaristaChat },
     setup() {
       const baristaStore = useBaristaStore()
+      const scrollContainer = ref<HTMLElement | null>(null)
+
       baristaStore.clearMessages()
-      return { args }
+
+      const timers = []
+      const mockStream = () => {
+        for (const timer of timers) {
+          clearTimeout(timer)
+        }
+        timers.splice(0, timers.length)
+        for (let i = 0; i < MockBaristaPayloads.length; i++) {
+          const payload = MockBaristaPayloads[i]
+
+          timers.push(
+            setTimeout(
+              () => {
+                console.log('Sending mock payload:', payload)
+                baristaStore.parseBaristaStream(payload)
+              },
+              1000 * (i + 1)
+            )
+          )
+        }
+      }
+      const handleSubmit = () => {
+        console.debug('[BaristaChat.stories] Submit triggered, starting mock stream')
+        mockStream()
+      }
+      const handleUpdateHeight = (height: number) => {
+        console.debug('[BaristaChat.stories] Chat height updated:', height)
+        // Scroll to bottom when height updates
+        nextTick(() => {
+          if (scrollContainer.value) {
+            scrollContainer.value.scrollTo({
+              top: scrollContainer.value.scrollHeight,
+              behavior: 'smooth'
+            })
+          }
+        })
+      }
+      const handleSuggestFilters = (filters: Filter[]) => {
+        console.debug('[BaristaChat.stories] Suggest filters event received:', filters)
+      }
+      return { args, handleSubmit, handleUpdateHeight, handleSuggestFilters, scrollContainer }
     },
     template: `
-      <div style="width: 500px; height: 600px;">
-        <BaristaChat v-bind="args" />
+      <div style="width: 500px; height: 600px; overflow:scroll" ref="scrollContainer">
+        <BaristaChat v-bind="args" @submit="handleSubmit" @suggestFilters="handleSuggestFilters" @update-height="handleUpdateHeight"  />
       </div>
     `
   })
@@ -189,7 +232,7 @@ const MockBaristaPayloads = [
           impresso_help: null
         }
       }
-    ],
+    ] as BaristaMessageItem[],
     userUid: 'local-dg'
   },
   {

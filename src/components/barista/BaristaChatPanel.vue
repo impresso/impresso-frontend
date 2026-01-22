@@ -1,44 +1,34 @@
 <template>
   <div class="barista-chat-panel my-3">
-    <div class="chat-history" ref="chatHistoryRef">
+    <div class="chat-history pb-5" ref="chatHistoryRef">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.type]">
-        <div class="message-content">{{ message.content }}</div>
-
+        <div class="message-content" v-if="message.type === 'tool'">
+          <h5 class="small-caps text-muted">{{ $t('barista.tool') }}</h5>
+          <pre class="small text-white">{{ message.content }}</pre>
+        </div>
+        <div class="message-content" v-else>
+          {{ message.content }}
+        </div>
         <!-- Reasoning content (collapsible) -->
         <div v-if="message.reasoning" class="message-expandable">
-          <button class="expand-toggle" @click="toggleExpanded(index, 'reasoning')" type="button">
-            <span class="expand-icon">{{ isExpanded(index, 'reasoning') ? '▼' : '▶' }}</span>
-            <span>Reasoning</span>
-          </button>
-          <div v-if="isExpanded(index, 'reasoning')" class="expandable-content reasoning-content">
-            <p>{{ message.reasoning }}</p>
+          <h5 class="small-caps text-muted">{{ $t('barista.reasoning') }}</h5>
+          <div class="border-top border-bottom border-tertiary pb-2 mb-3">
+            <Ellipsis backgroundColor="#e9e9eb" :initialHeight="100" :maxHeight="0">
+              <p class="small text-muted pt-2 pb-4">{{ message.reasoning }}</p>
+            </Ellipsis>
           </div>
         </div>
 
         <!-- Tool calls -->
-        <div v-if="message.toolCalls && message.toolCalls.length > 0" class="message-tools">
-          <div class="tools-label">🔧 Tools called:</div>
-          <div class="tools-list">
+        <div
+          v-if="message.toolCalls && message.toolCalls.length > 0"
+          class="message-tools d-flex flex-wrap mb-2 align-items-center gap-2"
+        >
+          <div class="tools-label small-caps-bold text-muted">🔧 Tools called</div>
+          <div class="tools-list small">
             <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
-              {{ tool }}
+              {{ $t(`barista.tools.${tool}`) }}
             </span>
-          </div>
-        </div>
-
-        <!-- Structured response (collapsible) -->
-        <div v-if="message.structuredResponse" class="message-expandable">
-          <button class="expand-toggle" @click="toggleExpanded(index, 'structured')" type="button">
-            <span class="expand-icon">{{ isExpanded(index, 'structured') ? '▼' : '▶' }}</span>
-            <span>Structured Response</span>
-          </button>
-          <div v-if="isExpanded(index, 'structured')" class="expandable-content">
-            <div v-if="message.structuredResponse.impresso_help" class="structured-item">
-              <strong>Help:</strong> {{ message.structuredResponse.impresso_help }}
-            </div>
-            <div v-if="message.structuredResponse.search_query" class="structured-item">
-              <strong>Search Query:</strong>
-              <pre>{{ JSON.stringify(message.structuredResponse.search_query, null, 2) }}</pre>
-            </div>
           </div>
         </div>
 
@@ -64,9 +54,9 @@
       </div>
       <div v-if="isLoading">working...</div>
     </div>
-    <div class="p-3"></div>
+
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
-      <div class="border border-dark shadow-sm rounded p-2">
+      <div class="border shadow-sm rounded p-2">
         <BFormCheckbox
           :disabled="!filters.length"
           switch
@@ -75,7 +65,7 @@
         >
           Also Send current search filters to Barista
         </BFormCheckbox>
-
+        <slot></slot>
         <div class="input-group">
           <b-form-input
             type="text"
@@ -104,26 +94,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick, reactive, computed } from 'vue'
-import type { BaristaFormattedResponse } from '@/stores/barista'
+import { ref, watch, onMounted, nextTick, reactive } from 'vue'
 import TimeAgo from '../TimeAgo.vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import type { Filter } from '@/models'
+import { ChatMessage } from '@/services/types/barista'
+import Ellipsis from '../modules/Ellipsis.vue'
 
-interface Action {
-  type: 'search'
-  context: string
-}
-
-export interface ChatMessage {
-  content: string
-  timestamp: Date
-  type: 'user' | 'system' | 'tool'
-  actions?: Action[]
-  reasoning?: string
-  toolCalls?: string[]
-  structuredResponse?: BaristaFormattedResponse
-}
 export interface BaristaChatPanelProps {
   messages: ChatMessage[]
   isLoading?: boolean
@@ -136,6 +113,7 @@ const props = withDefaults(defineProps<BaristaChatPanelProps>(), {
 })
 const emit = defineEmits<{
   (e: 'submit', message: string): void
+  (e: 'updateHeight', height: number): void
 }>()
 
 const inputMessage = ref('')
@@ -152,7 +130,7 @@ function toggleExpanded(index: number, section: string) {
   expandedMessages[key] = !expandedMessages[key]
 }
 
-function isExpanded(index: number, section: string): boolean {
+function isCollapsed(index: number, section: string): boolean {
   return expandedMessages[getExpandKey(index, section)] ?? false
 }
 
@@ -173,26 +151,29 @@ function formatActionType(type: string): string {
   return type.charAt(0).toUpperCase() + type.slice(1)
 }
 
-function scrollToBottom() {
+function updateHeight() {
   nextTick(() => {
-    if (chatHistoryRef.value) {
-      chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
-    }
+    console.debug(
+      '[BaristaChatPanel] Emitting updated height:',
+      chatHistoryRef.value?.scrollHeight || 0
+    )
+
+    humanPrompt.value?.focus()
+    emit('updateHeight', chatHistoryRef.value?.scrollHeight || 0)
   })
 }
 
 // Scroll to bottom when new messages are added
 watch(
-  () => props.messages,
+  () => props.messages.length,
   () => {
-    scrollToBottom()
-  },
-  { deep: true }
+    updateHeight()
+  }
 )
 const humanPrompt = ref<HTMLInputElement | null>(null)
 onMounted(() => {
   humanPrompt.value?.focus()
-  scrollToBottom()
+  updateHeight()
 })
 </script>
 
@@ -296,8 +277,25 @@ onMounted(() => {
 .message.user .action-icon:hover {
   background-color: #007af2;
 }
-
+.message.tool {
+  background-color: var(--impresso-color-black);
+  color: var(--impresso-color-white);
+}
 .icon {
   display: inline-block;
 }
 </style>
+<i18n lang="json">
+{
+  "en": {
+    "barista": {
+      "reasoning": "Reasoning",
+      "tool": "Tool result",
+      "tools": {
+        "BaristaFormattedResponse": "Suggest filters",
+        "find_entities_ids": "Find Entities"
+      }
+    }
+  }
+}
+</i18n>

@@ -5,7 +5,10 @@
       :messages="messages.filter(m => m != null)"
       :isLoading="isWorking"
       @submit="handleMessageSubmit"
-    />
+      @updateHeight="handleUpdateHeight"
+    >
+      <slot></slot>
+    </BaristaChatPanel>
   </div>
 </template>
 
@@ -13,14 +16,14 @@
 import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { barista as baristaService } from '@/services'
-import type { ChatMessage } from './BaristaChatPanel.vue'
-import { BaristaMessage, getSearchFiltersAsBase64 } from '@/services/types/barista'
 import {
-  useBaristaStore,
+  type ChatMessage,
   type BaristaMessageItem,
   type AIMessage,
   type ToolMessage
-} from '@/stores/barista'
+} from '@/services/types/barista'
+import { convertServiceMessageToPanel } from '@/logic/barista'
+import { useBaristaStore } from '@/stores/barista'
 import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
@@ -52,7 +55,9 @@ const simplifiedFilters = computed(() => {
 })
 
 const emit = defineEmits<{
-  (e: 'search', searchFilters: string): void
+  (e: 'suggestFilters', searchFilters: Filter[]): void
+  (e: 'submit', message: string): void
+  (e: 'updateHeight', height: number): void
 }>()
 
 // Convert barista socket message to chat message format
@@ -100,46 +105,9 @@ const convertBaristaMessageToChat = (
   return undefined
 }
 
-// Watch for new socket messages and add them to the chat
-watch(
-  () => baristaStore.latestMessage,
-  newMessage => {
-    if (newMessage && !newMessage.isLast) {
-      const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
-      messages.value.push(chatMessage)
-    }
-  }
-)
-
 // State for messages
 const messages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
-
-const ChatTypeConverter: Record<BaristaMessage['type'], ChatMessage['type']> = {
-  ai: 'system',
-  human: 'user'
-}
-
-// Convert service message to panel message format
-const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | undefined => {
-  if (!Object.keys(ChatTypeConverter).includes(message.type)) return undefined
-  const searchFilters = message.additional_kwargs
-    ? getSearchFiltersAsBase64(message.additional_kwargs)
-    : undefined
-  return {
-    content: message.content,
-    timestamp: new Date(),
-    type: ChatTypeConverter[message.type],
-    actions: searchFilters
-      ? [
-          {
-            type: 'search',
-            context: searchFilters
-          }
-        ]
-      : undefined
-  }
-}
 
 // Handler for sending messages
 const handleMessageSubmit = async (text: string) => {
@@ -157,9 +125,10 @@ const handleMessageSubmit = async (text: string) => {
 
   try {
     // Send message to barista service
-    const response = await baristaService.create({
+    await baristaService.create({
       message: text
     })
+    emit('submit', text)
   } catch (error) {
     console.error(
       'Error sending message to barista service:',
@@ -180,6 +149,38 @@ const handleMessageSubmit = async (text: string) => {
   }
 }
 
+const handleUpdateHeight = (height: number) => {
+  console.debug('[BaristaChat] Chat height updated:', height)
+  emit('updateHeight', height)
+}
+
+// Watch for new socket messages and add them to the chat
+watch(
+  () => baristaStore.latestMessage,
+  newMessage => {
+    console.debug('[BaristaChat] New message from barista store:', newMessage)
+    if (newMessage) {
+      const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
+      messages.value.push(chatMessage)
+
+      const suggestedFilters: Filter[] = messages.value.reduce((acc: Filter[], msg) => {
+        if (Array.isArray(msg?.structuredResponse?.search_query?.filters)) {
+          acc = msg.structuredResponse.search_query.filters as Filter[]
+        }
+        return acc
+      }, [])
+
+      if (suggestedFilters.length > 0) {
+        console.log('[BaristaChat] Emitting search with suggested filters:', suggestedFilters)
+        emit('suggestFilters', suggestedFilters)
+      }
+    } else {
+      console.warn('[BaristaChat] Undefined message received from barista store')
+      messages.value = []
+    }
+  }
+)
+
 // Initialize with a welcome message
 onMounted(() => {
   if (!baristaStore.messages.length) {
@@ -195,11 +196,5 @@ onMounted(() => {
       .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
       .filter((msg): msg is ChatMessage => msg != null)
   }
-  //  .push(
-  //   convertServiceMessageToPanel({
-  //     content: 'Hello! I am Barista, your Impresso assistant. How can I help you today?',
-  //     type: 'ai'
-  //   })
-  // )
 })
 </script>

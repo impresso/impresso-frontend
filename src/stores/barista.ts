@@ -1,11 +1,5 @@
+import { BaristaMessageItem } from '@/services/types/barista'
 import { defineStore } from 'pinia'
-import type { components } from '@/models/generated/barista/schema'
-
-export type AIMessage = components['schemas']['AIMessage']
-export type HumanMessage = components['schemas']['HumanMessage']
-export type ToolMessage = components['schemas']['ToolMessage']
-export type BaristaFormattedResponse = components['schemas']['BaristaFormattedResponse']
-export type BaristaMessageItem = AIMessage | HumanMessage | ToolMessage
 
 export interface BaristaStoreMessage {
   id: string
@@ -33,21 +27,39 @@ export const useBaristaStore = defineStore('barista', {
   actions: {
     setIsWorking(value: boolean) {
       this.isWorking = value
+      if (!value) {
+      }
     },
-    addMessage(payload: BaristaMessageItem, isLast: boolean) {
-      const message: BaristaStoreMessage = {
+    addMessage(message: BaristaMessageItem, isLast: boolean) {
+      const storeMessage: BaristaStoreMessage = {
         id: crypto.randomUUID(),
         timestamp: new Date(),
         isLast,
-        message: payload
+        message
       }
-      this.messages.push(message)
+      this.messages.push(storeMessage)
       if (isLast) {
         this.isWorking = false
       }
     },
     clearMessages() {
       this.messages = []
+    },
+    parseBaristaStream(payload: { type: string; data: BaristaMessageItem[] }) {
+      const isLast = payload?.type === 'done'
+      const messages = payload?.data ?? []
+      console.debug('Parsing Barista stream payload:', payload, isLast && messages.length === 0)
+      // if isLast there are no messages. Add an empty message to mark end of response
+      if (isLast && messages.length === 0) {
+        this.addMessage(
+          {
+            content: 'Done.',
+            type: 'ai'
+          } as BaristaMessageItem,
+          true
+        )
+      }
+      messages.forEach((msg: BaristaMessageItem) => this.addMessage(msg, isLast))
     }
   }
 })

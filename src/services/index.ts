@@ -131,9 +131,7 @@ app.service('logs').on('created', payload => {
 app.service('barista-proxy').on('barista-response', payload => {
   console.info('[@barista-proxy->barista-response]', payload)
   const baristaStore = useBaristaStore()
-  const isLast = payload?.type === 'done'
-  const messages = payload?.data ?? []
-  messages.forEach(msg => baristaStore.addMessage(msg as BaristaMessageItem, isLast))
+  baristaStore.parseBaristaStream(payload)
 })
 
 // repeat this line for every service in our backend
