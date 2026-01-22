@@ -1,18 +1,24 @@
-import { toSerializedFilters } from '@/logic/filters'
 import { ClientService } from '@feathersjs/feathers'
+import type { components } from '@/models/generated/barista/schema'
 
-interface FunctionCall {
+export type AIMessage = components['schemas']['AIMessage']
+export type HumanMessage = components['schemas']['HumanMessage']
+export type ToolMessage = components['schemas']['ToolMessage']
+export type BaristaFormattedResponse = components['schemas']['BaristaFormattedResponse']
+export type BaristaMessageItem = AIMessage | HumanMessage | ToolMessage
+
+export interface FunctionCall {
   arguments: string
   name: string
 }
 
-interface ToolCall {
+export interface ToolCall {
   id: string
   function: FunctionCall
   type: 'function'
 }
 
-interface AdditionalKwargs {
+export interface AdditionalKwargs {
   tool_calls?: ToolCall[]
 }
 
@@ -29,30 +35,26 @@ export interface BaristaRequest {
   message: string
 }
 
-interface BaristaResponse {
+export interface BaristaResponse {
   messages: BaristaMessage[]
+}
+
+interface Action {
+  type: 'search'
+  context: string
+}
+
+export interface ChatMessage {
+  content: string
+  timestamp: Date
+  type: 'user' | 'system' | 'tool'
+  actions?: Action[]
+  reasoning?: string
+  toolCalls?: string[]
+  structuredResponse?: BaristaFormattedResponse
 }
 
 export type BaristaService = Pick<
   ClientService<BaristaResponse, BaristaRequest, unknown, unknown>,
   'create'
 >
-
-export const getSearchFiltersAsBase64 = (kwargs: AdditionalKwargs): string | undefined => {
-  const filtersToolCalls =
-    kwargs.tool_calls?.filter?.(
-      tool_call => tool_call.type === 'function' && tool_call.function.name === 'Filters'
-    ) ?? []
-
-  if (filtersToolCalls.length > 0) {
-    try {
-      const searchFilters = JSON.parse(filtersToolCalls[0].function.arguments)
-      const serializedFilters = toSerializedFilters(searchFilters['filters'])
-      return serializedFilters
-    } catch (error) {
-      console.error('Error parsing search filters:', error)
-      return undefined
-    }
-  }
-  return undefined
-}

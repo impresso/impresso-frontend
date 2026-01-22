@@ -2,6 +2,7 @@
 import auth from '@feathersjs/authentication-client'
 import { feathers } from '@feathersjs/feathers'
 
+import { BaristaMessageItem, useBaristaStore } from '@/stores/barista'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'
@@ -125,6 +126,12 @@ app.service('logs').on('created', payload => {
       extra
     })
   }
+})
+
+app.service('barista-proxy').on('barista-response', payload => {
+  console.info('[@barista-proxy->barista-response]', payload)
+  const baristaStore = useBaristaStore()
+  baristaStore.parseBaristaStream(payload)
 })
 
 // repeat this line for every service in our backend

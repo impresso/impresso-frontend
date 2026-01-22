@@ -98,6 +98,7 @@
     "msw": "^2.3.1",
     "msw-storybook-addon": "^2.0.6",
     "npm-run-all2": "^6.1.2",
+    "openapi-typescript": "^7.10.1",
     "prettier": "^3.2.5",
     "sass": "1.77.4",
     "start-server-and-test": "^2.0.3",

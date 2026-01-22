@@ -77,54 +77,16 @@
         </Alert>
       </template> -->
     </PlansModal>
-    <InfoModal
+    <UserSettingsModal
       :isVisible="view === ViewInfoModal"
-      :title="$t('User settings')"
       @dismiss="resetView"
-    >
-      <div class="d-flex justify-content-between border-bottom p-2">
-        <div>
-          {{ $t('user_plan_label') }}
-        </div>
-        <div>
-          <b>{{ PlanLabels[userPlan] }}</b>
-          ({{ userPlan }})
-        </div>
-      </div>
-      <div class="d-flex justify-content-between border-bottom p-2">
-        <div>
-          {{ $t('user_bitmap_label') }}
-        </div>
-        <div>
-          {{ userStore.bitmap }}
-        </div>
-      </div>
-      <div class="d-flex justify-content-between border-bottom p-2">
-        <div>
-          {{ $t('user_accept_terms_date_local_label') }}
-        </div>
-        <div v-if="acceptTermsDateOnLocalStorage">
-          {{ $d(new Date(acceptTermsDateOnLocalStorage), 'precise') }}
-        </div>
-        <div v-else>
-          {{ $t('not_accepted_local_label') }}
-        </div>
-      </div>
-      <div class="d-flex justify-content-between border-bottom p-2">
-        <div>
-          {{ $t('user_accept_terms_date_on_db_label') }}
-        </div>
-        <div v-if="acceptTermsDate">
-          {{ $d(new Date(acceptTermsDate), 'precise') }}
-        </div>
-        <div v-else>
-          {{ $t('not_accepted_on_db_label') }}
-        </div>
-      </div>
-      <div class="d-flex justify-content-between border-bottom p-2">
-        <TermsOfUseStatus withCallToAction />
-      </div>
-    </InfoModal>
+      :userPlanLabel="PlanLabels[userPlan]"
+      :userPlan="userPlan"
+      :userBitmapBase64="userStore.bitmap"
+      :acceptTermsDateOnLocalStorage="acceptTermsDateOnLocalStorage"
+      :acceptTermsDate="acceptTermsDate"
+    />
+
     <!--  -->
     <ChangePlanModal
       :show="view === ViewChangePlanRequest"
@@ -237,6 +199,7 @@ import DataRundownModal from './dataRundown/DataRundownModal.vue'
 import LinkToModal from './LinkToModal.vue'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
 import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.vue'
+import UserSettingsModal from './modals/UserSettingsModal.vue'
 
 const store = useViewsStore()
 const userStore = useUserStore()

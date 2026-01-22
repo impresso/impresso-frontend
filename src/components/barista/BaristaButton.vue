@@ -2,7 +2,7 @@
   <div class="barista-button-container">
     <!-- Floating button -->
     <button
-      class="barista-button"
+      class="btn btn-primary rounded-md d-flex gap-2"
       @click="toggleChat"
       :class="{ active: isChatOpen }"
       aria-label="Toggle Barista Chat"
@@ -10,35 +10,39 @@
       <span class="barista-icon">☕</span>
       <span class="barista-label">Chat with Barista</span>
     </button>
-
-    <!-- Chat popup -->
-    <Transition name="fade">
-      <div v-if="isChatOpen" class="barista-popup" ref="chatPopup">
-        <div class="barista-popup-header">
-          <h3>Impresso Barista</h3>
-          <button class="close-button" @click="closeChat" aria-label="Close chat">
-            <span class="dripicons-cross"></span>
-          </button>
-        </div>
-        <div class="barista-popup-content">
-          <BaristaChat @search="handleSearch" />
-        </div>
-      </div>
-    </Transition>
+    <BaristaModal
+      :isVisible="isChatOpen"
+      :filters="baristaSearchFilters"
+      @dismiss="closeChat"
+      @applyFilters="handleApplyFilters"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import BaristaChat from './BaristaChat.vue'
+import { ref, watch } from 'vue'
+import BaristaModal from './BaristaModal.vue'
+import { toSerializedFilters } from '@/logic/filters'
+import type { Filter } from '@/models'
 
 const isChatOpen = ref(false)
-const chatPopup = ref<HTMLElement | null>(null)
-
 const emit = defineEmits<{
-  search: [filters: string]
+  search: [encodedFilters: string]
 }>()
 
+const handleApplyFilters = (filters: Record<string, any>[]) => {
+  emit('search', toSerializedFilters(filters))
+}
+const props = withDefaults(
+  defineProps<{
+    filters?: Filter[]
+  }>(),
+  {
+    filters: () => []
+  }
+)
+
+const baristaSearchFilters = ref<Filter[]>([])
 // Toggle chat visibility
 const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value
@@ -50,40 +54,21 @@ const closeChat = () => {
 }
 
 // Handle search action from BaristaChat
-const handleSearch = (searchFilters: string) => {
-  // Emit the search event so parent components can listen
-  emit('search', searchFilters)
+const handleSearch = (serializedSearchQuery: string) => {
+  console.log('BaristaButton: Emitting search with filters:', serializedSearchQuery)
+
+  emit('search', serializedSearchQuery)
 }
 
-// Close chat when clicking outside
-const handleClickOutside = (event: MouseEvent) => {
-  if (
-    isChatOpen.value &&
-    chatPopup.value &&
-    !chatPopup.value.contains(event.target as Node) &&
-    !(event.target as Element).closest('.barista-button')
-  ) {
-    closeChat()
-  }
-}
-
-// Close chat when pressing escape
-const handleKeyDown = (event: KeyboardEvent) => {
-  if (isChatOpen.value && event.key === 'Escape') {
-    closeChat()
-  }
-}
-
-// Add and remove event listeners
-onMounted(() => {
-  document.addEventListener('mousedown', handleClickOutside)
-  document.addEventListener('keydown', handleKeyDown)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('mousedown', handleClickOutside)
-  document.removeEventListener('keydown', handleKeyDown)
-})
+watch(
+  () => props.filters,
+  (newFilters: Filter[]) => {
+    console.log('BaristaModal: Detected filters change:', newFilters)
+    // reset local filters based on external influences
+    baristaSearchFilters.value = newFilters
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped>
