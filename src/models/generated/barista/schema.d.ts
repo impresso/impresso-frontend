@@ -87,9 +87,23 @@ export type components = {
         };
         /** BaristaFormattedResponse */
         BaristaFormattedResponse: {
-            /** Impresso Help */
-            impresso_help: string | null;
-            search_query: components["schemas"]["Filters"] | null;
+            /**
+             * Impressohelp
+             * @description Help message to the user about how to use the Impresso Barista.
+             */
+            impressoHelp?: string | null;
+            /** @description The search query filters to use for retrieving data. */
+            searchQuery?: components["schemas"]["Filters"] | null;
+            /**
+             * Searchquerydestination
+             * @description The destination of the search query results (content item by default).
+             */
+            searchQueryDestination?: ("content_items" | "text_reuse" | "images") | null;
+            /**
+             * Searchquerysummary
+             * @description Analysed summary of facets of the search query filters (facets tool call required).
+             */
+            searchQuerySummary?: string | null;
         };
         /** BaristaRequest */
         BaristaRequest: {
@@ -119,40 +133,42 @@ export type components = {
         };
         /**
          * Filter
-         * @description Single filter
+         * @description Impresso Search Filter
          */
         Filter: {
-            /** @default include */
-            context: components["schemas"]["FilterContext"];
-            /** @default AND */
-            op: components["schemas"]["FilterOperator"];
-            /** @default exact */
-            precision: components["schemas"]["FilterPrecision"];
+            /**
+             * Context
+             * @description Filter context
+             * @default include
+             * @enum {string}
+             */
+            context: "include" | "exclude";
+            /**
+             * Op
+             * @description Filter operator. Choice depends on filter type and context.
+             * @default AND
+             * @enum {string}
+             */
+            op: "AND" | "OR";
+            /**
+             * Precision
+             * @description Filter precision
+             * @default exact
+             * @enum {string}
+             */
+            precision: "exact" | "partial" | "fuzzy" | "soft";
             /**
              * Q
-             * @description Query string or list of strings to filter by.
-             * @example Format: `YYYY-MM-DDT00:00:00Z TO YYYY-MM-DDT00:00:00Z` for `type=daterange`.
-             * @example Format: [<id_1>, <id_2>] for `type=person` or `type=location`. The IDs must be resolved using the appropriate tool.
-             * @example Format: [<term_1>, <term_2>] for `type=string`. If the keyword is a named entity, first try to resolve it using the appropriate tool to get its ID.
+             * @description Value depends on the filter type. For boolean filters - not required. Non-string types should be converted to string.
              */
-            q?: string | string[] | null;
-            type: components["schemas"]["FilterType"];
+            q?: string[] | string;
+            /**
+             * Type
+             * @description Filter type
+             * @enum {string}
+             */
+            type: "hasTextContents" | "ocrQuality" | "contentLength" | "isFront" | "string" | "title" | "daterange" | "uid" | "copyright" | "partner" | "language" | "page" | "issue" | "newspaper" | "topic" | "year" | "type" | "sourceMedium" | "sourceType" | "country" | "mention" | "person" | "location" | "nag" | "org" | "regex" | "textReuseClusterSize" | "textReuseClusterLexicalOverlap" | "textReuseClusterDayDelta" | "contentItemId" | "textReusePassage" | "imageTechnique";
         };
-        /**
-         * FilterContext
-         * @enum {string}
-         */
-        FilterContext: "include" | "exclude";
-        /**
-         * FilterOperator
-         * @enum {string}
-         */
-        FilterOperator: "AND" | "OR";
-        /**
-         * FilterPrecision
-         * @enum {string}
-         */
-        FilterPrecision: "exact" | "partial" | "fuzzy" | "soft";
         /**
          * Filters
          * @description Always use this tool to structure your response to the user.
@@ -164,11 +180,6 @@ export type components = {
              */
             filters?: components["schemas"]["Filter"][];
         };
-        /**
-         * FilterType
-         * @enum {string}
-         */
-        FilterType: "uid" | "hasTextContents" | "title" | "isFront" | "page" | "issue" | "string" | "entity" | "newspaper" | "daterange" | "language" | "type" | "regex" | "person" | "location" | "org" | "topic" | "collection" | "ocrQuality" | "contentLength" | "country" | "accessRight" | "partner" | "month" | "textReuseClusterSize" | "textReuseClusterLexicalOverlap" | "textReuseClusterDayDelta" | "textReuseCluster" | "mentionFunction" | "nag" | "wikidataId" | "dataDomain" | "copyright";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */

@@ -168,8 +168,8 @@ watch(
       }
 
       const suggestedFilters: Filter[] = messages.value.reduce((acc: Filter[], msg) => {
-        if (Array.isArray(msg?.structuredResponse?.search_query?.filters)) {
-          acc = msg.structuredResponse.search_query.filters as Filter[]
+        if (Array.isArray(msg?.structuredResponse?.searchQuery?.filters)) {
+          acc = msg.structuredResponse.searchQuery.filters as Filter[]
         }
         return acc
       }, [])
