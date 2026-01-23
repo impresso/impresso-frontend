@@ -52,7 +52,7 @@ defineExpose({
 const allowedAttrs = ['onClick', 'placeholder', 'class', 'style']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
-  console.warn(`BFormTextarea: Unknown attributes: ${unknownAttrs.join(', ')}`)
+  console.warn(`BTextarea: Unknown attributes: ${unknownAttrs.join(', ')}`)
 }
 
 const iClass = computed(() => ({
