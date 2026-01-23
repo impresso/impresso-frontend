@@ -82,7 +82,8 @@
             :disabled="isLoading"
             ref="humanPrompt"
             class="border rounded-sm form-control border-dark"
-            rows="2"
+            :rows="3"
+            auto-grow
           />
 
           <div class="ml-2">

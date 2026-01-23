@@ -159,8 +159,9 @@ const handleUpdateHeight = (height: number) => {
 watch(
   () => baristaStore.latestMessage,
   newMessage => {
-    console.debug('[BaristaChat] New message from barista store:', newMessage)
     if (newMessage) {
+      console.debug('[BaristaChat] new message received. Adding to chat panel:', newMessage)
+
       const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
       messages.value.push(chatMessage)
 
@@ -176,7 +177,9 @@ watch(
         emit('suggestFilters', suggestedFilters)
       }
     } else {
-      console.warn('[BaristaChat] Undefined message received from barista store')
+      console.debug(
+        "[BaristaChat] Undefined message received from barista store, let's reset chat."
+      )
       messages.value = []
     }
   }

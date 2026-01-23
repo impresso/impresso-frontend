@@ -93,13 +93,6 @@ const baristaStore = useBaristaStore()
 const resetChat = () => {
   console.debug('[BaristaModal] Reset chat requested')
   baristaStore.clearMessages()
-  baristaStore.addMessage(
-    {
-      content: 'Hello! How can I assist you today?',
-      type: 'ai'
-    } as BaristaMessageItem,
-    true
-  )
 }
 const hasMessages = computed(() => baristaStore.messages.length > 0)
 const handleUpdateHeight = (height: number) => {

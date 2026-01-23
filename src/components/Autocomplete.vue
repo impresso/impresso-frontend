@@ -134,7 +134,14 @@ import BaristaButton from './barista/BaristaButton.vue'
 import AuthGate from './AuthGate.vue'
 import { FacetType } from '@/models/Facet'
 
-const AVAILABLE_TYPES = ['newspaper', 'topic', 'location', 'person', 'collection'] as const
+const AVAILABLE_TYPES = [
+  'newspaper',
+  'topic',
+  'location',
+  'person',
+  'collection',
+  'mention'
+] as const
 
 type AvailableType = (typeof AVAILABLE_TYPES)[number]
 
@@ -285,11 +292,11 @@ const suggestionTypes = computed(() => {
   return AVAILABLE_TYPES.filter(type => !!suggestionIndex.value[type])
 })
 
-const suggestionType = computed(() => {
+const suggestionType = computed<FacetType>(() => {
   if (!selectableSuggestions.value[selectedIndex.value]) {
-    return 'string'
+    return 'string' as FacetType
   }
-  return selectableSuggestions.value[selectedIndex.value].type || 'string'
+  return (selectableSuggestions.value[selectedIndex.value].type || 'string') as FacetType
 })
 
 const explorerInitialType = computed(() => {
