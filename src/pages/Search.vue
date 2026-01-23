@@ -8,7 +8,12 @@
       @changed="handleFiltersChanged"
     >
       <template v-slot:header="{ focusHandler }">
-        <autocomplete @submit="onSuggestion" @input-focus="focusHandler" :filters="filters" />
+        <autocomplete
+          @submit="onSuggestion"
+          @filtersChanged="handleFiltersChanged"
+          @input-focus="focusHandler"
+          :filters="filters"
+        />
       </template>
       <div>
         <button
@@ -178,12 +183,7 @@
               v-for="(searchResult, index) in searchResults"
               v-bind:key="searchResult.id"
             >
-              <search-results-list-item
-                v-bind:checkbox="false"
-                v-on:toggleSelected="toggleSelected(searchResult)"
-                v-bind:checked="isChecked(searchResult)"
-                v-model="searchResults[index]"
-              />
+              <search-results-list-item v-bind:checkbox="false" v-model="searchResults[index]" />
             </b-col>
           </b-row>
           <b-row class="pb-5" v-if="displayStyle === 'tiles'">
@@ -197,8 +197,6 @@
             >
               <search-results-tiles-item
                 checkbox="true"
-                v-on:toggleSelected="toggleSelected(searchResult)"
-                v-bind:checked="isChecked(searchResult)"
                 v-on:click="onClickResult(searchResult)"
                 v-model="searchResults[index]"
               />
@@ -217,16 +215,6 @@
           />
         </div>
       </div>
-
-      <AuthGate v-if="isBaristaEnabled">
-        <template #authenticated>
-          <BaristaButton
-            class="float-right mr-3"
-            :filters="filtersWithItems"
-            @search="updateSearchFromBarista"
-          />
-        </template>
-      </AuthGate>
     </i-layout-section>
   </i-layout>
 </template>
@@ -264,8 +252,7 @@ import { useNotificationsStore } from '@/stores/notifications'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
-import BaristaButton from '@/components/barista/BaristaButton.vue'
-import AuthGate from '@/components/AuthGate.vue'
+
 import { ContentItem } from '@/models/generated/schemas/contentItem'
 import { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
@@ -298,12 +285,8 @@ const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 export interface IData {
   selectedItems: ContentItem[]
-  allIndeterminate: boolean
-  allSelected: boolean
   inputName: string
   inputDescription: string
-  nameCollectionOkDisabled: boolean
-  inputEmbeddings: string
   searchResults: ContentItem[]
   paginationTotalRows: number
   timelineFacets: Facet[]
@@ -323,12 +306,8 @@ export default defineComponent({
   data(): IData {
     return {
       selectedItems: [],
-      allIndeterminate: false,
-      allSelected: false,
       inputName: '',
       inputDescription: 'All of Impresso',
-      nameCollectionOkDisabled: true,
-      inputEmbeddings: '',
       searchResults: [],
       paginationTotalRows: 0,
       commonFacets: [],
@@ -598,22 +577,8 @@ export default defineComponent({
         this.selectedItems.splice(idx, 1)
       }
     },
-    toggleSelectAll(checked) {
-      if (checked) {
-        this.searchResults.forEach(item => {
-          this.addSelectedItem(item)
-        })
-      } else {
-        this.searchResults.forEach(item => {
-          this.removeSelectedItem(item)
-        })
-      }
-    },
     isChecked(item: ContentItem) {
       return this.selectedItems.findIndex(c => c.id === item.id) !== -1
-    },
-    onClearSelection() {
-      this.selectedItems = []
     },
     onClickResult(searchResult) {
       this.$router.push({
@@ -661,15 +626,6 @@ export default defineComponent({
     reset() {
       this.searchQuery = new SearchQuery({
         filters: this.ignoredFilters
-      })
-    },
-    updateSearchFromBarista(serializedSearchQuery: string) {
-      this.$router.push({
-        name: 'search',
-        query: {
-          ...this.$route.query,
-          sq: serializedSearchQuery
-        }
       })
     }
   },
@@ -761,8 +717,7 @@ export default defineComponent({
     InfoButton,
     Modal,
     CopyToDatalabButton,
-    BaristaButton,
-    AuthGate,
+
     PageNavbarHeading,
     InfoModal
   }
