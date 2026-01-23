@@ -84,6 +84,7 @@
             class="border rounded-sm form-control border-dark"
             :rows="3"
             autosize
+            :maxRows="10"
           />
 
           <div class="ml-2">
