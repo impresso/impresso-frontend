@@ -77,7 +77,6 @@ import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import Icon from '../base/Icon.vue'
 import { useBaristaStore } from '@/stores/barista'
-import { BaristaMessageItem } from '@/services/types/barista'
 
 export type BaristaModalProps = {
   dialogClass?: string
