@@ -717,7 +717,6 @@ export default defineComponent({
     InfoButton,
     Modal,
     CopyToDatalabButton,
-
     PageNavbarHeading,
     InfoModal
   }
