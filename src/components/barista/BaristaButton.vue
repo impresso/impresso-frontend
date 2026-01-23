@@ -36,6 +36,7 @@ const emit = defineEmits<{
 
 const handleApplyFilters = (filters: Filter[]) => {
   emit('filtersChanged', filters)
+  closeChat()
 }
 /**
  * Props
