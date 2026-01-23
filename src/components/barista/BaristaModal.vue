@@ -4,7 +4,7 @@
     :title="$t('BaristaModalTitle')"
     modalClass="BaristaModal"
     :dialogClass="props.dialogClass"
-    bodyClass="p-0 mt-2 mx-3 border-top "
+    bodyClass="p-0 mt-2 mx-3 border-top"
     @close="dismiss"
     hide-footer
   >
