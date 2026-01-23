@@ -163,7 +163,9 @@ watch(
       console.debug('[BaristaChat] new message received. Adding to chat panel:', newMessage)
 
       const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
-      messages.value.push(chatMessage)
+      if (chatMessage != null) {
+        messages.value.push(chatMessage)
+      }
 
       const suggestedFilters: Filter[] = messages.value.reduce((acc: Filter[], msg) => {
         if (Array.isArray(msg?.structuredResponse?.search_query?.filters)) {
