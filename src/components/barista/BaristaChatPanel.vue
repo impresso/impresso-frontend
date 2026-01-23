@@ -83,7 +83,7 @@
             ref="humanPrompt"
             class="border rounded-sm form-control border-dark"
             :rows="3"
-            auto-grow
+            autosize
           />
 
           <div class="ml-2">
