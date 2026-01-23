@@ -87,7 +87,6 @@
               selected: selectedIndex === s.idx
             }"
           >
-            {{ s }}
             <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
               <span class="small"
                 >... <b>{{ q }}</b></span
