@@ -4,10 +4,10 @@
     <template v-slot:header>
       <div class="border-bottom bg-light">
         <slot name="tabs">
-          <search-tabs />
+          <SearchTabs />
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
-          <search-pills :filters="filters" @changed="handleFiltersChanged" />
+          <SearchPills :filters="filters" @changed="handleFiltersChanged" />
           <span class="d-block mb-2" v-if="filters.length && ignoredFilters.length">
             <i
               class="small"
@@ -16,7 +16,7 @@
                   n: ignoredFilters.length
                 })
               "
-            />{{ ' ' }}<info-button :name="infoButtonName" />
+            />{{ ' ' }}<InfoButton :name="infoButtonName" />
           </span>
           <slot name="header" :focusHandler="focusHandler">
             <!-- extra header -->
@@ -29,7 +29,7 @@
       <slot>
         <!-- slot here for extra facets -->
       </slot>
-      <search-facets
+      <SearchFacets
         :facets="facets"
         :filters="filters"
         :start-year="startYear"
@@ -43,82 +43,62 @@
   </i-layout-section>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed, ref } from 'vue'
 import SearchPills from '@/components/SearchPills.vue'
 import SearchTabs from '@/components/modules/SearchTabs.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
-import { PropType } from 'vue'
-import { Facet, Filter } from '@/models'
+import type { Facet, Filter } from '@/models'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 
-/**
- * @typedef {import('@/models').Filter} Filter
- * @typedef {import('@/models').Facet} Facet
- */
-
-export default {
-  data: () => ({
-    hasFocus: false
-  }),
-  props: {
-    /* Used for helper button */
-    contextTag: {
-      type: String
-    },
-    width: {
-      type: String,
-      default: '400px'
-    },
-    filters: {
-      type: Array as PropType<Filter[]>,
-      default: () => []
-    },
-    facets: {
-      type: Array as PropType<Facet[]>,
-      default: () => []
-    },
-    ignoredFilters: {
-      type: Array as PropType<Filter[]>,
-      default: () => []
-    }
-  },
-  methods: {
-    /** @param {Filter[]} filters */
-    handleFiltersChanged(filters) {
-      // propagate filters changed
-      this.$emit('changed', filters)
-    },
-    focusHandler(value) {
-      this.hasFocus = !!value
-    }
-  },
-  computed: {
-    /** @return {boolean} */
-    /** @return {string} */
-    infoButtonName() {
-      if (this.contextTag === 'search-images') {
-        return 'why-does-the-image-search-have-limited-filters'
-      }
-      return `how-${this.contextTag}-work-with-search-filters`
-    },
-    startYear() {
-      return getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear
-    },
-    endYear() {
-      return getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear
-    }
-  },
-  components: {
-    SearchPills,
-    InfoButton,
-    SearchTabs,
-    SearchFacets
-  }
+export interface SearchSidebarProps {
+  /** Used for helper button */
+  contextTag?: string
+  width?: string
+  filters?: Filter[]
+  facets?: Facet[]
+  ignoredFilters?: Filter[]
 }
+
+const props = withDefaults(defineProps<SearchSidebarProps>(), {
+  width: '400px',
+  filters: () => [],
+  facets: () => [],
+  ignoredFilters: () => []
+})
+
+const emit = defineEmits<{
+  changed: [filters: Filter[]]
+}>()
+
+const hasFocus = ref(false)
+
+const handleFiltersChanged = (filters: Filter[]) => {
+  emit('changed', filters)
+}
+
+const focusHandler = (value: boolean) => {
+  hasFocus.value = !!value
+}
+
+const infoButtonName = computed(() => {
+  if (props.contextTag === 'search-images') {
+    return 'why-does-the-image-search-have-limited-filters'
+  }
+  return `how-${props.contextTag}-work-with-search-filters`
+})
+
+const startYear = computed(() => {
+  return getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear
+})
+
+const endYear = computed(() => {
+  return getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear
+})
 </script>
-<style lang="scss">
-@import '@/styles/variables.sass';
+
+<style>
 .search-box {
   border: 1px solid #777;
 }
@@ -127,10 +107,8 @@ export default {
   border-color: black;
   border-radius: 2px;
 }
-.bg-dark {
-  .search-box.focus {
-    box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
-    border-color: white;
-  }
+.bg-dark .search-box.focus {
+  box-shadow: 0 0 0 0.2rem rgba(17, 17, 17, 0.5);
+  border-color: white;
 }
 </style>

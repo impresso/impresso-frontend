@@ -68,7 +68,7 @@ When generating or editing Vue components in src/components:
 
 - Use the Composition API and ensure they are compatible with Vue 3.x.
 - Prefer <script setup> syntax
-
+- In template section use CamelCase for component names. Use kebab-case only for custom plugin components, like <i-layout> or <i-layout-section>.
 - Ensure all new components have an accompanying Storybook 10.x story written in TypeScript.
 - Create or update a Storybook 10.x story written in TypeScript.
 - Place the story file in the same folder as the component (e.g. MyComponent.vue and MyComponent.stories.ts).
