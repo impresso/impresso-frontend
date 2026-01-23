@@ -11,7 +11,7 @@ export interface BaristaStoreMessage {
 export interface BaristaState {
   messages: BaristaStoreMessage[]
   isWorking: boolean
-  sendCurrentFilters?: boolean
+  sendCurrentFilters: boolean
 }
 
 export const useBaristaStore = defineStore('barista', {
