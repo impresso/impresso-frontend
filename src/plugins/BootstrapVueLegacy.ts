@@ -49,7 +49,7 @@ const BootstrapVueLegacy = {
 /*
 Find non-captured components:
 
-<b-(?!button|col|row|navbar|form-select|nav-item|dropdown-item|alert|tabs|dropdown|container|badge|form-group|form-checkbox|form-input|input|checkbox)
+<b-(?!button|col|row|navbar|form-select|nav-item|dropdown-item|alert|tabs|dropdown|container|badge|form-group|form-checkbox|form-input|input|checkbox|textarea)
 */
 
 export default BootstrapVueLegacy
