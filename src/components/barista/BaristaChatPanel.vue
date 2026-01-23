@@ -10,53 +10,55 @@
           class="small-caps"
           :class="{ 'text-white': message.type === 'user', 'text-muted': message.type !== 'user' }"
         >
-          {{ $t(`barista.persona.${message.type}`) }}
+          <span v-if="message.reasoning">{{ $t(`barista.persona.${message.type}Reasoning`) }}</span>
+          <span v-else>{{ $t(`barista.persona.${message.type}`) }}</span>
         </h5>
         <div class="message-content">
           {{ message.content }}
         </div>
         <!-- Reasoning content (collapsible) -->
         <div v-if="message.reasoning" class="message-expandable">
-          <h5 class="small-caps text-muted">{{ $t('barista.reasoning') }}</h5>
           <div class="border-top border-bottom border-tertiary pb-2 mb-3">
-            <Ellipsis backgroundColor="#f4f4f6" :initialHeight="100" :maxHeight="0">
+            <Ellipsis backgroundColor="#e9e9eb" :initialHeight="100" :maxHeight="0">
               <p class="small text-muted pt-2 pb-4">{{ message.reasoning }}</p>
             </Ellipsis>
           </div>
         </div>
 
         <!-- Tool calls -->
-        <div
-          v-if="message.toolCalls && message.toolCalls.length > 0"
-          class="message-tools d-flex flex-wrap mb-2 align-items-center gap-2"
-        >
-          <div class="tools-label small-caps-bold text-muted">🔧 Tools called</div>
-          <div class="tools-list small">
-            <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
-              {{ $t(`barista.tools.${tool}`) }}
-            </span>
-          </div>
-        </div>
-
-        <div class="message-actions" v-if="message.actions && message.actions.length > 0">
-          <div class="action-dropdown">
-            <span class="action-icon">
-              <span class="icon">⚡</span>
-              <span class="action-tooltip">
-                <div
-                  v-for="(action, actionIndex) in message.actions"
-                  :key="actionIndex"
-                  class="tooltip-action"
-                >
-                  {{ formatActionType(action.type) }}: {{ action.context }}
-                </div>
+        <section class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div
+            v-if="message.toolCalls && message.toolCalls.length > 0"
+            class="message-tools d-flex flex-wrap mb-2 align-items-center gap-2"
+          >
+            <div class="tools-label small-caps-bold text-muted">🔧 Tools called</div>
+            <div class="tools-list small">
+              <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
+                {{ $t(`barista.tools.${tool}`) }}
               </span>
-            </span>
+            </div>
           </div>
-        </div>
-        <div class="message-timestamp">
-          <TimeAgo :date="message.timestamp" />
-        </div>
+
+          <div class="message-actions" v-if="message.actions && message.actions.length > 0">
+            <div class="action-dropdown">
+              <span class="action-icon">
+                <span class="icon">⚡</span>
+                <span class="action-tooltip">
+                  <div
+                    v-for="(action, actionIndex) in message.actions"
+                    :key="actionIndex"
+                    class="tooltip-action"
+                  >
+                    {{ formatActionType(action.type) }}: {{ action.context }}
+                  </div>
+                </span>
+              </span>
+            </div>
+          </div>
+          <div class="message-timestamp">
+            <TimeAgo :date="message.timestamp" />
+          </div>
+        </section>
       </div>
       <div v-if="isLoading">working...</div>
     </div>
@@ -66,24 +68,24 @@
         <BFormCheckbox
           :disabled="!filters.length"
           switch
-          v-model="shouldSendFilterToBarista"
+          v-model="baristaStore.sendCurrentFilters"
           class="mb-2 ml-1"
         >
-          Also Send current search filters to Barista
+          Share current search filters with Barista
         </BFormCheckbox>
-        <slot></slot>
-        <div class="input-group">
-          <b-form-input
-            type="text"
+        <div class="d-flex align-items-end">
+          <BTextarea
             v-model="inputMessage"
-            :debounce="300"
+            :debounce="0"
             @keyup.enter="handleSubmit"
             placeholder="Type your message..."
             :disabled="isLoading"
             ref="humanPrompt"
-            class="BaristaChatPanel__humanPrompt"
+            class="border rounded-sm form-control border-dark"
+            rows="2"
           />
-          <div class="input-group-append">
+
+          <div class="ml-2">
             <button
               @click="handleSubmit"
               :disabled="!inputMessage.trim() || isLoading"
@@ -106,12 +108,15 @@ import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import type { Filter } from '@/models'
 import { ChatMessage } from '@/services/types/barista'
 import Ellipsis from '../modules/Ellipsis.vue'
+import { useBaristaStore } from '@/stores/barista'
 
 export interface BaristaChatPanelProps {
   messages: ChatMessage[]
   isLoading?: boolean
   filters?: Filter[]
 }
+
+const baristaStore = useBaristaStore()
 const props = withDefaults(defineProps<BaristaChatPanelProps>(), {
   messages: () => [],
   isLoading: false,
@@ -124,26 +129,11 @@ const emit = defineEmits<{
 
 const inputMessage = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
-const expandedMessages = reactive<Record<string, boolean>>({})
-const shouldSendFilterToBarista = ref(true)
-
-function getExpandKey(index: number, section: string): string {
-  return `${index}-${section}`
-}
-
-function toggleExpanded(index: number, section: string) {
-  const key = getExpandKey(index, section)
-  expandedMessages[key] = !expandedMessages[key]
-}
-
-function isCollapsed(index: number, section: string): boolean {
-  return expandedMessages[getExpandKey(index, section)] ?? false
-}
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
   let extraContext = ''
-  if (shouldSendFilterToBarista.value && props.filters && props.filters.length > 0) {
+  if (baristaStore.sendCurrentFilters && props.filters && props.filters.length > 0) {
     extraContext +=
       ' --- Consider the following filters as existing context: ' +
       JSON.stringify(props.filters || []) +
@@ -176,7 +166,7 @@ watch(
     updateHeight()
   }
 )
-const humanPrompt = ref<HTMLInputElement | null>(null)
+const humanPrompt = ref<HTMLTextAreaElement | null>(null)
 onMounted(() => {
   humanPrompt.value?.focus()
   updateHeight()
@@ -184,11 +174,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.BaristaChatPanel__humanPrompt {
-  border: 1px solid var(--impresso-color-black);
-  border-top-left-radius: var(--border-radius-sm);
-  border-bottom-left-radius: var(--border-radius-sm);
-}
 .chat-history {
   flex: 1;
   overflow-y: auto;
@@ -218,7 +203,7 @@ onMounted(() => {
   color: #333;
 }
 .message.system.with-reasoning {
-  background-color: #f4f4f6;
+  background-color: #e9e9eb;
 }
 .message-content {
   margin-bottom: 4px;
@@ -298,7 +283,10 @@ onMounted(() => {
       "persona": {
         "user": "You",
         "system": "Barista",
-        "tool": "Tool"
+        "tool": "Barista (tool)",
+        "userReasoning": "You",
+        "systemReasoning": "Barista (with reasoning)",
+        "toolReasoning": "Barista (tool with reasoning)"
       },
       "reasoning": "Reasoning",
       "tools": {

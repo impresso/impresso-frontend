@@ -111,12 +111,13 @@ const isLoading = ref(false)
 // Handler for sending messages
 const handleMessageSubmit = async (text: string) => {
   if (!text.trim()) return
-  // Add user message to panel
-  messages.value.push(
-    convertServiceMessageToPanel({
+  // Add user message to panel using baristaStore
+  baristaStore.addMessage(
+    {
       content: text,
       type: 'human'
-    })
+    },
+    true
   )
 
   isLoading.value = true
@@ -136,11 +137,12 @@ const handleMessageSubmit = async (text: string) => {
       error.message
     )
     // Add error message
-    messages.value.push(
-      convertServiceMessageToPanel({
+    baristaStore.addMessage(
+      {
         content: 'Sorry, there was an error processing your message.',
         type: 'ai'
-      })
+      },
+      true
     )
     baristaStore.setIsWorking(false)
   } finally {
@@ -183,13 +185,14 @@ watch(
 // Initialize with a welcome message
 onMounted(() => {
   if (!baristaStore.messages.length) {
-    messages.value = [
-      convertServiceMessageToPanel({
+    baristaStore.addMessage(
+      {
         content:
           'Hello! I am Barista, I can serve you a query search and listen to your prompts. Tell me what you would like to find! I can also help you understanding better the Impresso ecosystem, just ask.',
         type: 'ai'
-      })
-    ]
+      },
+      true
+    )
   } else {
     messages.value = baristaStore.messages
       .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
