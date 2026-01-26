@@ -21,11 +21,11 @@ import {
   type AIMessage,
   type ToolMessage
 } from '@/services/types/barista'
-import { convertServiceMessageToPanel } from '@/logic/barista'
 import { useBaristaStore } from '@/stores/barista'
 import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
+import { ExtraContentSeparator } from '@/logic/barista'
 
 // Barista store for socket messages
 const baristaStore = useBaristaStore()
@@ -64,16 +64,21 @@ const convertBaristaMessageToChat = (
   message: BaristaMessageItem,
   timestamp: Date
 ): ChatMessage | undefined => {
+  const [messageContent, additionalContent] = message.content.split(ExtraContentSeparator, 2)
+
   if (message.type === 'human') {
     return {
-      content: message.content,
+      content: messageContent,
+      additionalContent: additionalContent,
       timestamp,
       type: 'user'
     }
   }
 
   if (message.type === 'ai') {
-    const aiMsg = message as AIMessage
+    const aiMsg = message as AIMessage & {
+      searchQuerySummary?: string
+    }
     const toolCallNames = aiMsg.toolCalls?.map(tc => {
       if (typeof tc === 'object' && tc !== null && 'name' in tc) {
         return String(tc.name)
@@ -111,12 +116,13 @@ const isLoading = ref(false)
 // Handler for sending messages
 const handleMessageSubmit = async (text: string) => {
   if (!text.trim()) return
-  // Add user message to panel
-  messages.value.push(
-    convertServiceMessageToPanel({
+  // Add user message to panel using baristaStore
+  baristaStore.addMessage(
+    {
       content: text,
       type: 'human'
-    })
+    },
+    true
   )
 
   isLoading.value = true
@@ -125,7 +131,8 @@ const handleMessageSubmit = async (text: string) => {
   try {
     // Send message to barista service
     await baristaService.create({
-      message: text
+      message: text,
+      session_id: baristaStore.sessionId
     })
     emit('submit', text)
   } catch (error) {
@@ -136,11 +143,12 @@ const handleMessageSubmit = async (text: string) => {
       error.message
     )
     // Add error message
-    messages.value.push(
-      convertServiceMessageToPanel({
+    baristaStore.addMessage(
+      {
         content: 'Sorry, there was an error processing your message.',
         type: 'ai'
-      })
+      },
+      true
     )
     baristaStore.setIsWorking(false)
   } finally {
@@ -157,14 +165,17 @@ const handleUpdateHeight = (height: number) => {
 watch(
   () => baristaStore.latestMessage,
   newMessage => {
-    console.debug('[BaristaChat] New message from barista store:', newMessage)
     if (newMessage) {
+      console.debug('[BaristaChat] new message received. Adding to chat panel:', newMessage)
+
       const chatMessage = convertBaristaMessageToChat(newMessage.message, newMessage.timestamp)
-      messages.value.push(chatMessage)
+      if (chatMessage != null) {
+        messages.value.push(chatMessage)
+      }
 
       const suggestedFilters: Filter[] = messages.value.reduce((acc: Filter[], msg) => {
-        if (Array.isArray(msg?.structuredResponse?.search_query?.filters)) {
-          acc = msg.structuredResponse.search_query.filters as Filter[]
+        if (Array.isArray(msg?.structuredResponse?.searchQuery?.filters)) {
+          acc = msg.structuredResponse.searchQuery.filters as Filter[]
         }
         return acc
       }, [])
@@ -174,7 +185,9 @@ watch(
         emit('suggestFilters', suggestedFilters)
       }
     } else {
-      console.warn('[BaristaChat] Undefined message received from barista store')
+      console.debug(
+        "[BaristaChat] Undefined message received from barista store, let's reset chat."
+      )
       messages.value = []
     }
   }
@@ -183,14 +196,19 @@ watch(
 // Initialize with a welcome message
 onMounted(() => {
   if (!baristaStore.messages.length) {
-    messages.value = [
-      convertServiceMessageToPanel({
+    baristaStore.addMessage(
+      {
         content:
           'Hello! I am Barista, I can serve you a query search and listen to your prompts. Tell me what you would like to find! I can also help you understanding better the Impresso ecosystem, just ask.',
         type: 'ai'
-      })
-    ]
+      },
+      true
+    )
   } else {
+    console.debug(
+      '[BaristaChat] Initializing chat with existing messages from store.',
+      baristaStore.messages.length
+    )
     messages.value = baristaStore.messages
       .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
       .filter((msg): msg is ChatMessage => msg != null)

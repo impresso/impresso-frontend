@@ -31,26 +31,35 @@
       </button>
     </template>
     <div class="container-fluid" ref="containerRef">
-      <div class="row">
-        <div class="col-12 py-2">
+      <div class="row mb-3">
+        <div class="col-lg-8 py-2 order-md-2 order-lg-1">
           <BaristaChat
             :filters="suggestedFilters"
             @suggestFilters="handleFiltersChanged"
             @updateHeight="handleUpdateHeight"
           >
-            <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
           </BaristaChat>
         </div>
-        <!-- <div class="col-6 results-section position-relative">
-          Here you can see your current filters, click on apply to update search results.
+        <div class="col-lg-4 py-2 order-md-1 order-lg-2">
+          <p class="pt-3 border-bottom pb-2 small">
+            Barista [ba’rista] is the person behind the counter in a coffee shop: they listen
+            carefully to your order, your hesitations, and sometimes even your worries. Of course
+            they don’t have the answer you need, but they help you figure it out, and then prepare a
+            proper coffee in the meanwhile, to clear your mind. Don’t worry, they’re the ultimate
+            local expert: they suggest the connections that matter for your problem, and help you
+            understand the neighbourhood, without ever leaving the counter.
+          </p>
           <div class="position-sticky top-0 bg-white py-2" v-if="suggestedFilters.length">
-            <button class="btn btn-sm btn-primary mt-2" @click="handleApplyFilters">
-              Apply Filters
+            <p v-if="baristaStore.sendCurrentFilters">
+              These filters are shared between you and Barista :)
+            </p>
+            <p v-else>These filters are suggested by Barista for your current search:</p>
+            <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
+            <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
+              Apply Filters to current search
             </button>
           </div>
-          <h5>Results (JSON)</h5>
-          <div class="bg-light p-2 my-2 rounded small"></div>
-        </div> -->
+        </div>
       </div>
     </div>
     <template v-slot:modal-footer>
@@ -79,7 +88,7 @@ export type BaristaModalProps = {
 }
 const containerRef = ref<HTMLElement | null>(null)
 const props = withDefaults(defineProps<BaristaModalProps>(), {
-  dialogClass: ' modal-dialog-centered  modal-dialog-scrollable modal-lg vh-90'
+  dialogClass: ' modal-dialog-centered  modal-dialog-scrollable modal-xl vh-90'
 })
 const baristaStore = useBaristaStore()
 
@@ -120,11 +129,33 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => props.filters,
+  newFilters => {
+    suggestedFilters.value = [...newFilters]
+  },
+  { immediate: true }
+)
+
+watch(
+  () => baristaStore.sendCurrentFilters,
+  value => {
+    console.debug('[BaristaModal] Detected change in sendCurrentFilters:', value)
+    if (value) {
+      suggestedFilters.value = props.filters || []
+    } else {
+      suggestedFilters.value = []
+    }
+  }
+)
+
 const handleFiltersChanged = (updatedFilters: Filter[]) => {
   suggestedFilters.value = updatedFilters
 }
 
 const handleApplyFilters = () => {
+  console.debug('[BaristaModal] @handleApplyFilters')
   emit('applyFilters', suggestedFilters.value)
 }
 

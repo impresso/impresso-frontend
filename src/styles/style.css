@@ -542,6 +542,10 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 
+/* vh */
+.vh-75 {
+  height: 75vh !important;
+}
 /* ul nav pills etc...*/
 ul.nav.nav-pills {
   border-bottom: 1px solid var(--clr-grey-200);

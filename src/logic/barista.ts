@@ -24,6 +24,8 @@ const ChatTypeConverter: Record<BaristaMessage['type'], ChatMessage['type']> = {
   ai: 'system',
   human: 'user'
 }
+
+export const ExtraContentSeparator = '---'
 // Convert service message to panel message format
 export const convertServiceMessageToPanel = (message: BaristaMessage): ChatMessage | undefined => {
   if (!Object.keys(ChatTypeConverter).includes(message.type)) return undefined

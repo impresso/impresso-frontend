@@ -111,8 +111,8 @@ const MockBaristaPayloads = [
           {
             name: 'BaristaFormattedResponse',
             args: {
-              impresso_help: null,
-              search_query: {
+              impressoHelp: null,
+              searchQuery: {
                 filters: [
                   {
                     context: 'include',
@@ -143,7 +143,7 @@ const MockBaristaPayloads = [
                 id: 'fc_971dd80c-9af7-4996-a8b8-a264c0243d7b',
                 function: {
                   arguments:
-                    '{"impresso_help":null,"search_query":{"filters":[{"context":"include","op":"OR","q":"luxwort","type":"newspaper"},{"context":"include","op":"AND","q":["2-50-Robert_Schumann"],"type":"person"}]}}',
+                    '{"impressoHelp":null,"searchQuery":{"filters":[{"context":"include","op":"OR","q":"luxwort","type":"newspaper"},{"context":"include","op":"AND","q":["2-50-Robert_Schumann"],"type":"person"}]}}',
                   name: 'BaristaFormattedResponse'
                 },
                 type: 'function'
@@ -178,8 +178,8 @@ const MockBaristaPayloads = [
             {
               name: 'BaristaFormattedResponse',
               args: {
-                impresso_help: null,
-                search_query: {
+                impressoHelp: null,
+                searchQuery: {
                   filters: [
                     {
                       context: 'include',
@@ -211,7 +211,7 @@ const MockBaristaPayloads = [
           }
         },
         structuredResponse: {
-          search_query: {
+          searchQuery: {
             filters: [
               {
                 type: 'newspaper',
@@ -229,7 +229,7 @@ const MockBaristaPayloads = [
               }
             ]
           },
-          impresso_help: null
+          impressoHelp: null
         }
       }
     ] as BaristaMessageItem[],

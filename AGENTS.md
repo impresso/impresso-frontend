@@ -76,6 +76,14 @@ When generating or editing Vue components in src/components:
 - prefer typed objects to the model classes specified in `src/models/*.ts` unless there is a specific reason to use the class implementation.
 - @/ is the preferred Vite alias to ensure import consistency.
 - if a component requires specialized nested components that are not reused elsewhere, place both the main component and its nested components them in a subfolder named after the feature the component is solving (e.g. `src/components/barista` ). Storybook stories for these components should be placed in the same subfolder, following the usual rule.
+- for emitting events from components, use defineEmits with typed events like:
+
+```ts
+const emit = defineEmits<{
+  (e: 'change', id: number): void
+  (e: 'update', value: string): void
+}>()
+```
 
 ### How to use i18n for dynamic translations in components
 

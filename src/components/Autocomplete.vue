@@ -10,14 +10,14 @@
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
         @update:modelValue="search"
-        @focus="selectInput"
-        @blur="blurHandler"
+        @focus="handleInputFocus"
+        @blur="handleInputBlur"
         @keyup="keyup"
         data-testid="autocomplete-input"
       />
       <div class="input-group-append">
         <button
-          type="button pt-1"
+          type="button"
           class="btn btn-outline-primary"
           ref="searchButton"
           :title="$tc('placeholder.search', filterCount)"
@@ -35,6 +35,15 @@
         >
           <Icon name="arrowEnlargeTag" :stroke-width="1.25" :scale="1" />
         </button>
+        <AuthGate v-if="isBaristaEnabled">
+          <template #authenticated>
+            <BaristaButton
+              :filters="filters"
+              @filtersChanged="handleFiltersChanged"
+              class="btn btn-outline-primary px-2"
+            />
+          </template>
+        </AuthGate>
       </div>
     </div>
 
@@ -43,7 +52,7 @@
         <div
           class="suggestion p-1"
           v-for="(suggestion, index) in staticSuggestions"
-          v-bind:key="index"
+          :key="index"
           @click="submitStaticSuggestion(suggestion)"
           :data-idx="suggestion.idx"
           @mouseover="select(suggestion)"
@@ -63,7 +72,7 @@
       <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box">
         <div :title="$t(`label.${type}.title`)">
           <div class="small font-style-italic p-3" v-if="type !== 'mention'">
-            {{ $tc('label.' + type + '.title', suggestionIndex[type].length) }}
+            {{ $tc('label.' + type + '.title', suggestionIndex[type]?.length || 0) }}
           </div>
           <div
             v-for="(s, j) in suggestionIndex[type]"
@@ -85,12 +94,12 @@
               >
             </div>
             <div v-else :class="`${type} small`">
-              <span v-if="['location', 'person'].indexOf(type) !== -1" v-html="s.h" />
-              <span v-if="['collection', 'newspaper'].indexOf(type) !== -1" v-html="s.item.name" />
-              <span v-if="['topic', 'mention'].indexOf(type) !== -1" v-html="s.h" />
-              <span v-if="s.type === 'daterange'"
-                >{{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}</span
-              >
+              <span v-if="['location', 'person'].includes(type)" v-html="s.h" />
+              <span v-if="['collection', 'newspaper'].includes(type)" v-html="s.item.name" />
+              <span v-if="['topic', 'mention'].includes(type)" v-html="s.h" />
+              <span v-if="s.type === 'daterange'">
+                {{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}
+              </span>
             </div>
           </div>
         </div>
@@ -108,316 +117,361 @@
   />
 </template>
 
-<script>
-import { ref } from 'vue'
-import { mapStores } from 'pinia'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
+import type { Filter } from '@/models'
+import type { Features } from '@/init'
 import Explorer from './Explorer.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from './base/Icon.vue'
+import BaristaButton from './barista/BaristaButton.vue'
+import AuthGate from './AuthGate.vue'
+import { FacetType } from '@/models/Facet'
 
-const AVAILABLE_TYPES = ['newspaper', 'topic', 'location', 'person', 'collection']
+const AVAILABLE_TYPES = [
+  'newspaper',
+  'topic',
+  'location',
+  'person',
+  'collection',
+  'mention'
+] as const
 
-export default {
-  data: () => ({
-    q: '',
-    initialSuggestions: [
-      {
-        type: 'string'
-      },
-      {
-        type: 'title'
-      }
-    ],
-    recentSuggestions: [],
-    collectionSuggestions: [],
-    suggestions: [],
-    suggestion: false, // first suggestion, either string or regex
-    selected: false,
-    selectedIndex: 0,
-    maxSelectedIndex: 0,
-    selectableSuggestions: [],
-    showSuggestions: false,
-    explorerVisible: false
-  }),
-  emits: ['submit', 'submitEmpty', 'input-focus'],
-  props: {
-    bodyClass: {
-      type: String,
-      default: ''
-    },
-    variant: {
-      type: String,
-      default: 'primary'
-    },
-    explorerIncludedTypes: {
-      type: Array,
-      default: () => [
-        'mediaSource',
-        'topic',
-        'location',
-        'person',
-        'organisation',
-        'nag',
-        'collection'
-      ]
-    },
-    /** @type {import('vue').PropOptions<Filter[]>} */
-    filters: {
-      type: Array,
-      default: () => []
-    }
-  },
-  beforeMount() {
-    const autocomplete = ref(this.$refs.autocomplete)
-    const button = ref(this.$refs.searchButton)
-    useClickOutside(
-      autocomplete,
-      e => {
-        if (e.target === this.$refs?.input?.$el) {
-          this.showSuggestions = true
-        } else {
-          this.hideSuggestions()
-        }
-      },
-      button
-    )
-  },
-  computed: {
-    ...mapStores(useAutocompleteStore, useUserStore),
-    user() {
-      return this.userStore.user
-    },
-    staticSuggestions() {
-      return this.initialSuggestions.concat(this.recentSuggestions).map((d, idx) => ({
-        ...d,
-        idx
-      }))
-    },
-    explorerInitialType() {
-      if (this.explorerIncludedTypes.includes(this.suggestionType)) {
-        return this.suggestionType
-      }
-      return this.explorerIncludedTypes[0]
-    },
-    suggestionType() {
-      if (!this.selectableSuggestions[this.selectedIndex]) {
-        return 'string'
-      }
-      return this.selectableSuggestions[this.selectedIndex].type
-    },
-    suggestionIndex() {
-      const key = 'type'
-      const index = this.suggestions.reduce((reduced, item) => {
-        ;(reduced[item[key]] = reduced[item[key]] || []).push(item)
-        return reduced
-      }, {})
+type AvailableType = (typeof AVAILABLE_TYPES)[number]
 
-      let idx = this.staticSuggestions.length - 1
-      let selectableSuggestions = [...this.staticSuggestions]
+interface InitialSuggestion {
+  type: string
+  h?: string
+  idx?: number
+}
 
-      AVAILABLE_TYPES.forEach(type => {
-        if (index[type]) {
-          index[type] = index[type].map(d => {
-            idx += 1
-            // add correct index to choice
-            return {
-              ...d,
-              idx
-            }
-          })
-          // exclude extra suggestions for mentions
-          if (type !== 'mention') {
-            // add custom one
-            idx += 1
-            index[type].push({
-              type,
-              fake: true,
-              idx
-            })
-          }
-        }
-        selectableSuggestions = selectableSuggestions.concat(index[type])
-      })
-      // update maximum index
-      // TODO: Remove side effect from computed property.
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.maxSelectedIndex = idx
-      // TODO: Remove side effect from computed property.
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      this.selectableSuggestions = selectableSuggestions
-      return index
-    },
-    suggestionTypes() {
-      return AVAILABLE_TYPES.filter(d => !!this.suggestionIndex[d])
-    },
-    explorerFilters: {
-      get() {
-        return []
-      },
-      set(filters) {
-        const filter = filters[0]
-        this.$emit('submit', filter)
-        this.q = ''
-      }
-    },
-    filterCount() {
-      return typeof this.filters === 'undefined'
-        ? 1
-        : this.filters.filter(d => d.type !== 'hasTextContents').length + 1
-    }
-  },
-  methods: {
-    showExplorer() {
-      this.explorerVisible = true
-    },
-    handleExplorerHide() {
-      this.explorerVisible = false
-    },
-    typeIcon(type) {
-      switch (type) {
-        case 'collection':
-          return 'suitcase'
-        case 'newspaper':
-          return 'pamphlet'
-        case 'topic':
-          return 'message'
-        case 'location':
-          return 'location'
-        case 'person':
-          return 'user'
-        default:
-          return ''
-      }
-    },
-    hideSuggestions() {
-      this.selected = this.suggestion
-      this.showSuggestions = false
-    },
-    search() {
-      this.showSuggestions = this.q.length > 0
-      // debugger;
-      if (this.q.length) {
-        const res = this.autocompleteStore.suggestRecentQuery(this.q)
-        this.recentSuggestions = res.map(d => ({
-          ...d,
-          type: 'string'
-        }))
-      }
-
-      if (this.q.length > 1) {
-        this.autocompleteStore.search(this.q.trim()).then(res => {
-          this.suggestions = [...res, ...this.collectionSuggestions]
-        })
-        if (this.user) {
-          this.autocompleteStore.suggestCollections(this.q.trim()).then(res => {
-            this.collectionSuggestions = res
-            this.suggestions = [...res, ...this.suggestions]
-          })
-        }
-      } else {
-        // if length of the query is 0 then we clear the suggestions
-        this.suggestions = []
-        this.selectedIndex = 0
-      }
-    },
-    submitStaticSuggestion({ type, q }) {
-      const sq = String(q || this.q || '').trim()
-      if (sq.length) {
-        console.info('submitStaticSuggestion', type, sq)
-        this.submit({
-          type,
-          q: sq
-        })
-        this.q = ''
-      }
-    },
-    submit({ type, item = {}, q, fake = false } = {}) {
-      if (fake) {
-        // select one item from the explorer
-        this.showExplorer()
-      } else if (['string', 'title', 'mention'].includes(type)) {
-        const sq = String(q || item.name || this.q || '').trim()
-        if (sq.length) {
-          this.autocompleteStore.saveRecentQuery(sq)
-          this.$emit(
-            'submit',
-            FilterFactory.create({
-              type,
-              q: [sq],
-              op: 'OR'
-            })
-          )
-          this.q = ''
-        } else {
-          this.$emit('submitEmpty')
-        }
-      } else {
-        this.$emit(
-          'submit',
-          FilterFactory.create({
-            type,
-            q: [item.uid],
-            items: [item]
-          })
-        )
-        this.q = ''
-      }
-    },
-    select(suggestion) {
-      this.selectedIndex = suggestion.idx
-    },
-    selectInput(e) {
-      this.showSuggestions = this.q.length > 0
-      e.target.select()
-      this.$emit('input-focus', true)
-    },
-    blurHandler() {
-      this.$emit('input-focus', false)
-    },
-    keyup(event) {
-      switch (event.key) {
-        case 'Enter':
-          console.info(
-            '@keyup ENTER',
-            this.selectedIndex,
-            this.selectableSuggestions[this.selectedIndex]
-          )
-          this.submit(this.selectableSuggestions[this.selectedIndex])
-          this.selectInput(event)
-          break
-        case 'ArrowDown':
-          this.selectedIndex += 1
-          break
-        case 'ArrowUp':
-          this.selectedIndex -= 1
-          break
-        case 'Escape':
-          this.hideSuggestions()
-          break
-        default:
-          // this.selected = this.suggestion;
-          break
-      }
-      if (this.selectedIndex > this.maxSelectedIndex) {
-        this.selectedIndex = 0
-      } else if (this.selectedIndex < 0) {
-        this.selectedIndex = this.maxSelectedIndex
-      }
-    }
-  },
-  components: {
-    Explorer,
-    Icon
+interface Suggestion extends Record<string, any> {
+  type: string
+  idx: number
+  fake?: boolean
+  h?: string
+  item?: Record<string, any>
+  daterange?: {
+    start: Date
+    end: Date
   }
 }
+
+interface SubmitPayload {
+  type?: string
+  item?: Record<string, any>
+  q?: string
+  fake?: boolean
+  idx?: number
+}
+
+export interface AutocompleteProps {
+  bodyClass?: string
+  variant?: string
+  explorerIncludedTypes?: FacetType[]
+  filters?: Filter[]
+}
+
+const props = withDefaults(defineProps<AutocompleteProps>(), {
+  bodyClass: '',
+  variant: 'primary',
+  explorerIncludedTypes: () =>
+    [
+      'mediaSource',
+      'topic',
+      'location',
+      'person',
+      'organisation',
+      'nag',
+      'collection'
+    ] as FacetType[],
+  filters: () => []
+})
+
+const emit = defineEmits<{
+  (e: 'submit', filter: unknown): void
+  (e: 'submitEmpty'): void
+  (e: 'input-focus', focused: boolean): void
+  (e: 'filtersChanged', filters: Filter[]): void
+}>()
+
+// Stores
+const autocompleteStore = useAutocompleteStore()
+const userStore = useUserStore()
+
+// Refs
+const q = ref('')
+const showSuggestions = ref(false)
+const explorerVisible = ref(false)
+const selectedIndex = ref(0)
+const maxSelectedIndex = ref(0)
+const selectableSuggestions = ref<Suggestion[]>([])
+const recentSuggestions = ref<InitialSuggestion[]>([])
+const collectionSuggestions = ref<Suggestion[]>([])
+const suggestions = ref<Suggestion[]>([])
+
+const autocomplete = ref<HTMLElement>()
+const input = ref<any>()
+const searchButton = ref<HTMLElement>()
+
+const initialSuggestions: InitialSuggestion[] = [{ type: 'string' }, { type: 'title' }]
+
+// Computed
+const staticSuggestions = computed(() => {
+  return initialSuggestions.concat(recentSuggestions.value).map(
+    (d, idx) =>
+      ({
+        ...d,
+        idx
+      }) as Suggestion
+  )
+})
+
+const isBaristaEnabled = computed(() => {
+  const features = (window as any)?.impressoFeatures as Features | undefined
+  return features?.barista?.enabled ?? false
+})
+
+const filterCount = computed(() => {
+  return props.filters.length === 0
+    ? 1
+    : props.filters.filter(d => d.type !== 'hasTextContents').length + 1
+})
+
+const suggestionIndex = computed(() => {
+  const index: Record<string, Suggestion[]> = {}
+
+  // Group suggestions by type
+  suggestions.value.forEach(item => {
+    const type = item.type as string
+    if (!index[type]) {
+      index[type] = []
+    }
+    index[type].push(item)
+  })
+
+  let idx = staticSuggestions.value.length - 1
+  let selectableSuggestionsList: Suggestion[] = [...staticSuggestions.value]
+
+  AVAILABLE_TYPES.forEach(type => {
+    if (index[type]) {
+      index[type] = index[type].map(d => {
+        idx += 1
+        return {
+          ...d,
+          idx
+        }
+      })
+
+      if (type !== 'mention') {
+        idx += 1
+        index[type].push({
+          type,
+          fake: true,
+          idx
+        } as Suggestion)
+      }
+    }
+
+    selectableSuggestionsList = selectableSuggestionsList.concat(index[type] || [])
+  })
+
+  maxSelectedIndex.value = idx
+  selectableSuggestions.value = selectableSuggestionsList
+
+  return index
+})
+
+const suggestionTypes = computed(() => {
+  return AVAILABLE_TYPES.filter(type => !!suggestionIndex.value[type])
+})
+
+const suggestionType = computed<FacetType>(() => {
+  if (!selectableSuggestions.value[selectedIndex.value]) {
+    return 'string' as FacetType
+  }
+  return (selectableSuggestions.value[selectedIndex.value].type || 'string') as FacetType
+})
+
+const explorerInitialType = computed(() => {
+  if (props.explorerIncludedTypes.includes(suggestionType.value)) {
+    return suggestionType.value
+  }
+  return props.explorerIncludedTypes[0] || 'mediaSource'
+})
+
+const explorerFilters = computed({
+  get: () => [],
+  set: (filters: unknown[]) => {
+    const filter = filters[0]
+    emit('submit', filter)
+    q.value = ''
+  }
+})
+
+// Methods
+const search = () => {
+  showSuggestions.value = q.value.length > 0
+
+  if (q.value.length) {
+    const res = autocompleteStore.suggestRecentQuery(q.value)
+    recentSuggestions.value = res.map(d => ({
+      ...d,
+      type: 'string'
+    }))
+  }
+
+  if (q.value.length > 1) {
+    autocompleteStore.search(q.value.trim()).then(res => {
+      suggestions.value = [...res, ...collectionSuggestions.value]
+    })
+
+    if (userStore.user) {
+      autocompleteStore.suggestCollections(q.value.trim()).then(res => {
+        collectionSuggestions.value = res
+        suggestions.value = [...res, ...suggestions.value]
+      })
+    }
+  } else {
+    suggestions.value = []
+    selectedIndex.value = 0
+  }
+}
+
+const submitStaticSuggestion = (suggestion: Suggestion) => {
+  const sq = String(suggestion.q || q.value || '').trim()
+  if (sq.length) {
+    submit({
+      type: suggestion.type,
+      q: sq
+    })
+    q.value = ''
+  }
+}
+
+const submit = (payload?: SubmitPayload) => {
+  if (!payload) return
+
+  const { type, item = {}, q: queryStr, fake = false } = payload
+
+  if (fake) {
+    showExplorer()
+  } else if (['string', 'title', 'mention'].includes(type || '')) {
+    const sq = String(queryStr || (item as any).name || q.value || '').trim()
+    if (sq.length) {
+      autocompleteStore.saveRecentQuery(sq)
+      emit(
+        'submit',
+        FilterFactory.create({
+          type,
+          q: [sq],
+          op: 'OR'
+        })
+      )
+      q.value = ''
+    } else {
+      emit('submitEmpty')
+    }
+  } else {
+    emit(
+      'submit',
+      FilterFactory.create({
+        type,
+        q: [(item as any).uid],
+        items: [item]
+      })
+    )
+    q.value = ''
+  }
+}
+
+const select = (suggestion: Suggestion) => {
+  selectedIndex.value = suggestion.idx
+}
+
+const handleInputFocus = (e: FocusEvent) => {
+  showSuggestions.value = q.value.length > 0
+  ;(e.target as HTMLInputElement)?.select?.()
+  emit('input-focus', true)
+}
+
+const focusInputAfterEnter = () => {
+  input.value?.focus?.()
+  const el = (input.value as any)?.inputRef?.value as HTMLInputElement | undefined
+  el?.select?.()
+  emit('input-focus', true)
+}
+
+const handleInputBlur = () => {
+  emit('input-focus', false)
+}
+
+const handleFiltersChanged = (filters: Filter[]) => {
+  console.debug('[Autocomplete] @handleFiltersChanged')
+  emit('filtersChanged', filters)
+}
+const hideSuggestions = () => {
+  showSuggestions.value = false
+}
+
+const showExplorer = () => {
+  explorerVisible.value = true
+}
+
+const handleExplorerHide = () => {
+  explorerVisible.value = false
+}
+
+const keyup = (event: KeyboardEvent) => {
+  switch (event.key) {
+    case 'Enter':
+      submit(selectableSuggestions.value[selectedIndex.value])
+      focusInputAfterEnter()
+      break
+    case 'ArrowDown':
+      selectedIndex.value += 1
+      break
+    case 'ArrowUp':
+      selectedIndex.value -= 1
+      break
+    case 'Escape':
+      hideSuggestions()
+      break
+    default:
+      break
+  }
+
+  if (selectedIndex.value > maxSelectedIndex.value) {
+    selectedIndex.value = 0
+  } else if (selectedIndex.value < 0) {
+    selectedIndex.value = maxSelectedIndex.value
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  useClickOutside(
+    autocomplete,
+    (e: MouseEvent) => {
+      if (e.target === input.value?.$el) {
+        showSuggestions.value = true
+      } else {
+        hideSuggestions()
+      }
+    },
+    searchButton
+  )
+})
 </script>
+
 <style lang="css">
 .Autocomplete {
   position: relative;
 }
+
 .Autocomplete .search-input {
   border: 1px solid var(--impresso-color-black);
   border-top-left-radius: var(--border-radius-sm);
@@ -430,9 +484,11 @@ export default {
 .Autocomplete .search-input:focus {
   background-color: var(--clr-white-rgba-90);
 }
+
 .Autocomplete .search-input::placeholder {
   color: var(--clr-grey-500);
 }
+
 .Autocomplete.show .search-input {
   border-bottom-left-radius: 0;
 }
@@ -447,16 +503,19 @@ export default {
   border: 1px solid var(--impresso-color-black);
   border-top: 0px solid transparent;
 }
+
 .bg-dark.Autocomplete .suggestion .badge-light {
   background: transparent;
   color: var(--clr-grey-500);
   border-color: var(--clr-grey-500) !important;
 }
+
 .Autocomplete .suggestion.selected {
   background: var(--clr-grey-200);
   cursor: pointer;
   color: white;
 }
+
 .Autocomplete .input-group-append button:first-child {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
@@ -467,15 +526,18 @@ export default {
   border: 1px solid var(--impresso-color-yellow);
   border-top: 0px solid transparent;
 }
+
 .bg-dark.Autocomplete.show .search-input,
 .bg-dark.Autocomplete.show .search-input:focus {
   border-color: var(--impresso-color-yellow) !important;
   background-color: #3e454c !important;
   color: var(--impresso-color-white);
 }
+
 .bg-dark.Autocomplete .search-input:hover::placeholder {
   color: var(--impresso-color-white);
 }
+
 .bg-dark.Autocomplete .search-input {
   color: var(--impresso-color-white);
   border-top-left-radius: var(--border-radius-sm);
@@ -488,17 +550,21 @@ export default {
   color: var(--clr-grey-500);
   background-color: transparent;
 }
+
 .bg-dark.Autocomplete .input-group-append button:hover {
   color: var(--impresso-color-white);
 }
+
 .bg-dark.Autocomplete.show,
 .bg-dark.Autocomplete.show .suggestions {
   box-shadow: var(--bs-box-shadow-md-darker);
 }
+
 .bg-dark.Autocomplete.show .input-group-append button {
   border-color: var(--impresso-color-yellow) !important;
   color: var(--impresso-color-yellow);
 }
+
 .Autocomplete.show .input-group-append button:last-child {
   border-bottom-right-radius: 0;
 }
@@ -545,13 +611,6 @@ export default {
         "item": "From {start} to {end}"
       }
     }
-  },
-  "nl": {
-    "person": "Persoon",
-    "location": "Locatie",
-    "daterange": "Periode",
-    "topic": "Onderwerp",
-    "collection": "Collectie"
   }
 }
 </i18n>
