@@ -33,6 +33,7 @@ export interface BaristaMessage {
 
 export interface BaristaRequest {
   message: string
+  session_id?: string
 }
 
 export interface BaristaResponse {
@@ -52,6 +53,7 @@ export interface ChatMessage {
   reasoning?: string
   toolCalls?: string[]
   structuredResponse?: BaristaFormattedResponse
+  additionalContent?: string
 }
 
 export type BaristaService = Pick<

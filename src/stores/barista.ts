@@ -10,12 +10,14 @@ export interface BaristaStoreMessage {
 
 export interface BaristaState {
   messages: BaristaStoreMessage[]
+  sessionId: string
   isWorking: boolean
   sendCurrentFilters: boolean
 }
 
 export const useBaristaStore = defineStore('barista', {
   state: (): BaristaState => ({
+    sessionId: crypto.randomUUID(),
     messages: [],
     isWorking: false,
     sendCurrentFilters: true
@@ -46,6 +48,7 @@ export const useBaristaStore = defineStore('barista', {
     },
     clearMessages() {
       this.messages = []
+      this.sessionId = crypto.randomUUID()
     },
     parseBaristaStream(payload: { type: string; data: BaristaMessageItem[] }) {
       const isLast = payload?.type === 'done'
@@ -53,13 +56,16 @@ export const useBaristaStore = defineStore('barista', {
       console.debug('Parsing Barista stream payload:', payload, isLast && messages.length === 0)
       // if isLast there are no messages. Add an empty message to mark end of response
       if (isLast && messages.length === 0) {
-        this.addMessage(
-          {
-            content: 'Done.',
-            type: 'ai'
-          } as BaristaMessageItem,
-          true
-        )
+        this.isWorking = false
+        // this.addMessage(
+        //   {
+        //     content: '',
+        //     type: 'ai',
+        //     additional_kwargs: {}
+        //   },
+        //   true
+        // )
+        return
       }
       messages.forEach((msg: BaristaMessageItem) => this.addMessage(msg, isLast))
     }

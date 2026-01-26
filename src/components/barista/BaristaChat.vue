@@ -21,11 +21,11 @@ import {
   type AIMessage,
   type ToolMessage
 } from '@/services/types/barista'
-import { convertServiceMessageToPanel } from '@/logic/barista'
 import { useBaristaStore } from '@/stores/barista'
 import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
+import { ExtraContentSeparator } from '@/logic/barista'
 
 // Barista store for socket messages
 const baristaStore = useBaristaStore()
@@ -64,16 +64,21 @@ const convertBaristaMessageToChat = (
   message: BaristaMessageItem,
   timestamp: Date
 ): ChatMessage | undefined => {
+  const [messageContent, additionalContent] = message.content.split(ExtraContentSeparator, 2)
+
   if (message.type === 'human') {
     return {
-      content: message.content,
+      content: messageContent,
+      additionalContent: additionalContent,
       timestamp,
       type: 'user'
     }
   }
 
   if (message.type === 'ai') {
-    const aiMsg = message as AIMessage
+    const aiMsg = message as AIMessage & {
+      searchQuerySummary?: string
+    }
     const toolCallNames = aiMsg.toolCalls?.map(tc => {
       if (typeof tc === 'object' && tc !== null && 'name' in tc) {
         return String(tc.name)
@@ -126,7 +131,8 @@ const handleMessageSubmit = async (text: string) => {
   try {
     // Send message to barista service
     await baristaService.create({
-      message: text
+      message: text,
+      session_id: baristaStore.sessionId
     })
     emit('submit', text)
   } catch (error) {
@@ -199,6 +205,10 @@ onMounted(() => {
       true
     )
   } else {
+    console.debug(
+      '[BaristaChat] Initializing chat with existing messages from store.',
+      baristaStore.messages.length
+    )
     messages.value = baristaStore.messages
       .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
       .filter((msg): msg is ChatMessage => msg != null)
