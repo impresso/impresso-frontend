@@ -10,7 +10,7 @@
         :placeholder="$tc('placeholder.search', filterCount)"
         v-model.trim="q"
         @update:modelValue="search"
-        @focus="selectInput"
+        @focus="handleInputFocus"
         @blur="handleInputBlur"
         @keyup="keyup"
         data-testid="autocomplete-input"
@@ -41,9 +41,7 @@
               :filters="filters"
               @filtersChanged="handleFiltersChanged"
               class="btn btn-outline-primary px-2"
-            >
-              B
-            </BaristaButton>
+            />
           </template>
         </AuthGate>
       </div>
@@ -394,9 +392,16 @@ const select = (suggestion: Suggestion) => {
   selectedIndex.value = suggestion.idx
 }
 
-const selectInput = (e: FocusEvent) => {
+const handleInputFocus = (e: FocusEvent) => {
   showSuggestions.value = q.value.length > 0
-  ;(e.target as HTMLInputElement).select()
+  ;(e.target as HTMLInputElement)?.select?.()
+  emit('input-focus', true)
+}
+
+const focusInputAfterEnter = () => {
+  input.value?.focus?.()
+  const el = (input.value as any)?.inputRef?.value as HTMLInputElement | undefined
+  el?.select?.()
   emit('input-focus', true)
 }
 
@@ -424,7 +429,7 @@ const keyup = (event: KeyboardEvent) => {
   switch (event.key) {
     case 'Enter':
       submit(selectableSuggestions.value[selectedIndex.value])
-      selectInput(new FocusEvent('focus'))
+      focusInputAfterEnter()
       break
     case 'ArrowDown':
       selectedIndex.value += 1
@@ -606,13 +611,6 @@ onMounted(() => {
         "item": "From {start} to {end}"
       }
     }
-  },
-  "nl": {
-    "person": "Persoon",
-    "location": "Locatie",
-    "daterange": "Periode",
-    "topic": "Onderwerp",
-    "collection": "Collectie"
   }
 }
 </i18n>
