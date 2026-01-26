@@ -5,7 +5,7 @@
     :class="{ active: isChatOpen }"
     aria-label="Toggle Barista Chat"
     v-bind="$attrs"
-    :title="$t('openBaristaModal')"
+    :title="$t('actions.openBaristaModal')"
   >
     <Icon name="sparks" :scale="1" :stroke-width="1.5" />
   </button>
@@ -68,3 +68,12 @@ watch(
   { immediate: true }
 )
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "actions": {
+      "openBaristaModal": "Improve your search with Barista"
+    }
+  }
+}
+</i18n>

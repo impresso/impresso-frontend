@@ -192,7 +192,7 @@ const formatActionType = (type: string): string => {
 .BaristaChatMessage__content.system,
 .BaristaChatMessage__content.tool {
   align-self: flex-start;
-  background-color: var(--impresso-color-paper-dark);
+  background-color: #ebebeb;
   color: var(--impresso-color-black);
 }
 

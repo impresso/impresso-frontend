@@ -40,7 +40,7 @@
           >
           </BaristaChat>
         </div>
-        <div class="col-lg-4 py-2 order-md-1 order-lg-2" v-if="baristaStore.sendCurrentFilters">
+        <div class="col-lg-4 py-2 order-md-1 order-lg-2">
           <p class="pt-3 border-bottom pb-2 small">
             Barista [ba’rista] is the person behind the counter in a coffee shop: they listen
             carefully to your order, your hesitations, and sometimes even your worries. Of course
@@ -50,7 +50,10 @@
             understand the neighbourhood, without ever leaving the counter.
           </p>
           <div class="position-sticky top-0 bg-white py-2" v-if="suggestedFilters.length">
-            <p>These filters are shared between you and Barista :)</p>
+            <p v-if="baristaStore.sendCurrentFilters">
+              These filters are shared between you and Barista :)
+            </p>
+            <p v-else>These filters are suggested by Barista for your current search:</p>
             <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
             <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
               Apply Filters to current search
@@ -134,6 +137,19 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => baristaStore.sendCurrentFilters,
+  value => {
+    console.debug('[BaristaModal] Detected change in sendCurrentFilters:', value)
+    if (value) {
+      suggestedFilters.value = props.filters || []
+    } else {
+      suggestedFilters.value = []
+    }
+  }
+)
+
 const handleFiltersChanged = (updatedFilters: Filter[]) => {
   suggestedFilters.value = updatedFilters
 }
