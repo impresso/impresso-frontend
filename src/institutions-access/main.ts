@@ -10,7 +10,7 @@ import '@/assets/legacy/bootstrap-vue.css'
 import '@/styles/style.css'
 import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
-
+import { app as appService } from '@/services'
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
@@ -47,6 +47,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       reducedTimeoutPromise({ ms: 1000, service: 'minimum delay', silent: true })
     ])
     console.debug('[main.ts] Connectivity established!')
+
+    await Promise.all([appService.reAuthenticate(true)])
+      .catch(err => {
+        if (err.code === 401) {
+          console.debug('[main.ts] Not authenticated (status 401):', err.message)
+        } else {
+          console.error(err)
+        }
+      })
+      .then((res: any) => {
+        if (res) {
+          console.debug('[main.ts] Re-authentication successful.')
+        }
+      })
 
     app.mount('#app-container')
     const loadingElement = document.getElementById('app-container-loading')
