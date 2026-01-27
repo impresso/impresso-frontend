@@ -1,22 +1,162 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="theme-color" content="#fddb92" />
+    <title>Impresso - Institutional Access</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        overflow: hidden;
+        font-display: block;
+      }
+      body {
+        background-color: #fddb92;
+        background-image: linear-gradient(to top, #fddb92 0%, #fffbe4 100%);
+        background-attachment: fixed;
+        width: 100%;
+        margin: 0;
+        color: var(--impresso-color-black);
+      }
+      #app-container-loading p {
+        opacity: 0;
+        height: 30px;
+      }
+      body.fonts-loaded #app-container-loading p {
+        opacity: 1;
+        transition: opacity 0.25s ease-in-out;
+      }
+      #app-container-loading {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: #fddb92;
+        background-image: linear-gradient(to top, #fddb92 0%, #fffbe4 100%);
+        background-attachment: fixed;
+        transition: opacity 0.26s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      #app-container-loading::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 2px;
+        background-color: #ffeb78;
+        content: '';
+      }
+      #app-container-loading.dismissed {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #app-container-loading .loader {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff1c;
+        height: 35px;
+        width: 60px;
+        border-radius: 35px;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+      }
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>
-    Impresso - Institutional Access
-  </title>
-</head>
+      #app-container-loading .loader::before,
+      #app-container-loading .loader::after,
+      #app-container-loading .loader span {
+        content: '';
+        width: 2px;
+        height: 2px;
+        border-radius: 50%;
+        background-color: var(--impresso-color-black);
+        animation: pulse 1.4s infinite;
+      }
 
-<body>
-  <noscript>
-    <strong>We're sorry but the app doesn't work properly without JavaScript enabled. Please enable it to
-      continue.</strong>
-  </noscript>
-  <div id="app-container"></div>
-  <script type="module" src="/src/institutions-access/main.ts"></script>
-</body>
+      #app-container-loading .loader::before {
+        animation-delay: -0.32s;
+      }
 
+      #app-container-loading .loader::after {
+        animation-delay: 0.16s;
+      }
+
+      #app-loading-logo {
+        position: absolute;
+        top: 15px;
+        left: 16px;
+        opacity: 0.5;
+      }
+      @-webkit-keyframes pulse {
+        from {
+          -webkit-transform: scale3d(0.1, 0.1, 0.1);
+          transform: scale3d(0.1, 0.1, 0.1);
+        }
+
+        50% {
+          -webkit-transform: scale3d(3, 3, 3);
+          transform: scale3d(3, 3, 3);
+        }
+
+        to {
+          -webkit-transform: scale3d(0.1, 0.1, 0.1);
+          transform: scale3d(0.1, 0.1, 0.1);
+        }
+      }
+      @keyframes pulse {
+        from {
+          -webkit-transform: scale3d(0.1, 0.1, 0.1);
+          transform: scale3d(0.1, 0.1, 0.1);
+        }
+
+        50% {
+          -webkit-transform: scale3d(3, 3, 3);
+          transform: scale3d(3, 3, 3);
+        }
+
+        to {
+          -webkit-transform: scale3d(0.1, 0.1, 0.1);
+          transform: scale3d(0.1, 0.1, 0.1);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>
+      <strong
+        >We're sorry but the app doesn't work properly without JavaScript enabled. Please enable it
+        to continue.</strong
+      >
+    </noscript>
+    <div id="app-container"></div>
+    <div id="app-container-loading">
+      <div>
+        <p>Loading...</p>
+
+        <div class="loader"><span></span></div>
+      </div>
+    </div>
+    <script type="module" src="/src/institutions-access/main.ts"></script>
+    <script>
+      // Show loading text once fonts are loaded
+      if (document.fonts) {
+        document.fonts.ready.then(() => {
+          document.body.classList.add('fonts-loaded')
+        })
+      } else {
+        // Fallback for browsers that don't support Font Loading API
+        document.body.classList.add('fonts-loaded')
+      }
+    </script>
+  </body>
 </html>
