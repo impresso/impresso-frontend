@@ -8,7 +8,7 @@
   >
     <template #header>
       <slot name="beforeHeader"></slot>
-      <slot name="header">
+      <slot name="header" :total="serviceResponse.data.length">
         <div class="p-3 d-flex gap-2 justify-content-between align-items-center">
           <h5 class="m-0 font-size-inherit" v-html="props.title"></h5>
         </div>

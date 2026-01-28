@@ -6,56 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Impresso sharing widget</title>
   </head>
-  <style>
-    #app-container-loading {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      z-index: 1000;
-      background: #343a40;
-      background: linear-gradient(to top, #181a1d, #343a40);
-      transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #app-container-loading::before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      height: 2px;
-      background-color: #ffeb78;
-      content: '';
-    }
-    #app-container-loading.dismissed {
-      opacity: 0;
-      pointer-events: none;
-    }
-    #app-container-loading .spinner {
-      border: 1px solid #f3f3f3;
-      border-top: 1px solid black;
-      border-radius: 50%;
-      width: 10px;
-      height: 10px;
-      animation: app-loading-spin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
 
-    #app-loading-logo {
-      position: absolute;
-      top: 15px;
-      left: 16px;
-      opacity: 0.5;
-    }
-    @keyframes app-loading-spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
   <body>
     <noscript>
       <strong
@@ -64,12 +15,6 @@
       >
     </noscript>
     <div id="app-container"></div>
-    <div id="app-container-loading">
-      Loading...
-      <div style="display: flex; justify-content: center; align-items: center; height: 100%">
-        <div class="spinner"></div>
-      </div>
-    </div>
     <script type="module" src="/src/widget/main.ts"></script>
   </body>
 </html>

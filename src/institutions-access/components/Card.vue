@@ -1,5 +1,5 @@
 <template>
-  <div class="Card p-3">
+  <div class="Card p-4">
     <header class="mb-3">
       <slot name="header" />
     </header>

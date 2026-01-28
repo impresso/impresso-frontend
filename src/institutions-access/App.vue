@@ -10,9 +10,4 @@
 import Header from './components/Header.vue'
 </script>
 
-<style>
-#InstitutionsAccess {
-  height: 100vh;
-  overflow: hidden;
-}
-</style>
+<style></style>
