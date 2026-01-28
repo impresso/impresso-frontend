@@ -196,6 +196,10 @@ export const changePassword = app.service('change-password')
 export const termsOfUse = app.service('terms-of-use')
 export const userChangePlanRequest = app.service('user-change-plan-request')
 export const userSpecialMembershipRequests = app.service('user-special-membership-requests')
+export const userSpecialMembershipRequestsReviews = app.service(
+  'user-special-membership-requests-reviews'
+)
+
 export const specialMembershipAccess = app.service('special-membership-access')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
