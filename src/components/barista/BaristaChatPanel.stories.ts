@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { ref } from 'vue'
+import { BaristaRequest } from '@/services/types/barista'
 
 const meta: Meta<typeof BaristaChatPanel> = {
   title: 'Barista/ChatPanel',
@@ -160,10 +161,10 @@ export const Interactive: Story = {
       const messages = ref([...args.messages])
       const isLoading = ref(false)
 
-      const handleSubmit = (message: string) => {
+      const handleSubmit = (request: BaristaRequest) => {
         // Add user message
         messages.value.push({
-          content: message,
+          content: request.message,
           timestamp: new Date(),
           type: 'user'
         })
@@ -174,15 +175,15 @@ export const Interactive: Story = {
         // Simulate response after delay
         setTimeout(() => {
           messages.value.push({
-            content: `You asked about: "${message}". This is a simulated response in the story.`,
+            content: `You asked about: "${request.message}". This is a simulated response in the story.`,
             timestamp: new Date(),
             type: 'system',
             actions:
-              message.length > 10
+              request.message.length > 10
                 ? [
                     {
                       type: 'search',
-                      context: `More information about ${message.substring(0, 20)}...`
+                      context: `More information about ${request.message.substring(0, 20)}...`
                     }
                   ]
                 : undefined

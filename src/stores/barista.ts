@@ -1,3 +1,5 @@
+import { getFiltersAndSearchDestination } from '@/logic/barista'
+import { toSerializedFilters } from '@/logic/filters'
 import { BaristaMessageItem } from '@/services/types/barista'
 import { defineStore } from 'pinia'
 
@@ -13,6 +15,8 @@ export interface BaristaState {
   sessionId: string
   isWorking: boolean
   sendCurrentFilters: boolean
+  lastFiltersReceived?: string // serialized filters received from Barista most recently
+  lastFiltersDestination?: string // destination of the last filters received
 }
 
 export const useBaristaStore = defineStore('barista', {
@@ -20,12 +24,17 @@ export const useBaristaStore = defineStore('barista', {
     sessionId: crypto.randomUUID(),
     messages: [],
     isWorking: false,
-    sendCurrentFilters: true
+    sendCurrentFilters: true,
+    lastFiltersReceived: undefined,
+    lastFiltersDestination: undefined
   }),
 
   getters: {
     latestMessage: (state): BaristaStoreMessage | undefined => {
       return state.messages.length > 0 ? state.messages[state.messages.length - 1] : undefined
+    },
+    lastFilters: (state): string | undefined => {
+      return state.lastFiltersReceived
     }
   },
   actions: {
@@ -67,7 +76,17 @@ export const useBaristaStore = defineStore('barista', {
         // )
         return
       }
-      messages.forEach((msg: BaristaMessageItem) => this.addMessage(msg, isLast))
+      messages.forEach((msg: BaristaMessageItem) => {
+        this.addMessage(msg, isLast)
+        const filtersAndDestination = getFiltersAndSearchDestination(msg)
+        if (filtersAndDestination) {
+          const [filters, destination] = filtersAndDestination
+          if (filters) {
+            this.lastFiltersReceived = toSerializedFilters(filters)
+            this.lastFiltersDestination = destination
+          }
+        }
+      })
     }
   }
 })

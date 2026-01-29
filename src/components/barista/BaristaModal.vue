@@ -73,11 +73,11 @@
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
-import type { Filter } from '@/models'
+import type { Filter } from 'impresso-jscommons'
 import BaristaChat from './BaristaChat.vue'
 import { computed, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'
-import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
+import { joinFiltersWithItems, serializeFilters, toCanonicalFilter } from '@/logic/filters'
 import Icon from '../base/Icon.vue'
 import { useBaristaStore } from '@/stores/barista'
 
@@ -126,6 +126,7 @@ watch(
         }
       })
       .then(joinFiltersWithItems)
+      .then(filters => filters.map(toCanonicalFilter))
   },
   { immediate: true }
 )

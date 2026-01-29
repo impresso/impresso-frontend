@@ -19,10 +19,11 @@ import {
   type ChatMessage,
   type BaristaMessageItem,
   type AIMessage,
-  type ToolMessage
+  type ToolMessage,
+  BaristaRequest
 } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
-import type { Filter } from '@/models'
+import type { Filter } from 'impresso-jscommons'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { ExtraContentSeparator } from '@/logic/barista'
@@ -55,7 +56,7 @@ const simplifiedFilters = computed(() => {
 
 const emit = defineEmits<{
   (e: 'suggestFilters', searchFilters: Filter[]): void
-  (e: 'submit', message: string): void
+  (e: 'submit', request: BaristaRequest): void
   (e: 'updateHeight', height: number): void
 }>()
 
@@ -106,6 +107,14 @@ const convertBaristaMessageToChat = (
     }
   }
 
+  if (message.type === 'error') {
+    return {
+      content: message.content || 'An error occurred.',
+      timestamp,
+      type: 'error'
+    }
+  }
+
   return undefined
 }
 
@@ -114,12 +123,12 @@ const messages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
 
 // Handler for sending messages
-const handleMessageSubmit = async (text: string) => {
-  if (!text.trim()) return
+const handleMessageSubmit = async (request: BaristaRequest) => {
+  if (!request.message.trim()) return
   // Add user message to panel using baristaStore
   baristaStore.addMessage(
     {
-      content: text,
+      content: request.message,
       type: 'human'
     },
     true
@@ -130,11 +139,8 @@ const handleMessageSubmit = async (text: string) => {
 
   try {
     // Send message to barista service
-    await baristaService.create({
-      message: text,
-      session_id: baristaStore.sessionId
-    })
-    emit('submit', text)
+    await baristaService.create(request)
+    emit('submit', request)
   } catch (error) {
     console.error(
       'Error sending message to barista service:',
