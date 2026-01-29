@@ -19,12 +19,7 @@
           <summary class="small text-muted" style="cursor: pointer">Settings</summary>
           <div class="mt-2 px-1">
             <label class="small d-block mb-1">Model</label>
-            <BFormSelect
-              v-model="selectedModelId"
-              :options="modelOptions"
-              size="sm"
-              class="mb-2"
-            />
+            <BFormSelect v-model="selectedModelId" :options="modelOptions" size="sm" class="mb-2" />
             <label class="small d-block mb-1">Additional instructions</label>
             <BTextarea
               v-model="additionalInstructions"
@@ -129,7 +124,7 @@ function handleSubmit() {
     searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
     sessionId: baristaStore.sessionId,
     additionalInstructions: additionalInstructions.value.trim() || undefined,
-    modelId: selectedModelId.value || undefined
+    modelId: (selectedModelId.value as any) ?? undefined
   })
   inputMessage.value = ''
 }
