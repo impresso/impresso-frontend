@@ -15,6 +15,28 @@
 
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
       <div class="border shadow-sm rounded p-2">
+        <details class="mb-2">
+          <summary class="small text-muted" style="cursor: pointer">Settings</summary>
+          <div class="mt-2 px-1">
+            <label class="small d-block mb-1">Model</label>
+            <BFormSelect
+              v-model="selectedModelId"
+              :options="modelOptions"
+              size="sm"
+              class="mb-2"
+            />
+            <label class="small d-block mb-1">Additional instructions</label>
+            <BTextarea
+              v-model="additionalInstructions"
+              :debounce="0"
+              placeholder="Extra instructions for Barista..."
+              class="border rounded-sm form-control form-control-sm"
+              :rows="2"
+              autosize
+              :maxRows="6"
+            />
+          </div>
+        </details>
         <BFormCheckbox
           :disabled="!filters.length"
           switch
@@ -56,6 +78,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
+import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import type { Filter } from '@/models'
 import { BaristaRequest, ChatMessage } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
@@ -80,7 +103,18 @@ const emit = defineEmits<{
 }>()
 
 const inputMessage = ref('')
+const selectedModelId = ref('')
+const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
+
+const modelOptions: Option[] = [
+  { value: '', text: 'Default' },
+  { value: 'llama-3.3-70b-versatile', text: 'llama-3.3-70b-versatile' },
+  { value: 'llama-3.1-8b-instant', text: 'llama-3.1-8b-instant' },
+  { value: 'qwen/qwen3-32b', text: 'qwen/qwen3-32b' },
+  { value: 'openai/gpt-oss-20b', text: 'openai/gpt-oss-20b' },
+  { value: 'openai/gpt-oss-120b', text: 'openai/gpt-oss-120b' }
+]
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
@@ -90,14 +124,12 @@ function handleSubmit() {
     props.filters.length > 0 &&
     baristaStore.lastFiltersReceived != toSerializedFilters(props.filters || [])
 
-  console.log('***!!!', baristaStore.lastFiltersReceived, toSerializedFilters(props.filters || []))
-
   emit('submit', {
     message: inputMessage.value.trim(),
     searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
     sessionId: baristaStore.sessionId,
-    additionalInstructions: undefined,
-    modelId: undefined
+    additionalInstructions: additionalInstructions.value.trim() || undefined,
+    modelId: selectedModelId.value || undefined
   })
   inputMessage.value = ''
 }
