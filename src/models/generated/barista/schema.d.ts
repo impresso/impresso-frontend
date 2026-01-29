@@ -100,6 +100,11 @@ export type components = {
              */
             searchQueryDestination?: ("content_items" | "text_reuse" | "images") | null;
             /**
+             * Searchqueryfollowup
+             * @description A follow-up question to ask the user to refine their search query, suggestions or comments about the search query. Can be empty.
+             */
+            searchQueryFollowUp?: string | null;
+            /**
              * Searchquerysummary
              * @description Analysed summary of facets of the search query filters (facets tool call required).
              */
@@ -108,20 +113,27 @@ export type components = {
         /** BaristaRequest */
         BaristaRequest: {
             /**
+             * Additionalinstructions
+             * @description Additional instructions to guide the agent's response. This is an extra added in addition to the system prompt.
+             */
+            additionalInstructions?: string | null;
+            /**
              * Message
              * @description The message to send to the Barista agent.
              */
             message: string;
             /**
-             * Model Name
-             * @description The name of the model to use.
+             * Modelid
+             * @description The ID of the model to use.
              */
-            model_name?: ("llama-3.3-70b-versatile" | "llama-3.1-8b-instant" | "qwen/qwen3-32b" | "openai/gpt-oss-20b") | null;
+            modelId?: ("llama-3.3-70b-versatile" | "llama-3.1-8b-instant" | "qwen/qwen3-32b" | "openai/gpt-oss-20b" | "openai/gpt-oss-120b") | null;
+            /** @description Current query filters for the context, if different from the last set in the conversation. */
+            searchQuery?: components["schemas"]["Filters"] | null;
             /**
-             * Session Id
+             * Sessionid
              * @description Session ID for the conversation.
              */
-            session_id?: string | null;
+            sessionId?: string | null;
         };
         /** BaristaResponse */
         BaristaResponse: {
@@ -129,7 +141,22 @@ export type components = {
              * Messages
              * @description List of messages in the conversation.
              */
-            messages: (components["schemas"]["HumanMessage"] | components["schemas"]["AIMessage"] | components["schemas"]["ToolMessage"])[];
+            messages: (components["schemas"]["HumanMessage"] | components["schemas"]["AIMessage"] | components["schemas"]["ToolMessage"] | components["schemas"]["ErrorMessage"])[];
+        };
+        /** ErrorMessage */
+        ErrorMessage: {
+            /**
+             * Content
+             * @description The content of the error message.
+             */
+            content: string;
+            /**
+             * Type
+             * @description The type of the message.
+             * @default error
+             * @constant
+             */
+            type: "error";
         };
         /**
          * Filter

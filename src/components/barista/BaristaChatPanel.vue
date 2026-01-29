@@ -57,10 +57,10 @@
 import { ref, watch, onMounted, nextTick } from 'vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import type { Filter } from '@/models'
-import { ChatMessage } from '@/services/types/barista'
+import { BaristaRequest, ChatMessage } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
-import { ExtraContentSeparator } from '@/logic/barista'
 import BaristaChatMessage from './BaristaChatMessage.vue'
+import { toSerializedFilters } from '@/logic/filters'
 
 export interface BaristaChatPanelProps {
   messages: ChatMessage[]
@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<BaristaChatPanelProps>(), {
   filters: () => []
 })
 const emit = defineEmits<{
-  (e: 'submit', message: string): void
+  (e: 'submit', request: BaristaRequest): void
   (e: 'updateHeight', height: number): void
 }>()
 
@@ -84,18 +84,22 @@ const chatHistoryRef = ref<HTMLElement | null>(null)
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
-  let extraContext = ''
-  if (baristaStore.sendCurrentFilters && props.filters && props.filters.length > 0) {
-    extraContext +=
-      ` ${ExtraContentSeparator} Consider the following filters as existing context: ` +
-      JSON.stringify(props.filters || [])
-  }
-  emit('submit', inputMessage.value + extraContext)
-  inputMessage.value = ''
-}
 
-function formatActionType(type: string): string {
-  return type.charAt(0).toUpperCase() + type.slice(1)
+  const shouldSendFilters =
+    baristaStore.sendCurrentFilters &&
+    props.filters.length > 0 &&
+    baristaStore.lastFiltersReceived != toSerializedFilters(props.filters || [])
+
+  console.log('***!!!', baristaStore.lastFiltersReceived, toSerializedFilters(props.filters || []))
+
+  emit('submit', {
+    message: inputMessage.value.trim(),
+    searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
+    sessionId: baristaStore.sessionId,
+    additionalInstructions: undefined,
+    modelId: undefined
+  })
+  inputMessage.value = ''
 }
 
 function updateHeight() {

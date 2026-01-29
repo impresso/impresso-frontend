@@ -117,7 +117,7 @@ const { message } = defineProps<BaristaChatMessageProps>()
 const isUserOrSystemWithContent = computed(() => {
   const contentLength =
     (message.structuredResponse?.searchQuerySummary?.length || 0) + (message.content?.length || 0)
-  return contentLength > 0 && (message.type === 'user' || message.type === 'system')
+  return contentLength > 0 && ['user', 'system', 'error'].includes(message.type)
 })
 
 const toolParsedContent = computed<{
@@ -157,6 +157,7 @@ const formatActionType = (type: string): string => {
         "user": "You",
         "system": "Barista",
         "tool": "Barista (tool)",
+        "error": "Barista (error)",
         "userReasoning": "You",
         "systemReasoning": "Barista (with reasoning)",
         "toolReasoning": "Barista (tool with reasoning)"
@@ -166,6 +167,7 @@ const formatActionType = (type: string): string => {
         "BaristaFormattedResponse": "Suggest filters",
         "find_entities_ids": "Find Entities",
         "find_newspapers_ids": "Find Newspapers",
+        "find_topics_ids": "Find Topics",
         "get_impresso_feature_explanation": "Explain Feature",
         "get_search_facets": "Sum up search filters results"
       }

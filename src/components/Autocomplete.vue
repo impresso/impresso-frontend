@@ -38,7 +38,7 @@
         <AuthGate v-if="isBaristaEnabled">
           <template #authenticated>
             <BaristaButton
-              :filters="filters"
+              :filters="filters.map(toCanonicalFilter)"
               @filtersChanged="handleFiltersChanged"
               class="btn btn-outline-primary px-2"
             />
@@ -130,6 +130,7 @@ import Icon from './base/Icon.vue'
 import BaristaButton from './barista/BaristaButton.vue'
 import AuthGate from './AuthGate.vue'
 import { FacetType } from '@/models/Facet'
+import { toCanonicalFilter } from '@/logic/filters'
 
 const AVAILABLE_TYPES = [
   'newspaper',
