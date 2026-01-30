@@ -199,6 +199,7 @@ export const userSpecialMembershipRequests = app.service('user-special-membershi
 export const userSpecialMembershipRequestsReviews = app.service(
   'user-special-membership-requests-reviews'
 )
+export const magicLink = app.service('magic-link')
 
 export const specialMembershipAccess = app.service('special-membership-access')
 export const feedback = app.service('feedback-collector')

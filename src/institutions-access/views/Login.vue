@@ -52,7 +52,7 @@ import useVuelidate from '@vuelidate/core'
 import { helpers, required } from '@vuelidate/validators'
 import BFormGroup from 'impresso-ui-components/components/legacy/BFormGroup.vue'
 import Icon from '@/components/base/Icon.vue'
-
+import { magicLink as magicLinkService } from '@/services'
 export interface LoginFormPayload {
   email: string
 }
@@ -79,7 +79,13 @@ const onSubmit = async () => {
     return
   }
   // Handle form submission logic here
-  alert(`Login link sent to ${formData.email}`)
+  try {
+    const result = await magicLinkService.create({ email: formData.email })
+    console.debug('Magic link result:', result)
+    alert(`Login link sent to ${formData.email}`)
+  } catch (error) {
+    alert(`Failed to send login link: ${error.message}`)
+  }
 }
 </script>
 <i18n lang="json">

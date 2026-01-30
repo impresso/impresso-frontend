@@ -4,10 +4,10 @@
       <div class="container-fluid">
         <span class="ml-2 navbar-brand">
           <a href="/instit" class="text-decoration-none text-reset" target="_self">
-            <LogoImpressoApp :width="90" />
+            <LogoImpressoInst :width="90" />
           </a>
         </span>
-        <div class="mx-2 navbar-nav">
+        <!-- <div class="mx-2 navbar-nav">
           <div class="nav-item">
             <a
               href="/datalab/about"
@@ -17,21 +17,19 @@
               Guide
             </a>
           </div>
-        </div>
-        <div class="ms-auto align-items-center me-3 navbar-nav">
-          <template v-if="isAuthenticated"> Logged in </template>
+        </div> -->
+        <div class="ms-auto align-items-center mr-3 navbar-nav very-small-caps">
+          <template v-if="isAuthenticated">logged in</template>
         </div>
       </div>
     </nav>
   </header>
 </template>
 <script setup lang="ts">
-import UserArea from '@/components/UserArea.vue'
 import User from '@/models/User'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
-import { PlanLabels } from '@/constants'
-import LogoImpressoApp from 'impresso-ui-components/components/logos/LogoImpressoApp.vue'
+import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
 
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)

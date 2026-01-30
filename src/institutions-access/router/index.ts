@@ -27,6 +27,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/magic-link/:token?',
+      name: 'MagicLink',
+      component: () => import('../views/MagicLink.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/user',
       name: 'user',
       component: () => import('@/pages/User.vue'),
