@@ -119,12 +119,15 @@ function handleSubmit() {
     props.filters.length > 0 &&
     baristaStore.lastFiltersReceived != toSerializedFilters(props.filters || [])
 
+  // model ID must be from the list or undefined.
+  const modelId = (selectedModelId.value?.trim() ?? '') == '' ? null : selectedModelId.value.trim()
+
   emit('submit', {
     message: inputMessage.value.trim(),
     searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
     sessionId: baristaStore.sessionId,
     additionalInstructions: additionalInstructions.value.trim() || undefined,
-    modelId: (selectedModelId.value as any) ?? undefined
+    modelId: modelId as any
   })
   inputMessage.value = ''
 }
