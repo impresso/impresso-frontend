@@ -3,7 +3,11 @@
     <nav class="h-100 navbar navbar-expand navbar-light">
       <div class="container-fluid">
         <span class="ml-2 navbar-brand">
-          <a href="/instit" class="text-decoration-none text-reset" target="_self">
+          <a
+            :href="InstitutionsAccessBaseUrl"
+            class="text-decoration-none text-reset"
+            target="_self"
+          >
             <LogoImpressoInst :width="90" />
           </a>
         </span>
@@ -30,7 +34,7 @@ import User from '@/models/User'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
-
+import { InstitutionsAccessBaseUrl } from '@/constants'
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
 const userPlan = computed(() => userStore.userPlan)

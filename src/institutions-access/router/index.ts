@@ -1,5 +1,6 @@
 import { InstitutionsAccessBaseUrl } from '@/constants'
 import * as services from '@/services'
+import { decodeJwt } from '@/util/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 
 /**
@@ -33,15 +34,6 @@ const router = createRouter({
       meta: {
         requiresAuth: false
       }
-    },
-    {
-      path: '/user',
-      name: 'user',
-      component: () => import('@/pages/User.vue'),
-      meta: {
-        realm: 'user',
-        requiresAuth: true
-      }
     }
   ]
 })
@@ -55,6 +47,19 @@ router.beforeEach((to, _from, next) => {
     next()
   } else {
     services.app.authentication.getAccessToken().then(jwt => {
+      // check if jwt exists and if valid
+      console.debug('[router] JWT token:', jwt, decodeJwt(jwt))
+      try {
+        const { groups } = decodeJwt(jwt)
+        if (!groups || !Array.isArray(groups) || !groups.includes('institutions-access')) {
+          console.warn('[router] JWT groups:', groups)
+          console.info('[router] Your authentication token does not have the required group.')
+          jwt = null
+        }
+      } catch (e) {
+        console.error('[router] Invalid JWT token:', e)
+        jwt = null
+      }
       if (jwt) {
         next()
       } else {
