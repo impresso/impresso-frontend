@@ -87,8 +87,10 @@ const convertBaristaMessageToChat = (
       return 'unknown'
     })
 
+    const helpText = aiMsg.structuredResponse?.impressoHelp
+
     return {
-      content: aiMsg.content,
+      content: helpText ?? aiMsg.content,
       timestamp,
       type: 'system',
       reasoning: aiMsg.reasoningContent ?? undefined,
