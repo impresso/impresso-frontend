@@ -197,6 +197,7 @@ export default {
       images: 'Search in <span class="number">{count}</span> published images',
       articles: 'Search in <span class="number">{count}</span> published articles'
     },
+    contentItems: 'Content Items',
     numbers: {
       options: '&nbsp; | (1 option) | ({n} options)',
       moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
@@ -213,6 +214,7 @@ export default {
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
+
       articles:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articlesInCommon:
