@@ -2,6 +2,16 @@
 
 Welcome to the _impresso_ app frontend website to search, explore and create personal collections from the 40 millions (and counting!) newspapers articles of the _impresso_ collection.
 
+## Application Structure
+
+This repository contains three independent Vue 3 applications:
+
+- **Main App** (`/app/`): The primary application for searching, exploring, and managing collections
+- **Widget App** (`/widget/`): A standalone sharing widget for embedding content
+- **Institutions Access App** (`/institutions-access/`): A dedicated application for institutional authentication and access
+
+Each application has its own independent routing and can be built and deployed separately.
+
 ## Install for development
 
 This is a website that uses vue3. To install the dependencies, run:

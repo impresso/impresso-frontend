@@ -128,3 +128,8 @@ export const WidgetBaseUrl: string =
   typeof import.meta !== 'undefined' && import.meta.env?.VITE_WIDGET_BASE_URL
     ? import.meta.env.VITE_WIDGET_BASE_URL
     : '/widget/'
+
+export const InstitutionsAccessBaseUrl: string =
+  typeof import.meta !== 'undefined' && import.meta.env?.VITE_INSTITUTIONS_ACCESS_BASE_URL
+    ? import.meta.env.VITE_INSTITUTIONS_ACCESS_BASE_URL
+    : '/institutions-access/'

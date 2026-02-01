@@ -35,6 +35,8 @@ export default ({ mode }: { mode: string }) => {
   const WebAppBaseUrl: string = env.VITE_APP_BASE_URL ?? '/'
   const WebAppHost: string = env.VITE_APP_HOST ?? 'http://localhost:5173'
   const WidgetBaseUrl: string = env.VITE_WIDGET_BASE_URL ?? '/widget/'
+  const InstitutionsAccessBaseUrl: string =
+    env.VITE_INSTITUTIONS_ACCESS_BASE_URL ?? '/institutions-access/'
   if (mode === 'development') {
     console.log('SocketIoProxyPath', SocketIoProxyPath)
     console.log('ApiIiifProxyPath', ApiIiifProxyPath)
@@ -42,6 +44,7 @@ export default ({ mode }: { mode: string }) => {
     console.log('AssetsProxyPath', AssetsProxyPath)
     console.log('WebAppBaseUrl', WebAppBaseUrl)
     console.log('WidgetBaseUrl', WidgetBaseUrl)
+    console.log('InstitutionsAccessBaseUrl', InstitutionsAccessBaseUrl)
     console.log('WebAppHost', WebAppHost)
   }
 
@@ -62,6 +65,26 @@ export default ({ mode }: { mode: string }) => {
               console.log(`[Vite MPA] Intercepted: ${url} -> Serving: /widget/index.html`)
 
               req.url = '/widget/index.html'
+            }
+            next()
+          })
+        }
+      },
+      {
+        name: 'institutions-access-rewriter',
+        enforce: 'pre', // Ensures this runs before Vite's internal HTML middleware
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = req.url?.split('?')[0] || ''
+
+            // 1. Check if the request is for the institutions-access area
+            // 2. Ensure we aren't intercepting actual files (js, css, png, etc.)
+            if (url.startsWith(InstitutionsAccessBaseUrl) && !url.includes('.')) {
+              console.log(
+                `[Vite MPA] Intercepted: ${url} -> Serving: /institutions-access/index.html`
+              )
+
+              req.url = '/institutions-access/index.html'
             }
             next()
           })
@@ -134,7 +157,7 @@ export default ({ mode }: { mode: string }) => {
             if (id.includes('buffer')) return 'buffer'
           }
         },
-        input: entryPoints('index.html', 'widget/index.html')
+        input: entryPoints('index.html', 'widget/index.html', 'institutions-access/index.html')
       }
     }
   })

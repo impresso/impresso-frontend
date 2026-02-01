@@ -6,16 +6,12 @@ import SourcesOverviewTimeline from '@/components/sourcesOverview/SourcesOvervie
 import { buildEmptyFacets } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
-import {
-  mediaSources as mediaSourcesService,
-  searchFacets as searchFacetsService,
-  stats as statsService
-} from '@/services'
+import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import SourceOverviewLegend from '@/components/sourcesOverview/SourceOverviewLegend.vue'
+
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
@@ -203,14 +199,6 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
-          <template #actions>
-            <!-- Future action buttons can be added here -->
-            <SourceOverviewLegend
-              style="width: 150px"
-              :dataValues="dataValues"
-              :normalizeLocally="normalize"
-            />
-          </template>
           <template #summaryActions>
             <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
               <template #button-content> {{ $t('visualisationSettings') }}</template>
