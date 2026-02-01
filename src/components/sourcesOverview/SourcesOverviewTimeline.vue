@@ -236,7 +236,19 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (
     e: 'tooltipMove',
-    payload: { value?: DataValue; otherValuesOnDate: DataValue[]; date: Date; x: number; y: number }
+    payload: {
+      value?: DataValue
+      otherValuesOnDate: DataValue[]
+      date: Date
+      x: number
+      y: number
+      scrollTop: number
+      scrollWidth: number
+      scrollHeight: number
+      scrollLeft: number
+      clientWidth: number
+      clientHeight: number
+    }
   ): void
   (e: 'tooltipOut'): void
 }>()
@@ -442,7 +454,19 @@ const emitTooltipEvent = () => {
       isActive: false
     }
   }
-  emit('tooltipMove', { date, x: visX, y: visY, value: dataValue, otherValuesOnDate })
+  emit('tooltipMove', {
+    date,
+    x: visX,
+    y: visY,
+    value: dataValue,
+    otherValuesOnDate,
+    scrollTop: containerRef.value!.scrollTop,
+    scrollWidth: containerRef.value!.scrollWidth,
+    scrollHeight: containerRef.value!.scrollHeight,
+    scrollLeft: containerRef.value!.scrollLeft,
+    clientWidth: containerWidth.value,
+    clientHeight: containerHeight.value
+  })
 }
 /**
  * Finds the closest data value to the given position coordinates.
