@@ -6,15 +6,11 @@ import SourcesOverviewTimeline from '@/components/sourcesOverview/SourcesOvervie
 import { buildEmptyFacets } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
-import {
-
-  searchFacets as searchFacetsService,
-  stats as statsService
-} from '@/services'
+import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
-import InfoButton from '@/components/base/InfoButton.vue
+import InfoButton from '@/components/base/InfoButton.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
