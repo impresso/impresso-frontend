@@ -314,7 +314,7 @@ onMounted(() => {
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="console.log"
       />
-      <div class="position-absolute bottom-0 end-0 p-2 text-muted small">
+      <div class="position-absolute bottom-0 end-0 p-2">
         <SourceOverviewNavigator
           :width="250"
           :height="150"
