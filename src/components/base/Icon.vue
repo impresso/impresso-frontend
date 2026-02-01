@@ -389,6 +389,14 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  arrowRight: {
+    paths: [
+      {
+        style: `fill:transparent;stroke-width:${props.strokeWidth}px;`,
+        d: 'M7 4L17 12L7 20V4Z'
+      }
+    ]
+  },
   chevron: {
     paths: [
       {
