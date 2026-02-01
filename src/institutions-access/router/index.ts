@@ -47,8 +47,6 @@ router.beforeEach((to, _from, next) => {
     next()
   } else {
     services.app.authentication.getAccessToken().then(jwt => {
-      // check if jwt exists and if valid
-      console.debug('[router] JWT token:', jwt, decodeJwt(jwt))
       try {
         const { groups } = decodeJwt(jwt)
         if (!groups || !Array.isArray(groups) || !groups.includes('institutions-access')) {

@@ -11,9 +11,16 @@
       html {
         font-display: block;
       }
+      :root {
+        --impresso-inst-gradient: linear-gradient(
+          to top,
+          rgb(248, 230, 213) 0%,
+          rgb(245, 245, 245) 100%
+        );
+      }
       body {
         background-color: #fddb92;
-        background-image: linear-gradient(to top, rgb(248, 228, 209) 0%, rgb(245, 245, 245) 100%);
+        background-image: var(--impresso-inst-gradient);
         background-attachment: fixed;
         width: 100%;
         margin: 0;
@@ -35,7 +42,7 @@
         left: 0;
         z-index: 1000;
         background-color: #fddb92;
-        background-image: linear-gradient(to top, rgb(248, 228, 209) 0%, rgb(245, 245, 245) 100%);
+        background-image: var(--impresso-inst-gradient);
         background-attachment: fixed;
         transition: opacity 0.26s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;

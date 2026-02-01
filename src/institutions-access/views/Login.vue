@@ -18,7 +18,6 @@
           >
             <BFormInput
               id="email"
-              autofocus
               name="email"
               type="email"
               required
