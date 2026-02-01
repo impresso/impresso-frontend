@@ -11,6 +11,8 @@ import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
+import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -67,6 +69,7 @@ const facets = ref([])
 const dataValues = ref<DataValue[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
+const isHelperModalVisible = ref(true)
 
 const normalize = ref(false)
 const fitToContainerWidth = ref(false)
@@ -75,6 +78,9 @@ const minimumVerticalGap = ref<number>(50)
 const minimumVerticalHeight = ref<number>(4)
 const withPowerScale = ref(true)
 
+const toggleOpenHelperModal = (isOpen: boolean) => {
+  isHelperModalVisible.value = isOpen
+}
 watch(
   () => props.filters,
   async newVal => {
@@ -306,7 +312,33 @@ onMounted(() => {
         :minimumVerticalGap="minimumVerticalGap"
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
+        @tooltip-move="console.log"
       />
+      <div class="position-absolute bottom-0 end-0 p-2 text-muted small">
+        <SourceOverviewNavigator
+          :width="250"
+          :height="150"
+          :initialX="-270"
+          :initialY="-170"
+          :zIndex="1038"
+        >
+          <footer class="m-2">
+            <button
+              class="btn btn-sm border border-dark btn-outline-secondary"
+              v-on:click="toggleOpenHelperModal(true)"
+              style="pointer-events: all"
+            >
+              {{ $t('gettingStarted') }}
+            </button>
+          </footer>
+        </SourceOverviewNavigator>
+      </div>
+
+      <SourcesOverviewModal
+        :isVisible="isHelperModalVisible"
+        :filters="filtersWithItems"
+        @dismiss="toggleOpenHelperModal(false)"
+      ></SourcesOverviewModal>
     </i-layout-section>
   </i-layout>
 </template>
@@ -331,7 +363,8 @@ onMounted(() => {
     "minimumVerticalHeight": "Minimum height for lower values (px)",
     "withPowerScale": "With Power Scale",
     "withPowerScaleInfoTitle": "With Power Scale",
-    "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes."
+    "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
+    "gettingStarted": "Getting Started Guide"
   }
 }
 </i18n>
