@@ -233,23 +233,22 @@ const props = withDefaults(defineProps<Props>(), {
   scaleExponent: 2
 })
 
+export interface TooltipPosition {
+  date: Date
+  x: number
+  y: number
+  value?: DataValue
+  otherValuesOnDate: DataValue[]
+  scrollTop: number
+  scrollWidth: number
+  scrollHeight: number
+  scrollLeft: number
+  clientWidth: number
+  clientHeight: number
+}
+
 const emit = defineEmits<{
-  (
-    e: 'tooltipMove',
-    payload: {
-      value?: DataValue
-      otherValuesOnDate: DataValue[]
-      date: Date
-      x: number
-      y: number
-      scrollTop: number
-      scrollWidth: number
-      scrollHeight: number
-      scrollLeft: number
-      clientWidth: number
-      clientHeight: number
-    }
-  ): void
+  (e: 'tooltipMove', payload: TooltipPosition): void
   (e: 'tooltipOut'): void
 }>()
 

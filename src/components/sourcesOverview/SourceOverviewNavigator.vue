@@ -11,13 +11,30 @@
       <span class="very-small-caps-bold">{{ $t('sourcesOverviewNavigator.title') }}</span>
       <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
     </div>
-    <slot />
+    <div class="SourceOverviewNavigator__content flex-grow-1">
+      <slot />
+    </div>
+    <div
+      class="SourceOverviewNavigator__minimap p-2 border-top border-dark position-relative"
+      v-if="tooltipPosition"
+    >
+      <Minimap
+        :clientHeight="tooltipPosition.clientHeight"
+        :clientWidth="tooltipPosition.clientWidth"
+        :scrollHeight="tooltipPosition.scrollHeight"
+        :scrollWidth="tooltipPosition.scrollWidth"
+        :scrollLeft="tooltipPosition.scrollLeft"
+        :scrollTop="tooltipPosition.scrollTop"
+      ></Minimap>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
 import Icon from '../base/Icon.vue'
+import Minimap from '../Minimap.vue'
+import { TooltipPosition } from './SourcesOverviewTimeline.vue'
 
 export interface SourceOverviewNavigatorProps {
   width?: number
@@ -25,6 +42,7 @@ export interface SourceOverviewNavigatorProps {
   initialX?: number
   initialY?: number
   zIndex?: number
+  tooltipPosition?: TooltipPosition | null
 }
 
 const props = withDefaults(defineProps<SourceOverviewNavigatorProps>(), {
@@ -32,7 +50,8 @@ const props = withDefaults(defineProps<SourceOverviewNavigatorProps>(), {
   height: 200,
   initialX: 0,
   initialY: 0,
-  zIndex: 2
+  zIndex: 2,
+  tooltipPosition: null
 })
 
 const navigatorRef = ref<HTMLElement | null>(null)
@@ -143,6 +162,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
 }
+
 .SourceOverviewNavigator button {
   cursor: pointer;
   pointer-events: all;
@@ -155,6 +175,29 @@ onBeforeUnmount(() => {
 .SourceOverviewNavigator__handle {
   height: 30px;
   flex: 0 0 auto;
+}
+
+.SourceOverviewNavigator__content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.SourceOverviewNavigator__minimap {
+  flex: 0 0 auto;
+  background: #f9f9f9;
+}
+
+.SourceOverviewNavigator__tooltip-indicator {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 6px;
+  height: 6px;
+  background: #ff6b6b;
+  border-radius: 50%;
+  border: 1px solid #cc5555;
+  pointer-events: none;
+  z-index: 10;
 }
 </style>
 

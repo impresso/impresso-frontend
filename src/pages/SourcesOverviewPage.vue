@@ -13,6 +13,7 @@ import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDate
 import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
+import type { TooltipPosition } from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -71,12 +72,13 @@ const isLoading = ref(true)
 const totalResults = ref(0)
 const isHelperModalVisible = ref(true)
 
-const normalize = ref(false)
+const minimize = ref(false)
 const fitToContainerWidth = ref(false)
 const minimumGap = ref<number>(10)
 const minimumVerticalGap = ref<number>(50)
 const minimumVerticalHeight = ref<number>(4)
 const withPowerScale = ref(true)
+const tooltipPosition = ref<TooltipPosition | null>(null)
 
 const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
@@ -312,7 +314,7 @@ onMounted(() => {
         :minimumVerticalGap="minimumVerticalGap"
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
-        @tooltip-move="console.log"
+        @tooltip-move="pos => (tooltipPosition = pos)"
       />
       <div class="position-absolute bottom-0 end-0 p-2">
         <SourceOverviewNavigator
@@ -321,6 +323,7 @@ onMounted(() => {
           :initialX="-270"
           :initialY="-170"
           :zIndex="1038"
+          :tooltip-position="tooltipPosition"
         >
           <footer class="m-2">
             <button
