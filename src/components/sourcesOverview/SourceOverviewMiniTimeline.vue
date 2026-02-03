@@ -1,10 +1,10 @@
 <template>
   <svg :width="containerWidth" :height="height" class="SourceOverviewMiniTimeline">
     <!-- Background -->
-    <rect width="100%" height="100%" fill="rgba(220, 220, 220, 0.1)" />
+    <!-- <rect width="100%" height="100%" fill="rgba(220, 220, 220, 0.1)" /> -->
 
     <!-- Data value rectangles per dataValue row -->
-    <g v-for="(dataValue, idx) in props.dataValues" :key="dataValue.id">
+    <template v-for="(dataValue, idx) in props.dataValues" :key="dataValue.id">
       <!-- Draw nested dataValues if they exist -->
       <g v-if="Array.isArray(dataValue.dataValues) && dataValue.dataValues.length > 0">
         <rect
@@ -28,7 +28,7 @@
         :fill="colorScale(dataValue.value)"
         opacity="0.9"
       />
-    </g>
+    </template>
   </svg>
 </template>
 
@@ -52,10 +52,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const margin = {
-  top: 10,
-  right: 10,
-  bottom: 10,
-  left: 10
+  top: 0,
+  right: 0,
+  bottom: 0,
+  left: 0
 }
 
 const barHeight = computed(() => {
@@ -75,7 +75,7 @@ const xScale = computed(() => {
 const yScale = computed(() => {
   return d3
     .scalePoint<number>()
-    .domain(d3.range(props.dataValues.length))
+    .domain(d3.range(Math.max(0, props.dataValues.length + 1)))
     .range([margin.top, props.height - margin.bottom])
 })
 
@@ -104,7 +104,7 @@ const colorScale = computed(() => {
     .range([0, 1])
     .interpolate(() => (t: number) => {
       // Use d3's YlGn interpolator with adjusted range for better visibility
-      return d3.interpolateYlGn(0.3 + t * 0.7)
+      return d3.interpolateYlGn(0.5 + t * 0.5)
     })
 })
 </script>

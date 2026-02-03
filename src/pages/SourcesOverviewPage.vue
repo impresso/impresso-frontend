@@ -329,15 +329,16 @@ onMounted(() => {
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
       />
-      <div class="position-absolute bottom-0 end-0 p-2">
+      <div class="position-absolute top-0 end-0 p-2">
         <SourceOverviewNavigator
-          :initialX="-20"
-          :initialY="-20"
+          :initialX="20"
+          :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
           :startDate="minStartDate"
           :endDate="maxEndDate"
           :dataValues="dataValues"
+          :z-index="1038"
         >
           <footer class="m-2">
             <button
