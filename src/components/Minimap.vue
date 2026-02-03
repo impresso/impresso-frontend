@@ -54,7 +54,6 @@ const isDragging = ref(false)
 const handleMouseDown = (e: MouseEvent) => {
   isDragging.value = true
   updateScrollPosition(e)
-  console.debug('[Minimap] @mousedown')
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging.value) {
