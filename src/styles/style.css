@@ -414,6 +414,10 @@ label {
   font-weight: var(--impresso-wght-medium);
   font-variation-settings: 'wght' var(--impresso-wght-medium);
 }
+.font-weight-normal {
+  font-weight: var(--impresso-wght);
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .font-size-inherit {
   font-size: inherit;
 }
