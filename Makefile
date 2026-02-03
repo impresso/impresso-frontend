@@ -35,4 +35,3 @@ run-docker-dev-build:
 	GIT_REVISION=$(shell git rev-parse --short HEAD) \
 	PUBLIC_PATH=/app/ \
 	docker-compose -f docker-compose-dev.yml up --build
-
