@@ -164,7 +164,7 @@ export const ManyItemsWithNavigator: Story = {
     },
 
     template: `
-      <div class="position: relative" style="overflow:scroll; " >
+      <div style="position: relative; overflow:scroll;">
         <SourcesOverviewTimeline 
           ref="timelineRef"
           v-bind="args" 
