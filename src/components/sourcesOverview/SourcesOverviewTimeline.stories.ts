@@ -172,7 +172,7 @@ export const ManyItemsWithNavigator: Story = {
           @tooltip-move="handleTooltipMove"
         />
         <p>
-        This timeline component has fixed gap between year ticks and it needs a navigator. Note that fitToContainerWidth is false to show horizontal padding ahd how to use the component SourceOverviewNavigator correctly.
+        This timeline component has fixed gap between year ticks and it needs a navigator. Note that fitToContainerWidth is false to show horizontal padding and how to use the component SourceOverviewNavigator correctly.
         </p>
         <div class="position-absolute bottom-0 end-0 p-2">
           <SourceOverviewNavigator
