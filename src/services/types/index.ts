@@ -7,6 +7,7 @@ import { ContentItemsService } from './contentItems'
 import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
 import { ICollectableItemsService } from './collectableItems'
+import { AdminService } from './admin'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -42,6 +43,7 @@ interface UntypedServices {
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
   ['datalab-support']: DatalabSupportService
+  admin: AdminService
   images: ImageService
   embeddings: EmbeddingsService
   ['barista-proxy']: BaristaService

@@ -137,6 +137,7 @@ app.service('barista-proxy').on('barista-response', payload => {
 // repeat this line for every service in our backend
 export const version = app.service('version')
 export const suggestions = app.service('suggestions')
+export const admin = app.service('admin')
 export const contentItems = app.service('content-items')
 export const images = app.service('images').hooks(imagesHooks)
 export const issues = app.service('issues')

@@ -20,6 +20,13 @@
       "group": {
         "isDefault": false
       }
+    },
+    {
+      "label": "Generate Types",
+      "type": "npm",
+      "script": "generate-types",
+      "problemMatcher": [],
+      "group": "build"
     }
   ]
 }
