@@ -26,7 +26,11 @@ export default {
         death_notice: 'obituary (other)',
         weather: 'weather forecast',
         w: 'weather news (other)',
-        picture: 'picture'
+        picture: 'picture',
+        ch: 'chronicle',
+        rb: 'radio broadcast',
+        rbe: 'radio broadcast episode',
+        'no-type': 'No type provided'
       },
       sourceType: {
         newspaper: 'newspapers',
