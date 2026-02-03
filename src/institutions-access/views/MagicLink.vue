@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import Card from '../components/Card.vue'
 import MagicLinkForm from '../components/forms/MagicLinkForm.vue'
-import { magicLink as magicLinkService, app } from '@/services'
+import { app as appService } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
 import { ref } from 'vue'
@@ -35,11 +35,10 @@ const onSubmit = async ({ token }: { token: string }) => {
   console.debug('Received token:', token)
   // Handle form submission logic here
   try {
-    const result = await magicLinkService.get(token)
-    console.debug('Magic link result:', result)
-    alert(`Login link ok`)
-    // const reauthenticate = await app.reAuthenticate(true)
-    // console.debug('Re-authentication result:', reauthenticate)
+    await appService.authenticate({
+      strategy: 'magic-link',
+      accessToken: token
+    })
   } catch (err) {
     error.value = new Error(err.message)
     console.error('Magic link error:', err)
