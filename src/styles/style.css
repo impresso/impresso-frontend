@@ -701,12 +701,7 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 
 .modal-backdrop {
-  background-image: radial-gradient(
-    ellipse at center,
-    var(--impresso-color-yellow) 0%,
-    var(--impresso-color-yellow) 20%,
-    transparent 75%
-  );
+  background-image: radial-gradient(ellipse at center, #6d6740 0%, #696651 20%, transparent 75%);
   background-color: transparent;
 }
 /* SVGs */
