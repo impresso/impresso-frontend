@@ -167,22 +167,12 @@ const contentItemTitle = computed(() => {
   return '[Untitled]'
 })
 const routerLinkUrl = computed(() => {
-  if (props.item.meta.sourceType === 'newspaper') {
-    return {
-      name: 'issue-viewer',
-      params: {
-        issue_uid: props.item.issueId
-      },
-      query: {
-        ...route?.query,
-        // TODO: replace query params with contentItemId.
-        articleId: getShortArticleId(props.item.id),
-        p: props.item.image?.pages[0]?.number
-      }
+  return {
+    name: 'contentItem',
+    params: {
+      article_uid: props.item.id
     }
   }
-  // TODO: handle other sourceTypes
-  return '#'
 })
 
 const pages = computed(() => {
