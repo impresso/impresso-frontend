@@ -490,6 +490,14 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
+      path: '/grinder',
+      name: 'grinder',
+      component: () => import('@/pages/Grinder.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
       path: '/:catchAll(.*)',
       name: 'catchAll',
 
