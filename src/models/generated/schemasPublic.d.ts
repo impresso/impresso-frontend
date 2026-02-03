@@ -7,6 +7,14 @@
  */
 
 
+/**
+ * Admin maintenance action request.
+ */
+export interface AdminPatchRequest {
+  action: "clear-db-cache" | "clear-solr-cache" | "clear-wikidata-cache" | "rebuild-well-known-cache";
+}
+
+
 export interface BaseFindResponse {
   data: unknown[];
   pagination: {
@@ -1156,4 +1164,79 @@ export interface WordMatch {
    * The word
    */
   word: string;
+}
+
+
+/**
+ * Admin service response payload.
+ */
+export interface Admin {
+  contentItemsPermissionsDetails?: {
+    [k: string]: unknown;
+  };
+  imagesPermissionsDetails?: {
+    [k: string]: unknown;
+  };
+  userAccounts?: {
+    [k: string]: unknown;
+  }[];
+  cacheCounts?: {
+    db: number;
+    solr: number;
+    wikidata: number;
+  };
+  wellKnownComputedAt?: {
+    mediaSources: string | null;
+    topics: string | null;
+    years: string | null;
+  };
+  patchResult?: {
+    action: string;
+    cleared?: {
+      count: number;
+    };
+    jobId?: string;
+    [k: string]: unknown;
+  };
+  [k: string]: unknown;
+}
+
+
+/**
+ * Alias schema for admin find response.
+ */
+export type AdminList = Admin;
+
+/**
+ * Admin service response payload.
+ */
+export interface Admin {
+  contentItemsPermissionsDetails?: {
+    [k: string]: unknown;
+  };
+  imagesPermissionsDetails?: {
+    [k: string]: unknown;
+  };
+  userAccounts?: {
+    [k: string]: unknown;
+  }[];
+  cacheCounts?: {
+    db: number;
+    solr: number;
+    wikidata: number;
+  };
+  wellKnownComputedAt?: {
+    mediaSources: string | null;
+    topics: string | null;
+    years: string | null;
+  };
+  patchResult?: {
+    action: string;
+    cleared?: {
+      count: number;
+    };
+    jobId?: string;
+    [k: string]: unknown;
+  };
+  [k: string]: unknown;
 }
