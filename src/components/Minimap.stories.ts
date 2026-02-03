@@ -47,8 +47,7 @@ const meta: Meta<typeof Minimap> = {
               :scroll-width="args.scrollWidth"
               :scroll-top="scrollTop"
               :scroll-left="scrollLeft"
-              @update:scrollTop="(value) => scrollTop = value"
-              @update:scrollLeft="(value) => scrollLeft = value"
+              @updateScroll="(value) => { scrollTop = value.scrollTop; scrollLeft = value.scrollLeft }"
             />
           </div>
         </div>
