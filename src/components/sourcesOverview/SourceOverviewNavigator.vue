@@ -129,7 +129,6 @@ const onPointerDown = (event: PointerEvent) => {
 
   // Don't start dragging if clicking on interactive elements
   const target = event.target as HTMLElement
-  console.log(minimapRef.value.ELEMENT_NODE, target.className)
   if (target.className === 'Minimap') {
     return
   }

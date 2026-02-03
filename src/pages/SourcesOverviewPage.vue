@@ -335,9 +335,6 @@ onMounted(() => {
           :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
-          :startDate="minStartDate"
-          :endDate="maxEndDate"
-          :dataValues="dataValues"
           :z-index="1038"
         >
           <footer class="m-2">
