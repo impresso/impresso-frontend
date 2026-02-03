@@ -1,12 +1,12 @@
 <template>
   <div
-    ref="navigatorRef"
     class="SourceOverviewNavigator bg-light border border-dark rounded shadow"
     :style="navigatorStyle"
     @pointerdown="onPointerDown"
   >
     <div
-      class="SourceOverviewNavigator__handle p-2 d-flex justify-content-center align-items-center bg-dark text-white border-bottom border-dark rounded-top"
+      ref="navigatorRef"
+      class="SourceOverviewNavigator__handle p-2 d-flex justify-content-center align-items-center bg-dark text-white border-bottom border-dark rounded-top gap-2"
     >
       <span class="very-small-caps-bold">{{ $t('sourcesOverviewNavigator.title') }}</span>
       <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
@@ -15,8 +15,10 @@
       <slot />
     </div>
     <div
-      class="SourceOverviewNavigator__minimap p-2 border-top border-dark position-relative"
+      class="SourceOverviewNavigator__minimap m-2 position-relative"
       v-if="tooltipPosition"
+      style="height: 200px"
+      ref="minimapRef"
     >
       <Minimap
         :clientHeight="tooltipPosition.clientHeight"
@@ -25,7 +27,18 @@
         :scrollWidth="tooltipPosition.scrollWidth"
         :scrollLeft="tooltipPosition.scrollLeft"
         :scrollTop="tooltipPosition.scrollTop"
-      ></Minimap>
+        @updateScroll="
+          value => {
+            emit('update:tooltipPosition', {
+              ...tooltipPosition,
+              scrollLeft: value.scrollLeft,
+              scrollTop: value.scrollTop
+            })
+          }
+        "
+      >
+        <slot name="minimap" />
+      </Minimap>
     </div>
   </div>
 </template>
@@ -37,8 +50,6 @@ import Minimap from '../Minimap.vue'
 import { TooltipPosition } from './SourcesOverviewTimeline.vue'
 
 export interface SourceOverviewNavigatorProps {
-  width?: number
-  height?: number
   initialX?: number
   initialY?: number
   zIndex?: number
@@ -46,15 +57,18 @@ export interface SourceOverviewNavigatorProps {
 }
 
 const props = withDefaults(defineProps<SourceOverviewNavigatorProps>(), {
-  width: 200,
-  height: 200,
   initialX: 0,
   initialY: 0,
   zIndex: 2,
   tooltipPosition: null
 })
 
+const emit = defineEmits<{
+  (e: 'update:tooltipPosition', value: TooltipPosition): void
+}>()
+
 const navigatorRef = ref<HTMLElement | null>(null)
+const minimapRef = ref<HTMLDivElement | null>(null)
 const position = ref({
   x: props.initialX,
   y: props.initialY
@@ -65,8 +79,6 @@ const activePointerId = ref<number | null>(null)
 
 const navigatorStyle = computed(() => {
   return {
-    width: `${props.width}px`,
-    height: `${props.height}px`,
     transform: `translate(${position.value.x}px, ${position.value.y}px)`,
     zIndex: props.zIndex
   }
@@ -117,6 +129,10 @@ const onPointerDown = (event: PointerEvent) => {
 
   // Don't start dragging if clicking on interactive elements
   const target = event.target as HTMLElement
+  console.log(minimapRef.value.ELEMENT_NODE, target.className)
+  if (target.className === 'Minimap') {
+    return
+  }
   if (
     target.tagName === 'BUTTON' ||
     target.tagName === 'A' ||
@@ -161,6 +177,7 @@ onBeforeUnmount(() => {
   user-select: none;
   display: flex;
   flex-direction: column;
+  min-width: 250px;
 }
 
 .SourceOverviewNavigator button {
@@ -195,7 +212,6 @@ onBeforeUnmount(() => {
   height: 6px;
   background: #ff6b6b;
   border-radius: 50%;
-  border: 1px solid #cc5555;
   pointer-events: none;
   z-index: 10;
 }

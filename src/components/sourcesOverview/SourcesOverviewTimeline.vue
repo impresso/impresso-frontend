@@ -567,6 +567,20 @@ onUnmounted(() => {
     containerRef.value.removeEventListener('scroll', containerOnScrollHandler)
   }
 })
+
+/**
+ * Programmatically scroll the container to the specified position
+ */
+const scrollTo = (scrollLeft: number, scrollTop: number) => {
+  if (containerRef.value) {
+    containerRef.value.scrollLeft = scrollLeft
+    containerRef.value.scrollTop = scrollTop
+  }
+}
+
+defineExpose({
+  scrollTo
+})
 </script>
 <style lang="css">
 .SourcesOverviewTimeline {

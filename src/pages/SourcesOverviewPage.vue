@@ -2,7 +2,9 @@
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
-import SourcesOverviewTimeline from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
+import SourcesOverviewTimeline, {
+  TooltipPosition
+} from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
 import { buildEmptyFacets } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
@@ -13,7 +15,7 @@ import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDate
 import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
-import type { TooltipPosition } from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
+import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -72,13 +74,23 @@ const isLoading = ref(true)
 const totalResults = ref(0)
 const isHelperModalVisible = ref(true)
 
-const minimize = ref(false)
+const normalize = ref(false)
 const fitToContainerWidth = ref(false)
 const minimumGap = ref<number>(10)
 const minimumVerticalGap = ref<number>(50)
 const minimumVerticalHeight = ref<number>(4)
 const withPowerScale = ref(true)
 const tooltipPosition = ref<TooltipPosition | null>(null)
+const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
+
+const handleTooltipMove = (pos: TooltipPosition) => {
+  tooltipPosition.value = pos
+}
+
+const handleScrollUpdate = (updated: TooltipPosition) => {
+  tooltipPosition.value = updated
+  timelineRef.value?.scrollTo(updated.scrollLeft, updated.scrollTop)
+}
 
 const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
@@ -304,6 +316,7 @@ onMounted(() => {
         </PageNavbarHeading>
       </template>
       <SourcesOverviewTimeline
+        ref="timelineRef"
         :normalizeLocally="normalize"
         class="h-100"
         :fitToContainerWidth="fitToContainerWidth"
@@ -314,16 +327,17 @@ onMounted(() => {
         :minimumVerticalGap="minimumVerticalGap"
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
-        @tooltip-move="pos => (tooltipPosition = pos)"
+        @tooltip-move="handleTooltipMove"
       />
       <div class="position-absolute bottom-0 end-0 p-2">
         <SourceOverviewNavigator
-          :width="250"
-          :height="150"
-          :initialX="-270"
-          :initialY="-170"
-          :zIndex="1038"
+          :initialX="-20"
+          :initialY="-20"
+          @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
+          :startDate="minStartDate"
+          :endDate="maxEndDate"
+          :dataValues="dataValues"
         >
           <footer class="m-2">
             <button
@@ -334,6 +348,15 @@ onMounted(() => {
               {{ $t('gettingStarted') }}
             </button>
           </footer>
+          <template #minimap>
+            <SourceOverviewMiniTimeline
+              :startDate="minStartDate"
+              :endDate="maxEndDate"
+              :dataValues="dataValues"
+              :containerWidth="250"
+              :height="200"
+            />
+          </template>
         </SourceOverviewNavigator>
       </div>
 

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import { ref, onMounted } from 'vue'
 import Minimap from './Minimap.vue'
 import type { MinimapProps } from './Minimap.vue'
 
@@ -9,7 +10,20 @@ const meta: Meta<typeof Minimap> = {
   render: args => {
     return {
       setup() {
-        return { args }
+        const scrollTop = ref(args.scrollTop || 0)
+        const scrollLeft = ref(args.scrollLeft || 0)
+
+        onMounted(() => {
+          const container = document.getElementById('scrollContainer')
+          if (container) {
+            container.addEventListener('scroll', () => {
+              scrollTop.value = container.scrollTop
+              scrollLeft.value = container.scrollLeft
+            })
+          }
+        })
+
+        return { args, scrollTop, scrollLeft }
       },
       components: {
         Minimap
@@ -25,30 +39,20 @@ const meta: Meta<typeof Minimap> = {
               </div>
             </div>
           </div>
-          <div style="width: 220px;">
+          <div style="width: 220px; height: 200px">
             <Minimap
-              v-bind="args"
+              :client-height="args.clientHeight"
+              :client-width="args.clientWidth"
+              :scroll-height="args.scrollHeight"
+              :scroll-width="args.scrollWidth"
               :scroll-top="scrollTop"
               :scroll-left="scrollLeft"
-              @update:scroll-top="(value) => scrollTop = value"
-              @update:scroll-left="(value) => scrollLeft = value"
+              @update:scrollTop="(value) => scrollTop = value"
+              @update:scrollLeft="(value) => scrollLeft = value"
             />
           </div>
         </div>
-      `,
-      beforeCreate() {
-        this.scrollTop = 0
-        this.scrollLeft = 0
-      },
-      mounted() {
-        const container = document.getElementById('scrollContainer')
-        if (container) {
-          container.addEventListener('scroll', () => {
-            this.scrollTop = container.scrollTop
-            this.scrollLeft = container.scrollLeft
-          })
-        }
-      }
+      `
     }
   }
 }

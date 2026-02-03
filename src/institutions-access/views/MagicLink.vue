@@ -35,9 +35,11 @@ const onSubmit = async ({ token }: { token: string }) => {
   console.debug('Received token:', token)
   // Handle form submission logic here
   try {
-    const result = await magicLinkService.get(token)
-    console.debug('Magic link result:', result)
-    alert(`Login link ok`)
+    const authResult = await app.authenticate({
+      strategy: 'magic-link',
+      accessToken: token
+    })
+    console.debug('Authentication successful:', authResult)
     // const reauthenticate = await app.reAuthenticate(true)
     // console.debug('Re-authentication result:', reauthenticate)
   } catch (err) {

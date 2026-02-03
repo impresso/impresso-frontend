@@ -1,3 +1,20 @@
+<template>
+  <div class="Minimap" ref="minimapRef" @mousedown="handleMouseDown">
+    <div
+      class="Minimap__viewportIndicator"
+      :style="{
+        width: viewportWidthPercent + '%',
+        height: viewportHeightPercent + '%',
+        left: viewportXPercent + '%',
+        top: viewportYPercent + '%'
+      }"
+    />
+    <div class="Minimap__content">
+      <slot />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
@@ -19,29 +36,25 @@ const props = withDefaults(defineProps<MinimapProps>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:scrollTop', value: number): void
-  (e: 'update:scrollLeft', value: number): void
+  (e: 'updateScroll', value: { scrollLeft: number; scrollTop: number }): void
 }>()
 
-// Minimap dimensions
-const minimapWidth = 200
-const minimapHeight = 150
+const minimapRef = ref<HTMLElement>()
 
-// Scale factors
-const scaleX = computed(() => minimapWidth / props.scrollWidth)
-const scaleY = computed(() => minimapHeight / props.scrollHeight)
+// Calculate viewport indicator dimensions as percentages
+const viewportWidthPercent = computed(() => (props.clientWidth / props.scrollWidth) * 100)
+const viewportHeightPercent = computed(() => (props.clientHeight / props.scrollHeight) * 100)
 
-// Viewport indicator dimensions and position
-const viewportWidth = computed(() => props.clientWidth * scaleX.value)
-const viewportHeight = computed(() => props.clientHeight * scaleY.value)
-const viewportX = computed(() => props.scrollLeft * scaleX.value)
-const viewportY = computed(() => props.scrollTop * scaleY.value)
+// Calculate viewport indicator position as percentages
+const viewportXPercent = computed(() => (props.scrollLeft / props.scrollWidth) * 100)
+const viewportYPercent = computed(() => (props.scrollTop / props.scrollHeight) * 100)
 
 const isDragging = ref(false)
 
 const handleMouseDown = (e: MouseEvent) => {
   isDragging.value = true
   updateScrollPosition(e)
+  console.debug('[Minimap] @mousedown')
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging.value) {
@@ -60,20 +73,21 @@ const handleMouseDown = (e: MouseEvent) => {
 }
 
 const updateScrollPosition = (e: MouseEvent) => {
-  if (!e.currentTarget) return
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  if (!minimapRef.value) return
 
-  // Get click position relative to minimap
-  let x = e.clientX - rect.left
-  let y = e.clientY - rect.top
+  const rect = minimapRef.value.getBoundingClientRect()
+
+  // Get click position relative to minimap as percentages
+  let xPercent = ((e.clientX - rect.left) / rect.width) * 100
+  let yPercent = ((e.clientY - rect.top) / rect.height) * 100
 
   // Center the viewport on the click point
-  x -= viewportWidth.value / 2
-  y -= viewportHeight.value / 2
+  xPercent -= viewportWidthPercent.value / 2
+  yPercent -= viewportHeightPercent.value / 2
 
-  // Convert minimap coordinates to scroll coordinates
-  const newScrollLeft = x / scaleX.value
-  const newScrollTop = y / scaleY.value
+  // Convert percentage coordinates to scroll coordinates
+  const newScrollLeft = (xPercent / 100) * props.scrollWidth
+  const newScrollTop = (yPercent / 100) * props.scrollHeight
 
   // Clamp values to valid scroll range
   const clampedScrollLeft = Math.max(
@@ -84,48 +98,42 @@ const updateScrollPosition = (e: MouseEvent) => {
     0,
     Math.min(newScrollTop, props.scrollHeight - props.clientHeight)
   )
-
-  emit('update:scrollLeft', clampedScrollLeft)
-  emit('update:scrollTop', clampedScrollTop)
+  emit('updateScroll', {
+    scrollLeft: clampedScrollLeft,
+    scrollTop: clampedScrollTop
+  })
 }
 </script>
 
-<template>
-  <div
-    class="minimap"
-    :style="{ width: minimapWidth + 'px', height: minimapHeight + 'px' }"
-    @mousedown="handleMouseDown"
-  >
-    <div
-      class="viewport-indicator"
-      :style="{
-        width: viewportWidth + 'px',
-        height: viewportHeight + 'px',
-        left: viewportX + 'px',
-        top: viewportY + 'px'
-      }"
-    />
-  </div>
-</template>
-
-<style scoped>
-.minimap {
+<style>
+.Minimap {
   position: relative;
+  width: 100%;
+  height: 100%;
   background: #f0f0f0;
   border: 1px solid #ccc;
   cursor: pointer;
   user-select: none;
 }
 
-.minimap:active {
+.Minimap:active {
   cursor: grabbing;
 }
 
-.viewport-indicator {
+.Minimap__viewportIndicator {
   position: absolute;
   background: rgba(66, 135, 245, 0.3);
   border: 2px solid #4287f5;
   box-sizing: border-box;
+  pointer-events: none;
+}
+.Minimap__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   pointer-events: none;
 }
 </style>
