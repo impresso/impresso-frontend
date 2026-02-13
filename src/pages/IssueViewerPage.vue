@@ -103,6 +103,11 @@
             </div>
           </template>
         </ListOfSimilarContentItems>
+        <ContentItemCard
+          class="px-3 bg-light w-100"
+          v-if="contentItemOriginal && viewMode === ContentItemCardMode"
+          :item="contentItemOriginal"
+        />
       </div>
     </i-layout-section>
   </i-layout>
@@ -137,6 +142,7 @@ import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
 import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
+import ContentItemCard from '@/components/contentItem/ContentItemCard.vue'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -144,12 +150,14 @@ const RegionTranscriptMode = '1'
 const IIIFViewerTranscriptMode = '2'
 const TextReuseMode = '3'
 const SimilarArticlesMode = '4'
+const ContentItemCardMode = '5'
 const AvailableViewModes = [
   FacsimileMode,
   RegionTranscriptMode,
   IIIFViewerTranscriptMode,
   TextReuseMode,
-  SimilarArticlesMode
+  SimilarArticlesMode,
+  ContentItemCardMode
 ]
 // Route parameters
 const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
@@ -507,7 +515,8 @@ watch(
       "1": "Region Transcript",
       "2": "Facsimile + Transcript",
       "3": "Text Reuse",
-      "4": "Similar Articles"
+      "4": "Similar Articles",
+      "5": "Content Item Card"
     },
     "add_to_collection": "Add to collection"
   }
