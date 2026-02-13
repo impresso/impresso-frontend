@@ -1,5 +1,5 @@
 <template>
-  <div class="citation-wrapper" v-if="citationHtml.length" v-html="citationHtml"></div>
+  <div class="ContentItemCitation" v-if="citationHtml.length" v-html="citationHtml"></div>
 </template>
 
 <script setup lang="ts">
