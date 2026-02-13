@@ -154,3 +154,24 @@ export function getBucketLabel(
 
   return label != null ? String(label) : undefined
 }
+
+export const SupportedFacetsByContext = Object.freeze({
+  dataProviders: Object.freeze([
+    'language',
+    'newspaper',
+    'type',
+    'country',
+    'partner',
+    // 'year',
+    'contentLength',
+    'copyright',
+    'sourceType',
+    'sourceMedium',
+    // DPFS facets
+    'person',
+    'location',
+    'nag',
+    'organisation',
+    'topic'
+  ])
+})

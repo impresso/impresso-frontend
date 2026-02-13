@@ -1,5 +1,6 @@
 <template>
   <div class="MediaSourceLabel">
+    <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }} </span>
     <ItemSelector
       v-if="showLink"
       :uid="item.uid"
@@ -10,8 +11,6 @@
       hideIcon
     />
     <span v-else :class="titleClass">{{ title }}</span>
-    {{ ' ' }}
-    <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
   </div>
 </template>
 <script lang="ts" setup>

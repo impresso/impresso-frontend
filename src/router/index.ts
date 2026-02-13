@@ -269,6 +269,14 @@ const router = createRouter({
       }
     },
     {
+      path: '/data-providers',
+      name: 'dataProviders',
+      component: () => import('@/pages/DataProviderPage.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/newspapers',
       component: () => import('@/pages/Newspapers.vue'),
       children: [

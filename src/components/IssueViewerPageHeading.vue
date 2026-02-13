@@ -16,7 +16,9 @@
               showLink
           /></span>
 
-          <span class="date" v-if="issue">&nbsp;&mdash;&nbsp;{{ $d(issue.date, 'long') }}</span>
+          <span class="date font-weight-normal small" v-if="issue"
+            >&nbsp;&mdash;&nbsp;{{ $d(issue.date, 'long') }}</span
+          >
           <span class="pages" v-if="article?.pages"
             >&nbsp;&mdash;
             {{
