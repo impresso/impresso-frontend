@@ -7,6 +7,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 // import VueDevTools from 'vite-plugin-vue-devtools'
 import autoprefixer from 'autoprefixer'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 function isLocalhost(url: string): boolean {
   try {
@@ -97,7 +98,8 @@ export default ({ mode }: { mode: string }) => {
         compositionOnly: false,
         strictMessage: false,
         escapeHtml: false
-      })
+      }),
+      process.env.HTTPS ? basicSsl() : undefined
     ],
     css: {
       postcss: {
