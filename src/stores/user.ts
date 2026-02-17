@@ -161,7 +161,7 @@ export const useUserStore = defineStore('user', {
       // It is used to authorize the use of media files: images, audio.
       setCookie(MEDIA_COOKIE_NAME, accessToken, {
         expires: new Date(authentication?.payload?.exp * 1000),
-        sameSite: window.location.hostname !== 'dev.impresso-project.ch' ? 'None' : 'Lax', // allow cross-site cookie in dev environment.
+        sameSite: window.location.hostname === 'dev.impresso-project.ch' ? 'None' : 'Lax', // allow cross-site cookie in dev environment.
         secure: window.location.hostname !== 'localhost', // allow non-secure cookie on localhost
         path: MIDDLELAYER_MEDIA_PATH
       })
