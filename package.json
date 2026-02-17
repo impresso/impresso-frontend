@@ -13,6 +13,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev-https": "HTTPS=true vite",
     "dev-staging": "vite --mode staging",
     "dev-prod": "vite --mode prod",
     "build": "run-p type-check \"build-only {@}\" --",
