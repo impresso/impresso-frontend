@@ -185,7 +185,7 @@ export default {
     total: 0,
     page: 1,
     limit: 10,
-    orderBy: '-relevance',
+    orderBy: '-topicRelevance',
     timeline: [],
     applyCurrentSearchFilters: false,
     facets: [],
@@ -197,11 +197,11 @@ export default {
     orderByOptions() {
       return [
         {
-          value: '-relevance',
+          value: '-topicRelevance',
           text: this.$t('topic.relevanceDESC')
         },
         {
-          value: 'relevance',
+          value: 'topicRelevance',
           text: this.$t('topic.relevanceASC')
         },
         {
