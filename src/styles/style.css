@@ -414,6 +414,10 @@ label {
   font-weight: var(--impresso-wght-medium);
   font-variation-settings: 'wght' var(--impresso-wght-medium);
 }
+.font-weight-normal {
+  font-weight: var(--impresso-wght);
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .font-size-inherit {
   font-size: inherit;
 }
@@ -542,6 +546,10 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 
+/* vh */
+.vh-75 {
+  height: 75vh !important;
+}
 /* ul nav pills etc...*/
 ul.nav.nav-pills {
   border-bottom: 1px solid var(--clr-grey-200);
@@ -697,12 +705,7 @@ ul.nav.nav-pills .nav-item:hover .nav-link {
 }
 
 .modal-backdrop {
-  background-image: radial-gradient(
-    ellipse at center,
-    var(--impresso-color-yellow) 0%,
-    var(--impresso-color-yellow) 20%,
-    transparent 75%
-  );
+  background-image: radial-gradient(ellipse at center, #6d6740 0%, #696651 20%, transparent 75%);
   background-color: transparent;
 }
 /* SVGs */

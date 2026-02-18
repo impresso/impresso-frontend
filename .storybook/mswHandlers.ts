@@ -93,6 +93,12 @@ const sendBaristaMessage = http.post('/api/barista-proxy', () => {
   })
 })
 
+const getFiltersItems = http.get('/api/filters-items', () => {
+  return HttpResponse.json({
+    filtersWithItems: []
+  })
+})
+
 const collectErrors = http.post('/api/errors-collector', () => {
   return HttpResponse.json({})
 })
@@ -326,5 +332,6 @@ export const handlers = {
   getCollectionsHandler,
   createCollectionHandler,
   patchCollectionItemsHandler,
-  getCollectionHandler
+  getCollectionHandler,
+  getFiltersItems
 }

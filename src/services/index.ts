@@ -2,6 +2,7 @@
 import auth from '@feathersjs/authentication-client'
 import { feathers } from '@feathersjs/feathers'
 
+import { useBaristaStore } from '@/stores/barista'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'
@@ -127,9 +128,16 @@ app.service('logs').on('created', payload => {
   }
 })
 
+app.service('barista-proxy').on('barista-response', payload => {
+  console.info('[@barista-proxy->barista-response]', payload)
+  const baristaStore = useBaristaStore()
+  baristaStore.parseBaristaStream(payload)
+})
+
 // repeat this line for every service in our backend
 export const version = app.service('version')
 export const suggestions = app.service('suggestions')
+export const admin = app.service('admin')
 export const contentItems = app.service('content-items')
 export const images = app.service('images').hooks(imagesHooks)
 export const issues = app.service('issues')
@@ -189,6 +197,11 @@ export const changePassword = app.service('change-password')
 export const termsOfUse = app.service('terms-of-use')
 export const userChangePlanRequest = app.service('user-change-plan-request')
 export const userSpecialMembershipRequests = app.service('user-special-membership-requests')
+export const userSpecialMembershipRequestsReviews = app.service(
+  'user-special-membership-requests-reviews'
+)
+export const magicLink = app.service('magic-link')
+
 export const specialMembershipAccess = app.service('special-membership-access')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')

@@ -3,11 +3,12 @@
 This is a vite‑based Vue 3.x project using TypeScript. It is connected to a FeathersJS WebSocket backend, all services are available under `src/services/`.
 The project has been migrated from vue 2 to vue 3 and from options API to composition API and from bootstrap 3 to bootstrap 5 at different level of completion. As a result, legacy code can still be found in some places.
 
-The app is composed of two siblings vue apps:
+The app is composed of three siblings vue apps:
 
 - The main app located in `src/` served at `/app/`, with specific vue router base configuration located in `src/router/index.ts`
 - The widget app located in `src/widget` served at `/widget/`, with specific vue router base configuration located in `src/widget/router/index.ts`
-- Note that the widget app has its own internal components folder. Shared components between the main app and the widget app should be located in `src/components/` and imported in the widget app when needed.
+- The institutions-access app located in `src/institutions-access` served at `/institutions-access/`, with specific vue router base configuration located in `src/institutions-access/router/index.ts`
+- Note that the widget app has its own internal components folder. Shared components between the main app, the widget app, and the institutions-access app should be located in `src/components/` and imported when needed.
 
 There are some inconsistencies in the use of Vite aliases for imports, try to correct them when editing or use '@' whenever possible when creating new files.
 Relevant part in `vite.config.ts`:
@@ -68,7 +69,7 @@ When generating or editing Vue components in src/components:
 
 - Use the Composition API and ensure they are compatible with Vue 3.x.
 - Prefer <script setup> syntax
-
+- In template section use CamelCase for component names. Use kebab-case only for custom plugin components, like <i-layout> or <i-layout-section>.
 - Ensure all new components have an accompanying Storybook 10.x story written in TypeScript.
 - Create or update a Storybook 10.x story written in TypeScript.
 - Place the story file in the same folder as the component (e.g. MyComponent.vue and MyComponent.stories.ts).
@@ -76,6 +77,14 @@ When generating or editing Vue components in src/components:
 - prefer typed objects to the model classes specified in `src/models/*.ts` unless there is a specific reason to use the class implementation.
 - @/ is the preferred Vite alias to ensure import consistency.
 - if a component requires specialized nested components that are not reused elsewhere, place both the main component and its nested components them in a subfolder named after the feature the component is solving (e.g. `src/components/barista` ). Storybook stories for these components should be placed in the same subfolder, following the usual rule.
+- for emitting events from components, use defineEmits with typed events like:
+
+```ts
+const emit = defineEmits<{
+  (e: 'change', id: number): void
+  (e: 'update', value: string): void
+}>()
+```
 
 ### How to use i18n for dynamic translations in components
 

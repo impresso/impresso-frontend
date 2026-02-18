@@ -1,7 +1,7 @@
 <template>
   <div class="IIIFViewer" ref="viewerContainer">
     <div v-if="errorKind != null" class="forbidden-overlay">
-      <div class="forbidden-message">
+      <div class="forbidden-message m-3">
         <div class="error-description" v-if="errorKind === 'forbidden'">
           {{ $t('errorMessageForbidden') }}
         </div>

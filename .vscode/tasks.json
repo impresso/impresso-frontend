@@ -13,6 +13,15 @@
       }
     },
     {
+      "label": "Run dev server (HTTPS)",
+      "type": "npm",
+      "script": "dev-https",
+      "problemMatcher": ["$vite"],
+      "group": {
+        "isDefault": true
+      }
+    },
+    {
       "label": "Run dev server with staging API (dev.impresso-project.ch)",
       "type": "npm",
       "script": "dev-staging",
@@ -20,6 +29,13 @@
       "group": {
         "isDefault": false
       }
+    },
+    {
+      "label": "Generate Types",
+      "type": "npm",
+      "script": "generate-types",
+      "problemMatcher": [],
+      "group": "build"
     }
   ]
 }

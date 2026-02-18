@@ -2,20 +2,21 @@
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
-import SourcesOverviewTimeline from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
+import SourcesOverviewTimeline, {
+  TooltipPosition
+} from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
 import { buildEmptyFacets } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
-import {
-  mediaSources as mediaSourcesService,
-  searchFacets as searchFacetsService,
-  stats as statsService
-} from '@/services'
+import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import SourceOverviewLegend from '@/components/sourcesOverview/SourceOverviewLegend.vue'
+import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
+import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
+import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
+
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
@@ -71,6 +72,7 @@ const facets = ref([])
 const dataValues = ref<DataValue[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
+const isHelperModalVisible = ref(true)
 
 const normalize = ref(false)
 const fitToContainerWidth = ref(false)
@@ -78,7 +80,21 @@ const minimumGap = ref<number>(10)
 const minimumVerticalGap = ref<number>(50)
 const minimumVerticalHeight = ref<number>(4)
 const withPowerScale = ref(true)
+const tooltipPosition = ref<TooltipPosition | null>(null)
+const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 
+const handleTooltipMove = (pos: TooltipPosition) => {
+  tooltipPosition.value = pos
+}
+
+const handleScrollUpdate = (updated: TooltipPosition) => {
+  tooltipPosition.value = updated
+  timelineRef.value?.scrollTo(updated.scrollLeft, updated.scrollTop)
+}
+
+const toggleOpenHelperModal = (isOpen: boolean) => {
+  isHelperModalVisible.value = isOpen
+}
 watch(
   () => props.filters,
   async newVal => {
@@ -203,14 +219,6 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
-          <template #actions>
-            <!-- Future action buttons can be added here -->
-            <SourceOverviewLegend
-              style="width: 150px"
-              :dataValues="dataValues"
-              :normalizeLocally="normalize"
-            />
-          </template>
           <template #summaryActions>
             <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
               <template #button-content> {{ $t('visualisationSettings') }}</template>
@@ -308,6 +316,7 @@ onMounted(() => {
         </PageNavbarHeading>
       </template>
       <SourcesOverviewTimeline
+        ref="timelineRef"
         :normalizeLocally="normalize"
         class="h-100"
         :fitToContainerWidth="fitToContainerWidth"
@@ -318,7 +327,42 @@ onMounted(() => {
         :minimumVerticalGap="minimumVerticalGap"
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
+        @tooltip-move="handleTooltipMove"
       />
+      <div class="position-absolute top-0 end-0 p-2">
+        <SourceOverviewNavigator
+          :initialX="20"
+          :initialY="120"
+          @update:tooltipPosition="handleScrollUpdate"
+          :tooltip-position="tooltipPosition"
+          :z-index="1038"
+        >
+          <footer class="m-2">
+            <button
+              class="btn btn-sm border border-dark btn-outline-secondary"
+              v-on:click="toggleOpenHelperModal(true)"
+              style="pointer-events: all"
+            >
+              {{ $t('gettingStarted') }}
+            </button>
+          </footer>
+          <template #minimap>
+            <SourceOverviewMiniTimeline
+              :startDate="minStartDate"
+              :endDate="maxEndDate"
+              :dataValues="dataValues"
+              :containerWidth="250"
+              :height="200"
+            />
+          </template>
+        </SourceOverviewNavigator>
+      </div>
+
+      <SourcesOverviewModal
+        :isVisible="isHelperModalVisible"
+        :filters="filtersWithItems"
+        @dismiss="toggleOpenHelperModal(false)"
+      ></SourcesOverviewModal>
     </i-layout-section>
   </i-layout>
 </template>
@@ -343,7 +387,8 @@ onMounted(() => {
     "minimumVerticalHeight": "Minimum height for lower values (px)",
     "withPowerScale": "With Power Scale",
     "withPowerScaleInfoTitle": "With Power Scale",
-    "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes."
+    "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
+    "gettingStarted": "Getting Started Guide"
   }
 }
 </i18n>

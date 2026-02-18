@@ -1,36 +1,49 @@
-import { toSerializedFilters } from '@/logic/filters'
 import { ClientService } from '@feathersjs/feathers'
+import type { components } from '@/models/generated/barista/schema'
 
-interface FunctionCall {
+export type AIMessage = components['schemas']['AIMessage']
+export type HumanMessage = components['schemas']['HumanMessage']
+export type ToolMessage = components['schemas']['ToolMessage']
+export type ErrorMessage = components['schemas']['ErrorMessage']
+
+export type BaristaFormattedResponse = components['schemas']['BaristaFormattedResponse']
+
+export type BaristaMessageItem = AIMessage | HumanMessage | ToolMessage | ErrorMessage
+
+export type BaristaRequest = components['schemas']['BaristaRequest']
+export type BaristaResponse = components['schemas']['BaristaResponse']
+
+export interface FunctionCall {
   arguments: string
   name: string
 }
 
-interface ToolCall {
+export interface ToolCall {
   id: string
   function: FunctionCall
   type: 'function'
 }
 
-interface AdditionalKwargs {
-  tool_calls?: ToolCall[]
+export const supportsStructuredResponse = (
+  message: BaristaMessageItem
+): message is AIMessage | ToolMessage => {
+  return message.type === 'ai' || message.type === 'tool'
 }
 
-// Main Message Interface
-export interface BaristaMessage {
+export interface Action {
+  type: 'search' | 'text-reuse' | 'images'
+  context: string
+}
+
+export interface ChatMessage {
   content: string
-  additional_kwargs?: AdditionalKwargs
-  type: 'ai' | 'human'
-  name?: string | null
-  id?: string
-}
-
-export interface BaristaRequest {
-  message: string
-}
-
-interface BaristaResponse {
-  messages: BaristaMessage[]
+  timestamp: Date
+  type: 'user' | 'system' | 'tool' | 'error'
+  actions?: Action[]
+  reasoning?: string
+  toolCalls?: string[]
+  structuredResponse?: BaristaFormattedResponse
+  additionalContent?: string
 }
 
 export type BaristaService = Pick<
@@ -38,21 +51,4 @@ export type BaristaService = Pick<
   'create'
 >
 
-export const getSearchFiltersAsBase64 = (kwargs: AdditionalKwargs): string | undefined => {
-  const filtersToolCalls =
-    kwargs.tool_calls?.filter?.(
-      tool_call => tool_call.type === 'function' && tool_call.function.name === 'Filters'
-    ) ?? []
-
-  if (filtersToolCalls.length > 0) {
-    try {
-      const searchFilters = JSON.parse(filtersToolCalls[0].function.arguments)
-      const serializedFilters = toSerializedFilters(searchFilters['filters'])
-      return serializedFilters
-    } catch (error) {
-      console.error('Error parsing search filters:', error)
-      return undefined
-    }
-  }
-  return undefined
-}
+export type SupportedModels = BaristaRequest['modelId']

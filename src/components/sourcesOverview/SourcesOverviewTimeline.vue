@@ -233,11 +233,22 @@ const props = withDefaults(defineProps<Props>(), {
   scaleExponent: 2
 })
 
+export interface TooltipPosition {
+  date: Date
+  x: number
+  y: number
+  value?: DataValue
+  otherValuesOnDate: DataValue[]
+  scrollTop: number
+  scrollWidth: number
+  scrollHeight: number
+  scrollLeft: number
+  clientWidth: number
+  clientHeight: number
+}
+
 const emit = defineEmits<{
-  (
-    e: 'tooltipMove',
-    payload: { value?: DataValue; otherValuesOnDate: DataValue[]; date: Date; x: number; y: number }
-  ): void
+  (e: 'tooltipMove', payload: TooltipPosition): void
   (e: 'tooltipOut'): void
 }>()
 
@@ -442,7 +453,19 @@ const emitTooltipEvent = () => {
       isActive: false
     }
   }
-  emit('tooltipMove', { date, x: visX, y: visY, value: dataValue, otherValuesOnDate })
+  emit('tooltipMove', {
+    date,
+    x: visX,
+    y: visY,
+    value: dataValue,
+    otherValuesOnDate,
+    scrollTop: containerRef.value!.scrollTop,
+    scrollWidth: containerRef.value!.scrollWidth,
+    scrollHeight: containerRef.value!.scrollHeight,
+    scrollLeft: containerRef.value!.scrollLeft,
+    clientWidth: containerWidth.value,
+    clientHeight: containerHeight.value
+  })
 }
 /**
  * Finds the closest data value to the given position coordinates.
@@ -543,6 +566,20 @@ onUnmounted(() => {
   if (containerRef.value) {
     containerRef.value.removeEventListener('scroll', containerOnScrollHandler)
   }
+})
+
+/**
+ * Programmatically scroll the container to the specified position
+ */
+const scrollTo = (scrollLeft: number, scrollTop: number) => {
+  if (containerRef.value) {
+    containerRef.value.scrollLeft = scrollLeft
+    containerRef.value.scrollTop = scrollTop
+  }
+}
+
+defineExpose({
+  scrollTo
 })
 </script>
 <style lang="css">

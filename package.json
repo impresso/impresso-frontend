@@ -13,6 +13,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "dev-https": "HTTPS=true vite",
     "dev-staging": "vite --mode staging",
     "dev-prod": "vite --mode prod",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -81,6 +82,7 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^20.12.5",
     "@types/openseadragon": "^2.4.5",
+    "@vitejs/plugin-basic-ssl": "^2.1.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitejs/plugin-vue-jsx": "^4.1.2",
     "@vue/eslint-config-prettier": "^9.0.0",
@@ -98,6 +100,7 @@
     "msw": "^2.3.1",
     "msw-storybook-addon": "^2.0.6",
     "npm-run-all2": "^6.1.2",
+    "openapi-typescript": "^7.10.1",
     "prettier": "^3.2.5",
     "sass": "1.77.4",
     "start-server-and-test": "^2.0.3",

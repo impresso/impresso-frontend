@@ -7,6 +7,7 @@ import { ContentItemsService } from './contentItems'
 import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
 import { ICollectableItemsService } from './collectableItems'
+import { AdminService } from './admin'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -42,6 +43,7 @@ interface UntypedServices {
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
   ['datalab-support']: DatalabSupportService
+  admin: AdminService
   images: ImageService
   embeddings: EmbeddingsService
   ['barista-proxy']: BaristaService
@@ -118,7 +120,42 @@ export interface UserSpecialMembershipRequest {
   changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
-// new type from media endpoint
+export interface UserSpecialMembershipRequestReview {
+  // new type from media endpoint
+  // { "id": 80, "reviewerId": null, "userId": 1, "specialMembershipAccessId": 37, "dateCreated": "2026-01-28T07:38:09.000Z", "dateLastModified": "2026-01-28T07:38:09.000Z", "status": "pending", "changelog": [ { "date": "2026-01-28T07:38:09.206Z", "notes": "This is a message for the reviewer", "status": "pending", "reviewer": "", "subscription": "Domain of CNA archive" } ], "specialMembershipAccess": { "id": 37, "reviewerId": 1, "title": "Domain of CNA archive", "bitmapPosition": 36, "metadata": {} }, "requester": { "id": 1, "email": "daniele.guido@uni.lu", "firstname": "Daniele", "lastname": "Guido", "groups": [ { "id": 2, "name": "plan-researcher", "auth_user_groups": { "user_id": 1, "group_id": 2 } }, { "id": 3, "name": "plan-educational", "auth_user_groups": { "user_id": 1, "group_id": 3 } }, { "id": 4, "name": "NoRedaction", "auth_user_groups": { "user_id": 1, "group_id": 4 } } ], "profile": { "id": 2, "uid": "local-dg", "provider": "local", "displayName": "Daniele Guido", "pattern": "#588c7e,#f2e394,#96ceb4,#677e96,#677e96", "picture": null, "user_id": 1, "emailAccepted": false, "maxLoopsAllowed": 200, "maxParallelJobs": 2, "institutionalUrl": "", "affiliation": "University of Luxembourg", "profileId": 1 } } }
+  id: number
+  reviewerId: number | null
+  specialMembershipAccessId: number
+  userId: number
+  specialMembershipAccess: SpecialMembershipAccess
+  dateCreated: string
+  dateLastModified: string
+  status: 'pending' | 'approved' | 'rejected'
+  changelog: UserSpecialMembershipRequestChangelogEntry[]
+  requester: {
+    id: number
+    email: string
+    firstname: string
+    lastname: string
+    groups: Group[]
+    profile: {
+      id: number
+      uid: string
+      provider: string
+      displayName: string
+      pattern: string
+      picture: string | null
+      user_id: number
+      emailAccepted: boolean
+      maxLoopsAllowed: number
+      maxParallelJobs: number
+      institutionalUrl: string
+      affiliation: string
+      profileId: number
+    }
+    bitmap: string
+  }
+}
 
 export type DataRelease = {
   id: string

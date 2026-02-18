@@ -1,5 +1,31 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import SourcesOverviewTimeline from './SourcesOverviewTimeline.vue'
+import SourcesOverviewTimeline, { TooltipPosition } from './SourcesOverviewTimeline.vue'
+import { DataValue } from './SourcesOverviewDateValueItem.vue'
+import SourceOverviewNavigator from './SourceOverviewNavigator.vue'
+import { ref } from 'vue'
+
+const MockDataValues: DataValue[] = Array.from({ length: 100 }, (_, i) => ({
+  id: (i + 1).toString(),
+  date: new Date(
+    `18${Math.floor(Math.random() * 100)
+      .toString()
+      .padStart(2, '0')}-01-01`
+  ),
+  dateRange: [
+    new Date(
+      `18${Math.floor(Math.random() * 100)
+        .toString()
+        .padStart(2, '0')}-01-01`
+    ),
+    new Date(
+      `18${Math.floor(Math.random() * 100)
+        .toString()
+        .padStart(2, '0')}-12-31`
+    )
+  ],
+  label: `Example ${i + 1}`,
+  value: Math.floor(Math.random() * 100)
+}))
 
 const meta: Meta<typeof SourcesOverviewTimeline> = {
   title: 'SourceOverview/Timeline',
@@ -106,28 +132,67 @@ export const ManyItems: Story = {
   args: {
     startDate: new Date('1800-01-01'),
     endDate: new Date('1900-12-31'),
-    dataValues: Array.from({ length: 50 }, (_, i) => ({
-      id: (i + 1).toString(),
-      date: new Date(
-        `18${Math.floor(Math.random() * 100)
-          .toString()
-          .padStart(2, '0')}-01-01`
-      ),
-      dateRange: [
-        new Date(
-          `18${Math.floor(Math.random() * 100)
-            .toString()
-            .padStart(2, '0')}-01-01`
-        ),
-        new Date(
-          `18${Math.floor(Math.random() * 100)
-            .toString()
-            .padStart(2, '0')}-12-31`
-        )
-      ],
-      label: `Example ${i + 1}`,
-      value: Math.floor(Math.random() * 100)
-    })),
+    dataValues: MockDataValues,
     minimumGap: 10
   }
+}
+
+export const ManyItemsWithNavigator: Story = {
+  args: {
+    startDate: new Date('1800-01-01'),
+    endDate: new Date('1900-12-31'),
+    dataValues: MockDataValues,
+    minimumGap: 50,
+    fitToContainerWidth: false
+  },
+  render: args => ({
+    components: { SourcesOverviewTimeline, SourceOverviewNavigator },
+    setup() {
+      const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
+      const tooltipPosition = ref<TooltipPosition | null>(null)
+
+      const handleTooltipMove = (pos: TooltipPosition) => {
+        tooltipPosition.value = pos
+      }
+
+      const handleScrollUpdate = (updated: TooltipPosition) => {
+        tooltipPosition.value = updated
+        timelineRef.value?.scrollTo(updated.scrollLeft, updated.scrollTop)
+      }
+
+      return { args, timelineRef, tooltipPosition, handleTooltipMove, handleScrollUpdate }
+    },
+
+    template: `
+      <div style="position: relative; overflow:scroll;">
+        <SourcesOverviewTimeline 
+          ref="timelineRef"
+          v-bind="args" 
+          style=" height: 500px; border: 1px solid purple" 
+          @tooltip-move="handleTooltipMove"
+        />
+        <p>
+        This timeline component has fixed gap between year ticks and it needs a navigator. Note that fitToContainerWidth is false to show horizontal padding and how to use the component SourceOverviewNavigator correctly.
+        </p>
+        <div class="position-absolute bottom-0 end-0 p-2">
+          <SourceOverviewNavigator
+            :initialX="270"
+            :initialY="-500"
+            :zIndex="1038"
+            v-model:tooltipPosition="tooltipPosition"
+            @update:tooltipPosition="handleScrollUpdate"
+          >
+            <footer class="m-2">
+              <button
+                class="btn btn-sm border border-dark btn-outline-secondary"
+                
+              >
+                {{ $t('gettingStarted') }}
+              </button>
+            </footer>
+          </SourceOverviewNavigator>
+        </div>
+      </div>
+      `
+  })
 }
