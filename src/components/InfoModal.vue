@@ -7,6 +7,7 @@
     @close="dismiss"
     :hideFooter="props.hideFooter"
   >
+    <template v-slot:modal-header-extra><slot name="modal-header-extra"></slot></template>
     <h5 v-if="title" class="mb-4">{{ title }}</h5>
     <slot></slot>
     <template v-slot:modal-footer>
