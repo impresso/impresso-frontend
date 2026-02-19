@@ -26,10 +26,19 @@ export const decodeBase64Bitmap = (input: string): DecodedBitmap => {
   }
 }
 
+/**
+ * Check if a bitmap has any special membership access (i.e., is >= PlanResearcher).
+ * @param bitmap
+ * @returns true if the bitmap grants access to any special membership, false otherwise
+ */
 export const hasAnySpecialMembershipAccess = (bitmap: string): boolean => {
   const parseBitmapResult = decodeBase64Bitmap(bitmap)
-
-  console.debug(`[bitmap.ts] hasAnySpecialMembershipAccess`, parseBitmapResult)
+  const minBigIntValue = 8n // corresponds to the highest plan bigint value (PlanResearcher)
+  if (parseBitmapResult.bigint >= minBigIntValue) {
+    console.debug(`[bitmap.ts] hasAnySpecialMembershipAccess`, parseBitmapResult)
+    return true
+  }
+  console.debug(`[bitmap.ts] no specialMembershipAccess`, parseBitmapResult)
   return false
 }
 

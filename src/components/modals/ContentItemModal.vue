@@ -52,18 +52,12 @@
     </template>
   </InfoModal>
 </template>
-<style>
-.ContentItemModal .ContentItemCitation {
-  display: inline-block;
-}
-</style>
 <script setup lang="ts">
 import BButton from '@/components/legacy/bootstrap/BButton.vue'
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import InfoModal from '../InfoModal.vue'
 import { computed, ref } from 'vue'
 import ContentItem from '../modules/lists/ContentItem.vue'
-import ContentItemCitation from '../ContentItemCitation.vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import ContentItemCard from '../contentItem/ContentItemCard.vue'
 
@@ -76,51 +70,13 @@ export type ContentItemModalProps = {
 const AvailableModes = ['card', 'transcript'] as const
 type AvailableModes = (typeof AvailableModes)[number]
 
-const AvailableFields = [
-  'id',
-  'text.title',
-  'semanticEnrichments.ocrQuality',
-  'access.copyright',
-  'meta.date',
-  'meta.mediaId',
-  'meta.sourceMedium',
-  'meta.countryCode',
-  'meta.provinceCode',
-  'meta.partnerId',
-
-  'text.contentLength',
-  'text.documentType',
-  'text.itemType',
-  'text.langCode',
-  'text.originalLangCode',
-  'text.snippet',
-  'image.isFrontPage'
-] as const
-
-const AccessBitmapFields = [
-  'access.accessBitmaps.explore',
-  'access.accessBitmaps.getTranscript',
-  'access.accessBitmaps.getImages'
-] as const
-
 const mode = ref<AvailableModes>('transcript')
 const props = withDefaults(defineProps<ContentItemModalProps>(), {
   isVisible: false
 })
 
-const TranscriptModeLinear = 'linear'
 const TranscriptModeParagraphs = 'paragraphs'
 const transcriptMode = ref(TranscriptModeParagraphs)
-/**
- * Helper function to get nested property values using dot notation
- */
-const getNestedValue = (obj: any, path: string): any => {
-  return path.split('.').reduce((current, prop) => current?.[prop], obj)
-}
-
-const fields = computed(() => {
-  return AvailableFields.map(field => getNestedValue(props.item, field) ?? '-')
-})
 
 const transcriptParagraphs = computed(() => {
   if (!props.item.text?.content) return []
@@ -146,7 +102,6 @@ const transcriptParagraphs = computed(() => {
   //     693
   //   ],
   // use line breaks to split the transcript into paragraphs
-
   const lineBreaks = props.item.image?.lineBreaks ?? []
   const content = props.item.text.content
   const paragraphs = []
@@ -155,9 +110,10 @@ const transcriptParagraphs = computed(() => {
     paragraphs.push(content.slice(lastIndex, breakIndex))
     lastIndex = breakIndex
   }
-  // push remaining content as last paragraph  if (lastIndex < content.length) {
-  paragraphs.push(content.slice(lastIndex))
-
+  // push remaining content as last paragraph
+  if (lastIndex < content.length) {
+    paragraphs.push(content.slice(lastIndex))
+  }
   return paragraphs
 })
 
