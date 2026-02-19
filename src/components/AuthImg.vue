@@ -16,7 +16,7 @@
 
 import { getAuthenticationToken } from '@/services'
 import { getAuthHeaders } from '@/util/auth'
-import { defaultAuthCondition } from '@/util/imageAuth'
+import { defaultAuthCondition, requiresCredentials } from '@/util/imageAuth'
 import { onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue'
 
 const props = defineProps<{ src: string; authCondition?: (imageUrl: string) => boolean }>()
@@ -34,7 +34,10 @@ const loadImage = async () => {
     const authCondition = props.authCondition ?? defaultAuthCondition
     const headers = authCondition(props.src) ? getAuthHeaders(getAuthenticationToken()) : {}
 
-    const res = await fetch(props.src, { headers, credentials: 'include' })
+    const res = await fetch(props.src, {
+      headers,
+      credentials: requiresCredentials(props.src) ? 'include' : 'same-origin'
+    })
     if (!res.ok) {
       if (res.status === 403) isForbidden.value = true
       const err = new Error(res.statusText)
