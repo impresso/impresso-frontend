@@ -5,9 +5,19 @@
 
       <div class="row">
         <div class="col-12 col-lg-6">
+          <p class="text-muted small">{{ $t('contentItemCard.citationFormatHtml') }}</p>
           <ContentItemCitation
             :item="item"
             show-copy-button
+            class="p-2 bg-bg-white border rounded small shadow-sm d-inline-block"
+          />
+        </div>
+        <div class="col-12 col-lg-6">
+          <p class="text-muted small">{{ $t('contentItemCard.citationFormatBibtext') }}</p>
+          <ContentItemCitation
+            :item="item"
+            show-copy-button
+            format="bibtex"
             class="p-2 bg-bg-white border rounded small shadow-sm d-inline-block"
           />
         </div>
@@ -51,9 +61,7 @@
             </div>
             <div></div>
             <p class="small m-2">
-              <span class="text-muted">
-                {{ $t(`contentItemCard.descriptions.${field}`) }} </span
-              >:
+              <span class="text-muted"> {{ $t(`contentItemCard.descriptions.${field}`) }} </span>:
               <span class="font-weight-bold">{{
                 bitmapPlans[index].length > 0
                   ? bitmapPlans[index].join(', ')
@@ -132,6 +140,8 @@ const bitmapPlans = computed(() =>
 {
   "en": {
     "contentItemCard": {
+      "citationFormatHtml": "HTML Citation",
+      "citationFormatBibtext": "BibTeX Citation",
       "specialMembershipRequired": "Special membership required",
       "citeAs": "Cite as",
       "rawMetadata": "Raw Metadata",
