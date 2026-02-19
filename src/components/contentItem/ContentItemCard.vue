@@ -47,10 +47,18 @@
               {{ field }}
             </div>
             <div class="border rounded px-2 bg-light d-inline-block">
-              {{ bitmapFields[index] }}
+              {{ bitmapFields[index].binary }}
             </div>
-            <p class="text-muted small m-2">
-              {{ $t(`contentItemCard.descriptions.${field}`) }}
+            <div></div>
+            <p class="small m-2">
+              <span class="text-muted">
+                {{ $t(`contentItemCard.descriptions.${field}`) }} </span
+              >:
+              <span class="font-weight-bold">{{
+                bitmapPlans[index].length > 0
+                  ? bitmapPlans[index].join(', ')
+                  : $t('contentItemCard.specialMembershipRequired')
+              }}</span>
             </p>
           </div>
         </div>
@@ -62,7 +70,7 @@
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import ContentItemCitation from '../ContentItemCitation.vue'
 import { computed, ref } from 'vue'
-import { decodeBase64Bitmap } from '@/logic/bitmap'
+import { decodeBase64Bitmap, DecodedBitmap, getPlansFromDecodedBitmap } from '@/logic/bitmap'
 
 /** Content Item to display metadata for */
 export type ContentItemModalProps = {
@@ -109,17 +117,22 @@ const getNestedValue = (obj: any, path: string): any => {
 const fields = computed(() => {
   return AvailableFields.map(field => getNestedValue(props.item, field) ?? '-')
 })
-const bitmapFields = computed(() => {
+const bitmapFields = computed<DecodedBitmap[]>(() => {
   return AccessBitmapFields.map(field => {
     const value = getNestedValue(props.item, field)
-    return decodeBase64Bitmap(value).binary
+    return decodeBase64Bitmap(value)
   })
 })
+
+const bitmapPlans = computed(() =>
+  bitmapFields.value.map(decodedBitmap => getPlansFromDecodedBitmap(decodedBitmap))
+)
 </script>
 <i18n lang="json">
 {
   "en": {
     "contentItemCard": {
+      "specialMembershipRequired": "Special membership required",
       "citeAs": "Cite as",
       "rawMetadata": "Raw Metadata",
       "access": "Access",
