@@ -1,16 +1,16 @@
+import { PlanBigints, PlanLabels } from '@/constants'
 import { base64BytesToBigInt } from '@/util/bigint'
 
+export type DecodedBitmap = {
+  bigint: bigint
+  hex: string
+  binary: string
+}
 /**
  * Decodes a BASE64 bitmap into its BigInt, Hex, and Binary formats.
  * @param input - Base64 encoded string
  */
-export const decodeBase64Bitmap = (
-  input: string
-): {
-  bigint: bigint
-  hex: string
-  binary: string
-} => {
+export const decodeBase64Bitmap = (input: string): DecodedBitmap => {
   // Guard for empty or invalid input
   if (!input || typeof input !== 'string') {
     return { bigint: 0n, hex: '0x0', binary: '0' }
@@ -31,4 +31,17 @@ export const hasAnySpecialMembershipAccess = (bitmap: string): boolean => {
 
   console.debug(`[bitmap.ts] hasAnySpecialMembershipAccess`, parseBitmapResult)
   return false
+}
+
+/**
+ * Given a decoded bitmap, returns a list of all plans that are able to access based on the bitmap's bigint value.
+ * @param decodedBitmap The decoded bitmap to check against available plans
+ * @return An array of plan names that the bitmap grants access to
+ */
+export const getPlansFromDecodedBitmap = (decodedBitmap: DecodedBitmap): string[] => {
+  return Object.entries(PlanBigints)
+    .filter(([_planName, planBigint]) => {
+      return (decodedBitmap.bigint & planBigint) !== 0n
+    })
+    .map(([planName, _]) => PlanLabels[planName])
 }
