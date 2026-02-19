@@ -1,3 +1,5 @@
+import { base64BytesToBigInt } from '@/util/bigint'
+
 /**
  * Decodes a BASE64 bitmap into its BigInt, Hex, and Binary formats.
  * @param input - Base64 encoded string
@@ -14,13 +16,8 @@ export const decodeBase64Bitmap = (
     return { bigint: 0n, hex: '0x0', binary: '0' }
   }
 
-  // 1. Convert Base64 to a Hex string
-  // Node.js: Buffer.from(input, 'base64').toString('hex')
-  // Browser: Use a helper or TextEncoder
-  const hexValue = Buffer.from(input, 'base64').toString('hex')
-
-  // 2. Convert Hex to BigInt
-  const value = BigInt(`0x${hexValue || '0'}`)
+  // Use existing utility to convert Base64 to BigInt
+  const value = base64BytesToBigInt(input)
 
   return {
     bigint: value,
