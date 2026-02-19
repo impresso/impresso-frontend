@@ -34,7 +34,7 @@ const loadImage = async () => {
     const authCondition = props.authCondition ?? defaultAuthCondition
     const headers = authCondition(props.src) ? getAuthHeaders(getAuthenticationToken()) : {}
 
-    const res = await fetch(props.src, { headers })
+    const res = await fetch(props.src, { headers, credentials: 'include' })
     if (!res.ok) {
       if (res.status === 403) isForbidden.value = true
       const err = new Error(res.statusText)
@@ -114,7 +114,14 @@ onBeforeUnmount(() => {
 
 <template>
   <div>
-    <img v-if="!isForbidden" ref="imgRef" :src="imageSrc" v-bind="attrs" @load="handleLoad" />
+    <img
+      v-if="!isForbidden"
+      ref="imgRef"
+      :src="imageSrc"
+      v-bind="attrs"
+      @load="handleLoad"
+      crossorigin="use-credentials"
+    />
     <div
       v-else
       class="error rounded bg-light border p-4 d-flex align-items-center justify-content-center"
