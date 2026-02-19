@@ -107,6 +107,7 @@
           class="px-3 bg-light w-100"
           v-if="contentItemOriginal && viewMode === ContentItemCardMode"
           :item="contentItemOriginal"
+          :show-metadata="isStaff"
         />
       </div>
     </i-layout-section>
@@ -120,7 +121,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import Issue from '@/models/Issue'
 import TableOfContents from '@/models/TableOfContents'
-import type { DataProvider, Filter, MediaSource } from '@/models'
+import type { DataProvider, Filter, MediaSource, User } from '@/models'
 import {
   issues as issuesService,
   contentItems as contentItemsService,
@@ -143,6 +144,7 @@ import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePass
 import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import ContentItemCard from '@/components/contentItem/ContentItemCard.vue'
+import { useUserStore } from '@/stores/user'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -159,6 +161,9 @@ const AvailableViewModes = [
   SimilarArticlesMode,
   ContentItemCardMode
 ]
+// user plans and access level
+const userStore = useUserStore()
+const isStaff = computed(() => (userStore.userData as User)?.isStaff)
 // Route parameters
 const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
 const QueryParams = Object.freeze({
@@ -516,7 +521,7 @@ watch(
       "2": "Facsimile + Transcript",
       "3": "Text Reuse",
       "4": "Similar Articles",
-      "5": "Content Item Card"
+      "5": "Cite as..."
     },
     "add_to_collection": "Add to collection"
   }
