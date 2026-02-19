@@ -4,15 +4,15 @@
       <h3 class="font-weight-bold font-size-inherit mt-3">{{ $t('contentItemCard.citeAs') }}</h3>
 
       <div class="row">
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-6 col-xl-4 mb-3">
           <p class="text-muted small">{{ $t('contentItemCard.citationFormatHtml') }}</p>
           <ContentItemCitation
             :item="item"
             show-copy-button
-            class="p-2 bg-bg-white border rounded small shadow-sm d-inline-block"
+            class="p-2 bg-white border rounded small shadow-sm d-inline-block"
           />
         </div>
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-6 col-xl-4 mb-3">
           <p class="text-muted small">{{ $t('contentItemCard.citationFormatBibtext') }}</p>
           <ContentItemCitation
             :item="item"
@@ -23,14 +23,14 @@
         </div>
       </div>
     </div>
-    <div class="container-fluid mt-4 border-top pt-3">
+    <div class="container-fluid mt-4 border-top pt-3" v-if="showMetadata">
       <h3 class="font-weight-bold font-size-inherit">{{ $t('contentItemCard.rawMetadata') }}</h3>
 
       <div class="row">
         <div
           v-for="(field, index) in AvailableFields"
           :key="field"
-          class="col-md-12 col-lg-6 col-xl-3"
+          class="col-sm-12 col-md-6 col-lg-6 col-xl-3"
         >
           <div class="py-2 small">
             <div class="font-weight-bold">{{ $t(`contentItemCard.fields.${field}`) }}</div>
@@ -42,14 +42,14 @@
         </div>
       </div>
     </div>
-    <div class="container-fluid my-4 border-top pt-3">
+    <div class="container-fluid my-4 border-top pt-3" v-if="showMetadata">
       <h3 class="font-weight-bold font-size-inherit">{{ $t('contentItemCard.access') }}</h3>
 
       <div class="row">
         <div
           v-for="(field, index) in AccessBitmapFields"
           :key="field"
-          class="col-md-12 col-lg-6 col-xl-3"
+          class="col-sm-12 col-md-6 col-lg-6 col-xl-3"
         >
           <div class="py-2 small">
             <div class="font-weight-bold">{{ $t(`contentItemCard.fields.${field}`) }}</div>
@@ -77,15 +77,16 @@
 <script setup lang="ts">
 import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
 import ContentItemCitation from '../ContentItemCitation.vue'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { decodeBase64Bitmap, DecodedBitmap, getPlansFromDecodedBitmap } from '@/logic/bitmap'
 
 /** Content Item to display metadata for */
-export type ContentItemModalProps = {
+export type ContentItemCardProps = {
   item: ContentItemType
+  showMetadata?: boolean
 }
 
-const props = defineProps<ContentItemModalProps>()
+const props = defineProps<ContentItemCardProps>()
 
 const AvailableFields = [
   'id',
