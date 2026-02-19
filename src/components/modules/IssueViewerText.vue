@@ -265,9 +265,7 @@ export default {
       const overlays = this.article.pages.map(page => {
         return {
           id: page.uid,
-          manifestUrls: page.iiif
-            .replace('https://dev.impresso-project.ch/', '/')
-            .replace('http://dev.impresso-project.ch/', '/'),
+          manifestUrls: page.iiif,
           regions: regionsByPageIndex[page.uid] || []
         }
       })
