@@ -23,6 +23,13 @@ export const Plans: string[] = [
   PlanNone
 ]
 
+export const PlanBigints: Record<string, bigint> = {
+  [PlanGuest]: 1n,
+  [PlanImpressoUser]: 2n,
+  [PlanEducational]: 4n,
+  [PlanResearcher]: 8n
+}
+
 export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher]
 
 export const AvailablePlansWithLabels = [
