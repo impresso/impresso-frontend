@@ -30,6 +30,7 @@ export default {
         ch: 'chronicle',
         rb: 'radio broadcast',
         rbe: 'radio broadcast episode',
+        chapter: 'chapter',
         'no-type': 'No type provided'
       },
       sourceType: {
