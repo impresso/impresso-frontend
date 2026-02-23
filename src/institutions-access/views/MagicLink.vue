@@ -7,7 +7,7 @@
         <template #header>
           <h2 class="mb-0 font-weight-bold">{{ $t('loginTitle') }}</h2>
         </template>
-        <MagicLinkForm @submit="onSubmit"
+        <MagicLinkForm :token="tokenFromUrl" @submit="onSubmit"
           >{{ error }}
           <FeathersErrorManager v-if="error" :error="error" />
         </MagicLinkForm>
@@ -22,9 +22,15 @@ import MagicLinkForm from '../components/forms/MagicLinkForm.vue'
 import { app as appService } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const error = ref<FeathersError | Error | null>(null)
+
+const tokenFromUrl = computed(() => {
+  return (route.query.token as string) || ''
+})
 
 const onSubmit = async ({ token }: { token: string }) => {
   error.value = null

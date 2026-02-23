@@ -3,7 +3,7 @@
     <div
       class="col-10 offset-1 col-md-8 offset-md-2 col-lg-6 offset-lg-3 vh-75 d-flex align-items-center"
     >
-      <Card class="w-100">
+      <Card class="w-100" v-if="!isEmailConfirmed">
         <template #header>
           <h2 class="mb-0 font-weight-bold">{{ $t('loginTitle') }}</h2>
         </template>
@@ -40,21 +40,31 @@
           </button>
         </form>
       </Card>
+      <Card class="w-100" v-else>
+        <template #header>
+          <h2 class="mb-0 font-weight-bold">{{ $t('loginTitle') }}</h2>
+        </template>
+        <p v-html="$t('loginSentMessage')" />
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import Card from '../components/Card.vue'
 import useVuelidate from '@vuelidate/core'
 import { helpers, required } from '@vuelidate/validators'
 import BFormGroup from 'impresso-ui-components/components/legacy/BFormGroup.vue'
 import Icon from '@/components/base/Icon.vue'
 import { magicLink as magicLinkService } from '@/services'
+import { useNotificationsStore } from '@/stores/notifications'
 export interface LoginFormPayload {
   email: string
 }
+
+const notificationStore = useNotificationsStore()
+const isEmailConfirmed = ref(false)
 
 const formData = reactive<LoginFormPayload>({
   email: ''
@@ -81,9 +91,19 @@ const onSubmit = async () => {
   try {
     const result = await magicLinkService.create({ email: formData.email })
     console.debug('Magic link result:', result)
-    alert(`Login link sent to ${formData.email}`)
+    notificationStore.addNotification({
+      type: 'info',
+      title: 'Magic Link Sent',
+      message: `A magic link has been sent to ${formData.email}`
+    })
+    isEmailConfirmed.value = true
   } catch (error) {
-    alert(`Failed to send login link: ${error.message}`)
+    console.error('Error sending magic link:', error)
+    notificationStore.addNotification({
+      type: 'error',
+      title: 'Error',
+      message: 'An error occurred while sending the magic link. Please try again.'
+    })
   }
 }
 </script>
@@ -92,6 +112,7 @@ const onSubmit = async () => {
   "en": {
     "loginTitle": "Login to Institution Access",
     "sendLoginLink": "Send Login Link",
+    "loginSentMessage": "A login link has been sent to your email. Please check your inbox and click the link to access the institution resources.",
     "loginHelpMessage": "Please enter your institutional email address to receive a login link. For assistance, contact us."
   }
 }
