@@ -594,7 +594,7 @@ export default defineComponent({
     exportQueryCsv() {
       exporterService.create(
         {
-          description: this.inputDescription
+          description: this.inputDescription.slice(0, 1000)
         },
         {
           query: {
