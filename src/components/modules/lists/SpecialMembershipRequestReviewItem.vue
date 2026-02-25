@@ -23,12 +23,10 @@
         {{ log }}
       </p>
     </div>
-    <div class="col-1">
-      <Icon v-if="userHasAnySpecialMembershipAccess" :name="'check'" />
-      <span v-else>&mdash;</span>
-    </div>
-    <div class="col-2">
-      {{ item.status }}
+
+    <div class="col-3">
+      <p class="m-0">{{ item.status }}</p>
+      <slot name="actions" :item="item" />
     </div>
   </div>
 </template>
