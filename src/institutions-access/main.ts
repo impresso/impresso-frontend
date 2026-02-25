@@ -11,6 +11,7 @@ import '@/styles/style.css'
 import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
 import { app as appService } from '@/services'
+import { initSequence, initUserPlan, initUserTermsOfUse } from '@/init'
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
@@ -43,24 +44,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.debug('[main.ts] DOM fully loaded and parsed')
   try {
     await Promise.all([
-      waitForConnectivity(),
-      reducedTimeoutPromise({ ms: 1000, service: 'minimum delay', silent: true })
+      waitForConnectivity,
+      reducedTimeoutPromise({ ms: 500, service: 'minimum delay', silent: true })
     ])
     console.debug('[main.ts] Connectivity established!')
+    await initSequence()
 
-    await Promise.all([appService.reAuthenticate(true)])
-      .catch(err => {
-        if (err.code === 401) {
-          console.debug('[main.ts] Not authenticated (status 401):', err.message)
-        } else {
-          console.error(err)
-        }
-      })
-      .then((res: any) => {
-        if (res) {
-          console.debug('[main.ts] Re-authentication successful.')
-        }
-      })
+    // Proceed with actions that require network connectivity
+    await initUserTermsOfUse()
+    //
+    await initUserPlan()
 
     app.mount('#app-container')
     const loadingElement = document.getElementById('app-container-loading')
