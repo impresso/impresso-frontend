@@ -1,7 +1,7 @@
 <template>
   <div id="InstitutionsAccess">
     <Header />
-    <main class="mx-lg-5 mx-md-2" style="padding-top: 100px">
+    <main class="mx-lg-4 mx-2" style="padding-top: 100px">
       <router-view />
     </main>
     <Toaster />
