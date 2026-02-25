@@ -17,7 +17,7 @@
     </template>
 
     <template #default>
-      <div class="p-2" style="min-height: 120px">
+      <div :class="$props.itemsClass" style="min-height: 120px">
         <LoadingBlock v-if="serviceResponse.status === 'loading'" :height="100" />
         <div
           v-if="serviceResponse.status == 'success' && serviceResponse.data.length === 0"
@@ -115,6 +115,8 @@ export interface ListOfFindResponseItemsProps<T> {
    * @required
    */
   service: FeathersServiceWithPath<T>
+  /** class to wrap the items container */
+  itemsClass?: string
 }
 
 const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
@@ -132,7 +134,8 @@ const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
       limit: 5,
       offset: 0
     }
-  })
+  }),
+  itemsClass: 'p2'
 })
 /** Current sort order selection */
 // const orderByModel = ref<string | undefined>(props.orderBy!)
@@ -239,6 +242,14 @@ watch(
       '[ListOfFindResponseItems] Service ID changed, refetching:',
       props.service.path || props.service.name
     )
+    fetchFindMethod()
+  }
+)
+
+watch(
+  () => props.params,
+  () => {
+    console.debug('[ListOfFindResponseItems] Params changed, refetching:', props.params)
     fetchFindMethod()
   }
 )
