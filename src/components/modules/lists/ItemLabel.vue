@@ -1,9 +1,6 @@
 <template>
   <div v-if="!detailed" class="ItemLabel d-inline">
-    <template v-if="['mediaSource', 'newspaper'].includes(itemType)">
-      <span>{{ item.name }}</span> &mdash; <span class="small-caps">{{ itemType }}</span>
-    </template>
-    <template v-else-if="itemType === 'collection'">
+    <template v-if="itemType === 'collection'">
       <b>{{ item.name }}</b
       >{{ ' ' }}
       <span class="date small">{{ $t('created', { date: $d(item.creationDate, 'short') }) }}</span>
@@ -12,9 +9,9 @@
       <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.label }}
     </template>
     <span v-else-if="['type', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)">
-      {{ $t(`buckets.${itemType}.${item.uid}`) }}
+      {{ $t(`buckets.${itemType}.${item.id}`) }}
     </span>
-    <span v-else v-html="label"></span>
+    <span v-else v-html="computedLabel"></span>
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
@@ -43,6 +40,9 @@ export default defineComponent({
       type: Object,
       required: true
     },
+    label: {
+      type: String
+    },
     type: {
       type: String as PropType<FacetType>,
       required: true
@@ -58,7 +58,7 @@ export default defineComponent({
     itemType() {
       return String(this.item.type ?? this.type)
     },
-    label() {
+    computedLabel() {
       let t = ''
       if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
@@ -74,13 +74,13 @@ export default defineComponent({
           'imageContentType'
         ].includes(this.type)
       ) {
-        t = this.item.label ?? this.item.uid
+        t = this.item.label ?? this.item.id
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
-        t = this.item.uid ?? this.item.id
+        t = this.item.id
       }
-      return t
+      return t != '' ? t : (this.label ?? '')
     },
     topicItem() {
       return this.item as Topic
@@ -89,7 +89,7 @@ export default defineComponent({
   methods: {
     getTextReuseClusterSummary(item) {
       if (!item.clusterSize) {
-        return item.uid
+        return item.id
       }
       const clusterSizeLabel =
         item.clusterSize != null

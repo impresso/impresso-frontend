@@ -51,7 +51,7 @@
           v-for="(item, i) in items"
           :key="i"
           @click="toggleSelectedItem(item)"
-          :class="{ active: selectedItemsIds.includes(item.uid) }"
+          :class="{ active: selectedItemsIds.includes(item.id) }"
         >
           <ItemLabel :item="item" :type="type" />
         </div>
@@ -126,7 +126,7 @@ import LoadingBlock from '@/components/LoadingBlock.vue'
 import type { Filter } from '@/models'
 
 interface FilterItem {
-  uid: string
+  id: string
   name: string
 }
 
@@ -156,11 +156,11 @@ const suggestionQueryRef = ref<HTMLInputElement | null>(null)
 // Computed properties
 const filterItemsIds = computed(() => {
   const filterItems = props.filter?.items ?? []
-  return filterItems.map(({ uid }) => uid)
+  return filterItems.map(({ id }) => id)
 })
 
 const selectedItemsIds = computed(() => {
-  return selectedItems.value.map(({ uid }) => uid).concat(filterItemsIds.value)
+  return selectedItems.value.map(({ id }) => id).concat(filterItemsIds.value)
 })
 
 const numberOfChangesInFilterItems = computed<{
@@ -229,7 +229,7 @@ const fetchEntities = async () => {
 }
 
 const toggleSelectedItem = (item: FilterItem) => {
-  const idx = selectedItemsIds.value.indexOf(item.uid)
+  const idx = selectedItemsIds.value.indexOf(item.id)
   if (idx === -1) {
     selectedItems.value.push(item)
   } else {

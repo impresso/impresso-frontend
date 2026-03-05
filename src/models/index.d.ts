@@ -1,8 +1,7 @@
 import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/deprecated/models'
 
 export interface FilterItem {
-  id?: string
-  uid: string
+  id: string
 
   name?: string
   language?: string
@@ -47,6 +46,7 @@ export interface Bucket<T extends Entity = Entity>
     SearchFacetRangeBucket {
   item?: T
   value: string | number
+  label?: string
 }
 
 // export interface Bucket {
@@ -83,7 +83,7 @@ export interface TextReuseCluster {
 }
 
 export interface MediaSource {
-  uid: string
+  id: string
   name: string
   type: ContentItemMeta['sourceType']
   acronym?: string
@@ -92,7 +92,7 @@ export interface MediaSource {
 }
 export interface Page {
   num: number
-  uid: string
+  id: string
 }
 export interface DataProvider {
   id: string
@@ -100,17 +100,17 @@ export interface DataProvider {
 }
 
 export interface Issue {
-  uid: string
+  id: string
   countArticles: number
   countPages: number
   date: Date
 }
 
 export interface IImage {
-  uid: string
+  id: string
   caption?: string
-  issueUid: string
-  contentItemUid?: string
+  issueId: string
+  contentItemId?: string
   previewUrl: string
   pageNumbers: number[]
   mediaSourceRef?: IMediaSourceRef
@@ -173,7 +173,7 @@ export interface Utterance {
 }
 
 export interface ContentItem {
-  uid: string
+  id: string
   type: 'audio' | 'ar' | 'radio_broadcast_episode'
   publicationDate: string
   title?: string

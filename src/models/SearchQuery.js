@@ -114,15 +114,15 @@ export default class SearchQuery {
     // and ids in `items`. Get rid of items that are not present in `q`.
     // One of the cases where it happens is when filtering by id of a collection
     // not owned by current user.
-    const mergeableItems = (filter.items || []).filter(item => filter.q.includes(item.uid))
+    const mergeableItems = (filter.items || []).filter(item => filter.q.includes(item.id))
 
     if (mergeableItems.length > 0) {
       const uids = []
       const items = []
       // combine the two lists of items;
       originalFilter.items.concat(mergeableItems).forEach(d => {
-        if (!uids.includes(d.uid)) {
-          uids.push(d.uid)
+        if (!uids.includes(d.id)) {
+          uids.push(d.id)
           items.push(d)
         }
       })
@@ -136,7 +136,7 @@ export default class SearchQuery {
 
   enrichFilters(filters) {
     filters.forEach(d => {
-      if ((d.items && d.items.length) || (d.item && d.item.uid)) {
+      if ((d.items && d.items.length) || (d.item && d.item.id)) {
         const filterized = filterize(d)
         const idx = this.filtersIds.indexOf(getFilterHash(filterized))
         if (idx !== -1) {
@@ -189,14 +189,14 @@ export default class SearchQuery {
       return
     }
     fil.items = fil.items.map(d => {
-      if (uid && d.uid === uid) {
+      if (uid && d.id === uid) {
         return item
-      } else if (d.uid === item.uid) {
+      } else if (d.id === item.id) {
         return item
       }
       return d
     })
-    fil.q = fil.items.filter(d => d.checked).map(d => d.uid)
+    fil.q = fil.items.filter(d => d.checked).map(d => d.id)
     fil.touched = getFilterHash(fil) !== fil.hash
   }
 

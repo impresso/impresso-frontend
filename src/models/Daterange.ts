@@ -8,7 +8,7 @@ import type { Entity as IEntity } from '.'
  * @param {Date} end Date object end op of the range
  */
 export default class Daterange implements IEntity {
-  uid: string
+  id: string
   start: Date
   end: Date
 
@@ -26,7 +26,7 @@ export default class Daterange implements IEntity {
     // make sure we only use dates, not times
     this.start.setUTCHours(0, 0, 0, 0)
     this.end.setUTCHours(23, 59, 59, 0)
-    this.uid = this.getValue()
+    this.id = this.getValue()
   }
 
   getValue() {

@@ -43,8 +43,8 @@ import { TiledImage, MouseTracker } from 'openseadragon'
 import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
 export interface Region {
-  articleUid: string
-  pageUid: string
+  articleId: string
+  pageId: string
   coords: { x: number; y: number; w: number; h: number }
 }
 
@@ -58,17 +58,17 @@ function createPageOverlay(tiledImage: TiledImage) {
 function createRegionOverlay(
   tiledImage: TiledImage,
   region: Region,
-  clickHandler: (articleUid: string) => void
+  clickHandler: (articleId: string) => void
 ): { overlay: any; rect: Rect } {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
-  overlay.dataset.articleUid = region.articleUid
+  overlay.dataset.articleId = region.articleId
 
   overlay.addEventListener('mouseenter', event => {
     const overlayTarget = event.target as HTMLDivElement
-    const articleUid = overlayTarget.dataset.articleUid
+    const articleId = overlayTarget.dataset.articleId
 
-    overlayTarget.parentNode?.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
+    overlayTarget.parentNode?.querySelectorAll(`[data-article-id=${articleId}]`).forEach(item => {
       item.classList.add('selected')
     })
   })
@@ -81,17 +81,17 @@ function createRegionOverlay(
       const overlayTarget = event?.originalEvent?.target as HTMLDivElement
       if (overlayTarget == null) return
 
-      const articleUid = overlayTarget.dataset.articleUid as string
-      clickHandler(articleUid)
+      const articleId = overlayTarget.dataset.articleId as string
+      clickHandler(articleId)
     }
   })
 
   overlay.addEventListener('mouseleave', event => {
     const overlayTarget = event.target as HTMLDivElement
 
-    const articleUid = overlayTarget.dataset.articleUid
+    const articleId = overlayTarget.dataset.articleId
 
-    overlayTarget.parentNode?.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
+    overlayTarget.parentNode?.querySelectorAll(`[data-article-id=${articleId}]`).forEach(item => {
       item.classList.remove('selected')
     })
   })
@@ -349,10 +349,10 @@ export default defineComponent({
       viewer.addOverlay(overlay, rect)
 
       this.currentOverlays = regions.map(region => {
-        const { overlay, rect } = createRegionOverlay(tiledImage, region, articleUid => {
-          this.$emit('article-selected', articleUid)
+        const { overlay, rect } = createRegionOverlay(tiledImage, region, articleId => {
+          this.$emit('article-selected', articleId)
         })
-        if (article.uid && region.articleUid === article.uid) {
+        if (article.id && region.articleId === article.id) {
           overlay.classList.add('active')
         }
         viewer.addOverlay(overlay, rect)

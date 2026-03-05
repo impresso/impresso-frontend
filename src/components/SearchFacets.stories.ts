@@ -54,7 +54,7 @@ const createYearFacet = (): Facet => {
     return new BucketModel({
       value: year.toString(),
       count: Math.floor(Math.random() * 1000) + 100,
-      item: { uid: year.toString(), y: year.toString() },
+      item: { id: year.toString(), y: year.toString() },
       type: 'year'
     })
   })
@@ -68,16 +68,16 @@ const createYearFacet = (): Facet => {
 
 const createNewspaperFacet = (): Facet => {
   const newspapers = [
-    { uid: 'GDL', name: 'Gazette de Lausanne' },
-    { uid: 'JDG', name: 'Journal de Genève' },
-    { uid: 'LNF', name: 'Le Nouvelliste' },
-    { uid: 'LES', name: "L'Express" },
-    { uid: 'LTS', name: 'Le Temps' }
+    { id: 'GDL', name: 'Gazette de Lausanne' },
+    { id: 'JDG', name: 'Journal de Genève' },
+    { id: 'LNF', name: 'Le Nouvelliste' },
+    { id: 'LES', name: "L'Express" },
+    { id: 'LTS', name: 'Le Temps' }
   ]
 
   const buckets = newspapers.map(newspaper => {
     return new BucketModel({
-      value: newspaper.uid,
+      value: newspaper.id,
       count: Math.floor(Math.random() * 500) + 50,
       item: newspaper,
       type: 'newspaper'
@@ -93,15 +93,15 @@ const createNewspaperFacet = (): Facet => {
 
 const createLanguageFacet = (): Facet => {
   const languages = [
-    { uid: 'fr', name: 'French' },
-    { uid: 'de', name: 'German' },
-    { uid: 'it', name: 'Italian' },
-    { uid: 'en', name: 'English' }
+    { id: 'fr', name: 'French' },
+    { id: 'de', name: 'German' },
+    { id: 'it', name: 'Italian' },
+    { id: 'en', name: 'English' }
   ]
 
   const buckets = languages.map(language => {
     return new BucketModel({
-      value: language.uid,
+      value: language.id,
       count: Math.floor(Math.random() * 800) + 200,
       item: language,
       type: 'language'
@@ -121,7 +121,7 @@ const createContentLengthFacet = (): Facet => {
     return new BucketModel({
       value: length.toString(),
       count: Math.floor(Math.random() * 500) + 50,
-      item: { uid: length.toString() },
+      item: { id: length.toString() },
       type: 'contentLength'
     })
   })
@@ -159,15 +159,15 @@ export const WithFilters: Story = {
         q: ['GDL', 'JDG'],
         context: 'include',
         items: [
-          { uid: 'GDL', name: 'Gazette de Lausanne' },
-          { uid: 'JDG', name: 'Journal de Genève' }
+          { id: 'GDL', name: 'Gazette de Lausanne' },
+          { id: 'JDG', name: 'Journal de Genève' }
         ]
       }),
       FilterFactory.create({
         type: 'language',
         q: ['fr'],
         context: 'include',
-        items: [{ uid: 'fr', name: 'French' }]
+        items: [{ id: 'fr', name: 'French' }]
       }),
       FilterFactory.create({
         type: 'daterange',

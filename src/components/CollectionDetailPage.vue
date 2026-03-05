@@ -1,7 +1,7 @@
 <template>
   <i-layout-section main>
     <template v-slot:header>
-      <b-navbar v-if="$route.params.collection_uid" type="light" variant="light">
+      <b-navbar v-if="$route.params.collection_id" type="light" variant="light">
         <section>
           <span class="label small-caps">
             <router-link
@@ -32,7 +32,7 @@
             :to="
               updateCurrentRoute({
                 name: 'compare',
-                query: { left: `c:${$route.params.collection_uid}` }
+                query: { left: `c:${$route.params.collection_id}` }
               })
             "
             class="m-1"
@@ -129,17 +129,17 @@
         class="px-0 py-2 border-bottom"
         v-if="
           tab.name !== TAB_RECOMMENDATIONS &&
-          (tab.name !== TAB_OVERVIEW || $route.params.collection_uid)
+          (tab.name !== TAB_OVERVIEW || $route.params.collection_id)
         "
       >
-        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
+        <b-navbar-nav v-if="$route.params.collection_id" class="ml-3">
           <form class="form-inline">
             <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
               {{ $t('actions.searchMore') }}
             </router-link>
           </form>
         </b-navbar-nav>
-        <b-navbar-nav v-if="$route.params.collection_uid" class="ml-3">
+        <b-navbar-nav v-if="$route.params.collection_id" class="ml-3">
           <b-button
             @click="handleExportCollection"
             size="sm"
@@ -281,7 +281,7 @@
 
     <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-recommendations h-100">
       <collection-recommendations-panel
-        :collection-id="$route.params.collection_uid"
+        :collection-id="$route.params.collection_id"
         :display-style="displayStyle"
         :collection="collection"
         :collection-recommenders-settings="recommendersSettings"
@@ -421,8 +421,8 @@ export default defineComponent({
         { value: 'tiles', text: this.$t('display_button_tiles') }
       ]
     },
-    collectionUid() {
-      return this.$route.params.collection_uid as string
+    collectionId() {
+      return this.$route.params.collection_id as string
     },
     paginationCurrentPage() {
       return parseInt(this.$route.query[QueryParameters.PaginationCurrentPage] as string, 10) || 1
@@ -446,7 +446,7 @@ export default defineComponent({
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: 'collection', q: this.collection.uid }]
+          filters: [{ type: 'collection', q: this.collection.id }]
         }) as Record<string, string>
       }
     },
@@ -486,7 +486,7 @@ export default defineComponent({
       //   label: this.$t('tabs.recommendations'),
       //   name: TAB_RECOMMENDATIONS
       // }
-      // return this.$route.params.collection_uid != null
+      // return this.$route.params.collection_id != null
       //   ? mainTabs.concat([recommendationsTab])
       //   : mainTabs
     },
@@ -513,13 +513,13 @@ export default defineComponent({
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab)
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0]
         // load collection
-        if (params.collection_uid) {
+        if (params.collection_id) {
           this.fetching = true
-          this.collection = await collectionsService.get(this.collectionUid).then(collection => {
+          this.collection = await collectionsService.get(this.collectionId).then(collection => {
             return new Collection({
               name: collection.title,
               description: collection.description,
-              uid: collection.uid,
+              id: collection.id,
               lastModifiedDate: collection.updatedAt,
               creationDate: collection.createdAt,
               countItems: collection.totalItems
@@ -545,7 +545,7 @@ export default defineComponent({
     handleExportCollection() {
       exporterService.create(
         {
-          description: this.collectionUid
+          description: this.collectionId
         },
         {
           query: {
@@ -553,7 +553,7 @@ export default defineComponent({
             filters: [
               {
                 type: 'collection',
-                q: [this.collectionUid]
+                q: [this.collectionId]
               }
             ],
             format: 'csv'
@@ -574,7 +574,7 @@ export default defineComponent({
       }
     },
     async loadCollectionItems() {
-      if (!this.collectionUid) return
+      if (!this.collectionId) return
 
       this.fetching = true
 
@@ -584,7 +584,7 @@ export default defineComponent({
             filters: [
               {
                 type: 'collection',
-                q: this.collectionUid
+                q: this.collectionId
               }
             ],
             limit: this.paginationPerPage,
@@ -601,8 +601,8 @@ export default defineComponent({
     gotoArticle(article) {
       if (
         article?.issue == null ||
-        [null, '', undefined].includes(article?.issue?.uid) ||
-        [null, '', undefined].includes(article?.uid)
+        [null, '', undefined].includes(article?.issue?.id) ||
+        [null, '', undefined].includes(article?.id)
       ) {
         console.error('No issue to go to page')
         return
@@ -610,29 +610,29 @@ export default defineComponent({
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: article.issue.uid,
+          issue_id: article.issue.id,
           page_number: article.pages[0]?.num,
-          page_uid: article.pages[0]?.uid,
-          article_uid: article.uid
+          page_id: article.pages[0]?.id,
+          article_id: article.id
         }
       })
     },
     remove(collection) {
       this.collectionsStore
-        .deleteCollection(collection.uid)
+        .deleteCollection(collection.id)
         .then(() => this.collectionsStore.loadCollections())
         .then(() => this.$router.push({ name: 'collections' }))
     },
     save(collection) {
-      if (collection.uid) {
+      if (collection.id) {
         this.collectionsStore
           .editCollection({
-            uid: collection.uid,
+            id: collection.id,
             name: collection.name,
             description: collection.description
           })
           .then(res => {
-            const idx = this.collections.findIndex(c => c.uid === res.uid)
+            const idx = this.collections.findIndex(c => c.id === res.id)
             if (idx >= 0 && this.collections[idx]) {
               this.collections[idx].name = res.name
               this.collections[idx].description = res.description
@@ -672,14 +672,14 @@ export default defineComponent({
     applyFilter() {
       const newFilter = {
         type: 'collection',
-        q: this.collection.uid
+        q: this.collection.id
       }
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
     },
     async loadTimeline() {
       this.isTimelineLoading = true
       return this.collectionsStore
-        .loadTimeline(this.collectionUid)
+        .loadTimeline(this.collectionId)
         .then(values => {
           this.timevalues = values
         })
@@ -695,7 +695,7 @@ export default defineComponent({
           filters: [
             {
               type: 'collection',
-              q: this.collectionUid
+              q: this.collectionId
             }
           ]
           // group_by: 'articles',

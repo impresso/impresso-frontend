@@ -66,7 +66,7 @@ const generateBuckets = (type: string, count: number): Bucket[] => {
         count: Math.floor(Math.random() * 1000) + 10,
         type,
         item: {
-          uid: `${type}-${i}`,
+          id: `${type}-${i}`,
           name:
             type === 'year'
               ? `${2020 + i}`
@@ -87,7 +87,7 @@ const generateYearBuckets = (startYear: number, endYear: number): Bucket[] => {
         count: Math.floor(Math.random() * 500) + 50,
         type: 'year',
         item: {
-          uid: `${startYear + i}`,
+          id: `${startYear + i}`,
           name: `${startYear + i}`
         }
       })
@@ -104,7 +104,7 @@ const generateMaxYearBuckets = (startYear: number, endYear: number): Bucket[] =>
         count: Math.floor(Math.random() * 1000) + 500, // Higher base counts for max values
         type: 'year',
         item: {
-          uid: `${startYear + i}`,
+          id: `${startYear + i}`,
           name: `${startYear + i}`
         }
       })

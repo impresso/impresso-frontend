@@ -43,10 +43,10 @@
       </li>
       <CollectionAddToListItem
         v-for="collection in collections"
-        :key="collection.uid"
+        :key="collection.id"
         :collection="collection"
         :is-loading="isLoading"
-        :is-checked="collectionStates.get(collection.uid)?.isActive ?? false"
+        :is-checked="collectionStates.get(collection.id)?.isActive ?? false"
         @toggle="toggleActive"
       />
     </ul>
@@ -117,7 +117,7 @@ const collectionStates = computed(() => {
 
   collections.value.forEach(collection => {
     const itemsWithCollection = props.items.filter(item =>
-      item.collectionIds?.includes(collection.uid)
+      item.collectionIds?.includes(collection.id)
     )
 
     const count = itemsWithCollection.length
@@ -131,7 +131,7 @@ const collectionStates = computed(() => {
       state = 'indeterminate'
     }
 
-    stateMap.set(collection.uid, {
+    stateMap.set(collection.id, {
       isActive: state === 'checked',
       state
     })
@@ -166,7 +166,7 @@ const fetch = async (
           description: string
           title: string
           totalItems: number
-          uid: string
+          id: string
           updatedAt: Date
         }[]
       }),
@@ -176,7 +176,7 @@ const fetch = async (
     collections.value = results.map(
       item =>
         new Collection({
-          uid: item.uid,
+          id: item.id,
           name: item.title,
           countItems: item.totalItems,
           status: item.accessLevel,
@@ -225,15 +225,15 @@ const toggleActive = async (collection: Collection) => {
       added: false,
       removed: false
     }
-    if (item.collectionIds?.includes(collection.uid)) {
+    if (item.collectionIds?.includes(collection.id)) {
       itemsIdsToRemove.push(item.itemId)
       itemCopy.removed = true
-      itemCopy.collectionIds = itemCopy.collectionIds.filter(id => id !== collection.uid)
+      itemCopy.collectionIds = itemCopy.collectionIds.filter(id => id !== collection.id)
     } else {
       // to be added!
       itemsIdsToAdd.push(item.itemId)
       itemCopy.added = true
-      itemCopy.collectionIds = [collection.uid, ...itemCopy.collectionIds]
+      itemCopy.collectionIds = [collection.id, ...itemCopy.collectionIds]
     }
     updatedItems.push(itemCopy)
   }
@@ -251,7 +251,7 @@ const toggleActive = async (collection: Collection) => {
         { add: itemsIdsToAdd },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )
@@ -262,7 +262,7 @@ const toggleActive = async (collection: Collection) => {
         { remove: itemsIdsToRemove },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )

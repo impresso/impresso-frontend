@@ -2,11 +2,11 @@
   <div class="toc" ref="TableOfContents">
     <div v-if="flatten">
       <div
-        :ref="`article-${art.uid}`"
+        :ref="`article-${art.id}`"
         class="media article flatten"
         v-for="(art, idx) in articles"
         v-bind:key="idx"
-        v-bind:class="{ active: art.uid === selectedArticleUid }"
+        v-bind:class="{ active: art.id === selectedArticleId }"
         v-on:click.stop.prevent="onClick(art, art.pages[0])"
       >
         <div class="media-body">
@@ -30,20 +30,20 @@
         v-for="(pag, index) in tableOfContents.pages"
         v-bind:key="index"
         class="mb-2 pb-1px page"
-        v-bind:class="{ activepage: pag.uid === selectedPageUid }"
+        v-bind:class="{ activepage: pag.id === selectedPageId }"
       >
-        <div class="d-block text-bold pagenumber" :ref="`page-${pag.uid}`" :data-id="pag.uid">
+        <div class="d-block text-bold pagenumber" :ref="`page-${pag.id}`" :data-id="pag.id">
           <div class="p-1 text-white rounded ml-3 border-bottom TableOfContents_page">
             <b>{{ $t('page') }} {{ pag.num }}</b>
           </div>
           <div
-            :ref="`article-${art.uid}`"
+            :ref="`article-${art.id}`"
             class="media article border-bottom"
             v-for="(art, idx) in pag.articles"
             v-bind:key="idx"
             v-bind:class="{
-              activepage: pag.uid === selectedPageUid,
-              active: art.uid === selectedArticleUid
+              activepage: pag.id === selectedPageId,
+              active: art.id === selectedArticleId
             }"
             v-on:click.stop.prevent="onClick(art, pag)"
           >
@@ -98,8 +98,8 @@ export default {
   data: () => ({
     // if all pages have been loaded.
     retryTimer: 0,
-    selectedArticleUid: '',
-    selectedPageUid: '',
+    selectedArticleId: '',
+    selectedPageId: '',
     showModalShare: false
   }),
   props: {
@@ -136,18 +136,18 @@ export default {
       return topics.sort((a, b) => b.relevance - a.relevance)
     },
     onClick(article, page) {
-      this.selectedArticleUid = article.uid
+      this.selectedArticleId = article.id
       this.$emit('click', {
         article,
         page
       })
     },
     scrollToActivePage() {
-      const elementsList = this.$refs[`page-${this.selectedPageUid}`]
+      const elementsList = this.$refs[`page-${this.selectedPageId}`]
       const elm = elementsList ? elementsList[0] : undefined
 
       if (!elm) {
-        console.warn(`Cannot scrollToActivePage: ${this.selectedPageUid} not ready or not found`)
+        console.warn(`Cannot scrollToActivePage: ${this.selectedPageId} not ready or not found`)
         clearTimeout(this.retryTimer)
         this.retryTimer = setTimeout(this.scrollToActivePage, 500)
       } else {
@@ -157,14 +157,14 @@ export default {
       }
     },
     scrollToActiveArticle() {
-      if (!this.$refs[`article-${this.selectedArticleUid}`]) {
+      if (!this.$refs[`article-${this.selectedArticleId}`]) {
         console.warn(
-          `Cannot scrollToActiveArticle: ${this.selectedArticleUid} not ready or not found;`
+          `Cannot scrollToActiveArticle: ${this.selectedArticleId} not ready or not found;`
         )
         clearTimeout(this.retryTimer)
         this.retryTimer = setTimeout(this.scrollToActiveArticle, 500)
       } else {
-        const elm = this.$refs[`article-${this.selectedArticleUid}`][0]
+        const elm = this.$refs[`article-${this.selectedArticleId}`][0]
         const parent = this.$refs.TableOfContents.parentNode
         const elmRelativeTop = elm.offsetTop - parent.offsetTop
         if (
@@ -176,10 +176,10 @@ export default {
         }
       }
       // if (this.article) {
-      //   if (!this.$refs[`article-${this.article.uid}`]) {
-      //     console.error(`Cannot scrollToActiveArticle: ${this.article.uid} not ready or not found`);
+      //   if (!this.$refs[`article-${this.article.id}`]) {
+      //     console.error(`Cannot scrollToActiveArticle: ${this.article.id} not ready or not found`);
       //   } else {
-      //     const elm = this.$refs[`article-${this.article.uid}`][0];
+      //     const elm = this.$refs[`article-${this.article.id}`][0];
       //     const parent = this.$refs.TableOfContents.parentNode;
       //     const elmRelativeTop = elm.offsetTop - parent.offsetTop;
       //     if (parent.scrollTop > elmRelativeTop ||
@@ -191,7 +191,7 @@ export default {
       // }
     },
     onRemoveCollection(collection, item) {
-      const idx = item.collections.findIndex(c => c.uid === collection.uid)
+      const idx = item.collections.findIndex(c => c.id === collection.id)
       if (idx !== -1) {
         this.collectionsStore
           .removeCollectionItem({
@@ -211,7 +211,7 @@ export default {
       this.showModalShare = false
     },
     getSimilarImagesHref(image) {
-      return `/search/images?p=1&similarTo=${image.uid}`
+      return `/search/images?p=1&similarTo=${image.id}`
     }
   },
   watch: {
@@ -219,11 +219,11 @@ export default {
       immediate: true,
       handler({ name, params }) {
         if (name === 'article') {
-          this.selectedArticleUid = params.article_uid
+          this.selectedArticleId = params.article_id
           this.scrollToActiveArticle()
         } else if (name === 'page') {
           console.info(params)
-          this.selectedPageUid = params.page_uid
+          this.selectedPageId = params.page_id
           this.scrollToActivePage()
         }
       }

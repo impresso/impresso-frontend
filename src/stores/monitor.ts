@@ -6,7 +6,7 @@ import { entities as entitiesService, searchFacets as searchFacetsService } from
 import { defineStore } from 'pinia'
 
 export interface ActivateParameters {
-  item: { uid: string }
+  item: { id: string }
   type: string
   filters?: Filter[]
   filtersUpdatedCallback?: (any) => void
@@ -20,7 +20,7 @@ export interface State {
   timeline: object[]
   isPendingTimeline: boolean
   type?: string
-  item?: { uid: string; wikidataId?: string }
+  item?: { id: string; wikidataId?: string }
   groupBy: 'articles'
   itemCountRelated: number
   isActive: boolean
@@ -61,7 +61,7 @@ export const useMonitorStore = defineStore('monitor', {
       let filters: Filter[] = [
         {
           type: this.type,
-          q: this.item?.uid
+          q: this.item?.id
         }
       ]
       // if user asked to get details in current search:
@@ -104,7 +104,7 @@ export const useMonitorStore = defineStore('monitor', {
 
       this.setItem({ item, type })
     },
-    setItem({ item, type }: { item: { uid: string }; type: string }) {
+    setItem({ item, type }: { item: { id: string }; type: string }) {
       this.isActive = true
       this.item = item
       this.type = type
@@ -115,7 +115,7 @@ export const useMonitorStore = defineStore('monitor', {
       if (['persion', 'location'].includes(type)) {
         return Promise.all([
           this.loadItemTimeline(),
-          entitiesService.get(item.uid).then(res => {
+          entitiesService.get(item.id).then(res => {
             if (['location', 'person'].indexOf(type) !== -1) {
               this.item = new Entity(res)
             } else if (type === 'topic') {

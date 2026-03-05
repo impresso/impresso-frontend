@@ -4,15 +4,11 @@
       <div
         v-for="(item, i) in pages"
         :key="i"
-        @click="updatePage(item.uid)"
+        @click="updatePage(item.id)"
         class="page-item d-inline-block"
-        :ref="el => setActiveItemRef(el as HTMLElement, item.uid)"
+        :ref="el => setActiveItemRef(el as HTMLElement, item.id)"
       >
-        <page-item
-          class="thumbnail bg-dark p-2"
-          :active="currentPageUid === item.uid"
-          :item="item"
-        />
+        <page-item class="thumbnail bg-dark p-2" :active="currentPageId === item.id" :item="item" />
       </div>
     </div>
   </div>
@@ -23,7 +19,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import type { IPage } from '@/models/Page'
 import PageItem from '../modules/lists/PageItem.vue'
 
-export type IPageItem = Pick<IPage, 'num' | 'iiif' | 'uid'>
+export type IPageItem = Pick<IPage, 'num' | 'iiif' | 'id'>
 
 withDefaults(
   defineProps<{
@@ -34,24 +30,24 @@ withDefaults(
   }
 )
 
-const currentPageUid = defineModel<string | undefined>('currentPageUid', {})
+const currentPageId = defineModel<string | undefined>('currentPageId', {})
 const containerRef = ref<HTMLElement | null>(null)
 const activeItemRef = ref<HTMLElement | null>(null)
 
 // Function to set the active item reference
-const setActiveItemRef = (el: HTMLElement | null, uid: string) => {
-  if (uid === currentPageUid.value) {
+const setActiveItemRef = (el: HTMLElement | null, id: string) => {
+  if (id === currentPageId.value) {
     activeItemRef.value = el
   }
 }
 
-const updatePage = (uid: string) => {
-  currentPageUid.value = uid
+const updatePage = (id: string) => {
+  currentPageId.value = id
 }
 
 // Scroll the active thumbnail into view
 const scrollToActive = () => {
-  if (!containerRef.value || !activeItemRef.value || !currentPageUid.value) return
+  if (!containerRef.value || !activeItemRef.value || !currentPageId.value) return
 
   const container = containerRef.value
   const activeItem = activeItemRef.value
@@ -76,7 +72,7 @@ const scrollToActive = () => {
 
 // Watch for changes to the current page
 watch(
-  () => currentPageUid.value,
+  () => currentPageId.value,
   () => {
     // Use nextTick to ensure the DOM is updated
     setTimeout(scrollToActive, 0)

@@ -135,7 +135,7 @@
       <EntityMonitor
         v-else-if="['person', 'location', 'organisation'].includes(monitor.type)"
         :filters="applyCurrentSearchFilters ? monitorFilters : []"
-        :id="monitor.item.id || monitor.item.uid || ''"
+        :id="monitor.item.id || monitor.item.id || ''"
         :type="monitor.type"
         :search-index="monitor.searchIndex"
         @close="hide"
@@ -247,7 +247,7 @@ export default defineComponent({
         type: this.monitor.type,
         q: Array.isArray(this.monitor.item?.q)
           ? this.monitor.item?.q?.map(d => String(d))
-          : [this.monitor.item?.id ?? this.monitor.item?.uid],
+          : [this.monitor.item?.id ?? this.monitor.item?.id],
         items: this.monitor.item ? [this.monitor.item] : []
       })
     },
@@ -272,14 +272,14 @@ export default defineComponent({
         return {
           name: 'newspaper_metadata',
           params: {
-            newspaper_uid: this.monitor.item.uid
+            newspaper_id: this.monitor.item.id
           }
         }
       } else if (this.monitor.type === 'topic') {
         return {
           name: 'topic',
           params: {
-            topic_uid: this.monitor.item.uid
+            topic_id: this.monitor.item.id
           }
         }
         // @ts-ignore

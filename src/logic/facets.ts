@@ -127,7 +127,7 @@ const LabelExtractors = {
     type: string,
     vueInstance: ComponentCustomProperties
   ) => {
-    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket?.value}`)
+    return vueInstance.$t(`buckets.${type}.${bucket?.item?.id ?? bucket?.value}`)
   }
 }
 

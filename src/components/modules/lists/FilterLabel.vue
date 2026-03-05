@@ -4,9 +4,9 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector && item.uid?.length"
+        v-if="showItemSelector && item.id?.length"
         hideIcon
-        :uid="item.uid"
+        :id="item.id"
         :item="item"
         :type="filter.type"
         class="position-relative"
@@ -21,7 +21,7 @@
           >{{ filter.type }}</span
         >
         <span v-if="filter.type === 'string'" class="highlight precision-{{ item.precision }}">
-          {{ item.uid }}
+          {{ item.id }}
         </span>
         <span
           class="small-caps"
@@ -30,7 +30,7 @@
               filter.type
             )
           "
-          >{{ $t(`buckets.${filter.type}.${item.uid}`) }}</span
+          >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
         <template v-else-if="filter.type === 'topic'">
           <span class="small-caps" v-if="item.label">
@@ -39,9 +39,9 @@
           <span class="small-caps" v-else-if="Array.isArray(item.excerpt) && item.excerpt.length">
             {{ item.excerpt.map(d => d.w).join(' · ') }}
           </span>
-          <span v-else>{{ item.uid }}</span>
+          <span v-else>{{ item.id }}</span>
         </template>
-        <span v-else>{{ item.name ?? item.uid }}</span>
+        <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
       <span
         v-else-if="['daterange'].includes(filter.type)"
@@ -126,13 +126,13 @@ const showItemSelector = computed(() => {
   return (
     Array.isArray(props.filter.items) &&
     props.filter.items.length > 0 &&
-    props.filter.items.some(item => item.uid)
+    props.filter.items.some(item => item.id)
   )
 })
 
 const filterItems = computed<FilterItem[]>(() => {
   if (!props.filter?.items && Array.isArray(props.filter.q)) {
-    return props.filter.q.map(q => ({ id: q, uid: q, name: q }))
+    return props.filter.q.map(q => ({ id: q, name: q }))
   }
   return props.filter?.items || []
 })

@@ -85,19 +85,19 @@
           <pre
             class="bg-light shadow-sm rounded-sm border p-1 very-small"
             style="word-break: break-all; white-space: normal; max-height: 100px; overflow: scroll"
-            >{{ item.uid }}</pre
+            >{{ item.id }}</pre
           >
         </div>
         <b-form-checkbox
           v-else-if="StringTypes.includes(type)"
-          v-model="checkedItems[item.uid]"
-          @update:modelValue="toggleFilterItem($event, item.uid)"
+          v-model="checkedItems[item.id]"
+          @update:modelValue="toggleFilterItem($event, item.id)"
         >
           <b-form-input
             size="sm"
             placeholder=""
             class="accepted"
-            :value="item.uid"
+            :value="item.id"
             @click.prevent.stop
             @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
           >
@@ -105,13 +105,13 @@
         </b-form-checkbox>
         <div v-else class="d-flex text-small">
           <b-form-checkbox
-            v-model="checkedItems[item.uid]"
-            @update:modelValue="toggleFilterItem($event, item.uid)"
+            v-model="checkedItems[item.id]"
+            @update:modelValue="toggleFilterItem($event, item.id)"
           >
           </b-form-checkbox>
-          <item-selector hide-icon :uid="item.uid || item.id" :item="item" :type="type">
+          <item-selector hide-icon :id="item.id || item.id" :item="item" :type="type">
             <item-label :item="item" :type="type" />
-            <span v-if="!item.uid">...</span>
+            <span v-if="!item.id">...</span>
             <span v-if="item.count"
               >&nbsp;(<span
                 v-html="
@@ -136,13 +136,13 @@
             item.name
           }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{
-            $t(`buckets.${type}.${item.uid}`)
+            $t(`buckets.${type}.${item.id}`)
           }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count"
             >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
           >
-          <item-selector :uid="item.uid" :item="item" :type="type" />
+          <item-selector :id="item.id" :item="item" :type="type" />
           <b-button
             class="dripicons-cross ml-auto"
             variant="transparent"
@@ -159,7 +159,7 @@
             size="sm"
             placeholder="..."
             class="mr-1"
-            v-model="item.uid"
+            v-model="item.id"
             @click.prevent.stop
           >
           </b-form-input>
@@ -346,15 +346,15 @@ export default {
     },
     hasEmptyStringItems() {
       return (
-        this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0
+        this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.id.length === 0).length > 0
       )
     },
     validStringsToAdd() {
-      return this.stringsToAdd.filter(d => d.checked && d.uid.length)
+      return this.stringsToAdd.filter(d => d.checked && d.id.length)
     },
     checkedItems() {
       return this.availableItems.reduce((acc, item) => {
-        acc[item.uid] = !this.excludedItemsIds.includes(item.uid)
+        acc[item.id] = !this.excludedItemsIds.includes(item.id)
         return acc
       }, {})
     },
@@ -425,7 +425,7 @@ export default {
 
       if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
         const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
-          acc[item.uid] = item
+          acc[item.id] = item
           return acc
         }, {})
         const availableItemsIds = [
@@ -444,7 +444,7 @@ export default {
           ...this.editedFilter,
           q: this.editedFilter.q
             .filter(d => !this.excludedItemsIds.includes(d))
-            .concat(this.validStringsToAdd.map(d => d.uid))
+            .concat(this.validStringsToAdd.map(d => d.id))
         }
         this.$emit('changed', newFilter)
         this.stringsToAdd = []
@@ -470,7 +470,7 @@ export default {
           if (i === idx) {
             return value
           }
-          return d.uid
+          return d.id
         })
         .filter(d => d.length)
       this.editedFilter = { ...this.editedFilter, q }

@@ -25,7 +25,7 @@ const generateFacetWithBuckets = (numBuckets: number, totalBuckets?: number): Fa
   buckets: Array.from({ length: numBuckets }, (_, i) => ({
     value: `bucket-${i}`,
     item: {
-      uid: `bucket-${i}`,
+      id: `bucket-${i}`,
       label: `Bucket ${i}`,
       name: `Bucket ${i}`,
       language: 'English',

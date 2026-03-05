@@ -8,7 +8,7 @@
       <p class="m-0">
         <MediaSourceLabel
           :item="{
-            uid: item.meta.mediaId,
+            id: item.meta.mediaId,
             name: item.meta.mediaId,
             type: item.meta.sourceType
           }"
@@ -66,10 +66,10 @@
               class="d-inline small"
             >
               <ItemSelector
-                :uid="entity.id"
+                :id="entity.id"
                 :label="entity.label"
                 :item="{
-                  uid: entity.id,
+                  id: entity.id,
                   ...entity,
                   name: entity.label
                 }"
@@ -170,7 +170,7 @@ const routerLinkUrl = computed(() => {
   return {
     name: 'contentItem',
     params: {
-      article_uid: props.item.id
+      article_id: props.item.id
     }
   }
 })

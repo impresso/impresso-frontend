@@ -95,7 +95,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/search/images/:image_uid',
+      path: '/search/images/:image_id',
       name: 'viewImage',
       component: () => import('@/pages/ViewImage.vue'),
       meta: {
@@ -206,7 +206,7 @@ const router = createRouter({
           }
         },
         {
-          path: ':collection_uid',
+          path: ':collection_id',
           component: () => import('@/components/CollectionDetailPage.vue'),
           name: 'collection',
           meta: {
@@ -217,7 +217,7 @@ const router = createRouter({
       ]
     },
     {
-      path: '/issue/:issue_uid',
+      path: '/issue/:issue_id',
       component: IssueViewerPage,
       name: 'issue',
       props: true,
@@ -227,7 +227,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/issue/:issue_uid/view',
+      path: '/issue/:issue_id/view',
       component: IssueViewerPage,
       name: 'issue-viewer',
       props: true,
@@ -237,7 +237,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/issue/:issue_uid/page/:page_uid',
+      path: '/issue/:issue_id/page/:page_id',
       component: IssuePage,
       name: 'page',
       props: true,
@@ -247,16 +247,16 @@ const router = createRouter({
       }
     },
     {
-      path: '/issue/:issue_uid/page/:page_uid/article/:article_uid',
+      path: '/issue/:issue_id/page/:page_id/article/:article_id',
       name: 'article',
       redirect: to => ({
         name: 'issue-viewer',
         params: {
-          issue_uid: to.params.issue_uid
+          issue_id: to.params.issue_id
         },
         query: {
-          p: (to.params.page_uid as string).match(/p0*(\d+)$/)[1],
-          articleId: getShortArticleId(to.params.article_uid as string)
+          p: (to.params.page_id as string).match(/p0*(\d+)$/)[1],
+          articleId: getShortArticleId(to.params.article_id as string)
         }
       })
     },
@@ -282,7 +282,7 @@ const router = createRouter({
           }
         },
         {
-          path: ':newspaper_uid',
+          path: ':newspaper_id',
           component: NewspapersDetailPage,
           name: 'newspaper',
           meta: {
@@ -291,7 +291,7 @@ const router = createRouter({
           }
         },
         {
-          path: ':newspaper_uid/metadata',
+          path: ':newspaper_id/metadata',
           component: NewspapersDetailPage,
           name: 'newspaper_metadata',
           meta: {
@@ -353,7 +353,7 @@ const router = createRouter({
           }
         },
         {
-          path: ':topic_uid',
+          path: ':topic_id',
           component: TopicDetailPage,
           name: 'topic',
           meta: {
@@ -364,16 +364,16 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:article_uid',
-      alias: '/article/:article_uid',
+      path: '/content-item/:article_id',
+      alias: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_uid as string
+        const contentItemId = to.params.article_id as string
         const ci = await services.contentItems.get(contentItemId)
         return {
           name: 'issue-viewer',
           params: {
-            issue_uid: ci.issueId
+            issue_id: ci.issueId
           },
           query: {
             p: ci.image?.pages?.[0]?.number,
@@ -386,7 +386,7 @@ const router = createRouter({
 
     {
       name: 'audioContentItem',
-      path: '/audio-content-item/:content_item_uid',
+      path: '/audio-content-item/:content_item_id',
       component: () => import('@/pages/AudioContentItem.vue'),
       meta: {
         requiresAuth: true,

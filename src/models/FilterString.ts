@@ -10,14 +10,14 @@ import * as precisions from './Precisions'
 import * as contexts from './Contexts'
 
 class StringItem implements IEntity {
-  uid: string
+  id: string
   checked: boolean
   isValid: boolean
 
-  constructor({ uid, checked = true }) {
-    this.uid = uid
+  constructor({ id, checked = true }) {
+    this.id = id
     this.checked = Boolean(checked)
-    this.isValid = typeof this.uid === 'string' && this.uid.trim().length > 0
+    this.isValid = typeof this.id === 'string' && this.id.trim().length > 0
   }
 }
 
@@ -33,11 +33,11 @@ export default class FilterString extends FilterItems {
 
   setItems(items = []) {
     this.items = items
-      .map(uid => {
-        if (uid instanceof StringItem) {
-          return uid
+      .map(id => {
+        if (id instanceof StringItem) {
+          return id
         }
-        return new StringItem({ uid })
+        return new StringItem({ id })
       })
       .filter(item => item.isValid)
   }
@@ -46,7 +46,7 @@ export default class FilterString extends FilterItems {
     const query = {
       type: this.type,
       op: this.op,
-      q: this.items.map(d => d.uid),
+      q: this.items.map(d => d.id),
       precision: this.precision,
       ...(this.distance !== 0 ? { distance: this.distance } : {}),
       ...(this.context !== contexts.INCLUDE ? { context: this.context } : {})

@@ -1,6 +1,6 @@
 
 // const namedEntitiesToListOfIds = namedEntities => namedEntities
-//   .reduce((ids, { uid, relevance }) => ids.concat(Array.from({length: relevance}, () => uid)), []);
+//   .reduce((ids, { id, relevance }) => ids.concat(Array.from({length: relevance}, () => id)), []);
 
 const getNamedEntities = (ids, offsets, type) => ids.map((id, index) => {
   const [offset, length] = offsets[index];
@@ -56,20 +56,24 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
       ? { start: 0, end: breakpoint }
       : { start: lineBreaks[index - 1], end: breakpoint };
     return { kind: 'line', offset };
-  }).concat({ kind: 'line', offset: {
-    start: lineBreaks.length > 0 ? lineBreaks[lineBreaks.length - 1] : 0,
-    end: textLength
-  }});
+  }).concat({
+    kind: 'line', offset: {
+      start: lineBreaks.length > 0 ? lineBreaks[lineBreaks.length - 1] : 0,
+      end: textLength
+    }
+  });
 
   const regionEntities = regionBreaks.map((breakpoint, index) => {
     const offset = index === 0
       ? { start: 0, end: breakpoint - 1 }
       : { start: regionBreaks[index - 1] - 1, end: breakpoint - 1 }
     return { kind: 'region', offset };
-  }).concat({ kind: 'region', offset: {
-    start: regionBreaks.length > 0 ? regionBreaks[regionBreaks.length - 1] - 1 : 0,
-    end: textLength
-  }});
+  }).concat({
+    kind: 'region', offset: {
+      start: regionBreaks.length > 0 ? regionBreaks[regionBreaks.length - 1] - 1 : 0,
+      end: textLength
+    }
+  });
 
   return entities
     .concat(lineEntities)
@@ -119,7 +123,7 @@ export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
       return priorityB - priorityA;
     })
 
-  const breakpoints = [...new Set(sortedEntities.map(({ offset: { start, end }}) => [start, end]).flat().sort((a, b) => a - b))]
+  const breakpoints = [...new Set(sortedEntities.map(({ offset: { start, end } }) => [start, end]).flat().sort((a, b) => a - b))]
 
   const rootItem = { children: [] };
   let itemsStack = [rootItem];
@@ -127,7 +131,7 @@ export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
   const isInStack = entity => itemsStack.filter(({ entity: e }) => JSON.stringify(entity) === JSON.stringify(e)).length > 0
 
   const getEntitiesMatchingBreakpoint = (entities, breakpoint) => entities
-    .filter(({ offset: { start, end }}) => breakpoint >= start && breakpoint < end)
+    .filter(({ offset: { start, end } }) => breakpoint >= start && breakpoint < end)
 
   breakpoints.map(breakpoint => {
     let closeIndex

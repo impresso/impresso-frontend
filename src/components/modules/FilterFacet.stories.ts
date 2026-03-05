@@ -72,7 +72,7 @@ const createMockBuckets = (type: string, count: number, withItems = true): Bucke
 
     if (withItems) {
       bucket.item = {
-        uid: val,
+        id: val,
         name:
           type === 'newspaper'
             ? `Newspaper ${i + 1}`
@@ -160,8 +160,8 @@ export const WithAppliedFilters: Story = {
         q: ['newspaper-1', 'newspaper-2'],
         context: 'include',
         items: [
-          { uid: 'newspaper-1', name: 'Newspaper 1' },
-          { uid: 'newspaper-2', name: 'Newspaper 2' }
+          { id: 'newspaper-1', name: 'Newspaper 1' },
+          { id: 'newspaper-2', name: 'Newspaper 2' }
         ]
       } as Filter
     ]
@@ -260,8 +260,8 @@ export const WithExcludedFilters: Story = {
         q: ['newspaper-1', 'newspaper-2'],
         context: 'exclude',
         items: [
-          { uid: 'newspaper-1', name: 'Newspaper 1' },
-          { uid: 'newspaper-2', name: 'Newspaper 2' }
+          { id: 'newspaper-1', name: 'Newspaper 1' },
+          { id: 'newspaper-2', name: 'Newspaper 2' }
         ]
       } as Filter
     ]

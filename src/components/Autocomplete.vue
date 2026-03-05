@@ -381,7 +381,7 @@ const submit = (payload?: SubmitPayload) => {
       'submit',
       FilterFactory.create({
         type,
-        q: [(item as any).uid],
+        q: [(item as any).id],
         items: [item]
       })
     )

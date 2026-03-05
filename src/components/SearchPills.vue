@@ -61,7 +61,7 @@
           <span
             class="label sp-string sp-title"
             v-if="['string', 'title'].includes(filter.type)"
-            v-html="labelByItems({ items: filter.items, max: 2, prop: 'uid', op: filter.op })"
+            v-html="labelByItems({ items: filter.items, max: 2, prop: 'id', op: filter.op })"
             :class="[filter.context, filter.precision]"
           >
           </span>
@@ -107,7 +107,7 @@
               labelByItems({
                 items: filter.items,
                 max: 2,
-                prop: 'uid',
+                prop: 'id',
                 translate: true,
                 type: filter.type,
                 op: filter.op
@@ -170,7 +170,7 @@
               labelByItems({
                 items: filter.items,
                 max: 2,
-                prop: 'uid',
+                prop: 'id',
                 op: filter.op,
                 maxLength: 20
               })

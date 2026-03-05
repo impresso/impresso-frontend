@@ -129,7 +129,7 @@
         <ContentItem
           class="p-3 border-bottom"
           :class="{
-            active: item.id === selectedContentItemUid
+            active: item.id === selectedContentItemId
           }"
           showLink
           showMatches
@@ -143,7 +143,7 @@
       <IssueViewerTableOfContents
         v-if="!showMatchingContentItems"
         :items="contentItems"
-        :selected-article-id="selectedContentItemUid"
+        :selected-article-id="selectedContentItemId"
         @article-selected="$emit('content-item-selected', $event)"
       />
     </template>
@@ -165,7 +165,7 @@ import ContentItem from './modules/lists/ContentItem.vue'
 
 export interface IssueViewerSidebarProps {
   issue?: Issue | null
-  selectedContentItemUid: string
+  selectedContentItemId: string
   contentItems: ArticleBase[]
   allowedFilters: Filter[]
   ignoredFilters: Filter[]
@@ -221,7 +221,7 @@ const serviceQuery = computed<{
     })
   }
   if (props.issue) {
-    sq.filters.push({ type: 'issue', q: props.issue.uid })
+    sq.filters.push({ type: 'issue', q: props.issue.id })
   } // eslint-disable-next-line
   console.debug(
     '[IssueViewerPage] computed serviceQuery enabled:',

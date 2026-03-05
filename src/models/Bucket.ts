@@ -18,6 +18,7 @@ import { FacetWithLabel } from './generated/canonical'
 export default class Bucket implements IBucket {
   value: string | number
   count: number
+  label?: string
   item?:
     | IEntity
     | Entity
@@ -27,13 +28,14 @@ export default class Bucket implements IBucket {
     | Collection
     | TextReuseCluster
     | Partner
-    | (FacetWithLabel & { uid: string })
+    | FacetWithLabel
   included?: boolean
   upper?: number
   lower?: number
 
   constructor({
     value = '',
+    label = undefined,
     count = -1,
     item,
     included = true,
@@ -43,21 +45,22 @@ export default class Bucket implements IBucket {
   }) {
     this.value = String(value)
     this.count = count
+    this.label = label
     this.included = included
     this.upper = upper
     this.lower = lower
     switch (type) {
       case 'topic':
-        this.item = new Topic(item)
+        this.item = new Topic({ ...item, id: value, name: label })
         break
       case 'person':
       case 'location':
       case 'nag':
       case 'organisation':
-        this.item = new Entity(item)
+        this.item = new Entity({ ...item, id: value, name: label })
         break
       case 'newspaper':
-        this.item = new Newspaper(item)
+        this.item = new Newspaper({ ...item, id: value, name: label })
         break
       case 'mediaSource':
         this.item = item
@@ -65,21 +68,21 @@ export default class Bucket implements IBucket {
       case 'collection':
         this.item = new Collection({
           ...item,
+          id: value,
+          name: label,
           creationDate: item?.createdAt,
-          lastModifiedDate: item?.updatedAt,
-          name: item.title
+          lastModifiedDate: item?.updatedAt
         })
         break
       case 'year':
-        this.item = new Year(item)
+        this.item = new Year({ ...item, id: value, name: label })
         break
       case 'textReuseCluster':
         if (!item) {
           this.item = {
-            uid: this.value,
             id: this.value,
-            label: String(this.value)
-          } satisfies FacetWithLabel & { uid: string }
+            label: String(this.label)
+          } satisfies FacetWithLabel
           break
         }
         this.item = TextReuseCluster.fromTextReusePassage(item)
@@ -92,15 +95,15 @@ export default class Bucket implements IBucket {
       case 'imageCommunicationGoal':
       case 'imageContentType':
         this.item = {
-          uid: this.value,
           id: this.value,
-          label: item?.label || String(this.value)
-        } satisfies FacetWithLabel & { uid: string }
+          label: item?.label ?? String(this.value)
+        } satisfies FacetWithLabel
         break
       default:
         this.item = {
-          uid: this.value
-        } satisfies IEntity
+          id: this.value,
+          label: this.label ?? String(this.value)
+        } satisfies FacetWithLabel
         break
     }
 

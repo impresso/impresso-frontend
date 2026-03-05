@@ -2,8 +2,8 @@
  * Interface representing the structure of a Region
  */
 export interface RegionInterface {
-  articleUid: string
-  pageUid: string
+  articleId: string
+  pageId: string
   coords?: {
     x: number
     y: number
@@ -16,11 +16,11 @@ export interface RegionInterface {
 
 /**
  * @class Article is an object representing a newspaper article
- * @param {String} articleUid Unique identifier for the article
+ * @param {String} articleId Unique identifier for the article
  */
 export default class Region implements RegionInterface {
-  articleUid: string
-  pageUid: string
+  articleId: string
+  pageId: string
   coords?: {
     x: number
     y: number
@@ -32,16 +32,16 @@ export default class Region implements RegionInterface {
   iiif: string
 
   constructor({
-    articleUid = '',
-    pageUid = '',
+    articleId = '',
+    pageId = '',
     coords = undefined, // [x, y, w, h]
     // g = [],
     iiifFragment = '',
     iiif = '',
     isEmpty = false
   }: {
-    articleUid?: string | number
-    pageUid?: string | number
+    articleId?: string | number
+    pageId?: string | number
 
     coords?: { x: number; y: number; w: number; h: number } | [number, number, number, number]
     // g?: Array<string | number>
@@ -49,8 +49,8 @@ export default class Region implements RegionInterface {
     iiif?: string
     isEmpty?: boolean
   } = {}) {
-    this.articleUid = String(articleUid)
-    this.pageUid = String(pageUid)
+    this.articleId = String(articleId)
+    this.pageId = String(pageId)
     if (Array.isArray(coords) && coords.length === 4) {
       this.coords = {
         x: coords[0],

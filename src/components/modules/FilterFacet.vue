@@ -229,11 +229,11 @@ export default defineComponent({
           filter: {
             ...filter,
             items: filter.items.map(item => {
-              if (this.bucketsIndex[item.uid]) {
+              if (this.bucketsIndex[item.id]) {
                 return {
-                  ...this.bucketsIndex[item.uid].item,
+                  ...this.bucketsIndex[item.id].item,
                   ...item,
-                  count: this.bucketsIndex[item.uid].count
+                  count: this.bucketsIndex[item.id].count
                 }
               }
               return item
@@ -244,7 +244,7 @@ export default defineComponent({
     },
     /**
      * List items ids included into current filters.
-     * @return {Array} array of items uids
+     * @return {Array} array of items ids
      */
     filtersIncludedItemsIds() {
       return this.includedFilterItems.reduce(
@@ -260,7 +260,7 @@ export default defineComponent({
     bucketsIndex() {
       const index = {}
       this.facet.buckets.forEach(({ item, count }) => {
-        index[item.uid] = { count, item }
+        index[item.id] = { count, item }
       })
       return index
     },

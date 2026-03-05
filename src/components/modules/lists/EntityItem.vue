@@ -52,7 +52,7 @@ export default {
         name: 'entity',
         query: this.$route.query,
         params: {
-          entity_id: this.item.uid
+          entity_id: this.item.id
         }
       }
     },

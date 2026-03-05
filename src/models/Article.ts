@@ -31,7 +31,7 @@ import Topic from './Topic'
  * @param {Interger} time Unix timestamp of the article
  * @param {String} title Title of the article
  * @param {String} type type of article 'ad' = advertisement, 'ar' = article, 'image' = image
- * @param {String} uid Unique identifier for the article
+ * @param {String} id Unique identifier for the article
  * @param {Number} year Year of the article
  */
 export interface ArticleInterface extends ArticleBaseInterface {
@@ -81,7 +81,7 @@ export interface ArticleConstructorParams {
   time?: number
   title?: string
   type?: string
-  uid?: string
+  id?: string
   year?: number
   topics?: ArticleTopic[] | any[]
   images?: any[]
@@ -125,14 +125,14 @@ export default class Article extends ArticleBase implements ArticleInterface {
 
     // Create a newspaper instance from meta data
     const newspaper = new Newspaper({
-      uid: meta?.mediaId ?? '',
+      id: meta?.mediaId ?? '',
       name: meta?.mediaId ?? '',
       acronym: meta?.mediaId ?? ''
     })
 
     // Create an issue instance
     const issue = new Issue({
-      uid: issueId ?? '',
+      id: issueId ?? '',
       newspaper: newspaper,
       date: meta?.date ? new Date(meta.date) : new Date()
     })
@@ -142,11 +142,11 @@ export default class Article extends ArticleBase implements ArticleInterface {
       semanticEnrichments?.topics?.map(
         topic =>
           new ArticleTopic({
-            topicUid: topic.id,
-            articleUid: contentItem.id,
+            topicId: topic.id,
+            articleId: contentItem.id,
             relevance: topic.relevance,
             topic: new Topic({
-              uid: topic.id,
+              id: topic.id,
               language: topic.languageCode,
               label: topic.label
             })
@@ -159,7 +159,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       semanticEnrichments?.collections?.map(
         collection =>
           new Tag({
-            uid: collection.uid,
+            id: collection.id,
             name: collection.name
           })
       ) ?? []
@@ -171,7 +171,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       image?.pages?.map(
         (page, idx) =>
           new Page({
-            uid: page.id ?? `page-${idx}`,
+            id: page.id ?? `page-${idx}`,
             num: page.number ?? idx + 1,
             iiif: page.iiif?.manifestUrl ?? '',
             iiifThumbnail: page.iiif?.thumbnailUrl ?? ''
@@ -186,8 +186,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
           page.regionCoordinates.forEach(coords => {
             regions.push(
               new Region({
-                articleUid: contentItem.id,
-                pageUid: page.id ?? `page-${pageIdx}`,
+                articleId: contentItem.id,
+                pageId: page.id ?? `page-${pageIdx}`,
                 coords,
                 iiif: page.iiif?.manifestUrl ?? ''
               })
@@ -200,14 +200,14 @@ export default class Article extends ArticleBase implements ArticleInterface {
     // Map named entities
     const persons =
       semanticEnrichments?.namedEntities?.persons?.map(person => ({
-        uid: person.id,
+        id: person.id,
         name: person.label,
         count: person.count
       })) ?? []
 
     const locations =
       semanticEnrichments?.namedEntities?.locations?.map(location => ({
-        uid: location.id,
+        id: location.id,
         name: location.label,
         count: location.count
       })) ?? []
@@ -235,7 +235,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
 
     // Create article parameters
     const articleParams: ArticleConstructorParams = {
-      uid: id,
+      id: id,
       title: text?.title ?? '',
       excerpt: text?.snippet ?? '',
       content: text?.content ?? '',
@@ -269,18 +269,18 @@ export default class Article extends ArticleBase implements ArticleInterface {
       mediaSource: {
         name: meta?.mediaId ?? '',
         type: meta?.sourceType ?? 'newspaper',
-        uid: meta?.mediaId ?? ''
+        id: meta?.mediaId ?? ''
       },
       collections:
         semanticEnrichments?.collections?.map(c => ({
-          uid: c.id,
+          id: c.id,
           name: c.title
         })) ?? [],
       matches:
         text?.matches?.map(match => ({
           fragment: match.fragment,
           coords: match.coords,
-          pageUid: match.pageId,
+          pageId: match.pageId,
           iiif: match.iiif
         })) ?? [],
       images: []
@@ -313,7 +313,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
     time = 0,
     title = '',
     type = '',
-    uid = '',
+    id = '',
     year = 0,
     topics = [], // array of ArticleTopic instances
     images = [],
@@ -325,7 +325,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
     content = ''
   }: ArticleConstructorParams = {}) {
     super({
-      uid,
+      id,
       type,
       title,
       excerpt,
@@ -380,7 +380,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
       this.mediaSource = {
         name: this.newspaper.acronym,
         type: 'newspaper',
-        uid: this.newspaper.uid
+        id: this.newspaper.id
       }
     }
     this.pages = pages.map(page => {

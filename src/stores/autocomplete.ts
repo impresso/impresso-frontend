@@ -11,7 +11,7 @@ export interface State {
 export const useAutocompleteStore = defineStore('autocomplete', {
   state: (): State => ({
     queries: [],
-    searchableQueries: [],
+    searchableQueries: []
   }),
   getters: {},
   actions: {
@@ -37,10 +37,10 @@ export const useAutocompleteStore = defineStore('autocomplete', {
                 '<b>',
                 d.substr(idx, query.length),
                 '</b>',
-                d.substr(idx + query.length),
+                d.substr(idx + query.length)
               ].join(''),
               q: d,
-              r: query.length / d.length,
+              r: query.length / d.length
             })
           }
         })
@@ -52,8 +52,8 @@ export const useAutocompleteStore = defineStore('autocomplete', {
           query: {
             q: query,
             // we just want 9 results because we add the original string totalling 10 suggestions
-            limit: 9,
-          },
+            limit: 9
+          }
         })
         .then(({ data }) => data.map(d => SuggestionFactory.create(d)).filter(Boolean))
     },
@@ -62,24 +62,24 @@ export const useAutocompleteStore = defineStore('autocomplete', {
         .find({
           query: {
             limit: 3,
-            q: query,
-          },
+            q: query
+          }
         })
         .then(co => {
           return co.data.map(d => {
             return new SuggestionCollection({
               item: d,
               h: d.name,
-              q: d.uid,
-              type: 'collection',
+              q: d.id,
+              type: 'collection'
             })
           })
         })
-    },
+    }
   },
   persist: {
-    paths: ['queries'],
-  },
+    paths: ['queries']
+  }
 })
 
 const normalize = (s: string) =>

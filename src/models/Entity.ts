@@ -4,7 +4,7 @@ import type { Entity as IEntity } from '.'
  */
 
 interface EntityConstructorParams {
-  uid?: string
+  id?: string
   name?: string
   type?: string
   wikidataId?: string
@@ -18,7 +18,7 @@ interface EntityConstructorParams {
 }
 
 export default class Entity implements IEntity {
-  uid: string
+  id: string
   name: string
   type: string
   countMentions: number
@@ -32,7 +32,7 @@ export default class Entity implements IEntity {
   checked?: boolean
 
   constructor({
-    uid = '',
+    id = '',
     name = '',
     type = 'entity',
     wikidataId = '',
@@ -44,7 +44,7 @@ export default class Entity implements IEntity {
     matches = [],
     relevance = -1
   }: EntityConstructorParams = {}) {
-    this.uid = String(uid)
+    this.id = String(id)
     this.name = name
     this.type = type
     if (matches.length) {

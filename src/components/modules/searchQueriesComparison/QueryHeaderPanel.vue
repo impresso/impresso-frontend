@@ -150,7 +150,7 @@ export default {
      * list of available collections
      */
     collections: {
-      type: Array as PropType<{ name: string; uid: string }[]>,
+      type: Array as PropType<{ name: string; id: string }[]>,
       default() {
         return []
       }

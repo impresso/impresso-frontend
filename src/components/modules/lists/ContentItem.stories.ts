@@ -240,7 +240,7 @@ const meta: Meta<typeof ContentItem> = {
     vueRouter([
       {
         name: 'issue-viewer',
-        path: '/nothing/:issue_uid',
+        path: '/nothing/:issue_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       }

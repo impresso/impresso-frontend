@@ -7,12 +7,12 @@ const NUMBER_OF_CONTENTITEMS = 'c'
 // const NUMBER_OF_IMAGES = 'm'
 
 export default class Year implements IEntity {
-  uid: string
+  id: string
   y: string
   refs: { [key: string]: number } | null
 
   constructor({ y, refs = null }) {
-    this.uid = String(y)
+    this.id = String(y)
     this.y = y
     this.refs = refs
   }

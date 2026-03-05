@@ -47,7 +47,7 @@ export const AllFiltersIncluded: Story = {
   args: {
     searchQuery: {
       filters: [
-        { context: 'include', type: 'hasTextContents', items: [{ uid: '' }] },
+        { context: 'include', type: 'hasTextContents', items: [{ id: '' }] },
         {
           context: 'include',
           op: 'OR',
@@ -56,7 +56,7 @@ export const AllFiltersIncluded: Story = {
           items: [{ start: '1948-01-01T00:00:00Z', end: '1948-12-31T23:59:59Z' }]
         },
 
-        { context: 'include', op: 'OR', type: 'language', q: 'fr', items: [{ uid: 'fr' }] },
+        { context: 'include', op: 'OR', type: 'language', q: 'fr', items: [{ id: 'fr' }] },
 
         {
           context: 'include',
@@ -67,15 +67,15 @@ export const AllFiltersIncluded: Story = {
             {
               countItems: 0,
               countMentions: 0,
-              uid: '2-50-Harry_S._Truman',
+              id: '2-50-Harry_S._Truman',
               name: 'Harry S. Truman',
               type: 'person'
             }
           ]
         },
-        { type: 'copyright', q: 'in_cpy', items: [{ uid: 'in_cpy' }] },
-        { context: 'include', op: 'OR', type: 'partner', q: 'SNL', items: [{ uid: 'SNL' }] },
-        { type: 'sourceMedium', q: 'print', items: [{ uid: 'print' }] }
+        { type: 'copyright', q: 'in_cpy', items: [{ id: 'in_cpy' }] },
+        { context: 'include', op: 'OR', type: 'partner', q: 'SNL', items: [{ id: 'SNL' }] },
+        { type: 'sourceMedium', q: 'print', items: [{ id: 'print' }] }
       ]
     }
   } as SearchQuerySummaryProps

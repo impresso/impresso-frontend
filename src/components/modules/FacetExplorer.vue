@@ -21,7 +21,7 @@
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
             </span>
-            <ItemSelector :uid="String(bucket.value)" :item="bucket.item" :type="filterType" />
+            <ItemSelector :id="String(bucket.value)" :item="bucket.item" :type="filterType" />
           </b-form-checkbox>
         </div>
         <div class="fixed-pagination-footer p-1 mb-2 small">
@@ -51,7 +51,7 @@ function getEntitiesForIds(
   ids: string[],
   entities: (Entity | undefined)[] = []
 ): (Entity | undefined)[] {
-  return ids.map(id => entities.find(entity => entity && entity.uid === id))
+  return ids.map(id => entities.find(entity => entity && entity.id === id))
 }
 
 // --- Props and Emits ---

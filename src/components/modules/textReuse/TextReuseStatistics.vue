@@ -322,7 +322,7 @@ export default defineComponent({
       this.selectionMonitorStore.show({
         item: {
           name: item.term,
-          uid: item.term
+          id: item.term
         },
         searchIndex: 'tr_passages',
         type: 'newspaper'

@@ -23,7 +23,7 @@
               active-class="none"
               :to="{
                 name: 'entity',
-                params: { entity_id: entity.uid },
+                params: { entity_id: entity.id },
                 query: { tab: tabItem.name }
               }"
             >
@@ -311,7 +311,7 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: this.entity.type, q: this.entity.uid }]
+          filters: [{ type: this.entity.type, q: this.entity.id }]
         }) as LocationQueryRaw
       } satisfies RouteLocationRaw
     },

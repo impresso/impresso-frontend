@@ -309,7 +309,7 @@ const updateFilter = (embedding: string): void => {
     return acc
   }, [])
   localFilter.value.q = newQ
-  localFilter.value.items = newQ.map(s => ({ uid: s }))
+  localFilter.value.items = newQ.map(s => ({ id: s }))
   emit('embdding-selected', embedding)
 }
 
@@ -360,7 +360,7 @@ const removeFilterWordAtIndex = (index: number): void => {
   const currentQ = Array.isArray(localFilter.value.q) ? localFilter.value.q : [localFilter.value.q]
   currentQ.splice(index, 1)
   localFilter.value.q = currentQ
-  localFilter.value.items = currentQ.map(s => ({ uid: s }))
+  localFilter.value.items = currentQ.map(s => ({ id: s }))
   if (currentQ.length === 0) {
     localFilter.value = null
   }

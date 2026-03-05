@@ -166,7 +166,7 @@ export default defineComponent({
       const currentFilters = this.searchQueryFilters as Filter[]
       const newFilter: Filter = {
         type: this.type,
-        q: this.item.uid,
+        q: this.item.id,
         items: [this.item],
         context
       }
@@ -241,28 +241,28 @@ export default defineComponent({
         return {
           name: 'newspaper',
           params: {
-            newspaper_uid: this.item.uid
+            newspaper_id: this.item.id
           }
         }
       } else if (this.type === 'topic') {
         return {
           name: 'topic',
           params: {
-            topic_uid: this.item.uid
+            topic_id: this.item.id
           }
         }
       } else if (['person', 'location'].includes(this.type)) {
         return {
           name: 'entity',
           params: {
-            entity_id: this.item.uid
+            entity_id: this.item.id
           }
         }
       } else if (this.type === 'textReuseCluster') {
         return {
           name: 'text-reuse-clusters',
           query: {
-            q: `#${this.item.uid}`
+            q: `#${this.item.id}`
           }
         }
       }

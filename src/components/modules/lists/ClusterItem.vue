@@ -54,7 +54,7 @@ export default {
   methods: {
     handleClusterClick() {
       // <ItemSelector
-      //     :uid="item.textReuseCluster.id"
+      //     :id="item.textReuseCluster.id"
       //     :item="item.textReuseCluster"
       //     type="textReuseCluster"
       //     context="textReuse"

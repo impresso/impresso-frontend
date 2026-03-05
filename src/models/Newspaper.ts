@@ -16,7 +16,7 @@ export interface INewspaperProperty {
  * @param {Integer} endYear year of last issue
  * @param {String} name Full name if the newspaper
  * @param {Integer} startYear year of first issue
- * @param {String} uid Unique identifier for the newspaper
+ * @param {String} id Unique identifier for the newspaper
  */
 export default class Newspaper implements IEntity {
   acronym: string
@@ -27,7 +27,7 @@ export default class Newspaper implements IEntity {
   endYear: number
   name: string
   startYear: number
-  uid: string
+  id: string
   properties: INewspaperProperty[]
   firstIssue: Issue | null
   lastIssue: Issue | null
@@ -44,7 +44,7 @@ export default class Newspaper implements IEntity {
     endYear = 0,
     name = '',
     startYear = 0,
-    uid = '',
+    id = '',
     properties = [],
     firstIssue = null,
     lastIssue = null,
@@ -58,7 +58,7 @@ export default class Newspaper implements IEntity {
     this.endYear = endYear
     this.name = String(name)
     this.startYear = startYear
-    this.uid = String(uid)
+    this.id = String(id)
     this.properties = properties
     this.included = included
 
@@ -70,7 +70,7 @@ export default class Newspaper implements IEntity {
     }
     // get property value where name in 'partnerUid
     // a property item is composed as such:
-    // {"label":"partner uid","value":"NZZ","name":"partnerUid"}
+    // {"label":"partner id","value":"NZZ","name":"partnerUid"}
     this.dataProvider = this.properties.find(p => p.name === 'partnerUid')?.value || ''
   }
 }

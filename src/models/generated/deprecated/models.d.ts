@@ -14,7 +14,7 @@ export interface ContentItem {
   /**
    * The unique identifier of the content item
    */
-  uid: string;
+  id: string;
   /**
    * The type of the content item. NOTE: may be empty.
    */
@@ -117,7 +117,7 @@ export interface Page {
   /**
    * The unique identifier of the page
    */
-  uid: string;
+  id: string;
   /**
    * The number of the page
    */
@@ -125,11 +125,11 @@ export interface Page {
   /**
    * Reference to the article
    */
-  issueUid: string;
+  issueId: string;
   /**
    * Unique ID of the newspaper
    */
-  newspaperUid: string;
+  newspaperId: string;
   /**
    * The IIF image file name of the page
    */
@@ -190,7 +190,7 @@ export interface NewspaperIssue {
   /**
    * The unique identifier of the issue
    */
-  uid: string;
+  id: string;
   /**
    * TODO
    */
@@ -231,7 +231,7 @@ export interface ContentItemMatch {
   /**
    * TODO
    */
-  pageUid?: string;
+  pageId?: string;
   /**
    * TODO
    */
@@ -241,7 +241,7 @@ export interface ContentItemMatch {
  * TODO
  */
 export interface ContentItemRegion {
-  pageUid: string;
+  pageId: string;
   coords: number[];
   /**
    * TODO
@@ -300,7 +300,7 @@ export interface Newspaper {
   /**
    * The unique identifier of the newspaper
    */
-  uid: string;
+  id: string;
   /**
    * The acronym of the newspaper
    */
@@ -381,7 +381,7 @@ export interface ContentItemTopic {
   /**
    * TODO
    */
-  topicUid?: string;
+  topicId?: string;
 }
 /**
  * A topic
@@ -442,7 +442,7 @@ export interface ContentItemMatch {
   /**
    * TODO
    */
-  pageUid?: string;
+  pageId?: string;
   /**
    * TODO
    */
@@ -454,7 +454,7 @@ export interface ContentItemMatch {
  * TODO
  */
 export interface ContentItemRegion {
-  pageUid: string;
+  pageId: string;
   coords: number[];
   /**
    * TODO
@@ -483,7 +483,7 @@ export interface ContentItemTopic {
   /**
    * TODO
    */
-  topicUid?: string;
+  topicId?: string;
 }
 /**
  * A topic
@@ -536,7 +536,7 @@ export interface EntityDetails {
   /**
    * Unique identifier of the entity
    */
-  uid: string;
+  id: string;
   /**
    * Entity name
    */
@@ -1180,7 +1180,7 @@ export interface InternalTopic {
   /**
    * The unique identifier of the topic
    */
-  uid: string;
+  id: string;
   /**
    * The language code of the topic
    */
@@ -1217,7 +1217,7 @@ export interface InternalTopic {
     /**
      * The unique identifier of the related topic
      */
-    uid: string;
+    id: string;
     /**
      * Related topic weight (total articles in common)
      */
@@ -1277,7 +1277,7 @@ export interface Newspaper {
   /**
    * The unique identifier of the newspaper
    */
-  uid: string;
+  id: string;
   /**
    * The acronym of the newspaper
    */
@@ -1350,7 +1350,7 @@ export interface NewspaperIssue {
   /**
    * The unique identifier of the issue
    */
-  uid: string;
+  id: string;
   /**
    * TODO
    */
@@ -1382,7 +1382,7 @@ export interface NewspaperIssue {
   /**
    * The unique identifier of the issue
    */
-  uid: string;
+  id: string;
   /**
    * TODO
    */
@@ -1438,7 +1438,7 @@ export interface Page {
   /**
    * The unique identifier of the page
    */
-  uid: string;
+  id: string;
   /**
    * The number of the page
    */
@@ -1446,11 +1446,11 @@ export interface Page {
   /**
    * Reference to the article
    */
-  issueUid: string;
+  issueId: string;
   /**
    * Unique ID of the newspaper
    */
-  newspaperUid: string;
+  newspaperId: string;
   /**
    * The IIF image file name of the page
    */
@@ -2195,7 +2195,7 @@ export type UniqueUsernameForTheUserForOtherHumans = string;
  * Description of the collection object (Collection class)
  */
 export interface CollectionModel {
-  uid: string;
+  id: string;
   name: string;
   description: string;
   status: StatusOfTheCollection;
@@ -2221,7 +2221,7 @@ export type UniqueUsernameForTheUserForOtherHumans = string;
  * Description of the search query object (SearchQuery class)
  */
 export interface SearchQuery {
-  uid: string;
+  id: string;
   name: string;
   description: string;
   data: BufferedJSONObjectContainingAnArrayOfFilters;

@@ -483,7 +483,7 @@ export default {
             ])
           },
           {
-            route: { collection_id: this.selectedCollection.uid }
+            route: { collection_id: this.selectedCollection.id }
           }
         )
         .then(() => {

@@ -14,19 +14,19 @@ const meta: Meta<typeof SearchResultsListItem> = {
     vueRouter([
       {
         name: 'article',
-        path: '/article/:issue_uid/:page_uid/:article_uid',
+        path: '/article/:issue_id/:page_id/:article_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       },
       {
         name: 'issue',
-        path: '/issue/:issue_uid',
+        path: '/issue/:issue_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       },
       {
         name: 'collection',
-        path: '/collections/:collection_uid',
+        path: '/collections/:collection_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       }

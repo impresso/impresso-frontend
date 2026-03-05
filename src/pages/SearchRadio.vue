@@ -50,19 +50,19 @@
             :key="index"
           >
             <AudioItem
-              @toggleplay="() => toggleplay(item.uid)"
-              :is-playing="item.uid === currentPlayingUid"
+              @toggleplay="() => toggleplay(item.id)"
+              :is-playing="item.id === currentPlayingId"
               :item="item"
               :routerLinkUrl="{
                 name: 'audioContentItem',
                 params: {
-                  content_item_uid: item.uid
+                  content_item_id: item.id
                 }
               }"
             ></AudioItem>
             <AudioPlayer
               class="w-100 me-5 mr-5"
-              :src="ContentItemAudioSrcs[item.uid]"
+              :src="ContentItemAudioSrcs[item.id]"
               :is-loading="isLoading"
             />
           </li>
@@ -100,13 +100,13 @@ import AudioPlayer from 'impresso-ui-components/components/audioPlayer/AudioPlay
 import { computed, onMounted, ref } from 'vue'
 
 export interface MediaSource {
-  uid: string
+  id: string
   name: string
   type: 'newspaper' | 'radio' | 'radio_broadcast'
 }
 
 export interface ContentItem {
-  uid: string
+  id: string
   type: 'audio' | 'ar'
   publicationDate: string
   title?: string
@@ -128,13 +128,16 @@ const ContentItemAudioSrcs = {
   'RDN-1950-01-12-a-i0001': '/mock-media/RDN-1950-01-12-a-r0001.MP3'
 }
 
-const currentPlayingUid = ref<string | null>(null)
-const toggleplay = (uid: string) => {
-  currentPlayingUid.value = currentPlayingUid.value === uid ? null : uid
+const currentPlayingId = ref<string | null>(null)
+const toggleplay = (id: string) => {
+  currentPlayingId.value = currentPlayingId.value === id ? null : id
 }
-const isAudioPlaying = computed(() => currentPlayingUid.value !== null)
+const isAudioPlaying = computed(() => currentPlayingId.value !== null)
 const itemsUrl =
   'https://gist.githubusercontent.com/danieleguido/450b77a714b6f45a408bb6719666068c/raw/7eb9825fe3669b9cb2c60eb527933fde7a11ebdd/audio-items.json'
+// schema of this particular file:
+type DataFormat = (Omit<AudioContentItem, 'id'> & { uid: string })[]
+
 const fetchAudioItemsResponse = ref<{
   status: 'loading' | 'success' | 'error'
   data: AudioContentItem[] | null
@@ -148,10 +151,10 @@ const isLoading = computed(() => fetchAudioItemsResponse.value?.status === 'load
 onMounted(() => {
   fetch(itemsUrl)
     .then(response => response.json())
-    .then(({ results }: { results: AudioContentItem[] }) => {
+    .then(({ results }: { results: DataFormat }) => {
       fetchAudioItemsResponse.value = {
         status: 'success',
-        data: results
+        data: results.map(({ uid, ...rest }) => ({ id: uid, ...rest }))
       }
     })
     .catch(error => {

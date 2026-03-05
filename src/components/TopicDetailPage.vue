@@ -22,7 +22,7 @@
             active-class="none"
             :to="{
               name: 'topic',
-              params: { topic_uid: ['', null, undefined].includes(topic?.uid) ? 'na' : topic?.uid },
+              params: { topic_id: ['', null, undefined].includes(topic?.id) ? 'na' : topic?.id },
               query: { tab: tabItem.name }
             }"
           >
@@ -221,7 +221,7 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: 'topic', q: this.topic.uid }]
+          filters: [{ type: 'topic', q: this.topic.id }]
         })
       }
     },
@@ -229,8 +229,8 @@ export default {
     topicModel() {
       return this.$route.params.topic_model
     },
-    topicUid() {
-      return this.$route.params.topic_uid
+    topicId() {
+      return this.$route.params.topic_id
     },
     tabs() {
       return [
@@ -265,7 +265,7 @@ export default {
         filters: [
           {
             type: 'topic',
-            q: [this.topicUid]
+            q: [this.topicId]
           }
         ]
         // group_by: 'articles',
@@ -284,7 +284,7 @@ export default {
         .get('year', {
           query: {
             filters: {
-              q: this.$route.params.topic_uid,
+              q: this.$route.params.topic_id,
               type: 'topic'
             },
             limit: 500
@@ -306,7 +306,7 @@ export default {
             filters: [
               {
                 type: 'topic',
-                q: this.$route.params.topic_uid
+                q: this.$route.params.topic_id
               }
             ],
             order_by: this.orderBy
@@ -328,7 +328,7 @@ export default {
     applyFilter() {
       const newFilter = {
         type: 'topic',
-        q: this.topic.uid
+        q: this.topic.id
       }
 
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
@@ -340,7 +340,7 @@ export default {
       async handler({ params, query }) {
         // always reload entity
         this.topic = await topicsService
-          .get(params.topic_uid, { fl: 'id' })
+          .get(params.topic_id, { fl: 'id' })
           .then(result => new Topic(result))
         this.total = +this.topic.countItems
         // set active tab

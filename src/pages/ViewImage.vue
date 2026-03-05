@@ -26,12 +26,12 @@ const userStore = useUserStore()
 const image = ref<IImage | null>(null)
 
 const userPlan = computed(() => userStore.userPlan)
-const imageUid = computed(() => route.params.image_uid as string)
+const imageId = computed(() => route.params.image_id as string)
 
-const loadImage = async (uid: string) => {
-  if (uid) {
+const loadImage = async (id: string) => {
+  if (id) {
     try {
-      image.value = (await imagesService.get(uid)) as IImage
+      image.value = (await imagesService.get(id)) as IImage
       console.log('Loaded image:', image.value)
     } catch (error) {
       console.error('Failed to load image:', error)
@@ -39,11 +39,11 @@ const loadImage = async (uid: string) => {
   }
 }
 
-watch(imageUid, loadImage, { immediate: true })
+watch(imageId, loadImage, { immediate: true })
 
 onMounted(() => {
-  if (imageUid.value) {
-    loadImage(imageUid.value)
+  if (imageId.value) {
+    loadImage(imageId.value)
   }
 })
 </script>

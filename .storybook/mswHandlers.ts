@@ -218,7 +218,7 @@ const getCollectionHandler = http.get('/api/collections/:collection_id', ({ para
 export const getMediaSourceHandler = http.get('/api/media-sources/:id', async ({ params }) => {
   const { id } = params
   await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-  return HttpResponse.json(MockMediaSources.find(source => source.uid === id) || null)
+  return HttpResponse.json(MockMediaSources.find(source => source.id === id) || null)
 })
 
 export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ request }) => {

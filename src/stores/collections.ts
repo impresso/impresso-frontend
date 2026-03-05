@@ -24,29 +24,29 @@ export interface AddCollectionDetails {
 }
 
 export interface EditCollectionDetails extends AddCollectionDetails {
-  uid: string
+  id: string
 }
 
 export interface AddCollectionItemDetails {
-  item: { uid: string }
-  collection: { uid: string }
+  item: { id: string }
+  collection: { id: string }
   contentType: string
 }
 
 export interface AddCollectionItemsDetails {
-  items: { uid: string }[]
-  collection: { uid: string }
+  items: { id: string }[]
+  collection: { id: string }
   contentType: string
 }
 
 export interface RemoveCollectionItemDetails {
-  item: { uid: string }
-  collection: { uid: string }
+  item: { id: string }
+  collection: { id: string }
 }
 
 export interface RemoveCollectionItemsDetails {
-  items: { uid: string }[]
-  collection: { uid: string }
+  items: { id: string }[]
+  collection: { id: string }
 }
 
 const paginationPerPage = 20
@@ -90,11 +90,11 @@ export const useCollectionsStore = defineStore('collections', {
                 description: string
                 title: string
                 totalItems: number
-                uid: string
+                id: string
                 updatedAt: Date
               }) =>
                 new Collection({
-                  uid: item.uid,
+                  id: item.id,
                   name: item.title,
                   countItems: item.totalItems,
                   status: item.accessLevel,
@@ -126,8 +126,8 @@ export const useCollectionsStore = defineStore('collections', {
         })
         .then(res => Helpers.timeline.fromBuckets(res.buckets))
     },
-    editCollection({ uid, name, description }: EditCollectionDetails) {
-      return collectionsService.patch(uid, {
+    editCollection({ id, name, description }: EditCollectionDetails) {
+      return collectionsService.patch(id, {
         title: name,
         description
       })
@@ -138,16 +138,16 @@ export const useCollectionsStore = defineStore('collections', {
         description
       })
     },
-    deleteCollection(uid: string) {
-      return collectionsService.remove(uid)
+    deleteCollection(id: string) {
+      return collectionsService.remove(id)
     },
     addCollectionItem({ item, collection }: AddCollectionItemDetails) {
       return collectionsItemsService.patch(
         null,
-        { add: [item.uid] },
+        { add: [item.id] },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )
@@ -155,10 +155,10 @@ export const useCollectionsStore = defineStore('collections', {
     addCollectionItems({ items, collection }: AddCollectionItemsDetails) {
       return collectionsItemsService.patch(
         null,
-        { add: items.map(i => i.uid) },
+        { add: items.map(i => i.id) },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )
@@ -166,10 +166,10 @@ export const useCollectionsStore = defineStore('collections', {
     removeCollectionItem({ item, collection }: RemoveCollectionItemDetails) {
       return collectionsItemsService.patch(
         null,
-        { remove: [item.uid] },
+        { remove: [item.id] },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )
@@ -177,10 +177,10 @@ export const useCollectionsStore = defineStore('collections', {
     removeCollectionItems({ items, collection }: RemoveCollectionItemsDetails) {
       return collectionsItemsService.patch(
         null,
-        { remove: items.map(i => i.uid) },
+        { remove: items.map(i => i.id) },
         {
           route: {
-            collection_id: collection.uid
+            collection_id: collection.id
           }
         }
       )

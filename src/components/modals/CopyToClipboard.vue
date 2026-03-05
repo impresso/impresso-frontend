@@ -314,7 +314,7 @@ export default {
     },
     iframeCaptionCode() {
       const date = this.$d(this.article.date, 'long')
-      const url = `${import.meta.env.BASE_URL}/app/issue/${this.article.issue.uid}/view?p=${this.article.pages[0].num}`
+      const url = `${import.meta.env.BASE_URL}/app/issue/${this.article.issue.id}/view?p=${this.article.pages[0].num}`
       return [
         `<div style="color: ${this.textColor}">`,
         `<p style="padding: ${this.captionPadding}px ${this.captionPadding}px 0; margin: 0; font-style: italic"><a href="${url}">${this.title}</a></p>`,
@@ -357,7 +357,7 @@ export default {
     widgetLink() {
       const { base: urlPrefix } = this.$router.options.history
       const formattedUrlPrefix = urlPrefix.startsWith('/') ? urlPrefix : `/${urlPrefix}`
-      return `${window.location.origin}${formattedUrlPrefix}/widget/#/p/${this.article.pages[0]?.uid}/a/${this.article.uid}/?${this.customisation}`
+      return `${window.location.origin}${formattedUrlPrefix}/widget/#/p/${this.article.pages[0]?.id}/a/${this.article.id}/?${this.customisation}`
     }
   },
   mounted() {
@@ -373,11 +373,11 @@ export default {
     }
     this.maxHeight = window.innerHeight - 200
     // load nespaper from article using services
-    NewspapersService.get(this.article.newspaper.uid).then(newspaper => {
+    NewspapersService.get(this.article.newspaper.id).then(newspaper => {
       this.newspaper = newspaper
       this.partner = this.newspaper.properties.reduce((acc, d) => {
         if (d.name === 'partnerUid') {
-          acc.uid = d.value
+          acc.id = d.value
         }
         if (d.name === 'institutionNames') {
           acc.name = d.value

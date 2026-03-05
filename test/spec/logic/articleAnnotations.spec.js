@@ -27,17 +27,17 @@ const TestAnnotationConfiguration = Object.freeze({
 })
 
 const articleResponse = {
-  uid: 'indeplux-1923-09-04-a-i0071',
+  id: 'indeplux-1923-09-04-a-i0071',
   type: 'ad',
   title: 'Publicité 9 Page 2',
   size: 938,
   nbPages: 1,
   pages: [
     {
-      uid: 'indeplux-1923-09-04-a-p0002',
+      id: 'indeplux-1923-09-04-a-p0002',
       num: 2,
-      issueUid: 'indeplux-1923-09-04-a',
-      newspaperUid: 'indeplux',
+      issueId: 'indeplux-1923-09-04-a',
+      newspaperId: 'indeplux',
       iiif: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/info.json',
       iiifThumbnail: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/full/150,/0/default.png',
       accessRights: 'nd',
@@ -53,26 +53,26 @@ const articleResponse = {
   excerpt: 'Succursale à Luxembourg Téléphone 503 La maison Mercier garantit sur facture que se vins ont été mis en bouteilles avant...',
   persons: [
     {
-      uid: 'aida-0001-50-Roy_Mathias',
+      id: 'aida-0001-50-Roy_Mathias',
       relevance: 1
     }
   ],
   locations: [
     {
-      uid: 'aida-0001-54-Luxembourg',
+      id: 'aida-0001-54-Luxembourg',
       relevance: 3
     },
     {
-      uid: 'aida-0001-54-Thionville',
+      id: 'aida-0001-54-Thionville',
       relevance: 1
     }
   ],
   language: 'n/a',
   content: 'Succursale à Luxembourg Téléphone 503 La maison Mercier garantit sur facture que se vins ont été mis en bouteilles avant la guerre B— . " ~ LA MAISON Mathias LUX Télépli. 41-35, LUXEMBOURG, rue Fellip, 24,Télépli, 41-55 recommande aux £ cursionnistes et T&uristas ses 5728 Auto-Cars et Voitures de ville avec une et plusieurs places MIME AVEC tlIS E? MIETÎES Déménagement. Prix modérés B -P-.. •— .~B| I\' TH.JL1TSLU2I ! Société Anonyme de Transports et d\'Enfrepôfs { j Siège social à LUXEMBOURG Avenue de la Liberté (Rue Dicks) (Anciennement J.-P. BALANCE.-Maison fondée en 1890) j j | Téléphones : gggg, j 4M «g Transports Internationaux Agence en douane î Transit Affrètements - Consignations « Groupages SUCCURSALES à: Thionville Igel Wasserbillig Téléphone No 79 Téléphone No 2 Trêves — Téléphone No 226 5 5925 L’imprimerie Joseph BEFFORT, 3, Place d’Armes, 3 se recommande pour la confection de labeurs typographiques en tous genres ',
-  contentLineBreaks: [23,37,83,130,139,149,161,219,234,263,272,303,332,358,385,401,417,452,468,494,527,583,612,638,665,706,721,750,781,814,863,899,937],
+  contentLineBreaks: [23, 37, 83, 130, 139, 149, 161, 219, 234, 263, 272, 303, 332, 358, 385, 401, 417, 452, 468, 494, 527, 583, 612, 638, 665, 706, 721, 750, 781, 814, 863, 899, 937],
   regionBreaks: [],
   issue: {
-    uid: 'indeplux-1923-09-04-a',
+    id: 'indeplux-1923-09-04-a',
     cover: '',
     labels: [
       'issue'
@@ -83,7 +83,7 @@ const articleResponse = {
     year: '1923'
   },
   newspaper: {
-    uid: 'indeplux',
+    id: 'indeplux',
     acronym: 'indeplux',
     labels: [
       'newspaper'
@@ -95,7 +95,7 @@ const articleResponse = {
     endYear: null,
     startYear: null,
     firstIssue: {
-      uid: 'indeplux-1871-10-01-a',
+      id: 'indeplux-1871-10-01-a',
       cover: '',
       labels: [
         'issue'
@@ -106,7 +106,7 @@ const articleResponse = {
       year: '1871'
     },
     lastIssue: {
-      uid: 'indeplux-1933-12-30-a',
+      id: 'indeplux-1933-12-30-a',
       cover: '',
       labels: [
         'issue'
@@ -168,7 +168,7 @@ const articleResponse = {
   ],
   regions: [
     {
-      pageUid: 'indeplux-1923-09-04-a-p0002',
+      pageid: 'indeplux-1923-09-04-a-p0002',
       coords: [
         2142,
         3618,
@@ -218,17 +218,17 @@ const articleResponse = {
 };
 
 const articleResponseWithMultipleRegions = {
-  uid: 'indeplux-1923-09-04-a-i0035',
+  id: 'indeplux-1923-09-04-a-i0035',
   type: 'ar',
   title: 'A la Schobermesse',
   size: 515,
   nbPages: 1,
   pages: [
     {
-      uid: 'indeplux-1923-09-04-a-p0002',
+      id: 'indeplux-1923-09-04-a-p0002',
       num: 2,
-      issueUid: 'indeplux-1923-09-04-a',
-      newspaperUid: 'indeplux',
+      issueId: 'indeplux-1923-09-04-a',
+      newspaperId: 'indeplux',
       iiif: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/info.json',
       iiifThumbnail: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/full/150,/0/default.png',
       accessRights: 'nd',
@@ -244,14 +244,14 @@ const articleResponseWithMultipleRegions = {
   excerpt: 'Le nombre des visiteurs du champ de foire a été moins considérable ces deux derniers jours, que pendant’ la journée...',
   locations: [
     {
-      uid: 'aida-0001-54-Celle',
+      id: 'aida-0001-54-Celle',
       relevance: 1
     }
   ],
   language: 'fr',
   content: 'A la Schobermesse Le nombre des visiteurs du champ de foire a été moins considérable ces deux derniers jours, que pendant’ la journée de dimanche. Les divers établissements ont néanmoins fait de bonnes recettes. Celle du dimanche se monte à environ 16.000 francs pour le «Watershut» et 9000 fr. pour le «Whip». Hier au soir, une femme d’origine allemande a fait une chute de cheval à l’Hippodrome. Elle tomba sur la rampe et se fit quelques blessures d’une certaine importance qui nécessiteront des soins médicaux. ',
   issue: {
-    uid: 'indeplux-1923-09-04-a',
+    id: 'indeplux-1923-09-04-a',
     cover: '',
     labels: [
       'issue'
@@ -262,7 +262,7 @@ const articleResponseWithMultipleRegions = {
     year: '1923'
   },
   newspaper: {
-    uid: 'indeplux',
+    id: 'indeplux',
     acronym: 'indeplux',
     labels: [
       'newspaper'
@@ -274,7 +274,7 @@ const articleResponseWithMultipleRegions = {
     endYear: null,
     startYear: null,
     firstIssue: {
-      uid: 'indeplux-1871-10-01-a',
+      id: 'indeplux-1871-10-01-a',
       cover: '',
       labels: [
         'issue'
@@ -285,7 +285,7 @@ const articleResponseWithMultipleRegions = {
       year: '1871'
     },
     lastIssue: {
-      uid: 'indeplux-1933-12-30-a',
+      id: 'indeplux-1933-12-30-a',
       cover: '',
       labels: [
         'issue'
@@ -341,7 +341,7 @@ const articleResponseWithMultipleRegions = {
   regionBreaks: [18, 416],
   regions: [
     {
-      pageUid: 'indeplux-1923-09-04-a-p0002',
+      pageid: 'indeplux-1923-09-04-a-p0002',
       coords: [
         419,
         6193,
@@ -354,7 +354,7 @@ const articleResponseWithMultipleRegions = {
       iiifFragment: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/419,6193,389,43/full/0/default.png'
     },
     {
-      pageUid: 'indeplux-1923-09-04-a-p0002',
+      pageid: 'indeplux-1923-09-04-a-p0002',
       coords: [
         160,
         6251,
@@ -376,7 +376,7 @@ const articleResponseWithMultipleRegions = {
       iiifFragment: 'https://iiif.eluxemburgensia.lu/iiif/2/ark:%2f70795%2fs6bvf8%2fpages%2f2/160,6251,879,455/full/0/default.png'
     },
     {
-      pageUid: 'indeplux-1923-09-04-a-p0002',
+      pageid: 'indeplux-1923-09-04-a-p0002',
       coords: [
         1073,
         1657,
@@ -397,7 +397,7 @@ const articleResponseWithMultipleRegions = {
 };
 
 const articleResponseWithMultilineEntity = {
-  uid: 'indeplux-1923-09-04-a-i0056',
+  id: 'indeplux-1923-09-04-a-i0056',
   type: 'ar',
   title: 'Un télégramme du roi George',
   size: 534,
@@ -406,11 +406,11 @@ const articleResponseWithMultilineEntity = {
   excerpt: 'Le télégramme suivant a ete adresse par le roi George V à l’Empereur du Japon: «Je me hâte d’exprimer à...',
   locations: [
     {
-      uid: 'aida-0001-54-Boy_George',
+      id: 'aida-0001-54-Boy_George',
       relevance: 1
     },
     {
-      uid: 'aida-0001-54-Japan',
+      id: 'aida-0001-54-Japan',
       relevance: 1
     }
   ],

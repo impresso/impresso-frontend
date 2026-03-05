@@ -584,10 +584,10 @@ export default defineComponent({
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: searchResult.issue.uid,
+          issue_id: searchResult.issue.id,
           page_number: searchResult.pages[0]?.num,
-          page_uid: searchResult.pages[0]?.uid,
-          article_uid: searchResult.uid
+          page_id: searchResult.pages[0]?.id,
+          article_id: searchResult.id
         }
       })
     },
@@ -606,7 +606,7 @@ export default defineComponent({
       )
     },
     exportSelectedCsv() {
-      const uids = this.selectedItems.map(a => a.id)
+      const ids = this.selectedItems.map(a => a.id)
       exporterService.create(
         {},
         {
@@ -615,7 +615,7 @@ export default defineComponent({
             filters: [
               {
                 type: 'uid',
-                q: uids
+                q: ids
               }
             ],
             format: 'csv'

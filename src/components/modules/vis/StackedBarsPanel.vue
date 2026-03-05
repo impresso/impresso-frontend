@@ -16,7 +16,7 @@
             class="w-100"
             :percent="toScaledValue(bucket.count) * 100"
             :count="bucket.count"
-            :uid="bucket.item ? bucket.item.uid : ''"
+            :id="bucket.item ? bucket.item.id : ''"
             :item="bucket.item"
             :type="facetType"
             :default-click-action-disabled="defaultClickActionDisabled"
@@ -86,14 +86,14 @@ export default {
      * @param {Bucket} bucket
      */
     onHover(bucket) {
-      this.$emit('hovered', String(bucket?.item?.uid ?? ''))
+      this.$emit('hovered', String(bucket?.item?.id ?? ''))
     },
     /**
      * @param {Bucket} bucket
      * @returns {boolean}
      */
     isHovered(bucket) {
-      return this.hoverId === bucket?.item?.uid
+      return this.hoverId === bucket?.item?.id
     }
   }
 }

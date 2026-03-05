@@ -286,7 +286,7 @@ const fetchContentItems = async (query = {}) => {
   const collectableItemsIndex = await collectableItemsService
     .find({
       query: {
-        item_uids: contentItemsIds,
+        item_ids: contentItemsIds,
         limit: response.data.length
       }
     })

@@ -10,7 +10,7 @@ const wordMapper = token => d => {
 }
 
 export default class Topic implements IEntity {
-  uid: string
+  id: string
   language: string
   model: string
   words: TopicWord[]
@@ -27,7 +27,7 @@ export default class Topic implements IEntity {
 
   constructor(
     {
-      uid = '',
+      id = '',
       language = '',
       model = '',
       // array of topicWords
@@ -40,7 +40,7 @@ export default class Topic implements IEntity {
     } = {},
     { highlight = '', quantizeRange = [0.4, 0.7, 1, 1] } = {}
   ) {
-    this.uid = String(uid)
+    this.id = String(id)
     this.language = String(language)
     this.model = String(model)
     this.words = words.filter(d => d.p > 0.0)

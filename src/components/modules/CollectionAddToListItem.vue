@@ -4,11 +4,11 @@
     :class="{ active: !isLoading && isChecked, isLoading }"
     @click="$emit('toggle', collection)"
   >
-    <input class="form-check-input" type="checkbox" :id="collection.uid" :checked="isChecked" />
+    <input class="form-check-input" type="checkbox" :id="collection.id" :checked="isChecked" />
 
     <Icon v-if="isChecked" :strokeWidth="2" :scale="0.75" name="checkCircle" class="me-1" />
     <Icon v-else :strokeWidth="1.5" :scale="0.75" name="circle" class="me-1" />
-    <div class="form-check-label" :for="collection.uid">
+    <div class="form-check-label" :for="collection.id">
       <h4 class="font-size-inherit font-weight-bold m-0">{{ collection.name }}</h4>
       <p class="date text-muted small m-0" :title="$t('last_edited')">
         {{ $d(collection.lastModifiedDate, 'short') }}

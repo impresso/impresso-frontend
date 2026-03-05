@@ -4,10 +4,10 @@
       show-percent
       type="topic"
       :percent="item.relevance * 100"
-      :uid="item.id"
+      :id="item.id"
       :item="{
         ...item,
-        uid: item.id,
+        id: item.id,
         name: item.label
       }"
     />

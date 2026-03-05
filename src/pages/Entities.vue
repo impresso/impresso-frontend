@@ -58,9 +58,9 @@
           class="p-3 border-bottom"
           v-bind:key="i"
           v-bind:item="entity"
-          v-bind:active="entity.uid === selectedId"
+          v-bind:active="entity.id === selectedId"
           show-link
-          :observed="observedItemIds.includes(entity.uid)"
+          :observed="observedItemIds.includes(entity.id)"
           @toggle-observed="handleToggleObserved"
         />
       </template>
@@ -199,10 +199,10 @@ export default {
       })
     },
     handleToggleObserved(item) {
-      if (this.observedItemIds.includes(item.uid)) {
-        this.observedItemIds = this.observedItemIds.filter(uid => uid !== item.uid)
+      if (this.observedItemIds.includes(item.id)) {
+        this.observedItemIds = this.observedItemIds.filter(id => id !== item.id)
       } else {
-        this.observedItemIds = this.observedItemIds.concat(item.uid)
+        this.observedItemIds = this.observedItemIds.concat(item.id)
       }
     },
     resetObservedItems() {
