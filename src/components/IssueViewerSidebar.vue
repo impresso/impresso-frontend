@@ -152,7 +152,7 @@
 
 <script setup lang="ts">
 import type { Issue, Filter } from '@/models'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import IssueViewerTableOfContents from './IssueViewerTableOfContents.vue'
 import List from './modules/lists/List.vue'
 import ArticleBase from '@/models/ArticleBase'

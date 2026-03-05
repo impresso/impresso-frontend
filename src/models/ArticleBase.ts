@@ -1,6 +1,6 @@
 import Collection from './Collection'
 import Entity from './Entity'
-import { ContentItemAccessRights } from './generated/schemas/contentItem'
+import { ContentItemAccessRights } from './generated/canonical/contentItem'
 import Match from './Match'
 import { IPage } from './Page'
 

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ContentItem } from '@/models/generated/schemas/contentItem.d.ts'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
 import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
 import { computed } from 'vue'

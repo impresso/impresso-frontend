@@ -223,8 +223,8 @@ import { PropType } from 'vue'
 
 import Article from '@/models/Article'
 import Bucket from '@/models/Bucket'
-import { EntityMention } from '@/models/generated/schemas'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { EntityMention } from '@/models/generated/deprecated/models'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
 
 type TabId = 'content-items' | 'mentions' | 'overview'

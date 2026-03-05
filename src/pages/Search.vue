@@ -253,7 +253,7 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
@@ -336,7 +336,7 @@ export default defineComponent({
     selectedCollectableItems(): ItemWithCollections[] {
       return this.selectedItems.map(item => ({
         itemId: item.id,
-        collectionIds: item.semanticEnrichments?.collections?.map(c => c.uid)
+        collectionIds: item.semanticEnrichments?.collections?.map(c => c.id)
       }))
     },
     searchQuery: {

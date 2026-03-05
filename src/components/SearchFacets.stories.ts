@@ -52,7 +52,7 @@ const createYearFacet = (): Facet => {
   const buckets = Array.from({ length: 10 }).map((_, i) => {
     const year = 1950 + i * 5
     return new BucketModel({
-      val: year.toString(),
+      value: year.toString(),
       count: Math.floor(Math.random() * 1000) + 100,
       item: { uid: year.toString(), y: year.toString() },
       type: 'year'
@@ -77,7 +77,7 @@ const createNewspaperFacet = (): Facet => {
 
   const buckets = newspapers.map(newspaper => {
     return new BucketModel({
-      val: newspaper.uid,
+      value: newspaper.uid,
       count: Math.floor(Math.random() * 500) + 50,
       item: newspaper,
       type: 'newspaper'
@@ -101,7 +101,7 @@ const createLanguageFacet = (): Facet => {
 
   const buckets = languages.map(language => {
     return new BucketModel({
-      val: language.uid,
+      value: language.uid,
       count: Math.floor(Math.random() * 800) + 200,
       item: language,
       type: 'language'
@@ -119,7 +119,7 @@ const createContentLengthFacet = (): Facet => {
   const buckets = Array.from({ length: 5 }).map((_, i) => {
     const length = 100 * (i + 1)
     return new BucketModel({
-      val: length.toString(),
+      value: length.toString(),
       count: Math.floor(Math.random() * 500) + 50,
       item: { uid: length.toString() },
       type: 'contentLength'

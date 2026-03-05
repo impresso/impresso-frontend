@@ -21,7 +21,8 @@
     "test:unit": "vitest",
     "build-only": "vite build --base=/app",
     "build-only-dev": "vite build --mode development",
-    "type-check": "vue-tsc --build --force",
+    "type-check": "vue-tsc -p ./tsconfig.app.json --build --force",
+    "type-check-watch": "vue-tsc -p ./tsconfig.app.json -w",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "start": "npm run serve",
@@ -112,7 +113,7 @@
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.0.9",
     "vue-component-type-helpers": "^2.0.21",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^3.2.5"
   },
   "browserslist": [
     "> 1%",

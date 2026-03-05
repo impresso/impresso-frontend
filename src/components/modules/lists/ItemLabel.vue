@@ -20,9 +20,9 @@
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
-      <div class="d-inline-block word" v-for="(word, idx) in item.words" :key="idx">
-        <span :style="{ opacity: word.l }">{{ word.w }}</span>
-        <span v-if="idx < item.words.length - 1">&nbsp;&middot;&nbsp;</span>
+      <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
+        <span>{{ word.w }}</span>
+        <span v-if="idx < topicItem.words.length - 1">&nbsp;&middot;&nbsp;</span>
       </div>
       <span class="small-caps"
         >&nbsp;({{ $t(`buckets.language.${item.language}`).toLowerCase() }})</span
@@ -33,6 +33,7 @@
 
 <script lang="ts">
 import { FacetType } from '@/models/Facet'
+import { Topic } from '@/models/generated/canonical'
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
@@ -80,6 +81,9 @@ export default defineComponent({
         t = this.item.uid ?? this.item.id
       }
       return t
+    },
+    topicItem() {
+      return this.item as Topic
     }
   },
   methods: {

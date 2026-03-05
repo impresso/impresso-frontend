@@ -129,7 +129,7 @@ import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
-import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/contentItem'
+import { ContentItem as ContentItemSchema } from '@/models/generated/canonical/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
@@ -196,7 +196,7 @@ export default defineComponent({
       return [
         {
           itemId: this.contentItem.id,
-          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.uid)
+          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.id)
         }
       ] as ItemWithCollections[]
     },
@@ -280,7 +280,7 @@ export default defineComponent({
       } else if (updatedItem.removed) {
         this.modelValue.semanticEnrichments.collections =
           this.modelValue?.semanticEnrichments?.collections?.filter(
-            c => c.uid !== payload.collection.uid
+            c => c.id !== payload.collection.uid
           ) ?? []
       }
     },
@@ -288,7 +288,7 @@ export default defineComponent({
       const item = this.modelValue
       const itemId = item?.id
       const collections = item?.semanticEnrichments?.collections ?? []
-      const collection = collections.find(c => c.uid === collectionId)
+      const collection = collections.find(c => c.id === collectionId)
 
       if (!itemId || !collection) return
       await this.collectionsStore.removeCollectionItem({
@@ -302,7 +302,7 @@ export default defineComponent({
       })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =
-          this.modelValue.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
+          this.modelValue.semanticEnrichments.collections.filter(c => c.id !== collectionId)
       }
     },
     toggleSelected() {

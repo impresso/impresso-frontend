@@ -337,7 +337,7 @@ import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import Bucket from '@/models/Bucket'
 
 const QueryParameters = Object.freeze({

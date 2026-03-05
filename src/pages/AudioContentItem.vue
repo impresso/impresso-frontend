@@ -135,7 +135,7 @@
 </i18n>
 <script setup lang="ts">
 import { MediaSource } from '@/models'
-import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { contentItems as contentItemsService } from '@/services'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
 import TranscriptViewer, {

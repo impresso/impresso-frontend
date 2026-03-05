@@ -12,16 +12,16 @@
           <b-form-checkbox
             v-for="(bucket, idx) in buckets"
             :key="idx"
-            :modelValue="selectedIds.includes(bucket.val as string)"
+            :modelValue="selectedIds.includes(bucket.value as string)"
             class="d-block FacetExplorer_checkbox"
-            @update:modelValue="isSet => handleChecked(isSet as boolean, bucket.val)"
+            @update:modelValue="isSet => handleChecked(isSet as boolean, bucket.value)"
             data-testid="facet-explorer-list-item-checkbox"
           >
             <ItemLabel v-if="bucket.item" :item="bucket.item" :type="itemType" />
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
             </span>
-            <ItemSelector :uid="String(bucket.val)" :item="bucket.item" :type="filterType" />
+            <ItemSelector :uid="String(bucket.value)" :item="bucket.item" :type="filterType" />
           </b-form-checkbox>
         </div>
         <div class="fixed-pagination-footer p-1 mb-2 small">

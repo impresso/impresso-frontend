@@ -6,7 +6,7 @@ import Year from '@/models/Year'
 import Collection from '@/models/Collection'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import Partner, { fromPartnerFacet } from '@/models/Partner'
-import { FacetWithLabel } from './generated/schemas'
+import { FacetWithLabel } from './generated/canonical'
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -16,7 +16,7 @@ import { FacetWithLabel } from './generated/schemas'
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
 export default class Bucket implements IBucket {
-  val: string | number
+  value: string | number
   count: number
   item?:
     | IEntity
@@ -33,7 +33,7 @@ export default class Bucket implements IBucket {
   lower?: number
 
   constructor({
-    val = '',
+    value = '',
     count = -1,
     item,
     included = true,
@@ -41,7 +41,7 @@ export default class Bucket implements IBucket {
     upper = undefined,
     lower = undefined
   }) {
-    this.val = String(val)
+    this.value = String(value)
     this.count = count
     this.included = included
     this.upper = upper
@@ -76,9 +76,9 @@ export default class Bucket implements IBucket {
       case 'textReuseCluster':
         if (!item) {
           this.item = {
-            uid: this.val,
-            id: this.val,
-            label: String(this.val)
+            uid: this.value,
+            id: this.value,
+            label: String(this.value)
           } satisfies FacetWithLabel & { uid: string }
           break
         }
@@ -92,19 +92,19 @@ export default class Bucket implements IBucket {
       case 'imageCommunicationGoal':
       case 'imageContentType':
         this.item = {
-          uid: this.val,
-          id: this.val,
-          label: item?.label || String(this.val)
+          uid: this.value,
+          id: this.value,
+          label: item?.label || String(this.value)
         } satisfies FacetWithLabel & { uid: string }
         break
       default:
         this.item = {
-          uid: this.val
+          uid: this.value
         } satisfies IEntity
         break
     }
 
-    if (!this.val.length) {
+    if (!this.value.length) {
       throw new Error('Bucket should have a valid value "val", empty value given')
     }
   }

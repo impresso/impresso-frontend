@@ -1,4 +1,4 @@
-import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
+import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/deprecated/models'
 
 export interface FilterItem {
   id?: string
@@ -46,7 +46,7 @@ export interface Bucket<T extends Entity = Entity>
   extends SearchFacetBucket,
     SearchFacetRangeBucket {
   item?: T
-  val: string | number
+  value: string | number
 }
 
 // export interface Bucket {

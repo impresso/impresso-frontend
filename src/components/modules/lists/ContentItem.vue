@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { computed } from 'vue'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import DataProviderLabel from './DataProviderLabel.vue'

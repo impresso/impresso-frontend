@@ -84,7 +84,7 @@
     <div v-if="showBuckets" class="pt-2" data-testid="facet-buckets">
       <filter-facet-bucket
         v-for="bucket in unfilteredBuckets"
-        :key="bucket.val"
+        :key="bucket.value"
         :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
@@ -93,7 +93,7 @@
       />
       <filter-facet-bucket
         v-for="bucket in additionalBuckets"
-        :key="bucket.val"
+        :key="bucket.value"
         :loading="isLoading"
         :bucket="bucket"
         :type="facet.type"
@@ -272,7 +272,7 @@ export default defineComponent({
       if (!this.isFiltered || !this.includedFilterItems) {
         return this.facet.buckets
       }
-      return this.facet.buckets.filter(b => !this.filtersIncludedItemsIds.includes(b.val))
+      return this.facet.buckets.filter(b => !this.filtersIncludedItemsIds.includes(b.value))
     },
     countMissingBuckets() {
       return this.facet.numBuckets - this.additionalBuckets.length - this.facet.buckets.length
@@ -286,7 +286,7 @@ export default defineComponent({
       if (this.selectedBucketsIds.length) {
         this.clearSelectedItems()
       } else {
-        this.selectedBucketsIds = this.unfilteredBuckets.map(b => String(b.val))
+        this.selectedBucketsIds = this.unfilteredBuckets.map(b => String(b.value))
         this.selectedBucketsItems = this.unfilteredBuckets.map(b => ({
           checked: true,
           ...b,

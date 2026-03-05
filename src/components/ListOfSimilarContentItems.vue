@@ -78,7 +78,7 @@
  * @see {@link ContentItemsService} for the API service used to fetch data
  */
 import { contentItems as ContentItemsService } from '@/services'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'

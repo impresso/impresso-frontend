@@ -18,7 +18,7 @@ const statsProvider: StatsDataProvider = async (type: string, { query }) => {
 
 const generateFacetWithBuckets = (numBuckets: number, totalBuckets?: number): Facet => ({
   buckets: Array.from({ length: numBuckets }, (_, i) => ({
-    val: String(i),
+    value: String(i),
     count: Math.floor(Math.random() * 100),
     upper: i + 1,
     lower: i

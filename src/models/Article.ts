@@ -5,7 +5,7 @@ import Region from './Region'
 import ArticleTopic from './ArticleTopic'
 import Tag from './Tag'
 import ArticleBase, { ArticleBaseInterface } from './ArticleBase'
-import { ContentItem, ContentItemAccessRights } from './generated/schemas/contentItem'
+import { ContentItem, ContentItemAccessRights } from './generated/canonical/contentItem'
 import { MediaSource } from './index'
 import Topic from './Topic'
 
@@ -174,7 +174,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
             uid: page.id ?? `page-${idx}`,
             num: page.number ?? idx + 1,
             iiif: page.iiif?.manifestUrl ?? '',
-            iiifThumbnail: page.iiif?.thumnbnailUrl ?? ''
+            iiifThumbnail: page.iiif?.thumbnailUrl ?? ''
           })
       ) ?? []
 
@@ -273,14 +273,14 @@ export default class Article extends ArticleBase implements ArticleInterface {
       },
       collections:
         semanticEnrichments?.collections?.map(c => ({
-          uid: c.uid,
+          uid: c.id,
           name: c.title
         })) ?? [],
       matches:
         text?.matches?.map(match => ({
           fragment: match.fragment,
           coords: match.coords,
-          pageUid: match.pageUid,
+          pageUid: match.pageId,
           iiif: match.iiif
         })) ?? [],
       images: []

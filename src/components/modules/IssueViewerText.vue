@@ -86,7 +86,7 @@
                 class="IssueViewerText__region region text-serif py-2"
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
-                @click="() => annotatedTextClickHandler([pageIdx, i])"
+                @click="() => annotatedTextClickHandler([pageIdx, i as any])"
               >
                 <AnnotatedText
                   class="text-serif"
@@ -157,7 +157,7 @@ import { mapStores } from 'pinia'
 import { articleTextReusePassages, contentItems as contentItemsService } from '@/services'
 
 import ContentItem from './lists/ContentItem.vue'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import IIIFViewer from './IIIFViewer.vue'
@@ -248,6 +248,9 @@ export default {
         return isNaN(coords.x) || isNaN(coords.y) || isNaN(coords.w) || isNaN(coords.h)
       })
     },
+    /**
+     * TODO: this appears broken if types are applied.
+     */
     computedIIIFViewerOverlays() {
       if (!this.hasValidRegions) return []
       const regionsByPageIndex = this.article.regions.reduce((acc, region, idx) => {
@@ -363,7 +366,7 @@ export default {
       const item = this.contentItem
       const itemId = item?.id
       const collections = item?.semanticEnrichments?.collections ?? []
-      const collection = collections.find(c => c.uid === collectionId)
+      const collection = collections.find(c => c.id === collectionId)
 
       if (!itemId || !collection) return
 
@@ -378,7 +381,7 @@ export default {
       })
       if (this.contentItem?.semanticEnrichments?.collections) {
         this.contentItem.semanticEnrichments.collections =
-          this.contentItem.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
+          this.contentItem.semanticEnrichments.collections.filter(c => c.id !== collectionId)
       }
     },
     mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {

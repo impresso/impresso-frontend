@@ -58,42 +58,57 @@ type Story = StoryObj<typeof meta>
 
 // Helper function to generate mock buckets
 const generateBuckets = (type: string, count: number): Bucket[] => {
-  return Array.from({ length: count }, (_, i) => new Bucket({
-    val: type === 'year' ? `${2020 + i}` : `${type}-${i}`,
-    count: Math.floor(Math.random() * 1000) + 10,
-    type,
-    item: {
-      uid: `${type}-${i}`,
-      name: type === 'year' ? `${2020 + i}` : `${type.charAt(0).toUpperCase() + type.slice(1)} ${i}`,
-      language: 'English'
-    }
-  }))
+  return Array.from(
+    { length: count },
+    (_, i) =>
+      new Bucket({
+        value: type === 'year' ? `${2020 + i}` : `${type}-${i}`,
+        count: Math.floor(Math.random() * 1000) + 10,
+        type,
+        item: {
+          uid: `${type}-${i}`,
+          name:
+            type === 'year'
+              ? `${2020 + i}`
+              : `${type.charAt(0).toUpperCase() + type.slice(1)} ${i}`,
+          language: 'English'
+        }
+      })
+  )
 }
 
 // Helper function to generate year buckets for timeline
 const generateYearBuckets = (startYear: number, endYear: number): Bucket[] => {
-  return Array.from({ length: endYear - startYear + 1 }, (_, i) => new Bucket({
-    val: `${startYear + i}`,
-    count: Math.floor(Math.random() * 500) + 50,
-    type: 'year',
-    item: {
-      uid: `${startYear + i}`,
-      name: `${startYear + i}`
-    }
-  }))
+  return Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) =>
+      new Bucket({
+        value: `${startYear + i}`,
+        count: Math.floor(Math.random() * 500) + 50,
+        type: 'year',
+        item: {
+          uid: `${startYear + i}`,
+          name: `${startYear + i}`
+        }
+      })
+  )
 }
 
 // Helper function to generate max buckets with higher counts
 const generateMaxYearBuckets = (startYear: number, endYear: number): Bucket[] => {
-  return Array.from({ length: endYear - startYear + 1 }, (_, i) => new Bucket({
-    val: `${startYear + i}`,
-    count: Math.floor(Math.random() * 1000) + 500, // Higher base counts for max values
-    type: 'year',
-    item: {
-      uid: `${startYear + i}`,
-      name: `${startYear + i}`
-    }
-  }))
+  return Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) =>
+      new Bucket({
+        value: `${startYear + i}`,
+        count: Math.floor(Math.random() * 1000) + 500, // Higher base counts for max values
+        type: 'year',
+        item: {
+          uid: `${startYear + i}`,
+          name: `${startYear + i}`
+        }
+      })
+  )
 }
 
 export const BarsNewspapers: Story = {

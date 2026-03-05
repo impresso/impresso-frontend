@@ -109,7 +109,7 @@ function getYearsSpan(facets: FacetContainer[]): [number, number] | [] {
   const years = [
     ...new Set(
       yearFacet.comparableItems.flatMap(({ buckets }) =>
-        buckets.map(({ val }) => (typeof val === 'string' ? parseInt(val, 10) : val))
+        buckets.map(({ value }) => (typeof value === 'string' ? parseInt(value, 10) : value))
       )
     )
   ].sort()

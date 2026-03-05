@@ -127,7 +127,7 @@ function bucketsToTimelineValues(
   const maxBucketsLookup = maxBuckets
     ? maxBuckets.reduce(
         (acc, bucket) => {
-          acc[bucket.val] = bucket.count
+          acc[bucket.value] = bucket.count
           return acc
         },
         {} as { [key: string]: number }
@@ -135,13 +135,13 @@ function bucketsToTimelineValues(
     : null
 
   const timelineValues = buckets
-    .map(({ val, count }) => {
+    .map(({ value, count }) => {
       const maxValue =
-        displayStyle === 'percent' && maxBucketsLookup ? maxBucketsLookup[val] : undefined
+        displayStyle === 'percent' && maxBucketsLookup ? maxBucketsLookup[value] : undefined
 
       const w = displayStyle === 'percent' ? (maxValue != undefined ? count / maxValue : 1) : count
       return {
-        t: typeof val === 'string' ? parseInt(val, 10) : val,
+        t: typeof value === 'string' ? parseInt(value, 10) : value,
         w
       }
     })
@@ -238,7 +238,7 @@ export default {
         return this.timelineDomain as [number, number]
       }
       const keys = this.values
-        .map(({ val }) => (typeof val === 'string' ? parseFloat(val) : val))
+        .map(({ value }) => (typeof value === 'string' ? parseFloat(value) : value))
         .sort()
       return keys.length > 0 ? [keys[0], keys[keys.length - 1]] : undefined
     },

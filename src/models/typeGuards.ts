@@ -1,4 +1,4 @@
-import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
+import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/deprecated/models'
 import { Bucket } from '.'
 
 export const isTermBucket = (bucket: any): bucket is SearchFacetBucket => {

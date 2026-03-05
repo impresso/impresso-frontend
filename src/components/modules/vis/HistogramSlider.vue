@@ -115,8 +115,8 @@ export default {
       if (this.buckets && this.buckets.length > 0) {
         const step = Math.floor(this.buckets.length / marksCount)
         return this.buckets
-          .reduce((acc, { val }, index) => {
-            if (index % step === 0) acc.push(val)
+          .reduce((acc, { value }, index) => {
+            if (index % step === 0) acc.push(value)
             return acc
           }, [])
           .concat([this.sliderRange[1].toString()])
@@ -127,8 +127,8 @@ export default {
       return Array.from({ length: marksCount + 1 }, (_, i) => this.$n(min + i * step))
     },
     sliderRange() {
-      const vals = this.buckets.map(({ val }) =>
-        typeof val === 'string' ? parseInt(val, 10) : val
+      const vals = this.buckets.map(({ value }) =>
+        typeof value === 'string' ? parseInt(value, 10) : value
       )
       const min = Math.min(...vals)
       const max = Math.max(...vals)
@@ -165,7 +165,7 @@ export default {
       // console.debug('renderChart()', this.buckets)
       const x = d3
         .scaleBand()
-        .domain(this.buckets.map(({ val }) => String(val)))
+        .domain(this.buckets.map(({ value }) => String(value)))
         .range([0, width])
         .paddingInner(0.05)
 
@@ -197,7 +197,7 @@ export default {
         .attr('class', (d, i) => (i === barIndexWithMaximumValue ? 'bar max' : 'bar'))
         .attr(
           'transform',
-          d => `translate(${x(String(d.val)) ?? 0}, ${this.chartHeight - y(d.count)})`
+          d => `translate(${x(String(d.value)) ?? 0}, ${this.chartHeight - y(d.count)})`
         )
 
       // add rects to the bars
@@ -218,7 +218,7 @@ export default {
       bars
         .join('rect')
         .attr('class', 'bar')
-        .attr('x', d => x(String(d.val)) ?? 0)
+        .attr('x', d => x(String(d.value)) ?? 0)
         .attr('width', x.bandwidth())
         .attr('y', d => this.chartHeight - y(d.count))
         .attr('height', d => Math.max(1, y(d.count)))
@@ -253,10 +253,10 @@ export default {
         .on('mousemove', event => {
           const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
-            ({ val }) => x(String(val)) <= xPos && xPos <= x(String(val)) + x.bandwidth()
+            ({ value }) => x(String(value)) <= xPos && xPos <= x(String(value)) + x.bandwidth()
           )
           if (bucket) {
-            const xBucket = x(String(bucket.val)) ?? 0
+            const xBucket = x(String(bucket.value)) ?? 0
             const yBucket = this.chartHeight - y(bucket.count)
             this.$emit('mousemove', {
               pointer: {
@@ -300,7 +300,7 @@ export default {
         .on('click', event => {
           const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
-            ({ val }) => x(String(val)) <= xPos && xPos <= x(String(val)) + x.bandwidth()
+            ({ value }) => x(String(value)) <= xPos && xPos <= x(String(value)) + x.bandwidth()
           )
           if (bucket) {
             this.$emit('click', { bucket })
@@ -313,7 +313,7 @@ export default {
         .join('g')
         .attr('class', 'maxval')
         .attr('transform', bucket => {
-          const xOffset = (x(String(bucket.val)) ?? 0) + x.bandwidth() / 2
+          const xOffset = (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
         })
@@ -331,14 +331,14 @@ export default {
             n: this.$n(Math.round(bucket.count)),
 
             ...bucket,
-            val: this.$t(this.valueLabel, {
-              val: bucket.val,
-              valAsNumber: this.$n(parseFloat('' + bucket.val))
+            value: this.$t(this.valueLabel, {
+              value: bucket.value,
+              valueAsNumber: this.$n(parseFloat('' + bucket.value))
             })
           })
         })
         .attr('text-anchor', bucket => {
-          const xOffset = (x(String(bucket.val)) ?? 0) + x.bandwidth() / 2
+          const xOffset = (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2
           const oneThirdWidth = width / 3
           if (xOffset <= oneThirdWidth) return 'start'
           if (xOffset >= 2 * oneThirdWidth) return 'end'

@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/vue3'
 import ContentItem from './ContentItem.vue'
 import { vueRouter } from 'storybook-vue3-router'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { fn } from 'storybook/test'
 
 export const MockContentItem: ContentItemType = {
@@ -94,7 +94,7 @@ export const MockContentItem: ContentItemType = {
         ],
         iiif: {
           manifestUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/info.json',
-          thumnbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
+          thumbnailUrl: '/proxy/iiif/DTT-1968-09-04-a-p0003/full/150,/0/default.png'
         }
       }
     ]

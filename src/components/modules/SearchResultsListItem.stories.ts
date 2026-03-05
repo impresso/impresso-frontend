@@ -1,4 +1,4 @@
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { fn } from 'storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { http, HttpResponse } from 'msw'
@@ -63,13 +63,13 @@ const mockContentItem: ContentItem = {
       {
         fragment: '... a sample <em>match</em> ...',
         coords: [100, 150, 200, 180],
-        pageUid: 'page-1',
+        pageId: 'page-1',
         iiif: 'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f8/info.json'
       },
       {
         fragment: '... another <em>match</em> from the article...',
         coords: [120, 200, 250, 230],
-        pageUid: 'page-1',
+        pageId: 'page-1',
         iiif: 'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f8/info.json'
       }
     ]
@@ -95,7 +95,7 @@ const mockContentItem: ContentItem = {
     ],
     collections: [
       {
-        uid: 'coll1',
+        id: 'coll1',
         title: 'My Research Collection',
         description: 'A collection for research purposes',
         createdAt: '2024-01-01T00:00:00Z',
@@ -120,7 +120,7 @@ const mockContentItem: ContentItem = {
         iiif: {
           manifestUrl:
             'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f8/info.json',
-          thumnbnailUrl: 'https://example.com/iiif/thumbnail'
+          thumbnailUrl: 'https://example.com/iiif/thumbnail'
         }
       },
       {
@@ -130,7 +130,7 @@ const mockContentItem: ContentItem = {
         iiif: {
           manifestUrl:
             'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f8/info.json',
-          thumnbnailUrl: 'https://example.com/iiif/thumbnail2'
+          thumbnailUrl: 'https://example.com/iiif/thumbnail2'
         }
       }
     ],

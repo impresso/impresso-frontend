@@ -150,7 +150,7 @@ import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 
 const userStore = useUserStore()
 

@@ -6,7 +6,7 @@ import Year from '@/models/Year'
 import { ComponentCustomProperties } from 'vue'
 
 export interface TimelineValue {
-  val: string
+  value: string
   count: number
   w: number
   w1: number
@@ -23,7 +23,7 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
       w: b.count,
       w1: 0,
       p: (b.item as Year).normalize(b.count),
-      t: typeof b.val === 'string' ? parseInt(b.val, 10) : b.val
+      t: typeof b.value === 'string' ? parseInt(b.value, 10) : b.value
     }))
     .sort((a, b) => a.t - b.t)
   return Helpers.timeline.addEmptyIntervals(values) as TimelineValue[]
@@ -59,7 +59,7 @@ export const DefaultFacetTypesForIndex = Object.freeze({
 })
 
 export interface BucketData {
-  val: string
+  value: string
   count: number
   item?: any
 }
@@ -119,7 +119,7 @@ const LabelExtractors = {
     return item != null ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}` : undefined
   },
   year: (bucket?: Bucket): string | undefined => {
-    const val = bucket?.item?.y ?? bucket?.val
+    const val = bucket?.item?.y ?? bucket?.value
     return val != null ? String(val) : undefined
   },
   translated: (
@@ -127,7 +127,7 @@ const LabelExtractors = {
     type: string,
     vueInstance: ComponentCustomProperties
   ) => {
-    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket?.val}`)
+    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket?.value}`)
   }
 }
 
@@ -150,7 +150,7 @@ export function getBucketLabel(
       year: LabelExtractors.year
     }[type] ?? LabelExtractors.translated
 
-  const label = extractor(bucket, type, vueInstance) ?? bucket?.val
+  const label = extractor(bucket, type, vueInstance) ?? bucket?.value
 
   return label != null ? String(label) : undefined
 }

@@ -321,7 +321,7 @@ async function searchWithService(searchParams: SearchParams): Promise<{
     buckets: response.data.map(
       (item: any) =>
         new Bucket({
-          val: item.uid,
+          value: item.uid,
           item,
           type: searchParams.type
         })

@@ -1,5 +1,5 @@
 import Bucket from './Bucket'
-import { SearchFacet } from './generated/schemas'
+import { SearchFacet } from './generated/deprecated/models'
 
 /**
  * All supported facet types.
