@@ -5,7 +5,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import SearchResultsListItem from './SearchResultsListItem.vue'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 
 export default {
   props: {

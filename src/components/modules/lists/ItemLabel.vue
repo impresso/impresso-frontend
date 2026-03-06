@@ -1,9 +1,6 @@
 <template>
   <div v-if="!detailed" class="ItemLabel d-inline">
-    <template v-if="['mediaSource', 'newspaper'].includes(itemType)">
-      <span>{{ item.name }}</span> &mdash; <span class="small-caps">{{ itemType }}</span>
-    </template>
-    <template v-else-if="itemType === 'collection'">
+    <template v-if="itemType === 'collection'">
       <b>{{ item.name }}</b
       >{{ ' ' }}
       <span class="date small">{{ $t('created', { date: $d(item.creationDate, 'short') }) }}</span>
@@ -12,17 +9,17 @@
       <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.label }}
     </template>
     <span v-else-if="['type', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)">
-      {{ $t(`buckets.${itemType}.${item.uid}`) }}
+      {{ $t(`buckets.${itemType}.${item.id}`) }}
     </span>
-    <span v-else v-html="label"></span>
+    <span v-else v-html="computedLabel"></span>
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
       <div><label className="small-caps">top words in topic</label></div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
-      <div class="d-inline-block word" v-for="(word, idx) in item.words" :key="idx">
-        <span :style="{ opacity: word.l }">{{ word.w }}</span>
-        <span v-if="idx < item.words.length - 1">&nbsp;&middot;&nbsp;</span>
+      <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
+        <span>{{ word.w }}</span>
+        <span v-if="idx < topicItem.words.length - 1">&nbsp;&middot;&nbsp;</span>
       </div>
       <span class="small-caps"
         >&nbsp;({{ $t(`buckets.language.${item.language}`).toLowerCase() }})</span
@@ -33,6 +30,7 @@
 
 <script lang="ts">
 import { FacetType } from '@/models/Facet'
+import { Topic } from '@/models/generated/canonical'
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
@@ -42,8 +40,11 @@ export default defineComponent({
       type: Object,
       required: true
     },
+    label: {
+      type: String
+    },
     type: {
-      type: String as PropType<FacetType>,
+      type: String as PropType<FacetType | string>,
       required: true
     },
     detailed: {
@@ -57,7 +58,7 @@ export default defineComponent({
     itemType() {
       return String(this.item.type ?? this.type)
     },
-    label() {
+    computedLabel() {
       let t = ''
       if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
@@ -73,19 +74,22 @@ export default defineComponent({
           'imageContentType'
         ].includes(this.type)
       ) {
-        t = this.item.label ?? this.item.uid
+        t = this.item.label ?? this.item.id
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
-        t = this.item.uid ?? this.item.id
+        t = this.item.id
       }
-      return t
+      return t != '' ? t : (this.label ?? '')
+    },
+    topicItem() {
+      return this.item as Topic
     }
   },
   methods: {
     getTextReuseClusterSummary(item) {
       if (!item.clusterSize) {
-        return item.uid
+        return item.id
       }
       const clusterSizeLabel =
         item.clusterSize != null

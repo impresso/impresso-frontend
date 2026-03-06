@@ -12,9 +12,9 @@ export function getArticleParameters(articleId: string, pageNumber: number) {
   const pageId = [issueId, `p${String(pageNumber).padStart(4, '0')}`].join('-')
 
   return {
-    issue_uid: issueId,
-    page_uid: pageId,
-    article_uid: articleId
+    issue_id: issueId,
+    page_id: pageId,
+    article_id: articleId
   }
 }
 

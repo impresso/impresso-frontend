@@ -22,8 +22,8 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getPageIndexFromCenterX, highlightCurrentPage } from './OSViewer.logic'
 
 export interface PageRegion {
-  articleUid: string
-  pageUid: string
+  articleId: string
+  pageId: string
   coords: {
     x: number
     y: number
@@ -120,7 +120,7 @@ function drawRegionsOnPage(pageIndex: number): void {
     )
     const overlayElement = document.createElement('div') as HTMLDivElement
     overlayElement.classList.add('overlay', 'rounded-sm', 'pageRegion')
-    overlayElement.dataset.articleUid = region.articleUid
+    overlayElement.dataset.articleId = region.articleId
     viewer.addOverlay(overlayElement, viewportRect)
     regionsOverlays.value.push(overlayElement)
   }

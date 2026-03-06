@@ -46,7 +46,7 @@
               class="m-1 font-size-inherit"
             >
               <router-link
-                v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+                v-bind:to="{ name: 'collection', params: { collection_id: collection.id } }"
                 title="View collection"
               >
                 {{ collection.name }}
@@ -55,7 +55,7 @@
               <a
                 class="ml-1 dripicons dripicons-cross text-decoration-none"
                 title="Remove from collection"
-                v-on:click="onRemoveCollection(collection.uid)"
+                v-on:click="onRemoveCollection(collection.id)"
               />
             </b-badge>
           </div>
@@ -129,7 +129,7 @@ import { useCollectionsStore } from '@/stores/collections'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import { defineComponent, PropType } from 'vue'
-import { ContentItem as ContentItemSchema } from '@/models/generated/schemas/contentItem'
+import { ContentItem as ContentItemSchema } from '@/models/generated/canonical/contentItem'
 import Article from '@/models/Article'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { ItemWithCollections } from './CollectionAddToList.vue'
@@ -185,7 +185,7 @@ export default defineComponent({
           new Collection({
             ...c,
             name: c.title || (c as any)?.name,
-            uid: c.uid
+            id: c.id
           })
       )
     },
@@ -196,7 +196,7 @@ export default defineComponent({
       return [
         {
           itemId: this.contentItem.id,
-          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.uid)
+          collectionIds: this.contentItem.semanticEnrichments?.collections?.map(c => c.id)
         }
       ] as ItemWithCollections[]
     },
@@ -216,17 +216,17 @@ export default defineComponent({
     },
     pageViewerOverlays() {
       if (!this.article.isCC) return
-      const { uid: firstPageUid } = this.article.pages[0]
+      const { id: firstPageId } = this.article.pages[0]
 
       const regionsOverlays = this.article.regions
-        .filter(({ pageUid }) => pageUid === firstPageUid)
+        .filter(({ pageId }) => pageId === firstPageId)
         .map(({ coords }) => {
           const { x, y, w, h } = coords
           return { x, y, w, h, class: RegionOverlayClass }
         })
 
       const matchesOverlays = this.article.matches
-        .filter(({ pageUid }) => pageUid === firstPageUid)
+        .filter(({ pageId }) => pageId === firstPageId)
         .map(({ coords }) => {
           const [x, y, w, h] = coords
           return { x, y, w, h, class: MatchOverlayClass }
@@ -236,7 +236,7 @@ export default defineComponent({
     },
     computedRegionsInArticleFirstPage() {
       if (this.article.pages.length > 0 && this.article.regions.length > 0) {
-        return this.article.regions.filter(({ pageUid }) => pageUid === this.article.pages[0].uid)
+        return this.article.regions.filter(({ pageId }) => pageId === this.article.pages[0].id)
       }
       console.warn('[SearchResultsListItem] No regions found for article', this.article)
       return []
@@ -246,16 +246,16 @@ export default defineComponent({
         return {
           name: 'issue',
           params: {
-            issue_uid: this.article.issue.uid
+            issue_id: this.article.issue.id
           }
         }
       }
       return {
         name: 'article',
         params: {
-          issue_uid: this.article.issue.uid,
-          page_uid: this.article.pages.length > 0 ? this.article.pages[0].uid : undefined,
-          article_uid: this.article.uid
+          issue_id: this.article.issue.id,
+          page_id: this.article.pages.length > 0 ? this.article.pages[0].id : undefined,
+          article_id: this.article.id
         }
       }
     }
@@ -280,7 +280,7 @@ export default defineComponent({
       } else if (updatedItem.removed) {
         this.modelValue.semanticEnrichments.collections =
           this.modelValue?.semanticEnrichments?.collections?.filter(
-            c => c.uid !== payload.collection.uid
+            c => c.id !== payload.collection.id
           ) ?? []
       }
     },
@@ -288,12 +288,12 @@ export default defineComponent({
       const item = this.modelValue
       const itemId = item?.id
       const collections = item?.semanticEnrichments?.collections ?? []
-      const collection = collections.find(c => c.uid === collectionId)
+      const collection = collections.find(c => c.id === collectionId)
 
       if (!itemId || !collection) return
       await this.collectionsStore.removeCollectionItem({
-        item: { uid: itemId },
-        collection: { uid: collectionId }
+        item: { id: itemId },
+        collection: { id: collectionId }
       })
       this.notificationsStore.addNotification({
         type: 'info',
@@ -302,7 +302,7 @@ export default defineComponent({
       })
       if (this.modelValue?.semanticEnrichments?.collections) {
         this.modelValue.semanticEnrichments.collections =
-          this.modelValue.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
+          this.modelValue.semanticEnrichments.collections.filter(c => c.id !== collectionId)
       }
     },
     toggleSelected() {

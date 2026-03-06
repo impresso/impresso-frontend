@@ -4,9 +4,9 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector && item.uid?.length"
+        v-if="showItemSelector && item.id?.length"
         hideIcon
-        :uid="item.uid"
+        :id="item.id"
         :item="item"
         :type="filter.type"
         class="position-relative"
@@ -21,7 +21,7 @@
           >{{ filter.type }}</span
         >
         <span v-if="filter.type === 'string'" class="highlight precision-{{ item.precision }}">
-          {{ item.uid }}
+          {{ item.id }}
         </span>
         <span
           class="small-caps"
@@ -30,7 +30,7 @@
               filter.type
             )
           "
-          >{{ $t(`buckets.${filter.type}.${item.uid}`) }}</span
+          >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
         <template v-else-if="filter.type === 'topic'">
           <span class="small-caps" v-if="item.label">
@@ -39,9 +39,9 @@
           <span class="small-caps" v-else-if="Array.isArray(item.excerpt) && item.excerpt.length">
             {{ item.excerpt.map(d => d.w).join(' · ') }}
           </span>
-          <span v-else>{{ item.uid }}</span>
+          <span v-else>{{ item.id }}</span>
         </template>
-        <span v-else>{{ item.name ?? item.uid }}</span>
+        <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
       <span
         v-else-if="['daterange'].includes(filter.type)"
@@ -71,11 +71,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
-import type { Filter, FilterItem } from '@/models'
+import type { Entity, FilterWithItems } from '@/models'
+import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
 
+type FilterLabelItem = Entity & {
+  name?: string
+  excerpt?: { w: string }[]
+  start?: string | number | Date
+  end?: string | number | Date
+  precision?: string
+}
+
+const isFilterItem = (value: unknown): value is FilterLabelItem => {
+  return value != null && typeof value === 'object'
+}
+
 interface FilterAsLabelProps {
-  filter: Filter
+  filter: FilterWithItems<FilterLabelItem>
   showType?: boolean
   limitNumberOfFilterItems?: number
 }
@@ -111,8 +124,11 @@ const daterangeTranslationOptions = computed(() => {
     Array.isArray(props.filter.items) &&
     props.filter.items.length > 0
   ) {
-    options.from = new Date(props.filter.items[0].start)
-    options.to = new Date(props.filter.items[0].end)
+    const firstItem = props.filter.items[0]
+    if (isEntityWithDateRange(firstItem)) {
+      options.from = new Date(firstItem.start ?? 0)
+      options.to = new Date(firstItem.end ?? 0)
+    }
   }
   return options
 })
@@ -123,18 +139,23 @@ const operatorTranslationKey = computed(() => {
 })
 
 const showItemSelector = computed(() => {
-  return (
-    Array.isArray(props.filter.items) &&
-    props.filter.items.length > 0 &&
-    props.filter.items.some(item => item.uid)
-  )
+  return filterItems.value.length > 0 && filterItems.value.some(item => item.id)
 })
 
-const filterItems = computed<FilterItem[]>(() => {
-  if (!props.filter?.items && Array.isArray(props.filter.q)) {
-    return props.filter.q.map(q => ({ id: q, uid: q, name: q }))
+const filterItems = computed<FilterLabelItem[]>(() => {
+  const itemsFromFilter = Array.isArray(props.filter?.items)
+    ? props.filter.items.filter(isFilterItem)
+    : []
+
+  if (itemsFromFilter.length > 0) {
+    return itemsFromFilter
   }
-  return props.filter?.items || []
+  if (Array.isArray(props.filter.q)) {
+    return props.filter.q
+      .filter(value => value != null && value !== '')
+      .map(q => ({ id: String(q), label: String(q), name: String(q) }))
+  }
+  return []
 })
 </script>
 <i18n lang="json">

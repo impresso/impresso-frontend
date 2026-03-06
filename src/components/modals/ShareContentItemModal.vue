@@ -218,7 +218,7 @@
 
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import { WebAppHost, WidgetBaseUrl } from '@/constants'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'

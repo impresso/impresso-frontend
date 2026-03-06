@@ -227,7 +227,8 @@ export default defineComponent({
           lower: this.$n(bucket.lower)
         })
       // 2. values are the same
-      const value: number = typeof bucket.val === 'number' ? bucket.val : parseInt(bucket.val, 10)
+      const value: number =
+        typeof bucket.value === 'number' ? bucket.value : parseInt(bucket.value, 10)
       return this.$t(this.valueLabel, { val: this.$n(value) })
     },
     handleMouseMove(value) {
@@ -254,11 +255,11 @@ export default defineComponent({
     handleClick({ bucket }) {
       if (isNaN(bucket.upper) || isNaN(bucket.lower)) {
         // check if value is a number
-        if (!isNaN(bucket.val)) {
+        if (!isNaN(bucket.value)) {
           // create a filter and emit it
           const rangeFilter = FilterFactory.create({
             type: this.facetType,
-            q: [bucket.val, bucket.val]
+            q: [bucket.value, bucket.value]
           })
           this.$emit('clicked', rangeFilter)
         }
@@ -348,15 +349,15 @@ export default defineComponent({
           .then(response => {
             this.buckets = response.buckets
               .sort((a, b) => {
-                return (a.val as number) - (b.val as number)
+                return (a.value as number) - (b.value as number)
               })
               .map((bucket, i, arr) => {
                 return {
                   // calculate upper and lower bounds based on value if they're not set
-                  lower: bucket.val,
+                  lower: bucket.value,
                   upper: Math.max(
-                    (arr[i + 1]?.val as any as number) - 1,
-                    bucket.val as any as number
+                    (arr[i + 1]?.value as any as number) - 1,
+                    bucket.value as any as number
                   ),
                   ...bucket
                 }
@@ -366,7 +367,7 @@ export default defineComponent({
 
             // .map(bucket => {
             //   // convert to number
-            //   bucket.val = parseFloat(bucket.val)
+            //   bucket.value = parseFloat(bucket.value)
             //   bucket.lower = parseFloat(bucket.lower)
             //   bucket.upper = parseFloat(bucket.upper)
             //   bucket.label = this.getTooltipLabel(bucket)

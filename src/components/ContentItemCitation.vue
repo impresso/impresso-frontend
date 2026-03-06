@@ -18,7 +18,7 @@
 import { onMounted, ref, watch } from 'vue'
 import * as Cite from '@citation-js/core'
 import type { CSLJSON } from '@citation-js/core'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import '@citation-js/plugin-csl'
 import '@citation-js/plugin-bibtex'
 import {

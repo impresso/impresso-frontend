@@ -1,72 +1,68 @@
-import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/schemas'
+import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/deprecated/models.js'
+import { FacetWithLabel } from './generated/canonical.js'
+import { Filter, FilterOperator, SearchQuery as ImpressoSearchQuery } from 'impresso-jscommons'
 
-export interface FilterItem {
-  id?: string
-  uid: string
+export type Entity = FacetWithLabel
 
-  name?: string
-  language?: string
-  htmlExcerpt?: string
-  creator?: { username?: string }
-  lastModifiedDate?: Date
+export { Filter }
 
-  y?: string
+export interface SearchQuery<F extends Filter = Filter>
+  extends Omit<ImpressoSearchQuery, 'filters'> {
+  filters: F[]
+}
 
-  firstIssue?: { date: Date }
-  lastIssue?: { date: Date }
+/**
+ * A frontend only extension of the Filter interface that carries additional details describing
+ * the filter item. E.g. a 'person' filter with `q` containing ID may have the person entity attached.
+ * It's plural because it may have multiple items when `q` contains multiple values.
+ */
+export type FilterWithItems<I = FacetWithLabel> = Filter & {
+  items?: I[]
+}
 
-  countArticles?: number
-  countIssues?: number
-
-  start?: number | Date
-  end?: number | Date
-  // for topics
+/**
+ * Same as in FilterWithItems. A bucket with an optional item attached.
+ */
+export interface BucketWithItem<I = Entity> {
+  value: string | number
+  count: number
+  item?: I
   label?: string
-  excerpt?: { w: string }[]
+  upper?: number
+  lower?: number
 }
 
-export type Entity = FilterItem
+// Legacy alias used across the codebase.
+export type Bucket<I = Entity> = BucketWithItem<I>
 
-export interface Filter {
-  q?: string[] | string
-  type: string
-  context?: string
-  precision?: string
-  op?: string
-
-  items?: FilterItem[]
-}
-
-export interface FilterInterface extends Filter {
-  getQuery(): object
-}
-
-// New code should use either SearchFacetBucket or SearchFacetRangeBucket
-export interface Bucket<T extends Entity = Entity>
-  extends SearchFacetBucket,
-    SearchFacetRangeBucket {
-  item?: T
-  val: string | number
-}
-
-// export interface Bucket {
-//   val: string | number
-//   count: number
-//   item?: Entity
-
-//   upper?: number
-//   lower?: number
-// }
-
-export interface Facet<T extends string = FacetType> {
+/**
+ * A facet with buckets.
+ */
+export interface Facet<T extends string = string, I = Entity, O = FilterOperator> {
   type: T
-  buckets: Bucket[]
-  operators?: string[]
+  buckets: BucketWithItem<I>[]
+  operators?: O[]
   numBuckets?: number
 }
 
-export interface SearchQuery {
-  filters: Filter[]
+/**
+ * An interface that returns a clean Filter object without attached items.
+ * @deprecated This is not needed because any object extending it is already a Filter.
+ */
+export interface FilterWithItemsInterface<I = Entity> extends FilterWithItems<I> {
+  getQuery(): Filter
+}
+
+/**
+ * @deprecated New code should use either BucketWithItem, SearchFacetBucket or SearchFacetRangeBucket
+ */
+export type TermOrRangeBucketWithItem<T = Entity> = (
+  | Omit<SearchFacetBucket, 'value' | 'item'>
+  | SearchFacetRangeBucket
+) & {
+  item?: T
+  value?: string | number
+  label?: string
 }
 
 export interface ClusterTimeCoverage {
@@ -83,7 +79,7 @@ export interface TextReuseCluster {
 }
 
 export interface MediaSource {
-  uid: string
+  id: string
   name: string
   type: ContentItemMeta['sourceType']
   acronym?: string
@@ -92,7 +88,7 @@ export interface MediaSource {
 }
 export interface Page {
   num: number
-  uid: string
+  id: string
 }
 export interface DataProvider {
   id: string
@@ -100,17 +96,17 @@ export interface DataProvider {
 }
 
 export interface Issue {
-  uid: string
+  id: string
   countArticles: number
   countPages: number
   date: Date
 }
 
 export interface IImage {
-  uid: string
+  id: string
   caption?: string
-  issueUid: string
-  contentItemUid?: string
+  issueId: string
+  contentItemId?: string
   previewUrl: string
   pageNumbers: number[]
   mediaSourceRef?: IMediaSourceRef
@@ -173,7 +169,7 @@ export interface Utterance {
 }
 
 export interface ContentItem {
-  uid: string
+  id: string
   type: 'audio' | 'ar' | 'radio_broadcast_episode'
   publicationDate: string
   title?: string

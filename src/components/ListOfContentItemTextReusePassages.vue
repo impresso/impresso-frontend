@@ -64,8 +64,8 @@ import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 import { textReusePassages as textReusePassagesService } from '@/services'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
-import type { TextReusePassage } from '@/models/generated/schemas'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
+import type { TextReusePassage } from '@/models/generated/canonical'
 
 const props = defineProps<{
   contentItem: ContentItemType

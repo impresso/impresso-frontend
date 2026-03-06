@@ -22,7 +22,7 @@ const meta: Meta<typeof EntitySuggesterModal> = {
               {
                 countItems: 2763,
                 countMentions: 0,
-                uid: '2-50-Mario_Sessa',
+                id: '2-50-Mario_Sessa',
                 name: 'Mario Sessa',
                 type: 'person',
                 wikidataId: 'Q3293564'
@@ -30,7 +30,7 @@ const meta: Meta<typeof EntitySuggesterModal> = {
               {
                 countItems: 1356,
                 countMentions: 0,
-                uid: '2-50-Mario_Cipollini',
+                id: '2-50-Mario_Cipollini',
                 name: 'Mario Cipollini',
                 type: 'person',
                 wikidataId: 'Q356654'
@@ -38,7 +38,7 @@ const meta: Meta<typeof EntitySuggesterModal> = {
               {
                 countItems: 1219,
                 countMentions: 0,
-                uid: '2-50-Alain_Marion',
+                id: '2-50-Alain_Marion',
                 name: 'Alain Marion',
                 type: 'person',
                 wikidataId: 'Q2562822'
@@ -46,7 +46,7 @@ const meta: Meta<typeof EntitySuggesterModal> = {
               {
                 countItems: 1162,
                 countMentions: 0,
-                uid: '2-50-Mario_Botta',
+                id: '2-50-Mario_Botta',
                 name: 'Mario Botta',
                 type: 'person',
                 wikidataId: 'Q122363'
@@ -54,7 +54,7 @@ const meta: Meta<typeof EntitySuggesterModal> = {
               {
                 countItems: 1161,
                 countMentions: 0,
-                uid: '2-50-Marion_Cotillard',
+                id: '2-50-Marion_Cotillard',
                 name: 'Marion Cotillard',
                 type: 'person',
                 wikidataId: 'Q8927'

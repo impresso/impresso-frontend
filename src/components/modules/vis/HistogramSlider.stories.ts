@@ -28,16 +28,16 @@ type Story = StoryObj<typeof meta>
 
 // Mock data for the stories
 const mockBuckets = [
-  { val: 1900, count: 150, lower: 1900, upper: 1900 },
-  { val: 1901, count: 220, lower: 1901, upper: 1901 },
-  { val: 1902, count: 340, lower: 1902, upper: 1902 },
-  { val: 1903, count: 280, lower: 1903, upper: 1903 },
-  { val: 1904, count: 420, lower: 1904, upper: 1904 },
-  { val: 1905, count: 390, lower: 1905, upper: 1905 },
-  { val: 1906, count: 280, lower: 1906, upper: 1906 },
-  { val: 1907, count: 310, lower: 1907, upper: 1907 },
-  { val: 1908, count: 260, lower: 1908, upper: 1908 },
-  { val: 1909, count: 290, lower: 1909, upper: 1909 }
+  { value: 1900, count: 150, lower: 1900, upper: 1900 },
+  { value: 1901, count: 220, lower: 1901, upper: 1901 },
+  { value: 1902, count: 340, lower: 1902, upper: 1902 },
+  { value: 1903, count: 280, lower: 1903, upper: 1903 },
+  { value: 1904, count: 420, lower: 1904, upper: 1904 },
+  { value: 1905, count: 390, lower: 1905, upper: 1905 },
+  { value: 1906, count: 280, lower: 1906, upper: 1906 },
+  { value: 1907, count: 310, lower: 1907, upper: 1907 },
+  { value: 1908, count: 260, lower: 1908, upper: 1908 },
+  { value: 1909, count: 290, lower: 1909, upper: 1909 }
 ]
 
 export const Default: Story = {

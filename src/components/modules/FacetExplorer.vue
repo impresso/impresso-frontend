@@ -12,16 +12,16 @@
           <b-form-checkbox
             v-for="(bucket, idx) in buckets"
             :key="idx"
-            :modelValue="selectedIds.includes(bucket.val as string)"
+            :modelValue="selectedIds.includes(bucket.value as string)"
             class="d-block FacetExplorer_checkbox"
-            @update:modelValue="isSet => handleChecked(isSet as boolean, bucket.val)"
+            @update:modelValue="isSet => handleChecked(isSet as boolean, bucket.value)"
             data-testid="facet-explorer-list-item-checkbox"
           >
             <ItemLabel v-if="bucket.item" :item="bucket.item" :type="itemType" />
             <span v-if="bucket.count > -1">
               (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
             </span>
-            <ItemSelector :uid="String(bucket.val)" :item="bucket.item" :type="filterType" />
+            <ItemSelector :id="String(bucket.value)" :item="bucket.item" :type="filterType" />
           </b-form-checkbox>
         </div>
         <div class="fixed-pagination-footer p-1 mb-2 small">
@@ -43,21 +43,22 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import ItemLabel from './lists/ItemLabel.vue'
 import ItemSelector from './ItemSelector.vue'
-import type { Entity, Bucket, Filter } from '@/models'
+import type { Bucket, Entity, FilterWithItems } from '@/models'
 import type { FacetType } from '@/models/Facet'
+import { FilterType } from 'impresso-jscommons'
 
 // Helper function
 function getEntitiesForIds(
   ids: string[],
   entities: (Entity | undefined)[] = []
 ): (Entity | undefined)[] {
-  return ids.map(id => entities.find(entity => entity && entity.uid === id))
+  return ids.map(id => entities.find(entity => entity && entity.id === id))
 }
 
 // --- Props and Emits ---
 interface FacetExplorerProps {
-  modelValue?: Filter // Renamed from modelValue to align with Vue 3 conventions for v-model
-  filterType: string
+  modelValue?: FilterWithItems<Entity>
+  filterType: FilterType
   itemType?: FacetType
   buckets: Bucket[]
 }
@@ -67,7 +68,7 @@ const props = withDefaults(defineProps<FacetExplorerProps>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Filter): void
+  (e: 'update:modelValue', value: FilterWithItems<Entity>): void
 }>()
 
 const selectedIds = ref<string[]>([])
@@ -118,11 +119,11 @@ function applyFilter(): void {
 
   const originalFilter = filter.value ? filter.value : { type: props.filterType, q: [] as string[] }
 
-  const updatedFilter: Filter = {
+  const updatedFilter = {
     ...originalFilter,
     q: selectedIds.value,
     items: entities.filter((item): item is Entity => !!item) // Ensure only valid entities are passed
-  }
+  } satisfies FilterWithItems<Entity>
 
   emit('update:modelValue', updatedFilter)
 }

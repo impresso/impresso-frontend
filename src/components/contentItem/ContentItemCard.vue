@@ -75,7 +75,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import ContentItemCitation from '../ContentItemCitation.vue'
 import { computed } from 'vue'
 import { decodeBase64Bitmap, DecodedBitmap, getPlansFromDecodedBitmap } from '@/logic/bitmap'

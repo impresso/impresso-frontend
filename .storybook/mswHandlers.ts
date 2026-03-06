@@ -1,7 +1,7 @@
 import { http, HttpHandler, HttpResponse } from 'msw'
 import { PlanEducational } from '../src/constants'
-import { BaseFindResponse } from '@/models/generated/schemasPublic'
-import { Collection } from '@/models/generated/schemas'
+import { BaseFindResponse } from '@/models/generated/app/responses'
+import { Collection } from '@/models/generated/canonical'
 import {
   CollectableItemsUpdatedResponse,
   UpdateCollectableItemsRequest
@@ -23,7 +23,7 @@ const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
       return {
         count: c,
         val: String(1800 + i),
-        uid: String(1800 + i),
+        id: String(1800 + i),
         item: {
           y: 1800 + i,
           refs: {
@@ -45,7 +45,7 @@ const getMe = http.get('/api/me', () => {
     firstname: 'John',
     lastname: 'Doe',
     email: 'john.doe@example.com',
-    uid: '123',
+    id: '123',
     username: 'johndoe',
     bitmap: 'AAAAAAAAAAs',
     isActive: true,
@@ -125,7 +125,7 @@ const getCollectionsHandler = http.get('/api/collections', ({ request }) => {
 
   const mockCollections = [
     {
-      uid: 'coll1',
+      id: 'coll1',
       title: 'My Research Collection',
       description: 'A collection for research purposes',
       accessLevel: 'private' as const,
@@ -135,7 +135,7 @@ const getCollectionsHandler = http.get('/api/collections', ({ request }) => {
       creatorId: 'researcher'
     },
     {
-      uid: 'coll2',
+      id: 'coll2',
       title: 'Historical Articles',
       description: 'Collection of historical newspaper articles',
       accessLevel: 'private' as const,
@@ -145,7 +145,7 @@ const getCollectionsHandler = http.get('/api/collections', ({ request }) => {
       creatorId: 'researcher'
     },
     {
-      uid: 'coll3',
+      id: 'coll3',
       title: 'Swiss Politics',
       description: 'Articles about Swiss political events',
       accessLevel: 'public' as const,
@@ -178,7 +178,7 @@ const getCollectionsHandler = http.get('/api/collections', ({ request }) => {
 const createCollectionHandler = http.post('/api/collections', async ({ request }) => {
   const body = (await request.json()) as Omit<Collection, 'id'>
   return HttpResponse.json({
-    uid: `coll_${Date.now()}`,
+    id: `coll_${Date.now()}`,
     ...body
   } satisfies Collection)
 })
@@ -204,7 +204,7 @@ const patchCollectionItemsHandler = http.patch(
 const getCollectionHandler = http.get('/api/collections/:collection_id', ({ params }) => {
   const { collection_id } = params
   return HttpResponse.json({
-    uid: collection_id as string,
+    id: collection_id as string,
     title: 'Mock Collection',
     description: 'A mock collection for testing',
     accessLevel: 'private' as const,
@@ -218,7 +218,7 @@ const getCollectionHandler = http.get('/api/collections/:collection_id', ({ para
 export const getMediaSourceHandler = http.get('/api/media-sources/:id', async ({ params }) => {
   const { id } = params
   await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-  return HttpResponse.json(MockMediaSources.find(source => source.uid === id) || null)
+  return HttpResponse.json(MockMediaSources.find(source => source.id === id) || null)
 })
 
 export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ request }) => {

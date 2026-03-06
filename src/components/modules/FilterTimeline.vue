@@ -132,7 +132,8 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
 import { defineComponent, PropType } from 'vue'
-import { Filter } from '@/models'
+import type { Entity, Filter, FilterWithItems } from '@/models'
+import { isEntityWithDateRange } from '@/models/typeGuards'
 import { TimelineValue } from '@/logic/facets'
 
 const DisplayStyleSum = 'sum'
@@ -148,6 +149,11 @@ export interface IData {
   exponent: string
 }
 
+type DaterangeFilterItem = Entity & {
+  start?: string | number | Date
+  end?: string | number | Date
+}
+
 export default defineComponent({
   name: 'FilterTimeline',
   props: {
@@ -161,7 +167,7 @@ export default defineComponent({
       default: 'articles'
     },
     filters: {
-      type: Array as PropType<Filter[]>,
+      type: Array as PropType<FilterWithItems<DaterangeFilterItem>[]>,
       default: () => []
     },
     values: {
@@ -192,10 +198,18 @@ export default defineComponent({
   computed: {
     brush() {
       if (this.temporaryFilter) {
-        return [this.temporaryFilter.items[0].start, this.temporaryFilter.items[0].end]
+        const item = this.temporaryFilter.items[0]
+        if (isEntityWithDateRange(item)) {
+          return [item.start, item.end]
+        }
+        return []
       }
       if (this.filters.length) {
-        return [this.filters[0].items[0].start, this.filters[0].items[0].end]
+        const item = this.filters[0].items[0]
+        if (isEntityWithDateRange(item)) {
+          return [item.start, item.end]
+        }
+        return []
       }
       return []
     },

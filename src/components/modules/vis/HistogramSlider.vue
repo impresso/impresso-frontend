@@ -7,7 +7,7 @@
           <template v-if="tooltipState.bucket">
             {{
               $t('tooltipContent', {
-                val: tooltipState.bucket.val,
+                val: tooltipState.bucket.value,
                 count: $n(tooltipState.bucket.count)
               })
             }}
@@ -35,14 +35,27 @@
 <script lang="ts">
 import Bucket from '@/models/Bucket'
 import * as d3 from 'd3'
-import { PropType } from 'vue'
+import { defineComponent, type ComponentPublicInstance, type PropType } from 'vue'
 import VueSlider from 'vue-3-slider-component'
 import Tooltip from '../tooltips/Tooltip.vue'
+
+type TooltipState = {
+  x: number
+  y: number
+  isActive: boolean
+  bucket: Bucket | null
+}
+
+type ChartContainerRef = HTMLElement | (ComponentPublicInstance & { $el: HTMLElement })
+type HistogramSliderRefs = {
+  chartContainer?: ChartContainerRef
+  chart?: SVGSVGElement
+}
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
  */
-export default {
+export default defineComponent({
   name: 'HistogramSlider',
   props: {
     modelValue: {
@@ -77,13 +90,11 @@ export default {
   },
   emits: ['update:modelValue', 'change', 'mousemove', 'click'],
   mounted() {
-    // @ts-ignore
-    window.addEventListener('resize', this.renderChart.bind(this))
+    window.addEventListener('resize', this.onWindowResize)
     this.renderChart()
   },
   beforeUnmount() {
-    // @ts-ignore
-    window.removeEventListener('resize', this.renderChart.bind(this))
+    window.removeEventListener('resize', this.onWindowResize)
   },
   computed: {
     value() {
@@ -115,8 +126,8 @@ export default {
       if (this.buckets && this.buckets.length > 0) {
         const step = Math.floor(this.buckets.length / marksCount)
         return this.buckets
-          .reduce((acc, { val }, index) => {
-            if (index % step === 0) acc.push(val)
+          .reduce((acc, { value }, index) => {
+            if (index % step === 0) acc.push(value)
             return acc
           }, [])
           .concat([this.sliderRange[1].toString()])
@@ -127,8 +138,8 @@ export default {
       return Array.from({ length: marksCount + 1 }, (_, i) => this.$n(min + i * step))
     },
     sliderRange() {
-      const vals = this.buckets.map(({ val }) =>
-        typeof val === 'string' ? parseInt(val, 10) : val
+      const vals = this.buckets.map(({ value }) =>
+        typeof value === 'string' ? parseInt(value, 10) : value
       )
       const min = Math.min(...vals)
       const max = Math.max(...vals)
@@ -151,10 +162,27 @@ export default {
     }
   },
   methods: {
-    renderChart() {
+    getChartContainerElement(): HTMLElement | null {
+      const chartContainerRef = (this.$refs as HistogramSliderRefs).chartContainer
+      if (!chartContainerRef) return null
+      return chartContainerRef instanceof HTMLElement ? chartContainerRef : chartContainerRef.$el
+    },
+    getChartElement(): SVGSVGElement | null {
+      return (this.$refs as HistogramSliderRefs).chart ?? null
+    },
+    onWindowResize(): void {
+      this.renderChart()
+    },
+    renderChart(): void {
+      if (!this.buckets?.length) return
+
+      const chartContainerEl = this.getChartContainerElement()
+      const chartEl = this.getChartElement()
+      if (!chartContainerEl || !chartEl) return
+
       const topMargin = 14
-      const { width } = (this.$refs.chartContainer as any).$el.getBoundingClientRect()
-      const svg = d3.select(this.$refs.chart as SVGSVGElement)
+      const { width } = chartContainerEl.getBoundingClientRect()
+      const svg = d3.select(chartEl)
 
       svg.attr('width', width)
       svg.attr('height', this.chartHeight)
@@ -165,7 +193,7 @@ export default {
       // console.debug('renderChart()', this.buckets)
       const x = d3
         .scaleBand()
-        .domain(this.buckets.map(({ val }) => String(val)))
+        .domain(this.buckets.map(({ value }) => String(value)))
         .range([0, width])
         .paddingInner(0.05)
 
@@ -197,7 +225,7 @@ export default {
         .attr('class', (d, i) => (i === barIndexWithMaximumValue ? 'bar max' : 'bar'))
         .attr(
           'transform',
-          d => `translate(${x(String(d.val)) ?? 0}, ${this.chartHeight - y(d.count)})`
+          d => `translate(${x(String(d.value)) ?? 0}, ${this.chartHeight - y(d.count)})`
         )
 
       // add rects to the bars
@@ -218,7 +246,7 @@ export default {
       bars
         .join('rect')
         .attr('class', 'bar')
-        .attr('x', d => x(String(d.val)) ?? 0)
+        .attr('x', d => x(String(d.value)) ?? 0)
         .attr('width', x.bandwidth())
         .attr('y', d => this.chartHeight - y(d.count))
         .attr('height', d => Math.max(1, y(d.count)))
@@ -253,10 +281,10 @@ export default {
         .on('mousemove', event => {
           const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
-            ({ val }) => x(String(val)) <= xPos && xPos <= x(String(val)) + x.bandwidth()
+            ({ value }) => x(String(value)) <= xPos && xPos <= x(String(value)) + x.bandwidth()
           )
           if (bucket) {
-            const xBucket = x(String(bucket.val)) ?? 0
+            const xBucket = x(String(bucket.value)) ?? 0
             const yBucket = this.chartHeight - y(bucket.count)
             this.$emit('mousemove', {
               pointer: {
@@ -300,7 +328,7 @@ export default {
         .on('click', event => {
           const [xPos] = d3.pointer(event)
           const bucket = this.buckets.find(
-            ({ val }) => x(String(val)) <= xPos && xPos <= x(String(val)) + x.bandwidth()
+            ({ value }) => x(String(value)) <= xPos && xPos <= x(String(value)) + x.bandwidth()
           )
           if (bucket) {
             this.$emit('click', { bucket })
@@ -313,7 +341,7 @@ export default {
         .join('g')
         .attr('class', 'maxval')
         .attr('transform', bucket => {
-          const xOffset = (x(String(bucket.val)) ?? 0) + x.bandwidth() / 2
+          const xOffset = (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2
           const yOffset = this.chartHeight - y(bucket.count)
           return `translate(${xOffset}, ${yOffset})`
         })
@@ -331,14 +359,14 @@ export default {
             n: this.$n(Math.round(bucket.count)),
 
             ...bucket,
-            val: this.$t(this.valueLabel, {
-              val: bucket.val,
-              valAsNumber: this.$n(parseFloat('' + bucket.val))
+            value: this.$t(this.valueLabel, {
+              value: bucket.value,
+              valueAsNumber: this.$n(parseFloat('' + bucket.value))
             })
           })
         })
         .attr('text-anchor', bucket => {
-          const xOffset = (x(String(bucket.val)) ?? 0) + x.bandwidth() / 2
+          const xOffset = (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2
           const oneThirdWidth = width / 3
           if (xOffset <= oneThirdWidth) return 'start'
           if (xOffset >= 2 * oneThirdWidth) return 'end'
@@ -352,14 +380,14 @@ export default {
         .attr('class', 'point')
         .attr('r', 2) // 3
     },
-    formatTooltip(d) {
+    formatTooltip(d: number): string {
       return this.$n(d)
     }
   },
   watch: {
     buckets() {
       // if is mounted
-      if (this.$refs.chart) {
+      if (this.getChartElement()) {
         this.renderChart()
       }
     }
@@ -368,7 +396,7 @@ export default {
     VueSlider,
     Tooltip
   },
-  data() {
+  data(): { tooltipState: TooltipState } {
     return {
       tooltipState: {
         x: 0,
@@ -378,7 +406,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style lang="scss">

@@ -56,7 +56,7 @@
             v-for="(collection, index) in collections"
             class="d-flex flex-row border-bottom"
             :class="{
-              active: collection.uid === $route.params.collection_uid,
+              active: collection.id === $route.params.collection_id,
               'mb-4': index === collections.length - 1
             }"
             v-bind:key="index"
@@ -64,8 +64,8 @@
             <div
               class="w-100 m-0 px-3 py-2 details-panel"
               v-on:click="select(collection)"
-              v-bind:class="{ selected: collection.uid === $route.params.collection_uid }"
-              for="collection.uid"
+              v-bind:class="{ selected: collection.id === $route.params.collection_id }"
+              for="collection.id"
             >
               <div class="py-1">
                 <div>
@@ -220,7 +220,7 @@ export default defineComponent({
       this.$router.push({
         name: 'collection',
         params: {
-          collection_uid: collection.uid !== '' ? collection.uid : undefined
+          collection_id: collection.id !== '' ? collection.id : undefined
         },
         query: { tab: this.$route.query.tab }
       })

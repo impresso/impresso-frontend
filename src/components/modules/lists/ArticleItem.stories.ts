@@ -22,13 +22,13 @@ const meta: Meta<typeof ArticleItem> = {
     vueRouter([
       {
         name: 'issue-viewer',
-        path: '/nothing/:issue_uid',
+        path: '/nothing/:issue_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       },
       {
         name: 'newspaper_metadata',
-        path: '/nothing/:newspaper_uid',
+        path: '/nothing/:newspaper_id',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       }
@@ -40,60 +40,60 @@ export default meta
 type Story = StoryObj<typeof ArticleItem>
 
 const mockArticle = {
-  uid: 'gdl-1890-01-01-a-i0001',
+  id: 'gdl-1890-01-01-a-i0001',
   title: 'A sample article title with <em>highlighting</em>',
   excerpt:
     'This is a short excerpt of the article content. It gives a glimpse of what the article is about.',
   date: new Date('1890-01-01'),
   nbPages: 2,
-  pages: [new Page({ num: 1, uid: 'p1' }), new Page({ num: 2, uid: 'p2' })],
+  pages: [new Page({ num: 1, id: 'p1' }), new Page({ num: 2, id: 'p2' })],
   type: 'ar',
   size: 1500,
   newspaper: new Newspaper({
-    uid: 'gdl',
+    id: 'gdl',
     name: 'Gazette de Lausanne'
   }),
   issue: new Issue({
-    uid: 'gdl-1890-01-01-i'
+    id: 'gdl-1890-01-01-i'
   }),
-  mediaSource: { name: 'GDL', type: 'newspaper', uid: 'gdl' },
+  mediaSource: { name: 'GDL', type: 'newspaper', id: 'gdl' },
   dataProvider: 'SBC',
   accessRight: 'pdm',
   locations: [
-    new Entity({ uid: 'loc1', name: 'Geneva', countItems: 5 }),
-    new Entity({ uid: 'loc2', name: 'Lausanne', countItems: 3 }),
-    new Entity({ uid: 'loc3', name: 'Zurich', countItems: 2 }),
-    new Entity({ uid: 'loc4', name: 'Bern', countItems: 1 }),
-    new Entity({ uid: 'loc5', name: 'Basel', countItems: 1 })
+    new Entity({ id: 'loc1', name: 'Geneva', countItems: 5 }),
+    new Entity({ id: 'loc2', name: 'Lausanne', countItems: 3 }),
+    new Entity({ id: 'loc3', name: 'Zurich', countItems: 2 }),
+    new Entity({ id: 'loc4', name: 'Bern', countItems: 1 }),
+    new Entity({ id: 'loc5', name: 'Basel', countItems: 1 })
   ],
   persons: [
-    new Entity({ uid: 'per1', name: 'John Doe', countItems: 10 }),
-    new Entity({ uid: 'per2', name: 'Jane Smith', countItems: 4 })
+    new Entity({ id: 'per1', name: 'John Doe', countItems: 10 }),
+    new Entity({ id: 'per2', name: 'Jane Smith', countItems: 4 })
   ],
   topics: [
     new ArticleTopic({
       relevance: 0.9,
-      topic: new Topic({ uid: 'topic1', label: 'Politics' })
+      topic: new Topic({ id: 'topic1', label: 'Politics' })
     }),
     new ArticleTopic({
       relevance: 0.75,
-      topic: new Topic({ uid: 'topic2', label: 'Economy' })
+      topic: new Topic({ id: 'topic2', label: 'Economy' })
     }),
     new ArticleTopic({
       relevance: 0.5,
-      topic: new Topic({ uid: 'topic3', label: 'Culture' })
+      topic: new Topic({ id: 'topic3', label: 'Culture' })
     }),
     new ArticleTopic({
       relevance: 0.4,
-      topic: new Topic({ uid: 'topic4', label: 'Sports' })
+      topic: new Topic({ id: 'topic4', label: 'Sports' })
     }),
     new ArticleTopic({
       relevance: 0.3,
-      topic: new Topic({ uid: 'topic5', label: 'Arts' })
+      topic: new Topic({ id: 'topic5', label: 'Arts' })
     }),
     new ArticleTopic({
       relevance: 0.2,
-      topic: new Topic({ uid: 'topic6', label: 'Science' })
+      topic: new Topic({ id: 'topic6', label: 'Science' })
     })
   ],
   matches: [

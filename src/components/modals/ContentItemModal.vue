@@ -54,7 +54,7 @@
 </template>
 <script setup lang="ts">
 import BButton from '@/components/legacy/bootstrap/BButton.vue'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import InfoModal from '../InfoModal.vue'
 import { computed, ref } from 'vue'
 import ContentItem from '../modules/lists/ContentItem.vue'

@@ -118,7 +118,7 @@ async function createQueryCollection({ name, description }) {
         filters: props.filters
       },
       {
-        route: { collection_id: collection.uid }
+        route: { collection_id: collection.id }
       }
     )
     emit('success', collection)

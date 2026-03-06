@@ -31,7 +31,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Icon from './base/Icon.vue'
 
 export interface Props {
-  article?: { uid?: string; title?: string }
+  article?: { id?: string; title?: string }
   visible: boolean
 }
 
@@ -44,7 +44,7 @@ const emit = defineEmits<{
 const active = ref(false)
 const title = ref('')
 const timeoutId = ref<number | undefined>()
-const articleId = computed(() => props.article?.uid)
+const articleId = computed(() => props.article?.id)
 
 function show(delay = 600) {
   if (!articleId.value) return
@@ -59,9 +59,9 @@ function show(delay = 600) {
   }, delay)
 }
 
-watch(articleId, uid => {
+watch(articleId, id => {
   active.value = false
-  if (uid && props.visible) show()
+  if (id && props.visible) show()
 })
 watch(
   () => props.visible,

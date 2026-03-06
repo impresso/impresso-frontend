@@ -1,4 +1,4 @@
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 
 export const MockContentItemPublicDomain: ContentItem = {
   id: 'waeschfra-1876-04-08-a-i0004',
@@ -52,7 +52,7 @@ export const MockContentItemPublicDomain: ContentItem = {
         iiif: {
           manifestUrl:
             'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2fp836jb%2fpages%2f4/info.json',
-          thumnbnailUrl:
+          thumbnailUrl:
             'https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2fp836jb%2fpages%2f4/full/150,/0/default.png'
         }
       }

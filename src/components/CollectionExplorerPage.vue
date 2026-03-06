@@ -150,7 +150,8 @@ import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
+import { Filter } from 'impresso-jscommons'
 
 const userStore = useUserStore()
 
@@ -182,7 +183,7 @@ const collectionFilter = computed(() => {
   return {
     type: 'collection',
     q: collectionPrefix + '*'
-  }
+  } satisfies Filter
 })
 
 const selectedTab = computed(() => {
@@ -286,7 +287,7 @@ const fetchContentItems = async (query = {}) => {
   const collectableItemsIndex = await collectableItemsService
     .find({
       query: {
-        item_uids: contentItemsIds,
+        item_ids: contentItemsIds,
         limit: response.data.length
       }
     })

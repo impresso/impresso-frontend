@@ -78,10 +78,11 @@
  * @see {@link ContentItemsService} for the API service used to fetch data
  */
 import { contentItems as ContentItemsService } from '@/services'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
+import { Filter } from 'impresso-jscommons'
 
 export interface ListOfSimilarContentItemsProps {
   contentItem: ContentItemType
@@ -101,11 +102,9 @@ const contentItemEmbedding = ref<string>('')
 /**
  * Computed property that generates a timeframe filter object for content items.
  *
- * @returns {Object|null} Returns a filter object with type and query array, or null if no timeframe is applicable.
- * @property {string} type - The filter type identifier for timeframe filtering
- * @property {string[]} q - Array of query strings representing the timeframe criteria
+ * @returns {Filter|null} Returns a filter object with type and query array, or null if no timeframe is applicable.
  */
-const timeframeFilter = computed<{ type: string; q: string[] } | null>(() => {
+const timeframeFilter = computed<Filter | null>(() => {
   if (!addTimeframeFilter.value) return null
   const contentItemDate = new Date(props.contentItem.meta.date)
   const oneYearBefore = new Date(contentItemDate)
@@ -119,7 +118,7 @@ const timeframeFilter = computed<{ type: string; q: string[] } | null>(() => {
       contentItemDate.getFullYear().toString(),
       oneYearAfter.getFullYear().toString()
     ]
-  }
+  } satisfies Filter
 })
 
 /**

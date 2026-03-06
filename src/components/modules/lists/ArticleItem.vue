@@ -48,18 +48,24 @@
     <slot name="actions"></slot>
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
-      <div v-for="entityType in ['persons', 'locations', 'organisations']">
-        <div v-if="item[entityType]?.length" data-testid="article-locations">
+      <div v-for="entityType in ['person', 'location', 'organisation']">
+        <div v-if="item[`${entityType}s`]?.length" data-testid="article-locations">
           <Ellipsis :initialHeight="100" :maxHeight="200">
-            <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
-            <div v-for="(entity, idx) in item[entityType]" v-bind:key="idx" class="d-inline small">
+            <b-badge variant="light" class="mr-1 very-small-caps">{{
+              $t(`${entityType}s`)
+            }}</b-badge>
+            <div
+              v-for="(entity, idx) in item[`${entityType}s`]"
+              v-bind:key="idx"
+              class="d-inline small"
+            >
               <item-selector
-                :uid="entity.uid"
+                :id="entity.id"
                 :label="entity.name"
                 :item="entity"
                 :type="entityType"
               />
-              <span v-if="idx !== item[entityType].length - 1">, </span>
+              <span v-if="idx !== item[`${entityType}s`].length - 1">, </span>
             </div>
           </Ellipsis>
         </div>
@@ -84,7 +90,7 @@
             show-border
             show-percent
             :percent="rel.relevance * 100"
-            :uid="rel.topic.uid"
+            :id="rel.topic.id"
             :item="rel.topic"
             type="topic"
           />
@@ -118,9 +124,9 @@ import { RouterLink } from 'vue-router'
 import DataProviderLabel from './DataProviderLabel.vue'
 
 export interface LinkParams {
-  article_uid: string
-  page_uid: string
-  issue_uid: string
+  article_id: string
+  page_id: string
+  issue_id: string
 }
 
 export default defineComponent({
@@ -192,24 +198,24 @@ export default defineComponent({
       return (this.item.topics || []).filter(t => t.relevance > this.minTopicRelevance)
     },
     routerLinkUrl() {
-      const issueUid = this.item.issue ? this.item.issue.uid : this.item?.uid?.match(/(^.+)-i/)?.[1]
+      const issueId = this.item.issue ? this.item.issue.id : this.item?.id?.match(/(^.+)-i/)?.[1]
       return {
         name: 'issue-viewer',
         params: {
-          issue_uid: issueUid
+          issue_id: issueId
         },
         query: {
           ...this.$route.query,
-          articleId: this.item.uid ? getShortArticleId(this.item.uid) : undefined,
+          articleId: this.item.id ? getShortArticleId(this.item.id) : undefined,
           p: this.item.pages?.[0]?.num
         }
       }
     },
     routerLinkParams(): LinkParams {
       return {
-        article_uid: this.item.uid,
-        page_uid: this.item.pages[0]?.uid,
-        issue_uid: this.item.issue?.uid ?? this.item.uid.match(/(^.+)-i/)[1]
+        article_id: this.item.id,
+        page_id: this.item.pages[0]?.id,
+        issue_id: this.item.issue?.id ?? this.item.id.match(/(^.+)-i/)[1]
       }
     }
   },

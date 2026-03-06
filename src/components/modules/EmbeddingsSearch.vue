@@ -149,11 +149,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { embeddings as embeddingsService } from '@/services'
 import { useEmbeddingsStore } from '@/stores/embeddings'
 import type { WordMatch } from '@/services/types/embeddings'
-import Filter from '@/models/FilterBase'
+import type { Entity, FilterWithItems } from '@/models'
 import LoadingBlock from '../LoadingBlock.vue'
 import FilterFactory from '@/models/FilterFactory'
 import Ellipsis from './Ellipsis.vue'
@@ -181,12 +181,17 @@ export interface SelectOption {
   text: string
 }
 
+type EmbeddingsFilterItem = Entity & {
+  start?: string | number | Date
+  end?: string | number | Date
+}
+
 /**
  * Props definition for the Embeddings component
  */
 export interface Props {
   /** Filter object containing query parameters */
-  filters?: Filter[]
+  filters?: FilterWithItems<EmbeddingsFilterItem>[]
   languageEmbeddingsOptions?: SelectOption[]
   limitEmbeddingsOptions?: SelectOption[]
   withPreview?: boolean
@@ -211,20 +216,20 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'embdding-selected', embedding: string): void
-  (e: 'filters-changed', filters: Filter[]): void
+  (e: 'filters-changed', filters: FilterWithItems<EmbeddingsFilterItem>[]): void
 }>()
 
 const embeddingsStore = useEmbeddingsStore()
 const query = ref<string>('')
-const localFilter = ref<Filter | null>(null)
-const newFilters = computed<Filter[]>(() => {
+const localFilter = ref<FilterWithItems<EmbeddingsFilterItem> | null>(null)
+const newFilters = computed<FilterWithItems<EmbeddingsFilterItem>[]>(() => {
   if (!props.filters && !localFilter.value) {
     return []
   }
   if (!localFilter.value) {
-    return props.filters!
+    return props.filters ?? []
   }
-  return [...props.filters, localFilter.value]
+  return [...(props.filters ?? []), localFilter.value]
 })
 const words = ref<WordMatch[]>([])
 const errorType = ref<string | null>(null)
@@ -237,7 +242,15 @@ const isLoading = ref<boolean>(false)
 const filterQuery = computed<string | undefined>(() => {
   if (props.filters && Array.isArray(props.filters)) {
     const lastFilter = props.filters.filter(({ type }) => type === 'string').pop()
-    const q = (Array.isArray(lastFilter?.q) ? lastFilter?.q : [lastFilter.q])
+    if (!lastFilter) {
+      return undefined
+    }
+    const qValues = Array.isArray(lastFilter.q)
+      ? lastFilter.q
+      : typeof lastFilter.q === 'string'
+        ? [lastFilter.q]
+        : []
+    const q = qValues
       .join(' ')
       .split(' ')
       .pop()
@@ -309,7 +322,7 @@ const updateFilter = (embedding: string): void => {
     return acc
   }, [])
   localFilter.value.q = newQ
-  localFilter.value.items = newQ.map(s => ({ uid: s }))
+  localFilter.value.items = newQ.map(s => ({ id: s, label: s }))
   emit('embdding-selected', embedding)
 }
 
@@ -360,7 +373,7 @@ const removeFilterWordAtIndex = (index: number): void => {
   const currentQ = Array.isArray(localFilter.value.q) ? localFilter.value.q : [localFilter.value.q]
   currentQ.splice(index, 1)
   localFilter.value.q = currentQ
-  localFilter.value.items = currentQ.map(s => ({ uid: s }))
+  localFilter.value.items = currentQ.map(s => ({ id: s, label: s }))
   if (currentQ.length === 0) {
     localFilter.value = null
   }

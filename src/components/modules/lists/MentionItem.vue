@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { EntityMention } from '@/models/generated/schemas'
+import { EntityMention } from '@/models/generated/deprecated/models'
 import { PropType } from 'vue'
 
 export default {

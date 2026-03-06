@@ -3,7 +3,7 @@
     <IssueViewerSidebar
       :issue="issue"
       :content-items="tableOfContents?.articles || []"
-      :selected-content-item-uid="contentItemId"
+      :selected-content-item-id="contentItemId"
       :allowed-filters="allowedFilters"
       :ignored-filters="ignoredFilters"
       :current-filters="props.filtersWithItems"
@@ -54,7 +54,7 @@
           :pages="pagesIIIFUrls"
           :regions="pageRegions"
           :defaultCurrentPageIndex="pageIndex"
-          :article="{ uid: contentItemId }"
+          :article="{ id: contentItemId }"
           :marginaliaSections="[]"
           @page-changed="changePageFromViewer"
           class="show-outlines"
@@ -65,16 +65,16 @@
           class="position-absolute"
           style="bottom: 1rem"
           :pages="issue.pages"
-          :current-page-uid="page?.uid"
-          @update:current-page-uid="changePageFromNavigator"
+          :current-page-id="page?.id"
+          @update:current-page-id="changePageFromNavigator"
         />
         <IssueViewerText
           v-if="viewMode === IIIFViewerTranscriptMode"
-          :article_uid="contentItemId"
+          :article_id="contentItemId"
           :contentItem="contentItemOriginal"
           withIIIFViewer
         />
-        <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_uid="contentItemId" />
+        <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_id="contentItemId" />
 
         <IssueViewerBookmarker
           :article="contentItem"
@@ -165,7 +165,7 @@ const AvailableViewModes = [
 const userStore = useUserStore()
 const isStaff = computed(() => (userStore.userData as User)?.isStaff)
 // Route parameters
-const RouteParams = Object.freeze({ IssueId: 'issue_uid' })
+const RouteParams = Object.freeze({ IssueId: 'issue_id' })
 const QueryParams = Object.freeze({
   ViewMode: 'text'
 })
@@ -240,8 +240,8 @@ const contentItemAsCollectableItems = computed(() => {
   if (!contentItem.value) return []
   return [
     {
-      itemId: contentItem.value.uid,
-      collectionIds: contentItem.value.collections?.map(c => c.uid)
+      itemId: contentItem.value.id,
+      collectionIds: contentItem.value.collections?.map(c => c.id)
     }
   ]
 })
@@ -301,7 +301,7 @@ async function fetchIssueAndTableOfContents(id: string): Promise<void> {
   if (!tableOfContents.value.newspaper) return
 
   mediaSource.value = {
-    uid: tableOfContents.value.newspaper.id,
+    id: tableOfContents.value.newspaper.id,
     name: tableOfContents.value.newspaper.type,
     type: 'newspaper'
   } satisfies MediaSource
@@ -322,7 +322,7 @@ async function fetchContentItem(id: string): Promise<void> {
 
   if (tableOfContents.value) {
     // partial content item
-    contentItem.value = tableOfContents.value.articles.find(d => d.uid === id)
+    contentItem.value = tableOfContents.value.articles.find(d => d.id === id)
   }
 
   await contentItemsService
@@ -368,7 +368,7 @@ async function fetchPageRegions() {
   const articles = await contentItemsService
     .find({
       query: {
-        filters: [{ type: 'page', q: page.value.uid }],
+        filters: [{ type: 'page', q: page.value.id }],
         limit: 500
       }
     })
@@ -377,10 +377,10 @@ async function fetchPageRegions() {
     })
   const regions = articles.flatMap((article: Article) =>
     article.regions
-      .filter(region => region.pageUid === page.value.uid)
+      .filter(region => region.pageId === page.value.id)
       .map(region => ({
-        articleUid: article.uid,
-        pageUid: page.value.uid,
+        articleId: article.id,
+        pageId: page.value.id,
         coords: region.coords as PageRegion['coords']
       }))
   )
@@ -407,16 +407,16 @@ function changePageFromViewer(idx: number) {
   router.replace({ query })
 }
 
-function changePageFromNavigator(pageUid: string) {
+function changePageFromNavigator(pageId: string) {
   // get page number
-  const pageNum = issue.value.pages.find(d => d.uid === pageUid)?.num
-  console.debug('[IssueViewerPage] changePageFromNavigator uid:', pageUid, 'num:', pageNum)
+  const pageNum = issue.value.pages.find(d => d.id === pageId)?.num
+  console.debug('[IssueViewerPage] changePageFromNavigator id:', pageId, 'num:', pageNum)
   const query = { ...route.query, [CommonQueryParameters.PageNumber]: pageNum }
   router.replace({ query })
 }
 
 function handleContentItemSelected(contentItem: ArticleBase): void {
-  console.debug('[IssueViewerPage] handleContentItemSelected id:', contentItem.uid)
+  console.debug('[IssueViewerPage] handleContentItemSelected id:', contentItem.id)
   if (!issue.value) {
     console.warn('[IssueViewerPage] No issue available to handle content item selection.')
     return
@@ -424,27 +424,27 @@ function handleContentItemSelected(contentItem: ArticleBase): void {
 
   const pageNum = contentItem.pages[0]?.num
   if (!pageNum) {
-    console.warn('[IssueViewerPage] No page number found for content item:', contentItem.uid)
+    console.warn('[IssueViewerPage] No page number found for content item:', contentItem.id)
     return
   }
   // get page number
-  // const pageNum = issue.value.pages.find(d => d.uid === contentItem.uid)?.num
+  // const pageNum = issue.value.pages.find(d => d.id === contentItem.id)?.num
   const query = {
     ...route.query,
-    [CommonQueryParameters.ContentItemId]: getShortArticleId(contentItem.uid),
-    [CommonQueryParameters.LegacyArticleId]: getShortArticleId(contentItem.uid),
+    [CommonQueryParameters.ContentItemId]: getShortArticleId(contentItem.id),
+    [CommonQueryParameters.LegacyArticleId]: getShortArticleId(contentItem.id),
     [CommonQueryParameters.PageNumber]: pageNum
   }
   router.replace({ query })
 }
 
-function handleContentItemUidSelected(contentItemUid: string): void {
+function handleContentItemUidSelected(contentItemId: string): void {
   // get contentUId
-  const contentItem = tableOfContents.value?.articles.find(d => d.uid === contentItemUid)
+  const contentItem = tableOfContents.value?.articles.find(d => d.id === contentItemId)
   if (!contentItem) {
     console.warn(
       '[IssueViewerPage] handleContentItemUidSelected No content item found for UID:',
-      contentItemUid
+      contentItemId
     )
     return
   }

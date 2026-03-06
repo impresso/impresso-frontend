@@ -23,7 +23,7 @@ const meta = {
       <div style="width: 100%;">
         <ThumbnailNavigator
           v-bind="args"
-          @update:currentPageUid="onPageSelected"
+          @update:currentPageId="onPageSelected"
         />
       </div>
     `
@@ -39,7 +39,7 @@ export const Default: Story = {
       { length: 10 },
       (_, i) =>
         ({
-          uid: `page-${i}`,
+          id: `page-${i}`,
           num: i,
           iiif: `https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f${i + 1}/info.json`
         }) satisfies IPageItem
@@ -59,7 +59,7 @@ export const Long: Story = {
       { length: 100 },
       (_, i) =>
         ({
-          uid: `page-${i}`,
+          id: `page-${i}`,
           num: i,
           iiif: `https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f1/info.json`
         }) satisfies IPageItem
@@ -73,11 +73,11 @@ export const LongWithSelection: Story = {
       { length: 100 },
       (_, i) =>
         ({
-          uid: `page-${i}`,
+          id: `page-${i}`,
           num: i,
           iiif: `https://iiif.eluxemburgensia.lu/image/iiif/2/ark:70795%2f4bzmz8%2fpages%2f1/info.json`
         }) satisfies IPageItem
     ),
-    currentPageUid: 'page-50'
+    currentPageId: 'page-50'
   }
 }

@@ -51,7 +51,7 @@
           v-for="(item, i) in items"
           :key="i"
           @click="toggleSelectedItem(item)"
-          :class="{ active: selectedItemsIds.includes(item.uid) }"
+          :class="{ active: selectedItemsIds.includes(item.id) }"
         >
           <ItemLabel :item="item" :type="type" />
         </div>
@@ -116,29 +116,31 @@
 </i18n>
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import Entity from '@/models/Entity'
+import EntityModel from '@/models/Entity'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import { entities as entitiesService } from '@/services'
 import Pagination from '../modules/Pagination.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import type { FacetType } from '@/models/Facet'
 import LoadingBlock from '@/components/LoadingBlock.vue'
-import type { Filter } from '@/models'
+import type { Entity, FilterWithItems } from '@/models'
 
-interface FilterItem {
-  uid: string
-  name: string
+type SuggesterFilterItem = Entity & {
+  name?: string
+  start?: string | number | Date
+  end?: string | number | Date
 }
 
+type FilterItem = Entity & { name?: string }
+
 export interface EntitySuggesterProps {
-  filter: Filter
-  type: FacetType
+  filter: FilterWithItems<SuggesterFilterItem>
+  type: string
   isVisible: boolean
 }
 
 const props = defineProps<EntitySuggesterProps>()
 const emit = defineEmits<{
-  (e: 'filter-changed', value: Filter): void
+  (e: 'filter-changed', value: FilterWithItems<SuggesterFilterItem>): void
   (e: 'dismiss'): void
 }>()
 
@@ -147,7 +149,7 @@ const suggestionQuery = ref('')
 const paginationPerPage = ref(10)
 const paginationCurrentPage = ref(1)
 const paginationTotalRows = ref(0)
-const items = ref<Entity[]>([])
+const items = ref<EntityModel[]>([])
 const selectedItems = ref<FilterItem[]>([])
 const isLoading = ref(false)
 
@@ -156,11 +158,11 @@ const suggestionQueryRef = ref<HTMLInputElement | null>(null)
 // Computed properties
 const filterItemsIds = computed(() => {
   const filterItems = props.filter?.items ?? []
-  return filterItems.map(({ uid }) => uid)
+  return filterItems.map(({ id }) => id)
 })
 
 const selectedItemsIds = computed(() => {
-  return selectedItems.value.map(({ uid }) => uid).concat(filterItemsIds.value)
+  return selectedItems.value.map(({ id }) => id).concat(filterItemsIds.value)
 })
 
 const numberOfChangesInFilterItems = computed<{
@@ -222,14 +224,14 @@ const fetchEntities = async () => {
     })
     console.info('EntitySuggester: Fetched entities', data, total)
     paginationTotalRows.value = total
-    items.value = data.map((d: any) => new Entity(d))
+    items.value = data.map((d: any) => new EntityModel(d))
 
     isLoading.value = false
   }
 }
 
 const toggleSelectedItem = (item: FilterItem) => {
-  const idx = selectedItemsIds.value.indexOf(item.uid)
+  const idx = selectedItemsIds.value.indexOf(item.id)
   if (idx === -1) {
     selectedItems.value.push(item)
   } else {
@@ -250,7 +252,8 @@ watch(
     await nextTick()
     suggestionQueryRef.value?.focus()
     if (filterItemsIds.value.length) {
-      suggestionQuery.value = props.filter.items[props.filter.items.length - 1].name
+      const lastItem = props.filter.items[props.filter.items.length - 1]
+      suggestionQuery.value = lastItem?.name ?? lastItem?.label ?? ''
     }
     await fetchEntities()
   },

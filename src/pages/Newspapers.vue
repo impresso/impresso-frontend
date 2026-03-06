@@ -36,7 +36,7 @@
           class="p-3 border-bottom"
           :key="i"
           :item="newspaper"
-          :active="newspaper.uid === newspaperUid"
+          :active="newspaper.id === newspaperId"
           show-link
         />
       </template>
@@ -85,8 +85,8 @@ export default {
         totalRows: this.paginationTotalRows
       }
     },
-    newspaperUid() {
-      return this.$route.params.newspaper_uid
+    newspaperId() {
+      return this.$route.params.newspaper_id
     },
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
     includedOnly: {

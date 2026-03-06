@@ -30,7 +30,7 @@ export default {
       return {
         name: 'issue-viewer',
         params: {
-          issue_uid: this.item.uid
+          issue_id: this.item.id
         },
         query: {
           ...this.$route.query,

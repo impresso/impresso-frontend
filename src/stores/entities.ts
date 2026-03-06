@@ -10,6 +10,7 @@ import Facet from '@/models/Facet'
 import Helpers from '@/plugins/Helpers'
 import { FindQuery as FindContentItemsQuery } from '@/services/types/contentItems'
 import { FindQuery as FindMentionsQuery } from '@/services/types/mentions'
+import { Filter } from '@/models'
 
 export interface State {}
 
@@ -51,7 +52,7 @@ export const useEntitiesStore = defineStore('entities', {
             type: 'entity',
             q: entityId
           }
-        ]
+        ] satisfies Filter[]
         // group_by: 'articles',
       }
       return searchFacetsService
@@ -67,7 +68,7 @@ export const useEntitiesStore = defineStore('entities', {
             type: 'page',
             q: pageId
           }
-        ]
+        ] satisfies Filter[]
         // group_by: 'articles',
       }
       return searchFacetsService
@@ -84,7 +85,7 @@ export const useEntitiesStore = defineStore('entities', {
             type: 'page',
             q: pageId
           }
-        ]
+        ] satisfies Filter[]
         // group_by: 'articles',
       }
       return searchFacetsService
