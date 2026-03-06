@@ -89,13 +89,13 @@ export default class Topic implements IEntity {
         this.htmlExcerpt = this.getHtmlExcerpt()
       }
     }
-    if (label != undefined) {
+    if (label != '') {
       this.htmlExcerpt = this.getHtmlExcerpt()
     }
   }
 
   getHtmlExcerpt({ token = null } = {}) {
-    if (this.label != undefined) {
+    if (this.label != '') {
       return this.label
     }
 

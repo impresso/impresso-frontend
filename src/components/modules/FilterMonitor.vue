@@ -290,7 +290,7 @@ export interface FilterMonitorItem extends Entity {
   end?: string | number | Date
 }
 
-interface StringToAddItem {
+export interface StringToAddItem {
   id: string
   checked: boolean
 }
@@ -306,7 +306,7 @@ export interface FilterMonitorProps {
   maxDate?: Date
 }
 
-interface IData {
+export interface IData {
   showEmbeddings: boolean
   showEntitySuggester: boolean
   editedFilter: FilterMonitorFilter
@@ -318,7 +318,7 @@ interface IData {
   EntityTypes: readonly string[]
 }
 
-interface IRangeChangedPayload {
+export interface IRangeChangedPayload {
   item?: unknown
   q: string[] | string
 }
@@ -440,10 +440,13 @@ export default defineComponent({
       return this.stringsToAdd.filter(d => d.checked && d.id.length)
     },
     checkedItems(): Record<string, boolean> {
-      return this.availableItems.reduce((acc, item) => {
-        acc[item.id] = !this.excludedItemsIds.includes(item.id)
-        return acc
-      }, {} as Record<string, boolean>)
+      return this.availableItems.reduce(
+        (acc, item) => {
+          acc[item.id] = !this.excludedItemsIds.includes(item.id)
+          return acc
+        },
+        {} as Record<string, boolean>
+      )
     },
     availableItems(): FilterMonitorItem[] {
       const filterItems = this.filter.items || []
