@@ -58,10 +58,12 @@ export interface Bucket<T extends Entity = Entity>
 //   lower?: number
 // }
 
+export type Operator = 'AND' | 'OR'
+
 export interface Facet<T extends string = FacetType> {
   type: T
   buckets: Bucket[]
-  operators?: string[]
+  operators?: Operator[]
   numBuckets?: number
 }
 

@@ -1,3 +1,4 @@
+import { Operator } from '.'
 import Bucket from './Bucket'
 import { SearchFacet } from './generated/deprecated/models'
 
@@ -77,7 +78,7 @@ type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
 export default class Facet<T = FacetType> {
   type: T
   buckets: Bucket[]
-  operators: string[]
+  operators: Operator[]
   numBuckets: number
 
   constructor({
@@ -88,7 +89,7 @@ export default class Facet<T = FacetType> {
   }: {
     type: T
     buckets?: Bucket[]
-    operators?: string[]
+    operators?: Operator[]
     numBuckets?: number
   }) {
     this.type = type

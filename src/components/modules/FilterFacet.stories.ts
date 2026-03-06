@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
+import { http, HttpResponse } from 'msw'
 import FilterFacet from './FilterFacet.vue'
-import type { Filter, Bucket } from '@/models'
+import type { Bucket, Facet, Filter } from '@/models'
 import FacetModel from '@/models/Facet'
 import BucketModel from '@/models/Bucket'
 
@@ -60,36 +61,114 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // Helper to create mock buckets with items
-const createMockBuckets = (type: string, count: number, withItems = true): Bucket[] => {
+const LANGUAGE_NAMES = ['English', 'French', 'German', 'Italian']
+const LANGUAGE_NAMES_FR = ['Anglais', 'Français', 'Allemand', 'Italien']
+
+const getBucketName = (type: string, index: number): string => {
+  const namesByType: Record<string, (index: number) => string> = {
+    newspaper: idx => `Newspaper ${idx + 1}`,
+    topic: idx => `Topic ${idx + 1}`,
+    person: idx => `Person ${idx + 1}`
+  }
+
+  return namesByType[type]?.(index) ?? `Item ${index + 1}`
+}
+
+const createMockBuckets = (type: string, count: number): Bucket[] => {
   return Array.from({ length: count }, (_, i) => {
-    const val = type === 'newspaper' ? `newspaper-${i + 1}` : `${i + 1}`
-
-    const bucket: any = {
-      val,
-      count: Math.floor(Math.random() * 1000) + 50,
-      type
+    const value = type === 'newspaper' ? `newspaper-${i + 1}` : `${i + 1}`
+    const isLanguage = type === 'language'
+    const name = isLanguage ? LANGUAGE_NAMES[i % LANGUAGE_NAMES.length] : getBucketName(type, i)
+    const item = {
+      id: value,
+      name,
+      language: isLanguage ? value : undefined,
+      ...(isLanguage ? { fr: LANGUAGE_NAMES_FR[i % LANGUAGE_NAMES_FR.length] } : {}),
+      label: name
     }
 
-    if (withItems) {
-      bucket.item = {
-        id: val,
-        name:
-          type === 'newspaper'
-            ? `Newspaper ${i + 1}`
-            : type === 'language'
-              ? ['English', 'French', 'German', 'Italian'][i % 4]
-              : type === 'topic'
-                ? `Topic ${i + 1}`
-                : type === 'person'
-                  ? `Person ${i + 1}`
-                  : `Item ${i + 1}`,
-        fr: type === 'language' ? ['Anglais', 'Français', 'Allemand', 'Italien'][i % 4] : undefined
-      }
-    }
-
-    return new BucketModel(bucket)
+    return new BucketModel({
+      value,
+      label: name,
+      count: 50 + i * 37,
+      type,
+      item
+    })
   })
 }
+
+const createTopicBucketPayload = (
+  bucketIndex: number
+): {
+  value: string
+  label: string
+  count: number
+  item: {
+    id: string
+    label: string
+    name: string
+    language: string
+    htmlExcerpt: string
+  }
+} => {
+  const value = `bucket-${bucketIndex}`
+  const name = `Bucket ${bucketIndex}`
+  return {
+    value,
+    label: name,
+    count: 10_000 - bucketIndex,
+    item: {
+      id: value,
+      label: name,
+      name,
+      language: 'en',
+      htmlExcerpt: name
+    }
+  }
+}
+
+const totalBucketsInPartiallyLoadedFacet = 29
+const getTopicFacetsPage = (offset: number, limit: number) => {
+  const endOffset = Math.min(offset + limit, totalBucketsInPartiallyLoadedFacet)
+  return Array.from({ length: Math.max(0, endOffset - offset) }, (_, index) => {
+    return createTopicBucketPayload(offset + index)
+  })
+}
+
+const loadMorePartialBucketsHandler = http.get(
+  '/api/search-facets/search/topic',
+  async ({ request }) => {
+    const searchParams = new URL(request.url)
+    const offsetParam = Number.parseInt(searchParams.searchParams.get('offset') || '0')
+    const limitParam = Number.parseInt(searchParams.searchParams.get('limit') || '10')
+    const offset = Number.isNaN(offsetParam) ? 0 : offsetParam
+    const limit = Number.isNaN(limitParam) ? 10 : limitParam
+
+    await new Promise(resolve => setTimeout(resolve, 150))
+
+    return HttpResponse.json({
+      type: 'topic',
+      numBuckets: totalBucketsInPartiallyLoadedFacet,
+      buckets: getTopicFacetsPage(offset, limit)
+    })
+  }
+)
+
+const generateSimpleFacet = (numBuckets: number, totalBuckets?: number): Facet => ({
+  buckets: Array.from({ length: numBuckets }, (_, i) => ({
+    value: `bucket-${i}`,
+    item: {
+      id: `bucket-${i}`,
+      label: `Bucket ${i}`,
+      name: `Bucket ${i}`,
+      language: 'en',
+      htmlExcerpt: `Bucket ${i}`
+    },
+    count: 100 - i
+  })),
+  type: 'topic',
+  numBuckets: totalBuckets ?? numBuckets
+})
 
 /**
  * Default story showing a newspaper facet with no filters applied
@@ -130,7 +209,7 @@ export const Default: Story = {
       type: 'newspaper',
       buckets: createMockBuckets('newspaper', 5),
       numBuckets: 20,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     }),
     facetFilters: [],
     contextFilters: [],
@@ -152,7 +231,7 @@ export const WithAppliedFilters: Story = {
       type: 'newspaper',
       buckets: createMockBuckets('newspaper', 5),
       numBuckets: 20,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     }),
     facetFilters: [
       {
@@ -179,7 +258,7 @@ export const LanguageFacet: Story = {
       type: 'language',
       buckets: createMockBuckets('language', 4),
       numBuckets: 4,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     }),
     facetFilters: []
   }
@@ -196,7 +275,7 @@ export const TopicFacet: Story = {
       type: 'topic',
       buckets: createMockBuckets('topic', 8),
       numBuckets: 15,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     }),
     facetFilters: [],
     infoButtonId: 'how-to-read-the-topics'
@@ -214,7 +293,7 @@ export const PersonFacet: Story = {
       type: 'person',
       buckets: createMockBuckets('person', 6),
       numBuckets: 25,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     }),
     facetFilters: []
   }
@@ -242,7 +321,7 @@ export const Empty: Story = {
       type: 'newspaper',
       buckets: [],
       numBuckets: 0,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     })
   }
 }
@@ -279,7 +358,57 @@ export const WithManyBuckets: Story = {
       type: 'newspaper',
       buckets: createMockBuckets('newspaper', 15),
       numBuckets: 50,
-      operators: ['AND', 'OR', 'NOT']
+      operators: ['AND', 'OR']
     })
+  }
+}
+
+/**
+ * No buckets returned for facet
+ */
+export const NoBuckets: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    facet: new FacetModel(generateSimpleFacet(0))
+  }
+}
+
+/**
+ * Single bucket facet
+ */
+export const OneBucket: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    facet: new FacetModel(generateSimpleFacet(1))
+  }
+}
+
+/**
+ * All buckets are already loaded
+ */
+export const MultipleBucketsAllLoaded: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    facet: new FacetModel(generateSimpleFacet(9))
+  }
+}
+
+/**
+ * More buckets available than rendered initially
+ */
+export const MultipleBucketsPartiallyLoaded: Story = {
+  ...Default,
+  parameters: {
+    msw: {
+      handlers: [loadMorePartialBucketsHandler]
+    }
+  },
+  args: {
+    ...Default.args,
+    collapsible: false,
+    facet: new FacetModel(generateSimpleFacet(9, 29))
   }
 }
