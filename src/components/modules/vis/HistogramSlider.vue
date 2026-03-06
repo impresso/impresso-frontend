@@ -35,14 +35,27 @@
 <script lang="ts">
 import Bucket from '@/models/Bucket'
 import * as d3 from 'd3'
-import { PropType } from 'vue'
+import { defineComponent, type ComponentPublicInstance, type PropType } from 'vue'
 import VueSlider from 'vue-3-slider-component'
 import Tooltip from '../tooltips/Tooltip.vue'
+
+type TooltipState = {
+  x: number
+  y: number
+  isActive: boolean
+  bucket: Bucket | null
+}
+
+type ChartContainerRef = HTMLElement | (ComponentPublicInstance & { $el: HTMLElement })
+type HistogramSliderRefs = {
+  chartContainer?: ChartContainerRef
+  chart?: SVGSVGElement
+}
 /**
  * NOTE: Only works with integers. If you need to do fractions you
  * will need to normalise them.
  */
-export default {
+export default defineComponent({
   name: 'HistogramSlider',
   props: {
     modelValue: {
@@ -77,13 +90,11 @@ export default {
   },
   emits: ['update:modelValue', 'change', 'mousemove', 'click'],
   mounted() {
-    // @ts-ignore
-    window.addEventListener('resize', this.renderChart.bind(this))
+    window.addEventListener('resize', this.onWindowResize)
     this.renderChart()
   },
   beforeUnmount() {
-    // @ts-ignore
-    window.removeEventListener('resize', this.renderChart.bind(this))
+    window.removeEventListener('resize', this.onWindowResize)
   },
   computed: {
     value() {
@@ -151,10 +162,27 @@ export default {
     }
   },
   methods: {
-    renderChart() {
+    getChartContainerElement(): HTMLElement | null {
+      const chartContainerRef = (this.$refs as HistogramSliderRefs).chartContainer
+      if (!chartContainerRef) return null
+      return chartContainerRef instanceof HTMLElement ? chartContainerRef : chartContainerRef.$el
+    },
+    getChartElement(): SVGSVGElement | null {
+      return (this.$refs as HistogramSliderRefs).chart ?? null
+    },
+    onWindowResize(): void {
+      this.renderChart()
+    },
+    renderChart(): void {
+      if (!this.buckets?.length) return
+
+      const chartContainerEl = this.getChartContainerElement()
+      const chartEl = this.getChartElement()
+      if (!chartContainerEl || !chartEl) return
+
       const topMargin = 14
-      const { width } = (this.$refs.chartContainer as any).$el.getBoundingClientRect()
-      const svg = d3.select(this.$refs.chart as SVGSVGElement)
+      const { width } = chartContainerEl.getBoundingClientRect()
+      const svg = d3.select(chartEl)
 
       svg.attr('width', width)
       svg.attr('height', this.chartHeight)
@@ -352,14 +380,14 @@ export default {
         .attr('class', 'point')
         .attr('r', 2) // 3
     },
-    formatTooltip(d) {
+    formatTooltip(d: number): string {
       return this.$n(d)
     }
   },
   watch: {
     buckets() {
       // if is mounted
-      if (this.$refs.chart) {
+      if (this.getChartElement()) {
         this.renderChart()
       }
     }
@@ -375,10 +403,10 @@ export default {
         y: 50,
         isActive: false,
         bucket: null
-      }
+      } satisfies TooltipState
     }
   }
-}
+})
 </script>
 
 <style lang="scss">
