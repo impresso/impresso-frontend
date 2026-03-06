@@ -218,6 +218,7 @@ import type { FindQuery as FindFacetsQuery } from '@/services/types/searchFacets
 import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 import { mapStores } from 'pinia'
 import { PropType } from 'vue'
 
@@ -301,7 +302,7 @@ export default {
         backgroundSize: 'cover',
         width: '120px',
         height: '120px',
-        backgroundImage: `url('http://commons.wikimedia.org/wiki/Special:FilePath/${this.preferredImage.value}?height=120px')`
+        backgroundImage: `url('${getWikimediaRedirectFileUrl(this.preferredImage.value, { width: 120 })}')`
       }
     },
     searchPageLink() {

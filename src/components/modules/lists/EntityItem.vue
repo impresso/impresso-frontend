@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
+
 export default {
   props: {
     observed: Boolean,
@@ -75,7 +77,7 @@ export default {
   },
   methods: {
     getWikidataImageURL(image, { width = 60 } = {}) {
-      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`
+      return getWikimediaRedirectFileUrl(image.value, { width })
     }
   }
 }

@@ -196,6 +196,7 @@ import { getQueryParameter } from '@/router/util'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import SearchQuery from '@/models/SearchQuery'
 import { searchFacets as searchFacetsService } from '@/services'
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 
 /**
  * @typedef {import('@/models').Filter} Filter
@@ -629,7 +630,7 @@ export default {
       // console.log('@handlePunchClicked', x - window, y);
     },
     getWikimediaUrl(image) {
-      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image}?width=${this.thumbnailSize}px`;
+      return getWikimediaRedirectFileUrl(image, { width: this.thumbnailSize });
     },
   },
   watch: {
