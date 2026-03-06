@@ -121,7 +121,6 @@ import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import { entities as entitiesService } from '@/services'
 import Pagination from '../modules/Pagination.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import type { FacetType } from '@/models/Facet'
 import LoadingBlock from '@/components/LoadingBlock.vue'
 import type { FilterWithItems } from '@/models'
 
@@ -133,7 +132,7 @@ interface FilterItem {
 
 export interface EntitySuggesterProps {
   filter: FilterWithItems
-  type: FacetType
+  type: string
   isVisible: boolean
 }
 
