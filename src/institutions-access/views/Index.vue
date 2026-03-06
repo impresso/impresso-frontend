@@ -97,7 +97,6 @@
         </template>
         <div>
           <p class="m-2">Manage special membership access for institutions.</p>
-          <Reviewer class="mt-4"></Reviewer>
         </div>
       </Card>
     </div>
@@ -113,7 +112,6 @@ import ToggleSpecialMembershipRequestStatusModal from '../components/reviews/Tog
 import { ref, computed } from 'vue'
 import { ServiceFindParams, UserSpecialMembershipRequestReview } from '@/services/types'
 import BSearchInputForm from '@/components/legacy/bootstrap/BSearchInputForm.vue'
-import Reviewer from '../components/Reviewer.vue'
 
 const itemToUpdate = ref<UserSpecialMembershipRequestReview>(null)
 const isToggleStatusModalVisible = ref(false)
@@ -134,7 +132,7 @@ const userSpecialMembershipRequestsReviewsServiceParams = computed<ServiceFindPa
   query: {
     limit: 2,
     order_by: orderBy.value,
-    q: q.value
+    term: q.value
   }
 }))
 

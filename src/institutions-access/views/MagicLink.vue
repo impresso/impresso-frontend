@@ -41,10 +41,11 @@ const onSubmit = async ({ token }: { token: string }) => {
   console.debug('Received token:', token)
   // Handle form submission logic here
   try {
-    await appService.authenticate({
+    const result = await appService.authenticate({
       strategy: 'magic-link',
       accessToken: token
     })
+    console.debug('Authentication successful:', result)
   } catch (err) {
     error.value = new Error(err.message)
     console.error('Magic link error:', err)

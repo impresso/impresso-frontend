@@ -12,11 +12,17 @@ import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
 import { app as appService } from '@/services'
 import { initSequence, initUserPlan, initUserTermsOfUse } from '@/init'
+import { ImpressoGlobalMetadata } from '@/models/ImpressoMetadata'
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
 app.use(newI18n())
 app.use(globalComponents)
+
+const glob: ImpressoGlobalMetadata = window
+glob.impressoFrontendVersion = import.meta.env.VITE_GIT_TAG
+glob.impressoFrontendRevision = import.meta.env.VITE_GIT_REVISION
+glob.impressoFrontendBranch = import.meta.env.VITE_GIT_BRANCH
 
 async function waitForConnectivity() {
   const notificationStore = useNotificationsStore()

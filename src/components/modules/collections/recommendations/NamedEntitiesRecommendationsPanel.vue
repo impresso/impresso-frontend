@@ -5,29 +5,32 @@
       <div>
         <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">{{ $t('label.persons') }}</h3>
         <div v-for="person in recommendedPersons" :key="person.id">
-          <item-label type="person" :item="person.item"/>
+          <item-label type="person" :item="person.item" />
           <item-selector
             :uid="person.id"
             :item="person.item"
             :default-click-action-disabled="true"
             type="person"
-            @click="handleItemClicked" />
+            @click="handleItemClicked"
+          />
         </div>
       </div>
 
       <!-- locations -->
       <div>
-        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2 pt-2">{{ $t('label.locations') }}</h3>
+        <h3 class="m-0 tb-title small-caps font-weight-bold pb-2 pt-2">
+          {{ $t('label.locations') }}
+        </h3>
         <div v-for="location in recommendedLocations" :key="location.id">
-          <item-label type="location" :item="location.item"/>
+          <item-label type="location" :item="location.item" />
           <item-selector
             :uid="location.id"
             :item="location.item"
             :default-click-action-disabled="true"
             type="location"
-            @click="handleItemClicked" />
+            @click="handleItemClicked"
+          />
         </div>
-
       </div>
     </b-col>
   </b-row>
@@ -79,7 +82,7 @@ export default {
           name: `${name} (${this.$n(score, { maximumFractionDigits: '2' })})`
         }
       }))
-    },
+    }
   },
   methods: {
     /**

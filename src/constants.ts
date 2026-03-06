@@ -59,6 +59,8 @@ export const AvailablePlansWithLabels = [
   }
 ]
 
+export const InstitutionalAccessGroup = 'institutions-access'
+
 export const ViewTermsOfUse = 'terms-of-use'
 export const ViewChangePlanRequest = 'change-plan-request'
 export const ViewChangePassword = 'change-password'

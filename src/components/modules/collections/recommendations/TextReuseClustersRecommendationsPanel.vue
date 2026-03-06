@@ -5,13 +5,14 @@
       <div>
         <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">{{ $t('label.clusters') }}</h3>
         <div v-for="cluster in recommendedClusters" :key="cluster.id">
-          <item-label type="textReuseCluster" :item="cluster.item"/>
+          <item-label type="textReuseCluster" :item="cluster.item" />
           <item-selector
             :uid="cluster.id"
             :item="cluster.item"
             :default-click-action-disabled="true"
             type="textReuseCluster"
-            @click="handleItemClicked" />
+            @click="handleItemClicked"
+          />
         </div>
       </div>
     </b-col>
