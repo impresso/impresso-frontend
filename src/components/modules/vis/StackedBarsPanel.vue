@@ -32,7 +32,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import VizBar from '../../base/VizBar.vue'
-import { Bucket } from '@/models'
+import type { Bucket } from '@/models'
 import { isBucket } from '@/models/typeGuards'
 import { FacetType } from '@/models/Facet'
 import FacetBucketModel from '@/models/Bucket'

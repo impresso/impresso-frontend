@@ -30,6 +30,7 @@ export default class Collection implements IEntity {
   lastModifiedDate: Date
   lastModifiedTime: number
   name: string
+  label: string
   id: string
   creator: { username?: string }
   status: string
@@ -50,6 +51,7 @@ export default class Collection implements IEntity {
     lastModifiedTime = 0,
     name = '',
     id = '',
+    label = undefined,
     creator = {},
     status = 'private'
   } = {}) {
@@ -67,6 +69,7 @@ export default class Collection implements IEntity {
     this.lastModifiedTime = lastModifiedTime
     this.name = String(name)
     this.id = String(id)
+    this.label = label ?? this.name ?? this.id
     this.creator = creator
     this.status = status
   }

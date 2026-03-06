@@ -283,6 +283,8 @@ type FilterPrecision = NonNullable<FilterMonitorFilter['precision']>
 
 export interface FilterMonitorItem extends Entity {
   id: string
+  name?: string
+  htmlExcerpt?: string
   uid?: string
   checked?: boolean
   count?: number

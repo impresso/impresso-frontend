@@ -254,7 +254,7 @@ import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import { Facet, Filter } from '@/models'
+import type { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'

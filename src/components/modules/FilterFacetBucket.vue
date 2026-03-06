@@ -49,9 +49,7 @@ export default {
   }),
   props: {
     bucket: {
-      type: Object as PropType<
-        IBucket & { checked?: boolean; operator?: string; item?: Bucket['item'] }
-      >,
+      type: Object as PropType<IBucket & { checked?: boolean; operator?: string; item?: Bucket['item'] }>,
       required: true
     },
     type: {

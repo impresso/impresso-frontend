@@ -1,7 +1,7 @@
 import { FilterOperator } from 'impresso-jscommons'
 import Bucket from './Bucket'
 import { SearchFacet } from './generated/deprecated/models'
-import { Facet as IFacet } from './index'
+import type { Facet as IFacet, Entity } from './index'
 
 /**
  * All supported facet types.
@@ -76,7 +76,7 @@ type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default class Facet<T extends string = FacetType> implements IFacet<T> {
+export default class Facet<T extends string = FacetType> implements IFacet<T, Entity> {
   type: T
   buckets: Bucket[]
   operators: FilterOperator[]

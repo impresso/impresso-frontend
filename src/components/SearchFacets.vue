@@ -39,13 +39,18 @@ import FilterFacet from '@/components/modules/FilterFacet.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import { facetToTimelineValues } from '@/logic/facets'
-import { Facet, Filter } from '@/models'
+import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import { PropType } from 'vue'
 
 const TimelineFacetTypes = ['year', 'daterange']
 const RangeFacetTypes = ['contentLength']
+
+type DaterangeFilterItem = Entity & {
+  start?: string | number | Date
+  end?: string | number | Date
+}
 
 export interface IData {
   selectedFacet: boolean
@@ -104,7 +109,9 @@ export default {
     },
     /** @returns {Filter[]} */
     daterangeFilters() {
-      return this.filters.filter(({ type }) => type === 'daterange')
+      return this.filters
+        .filter(({ type }) => type === 'daterange')
+        .map(filter => FilterFactory.create(filter) as FilterWithItems<DaterangeFilterItem>)
     },
     impressoMinDate() {
       const defaultYear = getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700

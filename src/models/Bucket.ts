@@ -1,4 +1,4 @@
-import type { Bucket as IBucket, Entity as IEntity } from '.'
+import type { Bucket as IBucket } from '.'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Newspaper from '@/models/Newspaper'
@@ -9,7 +9,6 @@ import Partner, { fromPartnerFacet } from '@/models/Partner'
 import { FacetWithLabel } from './generated/canonical'
 
 type ItemTypes =
-  | IEntity
   | Entity
   | Topic
   | Newspaper

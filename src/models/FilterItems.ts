@@ -7,7 +7,7 @@ import { FilterContext, FilterOperator } from 'impresso-jscommons'
  * @param {String} query The search query
  */
 export default class FilterItems<T = Entity> implements FilterWithItemsInterface<T> {
-  type: string
+  type: FilterWithItems<T>['type']
   q: string | string[]
   op?: FilterOperator
   context?: FilterContext

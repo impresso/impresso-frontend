@@ -15,8 +15,8 @@ const cloneFilter = (filter: FilterMonitorFilter): FilterMonitorFilter => ({
 })
 
 const baseEntityItems: FilterMonitorItem[] = [
-  { id: 'person-1', uid: 'person-1', name: 'Ada Lovelace', count: 21 },
-  { id: 'person-2', uid: 'person-2', name: 'Alan Turing', count: 15 }
+  { id: 'person-1', label: 'Ada Lovelace', uid: 'person-1', name: 'Ada Lovelace', count: 21 },
+  { id: 'person-2', label: 'Alan Turing', uid: 'person-2', name: 'Alan Turing', count: 15 }
 ]
 
 const baseEntityFilter: FilterMonitorFilter = {
@@ -32,7 +32,7 @@ const baseStringFilter: FilterMonitorFilter = {
   op: 'OR',
   context: 'include',
   q: ['railway', 'industry'],
-  items: [{ id: 'railway' }, { id: 'industry' }]
+  items: [{ id: 'railway', label: 'railway' }, { id: 'industry', label: 'industry' }]
 }
 
 const baseDateRangeFilter: FilterMonitorFilter = {
@@ -40,7 +40,7 @@ const baseDateRangeFilter: FilterMonitorFilter = {
   op: 'AND',
   context: 'include',
   q: ['1901-01-01', '1907-12-31'],
-  items: [{ id: 'daterange-1', start: '1901-01-01', end: '1907-12-31' }]
+  items: [{ id: 'daterange-1', label: '1901-1907', start: '1901-01-01', end: '1907-12-31' }]
 }
 
 const baseNumericRangeFilter: FilterMonitorFilter = {
@@ -48,7 +48,7 @@ const baseNumericRangeFilter: FilterMonitorFilter = {
   op: 'AND',
   context: 'include',
   q: ['100', '400'],
-  items: [{ id: 'contentLength-1', start: '100', end: '400' }]
+  items: [{ id: 'contentLength-1', label: '100-400', start: '100', end: '400' }]
 }
 
 const baseEmbeddingFilter: FilterMonitorFilter = {
@@ -56,7 +56,12 @@ const baseEmbeddingFilter: FilterMonitorFilter = {
   op: 'OR',
   context: 'include',
   q: ['industrial revolution'],
-  items: [{ id: 'Embedding vector: industrial revolution context sentence...' }]
+  items: [
+    {
+      id: 'Embedding vector: industrial revolution context sentence...',
+      label: 'Embedding vector: industrial revolution context sentence...'
+    }
+  ]
 }
 
 const meta: Meta<typeof FilterMonitor> = {
@@ -203,7 +208,15 @@ export const AllVariants: Story = {
       const daterangeChangedEmbeddingAction = action('daterange-changed:embedding')
       const minDate = new Date('1890-01-01')
       const maxDate = new Date('1930-12-31')
-      const itemsToAdd = [{ id: 'person-3', uid: 'person-3', name: 'Grace Hopper', count: 7 }]
+      const itemsToAdd = [
+        {
+          id: 'person-3',
+          label: 'Grace Hopper',
+          uid: 'person-3',
+          name: 'Grace Hopper',
+          count: 7
+        }
+      ]
 
       return {
         minDate,

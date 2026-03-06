@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SearchFacets from './SearchFacets.vue'
-import { Facet } from '@/models'
+import type { Facet } from '@/models'
 import FacetModel from '@/models/Facet'
 import BucketModel from '@/models/Bucket'
 import FilterFactory from '@/models/FilterFactory'

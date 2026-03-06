@@ -154,7 +154,10 @@ const loadMorePartialBucketsHandler = http.get(
   }
 )
 
-const generateSimpleFacet = (numBuckets: number, totalBuckets?: number): Facet => ({
+const generateSimpleFacet = (
+  numBuckets: number,
+  totalBuckets?: number
+): Facet => ({
   buckets: Array.from({ length: numBuckets }, (_, i) => ({
     value: `bucket-${i}`,
     item: {

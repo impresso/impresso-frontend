@@ -18,12 +18,14 @@ export const fromPartnerFacet = (facet?: PartnerFacet) => {
 export default class Partner implements IEntity {
   id: string
   name: string
+  label: string
   links: string[]
   url?: string
 
-  constructor({ id = '', name = '', links = [] } = {}) {
+  constructor({ id = '', name = '', links = [], label = undefined } = {}) {
     this.id = String(id)
     this.name = name
+    this.label = label ?? this.name ?? this.id
     this.links = links
     if (this.links.length) {
       this.url = this.links[0]

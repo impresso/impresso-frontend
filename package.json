@@ -21,7 +21,7 @@
     "test:unit": "vitest",
     "build-only": "vite build --base=/app",
     "build-only-dev": "vite build --mode development",
-    "type-check": "vue-tsc -p ./tsconfig.app.json --build --force",
+    "type-check": "vue-tsc --build ./tsconfig.app.json --force",
     "type-check-watch": "vue-tsc -p ./tsconfig.app.json -w",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",

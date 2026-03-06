@@ -153,7 +153,7 @@ import { ref, computed, onMounted } from 'vue'
 import { embeddings as embeddingsService } from '@/services'
 import { useEmbeddingsStore } from '@/stores/embeddings'
 import type { WordMatch } from '@/services/types/embeddings'
-import type { FilterWithItems } from '@/models'
+import type { Entity, FilterWithItems } from '@/models'
 import LoadingBlock from '../LoadingBlock.vue'
 import FilterFactory from '@/models/FilterFactory'
 import Ellipsis from './Ellipsis.vue'
@@ -181,12 +181,17 @@ export interface SelectOption {
   text: string
 }
 
+type EmbeddingsFilterItem = Entity & {
+  start?: string | number | Date
+  end?: string | number | Date
+}
+
 /**
  * Props definition for the Embeddings component
  */
 export interface Props {
   /** Filter object containing query parameters */
-  filters?: FilterWithItems[]
+  filters?: FilterWithItems<EmbeddingsFilterItem>[]
   languageEmbeddingsOptions?: SelectOption[]
   limitEmbeddingsOptions?: SelectOption[]
   withPreview?: boolean
@@ -211,13 +216,13 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'embdding-selected', embedding: string): void
-  (e: 'filters-changed', filters: FilterWithItems[]): void
+  (e: 'filters-changed', filters: FilterWithItems<EmbeddingsFilterItem>[]): void
 }>()
 
 const embeddingsStore = useEmbeddingsStore()
 const query = ref<string>('')
-const localFilter = ref<FilterWithItems | null>(null)
-const newFilters = computed<FilterWithItems[]>(() => {
+const localFilter = ref<FilterWithItems<EmbeddingsFilterItem> | null>(null)
+const newFilters = computed<FilterWithItems<EmbeddingsFilterItem>[]>(() => {
   if (!props.filters && !localFilter.value) {
     return []
   }
@@ -317,7 +322,7 @@ const updateFilter = (embedding: string): void => {
     return acc
   }, [])
   localFilter.value.q = newQ
-  localFilter.value.items = newQ.map(s => ({ id: s }))
+  localFilter.value.items = newQ.map(s => ({ id: s, label: s }))
   emit('embdding-selected', embedding)
 }
 
@@ -368,7 +373,7 @@ const removeFilterWordAtIndex = (index: number): void => {
   const currentQ = Array.isArray(localFilter.value.q) ? localFilter.value.q : [localFilter.value.q]
   currentQ.splice(index, 1)
   localFilter.value.q = currentQ
-  localFilter.value.items = currentQ.map(s => ({ id: s }))
+  localFilter.value.items = currentQ.map(s => ({ id: s, label: s }))
   if (currentQ.length === 0) {
     localFilter.value = null
   }

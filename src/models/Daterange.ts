@@ -11,6 +11,7 @@ type IDaterange = Omit<IEntity, 'start' | 'end'> & { start: Date; end: Date }
  */
 export default class Daterange implements IDaterange {
   id: string
+  label: string
   start: Date
   end: Date
 
@@ -29,6 +30,7 @@ export default class Daterange implements IDaterange {
     this.start.setUTCHours(0, 0, 0, 0)
     this.end.setUTCHours(23, 59, 59, 0)
     this.id = this.getValue()
+    this.label = this.id
   }
 
   getValue() {

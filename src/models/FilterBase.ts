@@ -4,7 +4,7 @@ import { FilterContext, FilterOperator, FilterPrecision } from 'impresso-jscommo
 
 export default class Filter<T = Entity> implements IFilter<T> {
   q?: string[] | string
-  type: string
+  type: IFilter<T>['type']
   context?: FilterContext
   precision?: FilterPrecision
   op?: FilterOperator
@@ -17,7 +17,7 @@ export default class Filter<T = Entity> implements IFilter<T> {
     context = contexts.INCLUDE,
     type,
     touched = false
-  }: IFilter & { touched?: boolean }) {
+  }: IFilter<T> & { touched?: boolean }) {
     if (this.getQuery === undefined && typeof this.getQuery !== 'function') {
       throw new TypeError('Subclass must implement getQuery() method')
     }

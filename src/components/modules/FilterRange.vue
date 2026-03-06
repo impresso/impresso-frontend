@@ -47,7 +47,7 @@
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
-import { Facet, Filter } from '@/models'
+import type { Facet, Filter } from '@/models'
 import { PropType } from 'vue'
 
 export interface IData {
@@ -111,7 +111,7 @@ export default {
     applyValues() {
       if (this.value.length !== 2) return this.$emit('changed', [])
       const filter = {
-        type: this.facet.type,
+        type: this.facet.type as Filter['type'],
         q: this.value.map(v => v.toString())
       }
       this.$emit('changed', [filter])

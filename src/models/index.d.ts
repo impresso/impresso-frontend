@@ -1,14 +1,10 @@
 import { SearchFacetBucket, SearchFacetRangeBucket } from './generated/deprecated/models.js'
 import { FacetWithLabel } from './generated/canonical.js'
-import {
-  Filter as ImpressoFilter,
-  FilterOperator,
-  SearchQuery as ImpressoSearchQuery
-} from 'impresso-jscommons'
+import { Filter, FilterOperator, SearchQuery as ImpressoSearchQuery } from 'impresso-jscommons'
 
-export type Filter = Omit<ImpressoFilter, 'type'> & {
-  type: string
-}
+export type Entity = FacetWithLabel
+
+export { Filter }
 
 export interface SearchQuery<F extends Filter = Filter>
   extends Omit<ImpressoSearchQuery, 'filters'> {
@@ -16,64 +12,13 @@ export interface SearchQuery<F extends Filter = Filter>
 }
 
 /**
- * Backward-compatible frontend entity shape.
- * API payloads may only provide `id`/`label`, while legacy UI models use `name`,
- * date ranges and extra fields.
- */
-export type Entity = Omit<FacetWithLabel, 'label'> & {
-  label?: string
-  name?: string
-  language?: string
-  htmlExcerpt?: string
-  creator?: { username?: string }
-  lastModifiedDate?: Date
-  y?: string
-  firstIssue?: { date: Date }
-  lastIssue?: { date: Date }
-  countArticles?: number
-  countIssues?: number
-  start?: number | Date | string
-  end?: number | Date | string
-  excerpt?: { w: string }[]
-}
-
-export type EntityWithLabelAndExcerpt = Entity & {
-  label?: string
-  excerpt?: { w: string }[]
-}
-
-/**
  * A frontend only extension of the Filter interface that carries additional details describing
  * the filter item. E.g. a 'person' filter with `q` containing ID may have the person entity attached.
  * It's plural because it may have multiple items when `q` contains multiple values.
  */
-export type FilterWithItems<I = Entity> = Filter & {
+export type FilterWithItems<I = FacetWithLabel> = Filter & {
   items?: I[]
 }
-
-/**
- * Should be done at the spot where they are used.
- */
-// interface Entity {
-//   id: string
-
-//   name?: string
-//   language?: string
-//   htmlExcerpt?: string
-//   creator?: { username?: string }
-//   lastModifiedDate?: Date
-
-//   y?: string
-
-//   firstIssue?: { date: Date }
-//   lastIssue?: { date: Date }
-
-//   countArticles?: number
-//   countIssues?: number
-
-//   start?: number
-//   end?: number
-// }
 
 /**
  * Same as in FilterWithItems. A bucket with an optional item attached.
@@ -100,26 +45,17 @@ export interface Facet<T extends string = string, I = Entity, O = FilterOperator
   numBuckets?: number
 }
 
-// type FilterItem = Omit<Entity, 'start' | 'end'> & {
-//   start?: number | Date
-//   end?: number | Date
-/**
- * NOTE: this is specific to a particular filter. Should not be shared.
- */
-// export type EntityWithLabelAndExcerpt = Entity & {
-//   // for topics
-//   label?: string
-//   excerpt?: { w: string }[]
-// }
-
 /**
  * An interface that returns a clean Filter object without attached items.
+ * @deprecated This is not needed because any object extending it is already a Filter.
  */
 export interface FilterWithItemsInterface<I = Entity> extends FilterWithItems<I> {
   getQuery(): Filter
 }
 
-// New code should use either SearchFacetBucket or SearchFacetRangeBucket
+/**
+ * @deprecated New code should use either BucketWithItem, SearchFacetBucket or SearchFacetRangeBucket
+ */
 export type TermOrRangeBucketWithItem<T = Entity> = (
   | Omit<SearchFacetBucket, 'value' | 'item'>
   | SearchFacetRangeBucket

@@ -137,14 +137,7 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import { toSerializedFilter } from '@/logic/filters'
-import type {
-  Bucket,
-  Entity,
-  EntityWithLabelAndExcerpt,
-  Facet,
-  Filter,
-  FilterWithItems
-} from '@/models'
+import type { Bucket, Entity, Facet, Filter, FilterWithItems } from '@/models'
 import BucketModel from '@/models/Bucket'
 import FacetModel from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
@@ -157,6 +150,7 @@ type SearchFacetResponse = {
   buckets: Bucket[]
 }
 type SelectedBucketItem = Entity & {
+  name?: string
   checked?: boolean
   count?: number
 }
@@ -164,12 +158,12 @@ type FacetWithBuckets = {
   buckets?: Bucket[]
 }
 type BucketFilterTuple = {
-  filter: FilterWithItems
+  filter: FilterWithItems<Entity>
   filterIndex: number
 }
 type BucketIndexItem = {
   count: number
-  item?: EntityWithLabelAndExcerpt
+  item?: Entity
 }
 type BucketIndex = Record<string, BucketIndexItem>
 
@@ -309,7 +303,7 @@ export default defineComponent({
      * List facet buckets NOT included in a filter
      * @return {Array} array of buckets
      */
-    unfilteredBuckets(): Bucket<EntityWithLabelAndExcerpt>[] {
+    unfilteredBuckets(): Bucket[] {
       if (!this.isFiltered || !this.includedFilterItems) {
         return this.facet.buckets
       }
@@ -344,7 +338,7 @@ export default defineComponent({
           return {
             id: String(bucket.value),
             name: bucket.label ?? String(bucket.value),
-            label: bucket.label,
+            label: bucket.label ?? String(bucket.value),
             checked: true,
             count: bucket.count
           }
@@ -408,8 +402,8 @@ export default defineComponent({
       }
     },
     createFilter(): void {
-      const newFilter: FilterWithItems = {
-        type: this.facet.type,
+      const newFilter: FilterWithItems<Entity> = {
+        type: this.facet.type as Filter['type'],
         q: this.selectedBucketsIds,
         items: this.selectedBucketsItems
       }

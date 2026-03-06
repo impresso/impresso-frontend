@@ -259,17 +259,24 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
-import type { Filter, FilterWithItems } from '@/models'
+import type { Entity, Filter, FilterWithItems } from '@/models'
 import type { FacetType } from '@/models/Facet'
 import { defineComponent, type PropType } from 'vue'
 import Icon from './base/Icon.vue'
 
+type PillItem = Entity & {
+  name?: string
+  htmlExcerpt?: string
+  start?: string | number | Date
+  end?: string | number | Date
+}
+
 type Pill = {
-  filter: FilterWithItems
+  filter: FilterWithItems<PillItem>
   filterIndex: number
 }
 
-type FilterLabelItem = NonNullable<FilterWithItems['items']>[number]
+type FilterLabelItem = NonNullable<FilterWithItems<PillItem>['items']>[number]
 
 type LabelByItemsOptions = {
   items?: FilterLabelItem[]
@@ -346,7 +353,7 @@ export default defineComponent({
       return this.filters
         .map(
           (filter, filterIndex): Pill => ({
-            filter: FilterFactory.create(filter) as Filter,
+            filter: FilterFactory.create(filter) as FilterWithItems<PillItem>,
             filterIndex
           })
         )

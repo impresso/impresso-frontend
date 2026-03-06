@@ -26,6 +26,7 @@ export default class Newspaper implements IEntity {
   deltaYear: number
   endYear: number
   name: string
+  label: string
   startYear: number
   id: string
   properties: INewspaperProperty[]
@@ -59,6 +60,7 @@ export default class Newspaper implements IEntity {
     this.name = String(name)
     this.startYear = startYear
     this.id = String(id)
+    this.label = this.name || this.id
     this.properties = properties
     this.included = included
 

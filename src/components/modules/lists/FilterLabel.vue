@@ -71,14 +71,24 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
-import type { FilterWithItems, EntityWithLabelAndExcerpt } from '@/models'
+import type { Entity, FilterWithItems } from '@/models'
+import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
-const isFilterItem = (value: unknown): value is EntityWithLabelAndExcerpt => {
+
+type FilterLabelItem = Entity & {
+  name?: string
+  excerpt?: { w: string }[]
+  start?: string | number | Date
+  end?: string | number | Date
+  precision?: string
+}
+
+const isFilterItem = (value: unknown): value is FilterLabelItem => {
   return value != null && typeof value === 'object'
 }
 
 interface FilterAsLabelProps {
-  filter: FilterWithItems
+  filter: FilterWithItems<FilterLabelItem>
   showType?: boolean
   limitNumberOfFilterItems?: number
 }
@@ -114,8 +124,11 @@ const daterangeTranslationOptions = computed(() => {
     Array.isArray(props.filter.items) &&
     props.filter.items.length > 0
   ) {
-    options.from = new Date(props.filter.items[0].start)
-    options.to = new Date(props.filter.items[0].end)
+    const firstItem = props.filter.items[0]
+    if (isEntityWithDateRange(firstItem)) {
+      options.from = new Date(firstItem.start ?? 0)
+      options.to = new Date(firstItem.end ?? 0)
+    }
   }
   return options
 })
@@ -126,14 +139,13 @@ const operatorTranslationKey = computed(() => {
 })
 
 const showItemSelector = computed(() => {
-  return (
-    filterItems.value.length > 0 &&
-    filterItems.value.some(item => item.id)
-  )
+  return filterItems.value.length > 0 && filterItems.value.some(item => item.id)
 })
 
-const filterItems = computed<EntityWithLabelAndExcerpt[]>(() => {
-  const itemsFromFilter = Array.isArray(props.filter?.items) ? props.filter.items.filter(isFilterItem) : []
+const filterItems = computed<FilterLabelItem[]>(() => {
+  const itemsFromFilter = Array.isArray(props.filter?.items)
+    ? props.filter.items.filter(isFilterItem)
+    : []
 
   if (itemsFromFilter.length > 0) {
     return itemsFromFilter
@@ -141,7 +153,7 @@ const filterItems = computed<EntityWithLabelAndExcerpt[]>(() => {
   if (Array.isArray(props.filter.q)) {
     return props.filter.q
       .filter(value => value != null && value !== '')
-      .map(q => ({ id: String(q), name: String(q) }))
+      .map(q => ({ id: String(q), label: String(q), name: String(q) }))
   }
   return []
 })
