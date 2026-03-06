@@ -1,8 +1,47 @@
 import * as d3 from 'd3'
 import Line from './Line'
+import type { LineDimensions } from './Line'
 import Dimension from './Dimension'
 
-export default class Timeline extends Line {
+interface TimelineDatum {
+  [key: string]: any
+  t?: Date | string | number
+}
+
+interface TimelineOptions {
+  element?: Element | null
+  svg?: d3.Selection<SVGSVGElement, TimelineDatum, null, undefined> | null
+  margin?: Record<string, number>
+  format?: string
+  domain?: Array<string | number | Date>
+  brushable?: boolean
+  brushFormat?: string
+  dimensions?: Partial<LineDimensions<TimelineDatum>> & Record<string, any>
+  contextPeakTextFn?: (value: any) => any
+}
+
+interface BrushedEvent {
+  sourceEvent?: Event
+  selection?: [number, number] | null
+  type: string
+}
+
+interface BrushToPayload {
+  min: string | number | Date
+  max: string | number | Date
+}
+
+interface UpdateOptions {
+  data?: TimelineDatum[]
+}
+
+export default class Timeline extends Line<TimelineDatum> {
+  [key: string]: any
+
+  timeFormat: any
+  timeParse: any
+  contextPeakTextFn: (value: any) => any
+
   constructor({
     element = null,
     svg = null,
@@ -12,13 +51,13 @@ export default class Timeline extends Line {
     brushable = false,
     brushFormat = '%Y-%m-%d',
     dimensions = {
-      x: new Dimension({
+      x: new Dimension<TimelineDatum>({
         name: 'x',
         property: 't',
         type: Dimension.TYPE_CONTINUOUS,
         scaleFn: d3.scaleTime
       }),
-      y: new Dimension({
+      y: new Dimension<TimelineDatum>({
         name: 'y',
         property: 'w',
         type: Dimension.TYPE_CONTINUOUS,
@@ -28,7 +67,7 @@ export default class Timeline extends Line {
       })
     },
     contextPeakTextFn = d => d
-  } = {}) {
+  }: TimelineOptions = {}) {
     super({
       element,
       svg,
@@ -50,7 +89,7 @@ export default class Timeline extends Line {
     this.contextAxisX = this.context.append('g').attr('class', 'axis axis--x')
     if (domain.length) {
       this.dimensions.x.setDomain({
-        domain: domain.map(d => this.timeParse(d))
+        domain: domain.map(d => (d instanceof Date ? d : this.timeParse(String(d))))
       })
     }
     this.contextPeak = this.context.append('g').attr('class', 'peak')
@@ -81,8 +120,9 @@ export default class Timeline extends Line {
     }
   }
 
-  brushed(event) {
+  brushed(event: BrushedEvent): void {
     if (event.sourceEvent) {
+      const xScale = this.dimensions.x.getContinuousScale()
       const ordered = event.selection
       const { type } = event
 
@@ -91,8 +131,8 @@ export default class Timeline extends Line {
         return
       }
 
-      this.brushedMinDate = this.dimensions.x.scale.invert(ordered[0])
-      this.brushedMaxDate = this.dimensions.x.scale.invert(ordered[1])
+      this.brushedMinDate = xScale.invert(ordered[0])
+      this.brushedMaxDate = xScale.invert(ordered[1])
       this.brushedMinValue = this.brushTimeFormat(this.brushedMinDate)
       this.brushedMaxValue = this.brushTimeFormat(this.brushedMaxDate)
 
@@ -114,7 +154,7 @@ export default class Timeline extends Line {
     // else console.info('@brushed called from outside, no need to emit brushes');
   }
 
-  brushTo({ min, max }) {
+  brushTo({ min, max }: BrushToPayload): void {
     if (!min || !max) {
       return
     }
@@ -130,21 +170,23 @@ export default class Timeline extends Line {
         return
       }
       const to = [
-        min instanceof Date ? min : this.brushTimeParse(min),
-        max instanceof Date ? max : this.brushTimeParse(max)
+        min instanceof Date ? min : this.brushTimeParse(String(min)),
+        max instanceof Date ? max : this.brushTimeParse(String(max))
       ]
       if (this.contextBrush) {
+        const xScale = this.dimensions.x.getContinuousScale()
         this.contextBrush.call(this.brush.move, [
-          this.dimensions.x.scale(to[0]),
-          this.dimensions.x.scale(to[1])
+          xScale(to[0]),
+          xScale(to[1])
         ])
       }
     }, 150)
   }
 
-  draw() {
+  draw(): void {
     super.draw()
-    this.xAxis2 = d3.axisBottom(this.dimensions.x.scale).tickFormat(this.timeFormat)
+    const xScale = this.dimensions.x.getContinuousScale()
+    this.xAxis2 = d3.axisBottom(xScale).tickFormat(this.timeFormat)
     this.contextAxisX.call(this.xAxis2)
     this.contextAxisX.attr(
       'transform',
@@ -152,7 +194,7 @@ export default class Timeline extends Line {
     )
     // where is the first maximum peak?
     if (this.maxDatum) {
-      const xmax = this.dimensions.x.scale(this.maxDatum[this.dimensions.x.property])
+      const xmax = xScale(this.maxDatum[this.dimensions.x.property] as d3.NumberValue)
       this.contextPeak.attr('transform', `translate(${xmax},0)`)
       this.contextPeakText.text(this.contextPeakTextFn(this.maxDatum[this.dimensions.y.property]))
     }
@@ -167,11 +209,11 @@ export default class Timeline extends Line {
    * @param {Array}  [domain=[]             } = {}] [description]
    * @return {[type]}          [description]
    */
-  update({ data = [] } = {}) {
+  update({ data = [] }: UpdateOptions = {}): void {
     super.update({
       data: data.map(d => ({
         ...d,
-        t: d.t instanceof Date ? d.t : this.timeParse(d.t)
+        t: d.t instanceof Date ? d.t : this.timeParse(String(d.t))
       }))
     })
 
@@ -184,7 +226,7 @@ export default class Timeline extends Line {
     }
   }
 
-  updateTimeFormat(format) {
+  updateTimeFormat(format: string): void {
     this.timeFormat = d3.timeFormat(format)
     this.timeParse = d3.timeParse(format)
   }
@@ -194,11 +236,11 @@ export default class Timeline extends Line {
    * @param  {[type]} datum [description]
    * @return {[type]}       [description]
    */
-  highlight(datum) {
+  highlight(datum: TimelineDatum | null | undefined): void {
     if (datum) {
       super.highlight({
         ...datum,
-        t: datum.t instanceof Date ? datum.t : this.timeParse(datum.t)
+        t: datum.t instanceof Date ? datum.t : this.timeParse(String(datum.t))
       })
     }
   }
