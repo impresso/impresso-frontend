@@ -116,8 +116,9 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import SearchQuery from '../models/SearchQuery'
 import { containsFilter } from '@/logic/filters'
-import type { Filter } from '@/models'
+import type { Filter, FilterWithItems } from '@/models'
 import { FacetType, FacetTypes } from '@/models/Facet'
+import { FilterContext } from 'impresso-jscommons'
 
 /**
  * Display info about the current selected item.
@@ -162,9 +163,9 @@ export default defineComponent({
     ...mapActions(useMonitorStore, {
       fadeOut: 'hide'
     }),
-    async applyFilter(context: string = 'include') {
+    async applyFilter(context: FilterContext = 'include') {
       const currentFilters = this.searchQueryFilters as Filter[]
-      const newFilter: Filter = {
+      const newFilter: FilterWithItems = {
         type: this.type,
         q: this.item.id,
         items: [this.item],

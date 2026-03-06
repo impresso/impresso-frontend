@@ -1,14 +1,15 @@
 import * as contexts from './Contexts'
-import type { Entity, Filter as IFilter } from '.'
+import type { Entity, FilterWithItems as IFilter } from '.'
+import { FilterContext, FilterOperator, FilterPrecision } from 'impresso-jscommons'
 
-export default class Filter implements IFilter {
+export default class Filter<T = Entity> implements IFilter<T> {
   q?: string[] | string
   type: string
-  context?: string
-  precision?: string
-  op?: string
+  context?: FilterContext
+  precision?: FilterPrecision
+  op?: FilterOperator
 
-  items?: Entity[]
+  items?: T[]
   touched: boolean
 
   constructor({
@@ -21,11 +22,11 @@ export default class Filter implements IFilter {
       throw new TypeError('Subclass must implement getQuery() method')
     }
     if (context !== contexts.INCLUDE) {
-      this.context = String(contexts[context.toUpperCase()])
+      this.context = contexts[context.toUpperCase()]
     } else {
       this.context = contexts.INCLUDE
     }
-    this.type = String(type)
+    this.type = type
     this.touched = touched
     this.q = String(q)
   }
@@ -38,7 +39,7 @@ export default class Filter implements IFilter {
     throw new TypeError(`Filter subclass for ${this.type} must implement getQuery() method`)
   }
 
-  getName() {
+  getName(): string {
     return this.type
   }
 

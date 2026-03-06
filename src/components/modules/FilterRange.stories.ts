@@ -102,7 +102,7 @@ export const PageCountRange: Story = {
   args: {
     ...Default.args,
     facet: {
-      type: 'pageCount',
+      type: 'contentLength',
       buckets: Array.from({ length: 10 }, (_, i) => ({
         value: i + 1,
         count: Math.floor(Math.random() * 500) + 50

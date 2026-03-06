@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import SearchQuerySummary from './SearchQuerySummary.vue'
 import type { SearchQuerySummaryProps } from './SearchQuerySummary.vue'
 import FilterFactory from '@/models/FilterFactory'
+import type { FilterWithItems } from '@/models'
 
 const meta: Meta<typeof SearchQuerySummary> = {
   title: 'Components/modules/SearchQuerySummary',
@@ -53,7 +54,13 @@ export const AllFiltersIncluded: Story = {
           op: 'OR',
           type: 'daterange',
           q: '1948-01-01T00:00:00Z TO 1948-12-31T23:59:59Z',
-          items: [{ start: '1948-01-01T00:00:00Z', end: '1948-12-31T23:59:59Z' }]
+          items: [
+            {
+              id: '1',
+              start: new Date('1948-01-01T00:00:00Z').getTime(),
+              end: new Date('1948-12-31T23:59:59Z').getTime()
+            }
+          ]
         },
 
         { context: 'include', op: 'OR', type: 'language', q: 'fr', items: [{ id: 'fr' }] },
@@ -65,18 +72,18 @@ export const AllFiltersIncluded: Story = {
           q: '2-50-Harry_S._Truman',
           items: [
             {
-              countItems: 0,
-              countMentions: 0,
+              // countItems: 0,
+              // countMentions: 0,
               id: '2-50-Harry_S._Truman',
-              name: 'Harry S. Truman',
-              type: 'person'
+              name: 'Harry S. Truman'
+              // type: 'person'
             }
           ]
         },
         { type: 'copyright', q: 'in_cpy', items: [{ id: 'in_cpy' }] },
         { context: 'include', op: 'OR', type: 'partner', q: 'SNL', items: [{ id: 'SNL' }] },
-        { type: 'sourceMedium', q: 'print', items: [{ id: 'print' }] }
-      ]
+        { type: 'sourceMedium', q: 'print' }
+      ] satisfies FilterWithItems[]
     }
   } as SearchQuerySummaryProps
 }

@@ -132,7 +132,7 @@ import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import { getFilterHash } from '../../models/SearchQuery'
 import { defineComponent, PropType } from 'vue'
-import { Filter } from '@/models'
+import { Filter, FilterWithItems } from '@/models'
 import { TimelineValue } from '@/logic/facets'
 
 const DisplayStyleSum = 'sum'
@@ -161,7 +161,7 @@ export default defineComponent({
       default: 'articles'
     },
     filters: {
-      type: Array as PropType<Filter[]>,
+      type: Array as PropType<FilterWithItems[]>,
       default: () => []
     },
     values: {

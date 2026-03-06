@@ -29,11 +29,11 @@ import { ref, computed } from 'vue'
 import SearchPills from './SearchPills.vue'
 import SearchQuery from '@/models/SearchQuery'
 import FilterFactory from '@/models/FilterFactory'
-import type { Filter, FilterInterface } from '@/models'
+import type { Filter, FilterWithItemsInterface } from '@/models'
 
 export interface Props {
   code?: string
-  filters: Filter[] | FilterInterface[]
+  filters: Filter[] | FilterWithItemsInterface[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -54,7 +54,7 @@ const handleFiltersChanged = (filters: any) => {
 const emit = defineEmits(['filtersChanged'])
 const isSerialized = ref<boolean>(false)
 
-const computedFilters = computed<Filter[] | FilterInterface[]>(() => {
+const computedFilters = computed<Filter[] | FilterWithItemsInterface[]>(() => {
   const filtersFromProps = props.filters.map(d => FilterFactory.create(d))
   return filtersFromProps
   // return filtersFromProps.concat(isFront.value ? [new FilterBoolean({ type: 'isFront' })] : [])

@@ -5,7 +5,7 @@
 import Topic from '@/models/Topic'
 import FilterItems from '@/models/FilterItems'
 
-export default class FilterTopic extends FilterItems {
+export default class FilterTopic extends FilterItems<Topic> {
   h: string
 
   constructor(args) {

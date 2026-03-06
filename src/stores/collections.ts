@@ -1,3 +1,4 @@
+import { Filter } from '@/models'
 import Collection from '@/models/Collection'
 import Helpers from '@/plugins/Helpers'
 import {
@@ -116,7 +117,7 @@ export const useCollectionsStore = defineStore('collections', {
             type: 'collection',
             q: collectionId
           }
-        ],
+        ] satisfies Filter[],
         // group_by: 'articles',
         limit: 100000
       }

@@ -137,7 +137,14 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import FilterFacetBucket from '@/components/modules/FilterFacetBucket.vue'
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import { toSerializedFilter } from '@/logic/filters'
-import type { Bucket, Entity, Facet, Filter } from '@/models'
+import type {
+  Bucket,
+  Entity,
+  EntityWithLabelAndExcerpt,
+  Facet,
+  Filter,
+  FilterWithItems
+} from '@/models'
 import BucketModel from '@/models/Bucket'
 import FacetModel from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
@@ -157,12 +164,12 @@ type FacetWithBuckets = {
   buckets?: Bucket[]
 }
 type BucketFilterTuple = {
-  filter: Filter
+  filter: FilterWithItems
   filterIndex: number
 }
 type BucketIndexItem = {
   count: number
-  item?: Bucket['item']
+  item?: EntityWithLabelAndExcerpt
 }
 type BucketIndex = Record<string, BucketIndexItem>
 
@@ -280,13 +287,7 @@ export default defineComponent({
     filtersIncludedItemsIds(): string[] {
       return this.includedFilterItems.reduce(
         (acc: string[], { filter }: { filter: Filter }) =>
-          acc.concat(
-            Array.isArray(filter.q)
-              ? filter.q
-              : filter.q
-                ? [filter.q]
-                : []
-          ),
+          acc.concat(Array.isArray(filter.q) ? filter.q : filter.q ? [filter.q] : []),
         []
       )
     },
@@ -308,12 +309,12 @@ export default defineComponent({
      * List facet buckets NOT included in a filter
      * @return {Array} array of buckets
      */
-    unfilteredBuckets(): Bucket[] {
+    unfilteredBuckets(): Bucket<EntityWithLabelAndExcerpt>[] {
       if (!this.isFiltered || !this.includedFilterItems) {
         return this.facet.buckets
       }
-      return this.facet.buckets.filter((bucket: Bucket) =>
-        !this.filtersIncludedItemsIds.includes(String(bucket.value))
+      return this.facet.buckets.filter(
+        (bucket: Bucket) => !this.filtersIncludedItemsIds.includes(String(bucket.value))
       )
     },
     countMissingBuckets(): number {
@@ -329,8 +330,8 @@ export default defineComponent({
       if (this.selectedBucketsIds.length) {
         this.clearSelectedItems()
       } else {
-        this.selectedBucketsIds = this.unfilteredBuckets.map((b: Bucket) => String(b.value))
-        this.selectedBucketsItems = this.unfilteredBuckets.map((bucket: Bucket) => {
+        this.selectedBucketsIds = this.unfilteredBuckets.map(b => String(b.value))
+        this.selectedBucketsItems = this.unfilteredBuckets.map(bucket => {
           if (bucket.item) {
             return {
               ...bucket.item,
@@ -390,7 +391,7 @@ export default defineComponent({
     updateFilter(filterIndex: number, filter: Filter): void {
       const oldFilter = this.facetFilters[filterIndex]
 
-        if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
+      if (toSerializedFilter(filter) !== toSerializedFilter(oldFilter)) {
         if (!filter.q || filter.q.length === 0) {
           const newFilters = this.facetFilters.filter(
             (f: Filter, index: number): boolean => index !== filterIndex
@@ -407,15 +408,14 @@ export default defineComponent({
       }
     },
     createFilter(): void {
+      const newFilter: FilterWithItems = {
+        type: this.facet.type,
+        q: this.selectedBucketsIds,
+        items: this.selectedBucketsItems
+      }
       this.$emit(
         'changed',
-        this.facetFilters.concat([
-          {
-            type: this.facet.type,
-            q: this.selectedBucketsIds,
-            items: this.selectedBucketsItems
-          }
-        ])
+        this.facetFilters.concat([newFilter])
       )
       this.clearSelectedItems()
     },

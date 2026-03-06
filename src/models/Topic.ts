@@ -18,7 +18,7 @@ export default class Topic implements IEntity {
   matches: string[]
   countItems: number
   relatedTopics: string[]
-  label?: string
+  label: string
   hwp?: number
   highlighted?: TopicWord[]
   htmlExcerpt?: string
@@ -36,7 +36,7 @@ export default class Topic implements IEntity {
       matches = [],
       relatedTopics = [],
       countItems = -1,
-      label = undefined
+      label = ''
     } = {},
     { highlight = '', quantizeRange = [0.4, 0.7, 1, 1] } = {}
   ) {

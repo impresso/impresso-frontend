@@ -8,6 +8,17 @@ import TextReuseCluster from '@/models/TextReuseCluster'
 import Partner, { fromPartnerFacet } from '@/models/Partner'
 import { FacetWithLabel } from './generated/canonical'
 
+type ItemTypes =
+  | IEntity
+  | Entity
+  | Topic
+  | Newspaper
+  | Year
+  | Collection
+  | TextReuseCluster
+  | Partner
+  | FacetWithLabel
+
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
  * @param {String} val The value of the dimensions, for instance a specific year,
@@ -15,20 +26,11 @@ import { FacetWithLabel } from './generated/canonical'
  * @param {Number} count Number of matched results for this value
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
-export default class Bucket implements IBucket {
+export default class Bucket implements IBucket<ItemTypes> {
   value: string | number
   count: number
   label?: string
-  item?:
-    | IEntity
-    | Entity
-    | Topic
-    | Newspaper
-    | Year
-    | Collection
-    | TextReuseCluster
-    | Partner
-    | FacetWithLabel
+  item?: ItemTypes
   included?: boolean
   upper?: number
   lower?: number

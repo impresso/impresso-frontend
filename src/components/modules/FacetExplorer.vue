@@ -43,8 +43,9 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import ItemLabel from './lists/ItemLabel.vue'
 import ItemSelector from './ItemSelector.vue'
-import type { Entity, Bucket, Filter } from '@/models'
+import type { Entity, Bucket, FilterWithItems } from '@/models'
 import type { FacetType } from '@/models/Facet'
+import { FilterType } from 'impresso-jscommons'
 
 // Helper function
 function getEntitiesForIds(
@@ -56,8 +57,8 @@ function getEntitiesForIds(
 
 // --- Props and Emits ---
 interface FacetExplorerProps {
-  modelValue?: Filter // Renamed from modelValue to align with Vue 3 conventions for v-model
-  filterType: string
+  modelValue?: FilterWithItems // Renamed from modelValue to align with Vue 3 conventions for v-model
+  filterType: FilterType
   itemType?: FacetType
   buckets: Bucket[]
 }
@@ -67,7 +68,7 @@ const props = withDefaults(defineProps<FacetExplorerProps>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Filter): void
+  (e: 'update:modelValue', value: FilterWithItems): void
 }>()
 
 const selectedIds = ref<string[]>([])
@@ -118,11 +119,11 @@ function applyFilter(): void {
 
   const originalFilter = filter.value ? filter.value : { type: props.filterType, q: [] as string[] }
 
-  const updatedFilter: Filter = {
+  const updatedFilter = {
     ...originalFilter,
     q: selectedIds.value,
     items: entities.filter((item): item is Entity => !!item) // Ensure only valid entities are passed
-  }
+  } satisfies FilterWithItems
 
   emit('update:modelValue', updatedFilter)
 }

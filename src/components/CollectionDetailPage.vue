@@ -309,7 +309,7 @@
 
 <script lang="ts">
 import { mapStores } from 'pinia'
-import { protobuf } from 'impresso-jscommons'
+import { Filter, protobuf } from 'impresso-jscommons'
 import Collection from '@/models/Collection'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
@@ -673,7 +673,7 @@ export default defineComponent({
       const newFilter = {
         type: 'collection',
         q: this.collection.id
-      }
+      } satisfies Filter
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
     },
     async loadTimeline() {

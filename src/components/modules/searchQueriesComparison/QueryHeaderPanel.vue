@@ -125,7 +125,7 @@ import { PropType } from 'vue'
 import { Comparable } from '@/logic/queryComparison'
 import { RouteLocationRaw } from 'vue-router'
 
-const SupportedFilterTypes = SupportedFiltersByContext.search
+const SupportedFilterTypes = SupportedFiltersByContext.search as string[]
 
 export default {
   data: () => ({

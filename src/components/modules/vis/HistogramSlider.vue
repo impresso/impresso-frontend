@@ -7,7 +7,7 @@
           <template v-if="tooltipState.bucket">
             {{
               $t('tooltipContent', {
-                val: tooltipState.bucket.val,
+                val: tooltipState.bucket.value,
                 count: $n(tooltipState.bucket.count)
               })
             }}
@@ -396,14 +396,14 @@ export default defineComponent({
     VueSlider,
     Tooltip
   },
-  data() {
+  data(): { tooltipState: TooltipState } {
     return {
       tooltipState: {
         x: 0,
         y: 50,
         isActive: false,
         bucket: null
-      } satisfies TooltipState
+      }
     }
   }
 })

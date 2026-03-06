@@ -123,22 +123,23 @@ import Pagination from '../modules/Pagination.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import type { FacetType } from '@/models/Facet'
 import LoadingBlock from '@/components/LoadingBlock.vue'
-import type { Filter } from '@/models'
+import type { FilterWithItems } from '@/models'
 
 interface FilterItem {
   id: string
-  name: string
+  name?: string
+  label?: string
 }
 
 export interface EntitySuggesterProps {
-  filter: Filter
+  filter: FilterWithItems
   type: FacetType
   isVisible: boolean
 }
 
 const props = defineProps<EntitySuggesterProps>()
 const emit = defineEmits<{
-  (e: 'filter-changed', value: Filter): void
+  (e: 'filter-changed', value: FilterWithItems): void
   (e: 'dismiss'): void
 }>()
 
@@ -250,7 +251,8 @@ watch(
     await nextTick()
     suggestionQueryRef.value?.focus()
     if (filterItemsIds.value.length) {
-      suggestionQuery.value = props.filter.items[props.filter.items.length - 1].name
+      const lastItem = props.filter.items[props.filter.items.length - 1]
+      suggestionQuery.value = lastItem?.name ?? lastItem?.label ?? ''
     }
     await fetchEntities()
   },

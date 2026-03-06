@@ -1,5 +1,7 @@
 import type { Entity as IEntity } from '.'
 
+type IDaterange = Omit<IEntity, 'start' | 'end'> & { start: Date; end: Date }
+
 /**
  * @class Daterange is a class representating a date range
  * @param {String} daterange String representing the daterange e.g.
@@ -7,7 +9,7 @@ import type { Entity as IEntity } from '.'
  * @param {Date} start Date object start op of the range
  * @param {Date} end Date object end op of the range
  */
-export default class Daterange implements IEntity {
+export default class Daterange implements IDaterange {
   id: string
   start: Date
   end: Date

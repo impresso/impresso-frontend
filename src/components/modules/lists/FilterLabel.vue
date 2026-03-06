@@ -71,11 +71,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
-import type { Filter, FilterItem } from '@/models'
+import type { FilterWithItems, EntityWithLabelAndExcerpt } from '@/models'
 import { RouterLink } from 'vue-router'
 
 interface FilterAsLabelProps {
-  filter: Filter
+  filter: FilterWithItems
   showType?: boolean
   limitNumberOfFilterItems?: number
 }
@@ -130,7 +130,7 @@ const showItemSelector = computed(() => {
   )
 })
 
-const filterItems = computed<FilterItem[]>(() => {
+const filterItems = computed<EntityWithLabelAndExcerpt[]>(() => {
   if (!props.filter?.items && Array.isArray(props.filter.q)) {
     return props.filter.q.map(q => ({ id: q, name: q }))
   }

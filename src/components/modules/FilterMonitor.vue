@@ -454,7 +454,7 @@ export default {
     },
     addStringItem() {
       this.stringsToAdd.push({
-        uid: '',
+        id: '',
         checked: true
       })
     },
@@ -485,7 +485,7 @@ export default {
     },
     addEmbeddingSuggestion(embedding) {
       this.stringsToAdd.push({
-        uid: embedding,
+        id: embedding,
         checked: true
       })
       // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`

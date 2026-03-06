@@ -3,11 +3,12 @@ import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Helpers from '@/plugins/Helpers'
 import { entities as entitiesService, searchFacets as searchFacetsService } from '@/services'
+import { FilterType } from 'impresso-jscommons'
 import { defineStore } from 'pinia'
 
 export interface ActivateParameters {
   item: { id: string }
-  type: string
+  type: FilterType
   filters?: Filter[]
   filtersUpdatedCallback?: (any) => void
   subtitle?: string
@@ -19,7 +20,7 @@ export interface State {
   filters: Filter[]
   timeline: object[]
   isPendingTimeline: boolean
-  type?: string
+  type?: FilterType
   item?: { id: string; wikidataId?: string }
   groupBy: 'articles'
   itemCountRelated: number
@@ -104,7 +105,7 @@ export const useMonitorStore = defineStore('monitor', {
 
       this.setItem({ item, type })
     },
-    setItem({ item, type }: { item: { id: string }; type: string }) {
+    setItem({ item, type }: { item: { id: string }; type: FilterType }) {
       this.isActive = true
       this.item = item
       this.type = type

@@ -524,7 +524,7 @@ export default {
             const itemBuckets: IBucket[] = item?.buckets ?? []
             const additionalBuckets = this.additionalBuckets[comparableIndex][facetId] ?? []
 
-            const buckets = itemBuckets.concat(additionalBuckets).filter(isBucket) as Bucket[]
+            const buckets = itemBuckets.concat(additionalBuckets).filter(isBucket)
 
             return {
               isLoaded: result?.facets != null,

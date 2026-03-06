@@ -151,6 +151,7 @@ import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
+import { Filter } from 'impresso-jscommons'
 
 const userStore = useUserStore()
 
@@ -182,7 +183,7 @@ const collectionFilter = computed(() => {
   return {
     type: 'collection',
     q: collectionPrefix + '*'
-  }
+  } satisfies Filter
 })
 
 const selectedTab = computed(() => {

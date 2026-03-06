@@ -39,7 +39,6 @@ import ItemSelector from './ItemSelector.vue'
 import ItemLabel from './lists/ItemLabel.vue'
 import type { Bucket as IBucket } from '@/models'
 import Bucket from '@/models/Bucket'
-import { FacetType } from '@/models/Facet'
 
 export default {
   name: 'FilterFacetBucket',
@@ -56,7 +55,7 @@ export default {
       required: true
     },
     type: {
-      type: String as PropType<FacetType>
+      type: String as PropType<string>
     },
     isLoadingResults: {
       type: Boolean,

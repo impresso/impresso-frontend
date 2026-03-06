@@ -44,7 +44,7 @@ export default defineComponent({
       type: String
     },
     type: {
-      type: String as PropType<FacetType>,
+      type: String as PropType<FacetType | string>,
       required: true
     },
     detailed: {
