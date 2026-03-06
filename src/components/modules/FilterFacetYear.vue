@@ -93,7 +93,7 @@ export default {
   computed: {
     columns: {
       get() {
-        return this.filter.buckets.map(bucket => new Date(bucket.val))
+        return this.filter.buckets.map(bucket => new Date(bucket.value))
       }
     },
     counts: {

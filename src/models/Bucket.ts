@@ -109,7 +109,7 @@ export default class Bucket implements IBucket<ItemTypes> {
     }
 
     if (!this.value.length) {
-      throw new Error('Bucket should have a valid value "val", empty value given')
+      throw new Error('Bucket should have a valid value "value", empty value given')
     }
   }
 }
