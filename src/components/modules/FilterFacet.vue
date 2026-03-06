@@ -413,10 +413,7 @@ export default defineComponent({
         q: this.selectedBucketsIds,
         items: this.selectedBucketsItems
       }
-      this.$emit(
-        'changed',
-        this.facetFilters.concat([newFilter])
-      )
+      this.$emit('changed', this.facetFilters.concat([newFilter]))
       this.clearSelectedItems()
     },
     clearSelectedItems(): void {
@@ -516,7 +513,11 @@ export default defineComponent({
 })
 </script>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.filter-facet :deep([data-testid='expand-collapse-button'] .dripicons-plus::before) {
+  transform: translate(0.02em, 0.02em);
+}
+</style>
 
 <i18n lang="json">
 {

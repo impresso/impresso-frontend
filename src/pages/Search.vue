@@ -284,6 +284,8 @@ export const FacetTypes = [
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 export interface IData {
+  _activeSearchRequestId: number
+  _isUnmounted: boolean
   selectedItems: ContentItem[]
   inputName: string
   inputDescription: string
@@ -313,6 +315,8 @@ export default defineComponent({
       commonFacets: [],
       userFacets: [],
       timelineFacets: [],
+      _activeSearchRequestId: 0,
+      _isUnmounted: false,
       visibleModal: null,
       isLoadingResults: false
     } satisfies IData
@@ -514,6 +518,9 @@ export default defineComponent({
     this.facets = buildEmptyFacets(FacetTypes)
     this.timelineFacets = buildEmptyFacets(['year'])
   },
+  beforeUnmount() {
+    this._isUnmounted = true
+  },
   methods: {
     toggleLoadCollections() {
       this.loadCollectionsFlag = !this.loadCollectionsFlag
@@ -632,66 +639,88 @@ export default defineComponent({
   watch: {
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy }) {
+        const requestId = ++this._activeSearchRequestId
         console.debug('[Search] @searchServiceQuery')
         const startTime = new Date()
         this.isLoadingResults = true
-        const { data, total } = await contentItemsService
-          .find({
-            query: {
-              offset: (page - 1) * limit,
-              limit,
-              filters,
-              // facets: FacetTypesWithMultipleValues,
-              order_by: orderBy
-              // group_by: groupBy
-            }
-          })
-          .then(response => {
-            return response
-          })
-        this.paginationTotalRows = total
-        this.searchResults = data
-        this.isLoadingResults = false
-        // this.searchInfo = info
-        console.info(
-          '[Search] @searchServiceQuery: took',
-          new Date().getTime() - startTime.getTime(),
-          'ms. Total results:',
-          total
-        )
-        // @todo next tick
-        this.$nextTick(() => {
-          this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
-        })
-        this.timelineFacets = await searchFacetsService
-          .find({
-            query: {
-              facets: ['year'],
-              filters: this.searchServiceQuery.filters,
-              limit: 300 // get all values
-            }
-          })
-          .then(response => response.data.map(f => new FacetModel(f as any)))
-        // load facets
-        this.commonFacets = await searchFacetsService
-          .find({
-            query: {
-              facets: FacetTypes,
-              filters: this.searchServiceQuery.filters
-            }
-          })
-          .then(response => response.data.map(f => new FacetModel(f as any)))
+        try {
+          const { data, total } = await contentItemsService
+            .find({
+              query: {
+                offset: (page - 1) * limit,
+                limit,
+                filters,
+                // facets: FacetTypesWithMultipleValues,
+                order_by: orderBy
+                // group_by: groupBy
+              }
+            })
+            .then(response => {
+              return response
+            })
+          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
 
-        this.userFacets = this.shouldLoadCollections
-          ? await searchFacetsService
+          this.paginationTotalRows = total
+          this.searchResults = data
+
+          const [timelineFacets, commonFacets, userFacets] = await Promise.all([
+            searchFacetsService
               .find({
                 query: {
-                  facets: UserFacetTypes,
-                  filters: this.searchServiceQuery.filters
+                  facets: ['year'],
+                  filters,
+                  limit: 300 // get all values
                 }
               })
-              .then(response => response.data.map(f => new FacetModel(f as any)))
-          : []
+              .then(response => response.data.map(f => new FacetModel(f as any))),
+            searchFacetsService
+              .find({
+                query: {
+                  facets: FacetTypes,
+                  filters
+                }
+              })
+              .then(response => response.data.map(f => new FacetModel(f as any))),
+            this.shouldLoadCollections
+              ? searchFacetsService
+                  .find({
+                    query: {
+                      facets: UserFacetTypes,
+                      filters
+                    }
+                  })
+                  .then(response => response.data.map(f => new FacetModel(f as any)))
+              : Promise.resolve([])
+          ])
+
+          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
+          // this.searchInfo = info
+          console.info(
+            '[Search] @searchServiceQuery: took',
+            new Date().getTime() - startTime.getTime(),
+            'ms. Total results:',
+            total
+          )
+
+          // @todo next tick
+          this.$nextTick(() => {
+            if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+              this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
+            }
+          })
+
+          this.timelineFacets = timelineFacets
+          this.commonFacets = commonFacets
+          this.userFacets = this.shouldLoadCollections ? userFacets : []
+        } catch (error) {
+          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+            console.error('[Search] @searchServiceQuery failed:', error)
+          }
+        } finally {
+          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+            this.isLoadingResults = false
+          }
+        }
       },
       deep: true,
       immediate: true

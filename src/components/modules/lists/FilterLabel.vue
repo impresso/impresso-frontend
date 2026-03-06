@@ -73,6 +73,9 @@ import { computed } from 'vue'
 import ItemSelector from '../ItemSelector.vue'
 import type { FilterWithItems, EntityWithLabelAndExcerpt } from '@/models'
 import { RouterLink } from 'vue-router'
+const isFilterItem = (value: unknown): value is EntityWithLabelAndExcerpt => {
+  return value != null && typeof value === 'object'
+}
 
 interface FilterAsLabelProps {
   filter: FilterWithItems
@@ -124,17 +127,23 @@ const operatorTranslationKey = computed(() => {
 
 const showItemSelector = computed(() => {
   return (
-    Array.isArray(props.filter.items) &&
-    props.filter.items.length > 0 &&
-    props.filter.items.some(item => item.id)
+    filterItems.value.length > 0 &&
+    filterItems.value.some(item => item.id)
   )
 })
 
 const filterItems = computed<EntityWithLabelAndExcerpt[]>(() => {
-  if (!props.filter?.items && Array.isArray(props.filter.q)) {
-    return props.filter.q.map(q => ({ id: q, name: q }))
+  const itemsFromFilter = Array.isArray(props.filter?.items) ? props.filter.items.filter(isFilterItem) : []
+
+  if (itemsFromFilter.length > 0) {
+    return itemsFromFilter
   }
-  return props.filter?.items || []
+  if (Array.isArray(props.filter.q)) {
+    return props.filter.q
+      .filter(value => value != null && value !== '')
+      .map(q => ({ id: String(q), name: String(q) }))
+  }
+  return []
 })
 </script>
 <i18n lang="json">

@@ -378,6 +378,9 @@ export default defineComponent({
     }
   },
   methods: {
+    isValidItem(item: unknown): item is FilterLabelItem {
+      return item != null && typeof item === 'object'
+    },
     handleFilterUpdated(index: number, filter: Filter): void {
       // If this filter has no items selected - remove the filter
       if (
@@ -413,9 +416,10 @@ export default defineComponent({
       type = 'label',
       maxLength = -1
     }: LabelByItemsOptions = {}): string {
-      let labels = items
+      const validItems = items.filter(this.isValidItem)
+      let labels = validItems
         .slice(0, max)
-        .map((d: FilterLabelItem) => {
+        .map(d => {
           const rawValue = (d as unknown as Record<string, unknown>)[prop]
 
           if (translate) {
@@ -437,9 +441,9 @@ export default defineComponent({
         })
         .join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`)
 
-      if (items.slice(max).length) {
+      if (validItems.slice(max).length) {
         labels += this.$t('items.hidden', {
-          count: items.slice(max).length
+          count: validItems.slice(max).length
         })
       }
 
