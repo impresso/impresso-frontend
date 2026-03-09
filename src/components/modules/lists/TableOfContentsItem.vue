@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     getSimilarImagesHref(image) {
-      return `/search/images?p=1&similarTo=${image.uid}`
+      return `/search/images?p=1&similarTo=${image.id}`
     }
   },
   components: {

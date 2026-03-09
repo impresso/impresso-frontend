@@ -231,8 +231,8 @@ export default {
     this.graph = new Graph({
       element: this.$refs.graph,
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
-      showLabel: d => d.community === d.uid,
-      identity: d => d.uid
+      showLabel: d => d.community === d.id,
+      identity: d => d.id
     })
 
     this.graph
@@ -243,7 +243,7 @@ export default {
         this.zoomTransform = zoomTransform
       })
       .on('node.click', item => {
-        if (this.selectedNode && item.uid === this.selectedNode) {
+        if (this.selectedNode && item.id === this.selectedNode) {
           this.unselectNode()
         } else {
           this.selectNode(item)
@@ -258,7 +258,7 @@ export default {
               [CommonQueryParameters.SearchFilters]: serializeFilters([
                 {
                   type: 'topic',
-                  q: [link.target.uid, link.source.uid],
+                  q: [link.target.id, link.source.id],
                   op: 'AND'
                 }
               ])
@@ -358,7 +358,7 @@ export default {
         x: this.graph.width / 2 - 150,
         y: this.graph.height - 160,
         item: node,
-        isHighlighted: typeof this.visualizedItemsIndex[node.uid] !== 'undefined',
+        isHighlighted: typeof this.visualizedItemsIndex[node.id] !== 'undefined',
         isActive: true
       }
       this.graph.assignClassToSVG('selected')

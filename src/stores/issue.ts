@@ -35,23 +35,23 @@ export const useIssueStore = defineStore('issue', {
     updateOutlines(showOutlines: boolean) {
       this.showOutlines = showOutlines
     },
-    loadIssue(uid: string) {
-      return issuesService.get(uid, {}).then(d => {
+    loadIssue(id: string) {
+      return issuesService.get(id, {}).then(d => {
         const issue = new Issue(d)
         this.issue = issue
 
         // create or reset page index to quickly get access to the desired page
         const pagesIndex = {}
         issue.pages.forEach((page, i) => {
-          pagesIndex[page.uid] = i
+          pagesIndex[page.id] = i
         })
         this.pagesIndex = pagesIndex
       })
     },
-    loadPage(uid: string) {
+    loadPage(id: string) {
       return Promise.all([
-        pagesService.get(uid, {}).catch(err => {
-          console.error('Error in `store/issue/LOAD_PAGE` pages.get(', uid, ')', err.name)
+        pagesService.get(id, {}).catch(err => {
+          console.error('Error in `store/issue/LOAD_PAGE` pages.get(', id, ')', err.name)
           throw err
         }),
         contentItemsService.find({
@@ -59,7 +59,7 @@ export const useIssueStore = defineStore('issue', {
             filters: [
               {
                 type: 'page',
-                q: uid
+                q: id
               }
             ],
             limit: 500
@@ -79,15 +79,15 @@ export const useIssueStore = defineStore('issue', {
           console.error(err)
         })
     },
-    loadArticle(uid: string) {
-      return contentItemsService.get(uid).then(d => Article.fromContentItem(d))
+    loadArticle(id: string) {
+      return contentItemsService.get(id).then(d => Article.fromContentItem(d))
     },
     loadTableOfContents() {
       if (this.issue == null) {
         throw new Error('Issue not loaded, skipping table of contents')
       }
       const tocPromise = tableOfContentsService
-        .get(this.issue.uid, {})
+        .get(this.issue.id, {})
         .then(({ articles }) => articles.map(d => new ArticleBase(d)))
 
       const imagesPromise = imagesService
@@ -96,7 +96,7 @@ export const useIssueStore = defineStore('issue', {
             filters: [
               {
                 type: 'issue',
-                q: this.issue.uid
+                q: this.issue.id
               }
             ],
             limit: 500
@@ -111,11 +111,11 @@ export const useIssueStore = defineStore('issue', {
 
       return Promise.all([tocPromise, imagesPromise]).then(([articles, images]) => {
         // articles are sorted by id
-        const uids = articles.map(d => d.uid)
+        const ids = articles.map(d => d.id)
         // merge the table of images into the table of articles
         images.forEach(image => {
-          if (image.contentItemUid) {
-            const idx = uids.indexOf(image.contentItemUid)
+          if (image.contentItemId) {
+            const idx = ids.indexOf(image.contentItemId)
             if (idx !== -1) {
               articles[idx].images.push(new Article(image))
             }
@@ -132,15 +132,15 @@ export const useIssueStore = defineStore('issue', {
         // refresh table of contents
         for (let i = 0, l = articles.length; i < l; i += 1) {
           for (let ii = 0, ll = articles[i].pages.length; ii < ll; ii += 1) {
-            const pageUid = articles[i].pages[ii].uid
-            if (this.pagesIndex[pageUid] > -1) {
-              const pageIdx = this.pagesIndex[pageUid]
+            const pageId = articles[i].pages[ii].id
+            if (this.pagesIndex[pageId] > -1) {
+              const pageIdx = this.pagesIndex[pageId]
               const articleIdx = i
 
               this.issue.pages[pageIdx].articles.push(this.issue.articles[articleIdx])
             } else {
               console.info('state.pagesIndex', this.pagesIndex)
-              console.error(`page nout found on issue: '${pageUid}', skipping`)
+              console.error(`page nout found on issue: '${pageId}', skipping`)
             }
           }
         }

@@ -1,12 +1,17 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
 import Topic from '@/models/Topic'
-import { Bucket, Facet } from '../models'
+import type { Bucket, Facet, Entity } from '../models'
+import {
+  isEntityWithLanguageAndExcerpt,
+  isEntityWithName,
+  isEntityWithYearValue
+} from '@/models/typeGuards'
 import Year from '@/models/Year'
 import { ComponentCustomProperties } from 'vue'
 
 export interface TimelineValue {
-  val: string
+  value: string
   count: number
   w: number
   w1: number
@@ -23,7 +28,7 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
       w: b.count,
       w1: 0,
       p: (b.item as Year).normalize(b.count),
-      t: typeof b.val === 'string' ? parseInt(b.val, 10) : b.val
+      t: typeof b.value === 'string' ? parseInt(b.value, 10) : b.value
     }))
     .sort((a, b) => a.t - b.t)
   return Helpers.timeline.addEmptyIntervals(values) as TimelineValue[]
@@ -59,7 +64,7 @@ export const DefaultFacetTypesForIndex = Object.freeze({
 })
 
 export interface BucketData {
-  val: string
+  value: string
   count: number
   item?: any
 }
@@ -113,21 +118,26 @@ export const buildEmptyFacets = facetTypes =>
   searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
 
 const LabelExtractors = {
-  name: (bucket?: Bucket): string | undefined => bucket?.item?.name,
-  topic: (bucket?: Bucket): string | undefined => {
-    const item = bucket?.item != null ? new Topic(bucket.item) : bucket?.item
-    return item != null ? `${item.language ?? 'N/A'}: ${item.htmlExcerpt}` : undefined
+  name: (bucket?: Bucket<Entity>): string | undefined => {
+    return isEntityWithName(bucket?.item) ? bucket?.item.name : bucket?.item?.label
   },
-  year: (bucket?: Bucket): string | undefined => {
-    const val = bucket?.item?.y ?? bucket?.val
+  topic: (bucket?: Bucket<Entity>): string | undefined => {
+    if (!isEntityWithLanguageAndExcerpt(bucket?.item)) {
+      return bucket?.item?.label
+    }
+    const item = new Topic(bucket.item)
+    return `${item.language ?? 'N/A'}: ${item.htmlExcerpt ?? item.label}`
+  },
+  year: (bucket?: Bucket<Entity>): string | undefined => {
+    const val = isEntityWithYearValue(bucket?.item) ? bucket.item.y : bucket?.value
     return val != null ? String(val) : undefined
   },
   translated: (
-    bucket: Bucket | undefined,
+    bucket: Bucket<Entity> | undefined,
     type: string,
     vueInstance: ComponentCustomProperties
   ) => {
-    return vueInstance.$t(`buckets.${type}.${bucket?.item?.uid ?? bucket?.val}`)
+    return vueInstance.$t(`buckets.${type}.${bucket?.item?.id ?? bucket?.value}`)
   }
 }
 
@@ -136,7 +146,7 @@ const LabelExtractors = {
  * as string (ItemLabel returns HTML). This label is useful for SVG labels.
  */
 export function getBucketLabel(
-  bucket: Bucket | undefined,
+  bucket: Bucket<Entity> | undefined,
   type: string,
   vueInstance: ComponentCustomProperties
 ): string | undefined {
@@ -150,7 +160,7 @@ export function getBucketLabel(
       year: LabelExtractors.year
     }[type] ?? LabelExtractors.translated
 
-  const label = extractor(bucket, type, vueInstance) ?? bucket?.val
+  const label = extractor(bucket, type, vueInstance) ?? bucket?.value
 
   return label != null ? String(label) : undefined
 }

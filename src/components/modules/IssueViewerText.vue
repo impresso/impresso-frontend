@@ -20,7 +20,7 @@
           class="m-1 font-size-inherit"
         >
           <router-link
-            v-bind:to="{ name: 'collection', params: { collection_uid: collection.uid } }"
+            v-bind:to="{ name: 'collection', params: { collection_id: collection.id } }"
             title="View collection"
           >
             {{ collection.name }}
@@ -29,7 +29,7 @@
           <a
             class="ml-1 dripicons dripicons-cross text-decoration-none"
             title="Remove from collection"
-            v-on:click="onRemoveCollection(collection.uid)"
+            v-on:click="onRemoveCollection(collection.id)"
           />
         </b-badge>
       </div>
@@ -86,7 +86,7 @@
                 class="IssueViewerText__region region text-serif py-2"
                 v-for="(region, i) in page.regions"
                 :key="region.idx"
-                @click="() => annotatedTextClickHandler([pageIdx, i])"
+                @click="() => annotatedTextClickHandler([pageIdx, i as any])"
               >
                 <AnnotatedText
                   class="text-serif"
@@ -157,7 +157,7 @@ import { mapStores } from 'pinia'
 import { articleTextReusePassages, contentItems as contentItemsService } from '@/services'
 
 import ContentItem from './lists/ContentItem.vue'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import AnnotatedText from './AnnotatedText.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import IIIFViewer from './IIIFViewer.vue'
@@ -231,7 +231,7 @@ export default {
           new Collection({
             ...c,
             name: c.title || c.name,
-            uid: c.uid
+            id: c.id
           })
       )
     },
@@ -248,14 +248,17 @@ export default {
         return isNaN(coords.x) || isNaN(coords.y) || isNaN(coords.w) || isNaN(coords.h)
       })
     },
+    /**
+     * TODO: this appears broken if types are applied.
+     */
     computedIIIFViewerOverlays() {
       if (!this.hasValidRegions) return []
       const regionsByPageIndex = this.article.regions.reduce((acc, region, idx) => {
-        if (!acc[region.pageUid]) {
-          acc[region.pageUid] = []
+        if (!acc[region.pageId]) {
+          acc[region.pageId] = []
         }
 
-        acc[region.pageUid].push({
+        acc[region.pageId].push({
           ...region,
           idx
         })
@@ -264,9 +267,9 @@ export default {
 
       const overlays = this.article.pages.map(page => {
         return {
-          id: page.uid,
+          id: page.id,
           manifestUrls: page.iiif,
-          regions: regionsByPageIndex[page.uid] || []
+          regions: regionsByPageIndex[page.id] || []
         }
       })
       console.debug('[IssueViewerText] @computedIIIFViewerOverlays', overlays)
@@ -322,7 +325,7 @@ export default {
     }
   },
   props: {
-    article_uid: String,
+    article_id: String,
     contentItem: Object as () => ContentItemType | null,
     withIIIFViewer: {
       type: Boolean,
@@ -363,13 +366,13 @@ export default {
       const item = this.contentItem
       const itemId = item?.id
       const collections = item?.semanticEnrichments?.collections ?? []
-      const collection = collections.find(c => c.uid === collectionId)
+      const collection = collections.find(c => c.id === collectionId)
 
       if (!itemId || !collection) return
 
       await this.collectionsStore.removeCollectionItem({
-        item: { uid: itemId },
-        collection: { uid: collectionId }
+        item: { id: itemId },
+        collection: { id: collectionId }
       })
       this.notificationsStore.addNotification({
         type: 'info',
@@ -378,7 +381,7 @@ export default {
       })
       if (this.contentItem?.semanticEnrichments?.collections) {
         this.contentItem.semanticEnrichments.collections =
-          this.contentItem.semanticEnrichments.collections.filter(c => c.uid !== collectionId)
+          this.contentItem.semanticEnrichments.collections.filter(c => c.id !== collectionId)
       }
     },
     mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {
@@ -434,22 +437,22 @@ export default {
     }
   },
   watch: {
-    article_uid: {
+    article_id: {
       immediate: true,
-      async handler(articleUid) {
+      async handler(articleId) {
         console.info(
-          '[IssueViewerText] watch@article_uid',
-          articleUid,
+          '[IssueViewerText] watch@article_id',
+          articleId,
           '- textReuseEnabled:',
           this.textReuseEnabled
         )
         this.fitBoundsToOverlayIdx = [0, 0]
         const trPromise = this.textReuseEnabled
           ? articleTextReusePassages
-              .find({ query: { id: articleUid } })
+              .find({ query: { id: articleId } })
               .then(res => {
                 console.debug(
-                  '[IssueViewerText] watch@article_uid articleTextReusePassages succesfully get',
+                  '[IssueViewerText] watch@article_id articleTextReusePassages succesfully get',
                   res
                 )
                 return res
@@ -458,8 +461,8 @@ export default {
           : Promise.resolve([])
 
         const [article, textReusePassages] = await Promise.all([
-          contentItemsService.get(articleUid).then(d => {
-            console.debug(['[IssueViewerText] @article_uid', d])
+          contentItemsService.get(articleId).then(d => {
+            console.debug(['[IssueViewerText] @article_id', d])
             return Article.fromContentItem(d)
           }),
           trPromise

@@ -24,13 +24,13 @@
       <p v-if="hasCaption" class="item-title p-2 m-0">{{ item.caption }}</p>
       <div class="p-2 articles-meta">
         <router-link
-          :to="{ name: 'newspaper', params: { newspaper_uid: item?.mediaSourceRef?.uid ?? 'na' } }"
+          :to="{ name: 'newspaper', params: { newspaper_id: item?.mediaSourceRef?.id ?? 'na' } }"
           class="article-newspaper"
         >
           {{ item?.mediaSourceRef?.name }}
         </router-link>
         <item-selector
-          :uid="item?.mediaSourceRef?.uid"
+          :id="item?.mediaSourceRef?.id"
           :item="item?.mediaSourceRef"
           type="newspaper"
         />
@@ -90,13 +90,13 @@ export default defineComponent({
         return
       }
 
-      if (this.item.contentItemUid) {
-        const articleId = this.item.contentItemUid.split('-').pop()
+      if (this.item.contentItemId) {
+        const articleId = this.item.contentItemId.split('-').pop()
 
         this.$router.push({
           name: 'issue-viewer',
           params: {
-            issue_uid: this.item?.issueUid
+            issue_id: this.item?.issueId
           },
           query: {
             articleId,
@@ -107,7 +107,7 @@ export default defineComponent({
         this.$router.push({
           name: 'viewImage',
           params: {
-            image_uid: this.item.uid
+            image_id: this.item.id
           }
         })
       }

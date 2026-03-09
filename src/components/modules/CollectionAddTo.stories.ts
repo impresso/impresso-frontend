@@ -1,5 +1,5 @@
-import { BaseFindResponse } from '@/models/generated/schemasPublic'
-import { Collection } from '@/models/generated/schemas'
+import { BaseFindResponse } from '@/models/generated/app/responses'
+import { Collection } from '@/models/generated/canonical'
 import { fn } from 'storybook/test'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { http, HttpResponse } from 'msw'
@@ -30,7 +30,7 @@ const loadingCollectionsHandler = http.get('/api/collections', () => {
           },
           data: [
             {
-              uid: 'coll1',
+              id: 'coll1',
               title: 'My Research Collection',
               description: 'A collection for research purposes',
               accessLevel: 'private' as const,

@@ -18,19 +18,19 @@
     <div v-if="topics.length > 0">
       <div class="label small-caps mt-3">
         {{ $t('common_topics') }}
-        <info-button :target="searchResult.uid" name="topics-in-common" />
+        <info-button :target="searchResult.id" name="topics-in-common" />
       </div>
       <div
         v-for="(rel, i) in topics"
         class="position-relative pb-1 small"
-        v-bind:key="`${searchResult.article_uid}_ct${i}`"
+        v-bind:key="`${searchResult.article_id}_ct${i}`"
       >
         <viz-bar
           :percent="
-            searchResult.topics[searchResult.topics.findIndex(c => c.topicUid === rel.topicUid)]
+            searchResult.topics[searchResult.topics.findIndex(c => c.topicId === rel.topicId)]
               .relevance * 100
           "
-          :uid="rel.topic.uid"
+          :id="rel.topic.id"
           :item="rel.topic"
           type="topic"
         />
@@ -56,10 +56,10 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: searchResult.issue.uid,
+          issue_id: searchResult.issue.id,
           page_number: searchResult.pages[0]?.num,
-          page_uid: searchResult.pages[0]?.uid,
-          article_uid: searchResult.uid
+          page_id: searchResult.pages[0]?.id,
+          article_id: searchResult.id
         }
       })
     }

@@ -21,7 +21,8 @@
     "test:unit": "vitest",
     "build-only": "vite build --base=/app",
     "build-only-dev": "vite build --mode development",
-    "type-check": "vue-tsc --build --force",
+    "type-check": "vue-tsc --build ./tsconfig.app.json --force",
+    "type-check-watch": "vue-tsc -p ./tsconfig.app.json -w",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "start": "npm run serve",
@@ -52,7 +53,7 @@
     "filepond-plugin-file-validate-size": "2.2.0",
     "filepond-plugin-file-validate-type": "1.2.4",
     "highlight.js": "^11.11.1",
-    "impresso-jscommons": "github:impresso/impresso-jscommons#v1.11.0",
+    "impresso-jscommons": "github:impresso/impresso-jscommons#v1.13.0",
     "impresso-ui-components": "github:impresso/impresso-ui-components#develop",
     "marked": "^15.0.7",
     "mitt": "^3.0.1",
@@ -112,7 +113,7 @@
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.0.9",
     "vue-component-type-helpers": "^2.0.21",
-    "vue-tsc": "^2.0.11"
+    "vue-tsc": "^3.2.5"
   },
   "browserslist": [
     "> 1%",

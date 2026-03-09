@@ -22,7 +22,7 @@
       <b-button-group class="my-2 w-100">
         <b-button
           class="mr-1"
-          @click="$router.push({ name: 'topic', params: { topic_uid: tooltip.item.uid } })"
+          @click="$router.push({ name: 'topic', params: { topic_id: tooltip.item.id } })"
           variant="outline-success"
           size="sm"
         >
@@ -94,7 +94,7 @@ export default {
           [CommonQueryParameters.SearchFilters]: serializeFilters([
             {
               type: 'topic',
-              q: this.tooltip.item.uid
+              q: this.tooltip.item.id
             }
           ])
         }
@@ -120,7 +120,7 @@ export default {
       }
       this.isLoading = true
       topicsService
-        .get(this.tooltip.item.uid, { fl: 'id' })
+        .get(this.tooltip.item.id, { fl: 'id' })
         .then(result => new Topic(result))
         .then(item => {
           this.isLoading = false

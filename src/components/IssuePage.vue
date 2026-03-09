@@ -202,8 +202,8 @@
         v-bind:handler="handler"
       />
       <issue-viewer-text
-        v-if="article && article.uid && mode === 'text'"
-        v-bind:article_uid="article.uid"
+        v-if="article && article.id && mode === 'text'"
+        v-bind:article_id="article.id"
       />
     </i-layout-section>
     <i-layout-section width="120px" class="border-left" v-if="issue">
@@ -325,11 +325,11 @@ export default {
         return []
       }
 
-      const matchesUids = this.matches.map(d => d.id)
+      const matchesIds = this.matches.map(d => d.id)
       const results = []
 
       this.issue.articles.forEach(article => {
-        const idx = matchesUids.indexOf(article.uid)
+        const idx = matchesIds.indexOf(article.id)
         if (idx !== -1) {
           results.push({
             ...article,
@@ -349,8 +349,8 @@ export default {
     },
     mode: {
       get() {
-        // no article°uid? image without a doubt
-        return this.$route.params.article_uid ? this.issueStore.viewerMode : 'image'
+        // no article°id? image without a doubt
+        return this.$route.params.article_id ? this.issueStore.viewerMode : 'image'
       },
       set(mode) {
         this.issueStore.updateViewerMode(mode)
@@ -371,7 +371,7 @@ export default {
         if (this.issue != null) {
           filters.push({
             type: 'issue',
-            q: this.issue.uid
+            q: this.issue.id
           })
         }
         return filters
@@ -390,25 +390,25 @@ export default {
       } else {
         this.tab = 'toc'
       }
-      if (!this.issue || this.issue.uid !== this.$route.params.issue_uid) {
+      if (!this.issue || this.issue.id !== this.$route.params.issue_id) {
         await this.loadIssue({
-          uid: this.$route.params.issue_uid
+          id: this.$route.params.issue_id
         })
         this.isTocLoaded = false
       }
       // then let's load a page: if there's none, let's take the first one (cover)
-      let pageUid
-      if (this.$route.params.page_uid) {
-        pageUid = this.$route.params.page_uid
+      let pageId
+      if (this.$route.params.page_id) {
+        pageId = this.$route.params.page_id
       } else {
-        pageUid = this.issue.cover
+        pageId = this.issue.cover
       }
 
-      if (!this.page || this.page.uid !== pageUid) {
+      if (!this.page || this.page.id !== pageId) {
         this.page = await this.loadPage({
-          uid: pageUid
+          id: pageId
         })
-        this.currentPageIndex = this.issue.pages.findIndex(p => p.uid === this.page.uid)
+        this.currentPageIndex = this.issue.pages.findIndex(p => p.id === this.page.id)
 
         // we reset the handler here. Why?
         await this.resetHandler()
@@ -421,10 +421,10 @@ export default {
         this.isMarginaliaUpdated = false
       }
       // if there's a specific article, let's load it
-      if (this.$route.params.article_uid) {
-        if (!this.article || this.article.uid !== this.$route.params.article_uid) {
+      if (this.$route.params.article_id) {
+        if (!this.article || this.article.id !== this.$route.params.article_id) {
           this.article = await this.loadArticle({
-            uid: this.$route.params.article_uid
+            id: this.$route.params.article_id
           })
         }
       } else if (this.article) {
@@ -433,11 +433,11 @@ export default {
       }
 
       if (this.article) {
-        // select article using the article uid
+        // select article using the article id
         this.selectArticle()
       }
 
-      if (this.$route.params.image_uid) {
+      if (this.$route.params.image_id) {
         console.warn('WIP!')
       }
 
@@ -447,7 +447,7 @@ export default {
 
       // get article properties from toc
       // if (this.mode !== 'text' && !this.article) {
-      //   const selectedArticle = this.tocArticles.find(d => d.uid === this.article.uid);
+      //   const selectedArticle = this.tocArticles.find(d => d.id === this.article.id);
       //   if (selectedArticle) {
       //     this.article = selectedArticle;
       //   }
@@ -471,12 +471,12 @@ export default {
       const titleParts = [this.issue.newspaper.name, this.$d(this.issue.date, 'short')]
 
       if (this.$route.name === 'article') {
-        titleParts.unshift(this.article.uid)
+        titleParts.unshift(this.article.id)
         tags = {
           dc: {
             'DC.title': this.article.title,
             'DC.type': 'newspaperArticle',
-            'DC.identifier': this.article.uid,
+            'DC.identifier': this.article.id,
             'DC.rights': 'copyright',
             'DC.language': this.article.language,
             'DC.publication': 'impresso',
@@ -602,23 +602,23 @@ export default {
               const overlay = window.document.createElement('div')
 
               overlay.setAttribute('class', 'overlay-region')
-              overlay.dataset.articleUid = article.uid
+              overlay.dataset.articleId = article.id
 
               // selected article regions
-              // if (article.uid === this.$route.params.article_uid) {
+              // if (article.id === this.$route.params.article_id) {
               //   this.$router.push({
               //     name: 'article',
               //     params: {
-              //       article_uid: this.$route.params.article_uid,
+              //       article_id: this.$route.params.article_id,
               //     },
               //   });
               // }
 
               overlay.addEventListener('mouseenter', event => {
-                const articleUid = event.target.dataset.articleUid
+                const articleId = event.target.dataset.articleId
 
                 event.target.parentNode
-                  .querySelectorAll(`[data-article-uid=${articleUid}]`)
+                  .querySelectorAll(`[data-article-id=${articleId}]`)
                   .forEach(item => {
                     item.classList.add('selected')
                   })
@@ -626,22 +626,22 @@ export default {
 
               overlay.addEventListener('click', event => {
                 if (this.isDragging === false || this.isDragging === undefined) {
-                  const articleUid = event.target.dataset.articleUid
+                  const articleId = event.target.dataset.articleId
 
                   this.$router.push({
                     name: 'article',
                     params: {
-                      article_uid: articleUid
+                      article_id: articleId
                     }
                   })
                 }
               })
 
               overlay.addEventListener('mouseleave', event => {
-                const articleUid = event.target.dataset.articleUid
+                const articleId = event.target.dataset.articleId
 
                 event.target.parentNode
-                  .querySelectorAll(`[data-article-uid=${articleUid}]`)
+                  .querySelectorAll(`[data-article-id=${articleId}]`)
                   .forEach(item => {
                     item.classList.remove('selected')
                   })
@@ -658,7 +658,7 @@ export default {
             // matches
             article.matches.forEach(match => {
               // console.log('match', match);
-              if (match.pageUid === article.pages[0]?.uid) {
+              if (match.pageId === article.pages[0]?.id) {
                 const overlay = {
                   x: match.coords[0],
                   y: match.coords[1],
@@ -676,38 +676,38 @@ export default {
         })
       })
     },
-    loadIssue({ uid }) {
-      // console.info('...loading issue', uid);
-      return this.issueStore.loadIssue(uid)
+    loadIssue({ id }) {
+      // console.info('...loading issue', id);
+      return this.issueStore.loadIssue(id)
     },
-    loadPage({ uid }) {
-      // console.info('...loading page', uid);
-      return this.issueStore.loadPage(uid)
+    loadPage({ id }) {
+      // console.info('...loading page', id);
+      return this.issueStore.loadPage(id)
     },
-    loadPageTopics({ uid }) {
-      // console.info('...loading marginalia topics', uid);
-      return this.entitiesStore.loadPageTopics(uid)
+    loadPageTopics({ id }) {
+      // console.info('...loading marginalia topics', id);
+      return this.entitiesStore.loadPageTopics(id)
     },
-    loadPageEntities({ uid }) {
-      // console.info('...loading marginalia named entities', uid);
-      return this.entitiesStore.loadPageEntities(uid)
+    loadPageEntities({ id }) {
+      // console.info('...loading marginalia named entities', id);
+      return this.entitiesStore.loadPageEntities(id)
     },
-    loadArticle({ uid }) {
-      // console.info('...loading article', uid);
-      return this.issueStore.loadArticle(uid)
+    loadArticle({ id }) {
+      // console.info('...loading article', id);
+      return this.issueStore.loadArticle(id)
     },
     loadToC() {
-      // console.info('...loading ToC', this.issue.uid);
+      // console.info('...loading ToC', this.issue.id);
       return this.issueStore.loadTableOfContents().then(articles => {
         this.tocArticles = articles
         this.isTocLoaded = true
       })
     },
     loadMarginalia() {
-      // console.info('...loading marginalia:', this.page.uid);
+      // console.info('...loading marginalia:', this.page.id);
       return Promise.all([
-        this.loadPageTopics({ uid: this.page.uid }),
-        this.loadPageEntities({ uid: this.page.uid })
+        this.loadPageTopics({ id: this.page.id }),
+        this.loadPageEntities({ id: this.page.id })
       ]).then(([topicFacet, [locationFacet, personFacet]]) => {
         this.isMarginaliaLoaded = true
         this.pageTopics = topicFacet.buckets
@@ -770,7 +770,7 @@ export default {
       const self = this
       this.handler.emit('dispatch', viewer => {
         viewer.overlaysContainer.querySelectorAll('div').forEach(overlay => {
-          if (self.article && overlay.dataset.articleUid === self.article.uid) {
+          if (self.article && overlay.dataset.articleId === self.article.id) {
             overlay.classList.add('active')
           } else {
             overlay.classList.remove('active')
@@ -788,19 +788,19 @@ export default {
       this.$router.push({
         name: 'page',
         params: {
-          issue_uid: this.issue.uid,
-          page_uid: page.uid
+          issue_id: this.issue.id,
+          page_id: page.id
         }
       })
     },
     gotoArticle({ article }) {
-      console.info('gotoArticle:', article.uid)
+      console.info('gotoArticle:', article.id)
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: this.issue.uid,
-          article_uid: article.uid,
-          page_uid: article.pages[0]?.uid
+          issue_id: this.issue.id,
+          article_id: article.id,
+          page_id: article.pages[0]?.id
         },
         query: {
           tab: this.tab

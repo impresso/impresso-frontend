@@ -5,13 +5,12 @@
     <item-selector
       v-if="bucket.item"
       hide-icon
-      :uid="bucket.val"
+      :id="bucketId"
       :item="bucket.item"
       :type="type"
       :searchIndex="searchIndex"
     >
-      <item-label v-if="bucket.item" :item="bucket.item" :type="type" />
-      <span class="FilterFacetBucket__label" v-else>{{ item }}</span>
+      <item-label v-if="bucket.item" :item="bucket.item" :type="type" :label="bucket.label" />
       <span v-if="bucket.count > -1">
         (<span
           v-html="
@@ -25,13 +24,21 @@
         <!-- {{ type }}-->
       </span>
     </item-selector>
-    <item-label v-else :item="{ ...bucket.item, uid: bucket.val }" :type="type" />
+    <item-label
+      v-else
+      :item="{ ...bucket.item, id: bucket.value }"
+      :type="type"
+      :label="bucket.label"
+    />
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { PropType } from 'vue'
 import ItemSelector from './ItemSelector.vue'
 import ItemLabel from './lists/ItemLabel.vue'
+import type { Bucket as IBucket } from '@/models'
+import Bucket from '@/models/Bucket'
 
 export default {
   name: 'FilterFacetBucket',
@@ -42,10 +49,11 @@ export default {
   }),
   props: {
     bucket: {
-      type: Object
+      type: Object as PropType<IBucket & { checked?: boolean; operator?: string; item?: Bucket['item'] }>,
+      required: true
     },
     type: {
-      type: String
+      type: String as PropType<string>
     },
     isLoadingResults: {
       type: Boolean,
@@ -70,6 +78,9 @@ export default {
     },
     selectedOperator() {
       return this.$t(`operator.${this.operator}`)
+    },
+    bucketId() {
+      return String(this.bucket.value)
     }
   },
   methods: {

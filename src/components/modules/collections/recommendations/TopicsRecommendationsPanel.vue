@@ -7,7 +7,7 @@
         <div v-for="topic in recommendedTopics" :key="topic.id">
           <item-label type="topic" :item="topic.item" />
           <item-selector
-            :uid="topic.id"
+            :id="topic.id"
             :item="topic.item"
             :default-click-action-disabled="true"
             type="topic"

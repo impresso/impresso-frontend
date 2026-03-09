@@ -1,9 +1,9 @@
-import type { Filter } from '@/models';
-import { vueRouter } from 'storybook-vue3-router';
+import type { Filter } from '@/models'
+import { vueRouter } from 'storybook-vue3-router'
 
-import { type State, useSelectionMonitorStore } from '@/stores/selectionMonitor';
-import type { Meta, StoryObj } from '@storybook/vue3-vite';
-import SelectionMonitor from '@/components/SelectionMonitor.vue';
+import { type State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
+import SelectionMonitor from '@/components/SelectionMonitor.vue'
 
 interface SelectionMonitorProps extends Partial<State> {
   filters?: Filter[]
@@ -15,7 +15,6 @@ const a: Partial<State> = {
   isActive: true
 }
 
-
 const meta: Meta<SelectionMonitorProps> = {
   title: 'Components/SelectionMonitor',
   component: SelectionMonitor,
@@ -24,7 +23,7 @@ const meta: Meta<SelectionMonitorProps> = {
   args: {
     startYear: 1800,
     endYear: 2000,
-    ...({
+    ...{
       // store props
       isActive: true,
       applyCurrentSearchFilters: false,
@@ -37,9 +36,9 @@ const meta: Meta<SelectionMonitorProps> = {
       displayActionButtons: true,
       debug: false,
       displayCurrentSearchFilters: false
-    })
+    }
   },
-  render: (args) => {
+  render: args => {
     const selectionMonitor = useSelectionMonitorStore()
 
     return {
@@ -60,11 +59,15 @@ const meta: Meta<SelectionMonitorProps> = {
       template: '<SelectionMonitor :startYear="args.startYear" :endYear="args.endYear"/>'
     }
   },
-  decorators: [vueRouter([{
-    name: "entity",
-    path: "/nothing",
-    redirect: "/nothing"
-  }])],
+  decorators: [
+    vueRouter([
+      {
+        name: 'entity',
+        path: '/nothing',
+        redirect: '/nothing'
+      }
+    ])
+  ]
 } satisfies Meta<typeof SelectionMonitor>
 
 export default meta
@@ -74,7 +77,7 @@ export const Default: Story = {
   args: {
     type: 'location',
     item: {
-      uid: 'aida-0001-54-Cantons_of_Switzerland',
+      id: 'aida-0001-54-Cantons_of_Switzerland',
       name: 'Cantons of Switzerland',
       type: 'location',
       countMentions: -1,
@@ -90,5 +93,5 @@ export const Default: Story = {
     displayTimeline: true,
     displayActionButtons: true,
     displayCurrentSearchFilters: false
-  },
+  }
 }

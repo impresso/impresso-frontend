@@ -114,7 +114,11 @@ import { ComparableTypes, comparableToQuery, Comparable } from '../logic/queryCo
 import { getLatestFilters } from '../logic/storage'
 import { Navigation } from '@/plugins/Navigation'
 import { Filter } from '@/models'
-import { SearchFacet, SearchFacetBucket, SearchFacetRangeBucket } from '@/models/generated/schemas'
+import {
+  SearchFacet,
+  SearchFacetBucket,
+  SearchFacetRangeBucket
+} from '@/models/generated/deprecated/models'
 import { isBucket } from '@/models/typeGuards'
 import { FacetType } from '@/models/Facet'
 
@@ -488,7 +492,7 @@ export default {
           intersectionFacet?.buckets
             ?.map((bucket: IBucket) => {
               const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }: any) => {
-                return buckets.find(({ val }: any) => bucket.val === val)
+                return buckets.find(({ val }: any) => bucket.value === val)
               })
 
               const label =
@@ -520,7 +524,7 @@ export default {
             const itemBuckets: IBucket[] = item?.buckets ?? []
             const additionalBuckets = this.additionalBuckets[comparableIndex][facetId] ?? []
 
-            const buckets = itemBuckets.concat(additionalBuckets).filter(isBucket) as Bucket[]
+            const buckets = itemBuckets.concat(additionalBuckets).filter(isBucket)
 
             return {
               isLoaded: result?.facets != null,

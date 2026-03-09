@@ -7,7 +7,7 @@
         <div v-for="cluster in recommendedClusters" :key="cluster.id">
           <item-label type="textReuseCluster" :item="cluster.item" />
           <item-selector
-            :uid="cluster.id"
+            :id="cluster.id"
             :item="cluster.item"
             :default-click-action-disabled="true"
             type="textReuseCluster"

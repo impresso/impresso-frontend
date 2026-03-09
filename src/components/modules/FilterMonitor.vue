@@ -64,15 +64,15 @@
         <div v-if="RangeFacets.includes(type)">
           <filter-number-range
             v-if="NumericRangeFacets.includes(type)"
-            :start="parseInt(item.start, 10)"
-            :end="parseInt(item.end, 10)"
+            :start="asNumber(item.start)"
+            :end="asNumber(item.end)"
             @changed="handleRangeChanged"
           />
           <div v-if="type === 'daterange'">
             <FilterDateRangeCalendar
               :show-calendar="!checkbox"
-              :start-date="new Date(item.start)"
-              :end-date="new Date(item.end)"
+              :start-date="asDate(item.start)"
+              :end-date="asDate(item.end)"
               :min-date="minDate"
               :max-date="maxDate"
               @changed="handleRangeChanged"
@@ -85,19 +85,19 @@
           <pre
             class="bg-light shadow-sm rounded-sm border p-1 very-small"
             style="word-break: break-all; white-space: normal; max-height: 100px; overflow: scroll"
-            >{{ item.uid }}</pre
+            >{{ item.id }}</pre
           >
         </div>
         <b-form-checkbox
-          v-else-if="StringTypes.includes(type)"
-          v-model="checkedItems[item.uid]"
-          @update:modelValue="toggleFilterItem($event, item.uid)"
+          v-else-if="isStringType(type)"
+          v-model="checkedItems[item.id]"
+          @update:modelValue="toggleFilterItem($event, item.id)"
         >
           <b-form-input
             size="sm"
             placeholder=""
             class="accepted"
-            :value="item.uid"
+            :value="item.id"
             @click.prevent.stop
             @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
           >
@@ -105,13 +105,13 @@
         </b-form-checkbox>
         <div v-else class="d-flex text-small">
           <b-form-checkbox
-            v-model="checkedItems[item.uid]"
-            @update:modelValue="toggleFilterItem($event, item.uid)"
+            v-model="checkedItems[item.id]"
+            @update:modelValue="toggleFilterItem($event, item.id)"
           >
           </b-form-checkbox>
-          <item-selector hide-icon :uid="item.uid || item.id" :item="item" :type="type">
+          <item-selector hide-icon :id="item.id || item.id" :item="item" :type="type">
             <item-label :item="item" :type="type" />
-            <span v-if="!item.uid">...</span>
+            <span v-if="!item.id">...</span>
             <span v-if="item.count"
               >&nbsp;(<span
                 v-html="
@@ -136,13 +136,13 @@
             item.name
           }}</span>
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{
-            $t(`buckets.${type}.${item.uid}`)
+            $t(`buckets.${type}.${item.id}`)
           }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count"
             >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
           >
-          <item-selector :uid="item.uid" :item="item" :type="type" />
+          <item-selector :id="item.id" :item="item" :type="type" />
           <b-button
             class="dripicons-cross ml-auto"
             variant="transparent"
@@ -159,7 +159,7 @@
             size="sm"
             placeholder="..."
             class="mr-1"
-            v-model="item.uid"
+            v-model="item.id"
             @click.prevent.stop
           >
           </b-form-input>
@@ -185,7 +185,7 @@
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
-    <div class="mt-3" v-else-if="StringTypes.includes(type)">
+    <div class="mt-3" v-else-if="isStringType(type)">
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
@@ -193,7 +193,7 @@
               size="sm"
               variant="outline-primary"
               block
-              @click.prevent.stop="addStringItem(type)"
+              @click.prevent.stop="addStringItem"
               :disabled="hasEmptyStringItems"
             >
               {{ $t(`actions.${editedFilter.op}.addItem`) }}
@@ -254,7 +254,7 @@
   </Teleport>
 </template>
 
-<script>
+<script lang="ts">
 // import FilterDaterange from '@/components/modules/FilterDateRange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
 import FilterNumberRange from '@/components/modules/FilterNumberRange.vue'
@@ -270,37 +270,126 @@ import {
   RangeFacets,
   NumericRangeFacets
 } from '@/logic/filters'
+import { defineComponent, PropType } from 'vue'
+import type { Entity, FilterWithItems } from '@/models'
 
-const StringTypes = ['string', 'title']
-const EntityTypes = ['person', 'location', 'entity']
+const StringTypes = ['string', 'title'] as const
+const EntityTypes = ['person', 'location', 'entity'] as const
+type StringType = (typeof StringTypes)[number]
+export type FilterMonitorFilter = FilterWithItems<FilterMonitorItem>
+type FilterContext = NonNullable<FilterMonitorFilter['context']>
+type FilterOperator = NonNullable<FilterMonitorFilter['op']>
+type FilterPrecision = NonNullable<FilterMonitorFilter['precision']>
+
+export interface FilterMonitorItem extends Entity {
+  id: string
+  name?: string
+  htmlExcerpt?: string
+  uid?: string
+  checked?: boolean
+  count?: number
+  start?: string | number | Date
+  end?: string | number | Date
+}
+
+export interface StringToAddItem {
+  id: string
+  checked: boolean
+}
+
+export interface FilterMonitorProps {
+  operators?: FilterOperator[]
+  contexts?: FilterContext[]
+  precisions?: FilterPrecision[]
+  checkbox?: boolean
+  filter: FilterMonitorFilter
+  itemsToAdd?: FilterMonitorItem[]
+  minDate?: Date
+  maxDate?: Date
+}
+
+export interface IData {
+  showEmbeddings: boolean
+  showEntitySuggester: boolean
+  editedFilter: FilterMonitorFilter
+  excludedItemsIds: string[]
+  stringsToAdd: StringToAddItem[]
+  RangeFacets: string[]
+  NumericRangeFacets: string[]
+  StringTypes: readonly string[]
+  EntityTypes: readonly string[]
+}
+
+export interface IRangeChangedPayload {
+  item?: unknown
+  q: string[] | string
+}
+
+const getInitialEditedFilter = (filter?: FilterMonitorFilter): FilterMonitorFilter => {
+  const canonicalFilter = toCanonicalFilter(filter)
+  if (canonicalFilter.type) {
+    return canonicalFilter
+  }
+  return {
+    type: 'string',
+    q: []
+  }
+}
+
+const getFilterQueryAsArray = (filter: FilterMonitorFilter): string[] => {
+  const { q } = filter
+  if (Array.isArray(q)) return q
+  if (typeof q === 'string') return q.split(',').filter(Boolean)
+  return []
+}
+
+const isStringType = (type: string): type is StringType =>
+  (StringTypes as readonly string[]).includes(type)
+
+interface WindowWithDocumentsYearSpan extends Window {
+  impressoDocumentsYearSpan?: {
+    firstYear?: number
+    lastYear?: number
+  }
+}
+
+const getDocumentsYearSpan = () => {
+  return (window as WindowWithDocumentsYearSpan).impressoDocumentsYearSpan
+}
 /**
  * Changes filter after 'apply' button is clicked.
  * Use with `v-model`.
  */
-export default {
-  emits: ['changed', 'removed', 'daterange-changed'],
-  data: () => ({
-    showEmbeddings: false,
-    showEntitySuggester: false,
-    editedFilter: {},
-    excludedItemsIds: [],
-    stringsToAdd: [],
-    RangeFacets,
-    NumericRangeFacets,
-    StringTypes,
-    EntityTypes
-  }),
+export default defineComponent({
+  emits: {
+    changed: (filter: FilterMonitorFilter) => filter != null,
+    removed: (filter: FilterMonitorFilter) => filter != null,
+    'daterange-changed': (filter: FilterMonitorFilter) => filter != null
+  },
+  data(): IData {
+    return {
+      showEmbeddings: false,
+      showEntitySuggester: false,
+      editedFilter: getInitialEditedFilter(this.filter),
+      excludedItemsIds: [],
+      stringsToAdd: [],
+      RangeFacets: RangeFacets as string[],
+      NumericRangeFacets: NumericRangeFacets as string[],
+      StringTypes,
+      EntityTypes
+    }
+  },
   props: {
     operators: {
-      type: Array,
+      type: Array as PropType<FilterOperator[]>,
       default: () => ['OR']
     },
     contexts: {
-      type: Array,
+      type: Array as PropType<FilterContext[]>,
       default: () => ['include', 'exclude']
     },
     precisions: {
-      type: Array,
+      type: Array as PropType<FilterPrecision[]>,
       default: () => ['fuzzy', 'exact', 'soft']
     },
     /* Render context, operators as checkboxes */
@@ -308,12 +397,13 @@ export default {
       type: Boolean,
       default: false
     },
-    /** @type {import('vue').PropType<import('../../models/models').Filter>} */
-    filter: Object,
+    filter: {
+      type: Object as PropType<FilterMonitorFilter>,
+      required: true
+    },
     /* filter items to be added to the filter when confirm button is clicked */
     itemsToAdd: {
-      /** @type {import('vue').PropType<Array<import('../../models/models').Entity>>} */
-      type: Array,
+      type: Array as PropType<FilterMonitorItem[]>,
       default: () => []
     },
     // ony required when type is daterange. This is implemented in FilterFacetDateRange component
@@ -321,7 +411,7 @@ export default {
       type: Date,
       required: false,
       default: () => {
-        const defaultFirstYear = window.impressoDocumentsYearSpan?.firstYear ?? 1700
+        const defaultFirstYear = getDocumentsYearSpan()?.firstYear ?? 1700
         const date = new Date(defaultFirstYear + '-01-01')
         date.setUTCHours(0, 0, 0, 0)
         return date
@@ -331,8 +421,7 @@ export default {
       type: Date,
       required: false,
       default: () => {
-        const defaultLastYear =
-          window.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+        const defaultLastYear = getDocumentsYearSpan()?.lastYear ?? new Date().getFullYear()
         const date = new Date(defaultLastYear + '-12-31')
         date.setUTCHours(23, 59, 59, 0)
         return date
@@ -340,50 +429,53 @@ export default {
     }
   },
   computed: {
-    tooManyItems() {
+    tooManyItems(): boolean {
       const filterItems = this.filter.items || []
       return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5
     },
-    hasEmptyStringItems() {
+    hasEmptyStringItems(): boolean {
       return (
-        this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.uid.length === 0).length > 0
+        this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.id.length === 0).length > 0
       )
     },
-    validStringsToAdd() {
-      return this.stringsToAdd.filter(d => d.checked && d.uid.length)
+    validStringsToAdd(): StringToAddItem[] {
+      return this.stringsToAdd.filter(d => d.checked && d.id.length)
     },
-    checkedItems() {
-      return this.availableItems.reduce((acc, item) => {
-        acc[item.uid] = !this.excludedItemsIds.includes(item.uid)
-        return acc
-      }, {})
+    checkedItems(): Record<string, boolean> {
+      return this.availableItems.reduce(
+        (acc, item) => {
+          acc[item.id] = !this.excludedItemsIds.includes(item.id)
+          return acc
+        },
+        {} as Record<string, boolean>
+      )
     },
-    availableItems() {
+    availableItems(): FilterMonitorItem[] {
       const filterItems = this.filter.items || []
       return filterItems.concat(this.itemsToAdd)
     },
-    type() {
+    type(): string {
       return this.filter.type || ''
     },
-    checkboxPrecisions() {
+    checkboxPrecisions(): { text: string; value: FilterPrecision }[] {
       return this.precisions.map(value => ({
-        text: this.$t(`label.${this.type}.precision.${value}`),
+        text: String(this.$t(`label.${this.type}.precision.${value}`)),
         value
       }))
     },
-    checkboxContexts() {
+    checkboxContexts(): { text: string; value: FilterContext }[] {
       return this.contexts.map(value => ({
-        text: this.$t(`label.${this.type}.context.${value}`),
+        text: String(this.$t(`label.${this.type}.context.${value}`)),
         value
       }))
     },
-    checkboxOperators() {
+    checkboxOperators(): { text: string; value: FilterOperator }[] {
       return this.operators.map(value => ({
-        text: this.$t(`op.${value}.${this.currentContext}`),
+        text: String(this.$t(`op.${value}.${this.currentContext}`)),
         value
       }))
     },
-    serializedFilters() {
+    serializedFilters(): unknown[] {
       return [
         this.hasChanges,
         this.excludedItemsIds.length,
@@ -394,10 +486,10 @@ export default {
         toSerializedFilter(this.filter) !== toSerializedFilter(this.editedFilter)
       ]
     },
-    filterItems() {
+    filterItems(): FilterMonitorItem[] {
       return this.filter && Array.isArray(this.filter.items) ? [...this.filter.items] : []
     },
-    hasChanges() {
+    hasChanges(): boolean {
       return (
         this.itemsToAdd.length > 0 ||
         this.validStringsToAdd.length > 0 ||
@@ -406,45 +498,82 @@ export default {
       )
     },
     currentContext: {
-      get() {
+      get(): FilterContext {
         return this.editedFilter.context ? this.editedFilter.context : 'include'
       },
-      set(context) {
+      set(context: FilterContext) {
         this.editedFilter = { ...this.editedFilter, context }
       }
     }
   },
   methods: {
-    removeFilter(e) {
-      e.preventDefault()
+    isStringType,
+    asDate(value: FilterMonitorItem['start']): Date {
+      if (value instanceof Date) {
+        return value
+      }
+      if (typeof value === 'string' || typeof value === 'number') {
+        return new Date(value)
+      }
+      return new Date(0)
+    },
+    asNumber(value: FilterMonitorItem['start']): number {
+      if (typeof value === 'number') {
+        return value
+      }
+      if (value instanceof Date) {
+        return value.getFullYear()
+      }
+      if (typeof value === 'string') {
+        const parsed = Number.parseInt(value, 10)
+        return Number.isNaN(parsed) ? 0 : parsed
+      }
+      return 0
+    },
+    removeFilter(e?: Event): void {
+      e?.preventDefault()
       console.info('[FilterMonitor] @removed')
       this.$emit('removed', this.filter)
     },
-    applyChanges() {
+    applyChanges(): void {
       const { type } = this.editedFilter
 
-      if (!StringTypes.includes(type) && !RangeFacets.includes(type)) {
-        const allItemsDictonary = this.filter.items.concat(this.itemsToAdd).reduce((acc, item) => {
-          acc[item.uid] = item
-          return acc
-        }, {})
+      if (!isStringType(type) && !RangeFacets.includes(type)) {
+        const combinedItems = this.filterItems.concat(this.itemsToAdd)
+        const allItemsDictionary = combinedItems.reduce<Record<string, FilterMonitorItem>>(
+          (acc, item) => {
+            const itemKey = item.uid || item.id
+            if (itemKey) {
+              acc[itemKey] = item
+            }
+            return acc
+          },
+          {}
+        )
         const availableItemsIds = [
-          ...new Set(this.filter.items.concat(this.itemsToAdd).map(({ uid }) => uid))
+          ...new Set(
+            combinedItems
+              .map(({ uid, id }) => uid || id)
+              .filter((id): id is string => typeof id === 'string' && id.length > 0)
+          )
         ]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
-        const selectedItems = selectedItemsIds.map(id => allItemsDictonary[id])
+        const selectedItems = selectedItemsIds
+          .map(id => allItemsDictionary[id])
+          .filter((item): item is FilterMonitorItem => item != null)
 
         this.$emit('changed', {
           ...this.editedFilter,
           items: selectedItems,
           q: selectedItemsIds
         })
-      } else if (StringTypes.includes(type)) {
+      } else if (isStringType(type)) {
+        const editedFilterQ = getFilterQueryAsArray(this.editedFilter)
         const newFilter = {
           ...this.editedFilter,
-          q: this.editedFilter.q
+          q: editedFilterQ
             .filter(d => !this.excludedItemsIds.includes(d))
-            .concat(this.validStringsToAdd.map(d => d.uid))
+            .concat(this.validStringsToAdd.map(d => d.id))
         }
         this.$emit('changed', newFilter)
         this.stringsToAdd = []
@@ -452,30 +581,30 @@ export default {
         this.$emit('changed', this.editedFilter)
       }
     },
-    addStringItem() {
+    addStringItem(): void {
       this.stringsToAdd.push({
-        uid: '',
+        id: '',
         checked: true
       })
     },
-    removeStringItem(idx) {
+    removeStringItem(idx: number): void {
       this.stringsToAdd.splice(idx, 1)
     },
-    removeItem(idx) {
+    removeItem(idx: number): void {
       this.itemsToAdd.splice(idx, 1) // eslint-disable-line
     },
-    changeStringFilterItemAtIndex(value, idx) {
-      const q = this.filter.items
+    changeStringFilterItemAtIndex(value: string, idx: number): void {
+      const q = this.filterItems
         .map((d, i) => {
           if (i === idx) {
             return value
           }
-          return d.uid
+          return d.id || ''
         })
-        .filter(d => d.length)
+        .filter((d): d is string => d.length > 0)
       this.editedFilter = { ...this.editedFilter, q }
     },
-    toggleFilterItem(selected, uid) {
+    toggleFilterItem(selected: boolean, uid: string): void {
       console.info('[FilterMonitor] @toggleFilterItem', selected, uid)
       if (selected) {
         this.excludedItemsIds = this.excludedItemsIds.filter(id => id !== uid)
@@ -483,15 +612,15 @@ export default {
         this.excludedItemsIds = this.excludedItemsIds.concat(uid)
       }
     },
-    addEmbeddingSuggestion(embedding) {
+    addEmbeddingSuggestion(embedding: string): void {
       this.stringsToAdd.push({
-        uid: embedding,
+        id: embedding,
         checked: true
       })
       // this.editedFilter.q = `${this.editedFilter.q} ${embedding}`
       // this.editedFilter.precisions = 'soft'
     },
-    handleRangeChanged({ item, q }) {
+    handleRangeChanged({ item, q }: IRangeChangedPayload): void {
       console.info('[FilterMonitor] @handleRangeChanged', item, q)
       this.editedFilter = {
         ...this.editedFilter,
@@ -501,7 +630,7 @@ export default {
       if (!NumericRangeFacets.includes(this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
-    handleFilterChanged(newFilter) {
+    handleFilterChanged(newFilter: FilterMonitorFilter): void {
       this.$emit('changed', newFilter)
     }
   },
@@ -525,14 +654,19 @@ export default {
       handler() {
         if (toSerializedFilter(this.editedFilter) === toSerializedFilter(this.filter)) return
 
-        this.editedFilter = toCanonicalFilter(this.filter)
-        if (this.itemsToAdd) {
+        const canonicalFilter: FilterMonitorFilter = toCanonicalFilter(this.filter)
+        if (this.itemsToAdd.length) {
+          const canonicalFilterQ = getFilterQueryAsArray(canonicalFilter)
           this.editedFilter = {
-            ...this.editedFilter,
-            q: Array.isArray(this.editedFilter.q)
-              ? this.editedFilter.q.concat(this.itemsToAdd.map(({ uid }) => uid))
-              : this.editedFilter.q
+            ...canonicalFilter,
+            q: canonicalFilterQ.concat(
+              this.itemsToAdd
+                .map(({ uid, id }) => uid || id)
+                .filter((id): id is string => typeof id === 'string' && id.length > 0)
+            )
           }
+        } else {
+          this.editedFilter = canonicalFilter
         }
         this.excludedItemsIds = []
       },
@@ -540,7 +674,7 @@ export default {
       deep: true
     }
   }
-}
+})
 </script>
 
 <style>

@@ -176,7 +176,7 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: 'newspaper', q: this.newspaper.uid }]
+          filters: [{ type: 'newspaper', q: this.newspaper.id }]
         })
       }
     },
@@ -252,12 +252,12 @@ export default {
     endYear() {
       return window.impressoDocumentsYearSpan.lastYear
     },
-    newspaperUid() {
-      return this.$route.params.newspaper_uid
+    newspaperId() {
+      return this.$route.params.newspaper_id
     },
     issuesServiceQuery() {
       return {
-        filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+        filters: [{ type: 'newspaper', q: [this.newspaperId] }],
         page: this.page,
         order_by: this.orderBy,
         limit: this.limit
@@ -268,7 +268,7 @@ export default {
     applyFilter() {
       const newFilter = {
         type: 'newspaper',
-        q: this.newspaper.uid
+        q: this.newspaper.id
       }
 
       this.filters = this.filters.filter(f => !containsFilter(newFilter)(f)).concat([newFilter])
@@ -289,7 +289,7 @@ export default {
       return searchFacetsService
         .get('year', {
           query: {
-            filters: [{ type: 'newspaper', q: [this.newspaperUid] }],
+            filters: [{ type: 'newspaper', q: [this.newspaperId] }],
             limit: 500
           }
         })
@@ -302,7 +302,7 @@ export default {
       this.facets = []
       const query = {
         facets: this.facetTypes,
-        filters: [{ type: 'newspaper', q: [this.newspaperUid] }]
+        filters: [{ type: 'newspaper', q: [this.newspaperId] }]
         // group_by: 'articles',
       }
 
@@ -312,7 +312,7 @@ export default {
     }
   },
   watch: {
-    newspaperUid: {
+    newspaperId: {
       async handler(uid) {
         this.newspaper = await newspapersService.get(uid, {}).then(d => new Newspaper(d))
         this.total = this.newspaper.countIssues

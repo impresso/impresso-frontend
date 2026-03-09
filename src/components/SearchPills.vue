@@ -61,7 +61,7 @@
           <span
             class="label sp-string sp-title"
             v-if="['string', 'title'].includes(filter.type)"
-            v-html="labelByItems({ items: filter.items, max: 2, prop: 'uid', op: filter.op })"
+            v-html="labelByItems({ items: filter.items, max: 2, prop: 'id', op: filter.op })"
             :class="[filter.context, filter.precision]"
           >
           </span>
@@ -107,7 +107,7 @@
               labelByItems({
                 items: filter.items,
                 max: 2,
-                prop: 'uid',
+                prop: 'id',
                 translate: true,
                 type: filter.type,
                 op: filter.op
@@ -170,7 +170,7 @@
               labelByItems({
                 items: filter.items,
                 max: 2,
-                prop: 'uid',
+                prop: 'id',
                 op: filter.op,
                 maxLength: 20
               })
@@ -248,110 +248,153 @@
       :is-visible="explorerVisible"
       @onHide="handleExplorerHide"
       :searching-enabled="false"
-      :included-types="includedFilterTypes"
+      :included-types="explorerIncludedTypes"
       :index="index"
     />
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
+import type { Entity, Filter, FilterWithItems } from '@/models'
+import type { FacetType } from '@/models/Facet'
+import { defineComponent, type PropType } from 'vue'
 import Icon from './base/Icon.vue'
-import { max } from 'd3'
 
-/**
- * @typedef {import('@/models').Filter} Filter
- */
+type PillItem = Entity & {
+  name?: string
+  htmlExcerpt?: string
+  start?: string | number | Date
+  end?: string | number | Date
+}
 
-export default {
-  emits: ['changed'],
+type Pill = {
+  filter: FilterWithItems<PillItem>
+  filterIndex: number
+}
+
+type FilterLabelItem = NonNullable<FilterWithItems<PillItem>['items']>[number]
+
+type LabelByItemsOptions = {
+  items?: FilterLabelItem[]
+  prop?: string
+  max?: number
+  op?: string
+  translate?: boolean
+  type?: string
+  maxLength?: number
+}
+
+type LabelByDaterangeItemsOptions = {
+  items?: Array<{ start?: string | number | Date; end?: string | number | Date }>
+  max?: number
+}
+
+type LabelForNumericOptions = {
+  items?: Array<{ start?: number | Date | string; end?: number | Date | string }>
+  type: string
+}
+
+export interface SearchPillsProps {
+  excludedTypes?: string[]
+  includedFilterTypes?: string[]
+  enableAddFilter?: boolean
+  filters?: Filter[]
+  index?: string
+  disableReset?: boolean
+}
+
+export default defineComponent({
+  name: 'SearchPills',
+  emits: {
+    changed: (filters: Filter[]) => Array.isArray(filters)
+  },
   data: () => ({
     explorerVisible: false
   }),
   props: {
-    /** @type {import('vue').PropOptions<string[]>} */
     excludedTypes: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => ['hasTextContents', 'isFront']
     },
-    /** @type {import('vue').PropOptions<string[] | undefined>} */
     includedFilterTypes: {
       /* included filter types override excluded types */
-      type: Array,
+      type: Array as PropType<string[] | undefined>,
       default: undefined
     },
-    /** @type {import('vue').PropOptions<boolean>} */
     enableAddFilter: {
       type: Boolean,
       default: false
     },
-    /** @type {import('vue').PropOptions<Filter[]>} */
     filters: {
-      type: Array,
-      default: () => []
+      type: Array as PropType<Filter[]>,
+      default: (): Filter[] => []
     },
-    /** @type {import('vue').PropOptions<string>} */
     index: {
       type: String,
       default: 'search'
     },
-    /** @type {import('vue').PropOptions<boolean>} */
     disableReset: {
       type: Boolean,
       default: false
     }
   },
   computed: {
-    /** @returns {{filter: Filter, filterIndex: number}[]} */
-    pills() {
+    pills(): Pill[] {
       /* included filter types override excluded types */
       const filterFn =
         this.includedFilterTypes != null
-          ? (/** @type {{filter: Filter}} */ { filter: { type } }) =>
-              (this.includedFilterTypes || []).includes(type)
-          : (/** @type {{filter: Filter}} */ { filter: { type } }) =>
-              !this.excludedTypes.includes(type)
+          ? ({ filter }: Pill) => (this.includedFilterTypes || []).includes(filter.type)
+          : ({ filter }: Pill) => !this.excludedTypes.includes(filter.type)
+
       return this.filters
-        .map((filter, filterIndex) => ({ filter: FilterFactory.create(filter), filterIndex }))
+        .map(
+          (filter, filterIndex): Pill => ({
+            filter: FilterFactory.create(filter) as FilterWithItems<PillItem>,
+            filterIndex
+          })
+        )
         .filter(filterFn)
     },
-    isFrontFilterEnabled() {
+    isFrontFilterEnabled(): boolean {
       return this.filters.some(({ type }) => type === 'isFront')
     },
-    isEmpty() {
+    isEmpty(): boolean {
       return !this.isFrontFilterEnabled && this.pills.length === 0
     },
     explorerFilters: {
-      /** @returns {Filter[]} */
-      get() {
+      get(): Filter[] {
         return this.filters
       },
-      /** @param {Filter[]} filters */
-      set(filters) {
+      set(filters: Filter[]) {
         this.$emit('changed', filters)
       }
     },
-    /** @returns {string[]} */
-    numericTypes() {
+    explorerIncludedTypes(): FacetType[] | undefined {
+      return this.includedFilterTypes as FacetType[] | undefined
+    },
+    numericTypes(): string[] {
       return NumericRangeFacets
     },
-    /** @return {boolean} */
-    isResettable() {
+    isResettable(): boolean {
       if (this.disableReset) return false
       return !!this.filters.filter(d => d.type !== 'hasTextContents').length
     }
   },
   methods: {
-    /**
-     * @param {number} index
-     * @param {Filter} filter
-     */
-    handleFilterUpdated(index, filter) {
+    isValidItem(item: unknown): item is FilterLabelItem {
+      return item != null && typeof item === 'object'
+    },
+    handleFilterUpdated(index: number, filter: Filter): void {
       // If this filter has no items selected - remove the filter
-      if (!RangeFacets.includes(filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
+      if (
+        !RangeFacets.includes(filter.type as FacetType) &&
+        Array.isArray(filter.q) &&
+        filter.q.length === 0
+      ) {
         return this.handleFilterRemoved(index)
       }
 
@@ -359,24 +402,18 @@ export default {
       newFilters[index] = filter
       this.$emit('changed', newFilters)
     },
-    /**
-     * @param {number} index
-     */
-    handleFilterRemoved(index) {
+    handleFilterRemoved(index: number): void {
       const newFilters = this.filters.filter((f, idx) => idx !== index)
       this.$emit('changed', newFilters)
     },
-    handleFrontpageFilterRemoved() {
+    handleFrontpageFilterRemoved(): void {
       const newFilters = this.filters.filter(d => d.type !== 'isFront')
       this.$emit('changed', newFilters)
     },
-    handleReset() {
-      const newFilters = []
+    handleReset(): void {
+      const newFilters: Filter[] = []
       this.$emit('changed', newFilters)
     },
-    /**
-     * @param {object} p
-     */
     labelByItems({
       items = [],
       prop = 'name',
@@ -385,44 +422,47 @@ export default {
       translate = false,
       type = 'label',
       maxLength = -1
-    } = {}) {
-      let labels = items
+    }: LabelByItemsOptions = {}): string {
+      const validItems = items.filter(this.isValidItem)
+      let labels = validItems
         .slice(0, max)
-        .map((/** @type {object} */ d) => {
+        .map(d => {
+          const rawValue = (d as unknown as Record<string, unknown>)[prop]
+
           if (translate) {
-            const translation = this.$t(`buckets.${type}.${d[prop]}`)
+            const translation = String(this.$t(`buckets.${type}.${String(rawValue ?? '')}`))
             if (translation.startsWith('buckets.')) {
-              return d[prop]
+              return String(rawValue ?? '')
             }
             return translation
           }
-          if (!d[prop]) {
+          if (rawValue == null || rawValue === '') {
             return '...'
           }
+
+          const value = String(rawValue)
           if (maxLength < 0) {
-            return d[prop]
+            return value
           }
-          return d[prop].length > maxLength ? d[prop].slice(0, maxLength) + '…' : d[prop]
+          return value.length > maxLength ? `${value.slice(0, maxLength)}…` : value
         })
         .join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`)
-      if (items.slice(max).length) {
+
+      if (validItems.slice(max).length) {
         labels += this.$t('items.hidden', {
-          count: items.slice(max).length
+          count: validItems.slice(max).length
         })
       }
 
       return labels
     },
-    /**
-     * @param {object} p
-     */
-    labelByDaterangeItems({ items = [], max = 1 } = {}) {
+    labelByDaterangeItems({ items = [], max = 1 }: LabelByDaterangeItemsOptions = {}): string {
       let labels = items
         .slice(0, max)
-        .map((/** @type {object} */ d) =>
+        .map(d =>
           this.$t('label.daterange.item', {
-            start: this.$d(new Date(d.start), 'compactUtc'),
-            end: this.$d(new Date(d.end), 'compactUtc')
+            start: this.$d(new Date(d.start ?? 0), 'compactUtc'),
+            end: this.$d(new Date(d.end ?? 0), 'compactUtc')
           })
         )
         .join(`<span class="op or px-1">${this.$t('op.or')}</span>`)
@@ -433,25 +473,29 @@ export default {
       }
       return labels
     },
-    /**
-     * @param {object} p
-     */
-    labelForNumeric({ items = [], type }) {
+    labelForNumeric({ items = [], type }: LabelForNumericOptions): string {
       const { start, end } = items[0] || {}
       const label = this.$t(`label.${type}.item`)
+      const toNumber = (value: number | Date | string | undefined): number => {
+        if (typeof value === 'number') return value
+        if (value instanceof Date) return value.getTime()
+        if (typeof value === 'string') {
+          const parsed = Number(value)
+          return Number.isFinite(parsed) ? parsed : 0
+        }
+        return 0
+      }
 
       return this.$t('label.range.item', {
         label,
-        start: this.$n(start ?? 0),
-        end: this.$n(end ?? 0)
+        start: this.$n(toNumber(start)),
+        end: this.$n(toNumber(end))
       })
     },
-    /** @returns {void} */
-    showFilterExplorer() {
+    showFilterExplorer(): void {
       this.explorerVisible = true
     },
-    /** @returns {void} */
-    handleExplorerHide() {
+    handleExplorerHide(): void {
       this.explorerVisible = false
     }
   },
@@ -460,7 +504,7 @@ export default {
     Explorer,
     Icon
   }
-}
+})
 </script>
 
 <style lang="scss">

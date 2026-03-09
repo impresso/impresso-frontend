@@ -52,6 +52,7 @@
 <script>
 import { mapStores } from 'pinia'
 import { useSettingsStore } from '@/stores/settings'
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 
 export default {
   props: {
@@ -103,7 +104,6 @@ export default {
   },
   methods: {
     imageStyle(image) {
-      console.info('image')
       return {
         backgroundImage: `url("${this.getWikimediaUrl(image)}")`,
         height: `${this.thumbnailSize}px`,
@@ -113,7 +113,7 @@ export default {
       }
     },
     getWikimediaUrl(image) {
-      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${this.thumbnailSize}px`
+      return getWikimediaRedirectFileUrl(image.value, { width: this.thumbnailSize })
     },
     getTranslation(translatable) {
       if (typeof translatable !== 'object') {

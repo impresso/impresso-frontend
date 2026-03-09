@@ -11,7 +11,7 @@ const meta: Meta<typeof ListOfSimilarContentItems> = {
     vueRouter([
       {
         name: 'issue-viewer',
-        path: '/nothing/:issue_uid',
+        path: '/nothing/:issue_id',
         redirect: '/nothing',
         beforeEnter: () => {
           return true

@@ -15,7 +15,7 @@ import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import Icon from '../base/Icon.vue'
 
 export interface ItemSelectorProps {
-  uid: string
+  id: string
   item: Record<string, any> // Using a generic object type here. You might want to define a more specific type for 'item'
   type: string
   defaultClickActionDisabled?: boolean
@@ -30,12 +30,14 @@ const props = withDefaults(defineProps<ItemSelectorProps>(), {
   hideIcon: false
 })
 
-const emit = defineEmits<{
+export interface Emits {
   (
     e: 'click',
     payload: { params: { item: Record<string, any>; type: string }; defaultActionExecuted: boolean }
   ): void
-}>()
+}
+
+const emit = defineEmits<Emits>()
 
 const selectionMonitorStore = useSelectionMonitorStore()
 
@@ -43,7 +45,7 @@ function selectItem(): void {
   const params = {
     item: {
       ...props.item,
-      uid: props.uid
+      id: props.id
     },
     type: props.type
   }

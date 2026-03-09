@@ -67,7 +67,7 @@
         :filterType="
           currentType === 'mediaSource'
             ? 'newspaper' /* TODO add mediaSource in API to make this work */
-            : currentType
+            : (currentType as FilterType)
         "
         :itemType="currentType"
         :buckets="buckets"
@@ -122,6 +122,7 @@ import type { Filter } from '@/models'
 import { useUserStore } from '@/stores/user'
 import LoadingBlock from './LoadingBlock.vue'
 import { FacetType } from '@/models/Facet'
+import { FilterType } from 'impresso-jscommons'
 
 const userStore = useUserStore()
 // --- Constants ---
@@ -321,7 +322,7 @@ async function searchWithService(searchParams: SearchParams): Promise<{
     buckets: response.data.map(
       (item: any) =>
         new Bucket({
-          val: item.uid,
+          value: item.id,
           item,
           type: searchParams.type
         })

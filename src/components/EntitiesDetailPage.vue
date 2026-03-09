@@ -23,7 +23,7 @@
               active-class="none"
               :to="{
                 name: 'entity',
-                params: { entity_id: entity.uid },
+                params: { entity_id: entity.id },
                 query: { tab: tabItem.name }
               }"
             >
@@ -218,13 +218,14 @@ import type { FindQuery as FindFacetsQuery } from '@/services/types/searchFacets
 import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 import { mapStores } from 'pinia'
 import { PropType } from 'vue'
 
 import Article from '@/models/Article'
 import Bucket from '@/models/Bucket'
-import { EntityMention } from '@/models/generated/schemas'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { EntityMention } from '@/models/generated/deprecated/models'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
 
 type TabId = 'content-items' | 'mentions' | 'overview'
@@ -301,7 +302,7 @@ export default {
         backgroundSize: 'cover',
         width: '120px',
         height: '120px',
-        backgroundImage: `url('http://commons.wikimedia.org/wiki/Special:FilePath/${this.preferredImage.value}?height=120px')`
+        backgroundImage: `url('${getWikimediaRedirectFileUrl(this.preferredImage.value, { width: 120 })}')`
       }
     },
     searchPageLink() {
@@ -311,7 +312,7 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: this.entity.type, q: this.entity.uid }]
+          filters: [{ type: this.entity.type, q: this.entity.id }]
         }) as LocationQueryRaw
       } satisfies RouteLocationRaw
     },

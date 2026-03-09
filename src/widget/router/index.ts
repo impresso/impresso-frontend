@@ -50,7 +50,7 @@ const router = createRouter({
       component: () => import('../views/TestFrame.vue')
     },
     {
-      path: '/p/:pageUid/:coords/',
+      path: '/p/:pageId/:coords/',
       name: 'StaticImage',
       component: () => import('../views/StaticImage.vue'),
       props: propsFromRoute
@@ -80,7 +80,7 @@ const router = createRouter({
       }
     },
     {
-      path: '/p/:pageUid/a/:articleUid/',
+      path: '/p/:pageId/a/:articleId/',
       name: 'ArticleViewer',
       component: () => import('../views/ArticleViewer.vue'),
       props: propsFromRoute

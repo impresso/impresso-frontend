@@ -135,7 +135,7 @@
 </i18n>
 <script setup lang="ts">
 import { MediaSource } from '@/models'
-import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { contentItems as contentItemsService } from '@/services'
 import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
 import TranscriptViewer, {
@@ -157,7 +157,7 @@ const contentItem = ref<ContentItem | null>(null)
 const mediaSource = computed<MediaSource | null>(() => {
   if (contentItem.value) {
     return {
-      uid: contentItem.value.meta?.mediaId!,
+      id: contentItem.value.meta?.mediaId!,
       type: contentItem.value?.meta?.sourceType!,
       name: contentItem.value.meta?.mediaId!
     } satisfies MediaSource
@@ -171,7 +171,7 @@ const audioItemData = computed<IAudioItem | undefined>(() => {
   if (!contentItem.value) return undefined
 
   return {
-    uid: route.params.content_item_uid as string,
+    id: route.params.content_item_id as string,
     title: contentItem.value.text?.title,
     radioChannel: contentItem.value.meta?.mediaId,
     mediaSource: mediaSource.value!,
@@ -301,7 +301,7 @@ const loadContentItem = async (id: string) => {
 // }
 
 watch(
-  () => route.params.content_item_uid as string,
+  () => route.params.content_item_id as string,
   async (newId, oldId) => {
     // react to route changes...
     if (newId !== oldId) {

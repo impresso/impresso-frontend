@@ -9,7 +9,7 @@
       <div class="flex-grow-1">
         <ItemLabel :item="props.item" :type="props.type" class="mr-1 small" />
         <ItemSelector
-          :uid="props.uid"
+          :id="props.id"
           :item="props.item"
           :type="props.type"
           :search-index="props.searchIndex"
@@ -38,7 +38,7 @@ export interface ItemSelectorBarProps {
   showPercent?: boolean
   percent?: number
   count?: number
-  uid?: string
+  id?: string
   type: FacetType // Assuming 'type' is required in the original component due to lack of default
   item?: Record<string, any>
   defaultClickActionDisabled?: boolean
@@ -51,7 +51,7 @@ const props = withDefaults(defineProps<ItemSelectorBarProps>(), {
   showPercent: false,
   percent: 0,
   count: 0,
-  uid: '',
+  id: '',
   item: () => ({}), // Factory function for object defaults
   defaultClickActionDisabled: false,
   searchIndex: 'search'

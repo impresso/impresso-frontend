@@ -49,7 +49,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { Filter, FilterInterface, TextReuseCluster } from '@/models'
+import type { Filter, FilterWithItemsInterface, TextReuseCluster } from '@/models'
 import { computed, onMounted, ref, watch } from 'vue'
 import { textReusePassages as textReusePassageService } from '@/services'
 import TextReusePassage from '@/models/TextReusePassage'
@@ -68,7 +68,7 @@ import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
  */
 export interface Props {
   item: TextReuseCluster
-  filters: Filter[] | FilterInterface[]
+  filters: Filter[] | FilterWithItemsInterface[]
   orderByOptions: string[]
 }
 

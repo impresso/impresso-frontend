@@ -1,4 +1,4 @@
-import type { Bucket as IBucket, Entity as IEntity } from '.'
+import type { Bucket as IBucket } from '.'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Newspaper from '@/models/Newspaper'
@@ -6,7 +6,17 @@ import Year from '@/models/Year'
 import Collection from '@/models/Collection'
 import TextReuseCluster from '@/models/TextReuseCluster'
 import Partner, { fromPartnerFacet } from '@/models/Partner'
-import { FacetWithLabel } from './generated/schemas'
+import { FacetWithLabel } from './generated/canonical'
+
+type ItemTypes =
+  | Entity
+  | Topic
+  | Newspaper
+  | Year
+  | Collection
+  | TextReuseCluster
+  | Partner
+  | FacetWithLabel
 
 /**
  * @class Bucket is an object representing a Solr search engine facet bucket
@@ -15,25 +25,18 @@ import { FacetWithLabel } from './generated/schemas'
  * @param {Number} count Number of matched results for this value
  * @param {Object} item Optional object of for instance type Newspaper or Entity
  */
-export default class Bucket implements IBucket {
-  val: string | number
+export default class Bucket implements IBucket<ItemTypes> {
+  value: string | number
   count: number
-  item?:
-    | IEntity
-    | Entity
-    | Topic
-    | Newspaper
-    | Year
-    | Collection
-    | TextReuseCluster
-    | Partner
-    | (FacetWithLabel & { uid: string })
+  label?: string
+  item?: ItemTypes
   included?: boolean
   upper?: number
   lower?: number
 
   constructor({
-    val = '',
+    value = '',
+    label = undefined,
     count = -1,
     item,
     included = true,
@@ -41,23 +44,24 @@ export default class Bucket implements IBucket {
     upper = undefined,
     lower = undefined
   }) {
-    this.val = String(val)
+    this.value = String(value)
     this.count = count
+    this.label = label
     this.included = included
     this.upper = upper
     this.lower = lower
     switch (type) {
       case 'topic':
-        this.item = new Topic(item)
+        this.item = new Topic({ ...item, id: value, name: label })
         break
       case 'person':
       case 'location':
       case 'nag':
       case 'organisation':
-        this.item = new Entity(item)
+        this.item = new Entity({ ...item, id: value, name: label })
         break
       case 'newspaper':
-        this.item = new Newspaper(item)
+        this.item = new Newspaper({ ...item, id: value, name: label })
         break
       case 'mediaSource':
         this.item = item
@@ -65,21 +69,21 @@ export default class Bucket implements IBucket {
       case 'collection':
         this.item = new Collection({
           ...item,
+          id: value,
+          name: label,
           creationDate: item?.createdAt,
-          lastModifiedDate: item?.updatedAt,
-          name: item.title
+          lastModifiedDate: item?.updatedAt
         })
         break
       case 'year':
-        this.item = new Year(item)
+        this.item = new Year({ ...item, id: value, name: label })
         break
       case 'textReuseCluster':
         if (!item) {
           this.item = {
-            uid: this.val,
-            id: this.val,
-            label: String(this.val)
-          } satisfies FacetWithLabel & { uid: string }
+            id: this.value,
+            label: String(this.label)
+          } satisfies FacetWithLabel
           break
         }
         this.item = TextReuseCluster.fromTextReusePassage(item)
@@ -92,20 +96,20 @@ export default class Bucket implements IBucket {
       case 'imageCommunicationGoal':
       case 'imageContentType':
         this.item = {
-          uid: this.val,
-          id: this.val,
-          label: item?.label || String(this.val)
-        } satisfies FacetWithLabel & { uid: string }
+          id: this.value,
+          label: item?.label ?? String(this.value)
+        } satisfies FacetWithLabel
         break
       default:
         this.item = {
-          uid: this.val
-        } satisfies IEntity
+          id: this.value,
+          label: this.label ?? String(this.value)
+        } satisfies FacetWithLabel
         break
     }
 
-    if (!this.val.length) {
-      throw new Error('Bucket should have a valid value "val", empty value given')
+    if (!this.value.length) {
+      throw new Error('Bucket should have a valid value "value", empty value given')
     }
   }
 }

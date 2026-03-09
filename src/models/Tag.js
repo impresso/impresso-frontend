@@ -4,7 +4,7 @@
  * @param {String} description Description of the tag
  * @param {Array} labels Array with labels as strings
  * @param {String} name Name of the tag
- * @param {String} uid Unique identifier for the Named Entity
+ * @param {String} id Unique identifier for the Named Entity
  */
 export default class Tag {
   constructor({
@@ -12,12 +12,12 @@ export default class Tag {
     description = '',
     labels = [],
     name = '',
-    uid = '',
+    id = '',
   } = {}) {
     this.appliesTo = appliesTo.map(label => String(label));
     this.description = String(description);
     this.labels = labels.map(label => String(label));
     this.name = String(name);
-    this.uid = String(uid);
+    this.id = String(id);
   }
 }

@@ -97,5 +97,5 @@ const props = withDefaults(defineProps<IssueViewerPageHeadingProps>(), {
   isLoading: false
 })
 
-const MediaSourceId = computed(() => props.issue?.uid.split('-')[0])
+const MediaSourceId = computed(() => props.issue?.id.split('-')[0])
 </script>

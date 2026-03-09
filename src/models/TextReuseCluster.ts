@@ -14,11 +14,11 @@ import type { Entity as IEntity } from '.'
  * @param {Integer} endYear year of last issue
  * @param {String} name Full name if the newspaper
  * @param {Integer} startYear year of first issue
- * @param {String} uid Unique identifier for the newspaper
+ * @param {String} id Unique identifier for the newspaper
  */
 export default class TextReuseCluster implements IEntity {
-  uid: string
   id: string
+  label: string
   shortId: string
   textSampleArticle: any
   textSampleTitle: string
@@ -44,11 +44,12 @@ export default class TextReuseCluster implements IEntity {
     minDate = new Date(),
     clusterSize = 0,
     lexicalOverlap = 0,
-    connectedClusters = []
+    connectedClusters = [],
+    label = undefined
   } = {}) {
     this.id = String(id)
-    this.uid = this.id
     this.shortId = this.id.split('-').pop()
+    this.label = label ?? this.shortId ?? this.id
 
     this.textSampleArticle = textSampleArticle
     this.textSampleTitle = String(textSampleTitle)

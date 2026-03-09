@@ -13,10 +13,10 @@
 
     <ItemSelector
       v-if="item.newspaper"
-      :uid="item.newspaper.id"
+      :id="item.newspaper.id"
       :item="{
         ...item.newspaper,
-        uid: item.newspaper.id
+        id: item.newspaper.id
       }"
       type="newspaper"
     />
@@ -65,7 +65,7 @@ const contentItemRoute = computed(() => {
   return {
     name: 'issue-viewer',
     params: {
-      issue_uid: props.item.issue.id
+      issue_id: props.item.issue.id
     },
     query: {
       p,
@@ -78,18 +78,18 @@ const contentItemRoute = computed(() => {
 const newspaperRoute = computed(() => {
   // Temporary bug fix
   // for instance, La Sentinelle doesn't have the newspaper id :)
-  const newspaperUid = props.item.newspaper.id
+  const newspaperId = props.item.newspaper.id
     ? props.item.newspaper.id
     : props.item.article.id.match(/^([^-]+)/)[1]
 
-  if (!newspaperUid) {
+  if (!newspaperId) {
     console.error('No newspaper id found for item', props.item)
     return null
   }
   return {
     name: 'newspaper',
     params: {
-      newspaper_uid: newspaperUid
+      newspaper_id: newspaperId
     }
   }
 })

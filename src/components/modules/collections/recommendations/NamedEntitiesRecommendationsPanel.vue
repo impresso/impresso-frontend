@@ -7,7 +7,7 @@
         <div v-for="person in recommendedPersons" :key="person.id">
           <item-label type="person" :item="person.item" />
           <item-selector
-            :uid="person.id"
+            :id="person.id"
             :item="person.item"
             :default-click-action-disabled="true"
             type="person"
@@ -24,7 +24,7 @@
         <div v-for="location in recommendedLocations" :key="location.id">
           <item-label type="location" :item="location.item" />
           <item-selector
-            :uid="location.id"
+            :id="location.id"
             :item="location.item"
             :default-click-action-disabled="true"
             type="location"

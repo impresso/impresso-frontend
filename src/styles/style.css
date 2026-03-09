@@ -484,6 +484,9 @@ label {
 .btn-outline-icon {
   border-radius: 50%;
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
   padding: 0;
@@ -502,9 +505,16 @@ label {
 }
 
 .btn-outline-icon > span {
-  position: absolute;
-  top: 3px;
-  left: 3px;
+  position: static;
+  display: block;
+  line-height: 1;
+}
+
+.btn-outline-icon > .icon-link::before {
+  display: block;
+  width: 1em;
+  text-align: center;
+  transform: translateX(0.05em);
 }
 
 .btn-outline-tertiary {

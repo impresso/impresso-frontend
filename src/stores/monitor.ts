@@ -3,11 +3,12 @@ import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Helpers from '@/plugins/Helpers'
 import { entities as entitiesService, searchFacets as searchFacetsService } from '@/services'
+import { FilterType } from 'impresso-jscommons'
 import { defineStore } from 'pinia'
 
 export interface ActivateParameters {
-  item: { uid: string }
-  type: string
+  item: { id: string }
+  type: FilterType
   filters?: Filter[]
   filtersUpdatedCallback?: (any) => void
   subtitle?: string
@@ -19,8 +20,8 @@ export interface State {
   filters: Filter[]
   timeline: object[]
   isPendingTimeline: boolean
-  type?: string
-  item?: { uid: string; wikidataId?: string }
+  type?: FilterType
+  item?: { id: string; wikidataId?: string }
   groupBy: 'articles'
   itemCountRelated: number
   isActive: boolean
@@ -61,7 +62,7 @@ export const useMonitorStore = defineStore('monitor', {
       let filters: Filter[] = [
         {
           type: this.type,
-          q: this.item?.uid
+          q: this.item?.id
         }
       ]
       // if user asked to get details in current search:
@@ -104,7 +105,7 @@ export const useMonitorStore = defineStore('monitor', {
 
       this.setItem({ item, type })
     },
-    setItem({ item, type }: { item: { uid: string }; type: string }) {
+    setItem({ item, type }: { item: { id: string }; type: FilterType }) {
       this.isActive = true
       this.item = item
       this.type = type
@@ -115,7 +116,7 @@ export const useMonitorStore = defineStore('monitor', {
       if (['persion', 'location'].includes(type)) {
         return Promise.all([
           this.loadItemTimeline(),
-          entitiesService.get(item.uid).then(res => {
+          entitiesService.get(item.id).then(res => {
             if (['location', 'person'].indexOf(type) !== -1) {
               this.item = new Entity(res)
             } else if (type === 'topic') {

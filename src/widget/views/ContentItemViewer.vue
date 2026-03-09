@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import IIIFViewer from '@/components/modules/IIIFViewer.vue'
 
-import type { ContentItem as ContentItemType } from '../../models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '../../models/generated/canonical/contentItem'
 
 import { contentItems as contentItemsService } from '../../services'
 import { computed, ref, watch } from 'vue'

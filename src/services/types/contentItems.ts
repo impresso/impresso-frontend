@@ -1,9 +1,9 @@
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { ClientService } from '@feathersjs/feathers'
 import { Filter } from '../../models'
-import { BaseFind } from '../../models/generated/schemas'
+import { BaseFind } from '../../models/generated/deprecated/internalApi'
 
-type OrderBy = 'date' | 'relevance' | 'uid' | 'issue' | 'page' | 'newspaper' | 'hasTextContents'
+type OrderBy = 'date' | 'relevance' | 'id' | 'issue' | 'page' | 'newspaper' | 'hasTextContents'
 type ReverseOrderBy = `-${OrderBy}`
 type FullOrderBy = OrderBy | ReverseOrderBy
 

@@ -9,7 +9,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 /**
 
  Usage with custom tooltip (local computed variable)
@@ -28,24 +28,96 @@
 
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
 import Timeline from '@/d3-modules/Timeline'
-import Tooltip from './tooltips/Tooltip.vue'
+import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import * as d3 from 'd3'
 import Dimension from '@/d3-modules/Dimension'
+import { defineComponent, PropType } from 'vue'
 
-const getTimeFormatForResolution = resolution =>
+type TimelineResolution = 'year' | 'month' | 'day'
+type TimelineDomainValue = string | number | Date
+type TimelineBrushValue = string | number | Date
+type TimelineBrushRange = TimelineBrushValue[]
+
+export interface TimelineDatum {
+  t?: Date | string | number
+  w?: number
+  w1?: number
+  p?: number
+}
+
+export interface TimelineProps {
+  values?: object[]
+  brush?: TimelineBrushRange
+  domain?: TimelineDomainValue[]
+  exponent?: number
+  highlight?: TimelineDatum | null
+  contrast?: boolean
+  percentage?: boolean
+  highlightEnabledState?: boolean
+  brushable?: boolean
+  height?: string
+  resolution?: TimelineResolution
+  dataTestid?: string
+}
+
+interface TimelinePointer {
+  x: number
+  y: number
+}
+
+export interface TimelineInteractionPayload {
+  pointer: TimelinePointer
+  datum: TimelineDatum
+}
+
+interface TimelineBrushedPayload {
+  brush: {
+    min: number
+    max: number
+  }
+  minDate: Date
+  maxDate: Date
+  minValue: string
+  maxValue: string
+}
+
+interface TimelineInstance {
+  dimensions: Record<string, any>
+  on(event: string, handler: (data?: unknown) => void): TimelineInstance
+  resize(): void
+  update(payload: any): void
+  draw(): void
+  brushTo(payload: { min: TimelineBrushValue; max: TimelineBrushValue }): void
+  highlight(datum: any): void
+  updateTimeFormat(format: string): void
+}
+
+export interface IData {
+  tooltip: {
+    x: number
+    y: number
+    isActive: boolean
+    item?: TimelineDatum
+  }
+  item: Record<string, unknown>
+  timeline: TimelineInstance | null
+  timelineTimer: ReturnType<typeof setTimeout> | null
+}
+
+const getTimeFormatForResolution = (resolution?: TimelineResolution) =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
 
-export default {
+export default defineComponent({
   name: 'Timeline',
   props: {
-    values: Array,
-    brush: Array, // brush values
-    domain: Array,
+    values: Array as PropType<object[]>,
+    brush: Array as PropType<TimelineBrushRange>, // brush values
+    domain: Array as PropType<TimelineDomainValue[]>,
     exponent: {
       type: Number,
       default: 1
     },
-    highlight: Object,
+    highlight: Object as PropType<TimelineDatum | null>,
     contrast: Boolean,
     percentage: Boolean,
     highlightEnabledState: Boolean,
@@ -58,9 +130,9 @@ export default {
       default: '85px'
     },
     resolution: {
-      type: String,
+      type: String as PropType<TimelineResolution>,
       default: 'year',
-      validator(value) {
+      validator(value: TimelineResolution | undefined): boolean {
         return [undefined, 'year', 'month', 'day'].includes(value)
       }
     },
@@ -69,22 +141,26 @@ export default {
       default: 'timeline'
     }
   },
-  data: () => ({
-    tooltip: {
-      x: 0,
-      y: 0,
-      isActive: false
-    },
-    item: {}
-  }),
+  data(): IData {
+    return {
+      tooltip: {
+        x: 0,
+        y: 0,
+        isActive: false
+      },
+      item: {},
+      timeline: null,
+      timelineTimer: null
+    }
+  },
   computed: {
-    heightVal() {
+    heightVal(): string {
       if (typeof this.height === 'string') return this.height
       return 'auto'
     }
   },
   methods: {
-    moveTooltip(data) {
+    moveTooltip(data: TimelineInteractionPayload): void {
       this.tooltip = {
         isActive: true,
         x: data.pointer.x + 50,
@@ -92,10 +168,10 @@ export default {
         item: data.datum
       }
     },
-    onResize() {
-      this.timeline.resize()
+    onResize(): void {
+      this.timeline?.resize()
     },
-    forceTimelineUpdate() {
+    forceTimelineUpdate(): void {
       if (!this.timeline) {
         console.warn('Timeline not initialized.')
         return
@@ -105,25 +181,25 @@ export default {
         return
       }
       this.timeline.dimensions.y.domain[0] = 0
-      this.timeline.dimensions.y.domain[1] = d3.max(
-        this.values,
-        d => d[this.timeline.dimensions.y.property]
-      )
+      const yProperty = this.timeline.dimensions.y.property
+      this.timeline.dimensions.y.domain[1] = d3.max(this.values, d =>
+        Number((d as Record<string, unknown>)[yProperty] ?? 0)
+      ) as number
       this.timeline.update({
-        data: this.values
+        data: this.values as TimelineDatum[]
       })
       this.timeline.draw()
     }
   },
   mounted() {
     const dimensions = {
-      x: new Dimension({
+      x: new Dimension<TimelineDatum>({
         name: 'x',
         property: 't',
         type: Dimension.TYPE_CONTINUOUS,
         scaleFn: d3.scaleTime
       }),
-      y: new Dimension({
+      y: new Dimension<TimelineDatum>({
         name: 'y',
         property: this.percentage ? 'p' : 'w',
         type: Dimension.TYPE_CONTINUOUS,
@@ -133,7 +209,7 @@ export default {
         isScalePow: true
       })
     }
-    const contextPeakTextFn = v => {
+    const contextPeakTextFn = (v: number) => {
       if (this.percentage) {
         return this.$n(v) + '%'
       }
@@ -141,7 +217,7 @@ export default {
     }
     if (this.contrast) {
       this.timeline = new ContrastTimeline({
-        element: this.$refs.timeline,
+        element: this.$refs.timeline as HTMLElement,
         margin: {
           left: 10,
           right: 10,
@@ -154,7 +230,7 @@ export default {
       })
     } else {
       this.timeline = new Timeline({
-        element: this.$refs.timeline,
+        element: this.$refs.timeline as HTMLElement,
         margin: {
           left: 10,
           right: 10,
@@ -166,29 +242,31 @@ export default {
         dimensions,
         contextPeakTextFn
       })
-      setTimeout(() => {
-        this.forceTimelineUpdate()
-        this.timeline.resize()
-      }, 0)
     }
+    setTimeout(() => {
+      this.forceTimelineUpdate()
+      this.timeline?.resize()
+    }, 0)
     this.timeline.on('mouseleave', () => {
       this.tooltip.isActive = false
       this.$emit('highlight-off')
     })
 
     this.timeline.on('mousemove', data => {
-      this.moveTooltip(data)
-      this.$emit('highlight', data)
+      const typedData = data as TimelineInteractionPayload
+      this.moveTooltip(typedData)
+      this.$emit('highlight', typedData)
     })
 
     this.timeline.on('brushed', data => {
+      const typedData = data as TimelineBrushedPayload
       if (this.timelineTimer) {
         clearTimeout(this.timelineTimer)
       }
       this.timelineTimer = setTimeout(() => {
-        this.$emit('brushed', data)
+        this.$emit('brushed', typedData)
       }, 50)
-      this.$emit('brushing', data)
+      this.$emit('brushing', typedData)
     })
 
     this.timeline.on('brush-end', data => {
@@ -196,7 +274,7 @@ export default {
     })
 
     this.timeline.on('highlighted', data => {
-      this.moveTooltip(data)
+      this.moveTooltip(data as TimelineInteractionPayload)
     })
     this.timeline.on('clear-selection', () => {
       this.$emit('clear-selection')
@@ -210,7 +288,7 @@ export default {
   watch: {
     exponent: {
       immediate: false,
-      handler(val) {
+      handler(val: number) {
         if (this.timeline) {
           this.timeline.dimensions.y.exponent = val
           this.forceTimelineUpdate()
@@ -228,21 +306,26 @@ export default {
     },
     highlight: {
       immediate: false,
-      handler(val) {
-        this.timeline.highlight(val)
+      handler(val: TimelineDatum | null) {
+        if (this.timeline && val) {
+          this.timeline.highlight(val)
+        }
       }
     },
     highlightEnabledState: {
       immediate: false,
-      handler(val) {
-        this.tooltip.isActive = val
+      handler(val: boolean | undefined) {
+        this.tooltip.isActive = Boolean(val)
       }
     },
     brush: {
       immediate: false,
-      handler(val) {
-        if (this.timeline && val.length) {
+      handler(val: TimelineBrushRange) {
+        if (this.timeline && val.length >= 2) {
           const [min, max] = val
+          if (min == null || max == null) {
+            return
+          }
           this.timeline.brushTo({
             min,
             max
@@ -253,12 +336,15 @@ export default {
     values: {
       immediate: true,
       deep: true,
-      handler(data) {
+      handler() {
         if (this.timeline) {
           this.forceTimelineUpdate()
 
-          if (this.brush && this.brush.length) {
+          if (this.brush && this.brush.length >= 2) {
             const [min, max] = this.brush
+            if (min == null || max == null) {
+              return
+            }
             this.timeline.brushTo({
               min,
               max
@@ -268,7 +354,10 @@ export default {
       }
     },
     resolution: {
-      handler(resolution) {
+      handler(resolution: TimelineResolution | undefined) {
+        if (!this.timeline) {
+          return
+        }
         this.timeline.updateTimeFormat(getTimeFormatForResolution(resolution))
         this.timeline.draw()
       }
@@ -277,7 +366,7 @@ export default {
   components: {
     Tooltip
   }
-}
+})
 </script>
 
 <style lang="scss">
