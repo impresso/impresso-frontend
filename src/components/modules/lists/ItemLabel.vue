@@ -93,15 +93,15 @@ export default defineComponent({
       }
       const clusterSizeLabel =
         item.clusterSize != null
-          ? this.$tc('numbers.clusterSize', item.clusterSize, {
+          ? this.$t('numbers.clusterSize', {
               n: this.$n(item.clusterSize)
-            })
+            }, item.clusterSize)
           : 'size'
       const lexicalOverlapLabel =
         item.lexicalOverlap != null
-          ? this.$tc('numbers.lexicalOverlap', item.lexicalOverlap, {
+          ? this.$t('numbers.lexicalOverlap', {
               n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
-            })
+            }, item.lexicalOverlap)
           : ''
       let dates = []
       if (!item.maxDate || !item.minDate) {
@@ -128,9 +128,9 @@ export default defineComponent({
         textSampleExcerpt: item.textSampleExcerpt,
         size: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$tc('numbers.days', item.timeDifferenceDay, {
+        timespan: this.$t('numbers.days', {
           n: this.$n(item.timeDifferenceDay)
-        }),
+        }, item.timeDifferenceDay),
         dates: dates.join(' - ')
       })
     },

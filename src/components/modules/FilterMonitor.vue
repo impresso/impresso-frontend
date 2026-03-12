@@ -115,13 +115,9 @@
             <span v-if="item.count"
               >&nbsp;(<span
                 v-html="
-                  $tc(
-                    type === 'collection'
+                  $t(type === 'collection'
                       ? 'numbers.articlesMatchingSearchFilters'
-                      : 'numbers.results',
-                    item.count,
-                    { n: $n(item.count) }
-                  )
+                      : 'numbers.results', { n: $n(item.count) }, item.count)
                 "
               />)&nbsp;</span
             >
@@ -140,7 +136,7 @@
           }}</span>
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count"
-            >(<span v-html="$tc('numbers.results', item.count, { n: $n(item.count) })" />)</span
+            >(<span v-html="$t('numbers.results', { n: $n(item.count) }, item.count)" />)</span
           >
           <item-selector :id="item.id" :item="item" :type="type" />
           <b-button

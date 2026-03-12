@@ -136,7 +136,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 $clr-white: #ffffff;
 // $clr-dark: #212529;
@@ -146,7 +147,7 @@ $clr-grey-400: #5a6672;
 $clr-grey-800: #c6ccd2;
 $clr-grey-900: #ddd;
 
-@import './styles/style.css';
+@use './styles/style.css' as *;
 
 #app {
   display: grid;
@@ -493,15 +494,15 @@ input[type='range']:active::-ms-thumb {
 }
 
 .overlay-region {
-  background-color: transparentize($clr-accent-secondary, 1);
+  background-color: color.adjust($clr-accent-secondary, $alpha: -1);
   transition: background-color 300ms;
   cursor: pointer;
 
   &.selected {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.5);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.5);
     cursor: inherit;
   }
 }
@@ -511,7 +512,7 @@ input[type='range']:active::-ms-thumb {
 }
 
 .overlay-match {
-  background: transparentize($clr-accent, 0.5);
+  background: color.adjust($clr-accent, $alpha: -0.5);
   outline: 2px solid $clr-accent;
 }
 

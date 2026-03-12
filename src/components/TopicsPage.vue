@@ -23,9 +23,13 @@
               :to="goToQuery({ tab: 'visualized' })"
               ><span
                 v-html="
-                  $tc('label_visualized_list', visualizedTopics.length, {
-                    total: $n(visualizedTopics.length)
-                  })
+                  $t(
+                    'label_visualized_list',
+                    {
+                      total: $n(visualizedTopics.length)
+                    },
+                    visualizedTopics.length
+                  )
                 "
             /></b-nav-item>
           </template>
@@ -75,7 +79,7 @@
             :disabled="!visualizedTopics.length"
             @click="$router.push(searchPageLink)"
           >
-            <span v-html="$tc('actions.addToCurrentItemsDetailed', visualizedTopics.length)" />
+            <span v-html="$t('actions.addToCurrentItemsDetailed', visualizedTopics.length)" />
           </b-button>
         </div>
       </template>

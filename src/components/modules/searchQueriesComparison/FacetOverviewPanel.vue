@@ -5,10 +5,10 @@
       <div class="d-flex mb-3 ml-0 justify-content-between">
         <div class="col p-0 mr-auto">
           <div class="tb-title m-0 mt-2 label small-caps font-weight-bold">
-            {{ $tc(`label.${facet}.optionsTitle`) }}
+            {{ $t(`label.${facet}.optionsTitle`) }}
           </div>
           <span class="small">
-            {{ $tc(`label.${facet}.optionsDescription`) }}
+            {{ $t(`label.${facet}.optionsDescription`) }}
           </span>
         </div>
         <div class="col p-0 align-self-end">
@@ -41,15 +41,15 @@
               <div
                 v-if="tooltipScope.tooltip.item.w"
                 v-html="
-                  $tc(
+                  $t(
                     displayStyle == 'percent' ? 'numbers.resultsPercent' : 'numbers.results',
-                    tooltipScope.tooltip.item.w,
                     {
                       n: $n(tooltipScope.tooltip.item.w, {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 7
                       })
-                    }
+                    },
+                    tooltipScope.tooltip.item.w
                   )
                 "
               />
@@ -64,7 +64,7 @@
       <stacked-bars-panel
         :hover-id="hoverId"
         class="row"
-        :label="$tc(`label.${facet}.title`, 1)"
+        :label="$t(`label.${facet}.title`, 1)"
         :buckets="values"
         :facet-type="facet"
         :default-click-action-disabled="true"
@@ -85,9 +85,13 @@
         {{ $t('actions.more') }}
         <span
           v-html="
-            $tc('numbers.moreOptions', numberOfAvailableBucketsToLoad, {
-              n: $n(numberOfAvailableBucketsToLoad)
-            })
+            $t(
+              'numbers.moreOptions',
+              {
+                n: $n(numberOfAvailableBucketsToLoad)
+              },
+              numberOfAvailableBucketsToLoad
+            )
           "
         />
       </span>
@@ -227,7 +231,7 @@ export default {
   },
   computed: {
     title(): string {
-      return this.$tc(`label.${this.facet}.title`, this.values.length || 1)
+      return this.$t(`label.${this.facet}.title`, this.values.length || 1)
     },
     timelineValues(): TimelineValue[] {
       const values = bucketsToTimelineValues(this.values, this.displayStyle, this.maxValues)
@@ -270,8 +274,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-@import '@/styles/variables.sass';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
+@use '@/styles/variables.sass' as *;
 
 .facet-overview-panel {
   &.left {

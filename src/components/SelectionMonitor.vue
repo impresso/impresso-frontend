@@ -56,7 +56,7 @@
                 <div
                   class="d-inline"
                   v-if="tooltip.item?.w"
-                  v-html="$tc('numbers.contentItems', tooltip.item.w, { n: $n(tooltip.item.w) })"
+                  v-html="$t('numbers.contentItems', { n: $n(tooltip.item.w) }, tooltip.item.w)"
                 />
               </div>
             </template>

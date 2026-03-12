@@ -472,9 +472,11 @@ export default defineComponent({
           name: TAB_OVERVIEW
         },
         {
-          label: this.$tc('numbers.contentItems', this.paginationTotalRows, {
-            count: this.$n(this.paginationTotalRows)
-          }),
+          label: this.$t(
+            'numbers.contentItems',
+            { n: this.$n(this.paginationTotalRows) },
+            this.paginationTotalRows
+          ),
           name: TAB_ARTICLES
         }
       ]

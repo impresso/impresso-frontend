@@ -11,13 +11,17 @@
       <div>
         <span
           v-html="
-            $tc('numbers.articles', tooltip.item.countItems, {
-              n: $n(tooltip.item.countItems)
-            })
+            $t(
+              'numbers.articles',
+              {
+                n: $n(tooltip.item.countItems)
+              },
+              tooltip.item.countItems
+            )
           "
         />
         &middot;
-        <span v-html="$tc('numbers.relatedTopics', tooltip.item.degree)" />
+        <span v-html="$t('numbers.relatedTopics', tooltip.item.degree)" />
       </div>
       <b-button-group class="my-2 w-100">
         <b-button

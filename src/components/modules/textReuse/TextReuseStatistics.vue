@@ -62,9 +62,9 @@
               <span
                 class="border-bottom d-block my-1 pb-2"
                 v-html="
-                  $tc('numbers.results', tooltip.item.point.value.count, {
+                  $t('numbers.results', {
                     n: $n(tooltip.item.point.value.count)
-                  })
+                  }, tooltip.item.point.value.count)
                 "
               />
               {{ tooltip.item.valueKey }}
@@ -75,7 +75,7 @@
             <div v-else-if="tooltip.item.valueKey === 'items'">
               <b>{{ tooltip.item.term }}</b>
               <div
-                v-html="$tc(visualisationLabel, tooltip.item.count, { n: $n(tooltip.item.count) })"
+                v-html="$t(visualisationLabel, { n: $n(tooltip.item.count) }, tooltip.item.count)"
               />
             </div>
             <span v-else-if="typeof tooltip.item.valueKey === 'string'">
@@ -86,7 +86,7 @@
               {{ $d(tooltip.item?.point?.domain, 'year') }}<br />
               {{ tooltip.item?.term }}
               <div
-                v-html="$tc(visualisationLabel, tooltip.item.count, { n: $n(tooltip.item.count) })"
+                v-html="$t(visualisationLabel, { n: $n(tooltip.item.count) }, tooltip.item.count)"
               />
               <!-- <pre v-else class="text-white">{{ JSON.stringify(tooltip.item, null, 2) }}</pre> -->
             </div>

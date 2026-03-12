@@ -7,7 +7,7 @@
       <b-form-input
         ref="input"
         class="search-input"
-        :placeholder="$tc('placeholder.search', filterCount)"
+        :placeholder="$t('placeholder.search', filterCount)"
         v-model.trim="q"
         @update:modelValue="search"
         @focus="handleInputFocus"
@@ -20,7 +20,7 @@
           type="button"
           class="btn btn-outline-primary"
           ref="searchButton"
-          :title="$tc('placeholder.search', filterCount)"
+          :title="$t('placeholder.search', filterCount)"
           @click="submit({ type: 'string', q })"
           data-testid="add-keyword-button"
         >
@@ -69,7 +69,7 @@
         <div :title="$t(`label.${type}.title`)">
           <div class="suggestion-section-header" v-if="type !== 'mention'">
             <Icon :name="typeIconMap[type] ?? type" :width="12" :height="12" :stroke-width="1.5" />
-            {{ $tc('label.' + type + '.title', suggestionIndex[type]?.length || 0) }}
+            {{ $t('label.' + type + '.title', suggestionIndex[type]?.length || 0) }}
           </div>
           <div
             v-for="(s, j) in suggestionIndex[type]"

@@ -532,7 +532,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .os-article-viewer {
   height: 100%;
@@ -544,21 +545,21 @@ export default defineComponent({
 }
 
 div.overlay-page {
-  border: 10px solid transparentize($clr-accent-secondary, 0.5);
+  border: 10px solid color.adjust($clr-accent-secondary, $alpha: -0.5);
   box-shadow: 0 0 40px #0005;
   pointer-events: none;
 }
 
 .overlay-region {
-  background-color: transparentize($clr-accent-secondary, 1);
+  background-color: color.adjust($clr-accent-secondary, $alpha: -1);
   transition: background-color 300ms;
   cursor: pointer;
 
   &.selected {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.5);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.5);
     cursor: inherit;
   }
 }

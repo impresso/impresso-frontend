@@ -29,9 +29,9 @@ export default {
   computed: {
     ...mapStores(useTopicsStore),
     label() {
-      const countlabel = this.$tc('numbers.articles', this.item.countItems, {
+      const countlabel = this.$t('numbers.articles', {
         n: this.$n(this.item.countItems)
-      })
+      }, this.item.countItems)
       return `${this.item.getHtmlExcerpt()} (${countlabel})`
     },
     labelMatches() {

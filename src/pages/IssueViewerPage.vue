@@ -493,7 +493,7 @@ watch(
 </script>
 
 <style lang="scss">
-// @import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+// @use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 // .IssueViewerPage_matchingArticles .number {
 //   font-weight: bold;
 // }

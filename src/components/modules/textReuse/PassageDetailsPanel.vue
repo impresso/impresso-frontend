@@ -82,9 +82,9 @@ export default {
       }
     },
     pages() {
-      return this.$tc('pp', this.passage.pageNumbers.length, {
+      return this.$t('pp', {
         pages: this.passage.pageNumbers.join(',')
-      })
+      }, this.passage.pageNumbers.length)
     },
     pageViewerOptions() {
       return {

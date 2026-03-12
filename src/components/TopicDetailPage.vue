@@ -239,9 +239,9 @@ export default {
           name: TAB_OVERVIEW
         },
         {
-          label: this.$tc('tabs.relatedArticles', this.total, {
+          label: this.$t('tabs.relatedArticles', {
             count: this.$n(this.total)
-          }),
+          }, this.total),
           name: TAB_ARTICLES
         }
       ]
