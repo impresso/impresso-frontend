@@ -87,6 +87,14 @@
             :class="filter.context"
           >
           </span>
+          <!--  type:mention -->
+          <span
+            class="label sp-labelled"
+            v-if="['mention'].indexOf(filter.type) !== -1"
+            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
+            :class="filter.context"
+          >
+          </span>
           <!--  type:language and other items -->
           <span
             class="label sp-generic-item"
