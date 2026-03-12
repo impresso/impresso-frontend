@@ -453,6 +453,19 @@ export default {
           exclude: '<b>NOT</b> mentioned'
         }
       },
+      mention: {
+        title: 'Mention | Mention | Mentions',
+        filterTitle: 'mention',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> mentions applies',
+        description: 'check one or more mentions to filter results',
+        empty: '(no results)',
+        item: 'Mention',
+        context: {
+          include: 'mentioned',
+          exclude: '<b>NOT</b> mentioned'
+        }
+      },
       dataDomain: {
         filterTitle: 'Data domain',
         empty: '...'

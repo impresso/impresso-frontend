@@ -60,18 +60,15 @@
         >
           <div :class="`suggestion-${suggestion.type}`">
             <span class="small" v-if="suggestion.h" v-html="suggestion.h" />
-            <span class="small" v-else
-              >...<b>{{ q }}</b></span
-            >
-            <b-badge variant="light" class="border border-medium ml-2">
-              {{ $t(`label.${suggestion.type}.title`) }}
-            </b-badge>
+            <b class="small" v-else>{{ q }}</b>
+            <span class="suggestion-cta"> {{ $t(`label.${suggestion.type}.title`) }} ↵ </span>
           </div>
         </div>
       </div>
       <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box">
         <div :title="$t(`label.${type}.title`)">
-          <div class="small font-style-italic p-3" v-if="type !== 'mention'">
+          <div class="suggestion-section-header" v-if="type !== 'mention'">
+            <Icon :name="typeIconMap[type] ?? type" :width="12" :height="12" :stroke-width="1.5" />
             {{ $tc('label.' + type + '.title', suggestionIndex[type]?.length || 0) }}
           </div>
           <div
@@ -86,12 +83,8 @@
             }"
           >
             <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-              <span class="small"
-                >... <b>{{ q }}</b></span
-              >
-              <b-badge variant="light" class="border border-medium">
-                {{ $t(`label.${type}.moreLikeThis`) }}</b-badge
-              >
+              <b class="small">{{ q }}</b>
+              <span class="suggestion-cta"> {{ $t(`label.${type}.moreLikeThis`) }} → </span>
             </div>
             <div v-else :class="`${type} small`">
               <span v-if="['location', 'person'].includes(type)" v-html="s.h" />
@@ -140,6 +133,12 @@ const AVAILABLE_TYPES = [
   'collection',
   'mention'
 ] as const
+
+// Maps suggestion types to Icon names for section headers
+const typeIconMap: Record<string, string> = {
+  location: 'position',
+  topic: 'label'
+}
 
 type AvailableType = (typeof AVAILABLE_TYPES)[number]
 
@@ -505,10 +504,63 @@ onMounted(() => {
   border-top: 0px solid transparent;
 }
 
-.bg-dark.Autocomplete .suggestion .badge-light {
-  background: transparent;
+.Autocomplete .suggestion-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--clr-grey-400);
+  padding: var(--spacing-1) var(--spacing-2-5);
+  border-top: 1px solid var(--clr-grey-700);
+  margin-top: var(--spacing-1);
+}
+
+.Autocomplete .suggestion-section-header .Icon {
+  opacity: 0.5;
+  margin-right: 0.25rem;
+}
+
+.Autocomplete .suggestion-cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  color: var(--clr-grey-300);
+  background: var(--clr-grey-900);
+  border: 1px solid var(--clr-grey-700);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: var(--spacing-2);
+  transition:
+    background-color 0.1s,
+    border-color 0.1s,
+    color 0.1s;
+  white-space: nowrap;
+}
+
+.Autocomplete .suggestion.selected .suggestion-cta {
+  background: var(--impresso-color-yellow);
+  border-color: var(--impresso-color-yellow);
+  color: var(--impresso-color-black);
+}
+
+.bg-dark.Autocomplete .suggestion-section-header {
   color: var(--clr-grey-500);
-  border-color: var(--clr-grey-500) !important;
+  border-top-color: var(--clr-grey-200);
+}
+
+.bg-dark.Autocomplete .suggestion-cta {
+  color: var(--clr-grey-500);
+  background: transparent;
+  border-color: var(--clr-grey-200);
+}
+
+.bg-dark.Autocomplete .suggestion.selected .suggestion-cta {
+  background: var(--impresso-color-yellow);
+  border-color: var(--impresso-color-yellow);
+  color: var(--impresso-color-black);
 }
 
 .Autocomplete .suggestion.selected {
