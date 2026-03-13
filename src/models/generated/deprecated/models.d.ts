@@ -811,6 +811,7 @@ export interface ContentItemText {
     | "tb"
     | "ob"
     | "w"
+    | "ch"
     | "chapter"
     | "chronicle"
     | "unsegmented"

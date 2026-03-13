@@ -88,6 +88,11 @@ export type components = {
         /** BaristaFormattedResponse */
         BaristaFormattedResponse: {
             /**
+             * Assistantclarification
+             * @description Message used when the user request does not match search construction, web app guidance, or search analysis. Clarifies the assistant's role and redirects the user.
+             */
+            assistantClarification?: string | null;
+            /**
              * Impressohelp
              * @description Help message to the user about how to use the Impresso Barista.
              */
@@ -104,6 +109,11 @@ export type components = {
              * @description A follow-up question to ask the user to refine their search query, suggestions or comments about the search query. Can be empty.
              */
             searchQueryFollowUp?: string | null;
+            /**
+             * Searchquerysteps
+             * @description Step-by-step narration of how the search query was constructed.
+             */
+            searchQuerySteps?: string[] | null;
             /**
              * Searchquerysummary
              * @description Analysed summary of facets of the search query filters (facets tool call required).
