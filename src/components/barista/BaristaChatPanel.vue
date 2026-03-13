@@ -14,19 +14,20 @@
     </div>
 
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
-      <div class="border shadow-sm rounded p-2 position-relative" ref="inputPanelRef">
+      <div class="border shadow-sm rounded p-2">
         <details class="mb-2">
           <summary class="small text-muted d-flex align-items-center justify-content-between" style="cursor: pointer">
             <span>Settings</span>
-            <span
+            <WithTooltip
               v-if="baristaStore.sessionId"
-              class="session-id-hint very-small text-muted d-flex align-items-center gap-1"
-              style="cursor: default"
-              @mouseenter="onSessionIdMouseEnter"
-              @mouseleave="onSessionIdMouseLeave"
+              placement="top-end"
+              strategy="fixed"
+              :content="sessionIdTooltipContent"
+              :is-html="true"
+              class="session-id-tooltip-hint very-small text-muted"
             >
               <Icon name="info" :scale="0.6" :strokeWidth="2" />
-            </span>
+            </WithTooltip>
           </summary>
           <div class="mt-2 px-1">
             <label class="small d-block mb-1">Model</label>
@@ -76,9 +77,6 @@
             </button>
           </div>
         </div>
-        <Tooltip :tooltip="sessionTooltip">
-          <span class="very-small">{{ baristaStore.sessionId }}</span>
-        </Tooltip>
       </div>
     </div>
   </div>
@@ -93,7 +91,7 @@ import { BaristaRequest, ChatMessage } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
 import BaristaChatMessage from './BaristaChatMessage.vue'
 import Icon from '../base/Icon.vue'
-import Tooltip from '../modules/tooltips/Tooltip.vue'
+import WithTooltip from '../base/WithTooltip.vue'
 import { toSerializedFilters } from '@/logic/filters'
 
 export interface BaristaChatPanelProps {
@@ -113,29 +111,15 @@ const emit = defineEmits<{
   (e: 'updateHeight', height: number): void
 }>()
 
+const sessionIdTooltipContent = computed(
+  () =>
+    `<b>Chat Session ID</b><br><code style="white-space:nowrap;border:none;background:transparent;color:inherit;padding:0">${baristaStore.sessionId}</code>`
+)
+
 const inputMessage = ref('')
 const selectedModelId = ref('')
 const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
-const inputPanelRef = ref<HTMLElement | null>(null)
-const sessionTooltip = ref({ x: 0, y: 0, isActive: false })
-
-function onSessionIdMouseEnter(event: MouseEvent) {
-  const iconEl = event.currentTarget as HTMLElement
-  const panelEl = inputPanelRef.value
-  if (!panelEl) return
-  const iconRect = iconEl.getBoundingClientRect()
-  const panelRect = panelEl.getBoundingClientRect()
-  sessionTooltip.value = {
-    x: iconRect.left - panelRect.left + iconRect.width / 2,
-    y: iconRect.top - panelRect.top - 44,
-    isActive: true
-  }
-}
-
-function onSessionIdMouseLeave() {
-  sessionTooltip.value = { ...sessionTooltip.value, isActive: false }
-}
 
 const modelOptions: Option[] = [
   { value: '', text: 'Default' },
@@ -207,6 +191,12 @@ onMounted(() => {
   updateHeight()
 })
 </script>
+
+<style>
+.session-id-tooltip-hint .tooltip-inner {
+  max-width: none;
+}
+</style>
 
 <style scoped>
 .chat-history {

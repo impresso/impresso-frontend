@@ -175,31 +175,31 @@ const formatActionType = (type: string): string => {
 }
 </i18n>
 <style>
+.BaristaChatMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .BaristaChatMessage__content {
   padding: 10px 14px;
   border-radius: var(--impresso-border-radius-xs);
   max-width: 80%;
   word-break: break-word;
   position: relative;
-  display: inline-block;
 }
 
 .BaristaChatMessage__content.user {
   align-self: flex-end;
-  background-color: #0084ff;
-  color: white;
+  background-color: var(--impresso-color-black);
+  color: var(--impresso-color-white);
 }
 
 .BaristaChatMessage__content.system,
-.BaristaChatMessage__content.tool {
+.BaristaChatMessage__content.error {
   align-self: flex-start;
   background-color: #ebebeb;
   color: var(--impresso-color-black);
-}
-
-.BaristaChatMessage__content.user {
-  background-color: var(--impresso-color-black);
-  color: var(--impresso-color-white);
 }
 
 .tool-toggle {
