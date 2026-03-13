@@ -34,12 +34,11 @@
 import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
 import {
   createOpenSeadragon,
-  Rect,
   Viewer,
   getAuthOptions,
   isAuthRequired
 } from '@/services/openseadragon'
-import { TiledImage, MouseTracker } from 'openseadragon'
+import Openseadragon from 'openseadragon'
 import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
 export interface Region {
@@ -48,7 +47,7 @@ export interface Region {
   coords: { x: number; y: number; w: number; h: number }
 }
 
-function createPageOverlay(tiledImage: TiledImage) {
+function createPageOverlay(tiledImage: Openseadragon.TiledImage) {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-page')
   const rect = tiledImage.getBounds()
@@ -56,10 +55,10 @@ function createPageOverlay(tiledImage: TiledImage) {
 }
 
 function createRegionOverlay(
-  tiledImage: TiledImage,
+  tiledImage: Openseadragon.TiledImage,
   region: Region,
   clickHandler: (articleId: string) => void
-): { overlay: any; rect: Rect } {
+): { overlay: any; rect: Openseadragon.Rect } {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
   overlay.dataset.articleId = region.articleId
@@ -73,7 +72,7 @@ function createRegionOverlay(
     })
   })
 
-  new MouseTracker({
+  new Openseadragon.MouseTracker({
     element: overlay,
     clickHandler: function (event: any) {
       if (!event.quick) return
@@ -106,12 +105,12 @@ function createRegionOverlay(
   return { overlay, rect }
 }
 
-function getMarginaliaOverlayRect(tiledImage: TiledImage, isRight: boolean) {
+function getMarginaliaOverlayRect(tiledImage: Openseadragon.TiledImage, isRight: boolean) {
   const { x, y, width, height } = tiledImage.getBounds()
   const factor = 2.5
   return isRight
-    ? new Rect(x + width, y, width / factor, height)
-    : new Rect(x - width / factor, y, width / factor, height)
+    ? new Openseadragon.Rect(x + width, y, width / factor, height)
+    : new Openseadragon.Rect(x - width / factor, y, width / factor, height)
 }
 
 const blackTileSource = {
@@ -337,7 +336,10 @@ export default defineComponent({
 
       return this.viewer
     },
-    async applyMarginaliaAndOverlay(viewer: Viewer, tiledImage: TiledImage) {
+    async applyMarginaliaAndOverlay(
+      viewer: Openseadragon.Viewer,
+      tiledImage: Openseadragon.TiledImage
+    ) {
       this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
       this.currentOverlays = []
 
