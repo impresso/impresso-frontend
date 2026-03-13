@@ -77,6 +77,35 @@ export const MockToolMessage: ChatMessage = {
   toolCalls: ['find_newspapers_ids']
 }
 
+export const MockSystemMessageWithSearchSteps: ChatMessage = {
+  content: 'I have constructed a search query for your request. Here is how I approached it:',
+  timestamp: createTimestamp(3),
+  type: 'system',
+  searchQuerySteps: [
+    'Identified the topic "World War I" as the primary search keyword.',
+    'Restricted the date range to 1914–1918 to match the conflict period.',
+    'Filtered by country: Switzerland, to focus on Swiss press coverage.',
+    'Applied language filters for French and German publications.',
+    'Sorted results by relevance to surface the most cited articles first.'
+  ]
+}
+
+export const MockSystemMessageWithSearchStepsAndSummary: ChatMessage = {
+  content: 'Search query constructed successfully.',
+  timestamp: createTimestamp(2),
+  type: 'system',
+  structuredResponse: {
+    searchQuerySummary:
+      'World War I coverage in Swiss newspapers (1914–1918), ~5 000 results expected.'
+  },
+  searchQuerySteps: [
+    'Identified "World War I" as the main topic.',
+    'Set date range filter: 1914–1918.',
+    'Narrowed results to Swiss newspapers.',
+    'Added language constraints: French and German.'
+  ]
+}
+
 export const MockComplexSystemMessage: ChatMessage = {
   content:
     'Based on your search criteria, I recommend applying these filters to get the most relevant results for World War I articles in Swiss newspapers.',
@@ -99,6 +128,13 @@ export const MockComplexSystemMessage: ChatMessage = {
     searchQuerySummary:
       'World War I articles from Swiss newspapers (1914-1918), estimated 5,000+ results'
   },
+  searchQuerySteps: [
+    'Identified "World War I" as the main topic.',
+    'Located Swiss newspapers active between 1914 and 1918.',
+    'Analysed facet distribution via get_search_facets.',
+    'Applied date range filter: 1914–1918.',
+    'Formatted results and suggested filters.'
+  ],
   additionalContent: `
     <strong>Recommended filters:</strong>
     <ul>

@@ -24,10 +24,22 @@ export interface ToolCall {
   type: 'function'
 }
 
+export const isAIMessage = (message: BaristaMessageItem): message is AIMessage =>
+  message.type === 'ai'
+
+export const isHumanMessage = (message: BaristaMessageItem): message is HumanMessage =>
+  message.type === 'human'
+
+export const isToolMessage = (message: BaristaMessageItem): message is ToolMessage =>
+  message.type === 'tool'
+
+export const isErrorMessage = (message: BaristaMessageItem): message is ErrorMessage =>
+  message.type === 'error'
+
 export const supportsStructuredResponse = (
   message: BaristaMessageItem
 ): message is AIMessage | ToolMessage => {
-  return message.type === 'ai' || message.type === 'tool'
+  return isAIMessage(message) || isToolMessage(message)
 }
 
 export interface Action {
@@ -43,6 +55,7 @@ export interface ChatMessage {
   reasoning?: string
   toolCalls?: string[]
   structuredResponse?: BaristaFormattedResponse
+  searchQuerySteps?: string[]
   additionalContent?: string
 }
 

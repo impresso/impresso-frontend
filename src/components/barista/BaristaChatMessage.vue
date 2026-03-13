@@ -28,6 +28,10 @@
         {{ message.structuredResponse?.searchQuerySummary }}
       </div>
 
+      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
+        <li v-for="(step, i) in message.searchQuerySteps" :key="i">{{ step }}</li>
+      </ol>
+
       <TimeAgo
         class="message-timestamp very-small text-muted text-ellipsis no-wrap"
         style="white-space: nowrap"
@@ -116,7 +120,9 @@ const { message } = defineProps<BaristaChatMessageProps>()
 
 const isUserOrSystemWithContent = computed(() => {
   const contentLength =
-    (message.structuredResponse?.searchQuerySummary?.length || 0) + (message.content?.length || 0)
+    (message.structuredResponse?.searchQuerySummary?.length || 0) +
+    (message.content?.length || 0) +
+    (message.searchQuerySteps?.length || 0)
   return contentLength > 0 && ['user', 'system', 'error'].includes(message.type)
 })
 

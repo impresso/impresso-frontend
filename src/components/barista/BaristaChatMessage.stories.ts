@@ -9,7 +9,9 @@ import {
   MockSystemMessageWithSearchSummary,
   MockSystemMessageWithAdditionalContent,
   MockToolMessage,
-  MockComplexSystemMessage
+  MockComplexSystemMessage,
+  MockSystemMessageWithSearchSteps,
+  MockSystemMessageWithSearchStepsAndSummary
 } from '.storybook/mockData/baristaMessages'
 
 const meta: Meta<typeof BaristaChatMessage> = {
@@ -106,7 +108,25 @@ export const ToolMessage: Story = {
 }
 
 /**
- * Complex system message with all features: tool calls, reasoning, actions, search summary, and additional content
+ * Message showing step-by-step narration of how a search query was constructed
+ */
+export const MessageWithSearchSteps: Story = {
+  args: {
+    message: MockSystemMessageWithSearchSteps
+  } as BaristaChatMessageProps
+}
+
+/**
+ * Message combining search steps with a search query summary
+ */
+export const MessageWithSearchStepsAndSummary: Story = {
+  args: {
+    message: MockSystemMessageWithSearchStepsAndSummary
+  } as BaristaChatMessageProps
+}
+
+/**
+ * Complex system message with all features: tool calls, reasoning, actions, search summary, search steps, and additional content
  */
 export const ComplexMessage: Story = {
   args: {
