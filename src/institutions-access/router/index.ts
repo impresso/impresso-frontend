@@ -54,6 +54,7 @@ router.beforeEach((to, _from, next) => {
           console.info('[router] Your authentication token does not have the required group.')
           jwt = null
         }
+        console.debug('[router] JWT decoded successfully. Groups:', groups)
       } catch (e) {
         console.error('[router] Invalid JWT token:', e)
         jwt = null

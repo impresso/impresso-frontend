@@ -1,5 +1,5 @@
 <template>
-  <header class="Header position-fixed top-0 w-100 z-1">
+  <header class="Header position-fixed top-0 w-100 z-index-1">
     <nav class="h-100 navbar navbar-expand navbar-light">
       <div class="container-fluid">
         <span class="ml-2 navbar-brand">
@@ -22,8 +22,10 @@
             </a>
           </div>
         </div> -->
-        <div class="ms-auto align-items-center mr-3 navbar-nav very-small-caps">
-          <template v-if="isAuthenticated">logged in</template>
+        <div class="ms-auto align-items-center mr-3 navbar-nav">
+          <template v-if="isAuthenticated">
+            <UserDropdown :user="user" :userPlan="userPlan" />
+          </template>
         </div>
       </div>
     </nav>
@@ -34,7 +36,9 @@ import User from '@/models/User'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
-import { InstitutionsAccessBaseUrl } from '@/constants'
+import { InstitutionsAccessBaseUrl, PlanLabels } from '@/constants'
+import UserDropdown from '@/components/UserDropdown.vue'
+
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
 const userPlan = computed(() => userStore.userPlan)

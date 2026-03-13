@@ -12,7 +12,7 @@
 .Card {
   position: relative;
   border-radius: var(--impresso-border-radius-lg);
-  box-shadow: var(--bs-box-shadow-lg);
+  box-shadow: var(--bs-box-shadow-sm);
   background-color: #ffffff4a;
 }
 </style>
