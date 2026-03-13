@@ -39,46 +39,35 @@
       />
     </section>
     <section v-else-if="message.type === 'tool'" class="BaristaChatMessage__tool">
-      <div class="d-flex align-items-center gap-1 small">
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
         <Icon name="brainElectricity" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.toolResult') }}
-        </h5>
-        <div>
-          {{ $t(`barista.tools.${toolId}`) }}
-        </div>
+        <span class="font-style-italic text-muted">{{ $t('barista.toolResult') }}</span>
+        <span class="badge badge-light">{{ $t(`barista.tools.${toolId}`) }}</span>
+        <button class="tool-toggle" @click="showDebug = !showDebug">
+          {{ showDebug ? '▾' : '▸' }} {{ $t('barista.debug') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.debug') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message }}</p>
-      </details>
+      <p v-if="showDebug" class="text-muted very-small mt-1 mb-0">{{ message }}</p>
     </section>
 
     <!-- Tool calls -->
     <section
-      v-if="message.toolCalls && message.toolCalls.length > 0"
+      v-if="(!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning"
       class="BaristaChatMessage__tools"
     >
-      <div class="d-flex align-items-center gap-1 small">
-        <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.usingTools') }}
-        </h5>
-        <div v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
-          {{ $t(`barista.tools.${tool}`) }}
-          <span v-if="toolIdx < message.toolCalls.length - 1">, </span>
-        </div>
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
+        <template v-if="!hideToolCalls && message.toolCalls && message.toolCalls.length > 0">
+          <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
+          <span class="font-style-italic text-muted">{{ $t('barista.usingTools') }}</span>
+          <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="badge badge-light">
+            {{ $t(`barista.tools.${tool}`) }}
+          </span>
+        </template>
+        <button v-if="message.reasoning" class="tool-toggle" @click="showReasoning = !showReasoning">
+          {{ showReasoning ? '▾' : '▸' }} {{ $t('barista.reasoning') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.reasoning') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message.reasoning }}</p>
-      </details>
+      <p v-if="showReasoning" class="text-muted very-small mt-1 mb-0">{{ message.reasoning }}</p>
     </section>
     <!-- Actions -->
     <section
@@ -107,16 +96,20 @@
 import TimeAgo from '@/components/TimeAgo.vue'
 import type { ChatMessage } from '@/services/types/barista'
 import Icon from '../base/Icon.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 /**
  * BaristaChatMessage component props
  */
 export interface BaristaChatMessageProps {
   message: ChatMessage
+  hideToolCalls?: boolean
 }
 
-const { message } = defineProps<BaristaChatMessageProps>()
+const { message, hideToolCalls } = defineProps<BaristaChatMessageProps>()
+
+const showDebug = ref(false)
+const showReasoning = ref(false)
 
 const isUserOrSystemWithContent = computed(() => {
   const contentLength =
@@ -207,5 +200,12 @@ const formatActionType = (type: string): string => {
 .BaristaChatMessage__content.user {
   background-color: var(--impresso-color-black);
   color: var(--impresso-color-white);
+}
+
+.tool-toggle {
+  all: unset;
+  cursor: pointer;
+  opacity: 0.55;
+  font-size: inherit;
 }
 </style>

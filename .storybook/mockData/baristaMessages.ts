@@ -145,6 +145,52 @@ export const MockComplexSystemMessage: ChatMessage = {
   `
 }
 
+/**
+ * A conversation where tool calls in AI messages are stitched to their tool result messages.
+ * The AI message at step 2 has toolCallIds that match the tool message at step 3,
+ * so the "ordering tools" section should be hidden in step 2.
+ */
+export const MockConversationWithToolStitching: ChatMessage[] = [
+  {
+    content: 'Hello! How can I help you today with your research?',
+    timestamp: createTimestamp(10),
+    type: 'system'
+  },
+  {
+    content: "Find Swiss newspapers from World War I",
+    timestamp: createTimestamp(8),
+    type: 'user'
+  },
+  {
+    content: '',
+    timestamp: createTimestamp(7),
+    type: 'system',
+    toolCalls: ['find_newspapers_ids', 'get_search_facets'],
+    toolCallIds: ['call_abc123', 'call_def456'],
+    reasoning: 'I will use find_newspapers_ids to locate Swiss newspapers active during WWI, then get_search_facets to understand the article distribution.'
+  },
+  {
+    content: '[find_newspapers_ids] [ "Switzerland", { "count": 12 } ]',
+    timestamp: createTimestamp(6),
+    type: 'tool',
+    toolCallIds: ['call_abc123']
+  },
+  {
+    content: '[get_search_facets] [ "1914-1918", { "total": 4823 } ]',
+    timestamp: createTimestamp(5),
+    type: 'tool',
+    toolCallIds: ['call_def456']
+  },
+  {
+    content: 'I found 12 Swiss newspapers active during World War I with approximately 4,823 articles between 1914 and 1918.',
+    timestamp: createTimestamp(4),
+    type: 'system',
+    structuredResponse: {
+      searchQuerySummary: 'Swiss WWI newspapers (1914–1918), 4,823 articles'
+    }
+  }
+]
+
 export const MockConversation: ChatMessage[] = [
   MockSystemMessage,
   MockUserMessage,

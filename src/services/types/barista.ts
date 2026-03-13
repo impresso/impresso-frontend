@@ -54,6 +54,7 @@ export interface ChatMessage {
   actions?: Action[]
   reasoning?: string
   toolCalls?: string[]
+  toolCallIds?: string[]
   structuredResponse?: BaristaFormattedResponse
   searchQuerySteps?: string[]
   additionalContent?: string

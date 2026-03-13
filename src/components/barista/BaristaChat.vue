@@ -79,16 +79,34 @@ const convertBaristaMessageToChat = (
   }
 
   if (isAIMessage(message)) {
-    const toolCallNames = message.toolCalls?.map(tc => {
-      if (typeof tc === 'object' && tc !== null && 'name' in tc) {
-        return String(tc.name)
-      }
-      return 'unknown'
-    })
+    const toolCallNamesAndIds = message.toolCalls
+      ?.map(tc => {
+        // hide response formatting tool call. It always comes last and is not relevant to show to users
+        if (
+          typeof tc === 'object' &&
+          tc !== null &&
+          'name' in tc &&
+          tc['name'] != 'BaristaFormattedResponse'
+        ) {
+          return [String(tc.name), String(tc['id'])]
+        }
+        return ['unknown', undefined]
+      })
+      ?.filter(([name, id]) => name !== 'unknown' && id != null)
 
     const sr = message.structuredResponse
     const structuredContent =
-      sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQueryFollowUp ?? sr?.searchQuerySummary
+      sr?.assistantClarification ??
+      sr?.impressoHelp ??
+      sr?.searchQueryFollowUp ??
+      sr?.searchQuerySummary
+
+    const toolCallNames: string[] | undefined = Array.isArray(toolCallNamesAndIds)
+      ? toolCallNamesAndIds.map(([name]) => name)
+      : undefined
+    const toolCallIds = Array.isArray(toolCallNamesAndIds)
+      ? toolCallNamesAndIds.map(([_, id]) => id)
+      : undefined
 
     return {
       content: structuredContent ?? message.content,
@@ -96,6 +114,7 @@ const convertBaristaMessageToChat = (
       type: 'system',
       reasoning: message.reasoningContent ?? undefined,
       toolCalls: toolCallNames?.length ? toolCallNames : undefined,
+      toolCallIds: toolCallIds?.length ? toolCallIds : undefined,
       structuredResponse: sr ?? undefined,
       searchQuerySteps: sr?.searchQuerySteps ?? undefined
     }
@@ -104,14 +123,21 @@ const convertBaristaMessageToChat = (
   if (isToolMessage(message)) {
     const sr = message.structuredResponse
     const structuredContent =
-      sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQueryFollowUp ?? sr?.searchQuerySummary
+      sr?.assistantClarification ??
+      sr?.impressoHelp ??
+      sr?.searchQueryFollowUp ??
+      sr?.searchQuerySummary
 
+    const toolCallId = message.source?.['tool_call_id'] as string | undefined
+
+    console.log('*** T', toolCallId, message.source)
     return {
       content: structuredContent ?? `[${message.name}] ${message.content}`,
       timestamp,
       type: 'tool',
       structuredResponse: sr ?? undefined,
-      searchQuerySteps: sr?.searchQuerySteps ?? undefined
+      searchQuerySteps: sr?.searchQuerySteps ?? undefined,
+      toolCallIds: toolCallId ? [toolCallId] : undefined
     }
   }
 
