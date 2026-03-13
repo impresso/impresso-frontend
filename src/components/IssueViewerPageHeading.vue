@@ -20,10 +20,10 @@
           <span class="pages" v-if="article?.pages"
             >&nbsp;&mdash;
             {{
-              $tc('pp', article.pages.length, {
+              $t('pp', {
                 pages: article.pages.map(p => p.num).join(', '),
                 n: article.pages.length
-              })
+              }, article.pages.length)
             }}</span
           >
           <span class="pages" v-else-if="page"

@@ -72,9 +72,9 @@
         <div v-if="selectedLink">
           <div
             v-html="
-              $tc('numbers.articlesInCommon', selectedLink?.w ?? 0, {
+              $t('numbers.articlesInCommon', {
                 n: $n(selectedLink?.w ?? 0)
-              })
+              }, selectedLink?.w ?? 0)
             "
           />
           <em>click to open in search page ...</em>

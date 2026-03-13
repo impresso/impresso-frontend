@@ -35,7 +35,7 @@
             <div v-html="tooltip.item.label"></div>
             <div
               v-html="
-                $tc(countLabel, tooltip.item?.count ?? 0, { n: $n(tooltip.item?.count ?? 0) })
+                $t(countLabel, { n: $n(tooltip.item?.count ?? 0) }, tooltip.item?.count ?? 0)
               "
             />
           </div>

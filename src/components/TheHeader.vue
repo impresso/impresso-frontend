@@ -25,7 +25,7 @@
           class="position-relative"
           title="Search"
         >
-          <span>{{ $tc('label_search', 0) }}</span>
+          <span>{{ $t('label_search', 0) }}</span>
           <!-- <transition name="bounce">
             <b-badge v-if="countActiveFilters" pill variant="tiny" class="position-absolute">
             </b-badge>

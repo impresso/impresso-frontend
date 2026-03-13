@@ -49,9 +49,10 @@ export default class Collection implements IEntity {
     labels = [],
     lastModifiedDate = new Date(),
     lastModifiedTime = 0,
-    name = '',
+    name = undefined,
     id = '',
     label = undefined,
+    title = undefined,
     creator = {},
     status = 'private'
   } = {}) {
@@ -67,9 +68,9 @@ export default class Collection implements IEntity {
     this.labels = labels.map(label => String(label))
     this.lastModifiedDate = new Date(lastModifiedDate)
     this.lastModifiedTime = lastModifiedTime
-    this.name = String(name)
+    this.name = name == undefined ? title : name
     this.id = String(id)
-    this.label = label ?? this.name ?? this.id
+    this.label = label == undefined ? title : label
     this.creator = creator
     this.status = status
   }

@@ -298,10 +298,10 @@ onMounted(() => {
               <div v-else>
                 <span
                   v-html="
-                    $tc('numbers.contentItems', totalContentItems, { n: $n(totalContentItems) })
+                    $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
                   "
                 ></span>
-                {{ $tc('sources_overview_page_summary', totalResults, { total: totalResults }) }}
+                {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
                 <span
                   v-html="
                     $t('dates.fromTo', {

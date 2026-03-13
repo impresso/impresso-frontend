@@ -1,13 +1,15 @@
+@use "sass:color";
+
 //
 //  Colors
 //
 $clr-bg-primary: #fff;
-$clr-bg-secondary: darken($clr-bg-primary, 5);
+$clr-bg-secondary: color.adjust($clr-bg-primary, $lightness: -5%);
 
 $clr-primary: #111;
-$clr-secondary: lighten($clr-primary, 25);
-$clr-tertiary: lighten($clr-primary, 60);
-$clr-quaternary: lighten($clr-primary, 80);
+$clr-secondary: color.adjust($clr-primary, $lightness: 25%);
+$clr-tertiary: color.adjust($clr-primary, $lightness: 60%);
+$clr-quaternary: color.adjust($clr-primary, $lightness: 80%);
 
 $clr-accent: #f4d062;
 $clr-accent-light: #ffeb78;
@@ -39,7 +41,7 @@ $dropdown-link-active-bg: $clr-accent-secondary;
 $dropdown-link-hover-color: $clr-primary;
 $dropdown-link-hover-bg: rgba($clr-accent-secondary, 0.4);
 
-$code-color: darken($clr-accent-secondary, 30);
+$code-color: color.adjust($clr-accent-secondary, $lightness: -30%);
 $code-bg: $clr-bg-secondary;
 
 //

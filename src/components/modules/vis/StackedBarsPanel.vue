@@ -100,7 +100,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .wrapper {
   flex-direction: column;
@@ -109,7 +110,7 @@ export default {
 
 .bar-container {
   &.hilight {
-    background-color: transparentize($clr-accent, 0);
+    background-color: color.adjust($clr-accent, $alpha: 0);
   }
 }
 </style>

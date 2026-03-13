@@ -189,9 +189,9 @@ export default defineComponent({
   emits: ['click:title'],
   computed: {
     pages() {
-      return this.$tc('pp', this.item.nbPages, {
+      return this.$t('pp', {
         pages: this.item.pages?.map(d => d.num)?.join(',')
-      })
+      }, this.item.nbPages)
     },
     computedRelevantTopics() {
       if (isNaN(this.minTopicRelevance)) return this.item.topics || []

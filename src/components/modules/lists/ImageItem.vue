@@ -72,9 +72,9 @@ export default defineComponent({
       }
     },
     pageNumbers() {
-      return this.$tc('pp', this.item?.pageNumbers?.length ?? 0, {
+      return this.$t('pp', {
         pages: this.item?.pageNumbers?.join(',') ?? ''
-      })
+      }, this.item?.pageNumbers?.length ?? 0)
     },
     hasCaption() {
       return (this.item?.caption?.length ?? 0) > 0

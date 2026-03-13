@@ -12,9 +12,9 @@
             <i
               class="small"
               v-html="
-                $tc('numbers.ignoredFilters', ignoredFilters.length, {
+                $t('numbers.ignoredFilters', {
                   n: ignoredFilters.length
-                })
+                }, ignoredFilters.length)
               "
             />{{ ' ' }}<InfoButton :name="infoButtonName" />
           </span>

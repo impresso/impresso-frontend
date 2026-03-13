@@ -1,5 +1,4 @@
-import SuggestionCollection from '@/models/SuggestionCollection'
-import SuggestionFactory from '@/models/SuggestionFactory'
+import { Suggestion, createSuggestion } from '@/models/Suggestion'
 import { collections as collectionsService, suggestions as suggestionsService } from '@/services'
 import { defineStore } from 'pinia'
 
@@ -55,7 +54,7 @@ export const useAutocompleteStore = defineStore('autocomplete', {
             limit: 9
           }
         })
-        .then(({ data }) => data.map(d => SuggestionFactory.create(d)).filter(Boolean))
+        .then(({ data }) => data.map(d => createSuggestion(d)).filter(Boolean))
     },
     suggestCollections(query: string) {
       return collectionsService
@@ -67,9 +66,9 @@ export const useAutocompleteStore = defineStore('autocomplete', {
         })
         .then(co => {
           return co.data.map(d => {
-            return new SuggestionCollection({
-              item: d,
-              h: d.name,
+            return createSuggestion({
+              item: { ...d, label: d.title, name: d.title },
+              h: d.title,
               q: d.id,
               type: 'collection'
             })

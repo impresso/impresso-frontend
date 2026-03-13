@@ -20,9 +20,9 @@
                 <span
                   v-if="contentItemsResponse.status === 'success'"
                   v-html="
-                    $tc('numbers.contentItems', contentItemsResponse.total, {
+                    $t('numbers.contentItems', {
                       n: contentItemsResponse.total
-                    })
+                    }, contentItemsResponse.total)
                   "
                 />
                 <span v-else v-html="$t('actions.loading')" />
@@ -100,9 +100,9 @@
             {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
             <b
               v-html="
-                $tc('numbers.contentItems', tooltipScope.tooltip.item.w ?? 0, {
+                $t('numbers.contentItems', {
                   n: tooltipScope.tooltip.item.w ?? 0
-                })
+                }, tooltipScope.tooltip.item.w ?? 0)
               "
             />
           </div>

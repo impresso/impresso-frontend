@@ -34,10 +34,10 @@
         <span
           v-else-if="suggestionQuery.length && !isLoading"
           v-html="
-            $tc(`numbers.entities`, paginationTotalRows, {
+            $t(`numbers.entities`, {
               searchQuery: suggestionQuery,
               count: $n(paginationTotalRows)
-            })
+            }, paginationTotalRows)
           "
         />
         <span v-else-if="!suggestionQuery.length">

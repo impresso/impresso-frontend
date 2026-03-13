@@ -11,9 +11,9 @@
         <b-nav-item
           v-if="items.length"
           v-html="
-            $tc('numbers.textReusePassagesFound', pagination.totalRows, {
+            $t('numbers.textReusePassagesFound', {
               count: pagination.totalRows
-            })
+            }, pagination.totalRows)
           "
         >
         </b-nav-item>

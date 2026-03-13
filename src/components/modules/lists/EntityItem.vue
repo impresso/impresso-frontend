@@ -65,14 +65,14 @@ export default {
       return this.item?.wikidata?.images || []
     },
     countItems() {
-      return this.$tc('countItems', this.item.countItems, {
+      return this.$t('countItems', {
         count: `<span class="number">${this.$n(this.item.countItems)}</span>`
-      })
+      }, this.item.countItems)
     },
     countMentions() {
-      return this.$tc('countMentions', this.item.countMentions, {
+      return this.$t('countMentions', {
         count: `<span class="number">${this.$n(this.item.countMentions)}</span>`
-      })
+      }, this.item.countMentions)
     }
   },
   methods: {

@@ -15,9 +15,9 @@
       <div
         class="small-caps"
         v-html="
-          $tc('numbers.articles', cluster.clusterSize, {
+          $t('numbers.articles', {
             n: $n(cluster.clusterSize)
-          })
+          }, cluster.clusterSize)
         "
       />
     </div>
@@ -95,7 +95,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .cluster-details-panel {
   h2 {
@@ -111,7 +112,7 @@ export default {
 
   .text-sample {
     & > span {
-      background-color: lighten($clr-grey-800, 10%);
+      background-color: color.adjust($clr-grey-800, $lightness: 10%);
     }
     font-size: 0.9em;
     line-height: 20px;

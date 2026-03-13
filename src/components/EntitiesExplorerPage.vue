@@ -17,31 +17,43 @@
               <b-form-checkbox
                 v-model="applyCurrentSearchFilters"
                 :disabled="countActiveFilters === 0"
-                switch>
+                switch
+              >
                 {{ $t('label.useCurrentSearch') }}
               </b-form-checkbox>
-              <b-dropdown v-if="countActiveFilters > 0" class="ml-1" size="sm" variant="outline-primary" >
+              <b-dropdown
+                v-if="countActiveFilters > 0"
+                class="ml-1"
+                size="sm"
+                variant="outline-primary"
+              >
                 <template v-slot:button-content>
-                  ({{ $tc('counts.filters', countActiveFilters) }})
+                  ({{ $t('counts.filters', countActiveFilters) }})
                 </template>
-                <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
+                <search-query-explorer
+                  style="min-width: 300px"
+                  class="px-2 pt-2"
+                  :search-query="searchQuery"
+                />
               </b-dropdown>
             </form>
           </div>
         </b-navbar-nav>
-          <b-navbar-nav class="ml-auto">
-            <!-- scale -->
-            <b-button-group size="sm">
-              <b-button v-for="s in scales"
-                variant="outline-primary"
-                :key="s"
-                :class="{active: s === scale}"
-                @click="scale = s">
-                {{$t(`scales.${s}`)}}
-              </b-button>
-            </b-button-group>
-          </b-navbar-nav>
-            <!-- <b-dropdown size="sm" variant="outline-primary" >
+        <b-navbar-nav class="ml-auto">
+          <!-- scale -->
+          <b-button-group size="sm">
+            <b-button
+              v-for="s in scales"
+              variant="outline-primary"
+              :key="s"
+              :class="{ active: s === scale }"
+              @click="scale = s"
+            >
+              {{ $t(`scales.${s}`) }}
+            </b-button>
+          </b-button-group>
+        </b-navbar-nav>
+        <!-- <b-dropdown size="sm" variant="outline-primary" >
               <template v-slot:button-content>
                 <span>{{$t('scale')}}: {{$t(`scales.${scale}`)}}</span>
               </template>
@@ -57,19 +69,20 @@
     <template v-slot:default>
       <section class="p-3">
         <base-title-bar>
-          {{ $t('label.year.optionsTitle')}}
+          {{ $t('label.year.optionsTitle') }}
           <template v-slot:description>
-            {{ $t('label.year.optionsDescription')}}
+            {{ $t('label.year.optionsDescription') }}
           </template>
         </base-title-bar>
         <timeline
-          :class="{'loading': isTimelineLoading}"
+          :class="{ loading: isTimelineLoading }"
           :values="timevalues"
           :domain="timelineSpan"
           :brush="currentTimelineSelectionSpan"
           height="120px"
           @brush-end="onTimelineBrushed"
-          @clear-selection="handleTimelineCleared">
+          @clear-selection="handleTimelineCleared"
+        >
           <template v-slot="tooltipScope">
             <div v-if="tooltipScope.tooltip.item">
               {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
@@ -82,8 +95,10 @@
         <section class="py-3 border-bottom">
           <time-punchcard-chart
             @punch-click="handlePunchClicked"
-            :class="{loading: isPunchcardLoading}"
-            :data="punchcardChartData" :options="punchcardOptions">
+            :class="{ loading: isPunchcardLoading }"
+            :data="punchcardChartData"
+            :options="punchcardOptions"
+          >
             <template v-slot:default="{ category, index }">
               <div :class="`${category.isSubcategory ? 'sublabel' : 'catlabel bg-light'}`">
                 <div class="d-flex align-items-center h-100">
@@ -93,33 +108,35 @@
                     :src="getWikimediaUrl(entitiesList[index].thumbnailUrl)"
                     :width="thumbnailSize * 0.5"
                     :height="thumbnailSize * 0.5"
-                    />
-                  <div :class="`title px-2 ${category.isSubcategory? '' : 'bg-light'}`">
+                  />
+                  <div :class="`title px-2 ${category.isSubcategory ? '' : 'bg-light'}`">
                     {{ category.label }}
                   </div>
-                  <div v-if="!category.isSubcategory" class=" bg-light mr-1">
+                  <div v-if="!category.isSubcategory" class="bg-light mr-1">
                     <button
                       class="btn dripicons-cross p-0 btn-outline-danger btn-sm rounded-pill btnclose"
-                      @click="() => handleEntityLabelClicked(entitiesList[index])">
-                    </button>
+                      @click="() => handleEntityLabelClicked(entitiesList[index])"
+                    ></button>
                   </div>
                 </div>
               </div>
             </template>
 
             <template v-slot:gutter="{ categoryIndex }">
-              <div
-                class="">
-                <div
-                  class="fixed-pagination-footer p-1 mt-1 mb-0"
-                  style="top:-7px; height: 35px">
+              <div class="">
+                <div class="fixed-pagination-footer p-1 mt-1 mb-0" style="top: -7px; height: 35px">
                   <pagination
                     size="sm"
                     v-bind:perPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).perPage"
-                    v-bind:currentPage="getPagination(getEntityIdForSlotIndex(categoryIndex)).currentPage"
-                    v-bind:totalRows="getPagination(getEntityIdForSlotIndex(categoryIndex)).totalRows"
+                    v-bind:currentPage="
+                      getPagination(getEntityIdForSlotIndex(categoryIndex)).currentPage
+                    "
+                    v-bind:totalRows="
+                      getPagination(getEntityIdForSlotIndex(categoryIndex)).totalRows
+                    "
                     v-on:change="v => onInputPagination(getEntityIdForSlotIndex(categoryIndex), v)"
-                    class="centered" />
+                    class="centered"
+                  />
                 </div>
               </div>
             </template>
@@ -128,28 +145,44 @@
         <punch-explorer
           :style="punchModalStyle"
           :visible="!!(isPunchModalVisible && selectedEntity)"
-          @close="isPunchModalVisible=false"
-          dark-mode>
+          @close="isPunchModalVisible = false"
+          dark-mode
+        >
           <template v-slot:header>
-            <span v-html="punchModalTitle"/>
+            <span v-html="punchModalTitle" />
           </template>
           <template v-slot:default>
             <form class="form-inline">
               <b-form-checkbox
                 v-model="applyCurrentSearchFilters"
                 :disabled="countActiveFilters === 0"
-                switch>
+                switch
+              >
                 {{ $t('label.useCurrentSearch') }}
               </b-form-checkbox>
-              <b-dropdown class="ml-1" v-if="countActiveFilters > 0" size="sm" variant="outline-primary" >
+              <b-dropdown
+                class="ml-1"
+                v-if="countActiveFilters > 0"
+                size="sm"
+                variant="outline-primary"
+              >
                 <template v-slot:button-content>
-                  ({{ $tc('counts.filters', countActiveFilters) }})
+                  ({{ $t('counts.filters', countActiveFilters) }})
                 </template>
-                <search-query-explorer style="min-width:300px" class="px-2 pt-2" :search-query="searchQuery"/>
+                <search-query-explorer
+                  style="min-width: 300px"
+                  class="px-2 pt-2"
+                  :search-query="searchQuery"
+                />
               </b-dropdown>
             </form>
             <div v-if="applyCurrentSearchFilters">{{ $t('label.useCurrentSearch') }}</div>
-            <search-query-explorer dark-mode no-pagination no-label :search-query="selectedEntitySearchQuery"/>
+            <search-query-explorer
+              dark-mode
+              no-pagination
+              no-label
+              :search-query="selectedEntitySearchQuery"
+            />
           </template>
         </punch-explorer>
         <!-- <modal modal-class="modal-backdrop-disabled" content-class="drop-shadow"
@@ -188,10 +221,8 @@ import PunchExplorer from '@/components/modals/PunchExplorer'
 import Pagination from '@/components/modules/Pagination.vue'
 import { searchQueryGetter, mapApplyCurrentSearchFilters } from '@/logic/queryParams'
 import TimePunchcardChart from '@/components/modules/vis/TimePunchcardChart.vue'
-import BaseTitleBar from '@/components/base/BaseTitleBar.vue';
-import {
-  entityMentionsTimeline as entityMentionsTimelineService
-} from '@/services'
+import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
+import { entityMentionsTimeline as entityMentionsTimelineService } from '@/services'
 import { getQueryParameter } from '@/router/util'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import SearchQuery from '@/models/SearchQuery'
@@ -226,13 +257,11 @@ const QueryParameters = Object.freeze({
   Scale: 'scale'
 })
 
-
 /**
  * @param {import('@/models').Filter} filter
  * @returns {boolean}
  */
 const supportedSearchIndexFilters = filter => SupportedFiltersByContext.search.includes(filter.type)
-
 
 /**
  * @param {EntityOrMention} item
@@ -244,8 +273,8 @@ function mentionsFrequenciesResponseItemToPunchcardChartCategory(item, isSubcate
     return {
       value: count,
       time: new Date(String(val))
-    };
-  });
+    }
+  })
 
   return {
     label: item.label,
@@ -254,7 +283,6 @@ function mentionsFrequenciesResponseItemToPunchcardChartCategory(item, isSubcate
   }
 }
 
-
 /**
  * @param {PunchcardResponse} response
  * @returns {import('@/d3-modules/TimePunchcardChart').ChartCategory[]}
@@ -262,8 +290,9 @@ function mentionsFrequenciesResponseItemToPunchcardChartCategory(item, isSubcate
 function mentionsFrequenciesResponseToPunchcardChartCategories(response) {
   const { item, subitems = [] } = response
 
-  return [mentionsFrequenciesResponseItemToPunchcardChartCategory(item)]
-    .concat(subitems.map(i => mentionsFrequenciesResponseItemToPunchcardChartCategory(i, true)))
+  return [mentionsFrequenciesResponseItemToPunchcardChartCategory(item)].concat(
+    subitems.map(i => mentionsFrequenciesResponseItemToPunchcardChartCategory(i, true))
+  )
 }
 
 /**
@@ -291,8 +320,8 @@ export default {
     punchData: {},
     punchModalPositions: {
       x: 0,
-      y: 0,
-    },
+      y: 0
+    }
   }),
   components: {
     Timeline,
@@ -308,10 +337,7 @@ export default {
     const lastDate = new Date()
     firstDate = new Date(firstDate)
 
-    this.timelineSpan = [
-      firstDate.getFullYear(),
-      lastDate.getFullYear()
-    ];
+    this.timelineSpan = [firstDate.getFullYear(), lastDate.getFullYear()]
   },
   _computed: {
     $navigation() {
@@ -319,7 +345,7 @@ export default {
     },
     punchModalStyle() {
       return {
-        transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`,
+        transform: `translate(${this.punchModalPositions.x}px,${this.punchModalPositions.y}px)`
       }
     },
     applyCurrentSearchFilters: mapApplyCurrentSearchFilters(),
@@ -352,10 +378,7 @@ export default {
     /** @return {Date[]} */
     currentTimelineSelectionSpan() {
       if (this.timelineSelectionStart != null && this.timelineSelectionEnd != null) {
-        return [
-          this.timelineSelectionStart,
-          this.timelineSelectionEnd
-        ]
+        return [this.timelineSelectionStart, this.timelineSelectionEnd]
       }
       return []
     },
@@ -363,7 +386,8 @@ export default {
     punchcardResolution() {
       if (this.currentTimelineSelectionSpan.length !== 2) return 'year'
       const spanMs = Math.abs(
-        this.currentTimelineSelectionSpan[1].getTime() - this.currentTimelineSelectionSpan[0].getTime()
+        this.currentTimelineSelectionSpan[1].getTime() -
+          this.currentTimelineSelectionSpan[0].getTime()
       )
       const spanThreshold = 1000 * 60 * 60 * 24 * 365 * 5 // 5 years
       return spanMs < spanThreshold ? 'month' : 'year'
@@ -373,7 +397,7 @@ export default {
       if (this.punchData.time && this.punchcardResolution === 'year') {
         return this.$t('entity-label-in-year', {
           label: this.punchData.label,
-          year: this.punchData.time.getFullYear(),
+          year: this.punchData.time.getFullYear()
         })
       }
       return ''
@@ -392,18 +416,18 @@ export default {
         const filters = [
           {
             type: this.selectedEntity.entityType,
-            q: [this.selectedEntity.id],
+            q: [this.selectedEntity.id]
           }
         ]
         if (this.punchcardResolution === 'year') {
           filters.push({
             type: 'year',
-            q: [String(this.punchData.time.getFullYear())],
+            q: [String(this.punchData.time.getFullYear())]
           })
         } else if (this.punchcardResolution === 'month') {
           filters.push({
             type: 'year',
-            q: this.punchData.time.getFullYear(),
+            q: this.punchData.time.getFullYear()
           })
         }
         if (this.applyCurrentSearchFilters) {
@@ -424,7 +448,9 @@ export default {
       get() {
         try {
           // @ts-ignore
-          const items = /** @type {string} */ (window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds]))
+          const items = /** @type {string} */ (
+            window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds])
+          )
           return items != null ? items.split(',') : []
         } catch (e) {
           return []
@@ -434,7 +460,8 @@ export default {
       set(items) {
         this.$navigation.updateQueryParameters({
           // @ts-ignore
-          [QueryParameters.SelectedEntitiesIds]: items.length > 0 ? window.btoa(items.join(',')) : undefined
+          [QueryParameters.SelectedEntitiesIds]:
+            items.length > 0 ? window.btoa(items.join(',')) : undefined
         })
       }
     },
@@ -465,7 +492,7 @@ export default {
       const categories = this.mentionsFrequenciesResponses.reduce((acc, response) => {
         const items = mentionsFrequenciesResponseToPunchcardChartCategories(response)
         return acc.concat(items)
-      }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */([]))
+      }, /** @type {import('@/d3-modules/TimePunchcardChart').ChartCategory[]} */ ([]))
 
       return { categories }
     },
@@ -480,7 +507,7 @@ export default {
       return this.mentionsFrequenciesResponses.reduce((acc, response) => {
         const { item, subitems = [] } = response
         return acc.concat(item).concat(subitems)
-      }, /** @type {EntityOrMention[]} */([]))
+      }, /** @type {EntityOrMention[]} */ ([]))
     },
     scale: {
       /** @returns {string} */
@@ -518,7 +545,7 @@ export default {
       this.entitiesList.forEach((entity, index) => {
         if (index === slotIndex) chosenEntity = lastEntity
         if (entity.id != null) lastEntity = entity
-      });
+      })
       return chosenEntity?.id
     },
     /**
@@ -540,13 +567,17 @@ export default {
       this.paginations[entityId] = pagination
     },
     async loadTimeline() {
-      const observedItemsFilters = /** @type {Filter[]} */ (this.observingList.length > 0
-        ? [{
-          type: 'entity',
-          op: 'OR',
-          q: this.observingList
-        }]
-        : [])
+      const observedItemsFilters = /** @type {Filter[]} */ (
+        this.observingList.length > 0
+          ? [
+              {
+                type: 'entity',
+                op: 'OR',
+                q: this.observingList
+              }
+            ]
+          : []
+      )
 
       const currentSearchFilters = this.applyCurrentSearchFilters
         ? this.searchQuery.getFilters()
@@ -555,15 +586,17 @@ export default {
       const filters = observedItemsFilters.concat(currentSearchFilters)
 
       try {
-        this.isTimelineLoading = true;
-        this.timevalues = await searchFacetsService.get('year', {
-          query: {
-            filters,
-            limit: 500,
-          },
-        }).then(res => Helpers.timeline.fromBuckets(res.buckets))
+        this.isTimelineLoading = true
+        this.timevalues = await searchFacetsService
+          .get('year', {
+            query: {
+              filters,
+              limit: 500
+            }
+          })
+          .then(res => Helpers.timeline.fromBuckets(res.buckets))
       } finally {
-        this.isTimelineLoading = false;
+        this.isTimelineLoading = false
       }
     },
     /** @param {any} data */
@@ -580,13 +613,19 @@ export default {
         ? this.searchQuery.getFilters()
         : []
 
-
-      const timeFilter = /** @type {Filter[]} */ (this.currentTimelineSelectionSpan.length > 0
-        ? [{
-          type: 'daterange',
-          // TODO: the daterange filter has a weird notion of ISO datetime format. It doesn't accept milliseconds.
-          q: this.currentTimelineSelectionSpan.map(d => d.toISOString().replace(/\.\d+Z/, 'Z')).join(' TO ')
-        }] : [])
+      const timeFilter = /** @type {Filter[]} */ (
+        this.currentTimelineSelectionSpan.length > 0
+          ? [
+              {
+                type: 'daterange',
+                // TODO: the daterange filter has a weird notion of ISO datetime format. It doesn't accept milliseconds.
+                q: this.currentTimelineSelectionSpan
+                  .map(d => d.toISOString().replace(/\.\d+Z/, 'Z'))
+                  .join(' TO ')
+              }
+            ]
+          : []
+      )
 
       const filters = timeFilter.concat(currentSearchFilters)
 
@@ -595,7 +634,7 @@ export default {
         filters,
         timeResolution: this.punchcardResolution,
         offset: skipPerEntity[entityId]
-      }));
+      }))
 
       try {
         this.isPunchcardLoading = true
@@ -606,7 +645,8 @@ export default {
         // update totals in pagination
         this.mentionsFrequenciesResponses.forEach(({ item, totalSubitems = 0 }) => {
           if (item.id == null) return
-          const pagination = this.paginations[/** @type {string} */ (item.id)] ?? getDefaultPagination()
+          const pagination =
+            this.paginations[/** @type {string} */ (item.id)] ?? getDefaultPagination()
           pagination.totalRows = totalSubitems
           this.paginations[item.id] = pagination
         })
@@ -616,84 +656,84 @@ export default {
     },
     /** @param {EntityOrMention} entity */
     handleEntityLabelClicked(entity) {
-      const items = this.observingList.filter(id => id !== entity.id);
-      this.observingList = items;
+      const items = this.observingList.filter(id => id !== entity.id)
+      this.observingList = items
     },
     handlePunchClicked({ datapoint, x, y, rect }) {
-      const availableHeight = this.$refs?.visualisationWrapper?.parentNode?.offsetHeight;
-      this.isPunchModalVisible = true;
-      this.punchData = datapoint;
-      const xmin = Math.min(rect.width - rect.x, Math.max(50, x - rect.x - 150));
-      const ymin = Math.min(availableHeight / 2, y);
-      console.info(y, availableHeight);
-      this.punchModalPositions = { x: xmin, y: ymin };
+      const availableHeight = this.$refs?.visualisationWrapper?.parentNode?.offsetHeight
+      this.isPunchModalVisible = true
+      this.punchData = datapoint
+      const xmin = Math.min(rect.width - rect.x, Math.max(50, x - rect.x - 150))
+      const ymin = Math.min(availableHeight / 2, y)
+      console.info(y, availableHeight)
+      this.punchModalPositions = { x: xmin, y: ymin }
       // console.log('@handlePunchClicked', x - window, y);
     },
     getWikimediaUrl(image) {
-      return getWikimediaRedirectFileUrl(image, { width: this.thumbnailSize });
-    },
+      return getWikimediaRedirectFileUrl(image, { width: this.thumbnailSize })
+    }
   },
   watch: {
     timelineUpdateParameters: {
       immediate: true,
       deep: true,
       async handler(newValues, oldValues) {
-        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
-        await this.loadTimeline();
-      },
+        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return
+        await this.loadTimeline()
+      }
     },
     punchcardUpdateParameters: {
       immediate: true,
       deep: true,
       async handler(newValues, oldValues) {
-        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return;
-        await this.loadPunchcardData(newValues);
+        if (JSON.stringify(newValues) === JSON.stringify(oldValues)) return
+        await this.loadPunchcardData(newValues)
       }
     }
-  },
-};
+  }
+}
 </script>
 
 <style lang="scss" scoped>
-  .top-section {
-    width: 100%;
+.top-section {
+  width: 100%;
+}
+.current-search-panel {
+  display: inline-flex;
+}
+.scale-selector {
+  display: inline-flex;
+}
+.control-panel {
+  justify-content: space-between;
+}
+.btnclose {
+  width: 18px;
+  height: 18px;
+  top: -1px;
+  position: relative;
+}
+.loading {
+  opacity: 0.5;
+}
+.catlabel {
+  width: 100vw;
+  margin-top: -6px;
+  height: 30px;
+  overflow: hidden;
+  pointer-events: none;
+  .thumb {
+    border-radius: 50%;
+    object-fit: cover;
   }
-  .current-search-panel {
-    display: inline-flex;
-  }
-  .scale-selector {
-    display: inline-flex;
-  }
-  .control-panel {
-    justify-content: space-between;
-  }
-  .btnclose {
-    width: 18px;
-    height: 18px;
-    top: -1px;
-    position: relative;
-  }
-  .loading {
-    opacity: 0.5;
-  }
-  .catlabel {
-    width: 100vw;
-    margin-top: -6px;
-    height: 30px;
-    overflow: hidden;
-    pointer-events: none;
-    .thumb {
-      border-radius: 50%;
-      object-fit: cover;
-    }
-  }
+}
 </style>
 
 <i18n lang="json">
 {
   "en": {
-    "entity-label-in-year" : "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",
-    "no-entities-selected" : "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
+    "entity-label-in-year": "<b>{label}</b> in <span class='date smallcaps'>{year}</span>",
+    "no-entities-selected": "Add named entities to the <span class='text-blue'>observing list</span> using the <span class='icon dripicons-preview text-muted'></span> icon.",
     "title": "Timeline of observed Named Entities",
     "scale": "Scale",
     "scales": {

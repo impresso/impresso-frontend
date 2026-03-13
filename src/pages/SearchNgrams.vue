@@ -37,7 +37,7 @@
                 <span
                   class="ml-1"
                   v-html="
-                    $tc('numbers.articles', totalArticlesCount, { n: $n(totalArticlesCount) })
+                    $t('numbers.articles', { n: $n(totalArticlesCount) }, totalArticlesCount)
                   "
                 />
                 <search-query-summary
@@ -369,10 +369,10 @@ export default {
       }
       const trends = this.trends
         .map(trend =>
-          this.$tc('numbers.unigramMentions', trend.total || 0, {
+          this.$t('numbers.unigramMentions', {
             unigram: trend.ngram,
             n: this.$n(trend.total)
-          })
+          }, trend.total || 0)
         )
         .join('; ')
       return this.$t('label.withTrends', { trends }).toString()
@@ -564,7 +564,7 @@ export default {
       const absoluteValue = trends[itemIndex].values[dateIndex]
       const total = totals[dateIndex]
 
-      return this.$tc('tooltipAbsoluteValue', absoluteValue, { count: absoluteValue, total })
+      return this.$t('tooltipAbsoluteValue', { count: absoluteValue, total }, absoluteValue)
     },
     /** @param {string} term */
     handleSuggestedTermSelected(term) {
