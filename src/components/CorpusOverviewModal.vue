@@ -36,11 +36,11 @@
             <b-dropdown class="mx-2" size="sm" variant="outline-secondary" data-testid="sortOrder">
               <template v-slot:button-content>
                 <span>{{
-                  $tc(filterBySelectedLabel, filteredDatasets.length, {
+                  $t(filterBySelectedLabel, {
                     n: filteredDatasets.length,
                     total: props.datasets?.length,
                     userPlan: plansLabels[props.userPlan] || props.userPlan
-                  })
+                  }, filteredDatasets.length)
                 }}</span>
               </template>
               <b-dropdown-item

@@ -55,7 +55,7 @@
               { 'dripicons-conversation': filter.type === 'textReuseCluster' },
               { 'dripicons-scale': numericTypes.includes(filter.type) }
             ]"
-            :title="$tc(`label.${filter.type}.title`, 0)"
+            :title="$t(`label.${filter.type}.title`, 0)"
           /> -->
           <!--  type:string, type:title -->
           <span
@@ -83,6 +83,14 @@
                 filter.type
               ) !== -1
             "
+            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
+            :class="filter.context"
+          >
+          </span>
+          <!--  type:mention -->
+          <span
+            class="label sp-labelled"
+            v-if="['mention'].indexOf(filter.type) !== -1"
             v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
             :class="filter.context"
           >
@@ -199,7 +207,7 @@
 
         <div class="p-2 pb-1 sp-contents">
           <div class="description">
-            {{ $tc(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
+            {{ $t(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
           </div>
           <filter-monitor
             checkbox
@@ -508,7 +516,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/styles/variables.sass';
+@use '@/styles/variables.sass' as *;
 
 .bg-dark .search-pills {
   .search-pill button {

@@ -282,7 +282,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 a.d-block:hover {
   text-decoration: none;

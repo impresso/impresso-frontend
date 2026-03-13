@@ -31,9 +31,9 @@
                 <RouterLink class="nav-link" :to="{ name: 'searchRadio' }"
                   ><span
                     v-html="
-                      $tc('audioContentItems', 3, {
+                      $t('audioContentItems', {
                         n: isLoading ? '...' : $n(3)
-                      })
+                      }, 3)
                     "
                   ></span>
                 </RouterLink>

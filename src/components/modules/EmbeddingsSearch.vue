@@ -110,9 +110,9 @@
       <span
         class="small m-2"
         v-html="
-          $tc('numbers.itemsGeneric', localFilter?.q.length || 0, {
+          $t('numbers.itemsGeneric', {
             n: localFilter?.q.length || 0
-          })
+          }, localFilter?.q.length || 0)
         "
       />
 

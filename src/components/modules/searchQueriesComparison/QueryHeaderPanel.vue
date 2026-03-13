@@ -72,9 +72,9 @@
                       class="textbox-fancy"
                       v-if="!isNaN(total)"
                       v-html="
-                        $tc(`comparison.titles.${comparable.type}`, total, {
+                        $t(`comparison.titles.${comparable.type}`, {
                           n: $n(total)
-                        })
+                        }, total)
                       "
                     ></span>
                     <span v-else>{{ $t(`comparison.titles.${mode}`) }}</span>
@@ -102,9 +102,9 @@
         >
           {{ $t('actions.searchMore') }}
           {{
-            $tc('numbers.resultsParenthesis', total ?? 0, {
+            $t('numbers.resultsParenthesis', {
               n: $n(total ?? 0)
-            })
+            }, total ?? 0)
           }}
         </router-link>
       </div>
@@ -199,9 +199,9 @@ export default {
     /** @param {string} type */
     getTabLabel(type) {
       if (type === this.comparable.type) {
-        return this.$tc(`tabs.${type}.active`, this.total ?? 0, {
+        return this.$t(`tabs.${type}.active`, {
           count: this.$n(this.total ?? 0)
-        })
+        }, this.total ?? 0)
       }
       return this.$t(`tabs.${type}.pick`)
     },
@@ -256,8 +256,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
-@import '@/styles/variables.sass';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
+@use '@/styles/variables.sass' as *;
 // multiply A + B
 // $inspect-compare-middle-panel-color: #fdafdb;// dodge A B
 

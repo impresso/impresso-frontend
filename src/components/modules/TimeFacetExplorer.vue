@@ -13,9 +13,9 @@
           {{ $d(tooltipScope?.tooltip?.item?.t ?? 0, 'year') }} &middot;
           <span
             v-html="
-              $tc('numbers.articles', tooltipScope?.tooltip?.item?.w ?? 0, {
+              $t('numbers.articles', {
                 n: $n(tooltipScope?.tooltip?.item?.w ?? 0)
-              })
+              }, tooltipScope?.tooltip?.item?.w ?? 0)
             "
           />
         </div>

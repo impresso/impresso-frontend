@@ -38,7 +38,7 @@
               </div>
               <span
                 v-if="ignoredFilters.length"
-                v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
+                v-html="$t('numbers.ignoredFilters', ignoredFilters.length)"
               >
               </span>
             </b-alert>
@@ -81,9 +81,13 @@
               class="mt-2 IssueViewerPage_matchingContentItems text-small text-muted px-2"
               v-if="!serviceQuery.enabled || !showMatchingContentItems"
               v-html="
-                $tc('numbers.contentItems', contentItems.length, {
-                  n: $n(contentItems.length)
-                })
+                $t(
+                  'numbers.contentItems',
+                  {
+                    n: $n(contentItems.length)
+                  },
+                  contentItems.length
+                )
               "
             ></div>
             <div
@@ -95,28 +99,40 @@
               <div
                 v-else-if="applyCurrentSearchFilters && !suggestionQuery.length"
                 v-html="
-                  $tc('numbers.articlesMatchingSearchFilters', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatchingSearchFilters',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
               <div
                 v-else-if="applyCurrentSearchFilters"
                 v-html="
-                  $tc('numbers.articlesMatchingWithinSearch', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatchingWithinSearch',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
               <div
                 v-else
                 v-html="
-                  $tc('numbers.articlesMatching', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatching',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
             </div>

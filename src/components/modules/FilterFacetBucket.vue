@@ -14,11 +14,7 @@
       <span v-if="bucket.count > -1">
         (<span
           v-html="
-            $tc(
-              type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results',
-              bucket.count,
-              { n: $n(bucket.count) }
-            )
+            $t(type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results', { n: $n(bucket.count) }, bucket.count)
           "
         />)
         <!-- {{ type }}-->

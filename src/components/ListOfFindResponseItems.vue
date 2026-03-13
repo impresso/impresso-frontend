@@ -39,9 +39,9 @@
           <p
             v-if="serviceResponse.status == 'success'"
             v-html="
-              $tc('numbers.itemsGeneric', serviceResponse.data.length, {
+              $t('numbers.itemsGeneric', {
                 n: $n(serviceResponse.data.length)
-              })
+              }, serviceResponse.data.length)
             "
         /></slot>
       </div>

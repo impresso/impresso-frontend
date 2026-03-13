@@ -27,13 +27,17 @@
                 <span
                   v-if="q.length"
                   v-html="
-                    $tc('numbers.articlesMatching', matchesTotalRows, {
-                      n: $n(matchesTotalRows),
-                      q
-                    })
+                    $t(
+                      'numbers.articlesMatching',
+                      {
+                        n: $n(matchesTotalRows),
+                        q
+                      },
+                      matchesTotalRows
+                    )
                   "
                 />
-                <span v-else v-html="$tc('numbers.articles', matchesTotalRows)" />
+                <span v-else v-html="$t('numbers.articles', matchesTotalRows)" />
               </span>
               <span
                 v-else
@@ -112,7 +116,7 @@
               >
                 <div class="dripicons dripicons-media-previous pt-1"></div>
               </b-button>
-              <div v-if="page" class="px-2 pt-1">{{ $tc('pp', 1, { pages: page.num }) }}</div>
+              <div v-if="page" class="px-2 pt-1">{{ $t('pp', { pages: page.num }, 1) }}</div>
               <b-button
                 variant="light"
                 size="sm"
@@ -343,9 +347,13 @@ export default {
       if (!this.article || !this.article.pages) {
         return ''
       }
-      return this.$tc('pp', this.article.nbPages, {
-        pages: this.article.pages.map(d => d.num).join(',')
-      })
+      return this.$t(
+        'pp',
+        {
+          pages: this.article.pages.map(d => d.num).join(',')
+        },
+        this.article.nbPages
+      )
     },
     mode: {
       get() {
@@ -517,7 +525,7 @@ export default {
       const sectionFormatter = (items, type) =>
         [
           '<section><h4 class="small-caps border-bottom">',
-          this.$tc(`label.${type}.title`, items.length),
+          this.$t(`label.${type}.title`, items.length),
           '</h4><ul>',
           items.map(listMapper(type)).join(''),
           '</ul></section>'
@@ -864,7 +872,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 div.marginalia {
   // background: $clr-accent;

@@ -17,7 +17,7 @@
         <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
           v-if="item.image?.pagesCount"
-          v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
+          v-html="` – ${$t('pp', { pages }, item.image?.pagesCount)}`"
         >
         </span>
       </p>
@@ -35,7 +35,7 @@
       <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
       <span
         v-if="item.image?.pagesCount"
-        v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
+        v-html="` – ${$t('pp', { pages }, item.image?.pagesCount)}`"
       >
       </span>
     </div>

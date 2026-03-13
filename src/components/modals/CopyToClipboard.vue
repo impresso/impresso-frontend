@@ -414,7 +414,7 @@ export default {
       await navigator.clipboard.writeText(text)
 
       const title = this.$t('url_copied_title')
-      const message = this.$tc('url_copied_message')
+      const message = this.$t('url_copied_message')
 
       this.addNotification({ title, message, type: 'success' })
     },

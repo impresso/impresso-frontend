@@ -19,7 +19,7 @@
           >
             <ItemLabel v-if="bucket.item" :item="bucket.item" :type="itemType" />
             <span v-if="bucket.count > -1">
-              (<span v-html="$tc('numbers.results', bucket.count, { n: $n(bucket.count) })" />)
+              (<span v-html="$t('numbers.results', { n: $n(bucket.count) }, bucket.count)" />)
             </span>
             <ItemSelector :id="String(bucket.value)" :item="bucket.item" :type="filterType" />
           </b-form-checkbox>
@@ -34,7 +34,7 @@
         @click="applyFilter()"
         size="sm"
         variant="success"
-        v-html="$tc('actions.addToCurrentFiltersDetailed', selectedIds.length)"
+        v-html="$t('actions.addToCurrentFiltersDetailed', selectedIds.length)"
       ></b-button>
     </div>
   </div>

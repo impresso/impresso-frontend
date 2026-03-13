@@ -8,9 +8,9 @@
             <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
               <span
                 v-html="
-                  $tc('searchTextReuseLabel', 10000, {
+                  $t('searchTextReuseLabel', {
                     n: $n(10000)
-                  })
+                  }, 10000)
                 "
               />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
@@ -22,10 +22,10 @@
             <em
               class="small"
               v-html="
-                $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
+                $t('numbers.ignoredFiltersDetailed', {
                   n: ignoredFilters.length,
                   detail: ignoredFilters.map(f => f.type).join(', ')
-                })
+                }, ignoredFilters.length)
               "
             />
           </div>

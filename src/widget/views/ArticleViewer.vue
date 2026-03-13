@@ -159,7 +159,8 @@ export default {
 }
 </script>
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 div.overlay-region {
   // background-color: $clr-accent-secondary;
@@ -168,10 +169,10 @@ div.overlay-region {
   cursor: pointer;
 
   &.selected {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.5);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.5);
     cursor: inherit;
   }
 }

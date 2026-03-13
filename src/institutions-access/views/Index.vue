@@ -16,7 +16,7 @@
           <template #header="{ total }">
             <div class="p-2 pb-3 d-flex gap-2 justify-content-between align-items-center">
               <h5 class="m-0 font-size-inherit" v-html="$t('listTitle')"></h5>
-              <span v-html="$tc('numbers.itemsGeneric', total, { n: $n(total) })"></span>
+              <span v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
             </div>
             <div class="container-fluid">
               <div class="row pb-2 small align-items-center font-weight-bold">

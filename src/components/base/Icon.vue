@@ -736,6 +736,17 @@ const Icons: Record<string, IconData> = {
         d: 'M7.5 4.5L16.1437 8.34164C16.3604 8.43794 16.5 8.65281 16.5 8.88992V12.5'
       }
     ]
+  },
+  mention: {
+    // at-sign / mention icon
+    paths: [
+      {
+        d: 'M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z'
+      },
+      {
+        d: 'M17 7V13C17 14.1046 17.8954 15 19 15C20.1046 15 21 14.1046 21 13V12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21H16'
+      }
+    ]
   }
 }
 
@@ -755,7 +766,8 @@ const IconAliases: Record<string, string> = {
   sourceType: 'sourceType',
   sourceMedium: 'sourceMedium',
   collection: 'boxIso',
-  embedding: 'codeBracketSquare'
+  embedding: 'codeBracketSquare',
+  mention: 'mention'
 }
 
 const computedPaths = computed(() => {

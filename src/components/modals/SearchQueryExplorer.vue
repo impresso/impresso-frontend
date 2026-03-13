@@ -117,10 +117,14 @@ export default {
     },
     incipit() {
       const n = this.$n(this.paginationTotalRows)
-      return this.$tc('incipit', this.paginationTotalRows, {
-        n,
-        groupByLabel: this.$tc('numbers.results', this.paginationTotalRows, { n })
-      })
+      return this.$t(
+        'incipit',
+        {
+          n,
+          groupByLabel: this.$t('numbers.results', { n }, this.paginationTotalRows)
+        },
+        this.paginationTotalRows
+      )
     }
   },
   methods: {

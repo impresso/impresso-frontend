@@ -26,27 +26,35 @@
           <span
             v-else-if="searchQueryModel.length === 0"
             v-html="
-              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel,
-                count: $n(totalResults)
-              })
+              $t(
+                `description.${searchingEnabled ? 'search' : 'facets'}`,
+                {
+                  searchQuery: searchQueryModel,
+                  count: $n(totalResults)
+                },
+                totalResults
+              )
             "
           />
           <span
             v-else
             v-html="
-              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel,
+              $t(
+                `description.${searchingEnabled ? 'search' : 'facets'}`,
+                {
+                  searchQuery: searchQueryModel,
 
-                count: $n(totalResults)
-              })
+                  count: $n(totalResults)
+                },
+                totalResults
+              )
             "
           ></span>
         </div>
         <form v-if="searchingEnabled" @submit.prevent="search" class="mt-2">
           <div class="input-group">
             <b-form-input
-              :placeholder="$tc('searchField.placeholder', totalResults)"
+              :placeholder="$t('searchField.placeholder', totalResults)"
               v-model.trim="searchQueryModel"
               autofocus
               data-testid="search-field"

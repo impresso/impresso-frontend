@@ -72,9 +72,9 @@
               :to="goToRoute({ name: 'textReuseClusters', query: { p: 1 } })"
               ><span
                 v-html="
-                  $tc('routeTextReuseClusters', totalClusters, {
+                  $t('routeTextReuseClusters', {
                     n: isLoadingClusters ? '...' : $n(totalClusters)
-                  })
+                  }, totalClusters)
                 "
               ></span>
             </RouterLink>
@@ -85,9 +85,9 @@
               :to="goToRoute({ name: 'textReusePassages', query: { p: 1 } })"
               ><span
                 v-html="
-                  $tc('routeTextReusePassages', totalPassages, {
+                  $t('routeTextReusePassages', {
                     n: isLoadingPassages ? '...' : $n(totalPassages)
-                  })
+                  }, totalPassages)
                 "
               ></span>
             </RouterLink>
@@ -582,17 +582,17 @@ export default {
     incipit() {
       if (!this.withClusters) {
         return this.$t('textReuseSummaryIncipitWithoutClusters', {
-          passages: this.$tc('routeTextReusePassages', this.totalPassages, {
+          passages: this.$t('routeTextReusePassages', {
             n: this.$n(this.totalPassages)
-          })
+          }, this.totalPassages)
         })
       }
-      const passagesLabel = this.$tc('routeTextReusePassages', this.totalPassages, {
+      const passagesLabel = this.$t('routeTextReusePassages', {
         n: this.$n(this.totalPassages)
-      })
-      const clustersLabel = this.$tc('routeTextReuseClusters', this.totalClusters, {
+      }, this.totalPassages)
+      const clustersLabel = this.$t('routeTextReuseClusters', {
         n: this.$n(this.totalClusters)
-      })
+      }, this.totalClusters)
       return this.$t('textReuseSummaryIncipit', {
         passages: passagesLabel,
         clusters: clustersLabel

@@ -2,16 +2,20 @@
   <time :datetime="datetime">
     <span
       v-html="
-        $tc(timeAgoData.key, timeAgoData.elapsedTime, {
-          // For 'Yesterday' and 'Older' cases, format the date/time part
-          date:
-            timeAgoData.params.format && timeAgoData.params.date
-              ? $d(timeAgoData.params.date, timeAgoData.params.format)
-              : '',
+        $t(
+          timeAgoData.key,
+          {
+            // For 'Yesterday' and 'Older' cases, format the date/time part
+            date:
+              timeAgoData.params.format && timeAgoData.params.date
+                ? $d(timeAgoData.params.date, timeAgoData.params.format)
+                : '',
 
-          // For 'Minutes' and 'Hours' cases, format the number
-          n: $n(timeAgoData.elapsedTime)
-        })
+            // For 'Minutes' and 'Hours' cases, format the number
+            n: $n(timeAgoData.elapsedTime)
+          },
+          timeAgoData.elapsedTime
+        )
       "
     ></span>
   </time>
@@ -42,7 +46,7 @@ export interface TimeAgoProps {
 
 interface TimeAgoData {
   key: string // The translation key (e.g., 'timeAgo.minutes')
-  elapsedTime: number // The number used for $tc choice and $n formatting
+  elapsedTime: number // The number used for $t choice and $n formatting
   params: {
     date?: Date
     format?: 'shortTime' | 'long' // Format key for $d()
@@ -87,7 +91,7 @@ const datetime = computed(() => {
 // --- 4. Core Logic Function (Integrated) ---
 
 /**
- * Calculates the time difference and determines the appropriate data structure for $tc().
+ * Calculates the time difference and determines the appropriate data structure for $t().
  */
 function getTimeAgoData(date: string | Date, currentTime: number): TimeAgoData {
   const targetDate = new Date(date)
@@ -158,7 +162,7 @@ function getTimeAgoData(date: string | Date, currentTime: number): TimeAgoData {
 // --- 5. Computed Final Output Data Structure ---
 
 /**
- * Computes the data object required by the template's $tc call.
+ * Computes the data object required by the template's $t call.
  */
 const timeAgoData = computed<TimeAgoData>(() => {
   return getTimeAgoData(props.date, now.value)

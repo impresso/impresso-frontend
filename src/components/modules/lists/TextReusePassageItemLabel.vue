@@ -22,7 +22,7 @@
     />
     <span class="small ml-2">
       {{ $d(new Date(item.date), 'short') }} &ndash;
-      {{ $tc('pp', item.pageNumbers.length, { pages: item.pageNumbers.join(',') }) }}
+      {{ $t('pp', { pages: item.pageNumbers.join(',') }, item.pageNumbers.length) }}
     </span>
   </div>
 </template>

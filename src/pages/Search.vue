@@ -81,7 +81,7 @@
                 @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
-                {{ $tc('add_n_to_collection', selectedItems.length) }}
+                {{ $t('add_n_to_collection', selectedItems.length) }}
               </b-dropdown-item>
               <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
                 <span class="dripicons-export pr-1"></span>
@@ -138,7 +138,7 @@
         id="nameSelectionCollection"
         hide-footer
         body-class="m-0 p-0"
-        :title="$tc('add_n_to_collection', selectedItems.length)"
+        :title="$t('add_n_to_collection', selectedItems.length)"
         :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
@@ -753,7 +753,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .navbar-nav {
   flex-direction: row;

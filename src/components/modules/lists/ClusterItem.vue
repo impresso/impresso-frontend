@@ -103,19 +103,19 @@ export default {
       }
     },
     textReuseClusterSummary() {
-      const clusterSizeLabel = this.$tc('numbers.clusterSize', this.item.clusterSize, {
+      const clusterSizeLabel = this.$t('numbers.clusterSize', {
         n: this.$n(this.item.clusterSize)
-      })
-      const lexicalOverlapLabel = this.$tc('numbers.lexicalOverlap', this.item.lexicalOverlap, {
+      }, this.item.clusterSize)
+      const lexicalOverlapLabel = this.$t('numbers.lexicalOverlap', {
         n: this.$n(Math.round(this.item.lexicalOverlap * 100) / 100)
-      })
+      }, this.item.lexicalOverlap)
 
       return this.$t('textReuseClusterSummary', {
         clusterSize: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$tc('numbers.days', this.item.timeDifferenceDay, {
+        timespan: this.$t('numbers.days', {
           n: this.item.timeDifferenceDay
-        })
+        }, this.item.timeDifferenceDay)
       })
     }
   }

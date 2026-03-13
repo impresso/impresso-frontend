@@ -370,7 +370,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .d3-timeline {
   width: 100%;
@@ -384,7 +385,7 @@ export default defineComponent({
   }
 
   g.context path.area {
-    fill: lighten($clr-primary, 78);
+    fill: color.adjust($clr-primary, $lightness: 78%);
 
     &.contrast {
       fill: coral;

@@ -145,9 +145,9 @@
                 {{ $d(tooltipScope.tooltip.item?.t ?? 0, 'year') }} &middot;
                 <span
                   v-html="
-                    $tc('numbers.contentItems', tooltipScope.tooltip.item?.w ?? 0, {
+                    $t('numbers.contentItems', {
                       n: $n(tooltipScope.tooltip.item?.w ?? 0)
-                    })
+                    }, tooltipScope.tooltip.item?.w ?? 0)
                   "
                 ></span>
               </div>
@@ -393,15 +393,15 @@ export default {
           name: 'overview'
         },
         {
-          label: this.$tc('tabs.contentItems', this.entity.countItems, {
+          label: this.$t('tabs.contentItems', {
             count: this.$n(this.entity.countItems)
-          }),
+          }, this.entity.countItems),
           name: 'content-items'
         },
         {
-          label: this.$tc('tabs.mentions', this.entity.countMentions, {
+          label: this.$t('tabs.mentions', {
             count: this.$n(this.entity.countMentions)
-          }),
+          }, this.entity.countMentions),
           name: 'mentions'
         }
       ]
@@ -545,7 +545,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 .wikibox {
   background: $clr-bg-secondary;
 }

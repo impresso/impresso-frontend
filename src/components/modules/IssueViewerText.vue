@@ -45,9 +45,9 @@
         <div v-if="textReusePassages.length" class="small d-flex align-items-center m-0">
           <div
             v-html="
-              $tc('textReuseLabel', textReusePassages.length, {
+              $t('textReuseLabel', {
                 n: textReusePassages.length
-              })
+              }, textReusePassages.length)
             "
           />
           <info-button class="ml-2" name="text-reuse" />
@@ -476,7 +476,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .IssueViewerText__region {
   cursor: pointer;
@@ -509,7 +510,7 @@ export default {
 
   span.location,
   span.person {
-    box-shadow: inset 0px -2px 0px 0px transparentize($clr-tertiary, 0.5);
+    box-shadow: inset 0px -2px 0px 0px color.adjust($clr-tertiary, $alpha: -0.5);
     transition: box-shadow 0.2s;
     cursor: pointer;
 
@@ -521,7 +522,7 @@ export default {
     }
 
     &:hover {
-      box-shadow: inset 0px -24px 0px 0px transparentize($clr-tertiary, 0.5);
+      box-shadow: inset 0px -24px 0px 0px color.adjust($clr-tertiary, $alpha: -0.5);
     }
   }
 
