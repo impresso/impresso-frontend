@@ -18,8 +18,10 @@ import { barista as baristaService } from '@/services'
 import {
   type ChatMessage,
   type BaristaMessageItem,
-  type AIMessage,
-  type ToolMessage,
+  isAIMessage,
+  isHumanMessage,
+  isToolMessage,
+  isErrorMessage,
   BaristaRequest
 } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
@@ -67,7 +69,7 @@ const convertBaristaMessageToChat = (
 ): ChatMessage | undefined => {
   const [messageContent, additionalContent] = message.content.split(ExtraContentSeparator, 2)
 
-  if (message.type === 'human') {
+  if (isHumanMessage(message)) {
     return {
       content: messageContent,
       additionalContent: additionalContent,
@@ -76,40 +78,70 @@ const convertBaristaMessageToChat = (
     }
   }
 
-  if (message.type === 'ai') {
-    const aiMsg = message as AIMessage & {
-      searchQuerySummary?: string
-    }
-    const toolCallNames = aiMsg.toolCalls?.map(tc => {
-      if (typeof tc === 'object' && tc !== null && 'name' in tc) {
-        return String(tc.name)
-      }
-      return 'unknown'
-    })
+  if (isAIMessage(message)) {
+    const toolCallNamesAndIds = message.toolCalls
+      ?.map(tc => {
+        // hide response formatting tool call. It always comes last and is not relevant to show to users
+        if (
+          typeof tc === 'object' &&
+          tc !== null &&
+          'name' in tc &&
+          tc['name'] != 'BaristaFormattedResponse'
+        ) {
+          return [String(tc.name), String(tc['id'])]
+        }
+        return ['unknown', undefined]
+      })
+      ?.filter(([name, id]) => name !== 'unknown' && id != null)
 
-    const helpText = aiMsg.structuredResponse?.impressoHelp
+    const sr = message.structuredResponse
+    const structuredContent =
+      sr?.assistantClarification ??
+      sr?.impressoHelp ??
+      sr?.searchQueryFollowUp ??
+      sr?.searchQuerySummary
+
+    const toolCallNames: string[] | undefined = Array.isArray(toolCallNamesAndIds)
+      ? toolCallNamesAndIds.map(([name]) => name)
+      : undefined
+    const toolCallIds = Array.isArray(toolCallNamesAndIds)
+      ? toolCallNamesAndIds.map(([_, id]) => id)
+      : undefined
 
     return {
-      content: helpText ?? aiMsg.content,
+      content: structuredContent ?? message.content,
       timestamp,
       type: 'system',
-      reasoning: aiMsg.reasoningContent ?? undefined,
+      reasoning: message.reasoningContent ?? undefined,
       toolCalls: toolCallNames?.length ? toolCallNames : undefined,
-      structuredResponse: aiMsg.structuredResponse ?? undefined
+      toolCallIds: toolCallIds?.length ? toolCallIds : undefined,
+      structuredResponse: sr ?? undefined,
+      searchQuerySteps: sr?.searchQuerySteps ?? undefined
     }
   }
 
-  if (message.type === 'tool') {
-    const toolMsg = message as ToolMessage
+  if (isToolMessage(message)) {
+    const sr = message.structuredResponse
+    const structuredContent =
+      sr?.assistantClarification ??
+      sr?.impressoHelp ??
+      sr?.searchQueryFollowUp ??
+      sr?.searchQuerySummary
+
+    const toolCallId = message.source?.['tool_call_id'] as string | undefined
+
+    console.log('*** T', toolCallId, message.source)
     return {
-      content: `[${toolMsg.name}] ${toolMsg.content}`,
+      content: structuredContent ?? `[${message.name}] ${message.content}`,
       timestamp,
       type: 'tool',
-      structuredResponse: toolMsg.structuredResponse ?? undefined
+      structuredResponse: sr ?? undefined,
+      searchQuerySteps: sr?.searchQuerySteps ?? undefined,
+      toolCallIds: toolCallId ? [toolCallId] : undefined
     }
   }
 
-  if (message.type === 'error') {
+  if (isErrorMessage(message)) {
     return {
       content: message.content || 'An error occurred.',
       timestamp,

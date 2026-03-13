@@ -5,18 +5,30 @@
         v-for="(message, index) in messages"
         :key="index"
         :message="message"
+        :hideToolCalls="shouldHideToolCalls(message)"
         :class="{
           'position-sticky top-0': message.type === 'user'
         }"
       />
-      <div class="text-muted very-small px-3">current session id: {{ baristaStore.sessionId }}</div>
       <div v-if="isLoading">working...</div>
     </div>
 
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
       <div class="border shadow-sm rounded p-2">
         <details class="mb-2">
-          <summary class="small text-muted" style="cursor: pointer">Settings</summary>
+          <summary class="small text-muted d-flex align-items-center justify-content-between" style="cursor: pointer">
+            <span>Settings</span>
+            <WithTooltip
+              v-if="baristaStore.sessionId"
+              placement="top-end"
+              strategy="fixed"
+              :content="sessionIdTooltipContent"
+              :is-html="true"
+              class="session-id-tooltip-hint very-small text-muted"
+            >
+              <Icon name="info" :scale="0.6" :strokeWidth="2" />
+            </WithTooltip>
+          </summary>
           <div class="mt-2 px-1">
             <label class="small d-block mb-1">Model</label>
             <BFormSelect v-model="selectedModelId" :options="modelOptions" size="sm" class="mb-2" />
@@ -71,13 +83,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import type { Filter } from '@/models'
 import { BaristaRequest, ChatMessage } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
 import BaristaChatMessage from './BaristaChatMessage.vue'
+import Icon from '../base/Icon.vue'
+import WithTooltip from '../base/WithTooltip.vue'
 import { toSerializedFilters } from '@/logic/filters'
 
 export interface BaristaChatPanelProps {
@@ -97,6 +111,11 @@ const emit = defineEmits<{
   (e: 'updateHeight', height: number): void
 }>()
 
+const sessionIdTooltipContent = computed(
+  () =>
+    `<b>Chat Session ID</b><br><code style="white-space:nowrap;border:none;background:transparent;color:inherit;padding:0">${baristaStore.sessionId}</code>`
+)
+
 const inputMessage = ref('')
 const selectedModelId = ref('')
 const additionalInstructions = ref('')
@@ -110,6 +129,21 @@ const modelOptions: Option[] = [
   { value: 'openai/gpt-oss-20b', text: 'openai/gpt-oss-20b' },
   { value: 'openai/gpt-oss-120b', text: 'openai/gpt-oss-120b' }
 ]
+
+const resolvedToolCallIds = computed(() => {
+  const ids = new Set<string>()
+  for (const msg of props.messages) {
+    if (msg.type === 'tool' && msg.toolCallIds) {
+      msg.toolCallIds.forEach(id => ids.add(id))
+    }
+  }
+  return ids
+})
+
+function shouldHideToolCalls(message: ChatMessage): boolean {
+  if (!message.toolCallIds?.length) return false
+  return message.toolCallIds.some(id => resolvedToolCallIds.value.has(id))
+}
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
@@ -157,6 +191,12 @@ onMounted(() => {
   updateHeight()
 })
 </script>
+
+<style>
+.session-id-tooltip-hint .tooltip-inner {
+  max-width: none;
+}
+</style>
 
 <style scoped>
 .chat-history {

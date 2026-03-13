@@ -28,6 +28,10 @@
         {{ message.structuredResponse?.searchQuerySummary }}
       </div>
 
+      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
+        <li v-for="(step, i) in message.searchQuerySteps" :key="i">{{ step }}</li>
+      </ol>
+
       <TimeAgo
         class="message-timestamp very-small text-muted text-ellipsis no-wrap"
         style="white-space: nowrap"
@@ -35,46 +39,35 @@
       />
     </section>
     <section v-else-if="message.type === 'tool'" class="BaristaChatMessage__tool">
-      <div class="d-flex align-items-center gap-1 small">
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
         <Icon name="brainElectricity" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.toolResult') }}
-        </h5>
-        <div>
-          {{ $t(`barista.tools.${toolId}`) }}
-        </div>
+        <span class="font-style-italic text-muted">{{ $t('barista.toolResult') }}</span>
+        <span class="badge badge-light">{{ $t(`barista.tools.${toolId}`) }}</span>
+        <button class="tool-toggle" @click="showDebug = !showDebug">
+          {{ showDebug ? '▾' : '▸' }} {{ $t('barista.debug') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.debug') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message }}</p>
-      </details>
+      <p v-if="showDebug" class="text-muted very-small mt-1 mb-0">{{ message }}</p>
     </section>
 
     <!-- Tool calls -->
     <section
-      v-if="message.toolCalls && message.toolCalls.length > 0"
+      v-if="(!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning"
       class="BaristaChatMessage__tools"
     >
-      <div class="d-flex align-items-center gap-1 small">
-        <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.usingTools') }}
-        </h5>
-        <div v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
-          {{ $t(`barista.tools.${tool}`) }}
-          <span v-if="toolIdx < message.toolCalls.length - 1">, </span>
-        </div>
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
+        <template v-if="!hideToolCalls && message.toolCalls && message.toolCalls.length > 0">
+          <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
+          <span class="font-style-italic text-muted">{{ $t('barista.usingTools') }}</span>
+          <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="badge badge-light">
+            {{ $t(`barista.tools.${tool}`) }}
+          </span>
+        </template>
+        <button v-if="message.reasoning" class="tool-toggle" @click="showReasoning = !showReasoning">
+          {{ showReasoning ? '▾' : '▸' }} {{ $t('barista.reasoning') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.reasoning') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message.reasoning }}</p>
-      </details>
+      <p v-if="showReasoning" class="text-muted very-small mt-1 mb-0">{{ message.reasoning }}</p>
     </section>
     <!-- Actions -->
     <section
@@ -103,20 +96,26 @@
 import TimeAgo from '@/components/TimeAgo.vue'
 import type { ChatMessage } from '@/services/types/barista'
 import Icon from '../base/Icon.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 /**
  * BaristaChatMessage component props
  */
 export interface BaristaChatMessageProps {
   message: ChatMessage
+  hideToolCalls?: boolean
 }
 
-const { message } = defineProps<BaristaChatMessageProps>()
+const { message, hideToolCalls } = defineProps<BaristaChatMessageProps>()
+
+const showDebug = ref(false)
+const showReasoning = ref(false)
 
 const isUserOrSystemWithContent = computed(() => {
   const contentLength =
-    (message.structuredResponse?.searchQuerySummary?.length || 0) + (message.content?.length || 0)
+    (message.structuredResponse?.searchQuerySummary?.length || 0) +
+    (message.content?.length || 0) +
+    (message.searchQuerySteps?.length || 0)
   return contentLength > 0 && ['user', 'system', 'error'].includes(message.type)
 })
 
@@ -176,30 +175,37 @@ const formatActionType = (type: string): string => {
 }
 </i18n>
 <style>
+.BaristaChatMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .BaristaChatMessage__content {
   padding: 10px 14px;
   border-radius: var(--impresso-border-radius-xs);
   max-width: 80%;
   word-break: break-word;
   position: relative;
-  display: inline-block;
 }
 
 .BaristaChatMessage__content.user {
   align-self: flex-end;
-  background-color: #0084ff;
-  color: white;
+  background-color: var(--impresso-color-black);
+  color: var(--impresso-color-white);
 }
 
 .BaristaChatMessage__content.system,
-.BaristaChatMessage__content.tool {
+.BaristaChatMessage__content.error {
   align-self: flex-start;
   background-color: #ebebeb;
   color: var(--impresso-color-black);
 }
 
-.BaristaChatMessage__content.user {
-  background-color: var(--impresso-color-black);
-  color: var(--impresso-color-white);
+.tool-toggle {
+  all: unset;
+  cursor: pointer;
+  opacity: 0.55;
+  font-size: inherit;
 }
 </style>
