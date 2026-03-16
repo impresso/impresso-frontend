@@ -12,11 +12,11 @@
         </b-button>
       </template>
     </BaseTitleBar>
-
     <!-- min 100px height -->
     <div v-if="loading" class="text-center" style="height: 100px">
       <Spinner />
     </div>
+
     <div v-else-if="loaded" class="position-relative">
       <HistogramSlider
         class="histo-slider"
@@ -34,9 +34,7 @@
           <div v-if="tooltip.item">
             <div v-html="tooltip.item.label"></div>
             <div
-              v-html="
-                $t(countLabel, { n: $n(tooltip.item?.count ?? 0) }, tooltip.item?.count ?? 0)
-              "
+              v-html="$t(countLabel, { n: $n(tooltip.item?.count ?? 0) }, tooltip.item?.count ?? 0)"
             />
           </div>
         </slot>
@@ -305,6 +303,7 @@ export default defineComponent({
         if (previousValue && previousValue.hash === hash) {
           return false
         }
+
         this.loading = true
         await this.statsProvider(this.facetType, { query })
           .then(response => {
@@ -317,16 +316,15 @@ export default defineComponent({
             const range = this.end - this.start
             this.gap = Math.max(1, Math.round(range / (this.maxExpectedBuckets + 1)))
             this.numBuckets = this.isPercentage ? 100 : Math.floor(range / this.gap)
-
-            console.debug('[FilterDynamicRange] stats', this.facetType, {
-              range: range,
-              start: this.start,
-              end: this.end,
-              gap: this.gap,
-              total: this.total,
-              numBuckets: this.numBuckets,
-              maxExpectedBuckets: this.maxExpectedBuckets
-            })
+            console.debug('[FilterDynamicRange]', response.statistics)
+            console.debug(
+              '[FilterDynamicRange] range:',
+              range,
+              'numuckets:',
+              this.numBuckets,
+              'gap:',
+              this.gap
+            )
           })
           .catch(error => {
             // eslint-disable-next-line
@@ -334,21 +332,26 @@ export default defineComponent({
           })
         // when min and max have been calculated, set the range
         const facetSearchService = this.facetSearchProvider(this.index)
+        const facetSearchServiceQuery = {
+          filters: this.facetFilters,
+          group_by: this.groupby,
+          rangeStart: this.start,
+          rangeEnd: this.end + 1, // add 1 to include the upper bound
+          rangeGap: this.gap,
+          limit: this.numBuckets || 1
+        }
+        console.info(
+          '[FilterDynamicRange] loading facet data with query',
+          this.facetType,
+          facetSearchServiceQuery
+        )
         await facetSearchService(this.facetType, {
-          query: {
-            // searchFacets doesn't support serialized filters
-            filters: this.facetFilters,
-            group_by: query.groupby,
-            rangeStart: this.start,
-            rangeEnd: this.end + 1,
-            rangeGap: this.gap,
-            limit: this.numBuckets || 1
-            // rangeInclude: 'edge',
-          }
+          query: facetSearchServiceQuery
         })
           .then(response => {
             this.buckets = response.buckets
               .sort((a, b) => {
+                // return (a.lower ?? a.value) - (b.lower ?? b.value)
                 return (a.value as number) - (b.value as number)
               })
               .map((bucket, i, arr) => {
@@ -362,7 +365,7 @@ export default defineComponent({
                   ...bucket
                 }
               })
-            console.debug('[FilterDynamicRange] loadFacet', this.facetType, this.buckets)
+            console.debug('[FilterDynamicRange] loadFacet', this.facetType, [...response.buckets])
             // artificially add upper and lower bounds
 
             // .map(bucket => {
