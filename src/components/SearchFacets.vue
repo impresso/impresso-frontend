@@ -13,14 +13,19 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
-    <filter-range
+    <filter-dynamic-range
       v-for="(facet, index) in rangeFacets"
       class="border-top py-2 mx-3"
       :key="`r-${index}`"
       :facet="facet"
-      :facet-filters="getFacetFilters(facet.type)"
+      :facetType="facet.type"
+      :facet-filters="filters"
+      :isFiltered="filters.some(({ type }) => type === facet.type)"
       @changed="filters => facetFiltersUpdated(facet.type, filters)"
-    />
+      count-label="numbers.contentItems"
+      :maxExpectedBuckets="20"
+    >
+    </filter-dynamic-range>
     <filter-facet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
@@ -36,7 +41,7 @@
 
 <script lang="ts">
 import FilterFacet from '@/components/modules/FilterFacet.vue'
-import FilterRange from '@/components/modules/FilterRange.vue'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import { facetToTimelineValues } from '@/logic/facets'
 import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
@@ -208,7 +213,8 @@ export default {
   components: {
     FilterTimeline,
     FilterFacet,
-    FilterRange
+    // FilterRange,
+    FilterDynamicRange
   }
 }
 </script>
