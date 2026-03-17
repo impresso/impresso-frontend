@@ -1,6 +1,6 @@
 <template>
   <section
-    class="SearchResultsSummary search-results-summary text-serif textbox-fancy border-tertiary"
+    class="SearchResultsSummary search-results-summary border-tertiary"
     :class="{ loading: isLoading }"
   >
     <span
@@ -11,12 +11,13 @@
               'incipit',
               {
                 n: $n(props.totalRows),
-                groupByLabel: $t(
+                groupByLabel: $tc(
                   `numbers.${props.groupBy}`,
+
+                  props.totalRows,
                   {
                     n: $n(props.totalRows)
-                  },
-                  props.totalRows
+                  }
                 )
               },
               props.totalRows

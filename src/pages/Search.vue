@@ -108,7 +108,7 @@
             </b-dropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="60" :additional-height="50">
+            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
               <SearchResultsSummary
                 :isLoading="isLoadingResults"
                 @onSummary="onSummary"
