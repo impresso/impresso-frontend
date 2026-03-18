@@ -11,13 +11,12 @@
               'incipit',
               {
                 n: $n(props.totalRows),
-                groupByLabel: $tc(
+                groupByLabel: $t(
                   `numbers.${props.groupBy}`,
-
-                  props.totalRows,
                   {
                     n: $n(props.totalRows)
-                  }
+                  },
+                  props.totalRows
                 )
               },
               props.totalRows
