@@ -16,7 +16,7 @@
     <filter-dynamic-range
       v-for="(facet, index) in dynamicRangeFacets"
       class="border-top py-2 mx-3"
-      :key="`r-${index}`"
+      :key="`rd-${index}`"
       :facetType="facet.type"
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
@@ -30,7 +30,7 @@
     <filter-range
       v-for="(facet, index) in rangeFacets"
       class="border-top py-2 mx-3"
-      :key="`r-${index}`"
+      :key="`rs-${index}`"
       :facet="facet"
       :facetType="facet.type"
       :facet-filters="filters"
