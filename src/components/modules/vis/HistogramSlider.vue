@@ -132,21 +132,53 @@ function getChartContainerEl(): HTMLElement | null {
 }
 
 // Computed
-const sliderRange = computed(() => {
-  const vals = (props.buckets ?? []).map(({ value }) =>
-    typeof value === 'string' ? parseInt(value, 10) : value
-  )
+const sliderRange = computed<[number, number] | undefined>(() => {
+  const buckets = props.buckets ?? []
+
+  // Helper: derive a fallback range from props.range or modelValue
+  const fallbackRange = (): [number, number] | undefined => {
+    if (props.range != null && props.range.length === 2) {
+      const [r0, r1] = props.range
+      return [r0, r1]
+    }
+    if (props.modelValue != null && props.modelValue.length === 2) {
+      const [v0, v1] = props.modelValue
+      if ([v0, v1].every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))) {
+        return [Math.min(v0, v1), Math.max(v0, v1)]
+      }
+    }
+    return undefined
+  }
+
+  if (!buckets.length) {
+    return fallbackRange()
+  }
+
+  const vals = buckets
+    .map(({ value }) => (typeof value === 'string' ? parseInt(value, 10) : value))
+    .filter(v => typeof v === 'number' && !isNaN(v) && isFinite(v))
+
+  if (!vals.length) {
+    return fallbackRange()
+  }
+
   const min = Math.min(...vals)
   const max = Math.max(...vals)
-  if (props.range == null) return [min, max]
-  return [Math.min(min, props.range[0]), Math.max(max, props.range[1])]
+
+  if (props.range == null || props.range.length !== 2) {
+    return [min, max]
+  }
+
+  const [r0, r1] = props.range
+  return [Math.min(min, r0), Math.max(max, r1)]
 })
 
-const sliderValue = computed({
+const sliderValue = computed<number[] | undefined>({
   get() {
-    return props.modelValue?.length === 2
-      ? props.modelValue
-      : [sliderRange.value[0], sliderRange.value[1]]
+    if (props.modelValue?.length === 2) {
+      return props.modelValue
+    }
+    return sliderRange.value
   },
   set(value?: number[]) {
     emit('change', value)
@@ -155,9 +187,19 @@ const sliderValue = computed({
 })
 
 const shouldEnableSlider = computed(() => {
-  const [min, max] = sliderRange.value
-  const [v0, v1] = sliderValue.value
-  return [min, max, v0, v1].every(n => !isNaN(n) && isFinite(n))
+  const range = sliderRange.value
+  const value = sliderValue.value
+
+  if (!range || !value || range.length !== 2 || value.length !== 2) {
+    return false
+  }
+
+  const [min, max] = range
+  const [v0, v1] = value
+
+  return [min, max, v0, v1].every(
+    n => typeof n === 'number' && !isNaN(n) && isFinite(n)
+  )
 })
 /**
  * The bucket with the maximum count, used for annotating the chart with the max value.
