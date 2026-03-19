@@ -17,7 +17,6 @@
       v-for="(facet, index) in dynamicRangeFacets"
       class="border-top py-2 mx-3"
       :key="`r-${index}`"
-      :facet="facet"
       :facetType="facet.type"
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
