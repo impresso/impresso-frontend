@@ -20,7 +20,7 @@
       :facetType="facet.type"
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
-      @changed="filters => facetFiltersUpdated(facet.type, filters)"
+      @changed="changedFilters => $emit('changed', changedFilters)"
       count-label="numbers.contentItems"
     >
       <template #description>
