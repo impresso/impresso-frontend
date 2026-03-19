@@ -179,9 +179,29 @@ const parsedBuckets = computed<(Bucket & { lower: number; upper: number })[]>(()
   return buckets.map((bucket, index) => {
     const value =
       typeof bucket.value === 'string' ? parseInt(bucket.value, 10) : (bucket.value as number)
+
+    // Preserve existing lower/upper bounds when provided (e.g., dynamic-range facets).
+    const existingLower = (bucket as any).lower
+    const existingUpper = (bucket as any).upper
+    const hasExistingBounds =
+      typeof existingLower === 'number' && typeof existingUpper === 'number'
+
+    if (hasExistingBounds) {
+      return {
+        ...(bucket as any),
+        value,
+        lower: existingLower,
+        upper: existingUpper
+      } as Bucket & { value: number; lower: number; upper: number }
+    }
+
     const lower = value
     const upper = index === buckets.length - 1 ? value : value + span - 1
-    return { ...bucket, lower, upper }
+    return { ...(bucket as any), value, lower, upper } as Bucket & {
+      value: number
+      lower: number
+      upper: number
+    }
   }) as (Bucket & { value: number; lower: number; upper: number })[]
 })
 /**
