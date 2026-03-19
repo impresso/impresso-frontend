@@ -1,16 +1,44 @@
 <template>
-  <b-container class="histogram-slider">
+  <b-container class="HistogramSlider">
+    <div
+      ref="maxValueLabel"
+      class="maxvalue position-absolute very-small left-0"
+      :style="{
+        maxWidth: '50%',
+        top: '-5px',
+        lineHeight: '1em'
+      }"
+    >
+      <span v-if="maxBucket && bucketSpan > 0">
+        {{
+          $t('maxvalrange', {
+            lower: maxBucket.lower,
+            upper: maxBucket.upper,
+            n: maxBucket.count
+          })
+        }}
+      </span>
+      <span v-else-if="maxBucket">
+        {{ $t('maxval', { val: maxBucket.value, n: maxBucket.count }) }}
+      </span>
+    </div>
     <b-col>
       <b-row ref="chartContainer" class="position-relative">
         <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
         <Tooltip v-if="showTooltip && tooltipState.isActive" :tooltip="tooltipState">
           <template v-if="tooltipState.bucket">
-            {{
-              $t('tooltipContent', {
-                val: tooltipState.bucket.value,
-                count: $n(tooltipState.bucket.count)
-              })
-            }}
+            <span v-if="bucketSpan > 0">
+              {{
+                $t('valRange', {
+                  lower: tooltipState.bucket.lower,
+                  upper: tooltipState.bucket.upper,
+                  n: tooltipState.bucket.count
+                })
+              }}
+            </span>
+            <span v-else>
+              {{ $t('val', { val: tooltipState.bucket.value, n: tooltipState.bucket.count }) }}
+            </span>
           </template>
         </Tooltip>
       </b-row>
@@ -80,7 +108,7 @@ const chartContainer = ref<HTMLElement | (ComponentPublicInstance & { $el: HTMLE
   null
 )
 const chart = ref<SVGSVGElement | null>(null)
-
+const maxValueLabel = ref<HTMLElement | null>()
 // State
 const tooltipState = ref<TooltipState>({
   x: 0,
@@ -94,13 +122,6 @@ function getChartContainerEl(): HTMLElement | null {
   const el = chartContainer.value
   if (!el) return null
   return el instanceof HTMLElement ? el : (el as ComponentPublicInstance & { $el: HTMLElement }).$el
-}
-
-function bucketAtX(x: d3.ScaleBand<string>, xPos: number): Bucket | undefined {
-  return props.buckets?.find(({ value }) => {
-    const left = x(String(value)) ?? 0
-    return xPos >= left && xPos < left + x.bandwidth()
-  })
 }
 
 // Computed
@@ -131,17 +152,54 @@ const shouldEnableSlider = computed(() => {
   const [v0, v1] = sliderValue.value
   return [min, max, v0, v1].every(n => !isNaN(n) && isFinite(n))
 })
+/**
+ * The bucket with the maximum count, used for annotating the chart with the max value.
+ * it is computed with the bucket bounds (lower and upper) for display purposes, based on the bucket span.
+ */
+const maxBucket = computed<Bucket | null>(() => {
+  const maxCount = Math.max(...parsedBuckets.value.map(({ count }) => count))
+  const index = parsedBuckets.value.findIndex(d => d.count === maxCount)
+  return parsedBuckets.value[index] ?? null
+})
+
+/**
+ * Add lower and upper bounds to buckets, based on the bucket values and the span between them.
+ * This is used for displaying the max value label as a range when there are multiple buckets with
+ */
+const parsedBuckets = computed<(Bucket & { lower: number; upper: number })[]>(() => {
+  const buckets = props.buckets ?? []
+  const span = bucketSpan.value
+  return buckets.map((bucket, index) => {
+    const value =
+      typeof bucket.value === 'string' ? parseInt(bucket.value, 10) : (bucket.value as number)
+    const lower = value
+    const upper = index === buckets.length - 1 ? value : value + span - 1
+    return { ...bucket, lower, upper }
+  }) as (Bucket & { value: number; lower: number; upper: number })[]
+})
+/**
+ * The span between bucket values, used to bet lower / upper bounds.
+ */
+const bucketSpan = computed<number>(() => {
+  const buckets = props.buckets ?? []
+  if (buckets.length < 2) return 0
+  const valueBucket0 =
+    typeof buckets[0].value === 'string' ? parseInt(buckets[0].value, 10) : buckets[0].value
+  const valueBucket1 =
+    typeof buckets[1].value === 'string' ? parseInt(buckets[1].value, 10) : buckets[1].value
+  return Math.abs(valueBucket1 - valueBucket0)
+})
 
 // Chart rendering
 function renderChart(): void {
-  const buckets = props.buckets
+  const buckets = parsedBuckets.value
   if (!buckets?.length) return
 
   const containerEl = getChartContainerEl()
   const chartEl = chart.value
   if (!containerEl || !chartEl) return
 
-  const TOP_MARGIN = 14
+  const TOP_MARGIN = 20
   const { width } = containerEl.getBoundingClientRect()
   const height = props.chartHeight
 
@@ -151,7 +209,7 @@ function renderChart(): void {
   svg.selectAll('*').remove()
 
   // Scales
-  const x = d3
+  const xScale = d3
     .scaleBand()
     .domain(buckets.map(({ value }) => String(value)))
     .range([0, width])
@@ -175,15 +233,15 @@ function renderChart(): void {
     .data(buckets)
     .join('g')
     .attr('class', d => `bar${d.count === maxCount ? ' max' : ''}`)
-    .attr('transform', d => `translate(${x(String(d.value)) ?? 0}, ${height - y(d.count)})`)
+    .attr('transform', d => `translate(${xScale(String(d.value)) ?? 0}, ${height - y(d.count)})`)
     .call(g => {
       g.append('rect')
-        .attr('width', x.bandwidth())
+        .attr('width', xScale.bandwidth())
         .attr('height', d => Math.max(1, y(d.count)))
 
       g.append('line')
         .attr('x1', 0)
-        .attr('x2', x.bandwidth())
+        .attr('x2', xScale.bandwidth())
         .attr('y1', 0)
         .attr('y2', 0)
         .attr('stroke', 'black')
@@ -192,18 +250,13 @@ function renderChart(): void {
   // Max value annotation
   const maxBucket = buckets.find(d => d.count === maxCount)
   if (maxBucket) {
-    const xCenter = (x(String(maxBucket.value)) ?? 0) + x.bandwidth() / 2
+    const xCenter = (xScale(String(maxBucket.value)) ?? 0) + xScale.bandwidth() / 2
     const yTop = height - y(maxBucket.count)
-    const label =
-      !isNaN(maxBucket.upper) && maxBucket.upper !== maxBucket.lower ? 'maxvalrange' : 'maxval'
-
-    const anchor = xCenter <= width / 3 ? 'start' : xCenter >= (2 * width) / 3 ? 'end' : 'middle'
 
     const maxvalG = svg
       .append('g')
       .attr('class', 'maxval')
       .attr('transform', `translate(${xCenter}, ${yTop})`)
-    maxvalG.append('text').attr('dy', -5).attr('text-anchor', anchor).text(label)
     maxvalG.append('circle').attr('class', 'point').attr('r', 2)
   }
 
@@ -221,8 +274,8 @@ function renderChart(): void {
     .attr('height', 0)
 
   function showHover(bucket: Bucket): void {
-    const bx = x(String(bucket.value)) ?? 0
-    const bw = x.bandwidth()
+    const bx = xScale(String(bucket.value)) ?? 0
+    const bw = xScale.bandwidth()
     const by = height - y(bucket.count)
 
     hoverG.attr('transform', `translate(${bx}, 0)`)
@@ -240,14 +293,14 @@ function renderChart(): void {
 
   // Hit areas — full step width (bar + padding), invisible, cover the entire column height.
   // This eliminates the gap between bars that was firing spurious mouseleave events.
-  const stepWidth = x.step() // bandwidth + padding
+  const stepWidth = xScale.step() // bandwidth + padding
   svg
     .append('g')
     .attr('class', 'hit-areas')
     .selectAll<SVGRectElement, Bucket>('rect')
     .data(buckets)
     .join('rect')
-    .attr('x', d => (x(String(d.value)) ?? 0) - (stepWidth - x.bandwidth()) / 2)
+    .attr('x', d => (xScale(String(d.value)) ?? 0) - (stepWidth - xScale.bandwidth()) / 2)
     .attr('y', 0)
     .attr('width', stepWidth)
     .attr('height', height)
@@ -256,14 +309,14 @@ function renderChart(): void {
       showHover(bucket)
       emit('mousemove', {
         pointer: {
-          x: (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2,
+          x: (xScale(String(bucket.value)) ?? 0) + xScale.bandwidth() / 2,
           y: height - y(bucket.count)
         },
         bucket
       })
       if (props.showTooltip) {
         tooltipState.value = {
-          x: (x(String(bucket.value)) ?? 0) + x.bandwidth() / 2,
+          x: (xScale(String(bucket.value)) ?? 0) + xScale.bandwidth() / 2,
           y: height - y(bucket.count) - 50,
           isActive: true,
           bucket
@@ -289,7 +342,6 @@ function renderChart(): void {
 // Lifecycle
 onMounted(() => {
   window.addEventListener('resize', renderChart)
-  renderChart()
 })
 
 onBeforeUnmount(() => {
@@ -300,51 +352,50 @@ watch(
   () => props.buckets,
   () => {
     if (chart.value) renderChart()
-  }
+  },
+  { immediate: true, deep: true }
 )
 </script>
 
-<style lang="scss">
-.histogram-slider {
-  .slider {
-    width: 100% !important;
-    margin-bottom: 1.4em;
-  }
+<style lang="css">
+.HistogramSlider {
+  position: relative;
+}
+.HistogramSlider .slider {
+  width: 100% !important;
+  margin-bottom: 1.4em;
+}
 
-  .chart {
-    .bars {
-      .bar rect {
-        fill: #d8d8d8;
-      }
-      .bar.max rect {
-        fill: #999999;
-      }
-    }
+.HistogramSlider .chart .bars .bar rect {
+  fill: #d8d8d8;
+}
+.HistogramSlider .chart .bars .bar.max rect {
+  fill: #999999;
+}
 
-    .hovered-value {
-      fill: #999999;
-    }
+.HistogramSlider .hovered-value {
+  fill: #999999;
+}
 
-    .hovered-background {
-      fill: #b65656;
-    }
+.HistogramSlider .hovered-background {
+  fill: #b65656;
+}
 
-    .maxval {
-      font-size: 12px;
-
-      .point {
-        fill: var(--impresso-color-black);
-      }
-    }
-  }
+.HistogramSlider .maxval {
+  font-size: 12px;
+}
+.HistogramSlider .maxval .point {
+  fill: var(--impresso-color-black);
 }
 </style>
 
 <i18n lang="json">
 {
   "en": {
-    "maxval": "{val} ({n} results)",
-    "maxvalrange": "{lower} - {upper} ({n} results)",
+    "maxval": "max: {val} ({n} results)",
+    "maxvalrange": "max: {lower} - {upper} ({n} results)",
+    "valRange": "{lower} - {upper} ({n} results)",
+
     "valueLabel": "{n}",
     "valueAsPercentageLabel": "{val}%",
     "tooltipContent": "{val}: {count} results"
