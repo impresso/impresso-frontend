@@ -13,6 +13,21 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
+    <filter-dynamic-range
+      v-for="(facet, index) in dynamicRangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`r-${index}`"
+      :facet="facet"
+      :facetType="facet.type"
+      :facet-filters="filters"
+      :isFiltered="filters.some(({ type }) => type === facet.type)"
+      @changed="filters => facetFiltersUpdated(facet.type, filters)"
+      count-label="numbers.contentItems"
+    >
+      <template #description>
+        <div v-html="$t(`label.${facet.type}.description`)" />
+      </template>
+    </filter-dynamic-range>
     <filter-range
       v-for="(facet, index) in rangeFacets"
       class="border-top py-2 mx-3"
@@ -41,6 +56,7 @@
 <script lang="ts">
 import FilterFacet from '@/components/modules/FilterFacet.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
+import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import { facetToTimelineValues } from '@/logic/facets'
 import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
@@ -49,7 +65,8 @@ import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import { PropType } from 'vue'
 
 const TimelineFacetTypes = ['year', 'daterange']
-const RangeFacetTypes = ['contentLength']
+const RangeFacetTypes = []
+const DynamicRangeFacetTypes = ['contentLength']
 
 type DaterangeFilterItem = Entity & {
   start?: string | number | Date
@@ -100,12 +117,18 @@ export default {
     /** @returns {Facet[]} */
     standardFacets() {
       return this.facets.filter(
-        ({ type }) => !TimelineFacetTypes.includes(type) && !RangeFacetTypes.includes(type)
+        ({ type }) =>
+          !TimelineFacetTypes.includes(type) &&
+          !RangeFacetTypes.includes(type) &&
+          !DynamicRangeFacetTypes.includes(type)
       )
     },
     /** @returns {Facet[]} */
     rangeFacets() {
       return this.facets.filter(({ type }) => RangeFacetTypes.includes(type))
+    },
+    dynamicRangeFacets() {
+      return this.facets.filter(({ type }) => DynamicRangeFacetTypes.includes(type))
     },
     /** @returns {boolean} */
     containsTimelineFacets() {
@@ -212,8 +235,8 @@ export default {
   components: {
     FilterTimeline,
     FilterFacet,
-    // FilterRange,
-    FilterRange
+    FilterRange,
+    FilterDynamicRange
   }
 }
 </script>

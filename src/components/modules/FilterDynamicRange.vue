@@ -17,9 +17,9 @@
       <Spinner />
     </div>
 
-    <div v-else-if="loaded" class="position-relative">
+    <div v-else-if="loaded" class="position-relative mt-1">
       <HistogramSlider
-        class="histo-slider"
+        class="border-left border-right"
         v-model="sliderValue"
         :buckets="buckets"
         :only-range-labels="true"
@@ -40,6 +40,14 @@
         </slot>
       </tooltip>
     </div>
+    <div v-if="loaded && start !== end" class="d-flex justify-content-between very-small">
+      <div
+        v-html="$t(isPercentage ? 'numbers.percentage' : 'numbers.number', { n: $n(start) })"
+      ></div>
+      <div
+        v-html="$t(isPercentage ? 'numbers.percentage' : 'numbers.number', { n: $n(end) })"
+      ></div>
+    </div>
     <div class="p-2" v-if="hasChanged">
       <b-button size="sm" v-if="hasChanged" block variant="outline-primary" @click="applyValues">
         {{ $t(isFiltered ? 'actions.applyChanges' : 'actions.apply') }}
@@ -47,7 +55,7 @@
     </div>
   </div>
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import Spinner from '@/components/layout/Spinner.vue'
@@ -56,7 +64,7 @@ import { serializeFilters } from '@/logic/filters'
 import { Bucket, Facet, Filter } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getSearchFacetsService, stats as statsService } from '@/services'
-import { defineComponent, PropType } from 'vue'
+import { computed, getCurrentInstance, ref, watch } from 'vue'
 import Tooltip from './tooltips/Tooltip.vue'
 
 interface StatsQueryParams {
@@ -74,7 +82,7 @@ interface StatsResponse {
   total: string | number
 }
 
-interface FacetSearchQueryParameters {
+export interface FacetSearchQueryParameters {
   filters: Filter[]
   group_by: string
   rangeStart: number
@@ -95,298 +103,264 @@ export type FacetSearchDataProvider = FacetDataProvider<
   FacetSearchResponse
 >
 
-/**
- * display range facets based on actual stats for the solr field
- */
-export default defineComponent({
-  name: 'FilterDynamicRange',
-  components: {
-    BaseTitleBar,
-    HistogramSlider,
-    Tooltip,
-    InfoButton,
-    Spinner
-  },
-  data() {
-    return {
-      loading: false,
-      loaded: false,
-      start: 0,
-      end: 0,
-      gap: 1,
-      numBuckets: 0,
-      value: /** @type {number[]} */ [],
-      sliderValue: [],
-      buckets: [],
-      total: 0,
-      tooltip: {
-        item: null,
-        isActive: false,
-        x: 0,
-        y: 0
-      }
-    }
-  },
-  props: {
-    isFiltered: Boolean,
-    countLabel: {
-      type: String,
-      default: 'numbers.results'
-    },
-    valueLabel: {
-      type: String,
-      default: 'value'
-    },
-    valueAsRangeLabel: {
-      type: String,
-      default: 'valueAsRange'
-    },
-    valuePercentageLabel: {
-      type: String,
-      default: 'valuePercentage'
-    },
-    isPercentage: {
-      type: Boolean,
-      default: false
-    },
-    infoButtonId: {
-      type: String
-    },
-    facetType: {
-      type: String,
-      required: true
-    },
-    facetFilters: {
-      type: Array as PropType<Filter[]>,
-      default: () => []
-    },
-    groupby: {
-      type: String,
-      default: null
-    },
-    index: {
-      type: String,
-      default: 'search'
-    },
-    maxExpectedBuckets: {
-      type: Number,
-      default: 100
-    },
-    statsProvider: {
-      type: Function as PropType<StatsDataProvider>,
-      default: statsService.get.bind(statsService)
-    },
-    facetSearchProvider: {
-      type: Function as PropType<
-        FacetDataProviderFactory<FacetSearchQueryParameters, FacetSearchResponse>
-      >,
-      default: (index: string) => {
-        const service = getSearchFacetsService(index)
-        return service?.get?.bind(service)
-      }
-    }
-  },
-  emits: ['changed', 'clicked'],
-  methods: {
-    applyValues() {
-      // create a new filter
-      const rangeFilter = FilterFactory.create({
-        type: this.facetType,
-        q: this.sliderValue.map(v => v.toString())
-      })
-      // if isFiltered, change its values
-      this.$emit('changed', [...this.otherFilters, rangeFilter])
-    },
-    resetValues() {
-      this.$emit('changed', [...this.otherFilters])
-    },
-    getTooltipLabel(bucket: Bucket) {
-      if (isNaN(bucket.upper) || isNaN(bucket.lower)) return ''
+export interface FilterDynamicRangeProps {
+  isFiltered?: boolean
+  countLabel?: string
+  valueLabel?: string
+  valueAsRangeLabel?: string
+  valuePercentageLabel?: string
+  isPercentage?: boolean
+  infoButtonId?: string
+  facetType: string
+  facetFilters?: Filter[]
+  groupby?: string | null
+  index?: string
+  maxExpectedBuckets?: number
+  statsProvider?: StatsDataProvider
+  facetSearchProvider?: FacetDataProviderFactory<FacetSearchQueryParameters, FacetSearchResponse>
+}
 
-      if (this.isPercentage) {
-        // 1. values are different
-        if (bucket.upper !== bucket.lower)
-          return this.$t(this.valuePercentageLabel, {
-            upper: this.$n(bucket.upper),
-            lower: this.$n(bucket.lower)
-          })
-        // 2. values are the same
-        return this.$t(this.valuePercentageLabel, {
-          upper: this.$n(bucket.upper + 0.999),
-          lower: this.$n(bucket.lower)
-        })
-      }
-      // otherwise
+interface TooltipItem extends Bucket {
+  label: string
+}
 
-      // 1. values are different
-      if (bucket.upper !== bucket.lower)
-        return this.$t(this.valueAsRangeLabel, {
-          upper: this.$n(bucket.upper),
-          lower: this.$n(bucket.lower)
-        })
-      // 2. values are the same
-      const value: number =
-        typeof bucket.value === 'number' ? bucket.value : parseInt(bucket.value, 10)
-      return this.$t(this.valueLabel, { val: this.$n(value) })
-    },
-    handleMouseMove(value) {
-      if (!value) {
-        this.tooltip.item = null
-        this.tooltip.isActive = false
-        return
-      }
+interface TooltipState {
+  item: TooltipItem | null
+  isActive: boolean
+  x: number
+  y: number
+}
 
-      const bucket: Bucket = value.bucket
-
-      const label = this.getTooltipLabel(bucket)
-
-      this.tooltip = {
-        item: {
-          label,
-          ...value.bucket
-        },
-        isActive: true,
-        x: -10 + (value.pointer?.x ?? 0),
-        y: -50 + (value.pointer?.y ?? 0)
-      }
-    },
-    handleClick({ bucket }) {
-      if (isNaN(bucket.upper) || isNaN(bucket.lower)) {
-        // check if value is a number
-        if (!isNaN(bucket.value)) {
-          // create a filter and emit it
-          const rangeFilter = FilterFactory.create({
-            type: this.facetType,
-            q: [bucket.value, bucket.value]
-          })
-          this.$emit('clicked', rangeFilter)
-        }
-        return
-      }
-
-      // create a filter and emit it
-      const rangeFilter = FilterFactory.create({
-        type: this.facetType,
-        q: [bucket.lower, bucket.upper]
-      })
-      this.$emit('clicked', rangeFilter)
-    }
-  },
-  computed: {
-    hasChanged() {
-      return this.value.join(',') !== this.sliderValue.join(',')
-    },
-
-    otherFilters() {
-      return this.facetFilters.filter(filter => filter.type !== this.facetType)
-    },
-    // get min and max for the given query, allowing for adynamic range
-    statsApiQueryParameters() {
-      const query = {
-        index: this.index,
-        stats: 'min,max',
-        filters: serializeFilters(this.facetFilters)
-      }
-      if (this.groupby) {
-        query['groupby'] = this.groupby
-      }
-      return {
-        query,
-        hash: JSON.stringify(query).split('').sort().join('')
-      }
-    }
-  },
-  watch: {
-    statsApiQueryParameters: {
-      immediate: true,
-      async handler({ query, hash }, previousValue) {
-        if (previousValue && previousValue.hash === hash) {
-          return false
-        }
-
-        this.loading = true
-        await this.statsProvider(this.facetType, { query })
-          .then(response => {
-            // eslint-disable-next-line
-            this.start = parseInt(String(response.statistics.min), 10)
-            this.end = parseInt(String(response.statistics.max), 10)
-            this.total = parseInt(String(response.total), 10)
-            this.value = [this.start, this.end]
-            this.sliderValue = [this.start, this.end]
-            const range = this.end - this.start
-            this.gap = Math.max(1, Math.round(range / (this.maxExpectedBuckets + 1)))
-            this.numBuckets = this.isPercentage ? 100 : Math.floor(range / this.gap)
-            console.debug('[FilterDynamicRange]', response.statistics)
-            console.debug(
-              '[FilterDynamicRange] range:',
-              range,
-              'numuckets:',
-              this.numBuckets,
-              'gap:',
-              this.gap
-            )
-          })
-          .catch(error => {
-            // eslint-disable-next-line
-            console.error('[FilterDynamicRange] error', error)
-          })
-        // when min and max have been calculated, set the range
-        const facetSearchService = this.facetSearchProvider(this.index)
-        const facetSearchServiceQuery = {
-          filters: this.facetFilters,
-          group_by: this.groupby,
-          rangeStart: this.start,
-          rangeEnd: this.end + 1, // add 1 to include the upper bound
-          rangeGap: this.gap,
-          limit: this.numBuckets || 1
-        }
-        console.info(
-          '[FilterDynamicRange] loading facet data with query',
-          this.facetType,
-          facetSearchServiceQuery
-        )
-        await facetSearchService(this.facetType, {
-          query: facetSearchServiceQuery
-        })
-          .then(response => {
-            this.buckets = response.buckets
-              .sort((a, b) => {
-                // return (a.lower ?? a.value) - (b.lower ?? b.value)
-                return (a.value as number) - (b.value as number)
-              })
-              .map((bucket, i, arr) => {
-                return {
-                  // calculate upper and lower bounds based on value if they're not set
-                  lower: bucket.value,
-                  upper: Math.max(
-                    (arr[i + 1]?.value as any as number) - 1,
-                    bucket.value as any as number
-                  ),
-                  ...bucket
-                }
-              })
-            console.debug('[FilterDynamicRange] loadFacet', this.facetType, [...response.buckets])
-            // artificially add upper and lower bounds
-
-            // .map(bucket => {
-            //   // convert to number
-            //   bucket.value = parseFloat(bucket.value)
-            //   bucket.lower = parseFloat(bucket.lower)
-            //   bucket.upper = parseFloat(bucket.upper)
-            //   bucket.label = this.getTooltipLabel(bucket)
-            //   return bucket
-            // })
-          })
-          .catch(error => {
-            // eslint-disable-next-line
-            console.error('[FilterDynamicRange] loadFacet error', error)
-          })
-        this.loading = false
-        this.loaded = true
-      }
-    }
+const props = withDefaults(defineProps<FilterDynamicRangeProps>(), {
+  isFiltered: false,
+  countLabel: 'numbers.results',
+  valueLabel: 'value',
+  valueAsRangeLabel: 'valueAsRange',
+  valuePercentageLabel: 'valuePercentage',
+  isPercentage: false,
+  infoButtonId: undefined,
+  facetFilters: () => [],
+  groupby: null,
+  index: 'search',
+  maxExpectedBuckets: 50,
+  statsProvider: statsService.get.bind(statsService),
+  facetSearchProvider: (index: string) => {
+    const service = getSearchFacetsService(index)
+    return service?.get?.bind(service)
   }
 })
+
+const emit = defineEmits<{
+  (e: 'changed', filters: Filter[]): void
+  (e: 'clicked', filter: Filter): void
+}>()
+
+const { proxy } = getCurrentInstance() as { proxy: any }
+
+const loading = ref(false)
+const loaded = ref(false)
+const start = ref(0)
+const end = ref(0)
+const gap = ref(1)
+const numBuckets = ref(0)
+const value = ref<number[]>([])
+const sliderValue = ref<number[]>([])
+const buckets = ref<Bucket[]>([])
+const total = ref(0)
+const tooltip = ref<TooltipState>({
+  item: null,
+  isActive: false,
+  x: 0,
+  y: 0
+})
+
+const hasChanged = computed(() => value.value.join(',') !== sliderValue.value.join(','))
+
+const otherFilters = computed(() => {
+  return props.facetFilters.filter(filter => filter.type !== props.facetType)
+})
+
+const statsApiQueryParameters = computed(() => {
+  const query: StatsQueryParams = {
+    index: props.index,
+    stats: 'min,max',
+    filters: serializeFilters(props.facetFilters)
+  }
+  if (props.groupby) {
+    query.groupby = props.groupby
+  }
+  return {
+    query,
+    hash: JSON.stringify(query).split('').sort().join('')
+  }
+})
+
+function applyValues() {
+  const rangeFilter = FilterFactory.create({
+    type: props.facetType,
+    q: sliderValue.value.map(v => v.toString())
+  })
+  emit('changed', [...otherFilters.value, rangeFilter])
+}
+
+function resetValues() {
+  emit('changed', [...otherFilters.value])
+}
+
+function getTooltipLabel(bucket: Bucket) {
+  if (isNaN(bucket.upper) || isNaN(bucket.lower)) return ''
+
+  if (props.isPercentage) {
+    if (bucket.upper !== bucket.lower) {
+      return proxy.$t(props.valuePercentageLabel, {
+        upper: proxy.$n(bucket.upper),
+        lower: proxy.$n(bucket.lower)
+      })
+    }
+    return proxy.$t(props.valuePercentageLabel, {
+      upper: proxy.$n(bucket.upper + 0.999),
+      lower: proxy.$n(bucket.lower)
+    })
+  }
+
+  if (bucket.upper !== bucket.lower) {
+    return proxy.$t(props.valueAsRangeLabel, {
+      upper: proxy.$n(bucket.upper),
+      lower: proxy.$n(bucket.lower)
+    })
+  }
+
+  const bucketValue: number =
+    typeof bucket.value === 'number' ? bucket.value : parseInt(String(bucket.value), 10)
+  return proxy.$t(props.valueLabel, { val: proxy.$n(bucketValue) })
+}
+
+function handleMouseMove(
+  moveValue: { bucket: Bucket; pointer?: { x?: number; y?: number } } | null
+) {
+  if (!moveValue) {
+    tooltip.value.item = null
+    tooltip.value.isActive = false
+    return
+  }
+
+  const bucket = moveValue.bucket
+  const label = getTooltipLabel(bucket)
+
+  tooltip.value = {
+    item: {
+      label,
+      ...moveValue.bucket
+    },
+    isActive: true,
+    x: -10 + (moveValue.pointer?.x ?? 0),
+    y: -50 + (moveValue.pointer?.y ?? 0)
+  }
+}
+
+function handleClick({ bucket }: { bucket: Bucket }) {
+  if (isNaN(bucket.upper) || isNaN(bucket.lower)) {
+    const numValue =
+      typeof bucket.value === 'number' ? bucket.value : parseInt(String(bucket.value), 10)
+    if (!isNaN(numValue)) {
+      const rangeFilter = FilterFactory.create({
+        type: props.facetType,
+        q: [numValue, numValue]
+      })
+      emit('clicked', rangeFilter)
+    }
+    return
+  }
+
+  const rangeFilter = FilterFactory.create({
+    type: props.facetType,
+    q: [bucket.lower, bucket.upper]
+  })
+  emit('clicked', rangeFilter)
+}
+
+watch(
+  statsApiQueryParameters,
+  async ({ query, hash }, previousValue) => {
+    if (previousValue && previousValue.hash === hash) {
+      return
+    }
+
+    loading.value = true
+    console.info(
+      '[FilterDynamicRange] loading stats with query',
+      props.facetType,
+      props.facetFilters
+    )
+    await props
+      .statsProvider(props.facetType, { query })
+      .then(response => {
+        start.value = parseInt(String(response.statistics.min), 10)
+        end.value = parseInt(String(response.statistics.max), 10)
+        total.value = parseInt(String(response.total), 10)
+        value.value = [start.value, end.value]
+        sliderValue.value = [start.value, end.value]
+        const range = end.value - start.value
+        gap.value = Math.max(1, Math.round(range / (props.maxExpectedBuckets + 1)))
+        numBuckets.value = props.isPercentage ? 100 : Math.floor(range / gap.value)
+        console.debug('[FilterDynamicRange]', response.statistics)
+        console.debug(
+          '[FilterDynamicRange] range:',
+          range,
+          'numuckets:',
+          numBuckets.value,
+          'gap:',
+          gap.value
+        )
+      })
+      .catch(error => {
+        console.error('[FilterDynamicRange] error', error)
+      })
+
+    const facetSearchService = props.facetSearchProvider(props.index)
+    const facetSearchServiceQuery = {
+      filters: props.facetFilters,
+      group_by: props.groupby,
+      rangeStart: start.value,
+      rangeEnd: end.value + 1,
+      rangeGap: gap.value,
+      limit: numBuckets.value || 1
+    }
+
+    console.info(
+      '[FilterDynamicRange] loading facet data with query',
+      props.facetType,
+      facetSearchServiceQuery
+    )
+
+    await facetSearchService(props.facetType, {
+      query: facetSearchServiceQuery
+    })
+      .then(response => {
+        buckets.value = response.buckets
+          .sort((a, b) => {
+            return (a.value as number) - (b.value as number)
+          })
+          .map((bucket, i, arr) => {
+            const bucketValueAsNumber =
+              typeof bucket.value === 'number' ? bucket.value : parseInt(String(bucket.value), 10)
+            return {
+              lower: bucketValueAsNumber,
+              upper: Math.max((arr[i + 1]?.value as any as number) - 1, bucketValueAsNumber),
+              ...bucket
+            }
+          })
+        console.debug('[FilterDynamicRange] loadFacet', props.facetType, [...response.buckets])
+      })
+      .catch(error => {
+        console.error('[FilterDynamicRange] loadFacet error', error)
+      })
+
+    loading.value = false
+    loaded.value = true
+  },
+  { immediate: true }
+)
 </script>
 <i18n lang="json">
 {

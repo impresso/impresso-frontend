@@ -279,7 +279,8 @@ export const FacetTypes = [
   'organisation',
   'topic'
 ] satisfies FacetType[]
-export const RangeFacetTypes = ['contentLength'] satisfies FacetType[]
+export const RangeFacetTypes = [] satisfies FacetType[]
+export const DynamicFacetTypes = ['contentLength'] satisfies FacetType[]
 export const TimelineFacetTypes = ['year'] satisfies FacetType[]
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
@@ -305,6 +306,10 @@ export interface IData {
    * Range facets are expected to be loaded first and are treated differently in the UI.
    */
   rangeFacets: Facet[]
+  /**
+   * Dynamic facets are expected to be loaded first and are treated differently in the UI.
+   */
+  dynamicFacetTypes: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -320,6 +325,7 @@ export default defineComponent({
       commonFacets: [],
       userFacets: [],
       timelineFacets: [],
+      dynamicFacetTypes: [],
       rangeFacets: [],
       _activeSearchRequestId: 0,
       _isUnmounted: false,
@@ -516,7 +522,13 @@ export default defineComponent({
     },
     facets() {
       // return this.timelineFacets.concat(this.commonFacets, this.userFacets)
-      return [...this.timelineFacets, ...this.commonFacets, ...this.rangeFacets, ...this.userFacets]
+      return [
+        ...this.timelineFacets,
+        ...this.commonFacets,
+        ...this.dynamicFacetTypes,
+        ...this.rangeFacets,
+        ...this.userFacets
+      ]
     }
   },
   mounted() {
@@ -524,6 +536,7 @@ export default defineComponent({
     this.facets = buildEmptyFacets(FacetTypes)
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
+    this.dynamicFacetTypes = buildEmptyFacets(DynamicFacetTypes)
   },
   beforeUnmount() {
     this._isUnmounted = true
@@ -689,7 +702,6 @@ export default defineComponent({
                 }
               })
               .then(response => {
-                console.log('Range facets response', response)
                 const data = response.data.map(f => {
                   const buckets = (f.buckets as { value: number }[]).sort(
                     (a, b) => a.value - b.value

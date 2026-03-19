@@ -1,63 +1,68 @@
 <template>
-  <b-container class="HistogramSlider">
-    <div
-      ref="maxValueLabel"
-      class="maxvalue position-absolute very-small left-0"
-      :style="{
-        maxWidth: '50%',
-        top: '-5px',
-        lineHeight: '1em'
-      }"
-    >
-      <span v-if="maxBucket && bucketSpan > 0">
-        {{
-          $t('maxvalrange', {
-            lower: maxBucket.lower,
-            upper: maxBucket.upper,
-            n: maxBucket.count
-          })
-        }}
-      </span>
-      <span v-else-if="maxBucket">
-        {{ $t('maxval', { val: maxBucket.value, n: maxBucket.count }) }}
-      </span>
+  <div class="HistogramSlider">
+    <div ref="maxValueLabel" class="HistogramSlider__maxValueLabel position-absolute very-small">
+      <template v-if="maxBucket && bucketSpan > 0">
+        <span
+          v-if="maxBucket.lower !== maxBucket.upper"
+          v-html="
+            $t('maxvalrange', {
+              lower: maxBucket.lower,
+              upper: maxBucket.upper,
+              n: maxBucket.count
+            })
+          "
+        ></span>
+        <span
+          v-else
+          v-html="
+            $t('maxval', {
+              val: maxBucket.value,
+              n: maxBucket.count
+            })
+          "
+        ></span>
+      </template>
+      <span
+        v-else-if="maxBucket"
+        v-html="$t('maxval', { val: maxBucket.value, n: maxBucket.count })"
+      ></span>
     </div>
-    <b-col>
-      <b-row ref="chartContainer" class="position-relative">
-        <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
-        <Tooltip v-if="showTooltip && tooltipState.isActive" :tooltip="tooltipState">
-          <template v-if="tooltipState.bucket">
-            <span v-if="bucketSpan > 0">
-              {{
-                $t('valRange', {
-                  lower: tooltipState.bucket.lower,
-                  upper: tooltipState.bucket.upper,
-                  n: tooltipState.bucket.count
-                })
-              }}
-            </span>
-            <span v-else>
-              {{ $t('val', { val: tooltipState.bucket.value, n: tooltipState.bucket.count }) }}
-            </span>
+    <div ref="chartContainer" class="position-relative">
+      <svg ref="chart" class="chart" preserveAspectRatio="none"></svg>
+      <Tooltip v-if="showTooltip && tooltipState.isActive" :tooltip="tooltipState">
+        <template v-if="tooltipState.bucket">
+          <template
+            v-if="bucketSpan > 0 && tooltipState.bucket.lower !== tooltipState.bucket.upper"
+          >
+            {{
+              $t('valRange', {
+                lower: tooltipState.bucket.lower,
+                upper: tooltipState.bucket.upper,
+                n: tooltipState.bucket.count
+              })
+            }}
           </template>
-        </Tooltip>
-      </b-row>
-      <b-row v-if="shouldEnableSlider">
-        <VueSlider
-          width="100%"
-          v-model="sliderValue"
-          v-bind="{
-            modelValue: [sliderValue[0], sliderValue[1]],
-            min: sliderRange[0],
-            max: sliderRange[1]
-          }"
-          :tooltip-formatter="$n"
-          :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
-          data-testid="slider-control"
-        />
-      </b-row>
-    </b-col>
-  </b-container>
+          <span v-else>
+            {{ $t('val', { val: tooltipState.bucket.value, n: tooltipState.bucket.count }) }}
+          </span>
+        </template>
+      </Tooltip>
+    </div>
+    <div v-if="shouldEnableSlider">
+      <VueSlider
+        width="100%"
+        v-model="sliderValue"
+        v-bind="{
+          modelValue: [sliderValue[0], sliderValue[1]],
+          min: sliderRange[0],
+          max: sliderRange[1]
+        }"
+        :tooltip-formatter="$n"
+        :tooltip-placement="onlyRangeLabels ? 'bottom' : 'top'"
+        data-testid="slider-control"
+      />
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -86,6 +91,7 @@ export interface HistogramSliderProps {
   scaleType?: 'linear' | 'sqrt' | 'symlog'
   valueLabel?: string
   showTooltip?: boolean
+  marginTop?: number
 }
 
 const props = withDefaults(defineProps<HistogramSliderProps>(), {
@@ -93,7 +99,8 @@ const props = withDefaults(defineProps<HistogramSliderProps>(), {
   onlyRangeLabels: false,
   scaleType: 'linear',
   valueLabel: 'valueLabel',
-  showTooltip: false
+  showTooltip: false,
+  marginTop: 20
 })
 
 const emit = defineEmits<{
@@ -198,8 +205,6 @@ function renderChart(): void {
   const containerEl = getChartContainerEl()
   const chartEl = chart.value
   if (!containerEl || !chartEl) return
-
-  const TOP_MARGIN = 20
   const { width } = containerEl.getBoundingClientRect()
   const height = props.chartHeight
 
@@ -221,7 +226,7 @@ function renderChart(): void {
   ]
   const y = yScaler
     .domain([Math.min(...counts), Math.max(...counts)])
-    .range([0, height - TOP_MARGIN])
+    .range([0, height - props.marginTop])
 
   const maxCount = Math.max(...counts)
 
@@ -258,10 +263,12 @@ function renderChart(): void {
       .attr('class', 'maxval')
       .attr('transform', `translate(${xCenter}, ${yTop})`)
     maxvalG.append('circle').attr('class', 'point').attr('r', 2)
+    const xPos = Math.min(xCenter, width - 120) // prevent overflowing on the right
+    maxValueLabel.value?.setAttribute('style', `left: ${xPos}px; top: ${yTop - 20}px;`)
   }
-
   // Hover overlay (single reusable group)
   const hoverG = svg.append('g').attr('class', 'hovered-bar').style('pointer-events', 'none')
+
   const hoveredBackground = hoverG
     .append('rect')
     .attr('class', 'hovered-background')
@@ -276,14 +283,11 @@ function renderChart(): void {
   function showHover(bucket: Bucket): void {
     const bx = xScale(String(bucket.value)) ?? 0
     const bw = xScale.bandwidth()
-    const by = height - y(bucket.count)
+    const bh = height - y(bucket.count)
 
     hoverG.attr('transform', `translate(${bx}, 0)`)
-    hoveredBackground.attr('width', bw).attr('height', height - TOP_MARGIN)
-    hoveredValue
-      .attr('width', bw)
-      .attr('y', by)
-      .attr('height', Math.max(2, height - by - 1))
+    hoveredBackground.attr('width', bw).attr('height', height)
+    hoveredValue.attr('width', bw).attr('y', 0).attr('height', bh)
   }
 
   function hideHover(): void {
@@ -317,7 +321,7 @@ function renderChart(): void {
       if (props.showTooltip) {
         tooltipState.value = {
           x: (xScale(String(bucket.value)) ?? 0) + xScale.bandwidth() / 2,
-          y: height - y(bucket.count) - 50,
+          y: height - y(bucket.count),
           isActive: true,
           bucket
         }
@@ -342,6 +346,7 @@ function renderChart(): void {
 // Lifecycle
 onMounted(() => {
   window.addEventListener('resize', renderChart)
+  renderChart()
 })
 
 onBeforeUnmount(() => {
@@ -352,8 +357,7 @@ watch(
   () => props.buckets,
   () => {
     if (chart.value) renderChart()
-  },
-  { immediate: true, deep: true }
+  }
 )
 </script>
 
@@ -378,7 +382,7 @@ watch(
 }
 
 .HistogramSlider .hovered-background {
-  fill: #b65656;
+  fill: var(--impresso-color-black);
 }
 
 .HistogramSlider .maxval {
@@ -387,15 +391,22 @@ watch(
 .HistogramSlider .maxval .point {
   fill: var(--impresso-color-black);
 }
+.HistogramSlider__maxValueLabel {
+  transform: translateX(-10px);
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 
 <i18n lang="json">
 {
   "en": {
-    "maxval": "max: {val} ({n} results)",
-    "maxvalrange": "max: {lower} - {upper} ({n} results)",
+    "maxval": "max: <span class='number'>{n}</span> results ({val})",
+    "maxvalrange": "max: <span class='number'>{n}</span> results ({lower} - {upper})",
     "valRange": "{lower} - {upper} ({n} results)",
-
+    "val": "{val} ({n} results)",
     "valueLabel": "{n}",
     "valueAsPercentageLabel": "{val}%",
     "tooltipContent": "{val}: {count} results"
