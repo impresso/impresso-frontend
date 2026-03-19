@@ -269,7 +269,6 @@ export const FacetTypes = [
   'country',
   'partner',
   // 'year',
-  'contentLength',
   'copyright',
   'sourceType',
   'sourceMedium',
@@ -280,7 +279,9 @@ export const FacetTypes = [
   'organisation',
   'topic'
 ] satisfies FacetType[]
-
+export const RangeFacetTypes = [] satisfies FacetType[]
+export const DynamicFacetTypes = ['contentLength'] satisfies FacetType[]
+export const TimelineFacetTypes = ['year'] satisfies FacetType[]
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 export interface IData {
@@ -292,6 +293,7 @@ export interface IData {
   searchResults: ContentItem[]
   paginationTotalRows: number
   timelineFacets: Facet[]
+
   /**
    * Common facets are expected to be loaded first.
    */
@@ -300,6 +302,14 @@ export interface IData {
    * User specific facets may take time to load and are not expected to be available immediately.
    */
   userFacets: Facet[]
+  /**
+   * Range facets are expected to be loaded first and are treated differently in the UI.
+   */
+  rangeFacets: Facet[]
+  /**
+   * Dynamic facets are expected to be loaded first and are treated differently in the UI.
+   */
+  dynamicFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -315,6 +325,8 @@ export default defineComponent({
       commonFacets: [],
       userFacets: [],
       timelineFacets: [],
+      dynamicFacets: [],
+      rangeFacets: [],
       _activeSearchRequestId: 0,
       _isUnmounted: false,
       visibleModal: null,
@@ -510,13 +522,21 @@ export default defineComponent({
     },
     facets() {
       // return this.timelineFacets.concat(this.commonFacets, this.userFacets)
-      return [...this.timelineFacets, ...this.commonFacets, ...this.userFacets]
+      return [
+        ...this.timelineFacets,
+        ...this.commonFacets,
+        ...this.dynamicFacets,
+        ...this.rangeFacets,
+        ...this.userFacets
+      ]
     }
   },
   mounted() {
     console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
     this.facets = buildEmptyFacets(FacetTypes)
-    this.timelineFacets = buildEmptyFacets(['year'])
+    this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
+    this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
+    this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
   },
   beforeUnmount() {
     this._isUnmounted = true
@@ -663,16 +683,36 @@ export default defineComponent({
           this.paginationTotalRows = total
           this.searchResults = data
 
-          const [timelineFacets, commonFacets, userFacets] = await Promise.all([
+          const [timelineFacets, rangeFacets, commonFacets, userFacets] = await Promise.all([
             searchFacetsService
               .find({
                 query: {
-                  facets: ['year'],
+                  facets: TimelineFacetTypes,
                   filters,
                   limit: 300 // get all values
                 }
               })
               .then(response => response.data.map(f => new FacetModel(f as any))),
+            searchFacetsService
+              .find({
+                query: {
+                  facets: RangeFacetTypes,
+                  filters,
+                  limit: 50
+                }
+              })
+              .then(response => {
+                const data = response.data.map(f => {
+                  const buckets = (f.buckets as { value: number }[]).sort(
+                    (a, b) => a.value - b.value
+                  ) // sort buckets by key (numerical order)
+                  return new FacetModel({
+                    ...f,
+                    buckets
+                  } as any)
+                })
+                return data
+              }),
             searchFacetsService
               .find({
                 query: {
@@ -710,6 +750,7 @@ export default defineComponent({
           })
 
           this.timelineFacets = timelineFacets
+          this.rangeFacets = rangeFacets
           this.commonFacets = commonFacets
           this.userFacets = this.shouldLoadCollections ? userFacets : []
         } catch (error) {
