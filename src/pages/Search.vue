@@ -309,7 +309,7 @@ export interface IData {
   /**
    * Dynamic facets are expected to be loaded first and are treated differently in the UI.
    */
-  dynamicFacetTypes: Facet[]
+  dynamicFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -325,7 +325,7 @@ export default defineComponent({
       commonFacets: [],
       userFacets: [],
       timelineFacets: [],
-      dynamicFacetTypes: [],
+      dynamicFacets: [],
       rangeFacets: [],
       _activeSearchRequestId: 0,
       _isUnmounted: false,
@@ -525,7 +525,7 @@ export default defineComponent({
       return [
         ...this.timelineFacets,
         ...this.commonFacets,
-        ...this.dynamicFacetTypes,
+        ...this.dynamicFacets,
         ...this.rangeFacets,
         ...this.userFacets
       ]
@@ -536,7 +536,7 @@ export default defineComponent({
     this.facets = buildEmptyFacets(FacetTypes)
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
-    this.dynamicFacetTypes = buildEmptyFacets(DynamicFacetTypes)
+    this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
   },
   beforeUnmount() {
     this._isUnmounted = true
