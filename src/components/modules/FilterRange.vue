@@ -1,8 +1,8 @@
 <template>
   <div class="filter-range" data-testid="filter-range">
-    <base-title-bar>
+    <BaseTitleBar>
       {{ $t(`label.${facet.type}.filterTitle`) }}
-      <info-button class="ml-1" :target="facet.type" name="filter-range" />
+      <InfoButton class="ml-1" :target="facet.type" name="filter-range" />
 
       <template v-slot:options>
         <b-button
@@ -14,8 +14,8 @@
           {{ $t('actions.reset') }}
         </b-button>
       </template>
-    </base-title-bar>
-    <histogram-slider
+    </BaseTitleBar>
+    <HistogramSlider
       class="histo-slider"
       v-model="sliderValue"
       :buckets="sliderBuckets"
@@ -27,104 +27,94 @@
     />
 
     <div class="p-2" v-if="valuesHaveChanged">
-      <b-row no-gutters>
-        <b-col class="pr-1">
+      <div class="row g-0">
+        <div class="col pe-1">
           <b-button size="sm" block variant="outline-primary" @click="resetValues">
             {{ $t('actions.dismiss') }}
           </b-button>
-        </b-col>
-        <b-col class="pl-1">
+        </div>
+        <div class="col ps-1">
           <b-button size="sm" block variant="outline-primary" @click="applyValues">
             {{ $t('actions.apply') }}
           </b-button>
-        </b-col>
-      </b-row>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import BaseTitleBar from '@/components/base/BaseTitleBar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import HistogramSlider from '@/components/modules/vis/HistogramSlider.vue'
 import type { Facet, Filter } from '@/models'
-import { PropType } from 'vue'
+import { computed, ref } from 'vue'
 
-export interface IData {
-  value: number[]
+export interface FilterRangeProps {
+  facet: Facet
+  facetFilters: Filter[]
 }
 
-export default {
-  data: () =>
-    ({
-      value: []
-    }) satisfies IData,
-  props: {
-    facet: {
-      type: Object as PropType<Facet>,
-      required: true
-    },
-    facetFilters: {
-      type: Array as PropType<Filter[]>,
-      required: true
-    }
+const props = defineProps<FilterRangeProps>()
+
+const emit = defineEmits<{
+  (e: 'changed', value: Filter[]): void
+}>()
+
+const value = ref<number[]>([])
+
+const sliderBuckets = computed(() => {
+  return props.facet.buckets
+})
+
+const filterValue = computed<number[]>(() => {
+  if (props.facetFilters.length === 0) return []
+  const firstFilter = props.facetFilters[0]
+  if (typeof firstFilter.q === 'undefined') return []
+  if (!Array.isArray(firstFilter.q)) return [Number.parseInt(firstFilter.q, 10)]
+  return firstFilter.q.map(v => Number.parseInt(v, 10))
+})
+
+const valuesHaveChanged = computed(() => {
+  return (
+    value.value.length === 2 && JSON.stringify(value.value) !== JSON.stringify(filterValue.value)
+  )
+})
+
+const sliderValue = computed<number[]>({
+  get() {
+    if (value.value.length === 2) return value.value
+    return filterValue.value
   },
-  emits: ['changed'],
-  computed: {
-    /** @returns {import('@/models').Bucket[]} */
-    sliderBuckets() {
-      return this.facet.buckets
-    },
-    /** @returns {boolean} */
-    valuesHaveChanged() {
-      return (
-        this.value.length === 2 && JSON.stringify(this.value) !== JSON.stringify(this.filterValue)
-      )
-    },
-    sliderValue: {
-      /** @returns {number[]} */
-      get() {
-        if (this.value.length === 2) return this.value
-        return this.filterValue
-      },
-      /** @param val {number[]} */
-      set(val) {
-        this.value = val
-      }
-    },
-    /** @returns {number[]} */
-    filterValue() {
-      if (this.facetFilters.length === 0) return []
-      const firstFilter = this.facetFilters[0]
-      if (typeof firstFilter.q === 'undefined') return []
-      if (!Array.isArray(firstFilter.q)) return [parseInt(firstFilter.q, 10)]
-      else return firstFilter.q.map(v => parseInt(v, 10))
-    }
-  },
-  methods: {
-    changeValue(val) {
-      this.value = val
-    },
-    resetValues() {
-      this.value = []
-    },
-    applyValues() {
-      if (this.value.length !== 2) return this.$emit('changed', [])
-      const filter = {
-        type: this.facet.type as Filter['type'],
-        q: this.value.map(v => v.toString())
-      }
-      this.$emit('changed', [filter])
-    },
-    handleResetFilters() {
-      this.value = []
-      this.applyValues()
-    }
-  },
-  components: {
-    HistogramSlider,
-    BaseTitleBar,
-    InfoButton
+  set(val: number[]) {
+    value.value = val
   }
+})
+
+function changeValue(val: number[]) {
+  value.value = val
+}
+
+function resetValues() {
+  value.value = []
+}
+
+function applyValues() {
+  if (value.value.length !== 2) {
+    emit('changed', [])
+    return
+  }
+
+  emit('changed', [
+    {
+      type: props.facet.type as Filter['type'],
+      q: value.value.map(v => v.toString())
+    } as Filter
+  ])
+}
+
+function handleResetFilters() {
+  value.value = []
+  applyValues()
 }
 </script>
