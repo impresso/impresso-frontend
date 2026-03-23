@@ -7,8 +7,7 @@
         <template #header>
           <h2 class="mb-0 font-weight-bold">{{ $t('loginTitle') }}</h2>
         </template>
-        <MagicLinkForm :token="tokenFromUrl" @submit="onSubmit"
-          >{{ error }}
+        <MagicLinkForm :token="tokenFromUrl" :is-loading="isLoading" @submit="onSubmit">
           <FeathersErrorManager v-if="error" :error="error" />
         </MagicLinkForm>
       </Card>
@@ -22,35 +21,45 @@ import MagicLinkForm from '../components/forms/MagicLinkForm.vue'
 import { app as appService } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const error = ref<FeathersError | Error | null>(null)
+const isLoading = ref(false)
 
 const tokenFromUrl = computed(() => {
-  return (route.query.token as string) || ''
+  return (route.params.token as string) || (route.query.token as string) || ''
 })
 
-const onSubmit = async ({ token }: { token: string }) => {
+const authenticate = async (token: string) => {
   error.value = null
-  if (!token) {
-    alert('No token provided')
-    return
-  }
-  console.debug('Received token:', token)
-  // Handle form submission logic here
+  isLoading.value = true
   try {
-    const result = await appService.authenticate({
+    await appService.authenticate({
       strategy: 'magic-link',
       accessToken: token
     })
-    console.debug('Authentication successful:', result)
-  } catch (err) {
-    error.value = new Error(err.message)
+    router.push({ name: 'Index' })
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err : new Error(String(err))
     console.error('Magic link error:', err)
+  } finally {
+    isLoading.value = false
   }
 }
+
+const onSubmit = async ({ token }: { token: string }) => {
+  if (!token) return
+  await authenticate(token)
+}
+
+onMounted(() => {
+  if (tokenFromUrl.value) {
+    authenticate(tokenFromUrl.value)
+  }
+})
 </script>
 
 <i18n lang="json">
