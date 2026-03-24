@@ -427,6 +427,10 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght);
 }
 
+.text-color-inherit {
+  color: inherit;
+}
+
 .btn-sm,
 .btn-group-sm > .btn {
   font-size: var(--impresso-font-size-smallcaps);
@@ -735,6 +739,12 @@ svg path.domain {
 }
 .gap-2 {
   gap: var(--spacing-2);
+}
+.gap-3 {
+  gap: var(--spacing-3);
+}
+.gap-4 {
+  gap: var(--spacing-4);
 }
 .rounded {
   border-radius: var(--border-radius-md) !important;
