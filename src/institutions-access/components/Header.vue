@@ -24,7 +24,13 @@
         </div> -->
         <div class="ms-auto align-items-center mr-3 navbar-nav">
           <template v-if="isAuthenticated">
-            <UserDropdown :user="user" :userPlan="userPlan" />
+            <UserDropdown :user="user" :userPlan="userPlan" @logout="logout">
+              <template #role>
+                <div class="user-role small-caps text-left">
+                  {{ $t('institutionContactpoint') }}
+                </div>
+              </template>
+            </UserDropdown>
           </template>
         </div>
       </div>
@@ -36,13 +42,18 @@ import User from '@/models/User'
 import { useUserStore } from '@/stores/user'
 import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
-import { InstitutionsAccessBaseUrl, PlanLabels } from '@/constants'
+import { InstitutionsAccessBaseUrl } from '@/constants'
 import UserDropdown from '@/components/UserDropdown.vue'
 
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
 const userPlan = computed(() => userStore.userPlan)
 const user = computed(() => (isAuthenticated.value ? (userStore.user as any as User) : null))
+
+const logout = () => {
+  console.info('logging out..')
+  userStore.logout()
+}
 </script>
 <style>
 .Header > nav.navbar {
@@ -64,3 +75,10 @@ const user = computed(() => (isAuthenticated.value ? (userStore.user as any as U
   content: '';
 }
 </style>
+<i18n lang="json">
+{
+  "en": {
+    "institutionContactpoint": "Reviewer"
+  }
+}
+</i18n>
