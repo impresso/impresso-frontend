@@ -209,7 +209,7 @@ export const initUserTermsOfUse = async () => {
       )
       return null
     })
-  if (!termsOfuse.dateAcceptedTerms) {
+  if (!termsOfuse?.dateAcceptedTerms) {
     console.debug('[init:initUserTermsOfUse] No terms of use accepted date found.')
     userStore.setAcceptTermsDate(null)
     return

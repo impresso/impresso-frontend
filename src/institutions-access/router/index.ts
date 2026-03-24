@@ -63,10 +63,7 @@ router.beforeEach((to, _from, next) => {
         next()
       } else {
         next({
-          name: 'Login',
-          query: {
-            redirect: to.path
-          }
+          name: 'Login'
         })
       }
     })

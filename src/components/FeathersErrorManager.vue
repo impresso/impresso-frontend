@@ -6,6 +6,7 @@
         >:&nbsp;{{ d.message }}
       </li>
     </ul>
+    <slot></slot>
   </div>
 </template>
 <script setup lang="ts">

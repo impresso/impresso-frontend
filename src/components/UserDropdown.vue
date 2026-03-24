@@ -17,7 +17,9 @@
         </div>
         <div>
           <div class="user-fullname small mb-0 text-left">{{ userFullName }}</div>
-          <div class="user-role small-caps text-left">{{ userPlanLabel }}</div>
+          <slot name="role">
+            <div class="user-role small-caps text-left">{{ userPlanLabel }}</div>
+          </slot>
         </div>
       </div>
     </template>

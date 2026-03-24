@@ -5,6 +5,9 @@
       label="Magic Link Token *"
       label-for="token"
       :description="(v$.token!.$errors[0]?.$message as string) || ''"
+      :style="{
+        display: $props.isLoading ? 'none' : 'block'
+      }"
     >
       <BFormInput
         id="token"
@@ -12,6 +15,7 @@
         name="token"
         type="text"
         required
+        :disabled="props.isLoading"
         placeholder="Enter your magic link token"
         :class="{
           'border-danger': v$.token!.$error,
@@ -21,15 +25,18 @@
         v-model.trim="formData.token"
       />
     </BFormGroup>
-    <slot>test</slot>
-    <button
-      type="submit"
-      :disabled="props.isLoading || v$.token!.$error"
-      class="btn btn-outline-primary btn-md px-4 gap-2 border border-dark mt-3"
-    >
-      <span v-if="!props.isLoading">{{ $t('actions.verifyTokenAndLogIn') }}</span>
-      <span v-else>Verifying...</span>
-    </button>
+    <slot></slot>
+    <section class="d-flex gap-3 align-items-center mt-3">
+      <button
+        type="submit"
+        :disabled="props.isLoading || v$.token!.$error"
+        class="btn btn-outline-primary btn-md px-4 gap-2 border border-dark"
+      >
+        <span v-if="!props.isLoading">{{ $t('actions.verifyTokenAndLogIn') }}</span>
+        <span v-else>{{ $t('actions.verifyingToken') }}</span>
+      </button>
+      <slot name="actions"></slot>
+    </section>
   </form>
 </template>
 
@@ -112,7 +119,8 @@ const onSubmit = async () => {
     "invalidToken": "Invalid or expired token",
     "verificationError": "An error occurred during token verification",
     "actions": {
-      "verifyTokenAndLogIn": "Verify Token and Log In"
+      "verifyTokenAndLogIn": "Verify Token and Log In",
+      "verifyingToken": "Verifying Token..."
     }
   }
 }

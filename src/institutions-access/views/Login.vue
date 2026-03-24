@@ -113,7 +113,7 @@ const onSubmit = async () => {
     "loginTitle": "Login to Institution Access",
     "sendLoginLink": "Send Login Link",
     "loginSentMessage": "A login link has been sent to your email. Please check your inbox and click the link to access the institution resources.",
-    "loginHelpMessage": "Please enter your institutional email address to receive a login link. For assistance, contact us."
+    "loginHelpMessage": "Please enter your institutional email address to receive a login link. Just click it in your inbox to log in, no password needed. For assistance, don't hesitate to contact our support team."
   }
 }
 </i18n>
