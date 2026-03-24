@@ -44,15 +44,18 @@ import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
 import { InstitutionsAccessBaseUrl } from '@/constants'
 import UserDropdown from '@/components/UserDropdown.vue'
+import { useRouter } from 'vue-router'
 
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
 const userPlan = computed(() => userStore.userPlan)
 const user = computed(() => (isAuthenticated.value ? (userStore.user as any as User) : null))
+const router = useRouter()
 
 const logout = () => {
   console.info('logging out..')
   userStore.logout()
+  router.push({ name: 'Login' })
 }
 </script>
 <style>
