@@ -21,15 +21,18 @@
         v-model.trim="formData.token"
       />
     </BFormGroup>
-    <slot>test</slot>
-    <button
-      type="submit"
-      :disabled="props.isLoading || v$.token!.$error"
-      class="btn btn-outline-primary btn-md px-4 gap-2 border border-dark mt-3"
-    >
-      <span v-if="!props.isLoading">{{ $t('actions.verifyTokenAndLogIn') }}</span>
-      <span v-else>Verifying...</span>
-    </button>
+    <slot></slot>
+    <section class="d-flex gap-3 align-items-center mt-3">
+      <button
+        type="submit"
+        :disabled="props.isLoading || v$.token!.$error"
+        class="btn btn-outline-primary btn-md px-4 gap-2 border border-dark"
+      >
+        <span v-if="!props.isLoading">{{ $t('actions.verifyTokenAndLogIn') }}</span>
+        <span v-else>Verifying...</span>
+      </button>
+      <slot name="actions"></slot>
+    </section>
   </form>
 </template>
 
