@@ -109,7 +109,7 @@ export interface CollectableItemsUpdatedResponse {
 /**
  * Remove collection response
  */
-export interface RemoveCollectionResponse {
+export interface CollectionRemoveResponse {
   params: {
     /**
      * The collection id

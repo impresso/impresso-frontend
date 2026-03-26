@@ -114,7 +114,7 @@ export interface ImpressoTextEmbeddingRequest {
  * Create new collection request
  */
 export interface NewCollectionRequest {
-  name: string;
+  title: string;
   description?: string;
   /**
    * Access level of the collection.
