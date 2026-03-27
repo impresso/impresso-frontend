@@ -28,17 +28,18 @@
         >
           {{ $t('more_info') }} &rarr;
         </router-link>
+        <slot></slot>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue'
-import { arrow, offset, useFloating, autoPlacement, Side } from '@floating-ui/vue'
+import { computed, ref } from 'vue'
+import { arrow, offset, useFloating, autoPlacement, type Side } from '@floating-ui/vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'
-import { FaqContentsMap } from '../../data/faq'
+import { FaqContentsMap } from '@/data/faq'
 
 type MiddlewareData = {
   arrow?: {
@@ -51,29 +52,21 @@ const reference = ref(null)
 const floating = ref(null)
 const floatingArrow = ref(null)
 
-const props = defineProps({
-  target: String,
-  name: {
-    type: String,
-    required: true
-  },
-  triggerClass: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  defaultContent: {
-    type: String,
-    required: false
-  },
-  placement: {
-    type: String as PropType<Side>,
-    required: false
-  },
-  offsetOptions: {
-    type: Object,
-    default: () => {}
-  }
+export interface InfoButtonProps {
+  target?: string
+  name: string
+  triggerClass?: string
+  defaultContent?: string
+  placement?: Side
+  offsetOptions?: Parameters<typeof offset>[0]
+}
+
+const props = withDefaults(defineProps<InfoButtonProps>(), {
+  target: undefined,
+  triggerClass: '',
+  defaultContent: undefined,
+  placement: undefined,
+  offsetOptions: () => ({})
 })
 
 const middleware = computed(() => {
