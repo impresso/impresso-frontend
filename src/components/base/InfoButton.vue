@@ -28,7 +28,7 @@
         >
           {{ $t('more_info') }} &rarr;
         </router-link>
-        <slot></slot>
+        <slot :close="togglePopover"></slot>
       </div>
     </div>
   </div>

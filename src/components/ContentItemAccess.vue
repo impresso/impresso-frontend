@@ -6,7 +6,15 @@
         style="margin-top: -2px"
         :default-content="$t(accessDescriptionTranslationKey)"
         :name="$t(accessTranslationKey)"
-      ></InfoButton>
+      >
+        <template #default="{ close }">
+          <ContentItemAccessButton
+            :specialMembershipAccessBitPositions="contentItemBitmapCommonBitsPositions"
+            v-if="requiresSpecialMembershipAccess"
+            @request-access="close"
+          />
+        </template>
+      </InfoButton>
     </div>
   </div>
 </template>
@@ -17,6 +25,7 @@ import { useUserStore } from '@/stores/user'
 import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
 import { computed } from 'vue'
 import InfoButton from './base/InfoButton.vue'
+import ContentItemAccessButton from './ContentItemAccessButton.vue'
 
 const FullAccessLevel = 3
 
@@ -50,6 +59,12 @@ const hasTranscriptAccess = computed(() => {
 
 const hasFacsimileAccess = computed(() => {
   return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
+})
+
+const requiresSpecialMembershipAccess = computed(() => {
+  return contentItemBitmapCommonBitsPositions.value.some(
+    pos => (userBitmapAsBigInt.value & (1n << BigInt(pos))) === 0n
+  )
 })
 
 const accessTranslationKey = computed(() => {
@@ -127,6 +142,34 @@ const contentItemBitmapsAsBigInts = computed<{
 const userBitmapAsPlan = computed(() => {
   // Helper to get last 5 bits as string, padded to 5 bits
   return bigIntToBitString(userBitmapAsBigInt.value)
+})
+
+const contentItemBitmapAsBitstrings = computed(() => {
+  return {
+    explore: bigIntToBitString(contentItemBitmapsAsBigInts.value.explore),
+    transcript: bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript),
+    facsimile: bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n)
+  }
+})
+// get position of the common bits between transcript and facsimile, if any.
+const getPositionOfCommonBits = (bitmap1: bigint, bitmap2: bigint): number[] => {
+  const commonBits = bitmap1 & bitmap2
+  const positions: number[] = []
+  let position = 0n
+  while (commonBits >> position) {
+    if ((commonBits >> position) & 1n) {
+      positions.push(Number(position) - 5)
+    }
+    position++
+  }
+  return positions
+}
+
+const contentItemBitmapCommonBitsPositions = computed(() => {
+  return getPositionOfCommonBits(
+    contentItemBitmapsAsBigInts.value.transcript,
+    contentItemBitmapsAsBigInts.value.facsimile ?? 0n
+  )
 })
 
 const contentItemBitmapsAsPlans = computed(() => {
