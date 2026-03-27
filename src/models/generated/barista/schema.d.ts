@@ -89,7 +89,7 @@ export type components = {
         BaristaFormattedResponse: {
             /**
              * Assistantclarification
-             * @description Message used when the user request does not match search construction, web app guidance, or search analysis. Clarifies the assistant's role and redirects the user.
+             * @description Message used when the user request does not match search construction,             web app guidance, or search analysis. Clarifies the assistant's role and redirects the user.
              */
             assistantClarification?: string | null;
             /**
@@ -105,11 +105,6 @@ export type components = {
              */
             searchQueryDestination?: ("content_items" | "text_reuse" | "images") | null;
             /**
-             * Searchqueryfollowup
-             * @description A follow-up question to ask the user to refine their search query, suggestions or comments about the search query. Can be empty.
-             */
-            searchQueryFollowUp?: string | null;
-            /**
              * Searchquerysteps
              * @description Step-by-step narration of how the search query was constructed.
              */
@@ -124,9 +119,16 @@ export type components = {
         BaristaRequest: {
             /**
              * Additionalinstructions
-             * @description Additional instructions to guide the agent's response. This is an extra added in addition to the system prompt.
+             * @description Additional instructions to guide the agent's response. This is an extra added in             addition to the system prompt.
              */
             additionalInstructions?: string | null;
+            /**
+             * Agenttype
+             * @description The type of agent to use.
+             * @default router
+             * @enum {string}
+             */
+            agentType: "react" | "router" | "skills";
             /**
              * Message
              * @description The message to send to the Barista agent.
@@ -280,6 +282,10 @@ export type components = {
         };
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */

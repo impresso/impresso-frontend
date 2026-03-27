@@ -96,10 +96,7 @@ const convertBaristaMessageToChat = (
 
     const sr = message.structuredResponse
     const structuredContent =
-      sr?.assistantClarification ??
-      sr?.impressoHelp ??
-      sr?.searchQueryFollowUp ??
-      sr?.searchQuerySummary
+      sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQuerySummary
 
     const toolCallNames: string[] | undefined = Array.isArray(toolCallNamesAndIds)
       ? toolCallNamesAndIds.map(([name]) => name)
@@ -123,10 +120,7 @@ const convertBaristaMessageToChat = (
   if (isToolMessage(message)) {
     const sr = message.structuredResponse
     const structuredContent =
-      sr?.assistantClarification ??
-      sr?.impressoHelp ??
-      sr?.searchQueryFollowUp ??
-      sr?.searchQuerySummary
+      sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQuerySummary
 
     const toolCallId = message.source?.['tool_call_id'] as string | undefined
 
