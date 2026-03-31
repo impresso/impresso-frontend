@@ -1,9 +1,6 @@
 <template>
-  <button type="button" class="btn-rounded mt-2 btn btn-outline-secondary btn-sm">
-    Request Special Membership
-  </button>
-
   <SpecialMembershipAccessItem
+    :as-container="false"
     v-for="item in specialMembershipAccessItems"
     :key="item.id"
     :item="item"

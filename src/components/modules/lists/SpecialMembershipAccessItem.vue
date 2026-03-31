@@ -1,13 +1,25 @@
 <template>
   <div class="SpecialMembershipAccessItem container-fluid">
-    <div class="row">
-      <div class="col-7">
+    <div
+      :class="{
+        row: props.asContainer
+      }"
+    >
+      <div
+        :class="{
+          'col-7': props.asContainer
+        }"
+        class="d-flex flex-column justify-content-center gap-1"
+      >
         <h3 class="font-size-inherit m-0 font-weight-bold">{{ item.title }}</h3>
         <p class="small m-0">{{ item.metadata?.provider }}</p>
       </div>
       <div
         v-if="item.requests && item.requests.length > 0"
-        class="col-5 d-flex align-items-center justify-content-start gap-2"
+        :class="{
+          'col-5': props.asContainer
+        }"
+        class="d-flex align-items-center justify-content-start gap-2"
       >
         <Icon v-bind="iconArgs" />
         <div class="small">
@@ -25,7 +37,10 @@
       </div>
       <div
         v-else-if="withActions && (!item.requests || item.requests.length === 0)"
-        class="col-5 SpecialMembershipAccessItem__requestAccess"
+        :class="{
+          'col-5': props.asContainer
+        }"
+        class="SpecialMembershipAccessItem__requestAccess"
       >
         <button
           class="btn btn-sm btn-outline-secondary"
@@ -46,9 +61,13 @@ import { computed } from 'vue'
 export interface SpecialMembershipAccessItemProps {
   item: SpecialMembershipAccess
   withActions?: boolean
+  asContainer?: boolean
 }
 
-const props = defineProps<SpecialMembershipAccessItemProps>()
+const props = withDefaults(defineProps<SpecialMembershipAccessItemProps>(), {
+  withActions: false,
+  asContainer: true
+})
 
 const emit = defineEmits<{
   (e: 'request-access', item: SpecialMembershipAccess): void
@@ -89,7 +108,7 @@ const iconArgs = computed<IconProps>(() => {
       "rejected": "Rejected"
     },
     "action": {
-      "requestAccess": "Request Access"
+      "requestAccess": "Request Full Access"
     }
   }
 }

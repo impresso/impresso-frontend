@@ -7,18 +7,15 @@
         :default-content="$t(accessDescriptionTranslationKey)"
         :name="$t(accessTranslationKey)"
       >
-        <template #default="{ close }">
-          <ContentItemAccessButton
-            :specialMembershipAccessBitPositions="contentItemBitmapCommonBitsPositions"
-            v-if="requiresSpecialMembershipAccess"
-            @request-access="close"
-          />
-        </template>
       </InfoButton>
+      <ContentItemAccessButton
+        :specialMembershipAccessBitPositions="contentItemBitmapCommonBitsPositions"
+        v-if="isLoggedIn && requiresSpecialMembershipAccess"
+      />
     </div>
   </div>
 </template>
-
+1000000000000000000000000000000000000000000000000000000000000000
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
@@ -36,6 +33,7 @@ export interface ContentItemAccessProps {
 const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
 
+const isLoggedIn = computed(() => !!userStore.userData)
 /**
  * Computed property that converts the user's access bitmap from base64 to BigInt.
  *
