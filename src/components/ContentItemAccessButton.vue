@@ -1,26 +1,45 @@
 <template>
-  <SpecialMembershipAccessItem
-    :as-container="false"
-    v-for="item in specialMembershipAccessItems"
-    :key="item.id"
-    :item="item"
-    withActions
-    @request-access="requestAccess"
-  />
+  <button
+    className="btn btn-link small"
+    @click="getSpecialMembershipAccess"
+    :disabled="isLoading || isModalVisible"
+  >
+    <span v-if="isLoading">Checking access option...</span>
+    <span v-else-if="isModalVisible">requesting access...</span>
+    <span v-else>check your request access</span>
+  </button>
+
+  <Teleport to="body">
+    <SpecialMembershipRequestModal
+      :isVisible="isModalVisible && specialMembershipAccessItem !== null"
+      :item="specialMembershipAccessItem"
+      @dismiss="handleModalDismiss"
+    />
+  </Teleport>
 </template>
 <script setup lang="ts">
 import { specialMembershipAccess as specialMembershipAccessService } from '@/services'
 import { onMounted, ref } from 'vue'
 import SpecialMembershipAccessItem from './modules/lists/SpecialMembershipAccessItem.vue'
 import { SpecialMembershipAccess } from '@/services/types'
-import { useViewsStore } from '@/stores/views'
+import { computed } from 'vue'
+import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
 export interface ContentItemAccessButtonProps {
   specialMembershipAccessBitPositions: number[]
 }
 
 const props = defineProps<ContentItemAccessButtonProps>()
 const isLoading = ref(false)
-const specialMembershipAccessItems = ref<SpecialMembershipAccess[]>([])
+const isAccessChecked = ref(false)
+const isModalVisible = ref(false)
+const specialMembershipAccessItem = ref<SpecialMembershipAccess | null>(null)
+
+const handleModalDismiss = () => {
+  console.info('[ContentItemAccessButton] Modal dismissed')
+  isModalVisible.value = false
+  isAccessChecked.value = true
+}
+
 const getSpecialMembershipAccess = async () => {
   console.info(
     '[ContentItemAccessButton] Requesting special membership access with bitmap positions:',
@@ -39,7 +58,14 @@ const getSpecialMembershipAccess = async () => {
         '[ContentItemAccessButton] Special membership access requested successfully:',
         response
       )
-      specialMembershipAccessItems.value = response.data
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        isModalVisible.value = true
+        specialMembershipAccessItem.value = response.data[0]
+      } else {
+        console.warn(
+          '[ContentItemAccessButton] No special membership access items found for the given bitmap positions.'
+        )
+      }
     })
     .catch(error => {
       // Handle any errors that occur during the request
@@ -47,24 +73,7 @@ const getSpecialMembershipAccess = async () => {
     })
     .finally(() => {
       isLoading.value = false
+      isAccessChecked.value = true
     })
 }
-
-const emit = defineEmits<{
-  (e: 'request-access', item: SpecialMembershipAccess): void
-}>()
-
-const requestAccess = (item: SpecialMembershipAccess) => {
-  emit('request-access', item)
-  useViewsStore().openSpecialMembershipModal(item)
-}
-
-onMounted(async () => {
-  // You can perform any necessary setup here, such as checking the current access status
-  console.debug(
-    '[ContentItemAccessButton] @mounted with bitmap positions:',
-    props.specialMembershipAccessBitPositions
-  )
-  await getSpecialMembershipAccess()
-})
 </script>
