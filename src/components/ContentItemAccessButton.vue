@@ -19,11 +19,10 @@
 </template>
 <script setup lang="ts">
 import { specialMembershipAccess as specialMembershipAccessService } from '@/services'
-import { onMounted, ref } from 'vue'
-import SpecialMembershipAccessItem from './modules/lists/SpecialMembershipAccessItem.vue'
+import { ref } from 'vue'
 import { SpecialMembershipAccess } from '@/services/types'
-import { computed } from 'vue'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
+
 export interface ContentItemAccessButtonProps {
   specialMembershipAccessBitPositions: number[]
 }

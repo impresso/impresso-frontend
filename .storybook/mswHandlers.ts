@@ -7,6 +7,7 @@ import {
   UpdateCollectableItemsRequest
 } from '@/services/types/collectableItems'
 import {
+  MockSpecialMembershipAccess,
   MockSpecialMembershipAccessWithRequests,
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
@@ -249,6 +250,25 @@ export const findSpecialMembershipAccessHandler = http.get(
       data: items,
       pagination: {
         total: MockSpecialMembershipAccessWithRequests.length,
+        offset: offset,
+        limit: limit
+      }
+    })
+  }
+)
+
+export const findSpecialMembershipAccessHandlerWithoutRequests = http.get(
+  '/api/special-membership-access',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '10')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+    const items = MockSpecialMembershipAccess.slice(offset, offset + limit)
+    return HttpResponse.json({
+      data: items,
+      pagination: {
+        total: MockSpecialMembershipAccess.length,
         offset: offset,
         limit: limit
       }

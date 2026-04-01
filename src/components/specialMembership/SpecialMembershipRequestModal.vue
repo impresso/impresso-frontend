@@ -69,7 +69,7 @@ const emit = defineEmits<{
 }>()
 
 const isAlreadyRequested = computed(() => {
-  if (!props.item) return false
+  if (!props.item || !Array.isArray(props.item.requests)) return false
   return props.item.requests.length > 0
 })
 const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => {
