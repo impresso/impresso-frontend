@@ -72,7 +72,6 @@
         @changed="onMonitorChanged(filterIndex, $event)"
         @removed="onMonitorRemoved(filterIndex, $event)"
       />
-      {{ filter }}
     </div>
     <div
       v-for="{ filter, filterIndex } in excludedFilterItems"

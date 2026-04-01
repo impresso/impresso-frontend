@@ -20,11 +20,11 @@
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
-import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
+import { base64BytesToBigInt } from '@/util/bigint'
 import { computed } from 'vue'
 import InfoButton from './base/InfoButton.vue'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
-import { MaxPlanBitPosition, PlanBitPositions } from '@/constants'
+import { MaxPlanBitPosition } from '@/constants'
 
 const FullAccessLevel = 3
 
@@ -50,20 +50,6 @@ const userBitmapAsBigInt = computed(() => {
   return base64BytesToBigInt(userStore.bitmap)
 })
 
-/**
- * Extracts the positions of bits set to 1 in the user's access bitmap.
- */
-const userBitmapBitsPositions = computed<number[]>(() => {
-  const positions: number[] = []
-  let position = 0n
-  while (userBitmapAsBigInt.value >> position) {
-    if ((userBitmapAsBigInt.value >> position) & 1n) {
-      positions.push(Number(position))
-    }
-    position++
-  }
-  return positions
-})
 /**
  * Computed property that extracts the positions of bits set to 1 in
  * the content item's access bitmaps (explore, transcript, facsimile).

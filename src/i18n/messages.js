@@ -123,7 +123,7 @@ export default {
     },
     actions: {
       search: 'Search',
-
+      confirm: 'confirm',
       register: 'Create account',
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',

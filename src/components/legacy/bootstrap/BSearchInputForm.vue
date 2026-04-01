@@ -15,7 +15,7 @@
       ></BFormInput>
       <div class="input-group-append">
         <button
-          type="button"
+          type="submit"
           class="btn btn-outline-primary"
           ref="searchButton"
           :title="searchButtonLabel"
