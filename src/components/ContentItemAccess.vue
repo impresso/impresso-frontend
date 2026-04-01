@@ -1,21 +1,22 @@
 <template>
-  <div class="ContentItemAccess d-inline-flex align-items-center">
-    <div class="d-inline-flex align-items-center">
-      <div class="very-small-caps m-1">{{ $t(accessTranslationKey) }}</div>
+  <div class="ContentItemAccess d-flex align-items-center gap-3">
+    <div class="d-inline-flex align-items-center gap-2">
+      <div class="very-small-caps">{{ $t(accessTranslationKey) }}</div>
       <InfoButton
         style="margin-top: -2px"
         :default-content="$t(accessDescriptionTranslationKey)"
         :name="$t(accessTranslationKey)"
       >
       </InfoButton>
-      <ContentItemAccessButton
-        :specialMembershipAccessBitPositions="contentItemBitmapCommonBitsPositions"
-        v-if="isLoggedIn && requiresSpecialMembershipAccess"
-      />
     </div>
+    <ContentItemAccessButton
+      :specialMembershipAccessBitPositions="
+        normalizedContentItemSpecialMembershipBitmapBitsPositions
+      "
+      v-if="isLoggedIn && contentItemRequiresSpecialMembershipAccess"
+    />
   </div>
 </template>
-1000000000000000000000000000000000000000000000000000000000000000
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
@@ -23,6 +24,7 @@ import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
 import { computed } from 'vue'
 import InfoButton from './base/InfoButton.vue'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
+import { MaxPlanBitPosition, PlanBitPositions } from '@/constants'
 
 const FullAccessLevel = 3
 
@@ -34,6 +36,7 @@ const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
 
 const isLoggedIn = computed(() => !!userStore.userData)
+
 /**
  * Computed property that converts the user's access bitmap from base64 to BigInt.
  *
@@ -45,6 +48,52 @@ const userBitmapAsBigInt = computed(() => {
     return 1n // Default to basic access
   }
   return base64BytesToBigInt(userStore.bitmap)
+})
+
+/**
+ * Extracts the positions of bits set to 1 in the user's access bitmap.
+ */
+const userBitmapBitsPositions = computed<number[]>(() => {
+  const positions: number[] = []
+  let position = 0n
+  while (userBitmapAsBigInt.value >> position) {
+    if ((userBitmapAsBigInt.value >> position) & 1n) {
+      positions.push(Number(position))
+    }
+    position++
+  }
+  return positions
+})
+/**
+ * Computed property that extracts the positions of bits set to 1 in
+ * the content item's access bitmaps (explore, transcript, facsimile).
+ */
+const contentItemBitmapBitsPositions = computed<number[]>(() => {
+  const positions: number[] = []
+  let position = 0n
+  const combinedBitmap =
+    contentItemBitmapsAsBigInts.value.explore |
+    contentItemBitmapsAsBigInts.value.transcript |
+    (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)
+  while (combinedBitmap >> position) {
+    if ((combinedBitmap >> position) & 1n) {
+      positions.push(Number(position))
+    }
+    position++
+  }
+  return positions
+})
+const normalizedContentItemSpecialMembershipBitmapBitsPositions = computed(() => {
+  return contentItemBitmapBitsPositions.value
+    .filter(pos => pos > MaxPlanBitPosition)
+    .map(pos => pos - MaxPlanBitPosition)
+})
+/**
+ * Computed property that checks if the **contentItem** demands **special membership access**.
+ * It doesn't check if the user has the required access.
+ */
+const contentItemRequiresSpecialMembershipAccess = computed<boolean>(() => {
+  return normalizedContentItemSpecialMembershipBitmapBitsPositions.value.length > 0
 })
 
 const hasExploreAccess = computed(() => {
@@ -59,10 +108,12 @@ const hasFacsimileAccess = computed(() => {
   return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
 })
 
-const requiresSpecialMembershipAccess = computed(() => {
-  return contentItemBitmapCommonBitsPositions.value.some(
-    pos => (userBitmapAsBigInt.value & (1n << BigInt(pos))) === 0n
-  )
+/**
+ * Computed property that determines the user's access level to the content item
+ * based on the presence of explore, transcript, and facsimile access.
+ */
+const accessLevel = computed<number>(() => {
+  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
 })
 
 const accessTranslationKey = computed(() => {
@@ -90,9 +141,6 @@ const accessDescriptionTranslationKey = computed(() => {
   return accessTranslationKey.value + '_description'
 })
 
-const accessLevel = computed<number>(() => {
-  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
-})
 /**
  * Computed property that converts content item access bitmaps from base64 to BigInt format.
  *
@@ -134,51 +182,6 @@ const contentItemBitmapsAsBigInts = computed<{
       transcript: 0n,
       facsimile: 0n
     }
-  }
-})
-
-const userBitmapAsPlan = computed(() => {
-  // Helper to get last 5 bits as string, padded to 5 bits
-  return bigIntToBitString(userBitmapAsBigInt.value)
-})
-
-const contentItemBitmapAsBitstrings = computed(() => {
-  return {
-    explore: bigIntToBitString(contentItemBitmapsAsBigInts.value.explore),
-    transcript: bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript),
-    facsimile: bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n)
-  }
-})
-// get position of the common bits between transcript and facsimile, if any.
-const getPositionOfCommonBits = (bitmap1: bigint, bitmap2: bigint): number[] => {
-  const commonBits = bitmap1 & bitmap2
-  const positions: number[] = []
-  let position = 0n
-  while (commonBits >> position) {
-    if ((commonBits >> position) & 1n) {
-      positions.push(Number(position) - 5)
-    }
-    position++
-  }
-  return positions
-}
-
-const contentItemBitmapCommonBitsPositions = computed(() => {
-  return getPositionOfCommonBits(
-    contentItemBitmapsAsBigInts.value.transcript,
-    contentItemBitmapsAsBigInts.value.facsimile ?? 0n
-  )
-})
-
-const contentItemBitmapsAsPlans = computed(() => {
-  // Helper to get last 5 bits as string, padded to 5 bits
-  function last5Bits(bitString: string) {
-    return bitString.slice(-5).padStart(5, '0')
-  }
-  return {
-    explore: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)),
-    transcript: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)),
-    facsimile: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n))
   }
 })
 </script>
