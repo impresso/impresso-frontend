@@ -7,7 +7,7 @@
     >
       <div
         :class="{
-          'col-7': props.asContainer
+          'col-6': props.asContainer
         }"
         class="d-flex flex-column justify-content-center gap-1"
       >
@@ -17,7 +17,7 @@
       <div
         v-if="item.requests && item.requests.length > 0"
         :class="{
-          'col-5': props.asContainer
+          'col-6': props.asContainer
         }"
         class="d-flex align-items-center justify-content-start gap-2"
       >
@@ -38,7 +38,7 @@
       <div
         v-else-if="withActions && (!item.requests || item.requests.length === 0)"
         :class="{
-          'col-5': props.asContainer
+          'col-6': props.asContainer
         }"
         class="SpecialMembershipAccessItem__requestAccess"
       >
