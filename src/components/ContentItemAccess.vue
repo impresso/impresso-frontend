@@ -13,7 +13,7 @@
       :specialMembershipAccessBitPositions="
         normalizedContentItemSpecialMembershipBitmapBitsPositions
       "
-      v-if="isLoggedIn && contentItemRequiresSpecialMembershipAccess"
+      v-if="isSpecialMembershipsEnabled && isLoggedIn && contentItemRequiresSpecialMembershipAccess"
     />
   </div>
 </template>
@@ -25,6 +25,7 @@ import { computed } from 'vue'
 import InfoButton from './base/InfoButton.vue'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
 import { MaxPlanBitPosition } from '@/constants'
+import { Features } from '@/init'
 
 const FullAccessLevel = 3
 
@@ -36,7 +37,10 @@ const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
 
 const isLoggedIn = computed(() => !!userStore.userData)
-
+const isSpecialMembershipsEnabled = computed(() => {
+  return (window as any as { impressoFeatures: Features }).impressoFeatures?.specialMemberships
+    ?.enabled
+})
 /**
  * Computed property that converts the user's access bitmap from base64 to BigInt.
  *
