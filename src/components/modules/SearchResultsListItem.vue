@@ -77,10 +77,7 @@
 
           <ContentItemAccess :item="contentItem" class="mr-3" />
 
-          <div
-            v-if="contentItem.access?.copyright === 'pbl'"
-            class="shareArticleControl d-inline ml-1"
-          >
+          <div v-if="isShareable" class="shareArticleControl d-inline ml-1">
             <b-button
               variant="outline-success"
               size="sm"
@@ -191,6 +188,9 @@ export default defineComponent({
     },
     article() {
       return Article.fromContentItem(this.contentItem)
+    },
+    isShareable() {
+      return this.contentItem.access?.copyright === 'pbl' && this.userStore.isLoggedIn
     },
     ciAsCollectableItems() {
       return [
