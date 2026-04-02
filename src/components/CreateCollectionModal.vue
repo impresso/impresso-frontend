@@ -94,7 +94,7 @@ async function createQueryCollection({ name, description }) {
   isLoading.value = true
   const collection = await collectionsService
     .create({
-      name,
+      title: name,
       description
     })
     .catch((err: FeathersError) => {
