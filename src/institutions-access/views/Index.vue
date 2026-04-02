@@ -2,22 +2,21 @@
   <div class="container Index">
     <div class="row">
       <div class="col-lg-8 col-xl-9 order-2 order-lg-1">
-        <Card class="mt-4">
+        <Card class="my-4" v-for="card in cardViewsWithServiceParams" :key="card.name">
           <template #header>
-            <h4 class="p-2 m-0 font-weight-bold">Pending Special Membership requests</h4>
+            <h4 class="p-2 m-0 font-weight-bold">{{ $t(`card.title.${card.name}`) }}</h4>
           </template>
           <ListOfFindResponseItems
-            :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
-            :list-is-empty-message="$t('listIsEmpty')"
+            :error-loading-items-message="$t(`card.errorLoadingItems.${card.name}`)"
+            :list-is-empty-message="$t(`card.listisEmpty.${card.name}`)"
             :service="userSpecialMembershipRequestsReviewsService"
-            :title="$t('listTitle')"
+            :title="$t(`card.title.${card.name}`)"
             items-class=""
-            :params="userSpecialMembershipRequestsReviewsServiceParams"
+            :params="card.serviceParams"
           >
             <template #header="{ total }">
               <div class="p-2 pb-3 d-flex gap-2 justify-content-between align-items-center">
-                <h5 class="m-0 font-size-inherit" v-html="$t('listTitle')"></h5>
-
+                <h5 class="m-0 font-size-inherit" v-html="$t(`card.listTitle.${card.name}`)"></h5>
                 <span v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
               </div>
               <div class="container-fluid">
@@ -53,68 +52,7 @@
                   <template #actions>
                     <button
                       class="btn btn-sm btn-outline-secondary mt-2"
-                      @click="showToggleStatusModal(item)"
-                    >
-                      {{ $t('actions.toggleStatus') }}
-                    </button>
-                  </template>
-                </SpecialMembershipRequestReviewItem>
-              </div>
-            </template>
-          </ListOfFindResponseItems>
-        </Card>
-        <Card class="mt-4">
-          <template #header>
-            <h4 class="p-2 m-0 font-weight-bold">Approved Special Membership requests</h4>
-          </template>
-          <ListOfFindResponseItems
-            :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
-            :list-is-empty-message="$t('approvedListIsEmpty')"
-            :service="userSpecialMembershipRequestsReviewsService"
-            :title="$t('listTitle')"
-            items-class=""
-            :params="userSpecialMembershipRequestsReviewsAcceptedServiceParams"
-          >
-            <template #header="{ total }">
-              <div class="p-2 pb-3 d-flex gap-2 justify-content-between align-items-center">
-                <h5 class="m-0 font-size-inherit" v-html="$t('listTitle')"></h5>
-
-                <span v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
-              </div>
-              <div class="container-fluid">
-                <div class="row pb-2 small align-items-center font-weight-bold">
-                  <div class="col-3">
-                    {{ $t('userSpecialMembershipRequestsRequester') }}
-                  </div>
-                  <div class="col-3">
-                    {{ $t('userSpecialMembershipRequestsDates') }}
-                  </div>
-                  <div class="col-4">
-                    {{ $t('specialMembershipAccessTitle') }}
-                  </div>
-
-                  <div class="col-2">
-                    {{ $t('userSpecialMembershipRequestsStatus') }}
-                  </div>
-                </div>
-              </div>
-            </template>
-
-            <template #default="{ items }">
-              <div class="container-fluid">
-                <SpecialMembershipRequestReviewItem
-                  :item="item"
-                  class="py-3"
-                  v-for="(item, index) in items"
-                  :key="item.id"
-                  :class="{
-                    'border-bottom border-dark ': index < items.length - 1
-                  }"
-                >
-                  <template #actions>
-                    <button
-                      class="btn btn-sm btn-outline-secondary mt-2"
-                      @click="showToggleStatusModal(item)"
+                      @click="routeToModal(item)"
                     >
                       {{ $t('actions.toggleStatus') }}
                     </button>
@@ -168,48 +106,78 @@ import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import SpecialMembershipRequestReviewItem from '@/components/modules/lists/SpecialMembershipRequestReviewItem.vue'
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
 import ToggleSpecialMembershipRequestStatusModal from '../components/reviews/ToggleSpecialMembershipRequestStatusModal.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ServiceFindParams, UserSpecialMembershipRequestReview } from '@/services/types'
 import BSearchInputForm from '@/components/legacy/bootstrap/BSearchInputForm.vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+export interface IndexProps {
+  prefetchedItem?: UserSpecialMembershipRequestReview | null
+}
+
+const props = withDefaults(defineProps<IndexProps>(), {
+  prefetchedItem: null
+})
 
 const itemToUpdate = ref<UserSpecialMembershipRequestReview>(null)
 const isToggleStatusModalVisible = ref(false)
 
 const hideToggleStatusModal = () => {
   isToggleStatusModalVisible.value = false
+  router.push({ name: 'Index' })
 }
 const showToggleStatusModal = (item: UserSpecialMembershipRequestReview) => {
   itemToUpdate.value = item
   isToggleStatusModalVisible.value = true
 }
 
+watch(
+  () => props.prefetchedItem,
+  item => {
+    if (item) {
+      showToggleStatusModal(item)
+    }
+  },
+  { immediate: true }
+)
+
 const orderByOptions = ['-dateLastModified', 'dateLastModified']
 
 const orderBy = ref('-dateLastModified')
 const q = ref('')
-const userSpecialMembershipRequestsReviewsServiceParams = computed<ServiceFindParams>(() => ({
-  query: {
-    limit: 20,
-    status: ['pending'],
+
+const cardViewsWithServiceParams = computed(() => {
+  const query = {
+    limit: 50,
     order_by: orderBy.value,
     term: q.value
   }
-}))
-
-const userSpecialMembershipRequestsReviewsAcceptedServiceParams = computed<ServiceFindParams>(
-  () => ({
-    query: {
-      limit: 20,
-      status: ['approved'],
-      order_by: orderBy.value,
-      term: q.value
+  return ['pending', 'approved'].map(status => ({
+    name: status,
+    serviceParams: {
+      query: {
+        ...query,
+        status: [status]
+      }
     }
-  })
-)
+  }))
+})
 
 const performSearch = (searchTerm: string) => {
   console.info('performSearch', searchTerm)
   q.value = searchTerm
+}
+
+const routeToModal = (item: UserSpecialMembershipRequestReview) => {
+  console.debug('[Index] Routing to modal for item', item)
+  router.push({
+    name: 'SpecialMembershipRequest',
+    params: {
+      id: item.id
+    }
+  })
 }
 </script>
 
@@ -230,7 +198,25 @@ const performSearch = (searchTerm: string) => {
     "orderBy_dateLastModified": "Date Modified",
     "orderBy_-dateLastModified": "Date Modified (Descending)",
     "actions": {
-      "toggleStatus": "Toggle Status"
+      "toggleStatus": "Change..."
+    },
+    "card": {
+      "title": {
+        "pending": "Pending Requests",
+        "approved": "Approved Requests"
+      },
+      "errorLoadingItems": {
+        "pending": "Error loading pending requests.",
+        "approved": "Error loading approved requests."
+      },
+      "listTitle": {
+        "pending": "Pending Special Membership Requests",
+        "approved": "Approved Special Membership Requests"
+      },
+      "listisEmpty": {
+        "pending": "There are no pending special membership requests.",
+        "approved": "There are no approved special membership requests."
+      }
     }
   }
 }
