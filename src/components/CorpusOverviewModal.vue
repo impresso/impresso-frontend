@@ -36,11 +36,15 @@
             <b-dropdown class="mx-2" size="sm" variant="outline-secondary" data-testid="sortOrder">
               <template v-slot:button-content>
                 <span>{{
-                  $t(filterBySelectedLabel, {
-                    n: filteredDatasets.length,
-                    total: props.datasets?.length,
-                    userPlan: plansLabels[props.userPlan] || props.userPlan
-                  }, filteredDatasets.length)
+                  $t(
+                    filterBySelectedLabel,
+                    {
+                      n: filteredDatasets.length,
+                      total: props.datasets?.length,
+                      userPlan: plansLabels[props.userPlan] || props.userPlan
+                    },
+                    filteredDatasets.length
+                  )
                 }}</span>
               </template>
               <b-dropdown-item
@@ -282,8 +286,8 @@ const props = withDefaults(
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-xl',
-    title: 'Impresso Corpus Overview',
-    modalTitle: 'Impresso Corpus Overview:  Data Accessibility and Usage Permissions',
+    title: 'Impresso Corpus Catalogue',
+    modalTitle: 'Impresso Corpus Catalogue:  Data Accessibility and Usage Permissions',
     content:
       'The Impresso Corpus features newspaper titles and radio broadcasts from various cultural heritage institutions. This table outlines its composition, detailing data accessibility and permitted uses.',
     defaultSortOrder: 'timePeriod',
