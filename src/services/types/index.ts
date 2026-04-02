@@ -131,6 +131,7 @@ export interface UserSpecialMembershipRequestReview {
   dateCreated: string
   dateLastModified: string
   status: 'pending' | 'approved' | 'rejected'
+  notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
   requester: {
     id: number
