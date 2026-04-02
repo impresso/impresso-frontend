@@ -13,7 +13,7 @@
       :specialMembershipAccessBitPositions="
         normalizedContentItemSpecialMembershipBitmapBitsPositions
       "
-      v-if="isSpecialMembershipsEnabled && isLoggedIn && contentItemRequiresSpecialMembershipAccess"
+      v-if="isSpecialMembershipsEnabled && contentItemRequiresSpecialMembershipAccess"
     />
   </div>
 </template>
@@ -38,6 +38,9 @@ const userStore = useUserStore()
 
 const isLoggedIn = computed(() => !!userStore.userData)
 const isSpecialMembershipsEnabled = computed(() => {
+  if (!isLoggedIn.value) {
+    return false
+  }
   return (window as any as { impressoFeatures: Features }).impressoFeatures?.specialMemberships
     ?.enabled
 })
