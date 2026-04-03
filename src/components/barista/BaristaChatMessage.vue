@@ -11,7 +11,7 @@
       <h5 class="small-caps mb-1" :class="{ 'text-white': message.type === 'user' }">
         {{ $t(`barista.persona.${message.type}`) }}
       </h5>
-      <div class="message-content" v-html="message.content"></div>
+      <div class="message-content" v-html="renderMarkdown(message.content)"></div>
 
       <!-- Additional content -->
       <div
@@ -20,16 +20,20 @@
       >
         <details>
           <summary class="mb-2">Show additional content</summary>
-          <div v-html="message.additionalContent"></div>
+          <div v-html="renderMarkdown(message.additionalContent)"></div>
         </details>
       </div>
 
-      <div v-if="message.structuredResponse?.searchQuerySummary">
-        {{ message.structuredResponse?.searchQuerySummary }}
-      </div>
+      <div
+        v-if="message.structuredResponse?.searchQuerySummary"
+        v-html="renderMarkdown(message.structuredResponse.searchQuerySummary)"
+        class="message-search-query-summary small mt-2 mb-0 text-muted"
+      ></div>
 
       <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
-        <li v-for="(step, i) in message.searchQuerySteps" :key="i">{{ step }}</li>
+        <li v-for="(step, i) in message.searchQuerySteps" :key="i">
+          <p v-html="renderMarkdown(step)"></p>
+        </li>
       </ol>
 
       <TimeAgo
@@ -52,22 +56,36 @@
 
     <!-- Tool calls -->
     <section
-      v-if="(!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning"
+      v-if="
+        (!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning
+      "
       class="BaristaChatMessage__tools"
     >
       <div class="d-flex align-items-center flex-wrap gap-1 small">
         <template v-if="!hideToolCalls && message.toolCalls && message.toolCalls.length > 0">
           <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
           <span class="font-style-italic text-muted">{{ $t('barista.usingTools') }}</span>
-          <span v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="badge badge-light">
+          <span
+            v-for="(tool, toolIdx) in message.toolCalls"
+            :key="toolIdx"
+            class="badge badge-light"
+          >
             {{ $t(`barista.tools.${tool}`) }}
           </span>
         </template>
-        <button v-if="message.reasoning" class="tool-toggle" @click="showReasoning = !showReasoning">
+        <button
+          v-if="message.reasoning"
+          class="tool-toggle"
+          @click="showReasoning = !showReasoning"
+        >
           {{ showReasoning ? '▾' : '▸' }} {{ $t('barista.reasoning') }}
         </button>
       </div>
-      <p v-if="showReasoning" class="text-muted very-small mt-1 mb-0">{{ message.reasoning }}</p>
+      <p
+        v-if="showReasoning"
+        class="text-muted very-small mt-1 mb-0"
+        v-html="renderMarkdown(message.reasoning)"
+      ></p>
     </section>
     <!-- Actions -->
     <section
@@ -97,6 +115,12 @@ import TimeAgo from '@/components/TimeAgo.vue'
 import type { ChatMessage } from '@/services/types/barista'
 import Icon from '../base/Icon.vue'
 import { computed, ref } from 'vue'
+import { marked } from 'marked'
+
+const renderMarkdown = (text?: string | null): string => {
+  if (!text) return ''
+  return marked.parse(text, { async: false }) as string
+}
 
 /**
  * BaristaChatMessage component props
@@ -200,6 +224,54 @@ const formatActionType = (type: string): string => {
   align-self: flex-start;
   background-color: #ebebeb;
   color: var(--impresso-color-black);
+}
+
+.message-content :deep(h1),
+.message-content :deep(h2),
+.message-content :deep(h3),
+.message-content :deep(h4),
+.message-content :deep(h5),
+.message-content :deep(h6) {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.75em 0 0.25em;
+}
+.message-content :deep(h1:first-child),
+.message-content :deep(h2:first-child),
+.message-content :deep(h3:first-child) {
+  margin-top: 0;
+}
+.message-content :deep(hr) {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin: 0.5em 0;
+}
+.message-content :deep(p) {
+  margin: 0 0 0.5em;
+}
+.message-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.message-content :deep(ul),
+.message-content :deep(ol) {
+  padding-left: 1.25em;
+  margin: 0 0 0.5em;
+}
+.message-content :deep(code) {
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+.message-content :deep(pre) {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  padding: 0.5em 0.75em;
+  overflow-x: auto;
+}
+.message-content :deep(pre) code {
+  background: none;
+  padding: 0;
 }
 
 .tool-toggle {

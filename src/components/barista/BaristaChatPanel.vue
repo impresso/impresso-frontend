@@ -16,10 +16,19 @@
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
       <div class="border shadow-sm rounded p-2">
         <details class="mb-2">
-          <summary class="small text-muted d-flex align-items-center gap-2" style="cursor: pointer; list-style: none">
+          <summary
+            class="small text-muted d-flex align-items-center gap-2"
+            style="cursor: pointer; list-style: none"
+          >
             <Icon name="chevron" :scale="0.7" :strokeWidth="2" class="details-chevron" />
             <span class="mr-auto">Settings</span>
-            <BFormSelect v-model="selectedAgentType" :options="agentTypeOptions" size="sm" style="width: auto" @click.stop />
+            <BFormSelect
+              v-model="selectedAgentType"
+              :options="agentTypeOptions"
+              size="sm"
+              style="width: auto"
+              @click.stop
+            />
             <WithTooltip
               v-if="baristaStore.sessionId"
               placement="top-end"
@@ -120,14 +129,14 @@ const sessionIdTooltipContent = computed(
 
 const inputMessage = ref('')
 const selectedModelId = ref('')
-const selectedAgentType = ref<'react' | 'router' | 'skills'>('react')
+const selectedAgentType = ref<'react' | 'router' | 'skills'>('skills')
 const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
 
 const agentTypeOptions: Option[] = [
+  { value: 'skills', text: 'Skills' },
   { value: 'react', text: 'ReAct' },
-  { value: 'router', text: 'Router' },
-  { value: 'skills', text: 'Skills' }
+  { value: 'router', text: 'Router' }
 ]
 
 const modelOptions: Option[] = [

@@ -124,7 +124,6 @@ const convertBaristaMessageToChat = (
 
     const toolCallId = message.source?.['tool_call_id'] as string | undefined
 
-    console.log('*** T', toolCallId, message.source)
     return {
       content: structuredContent ?? `[${message.name}] ${message.content}`,
       timestamp,
