@@ -66,6 +66,7 @@ import useVuelidate from '@vuelidate/core'
 import { maxLength, minLength } from '@vuelidate/validators'
 import SpecialMembershipRequestReviewItem from '@/components/modules/lists/SpecialMembershipRequestReviewItem.vue'
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
+import { useNotificationsStore } from '@/stores/notifications'
 
 export interface ToggleSpecialMembershipRequestStatusModalProps {
   isVisible: boolean
@@ -79,6 +80,7 @@ export interface SpecialMembershipReviewFormValidation {
   notes: string
 }
 
+const notificationStore = useNotificationsStore()
 const props = withDefaults(defineProps<ToggleSpecialMembershipRequestStatusModalProps>(), {
   notesMinLength: 10,
   notesMaxLength: 500
@@ -97,9 +99,24 @@ const handleOnSubmit = async (event: Event) => {
     return
   }
   emit('submit', form.value)
-  await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
-    status: reviewStatus.value
-  })
+  try {
+    await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
+      status: reviewStatus.value
+    })
+    notificationStore.addNotification({
+      type: 'success',
+      title: 'Success',
+      message: 'Special membership request status updated successfully.'
+    })
+    emit('dismiss')
+  } catch (error) {
+    console.error('Error updating special membership request review status:', error)
+    notificationStore.addNotification({
+      type: 'error',
+      title: 'Error',
+      message: 'An error occurred while sending the magic link. Please try again.'
+    })
+  }
 }
 
 const v$ = useVuelidate(

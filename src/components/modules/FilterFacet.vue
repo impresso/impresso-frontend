@@ -5,9 +5,13 @@
       <span
         v-if="facet.numBuckets > -1"
         v-html="
-          $t('numbers.options', {
-            n: $n(facet.numBuckets)
-          }, facet.numBuckets)
+          $t(
+            'numbers.options',
+            {
+              n: $n(facet.numBuckets)
+            },
+            facet.numBuckets
+          )
         "
       />
       <info-button
@@ -112,9 +116,13 @@
           {{ $t('actions.more') }}
           <span
             v-html="
-              $t('numbers.moreOptions', {
-                n: $n(countMissingBuckets)
-              }, countMissingBuckets)
+              $t(
+                'numbers.moreOptions',
+                {
+                  n: $n(countMissingBuckets)
+                },
+                countMissingBuckets
+              )
             "
           />
         </span>

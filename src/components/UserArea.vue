@@ -36,7 +36,7 @@
 
     <SpecialMembershipButton
       class="dropdown-item"
-      v-if="user && user.isStaff"
+      v-if="isSpecialMembershipsEnabled"
       @click="triggerClickOutside"
     />
     <LinkToModal
@@ -117,6 +117,13 @@ const version = computed(() => {
 
 const isViewPlansFeatureEnabled = computed(() => {
   return (window as any).impressoFeatures?.viewPlans?.enabled
+})
+
+const isSpecialMembershipsEnabled = computed(() => {
+  if (props.user && props.user.isStaff) {
+    return true
+  }
+  return (window as any).impressoFeatures?.specialMemberships?.enabled
 })
 
 const logout = () => {
