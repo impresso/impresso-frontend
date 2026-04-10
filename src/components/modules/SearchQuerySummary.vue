@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import FilterLabel from './lists/FilterLabel.vue'
 import { Filter } from '@/models'
 
@@ -85,6 +85,11 @@ const props = withDefaults(defineProps<SearchQuerySummaryProps>(), {
     'nag'
   ]
 })
+const isAlive = ref(true)
+
+onBeforeUnmount(() => {
+  isAlive.value = false
+})
 
 const translationTable = computed(() => {
   const table = props.searchQuery.filters.reduce(
@@ -111,8 +116,9 @@ const translatableFilterTypes = computed(() => {
 
 watch(
   translationTable,
-  async _value => {
+  async () => {
     await nextTick()
+    if (!isAlive.value) return
     if (summaryRef.value) {
       const finalHtml = summaryRef.value.textContent?.trim().replace(/\s+/g, ' ') || ''
       if (summaryTextContent.value !== finalHtml) {

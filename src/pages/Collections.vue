@@ -10,7 +10,7 @@
               :to="getRouteWithSearchQuery({ name: 'collections' })"
             >
               {{
-                $tc('tabs.collections', paginationTotalRows, { total: $n(paginationTotalRows) })
+                $t('tabs.collections', { total: $n(paginationTotalRows) }, paginationTotalRows)
               }}</b-nav-item
             >
           </template>

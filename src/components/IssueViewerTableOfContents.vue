@@ -7,9 +7,9 @@
       @click="$emit('article-selected', item)"
     >
       <table-of-contents-item
-        :ref="`toc-article-${item.uid}`"
+        :ref="`toc-article-${item.id}`"
         :item="item"
-        :active="item.uid === selectedArticleId"
+        :active="item.id === selectedArticleId"
       >
         <!-- <template v-slot:actions>
           <div>
@@ -17,9 +17,9 @@
             <a
               class="small-caps"
               :class="{
-                'font-weight-bold': item.uid === selectedArticleId
+                'font-weight-bold': item.id === selectedArticleId
               }"
-              @click="$emit('click-full-text', item.uid)"
+              @click="$emit('click-full-text', item.id)"
             >
               {{ $t('closeReadingView') }}
             </a>

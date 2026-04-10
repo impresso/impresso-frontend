@@ -2,7 +2,7 @@
   <div class="MediaSourceLabel">
     <ItemSelector
       v-if="showLink"
-      :uid="item.uid"
+      :id="item.id"
       :label="title"
       :item="cachedItem"
       type="newspaper"
@@ -35,13 +35,13 @@ const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
 
 const cachedItem = computed(() => {
   if (typeof glob.impressoNewspapers === 'object') {
-    return glob.impressoNewspapers[props.item.uid]
+    return glob.impressoNewspapers[props.item.id]
   }
-  return { uid: props.item.uid, name: props.item.name || props.item.uid }
+  return { id: props.item.id, name: props.item.name || props.item.id }
 })
 
 const title = computed(() => {
-  return cachedItem.value?.name || props.item.uid
+  return cachedItem.value?.name || props.item.id
 })
 </script>
 <i18n>

@@ -10,7 +10,7 @@ import Collection from '@/models/Collection'
 export default class FilterCollection extends FilterItems {
   setItems(items = []) {
     this.items = items.map(d => {
-      const item = typeof d === 'object' ? new Collection(d) : new Collection({ uid: String(d) })
+      const item = typeof d === 'object' ? new Collection(d) : new Collection({ id: String(d) })
       item.checked = true
       return item
     })

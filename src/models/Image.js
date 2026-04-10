@@ -5,7 +5,7 @@ export default class Image extends ContentItem {
     super(options);
     if (options.article) {
       this.article = {
-        uid: options.article,
+        id: options.article,
       };
     }
   }

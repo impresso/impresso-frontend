@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BaristaChatPanel from './BaristaChatPanel.vue'
 import { ref } from 'vue'
 import { BaristaRequest } from '@/services/types/barista'
+import { MockConversationWithToolStitching } from '.storybook/mockData/baristaMessages'
 
 const meta: Meta<typeof BaristaChatPanel> = {
   title: 'Barista/ChatPanel',
@@ -150,6 +151,22 @@ export const Loading: Story = {
       }
     ],
     isLoading: true
+  }
+}
+
+// Story showing tool call stitching — AI messages with resolved tool calls hide the "ordering tools" row
+export const WithToolStitching: Story = {
+  render: args => ({
+    components: { BaristaChatPanel },
+    setup() {
+      return { args }
+    },
+    template:
+      '<div style="height: 600px; width: 400px;"><BaristaChatPanel v-bind="args" @submit="args.onSubmit" /></div>'
+  }),
+  args: {
+    messages: MockConversationWithToolStitching,
+    isLoading: false
   }
 }
 

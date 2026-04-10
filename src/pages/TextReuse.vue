@@ -8,9 +8,13 @@
             <b-nav-item :to="{ name: 'textReuseOverview' }" class="active" active-class="none">
               <span
                 v-html="
-                  $tc('searchTextReuseLabel', 10000, {
-                    n: $n(10000)
-                  })
+                  $t(
+                    'searchTextReuseLabel',
+                    {
+                      n: $n(10000)
+                    },
+                    10000
+                  )
                 "
               />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
@@ -22,10 +26,14 @@
             <em
               class="small"
               v-html="
-                $tc('numbers.ignoredFiltersDetailed', ignoredFilters.length, {
-                  n: ignoredFilters.length,
-                  detail: ignoredFilters.map(f => f.type).join(', ')
-                })
+                $t(
+                  'numbers.ignoredFiltersDetailed',
+                  {
+                    n: ignoredFilters.length,
+                    detail: ignoredFilters.map(f => f.type).join(', ')
+                  },
+                  ignoredFilters.length
+                )
               "
             />
           </div>
@@ -90,7 +98,7 @@
         count-label="numbers.passages"
         :isPercentage="facet.type === 'textReuseClusterLexicalOverlap'"
         :value-percentage-label="facet.type + 'ValuePercentageLabel'"
-        :value-label="'test-' + facet.type + 'ValueLabel'"
+        :value-label="facet.type + 'ValueLabel'"
         :value-as-range-label="facet.type + 'ValueAsRangeLabel'"
         :info-button-id="`text-reuse-filter-${facet.type}`"
       />

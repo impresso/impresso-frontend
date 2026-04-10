@@ -1,7 +1,7 @@
 <template lang="html">
   <div :style="getBackgroundStyle">
     <div class="image" :style="getImageStyle"></div>
-    <div class="caption">{{ pageUid }}, {{ coords }}</div>
+    <div class="caption">{{ pageId }}, {{ coords }}</div>
   </div>
 </template>
 
@@ -21,19 +21,19 @@ export default {
   },
   mounted() {
     console.info('@mounted', this.link)
-    pages.get(this.pageUid).then(({ iiif, accessRights }) => {
+    pages.get(this.pageId).then(({ iiif, accessRights }) => {
       this.imageURL = `${iiif}/${this.coords}/max/0/default.jpg`
       console.info('accessRights', accessRights, this.imageURL)
     })
   },
   computed: {
-    pageUid() {
-      const { pageUid } = this.$route.params
-      if (!/^[A-Za-z]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageUid)) {
-        console.warn('pageUid() not valid:', pageUid, 'returning index.')
+    pageId() {
+      const { pageId } = this.$route.params
+      if (!/^[A-Za-z]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageId)) {
+        console.warn('pageId() not valid:', pageId, 'returning index.')
         return ''
       }
-      return pageUid
+      return pageId
     },
     coords() {
       const { coords } = this.$route.params

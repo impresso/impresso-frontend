@@ -6,7 +6,7 @@ import {
   ViewSpecialMembership
 } from '@/constants'
 import { SpecialMembershipAccess } from '@/services/types'
-import { ContentItem } from '@/models/generated/schemas'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 
 export interface State {
   view: (typeof Views)[number] | null

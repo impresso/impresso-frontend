@@ -26,7 +26,7 @@ export interface ContentItem {
   meta?: ContentItemMeta;
   text?: ContentItemText;
   semanticEnrichments?: ContentItemSemanticEnrichments;
-  image?: ContentItemImage;
+  facsimile?: ContentItemFacsimile;
   audio?: ContentItemAudio;
   access?: ContentItemAccessRights;
 }
@@ -47,6 +47,10 @@ export interface ContentItemMeta {
    */
   mediaId?: string;
   /**
+   * Human-readable title of the media source identified by mediaId.
+   */
+  mediaTitle?: string;
+  /**
    * Full date and time in ISO 8601 format
    */
   date: string;
@@ -54,6 +58,10 @@ export interface ContentItemMeta {
    * Identifier of the partner providing the content item.
    */
   partnerId?: string;
+  /**
+   * Human-readable title of the partner identified by partnerId.
+   */
+  partnerTitle?: string;
   /**
    * Country code of the content item.
    */
@@ -81,11 +89,16 @@ export interface ContentItemText {
     | "tb"
     | "ob"
     | "w"
+    | "ch"
     | "chapter"
     | "chronicle"
     | "unsegmented"
     | "radio_broadcast_episode"
     | "radio_bulletin";
+  /**
+   * Human-readable label for the itemType code.
+   */
+  itemTypeLabel?: string;
   /**
    * Original language of the content item.
    */
@@ -127,7 +140,7 @@ export interface ContentItemTextMatch {
   /**
    * TODO
    */
-  pageUid?: string;
+  pageId?: string;
   /**
    * TODO
    */
@@ -238,7 +251,7 @@ export interface Collection {
   /**
    * Unique identifier of the collection.
    */
-  uid: string;
+  id: string;
   /**
    * Title of the collection.
    */
@@ -269,9 +282,9 @@ export interface Collection {
   creatorId?: string;
 }
 /**
- * Image-related information for digitized content
+ * Facsimile-related information for digitized content
  */
-export interface ContentItemImage {
+export interface ContentItemFacsimile {
   /**
    * Total number of pages in the content item.
    */
@@ -331,7 +344,7 @@ export interface IIIFContentItemPageDetails {
   /**
    * The URL of the thumbnail image for the page.
    */
-  thumnbnailUrl: string;
+  thumbnailUrl: string;
 }
 /**
  * Audio-related information for broadcast content
@@ -402,9 +415,17 @@ export interface ContentItemAccessRights {
    */
   dataDomain: "pbl" | "prt";
   /**
+   * Human-readable label for the dataDomain code.
+   */
+  dataDomainLabel?: string;
+  /**
    * Copyright status.
    */
   copyright: "pbl" | "und" | "nkn" | "euo" | "unk" | "in_cpy";
+  /**
+   * Human-readable label for the copyright code.
+   */
+  copyrightLabel?: string;
   accessBitmaps?: ContentItemAccessBitmaps;
   [k: string]: unknown;
 }
@@ -463,9 +484,17 @@ export interface ContentItemAccessRights {
    */
   dataDomain: "pbl" | "prt";
   /**
+   * Human-readable label for the dataDomain code.
+   */
+  dataDomainLabel?: string;
+  /**
    * Copyright status.
    */
   copyright: "pbl" | "und" | "nkn" | "euo" | "unk" | "in_cpy";
+  /**
+   * Human-readable label for the copyright code.
+   */
+  copyrightLabel?: string;
   accessBitmaps?: ContentItemAccessBitmaps;
   [k: string]: unknown;
 }
@@ -614,9 +643,9 @@ export interface ContentItemAudioLocator {
 
 
 /**
- * Image-related information for digitized content
+ * Facsimile-related information for digitized content
  */
-export interface ContentItemImage {
+export interface ContentItemFacsimile {
   /**
    * Total number of pages in the content item.
    */
@@ -676,7 +705,7 @@ export interface IIIFContentItemPageDetails {
   /**
    * The URL of the thumbnail image for the page.
    */
-  thumnbnailUrl: string;
+  thumbnailUrl: string;
 }
 
 
@@ -720,6 +749,10 @@ export interface ContentItemMeta {
    */
   mediaId?: string;
   /**
+   * Human-readable title of the media source identified by mediaId.
+   */
+  mediaTitle?: string;
+  /**
    * Full date and time in ISO 8601 format
    */
   date: string;
@@ -727,6 +760,10 @@ export interface ContentItemMeta {
    * Identifier of the partner providing the content item.
    */
   partnerId?: string;
+  /**
+   * Human-readable title of the partner identified by partnerId.
+   */
+  partnerTitle?: string;
   /**
    * Country code of the content item.
    */
@@ -786,7 +823,7 @@ export interface IIIFContentItemPageDetails {
   /**
    * The URL of the thumbnail image for the page.
    */
-  thumnbnailUrl: string;
+  thumbnailUrl: string;
 }
 
 
@@ -801,7 +838,7 @@ export interface IIIFContentItemPageDetails {
   /**
    * The URL of the thumbnail image for the page.
    */
-  thumnbnailUrl: string;
+  thumbnailUrl: string;
 }
 
 
@@ -910,7 +947,7 @@ export interface Collection {
   /**
    * Unique identifier of the collection.
    */
-  uid: string;
+  id: string;
   /**
    * Title of the collection.
    */
@@ -960,11 +997,16 @@ export interface ContentItemText {
     | "tb"
     | "ob"
     | "w"
+    | "ch"
     | "chapter"
     | "chronicle"
     | "unsegmented"
     | "radio_broadcast_episode"
     | "radio_bulletin";
+  /**
+   * Human-readable label for the itemType code.
+   */
+  itemTypeLabel?: string;
   /**
    * Original language of the content item.
    */
@@ -1006,7 +1048,7 @@ export interface ContentItemTextMatch {
   /**
    * TODO
    */
-  pageUid?: string;
+  pageId?: string;
   /**
    * TODO
    */
@@ -1029,7 +1071,7 @@ export interface ContentItemTextMatch {
   /**
    * TODO
    */
-  pageUid?: string;
+  pageId?: string;
   /**
    * TODO
    */

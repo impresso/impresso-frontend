@@ -102,7 +102,7 @@
                 class="rounded-sm shadow-sm w-100"
                 v-model="selectedPageId"
                 :options="
-                  (props.item.image?.pages ?? []).map(page => ({
+                  (props.item.facsimile?.pages ?? []).map(page => ({
                     value: page.id,
                     text: $t('pageNumber', { n: page.number })
                   }))
@@ -218,7 +218,7 @@
 
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import { WebAppHost, WidgetBaseUrl } from '@/constants'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
@@ -248,7 +248,7 @@ const fitCoords = ref(true)
 const props = withDefaults(defineProps<ShareContentItemModalProps>(), {
   dialogClass: ' modal-xl p-0 modal-dialog-scrollable modal-dialog-centered'
 })
-const selectedPageId = ref<string | null>(props.item.image?.pages?.[0]?.id ?? null)
+const selectedPageId = ref<string | null>(props.item.facsimile?.pages?.[0]?.id ?? null)
 
 const form = reactive<ShareContentItemModalsFormPayload>({
   backgroundColor: '#393939',
@@ -265,7 +265,7 @@ const selectedPageRegionsIndices = ref<number[]>([])
  * Available regions for the selected page. Can be null if no page is selected or if the page has no regions.
  */
 const availablePageRegions = computed<null | [number, number, number, number][]>(() => {
-  const page = props.item.image?.pages?.find(p => p.id === selectedPageId.value)
+  const page = props.item.facsimile?.pages?.find(p => p.id === selectedPageId.value)
   return page?.regionCoordinates ?? null
 })
 

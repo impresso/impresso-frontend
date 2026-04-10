@@ -124,7 +124,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/styles/variables.sass';
+@use '@/styles/variables.sass' as *;
 
 .pointer {
   cursor: pointer;

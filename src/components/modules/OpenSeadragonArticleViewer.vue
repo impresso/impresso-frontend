@@ -34,21 +34,20 @@
 import MarginaliaPanel from '@/components/modules/MarginaliaPanel.vue'
 import {
   createOpenSeadragon,
-  Rect,
   Viewer,
   getAuthOptions,
   isAuthRequired
 } from '@/services/openseadragon'
-import { TiledImage, MouseTracker } from 'openseadragon'
+import Openseadragon from 'openseadragon'
 import { defineComponent, ref, type PropType, ComponentPublicInstance } from 'vue'
 
 export interface Region {
-  articleUid: string
-  pageUid: string
+  articleId: string
+  pageId: string
   coords: { x: number; y: number; w: number; h: number }
 }
 
-function createPageOverlay(tiledImage: TiledImage) {
+function createPageOverlay(tiledImage: Openseadragon.TiledImage) {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-page')
   const rect = tiledImage.getBounds()
@@ -56,24 +55,24 @@ function createPageOverlay(tiledImage: TiledImage) {
 }
 
 function createRegionOverlay(
-  tiledImage: TiledImage,
+  tiledImage: Openseadragon.TiledImage,
   region: Region,
-  clickHandler: (articleUid: string) => void
-): { overlay: any; rect: Rect } {
+  clickHandler: (articleId: string) => void
+): { overlay: any; rect: Openseadragon.Rect } {
   const overlay = window.document.createElement('div')
   overlay.setAttribute('class', 'overlay-region')
-  overlay.dataset.articleUid = region.articleUid
+  overlay.dataset.articleId = region.articleId
 
   overlay.addEventListener('mouseenter', event => {
     const overlayTarget = event.target as HTMLDivElement
-    const articleUid = overlayTarget.dataset.articleUid
+    const articleId = overlayTarget.dataset.articleId
 
-    overlayTarget.parentNode?.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
+    overlayTarget.parentNode?.querySelectorAll(`[data-article-id=${articleId}]`).forEach(item => {
       item.classList.add('selected')
     })
   })
 
-  new MouseTracker({
+  new Openseadragon.MouseTracker({
     element: overlay,
     clickHandler: function (event: any) {
       if (!event.quick) return
@@ -81,17 +80,17 @@ function createRegionOverlay(
       const overlayTarget = event?.originalEvent?.target as HTMLDivElement
       if (overlayTarget == null) return
 
-      const articleUid = overlayTarget.dataset.articleUid as string
-      clickHandler(articleUid)
+      const articleId = overlayTarget.dataset.articleId as string
+      clickHandler(articleId)
     }
   })
 
   overlay.addEventListener('mouseleave', event => {
     const overlayTarget = event.target as HTMLDivElement
 
-    const articleUid = overlayTarget.dataset.articleUid
+    const articleId = overlayTarget.dataset.articleId
 
-    overlayTarget.parentNode?.querySelectorAll(`[data-article-uid=${articleUid}]`).forEach(item => {
+    overlayTarget.parentNode?.querySelectorAll(`[data-article-id=${articleId}]`).forEach(item => {
       item.classList.remove('selected')
     })
   })
@@ -106,12 +105,12 @@ function createRegionOverlay(
   return { overlay, rect }
 }
 
-function getMarginaliaOverlayRect(tiledImage: TiledImage, isRight: boolean) {
+function getMarginaliaOverlayRect(tiledImage: Openseadragon.TiledImage, isRight: boolean) {
   const { x, y, width, height } = tiledImage.getBounds()
   const factor = 2.5
   return isRight
-    ? new Rect(x + width, y, width / factor, height)
-    : new Rect(x - width / factor, y, width / factor, height)
+    ? new Openseadragon.Rect(x + width, y, width / factor, height)
+    : new Openseadragon.Rect(x - width / factor, y, width / factor, height)
 }
 
 const blackTileSource = {
@@ -337,7 +336,10 @@ export default defineComponent({
 
       return this.viewer
     },
-    async applyMarginaliaAndOverlay(viewer: Viewer, tiledImage: TiledImage) {
+    async applyMarginaliaAndOverlay(
+      viewer: Openseadragon.Viewer,
+      tiledImage: Openseadragon.TiledImage
+    ) {
       this.currentOverlays.forEach(overlay => viewer.removeOverlay(overlay))
       this.currentOverlays = []
 
@@ -349,10 +351,10 @@ export default defineComponent({
       viewer.addOverlay(overlay, rect)
 
       this.currentOverlays = regions.map(region => {
-        const { overlay, rect } = createRegionOverlay(tiledImage, region, articleUid => {
-          this.$emit('article-selected', articleUid)
+        const { overlay, rect } = createRegionOverlay(tiledImage, region, articleId => {
+          this.$emit('article-selected', articleId)
         })
-        if (article.uid && region.articleUid === article.uid) {
+        if (article.id && region.articleId === article.id) {
           overlay.classList.add('active')
         }
         viewer.addOverlay(overlay, rect)
@@ -532,7 +534,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .os-article-viewer {
   height: 100%;
@@ -544,21 +547,21 @@ export default defineComponent({
 }
 
 div.overlay-page {
-  border: 10px solid transparentize($clr-accent-secondary, 0.5);
+  border: 10px solid color.adjust($clr-accent-secondary, $alpha: -0.5);
   box-shadow: 0 0 40px #0005;
   pointer-events: none;
 }
 
 .overlay-region {
-  background-color: transparentize($clr-accent-secondary, 1);
+  background-color: color.adjust($clr-accent-secondary, $alpha: -1);
   transition: background-color 300ms;
   cursor: pointer;
 
   &.selected {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.5);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.5);
     cursor: inherit;
   }
 }

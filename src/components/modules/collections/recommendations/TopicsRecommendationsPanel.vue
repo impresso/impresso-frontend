@@ -5,13 +5,14 @@
       <div>
         <h3 class="m-0 tb-title small-caps font-weight-bold pb-2">{{ $t('label.topics') }}</h3>
         <div v-for="topic in recommendedTopics" :key="topic.id">
-          <item-label type="topic" :item="topic.item"/>
+          <item-label type="topic" :item="topic.item" />
           <item-selector
-            :uid="topic.id"
+            :id="topic.id"
             :item="topic.item"
             :default-click-action-disabled="true"
             type="topic"
-            @click="handleItemClicked" />
+            @click="handleItemClicked"
+          />
         </div>
       </div>
     </b-col>

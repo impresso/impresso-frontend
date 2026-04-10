@@ -11,11 +11,11 @@
             <p
               class="m-0"
               v-html="
-                $tc('passages_in_same_cluster', totalPassages, {
+                $t('passages_in_same_cluster', {
                   offset: endPassageOffset + 1,
                   n: totalPassages,
                   diffn: $n(diff.length - 1)
-                })
+                }, totalPassages)
               "
             />
             <div class="d-flex flex-row flex-wrap align-items-center gap-2">

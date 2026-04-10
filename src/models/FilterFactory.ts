@@ -21,7 +21,7 @@ export default {
       filter = new FilterString({
         ...filterData,
         type: 'mention', // we force EXACT string filter
-        precision: 'EXACT'
+        precision: 'exact'
       })
     }
 

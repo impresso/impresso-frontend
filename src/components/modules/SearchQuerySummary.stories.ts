@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import SearchQuerySummary from './SearchQuerySummary.vue'
 import type { SearchQuerySummaryProps } from './SearchQuerySummary.vue'
 import FilterFactory from '@/models/FilterFactory'
+import type { Entity, FilterWithItems } from '@/models'
 
 const meta: Meta<typeof SearchQuerySummary> = {
   title: 'Components/modules/SearchQuerySummary',
@@ -47,16 +48,29 @@ export const AllFiltersIncluded: Story = {
   args: {
     searchQuery: {
       filters: [
-        { context: 'include', type: 'hasTextContents', items: [{ uid: '' }] },
+        { context: 'include', type: 'hasTextContents', items: [{ id: '', label: '' }] },
         {
           context: 'include',
           op: 'OR',
           type: 'daterange',
           q: '1948-01-01T00:00:00Z TO 1948-12-31T23:59:59Z',
-          items: [{ start: '1948-01-01T00:00:00Z', end: '1948-12-31T23:59:59Z' }]
+          items: [
+            {
+              id: '1',
+              label: '1948',
+              start: new Date('1948-01-01T00:00:00Z').getTime(),
+              end: new Date('1948-12-31T23:59:59Z').getTime()
+            }
+          ]
         },
 
-        { context: 'include', op: 'OR', type: 'language', q: 'fr', items: [{ uid: 'fr' }] },
+        {
+          context: 'include',
+          op: 'OR',
+          type: 'language',
+          q: 'fr',
+          items: [{ id: 'fr', label: 'fr' }]
+        },
 
         {
           context: 'include',
@@ -65,18 +79,24 @@ export const AllFiltersIncluded: Story = {
           q: '2-50-Harry_S._Truman',
           items: [
             {
-              countItems: 0,
-              countMentions: 0,
-              uid: '2-50-Harry_S._Truman',
-              name: 'Harry S. Truman',
-              type: 'person'
+              // countItems: 0,
+              // countMentions: 0,
+              id: '2-50-Harry_S._Truman',
+              label: 'Harry S. Truman',
+              name: 'Harry S. Truman'
+              // type: 'person'
             }
           ]
         },
-        { type: 'copyright', q: 'in_cpy', items: [{ uid: 'in_cpy' }] },
-        { context: 'include', op: 'OR', type: 'partner', q: 'SNL', items: [{ uid: 'SNL' }] },
-        { type: 'sourceMedium', q: 'print', items: [{ uid: 'print' }] }
-      ]
+        { type: 'copyright', q: 'in_cpy', items: [{ id: 'in_cpy', label: 'in_cpy' }] },
+        { context: 'include', op: 'OR', type: 'partner', q: 'SNL', items: [{ id: 'SNL', label: 'SNL' }] },
+        { type: 'sourceMedium', q: 'print' }
+      ] satisfies FilterWithItems<SearchQuerySummaryFilterItem>[]
     }
   } as SearchQuerySummaryProps
+}
+type SearchQuerySummaryFilterItem = Entity & {
+  name?: string
+  start?: string | number | Date
+  end?: string | number | Date
 }

@@ -23,7 +23,7 @@
               active-class="none"
               :to="{
                 name: 'entity',
-                params: { entity_id: entity.uid },
+                params: { entity_id: entity.id },
                 query: { tab: tabItem.name }
               }"
             >
@@ -145,9 +145,9 @@
                 {{ $d(tooltipScope.tooltip.item?.t ?? 0, 'year') }} &middot;
                 <span
                   v-html="
-                    $tc('numbers.contentItems', tooltipScope.tooltip.item?.w ?? 0, {
+                    $t('numbers.contentItems', {
                       n: $n(tooltipScope.tooltip.item?.w ?? 0)
-                    })
+                    }, tooltipScope.tooltip.item?.w ?? 0)
                   "
                 ></span>
               </div>
@@ -218,13 +218,14 @@ import type { FindQuery as FindFacetsQuery } from '@/services/types/searchFacets
 import { useEntitiesStore } from '@/stores/entities'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 import { mapStores } from 'pinia'
 import { PropType } from 'vue'
 
 import Article from '@/models/Article'
 import Bucket from '@/models/Bucket'
-import { EntityMention } from '@/models/generated/schemas'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { EntityMention } from '@/models/generated/deprecated/models'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
 
 type TabId = 'content-items' | 'mentions' | 'overview'
@@ -301,7 +302,7 @@ export default {
         backgroundSize: 'cover',
         width: '120px',
         height: '120px',
-        backgroundImage: `url('http://commons.wikimedia.org/wiki/Special:FilePath/${this.preferredImage.value}?height=120px')`
+        backgroundImage: `url('${getWikimediaRedirectFileUrl(this.preferredImage.value, { width: 120 })}')`
       }
     },
     searchPageLink() {
@@ -311,7 +312,7 @@ export default {
       return {
         name: 'search',
         query: SearchQuery.serialize({
-          filters: [{ type: this.entity.type, q: this.entity.uid }]
+          filters: [{ type: this.entity.type, q: this.entity.id }]
         }) as LocationQueryRaw
       } satisfies RouteLocationRaw
     },
@@ -392,15 +393,15 @@ export default {
           name: 'overview'
         },
         {
-          label: this.$tc('tabs.contentItems', this.entity.countItems, {
+          label: this.$t('tabs.contentItems', {
             count: this.$n(this.entity.countItems)
-          }),
+          }, this.entity.countItems),
           name: 'content-items'
         },
         {
-          label: this.$tc('tabs.mentions', this.entity.countMentions, {
+          label: this.$t('tabs.mentions', {
             count: this.$n(this.entity.countMentions)
-          }),
+          }, this.entity.countMentions),
           name: 'mentions'
         }
       ]
@@ -544,7 +545,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 .wikibox {
   background: $clr-bg-secondary;
 }

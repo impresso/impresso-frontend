@@ -6,7 +6,7 @@
           {{ facet.id }}
           <span v-if="facet?.items?.length > 0">
             {{
-              $tc('numbers.options', facet?.items?.length ?? 0, { n: facet?.items?.length ?? 0 })
+              $t('numbers.options', { n: facet?.items?.length ?? 0 }, facet?.items?.length ?? 0)
             }}
           </span>
         </span>
@@ -50,9 +50,9 @@
             {{ $t('actions.more') }}
             <span
               v-html="
-                $tc('numbers.moreOptions', getNumberOfAvailableBucketsToLoad(facet), {
+                $t('numbers.moreOptions', {
                   n: $n(getNumberOfAvailableBucketsToLoad(facet))
-                })
+                }, getNumberOfAvailableBucketsToLoad(facet))
               "
             />
           </span>

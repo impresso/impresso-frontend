@@ -8,7 +8,7 @@
       <p class="m-0">
         <MediaSourceLabel
           :item="{
-            uid: item.meta.mediaId,
+            id: item.meta.mediaId,
             name: item.meta.mediaId,
             type: item.meta.sourceType
           }"
@@ -16,8 +16,8 @@
         />{{ '' }}
         <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
-          v-if="item.image?.pagesCount"
-          v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
+          v-if="item.facsimile?.pagesCount"
+          v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
         >
         </span>
       </p>
@@ -34,8 +34,8 @@
     <div v-if="!showMeta && showType" class="ContentItem__typePages">
       <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
       <span
-        v-if="item.image?.pagesCount"
-        v-html="` – ${$tc('pp', item.image?.pagesCount, { pages })}`"
+        v-if="item.facsimile?.pagesCount"
+        v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
       >
       </span>
     </div>
@@ -66,10 +66,10 @@
               class="d-inline small"
             >
               <ItemSelector
-                :uid="entity.id"
+                :id="entity.id"
                 :label="entity.label"
                 :item="{
-                  uid: entity.id,
+                  id: entity.id,
                   ...entity,
                   name: entity.label
                 }"
@@ -115,7 +115,7 @@
 
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import type { ContentItem } from '@/models/generated/schemas/contentItem'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { computed } from 'vue'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import DataProviderLabel from './DataProviderLabel.vue'
@@ -170,14 +170,14 @@ const routerLinkUrl = computed(() => {
   return {
     name: 'contentItem',
     params: {
-      article_uid: props.item.id
+      article_id: props.item.id
     }
   }
 })
 
 const pages = computed(() => {
-  if (props.item.image?.pages?.length) {
-    const imagepages = props.item.image.pages.map(d => String(d.number))
+  if (props.item.facsimile?.pages?.length) {
+    const imagepages = props.item.facsimile.pages.map(d => String(d.number))
     if (imagepages.length > 5) {
       return imagepages
         .slice(0, 5)

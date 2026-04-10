@@ -14,9 +14,9 @@
               <span
                 v-if="tooltip.exactDataValue?.value > 0"
                 v-html="
-                  $tc('numbers.contentItems', tooltip.exactDataValue?.value || 0, {
+                  $t('numbers.contentItems', {
                     n: $n(tooltip.exactDataValue?.value || 0)
-                  })
+                  }, tooltip.exactDataValue?.value || 0)
                 "
               />
               <span v-else class="SourcesOverviewTimeline__empty">
@@ -36,9 +36,9 @@
             <div class="small" v-if="tooltip.dataValue.dateRange">
               <span
                 v-html="
-                  $tc('numbers.contentItems', tooltip.dataValue?.value || 0, {
+                  $t('numbers.contentItems', {
                     n: $n(tooltip.dataValue?.value || 0)
-                  })
+                  }, tooltip.dataValue?.value || 0)
                 "
               ></span
               >&nbsp;<span

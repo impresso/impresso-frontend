@@ -30,6 +30,7 @@ export default {
         ch: 'chronicle',
         rb: 'radio broadcast',
         rbe: 'radio broadcast episode',
+        chapter: 'chapter',
         'no-type': 'No type provided'
       },
       sourceType: {
@@ -122,7 +123,7 @@ export default {
     },
     actions: {
       search: 'Search',
-
+      confirm: 'confirm',
       register: 'Create account',
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
@@ -254,7 +255,9 @@ export default {
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
       ignoredFiltersDetailed:
         // eslint-disable-next-line quotes
-        "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail})."
+        "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
+      number: '<span class="number">{n}</span>',
+      percentage: '<span class="number">{n}</span>'
     },
     dates: {
       lastModifiedDate: 'last modified',
@@ -405,7 +408,7 @@ export default {
         filterTitle: 'transcript length',
         filtered: 'results are filtered when:',
         selected: 'filter results if they are within the range',
-        description: 'total number of articles per transcript length',
+        description: 'Distribution of Content Items by number of tokens',
         empty: '(no results)',
         item: 'Transcript length'
       },
@@ -452,6 +455,19 @@ export default {
           exclude: '<b>NOT</b> mentioned'
         }
       },
+      mention: {
+        title: 'Mention | Mention | Mentions',
+        filterTitle: 'mention',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> mentions applies',
+        description: 'check one or more mentions to filter results',
+        empty: '(no results)',
+        item: 'Mention',
+        context: {
+          include: 'mentioned',
+          exclude: '<b>NOT</b> mentioned'
+        }
+      },
       dataDomain: {
         filterTitle: 'Data domain',
         empty: '...'
@@ -459,7 +475,7 @@ export default {
       day: {
         title: 'Day | Day | Days',
         optionsTitle: 'Day of publication',
-        optionsDescription: 'Total number of articles per day'
+        optionsDescription: 'Number of Content Items per day'
       },
       daterange: {
         title: 'Filter by date of publication',
@@ -489,7 +505,7 @@ export default {
       month: {
         title: 'Month | Month | Months',
         optionsTitle: 'Month of publication',
-        optionsDescription: 'Total number of articles per month'
+        optionsDescription: 'Number of Content Items per month'
       },
       newspaper: {
         title: 'Newspaper | Newspaper | Newspapers',
@@ -582,7 +598,7 @@ export default {
       year: {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
-        optionsDescription: 'Total number of articles per year'
+        optionsDescription: 'Number of Content Items per year'
       },
       imageVisualContent: {
         title: 'Visual Content | Visual Content | Visual Contents',

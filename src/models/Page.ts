@@ -18,7 +18,7 @@ export interface IPage {
   num: number
   regions: Region[]
   tags: Tag[]
-  uid: string
+  id: string
 }
 
 /**
@@ -33,7 +33,7 @@ export interface IPage {
  * @param {Integer} num Page number
  * @param {Array} regions Array of ArticleRegions objects
  * @param {Array} tags Array of Tag objects
- * @param {String} uid Unique identifier for the newspaper
+ * @param {String} id Unique identifier for the newspaper
  */
 export default class Page implements IPage {
   articles: Article[]
@@ -47,7 +47,7 @@ export default class Page implements IPage {
   num: number
   regions: Region[]
   tags: Tag[]
-  uid: string
+  id: string
 
   constructor({
     articles = [],
@@ -61,7 +61,7 @@ export default class Page implements IPage {
     num = 0,
     regions = [],
     tags = [],
-    uid = ''
+    id = ''
   } = {}) {
     this.articles = articles.map(article => {
       if (article instanceof Article) {
@@ -124,7 +124,7 @@ export default class Page implements IPage {
       return new Tag(tag)
     })
 
-    this.uid = String(uid)
+    this.id = String(id)
   }
 
   getIiifThumbnail({ dim = 150 }) {

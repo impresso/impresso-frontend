@@ -5,7 +5,7 @@
 import Topic from '@/models/Topic'
 import FilterItems from '@/models/FilterItems'
 
-export default class FilterTopic extends FilterItems {
+export default class FilterTopic extends FilterItems<Topic> {
   h: string
 
   constructor(args) {
@@ -13,9 +13,9 @@ export default class FilterTopic extends FilterItems {
     this.h = String(args.h)
     if (!this.items.length && Array.isArray(this.q)) {
       this.items = this.q.map(
-        uid =>
+        id =>
           new Topic({
-            uid
+            id
           })
       )
     }

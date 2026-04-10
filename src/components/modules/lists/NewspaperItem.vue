@@ -47,7 +47,7 @@ interface Issue {
 
 interface NewspaperItem {
   name: string
-  uid: string
+  id: string
   dataProvider?: string
   startYear?: number
   endYear?: number
@@ -77,7 +77,7 @@ const itemUrl = computed(() => ({
   name: 'newspaper_metadata',
   query: route.query,
   params: {
-    newspaper_uid: props.item.uid
+    newspaper_id: props.item.id
   }
 }))
 

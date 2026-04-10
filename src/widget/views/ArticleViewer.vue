@@ -33,8 +33,8 @@ export default {
   },
   mounted() {
     console.info('[ArticleViewer] mounted:', this.$route.params, this.$route.query)
-    if (this.articleUid) {
-      contentItems.get(this.articleUid).then(res => {
+    if (this.articleId) {
+      contentItems.get(this.articleId).then(res => {
         this.article = Article.fromContentItem(res)
         this.initViewer()
       })
@@ -45,23 +45,23 @@ export default {
     // });
   },
   computed: {
-    articleUid() {
-      const { articleUid } = this.$route.params
+    articleId() {
+      const { articleId } = this.$route.params
       // GAZ-1843-03-08-a-i0007
-      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-i\d{4}$/.test(articleUid)) {
-        console.error('articleUid() not valid:', articleUid)
+      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-i\d{4}$/.test(articleId)) {
+        console.error('articleId() not valid:', articleId)
         return null
       }
-      return articleUid
+      return articleId
     },
-    pageUid() {
-      const { pageUid } = this.$route.params
+    pageId() {
+      const { pageId } = this.$route.params
       // GAZ-1843-03-08-a-p0003
-      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageUid)) {
-        console.warn('pageUid() not valid:', pageUid, 'returning index.')
+      if (!/^[A-Za-z\d]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageId)) {
+        console.warn('pageId() not valid:', pageId, 'returning index.')
         return null
       }
-      return pageUid
+      return pageId
     },
     getBackgroundStyle() {
       return {
@@ -159,7 +159,8 @@ export default {
 }
 </script>
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 div.overlay-region {
   // background-color: $clr-accent-secondary;
@@ -168,10 +169,10 @@ div.overlay-region {
   cursor: pointer;
 
   &.selected {
-    background-color: transparentize($clr-accent-secondary, 0.8);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.8);
   }
   &.active {
-    background-color: transparentize($clr-accent-secondary, 0.5);
+    background-color: color.adjust($clr-accent-secondary, $alpha: -0.5);
     cursor: inherit;
   }
 }

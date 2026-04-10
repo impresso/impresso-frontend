@@ -43,9 +43,9 @@
         <div v-if="tooltip.item" class="text-center small-caps">
           <span
             v-html="
-              $tc('numbers.articles', tooltip?.item?.value ?? 0, {
+              $t('numbers.articles', {
                 n: $n(tooltip?.item?.value ?? 0)
-              })
+              }, tooltip?.item?.value ?? 0)
             "
           />
           &middot; {{ tooltipFormattedTime }}
@@ -53,7 +53,7 @@
           <b>{{ tooltip.item.label }}</b>
         </div>
         <div v-else>
-          {{ $tc('numbers.resultsParenthesis', 0) }}
+          {{ $t('numbers.resultsParenthesis', 0) }}
         </div>
       </slot>
     </tooltip>

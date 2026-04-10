@@ -120,7 +120,7 @@
     </ChangePlanModal>
 
     <CorpusOverviewModal
-      :title="$t('Corpus Overview')"
+      :title="$t('corpusCatalogueModalTitle')"
       :isVisible="view === ViewCorpusOverview"
       :userPlan="userPlan"
       :plansLabels="PlanLabels"
@@ -385,7 +385,8 @@ watch(
     "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
     "view_create-special-membership-request-success_modalTitle": "Special Membership Request Submitted",
     "view_create-special-membership-request-success_title": "Special Membership request submitted successfully",
-    "view_create-special-membership-request-success_content": "Your special membership access request has been submitted successfully. We will notify you via email once your request has been processed."
+    "view_create-special-membership-request-success_content": "Your special membership access request has been submitted successfully. We will notify you via email once your request has been processed.",
+    "corpusCatalogueModalTitle": "Impresso Corpus Catalogue"
   }
 }
 </i18n>

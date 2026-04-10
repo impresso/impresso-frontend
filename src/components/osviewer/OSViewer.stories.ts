@@ -103,8 +103,8 @@ export const Default: Story = {
     pageIndex: 7,
     pageRegions: [
       {
-        articleUid: 'FedGazDe-1907-12-18-a-i0001',
-        pageUid: 'FedGazDe-1907-12-18-a-p0001',
+        articleId: 'FedGazDe-1907-12-18-a-i0001',
+        pageId: 'FedGazDe-1907-12-18-a-p0001',
         coords: { x: 140, y: 46, w: 1185, h: 2055 }
       }
     ]

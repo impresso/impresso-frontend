@@ -48,7 +48,7 @@
         <input
           class="form-check-input"
           type="checkbox"
-          v-bind:id="collection.uid"
+          v-bind:id="collection.id"
           v-bind:checked="isActive(collection)"
           v-bind:class="isIndeterminate(collection)"
         />
@@ -60,7 +60,7 @@
           class="me-1"
         />
         <Icon v-else :strokeWidth="1.5" :scale="0.75" name="circle" class="me-1" />
-        <div class="form-check-label" for="collection.uid">
+        <div class="form-check-label" for="collection.id">
           <b>{{ collection.name }}</b>
           <br />
           <span class="description text-muted small" :title="$t('last_edited')">
@@ -122,7 +122,7 @@ const onInput = () => {
 
 const isIndeterminate = (targetCollection: Collection) => {
   const itemsWithCollection = items.filter(item =>
-    item.collectionIds?.some(cid => cid === targetCollection.uid)
+    item.collectionIds?.some(cid => cid === targetCollection.id)
   )
 
   if (itemsWithCollection.length === 0) return 'unchecked'
@@ -139,7 +139,7 @@ const toggleActive = (collection: Collection) => {
   const checked = isIndeterminate(collection) === 'checked'
 
   items.forEach(item => {
-    const idx = item.collectionIds?.findIndex(c => c === collection.uid) ?? -1
+    const idx = item.collectionIds?.findIndex(c => c === collection.id) ?? -1
     if (checked && idx !== -1) {
       itemsFiltered.push(item)
     } else if (!checked && idx === -1) {
@@ -153,14 +153,14 @@ const toggleActive = (collection: Collection) => {
       .addCollectionItems({
         items:
           itemsFiltered?.map(i => ({
-            uid: i.itemId
+            id: i.itemId
           })) || [],
         collection,
         contentType: 'article'
       })
       .then(() => {
         itemsFiltered.forEach(item => {
-          item.collectionIds?.push(collection.uid)
+          item.collectionIds?.push(collection.id)
         })
       })
   } else {
@@ -169,13 +169,13 @@ const toggleActive = (collection: Collection) => {
       .removeCollectionItems({
         items:
           itemsFiltered?.map(i => ({
-            uid: i.itemId
+            id: i.itemId
           })) || [],
         collection
       })
       .then(() => {
         itemsFiltered.forEach(item => {
-          const idx = item.collectionIds?.findIndex(c => c === collection.uid)
+          const idx = item.collectionIds?.findIndex(c => c === collection.id)
           item.collectionIds?.splice(idx, 1)
         })
       })

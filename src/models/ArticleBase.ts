@@ -1,11 +1,11 @@
 import Collection from './Collection'
 import Entity from './Entity'
-import { ContentItemAccessRights } from './generated/schemas/contentItem'
+import { ContentItemAccessRights } from './generated/canonical/contentItem'
 import Match from './Match'
 import { IPage } from './Page'
 
 export interface ArticleBaseInterface {
-  uid: string
+  id: string
   type: string
   title: string
   excerpt: string
@@ -27,7 +27,7 @@ export interface ArticleBaseInterface {
 }
 
 interface ArticleBaseConstructorParams {
-  uid?: string
+  id?: string
   type?: string
   title?: string
   excerpt?: string
@@ -55,7 +55,7 @@ interface ArticleBaseConstructorParams {
  * issue Table of contents. that 's why it is simplified.
  */
 export default class ArticleBase implements ArticleBaseInterface {
-  uid: string
+  id: string
   type: string
   title: string
   excerpt: string
@@ -78,7 +78,7 @@ export default class ArticleBase implements ArticleBaseInterface {
   copyright?: ContentItemAccessRights['copyright']
 
   constructor({
-    uid = '',
+    id = '',
     type = '',
     title = '',
     excerpt = '',
@@ -101,7 +101,7 @@ export default class ArticleBase implements ArticleBaseInterface {
     dataDomain,
     dataProvider
   }: ArticleBaseConstructorParams) {
-    this.uid = String(uid)
+    this.id = String(id)
     this.type = String(type)
     this.title = String(title)
     this.excerpt = String(excerpt)

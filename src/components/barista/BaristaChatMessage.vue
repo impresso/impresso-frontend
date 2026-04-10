@@ -11,7 +11,7 @@
       <h5 class="small-caps mb-1" :class="{ 'text-white': message.type === 'user' }">
         {{ $t(`barista.persona.${message.type}`) }}
       </h5>
-      <div class="message-content" v-html="message.content"></div>
+      <div class="message-content" v-html="renderMarkdown(message.content)"></div>
 
       <!-- Additional content -->
       <div
@@ -20,13 +20,21 @@
       >
         <details>
           <summary class="mb-2">Show additional content</summary>
-          <div v-html="message.additionalContent"></div>
+          <div v-html="renderMarkdown(message.additionalContent)"></div>
         </details>
       </div>
 
-      <div v-if="message.structuredResponse?.searchQuerySummary">
-        {{ message.structuredResponse?.searchQuerySummary }}
-      </div>
+      <div
+        v-if="message.structuredResponse?.searchQuerySummary"
+        v-html="renderMarkdown(message.structuredResponse.searchQuerySummary)"
+        class="message-search-query-summary small mt-2 mb-0 text-muted"
+      ></div>
+
+      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
+        <li v-for="(step, i) in message.searchQuerySteps" :key="i">
+          <p v-html="renderMarkdown(step)"></p>
+        </li>
+      </ol>
 
       <TimeAgo
         class="message-timestamp very-small text-muted text-ellipsis no-wrap"
@@ -35,46 +43,49 @@
       />
     </section>
     <section v-else-if="message.type === 'tool'" class="BaristaChatMessage__tool">
-      <div class="d-flex align-items-center gap-1 small">
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
         <Icon name="brainElectricity" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.toolResult') }}
-        </h5>
-        <div>
-          {{ $t(`barista.tools.${toolId}`) }}
-        </div>
+        <span class="font-style-italic text-muted">{{ $t('barista.toolResult') }}</span>
+        <span class="badge badge-light">{{ $t(`barista.tools.${toolId}`) }}</span>
+        <button class="tool-toggle" @click="showDebug = !showDebug">
+          {{ showDebug ? '▾' : '▸' }} {{ $t('barista.debug') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.debug') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message }}</p>
-      </details>
+      <p v-if="showDebug" class="text-muted very-small mt-1 mb-0">{{ message }}</p>
     </section>
 
     <!-- Tool calls -->
     <section
-      v-if="message.toolCalls && message.toolCalls.length > 0"
+      v-if="
+        (!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning
+      "
       class="BaristaChatMessage__tools"
     >
-      <div class="d-flex align-items-center gap-1 small">
-        <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
-        <h5 class="font-size-inherit font-style-italic mb-0 mr-2 text-muted">
-          {{ $t('barista.usingTools') }}
-        </h5>
-        <div v-for="(tool, toolIdx) in message.toolCalls" :key="toolIdx" class="tool-badge">
-          {{ $t(`barista.tools.${tool}`) }}
-          <span v-if="toolIdx < message.toolCalls.length - 1">, </span>
-        </div>
+      <div class="d-flex align-items-center flex-wrap gap-1 small">
+        <template v-if="!hideToolCalls && message.toolCalls && message.toolCalls.length > 0">
+          <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
+          <span class="font-style-italic text-muted">{{ $t('barista.usingTools') }}</span>
+          <span
+            v-for="(tool, toolIdx) in message.toolCalls"
+            :key="toolIdx"
+            class="badge badge-light"
+          >
+            {{ $t(`barista.tools.${tool}`) }}
+          </span>
+        </template>
+        <button
+          v-if="message.reasoning"
+          class="tool-toggle"
+          @click="showReasoning = !showReasoning"
+        >
+          {{ showReasoning ? '▾' : '▸' }} {{ $t('barista.reasoning') }}
+        </button>
       </div>
-
-      <details class="ml-3 small">
-        <summary>
-          {{ $t('barista.reasoning') }}
-        </summary>
-        <p class="text-muted mb-0">{{ message.reasoning }}</p>
-      </details>
+      <p
+        v-if="showReasoning"
+        class="text-muted very-small mt-1 mb-0"
+        v-html="renderMarkdown(message.reasoning)"
+      ></p>
     </section>
     <!-- Actions -->
     <section
@@ -103,20 +114,32 @@
 import TimeAgo from '@/components/TimeAgo.vue'
 import type { ChatMessage } from '@/services/types/barista'
 import Icon from '../base/Icon.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { marked } from 'marked'
+
+const renderMarkdown = (text?: string | null): string => {
+  if (!text) return ''
+  return marked.parse(text, { async: false }) as string
+}
 
 /**
  * BaristaChatMessage component props
  */
 export interface BaristaChatMessageProps {
   message: ChatMessage
+  hideToolCalls?: boolean
 }
 
-const { message } = defineProps<BaristaChatMessageProps>()
+const { message, hideToolCalls } = defineProps<BaristaChatMessageProps>()
+
+const showDebug = ref(false)
+const showReasoning = ref(false)
 
 const isUserOrSystemWithContent = computed(() => {
   const contentLength =
-    (message.structuredResponse?.searchQuerySummary?.length || 0) + (message.content?.length || 0)
+    (message.structuredResponse?.searchQuerySummary?.length || 0) +
+    (message.content?.length || 0) +
+    (message.searchQuerySteps?.length || 0)
   return contentLength > 0 && ['user', 'system', 'error'].includes(message.type)
 })
 
@@ -176,30 +199,85 @@ const formatActionType = (type: string): string => {
 }
 </i18n>
 <style>
+.BaristaChatMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .BaristaChatMessage__content {
   padding: 10px 14px;
   border-radius: var(--impresso-border-radius-xs);
   max-width: 80%;
   word-break: break-word;
   position: relative;
-  display: inline-block;
 }
 
 .BaristaChatMessage__content.user {
   align-self: flex-end;
-  background-color: #0084ff;
-  color: white;
+  background-color: var(--impresso-color-black);
+  color: var(--impresso-color-white);
 }
 
 .BaristaChatMessage__content.system,
-.BaristaChatMessage__content.tool {
+.BaristaChatMessage__content.error {
   align-self: flex-start;
   background-color: #ebebeb;
   color: var(--impresso-color-black);
 }
 
-.BaristaChatMessage__content.user {
-  background-color: var(--impresso-color-black);
-  color: var(--impresso-color-white);
+.message-content :deep(h1),
+.message-content :deep(h2),
+.message-content :deep(h3),
+.message-content :deep(h4),
+.message-content :deep(h5),
+.message-content :deep(h6) {
+  font-size: 1em;
+  font-weight: 600;
+  margin: 0.75em 0 0.25em;
+}
+.message-content :deep(h1:first-child),
+.message-content :deep(h2:first-child),
+.message-content :deep(h3:first-child) {
+  margin-top: 0;
+}
+.message-content :deep(hr) {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  margin: 0.5em 0;
+}
+.message-content :deep(p) {
+  margin: 0 0 0.5em;
+}
+.message-content :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.message-content :deep(ul),
+.message-content :deep(ol) {
+  padding-left: 1.25em;
+  margin: 0 0 0.5em;
+}
+.message-content :deep(code) {
+  font-size: 0.85em;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+.message-content :deep(pre) {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  padding: 0.5em 0.75em;
+  overflow-x: auto;
+}
+.message-content :deep(pre) code {
+  background: none;
+  padding: 0;
+}
+
+.tool-toggle {
+  all: unset;
+  cursor: pointer;
+  opacity: 0.55;
+  font-size: inherit;
 }
 </style>

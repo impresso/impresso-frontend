@@ -14,7 +14,7 @@ import Article from './Article';
  * @param {Newspaper} newspaper Newspaper object
  * @param {Array} pages Array of Page objects
  * @param {Array} articles Array of Article objects
- * @param {String} uid Unique identifier for the newspaper
+ * @param {String} id Unique identifier for the newspaper
  * @param {Integer} year Full year of issue
  */
 export default class Issue {
@@ -28,12 +28,12 @@ export default class Issue {
     frontPage = null,
     pages = [],
     articles = [],
-    uid = '',
+    id = '',
     year = 0,
     accessRights = 'Closed',
     cover = '',
   } = {}) {
-    this.uid = String(uid);
+    this.id = String(id);
     this.accessRights = accessRights;
     this.year = parseInt(year, 10);
     this.cover = String(cover);

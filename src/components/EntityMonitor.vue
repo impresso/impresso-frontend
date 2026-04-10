@@ -129,7 +129,7 @@ export default defineComponent({
       handler([tab, id]) {
         if (tab !== 'overview') {
           return
-        } else if (this.item === null || this.item.uid !== id) {
+        } else if (this.item === null || this.item.id !== id) {
           console.debug('[EntityMonitor] needToLoadItem', tab, id)
 
           this.fetchEntity()

@@ -20,10 +20,10 @@
           <span class="pages" v-if="article?.pages"
             >&nbsp;&mdash;
             {{
-              $tc('pp', article.pages.length, {
+              $t('pp', {
                 pages: article.pages.map(p => p.num).join(', '),
                 n: article.pages.length
-              })
+              }, article.pages.length)
             }}</span
           >
           <span class="pages" v-else-if="page"
@@ -97,5 +97,5 @@ const props = withDefaults(defineProps<IssueViewerPageHeadingProps>(), {
   isLoading: false
 })
 
-const MediaSourceId = computed(() => props.issue?.uid.split('-')[0])
+const MediaSourceId = computed(() => props.issue?.id.split('-')[0])
 </script>

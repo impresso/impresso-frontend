@@ -3,11 +3,11 @@ export default class UploadedImage {
     creationDate = null,
     thumbnail = '',
     name = '',
-    uid = '',
+    id = '',
   } = {}) {
     this.creationDate = new Date(creationDate);
     this.thumbnail = String(thumbnail);
     this.name = String(name);
-    this.uid = String(uid);
+    this.id = String(id);
   }
 }

@@ -9,21 +9,23 @@ interface PartnerFacet {
 export const fromPartnerFacet = (facet?: PartnerFacet) => {
   if (!facet) return undefined
   return new Partner({
-    uid: facet.id,
+    id: facet.id,
     name: facet.title,
     links: facet.url ? [facet.url] : []
   })
 }
 
 export default class Partner implements IEntity {
-  uid: string
+  id: string
   name: string
+  label: string
   links: string[]
   url?: string
 
-  constructor({ uid = '', name = '', links = [] } = {}) {
-    this.uid = uid
+  constructor({ id = '', name = '', links = [], label = undefined } = {}) {
+    this.id = String(id)
     this.name = name
+    this.label = label ?? this.name ?? this.id
     this.links = links
     if (this.links.length) {
       this.url = this.links[0]

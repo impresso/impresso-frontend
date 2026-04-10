@@ -16,7 +16,7 @@
             class="w-100"
             :percent="toScaledValue(bucket.count) * 100"
             :count="bucket.count"
-            :uid="bucket.item ? bucket.item.uid : ''"
+            :id="bucket.item ? bucket.item.id : ''"
             :item="bucket.item"
             :type="facetType"
             :default-click-action-disabled="defaultClickActionDisabled"
@@ -32,7 +32,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import VizBar from '../../base/VizBar.vue'
-import { Bucket } from '@/models'
+import type { Bucket } from '@/models'
 import { isBucket } from '@/models/typeGuards'
 import { FacetType } from '@/models/Facet'
 import FacetBucketModel from '@/models/Bucket'
@@ -86,21 +86,22 @@ export default {
      * @param {Bucket} bucket
      */
     onHover(bucket) {
-      this.$emit('hovered', String(bucket?.item?.uid ?? ''))
+      this.$emit('hovered', String(bucket?.item?.id ?? ''))
     },
     /**
      * @param {Bucket} bucket
      * @returns {boolean}
      */
     isHovered(bucket) {
-      return this.hoverId === bucket?.item?.uid
+      return this.hoverId === bucket?.item?.id
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use 'sass:color';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .wrapper {
   flex-direction: column;
@@ -109,7 +110,7 @@ export default {
 
 .bar-container {
   &.hilight {
-    background-color: transparentize($clr-accent, 0);
+    background-color: color.adjust($clr-accent, $alpha: 0);
   }
 }
 </style>

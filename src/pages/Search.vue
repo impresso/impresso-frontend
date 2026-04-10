@@ -81,7 +81,7 @@
                 @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
-                {{ $tc('add_n_to_collection', selectedItems.length) }}
+                {{ $t('add_n_to_collection', selectedItems.length) }}
               </b-dropdown-item>
               <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
                 <span class="dripicons-export pr-1"></span>
@@ -108,7 +108,7 @@
             </b-dropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="60" :additional-height="50">
+            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
               <SearchResultsSummary
                 :isLoading="isLoadingResults"
                 @onSummary="onSummary"
@@ -138,7 +138,7 @@
         id="nameSelectionCollection"
         hide-footer
         body-class="m-0 p-0"
-        :title="$tc('add_n_to_collection', selectedItems.length)"
+        :title="$t('add_n_to_collection', selectedItems.length)"
         :show="visibleModal === 'nameSelectionCollection'"
         @shown="nameSelectedCollectionOnShown()"
       >
@@ -253,8 +253,8 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
-import { ContentItem } from '@/models/generated/schemas/contentItem'
-import { Facet, Filter } from '@/models'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
+import type { Facet, Filter } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
@@ -269,7 +269,6 @@ export const FacetTypes = [
   'country',
   'partner',
   // 'year',
-  'contentLength',
   'copyright',
   'sourceType',
   'sourceMedium',
@@ -280,16 +279,21 @@ export const FacetTypes = [
   'organisation',
   'topic'
 ] satisfies FacetType[]
-
+export const RangeFacetTypes = [] satisfies FacetType[]
+export const DynamicFacetTypes = ['contentLength'] satisfies FacetType[]
+export const TimelineFacetTypes = ['year'] satisfies FacetType[]
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 export interface IData {
+  _activeSearchRequestId: number
+  _isUnmounted: boolean
   selectedItems: ContentItem[]
   inputName: string
   inputDescription: string
   searchResults: ContentItem[]
   paginationTotalRows: number
   timelineFacets: Facet[]
+
   /**
    * Common facets are expected to be loaded first.
    */
@@ -298,6 +302,14 @@ export interface IData {
    * User specific facets may take time to load and are not expected to be available immediately.
    */
   userFacets: Facet[]
+  /**
+   * Range facets are expected to be loaded first and are treated differently in the UI.
+   */
+  rangeFacets: Facet[]
+  /**
+   * Dynamic facets are expected to be loaded first and are treated differently in the UI.
+   */
+  dynamicFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -313,6 +325,10 @@ export default defineComponent({
       commonFacets: [],
       userFacets: [],
       timelineFacets: [],
+      dynamicFacets: [],
+      rangeFacets: [],
+      _activeSearchRequestId: 0,
+      _isUnmounted: false,
       visibleModal: null,
       isLoadingResults: false
     } satisfies IData
@@ -336,7 +352,7 @@ export default defineComponent({
     selectedCollectableItems(): ItemWithCollections[] {
       return this.selectedItems.map(item => ({
         itemId: item.id,
-        collectionIds: item.semanticEnrichments?.collections?.map(c => c.uid)
+        collectionIds: item.semanticEnrichments?.collections?.map(c => c.id)
       }))
     },
     searchQuery: {
@@ -506,13 +522,24 @@ export default defineComponent({
     },
     facets() {
       // return this.timelineFacets.concat(this.commonFacets, this.userFacets)
-      return [...this.timelineFacets, ...this.commonFacets, ...this.userFacets]
+      return [
+        ...this.timelineFacets,
+        ...this.commonFacets,
+        ...this.dynamicFacets,
+        ...this.rangeFacets,
+        ...this.userFacets
+      ]
     }
   },
   mounted() {
     console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
     this.facets = buildEmptyFacets(FacetTypes)
-    this.timelineFacets = buildEmptyFacets(['year'])
+    this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
+    this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
+    this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
+  },
+  beforeUnmount() {
+    this._isUnmounted = true
   },
   methods: {
     toggleLoadCollections() {
@@ -584,17 +611,17 @@ export default defineComponent({
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: searchResult.issue.uid,
+          issue_id: searchResult.issue.id,
           page_number: searchResult.pages[0]?.num,
-          page_uid: searchResult.pages[0]?.uid,
-          article_uid: searchResult.uid
+          page_id: searchResult.pages[0]?.id,
+          article_id: searchResult.id
         }
       })
     },
     exportQueryCsv() {
       exporterService.create(
         {
-          description: this.inputDescription
+          description: this.inputDescription.slice(0, 1000)
         },
         {
           query: {
@@ -606,7 +633,7 @@ export default defineComponent({
       )
     },
     exportSelectedCsv() {
-      const uids = this.selectedItems.map(a => a.id)
+      const ids = this.selectedItems.map(a => a.id)
       exporterService.create(
         {},
         {
@@ -615,7 +642,7 @@ export default defineComponent({
             filters: [
               {
                 type: 'uid',
-                q: uids
+                q: ids
               }
             ],
             format: 'csv'
@@ -632,66 +659,109 @@ export default defineComponent({
   watch: {
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy }) {
+        const requestId = ++this._activeSearchRequestId
         console.debug('[Search] @searchServiceQuery')
         const startTime = new Date()
         this.isLoadingResults = true
-        const { data, total } = await contentItemsService
-          .find({
-            query: {
-              offset: (page - 1) * limit,
-              limit,
-              filters,
-              // facets: FacetTypesWithMultipleValues,
-              order_by: orderBy
-              // group_by: groupBy
-            }
-          })
-          .then(response => {
-            return response
-          })
-        this.paginationTotalRows = total
-        this.searchResults = data
-        this.isLoadingResults = false
-        // this.searchInfo = info
-        console.info(
-          '[Search] @searchServiceQuery: took',
-          new Date().getTime() - startTime.getTime(),
-          'ms. Total results:',
-          total
-        )
-        // @todo next tick
-        this.$nextTick(() => {
-          this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
-        })
-        this.timelineFacets = await searchFacetsService
-          .find({
-            query: {
-              facets: ['year'],
-              filters: this.searchServiceQuery.filters,
-              limit: 300 // get all values
-            }
-          })
-          .then(response => response.data.map(f => new FacetModel(f as any)))
-        // load facets
-        this.commonFacets = await searchFacetsService
-          .find({
-            query: {
-              facets: FacetTypes,
-              filters: this.searchServiceQuery.filters
-            }
-          })
-          .then(response => response.data.map(f => new FacetModel(f as any)))
+        try {
+          const { data, total } = await contentItemsService
+            .find({
+              query: {
+                offset: (page - 1) * limit,
+                limit,
+                filters,
+                // facets: FacetTypesWithMultipleValues,
+                order_by: orderBy
+                // group_by: groupBy
+              }
+            })
+            .then(response => {
+              return response
+            })
+          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
 
-        this.userFacets = this.shouldLoadCollections
-          ? await searchFacetsService
+          this.paginationTotalRows = total
+          this.searchResults = data
+
+          const [timelineFacets, rangeFacets, commonFacets, userFacets] = await Promise.all([
+            searchFacetsService
               .find({
                 query: {
-                  facets: UserFacetTypes,
-                  filters: this.searchServiceQuery.filters
+                  facets: TimelineFacetTypes,
+                  filters,
+                  limit: 300 // get all values
                 }
               })
-              .then(response => response.data.map(f => new FacetModel(f as any)))
-          : []
+              .then(response => response.data.map(f => new FacetModel(f as any))),
+            searchFacetsService
+              .find({
+                query: {
+                  facets: RangeFacetTypes,
+                  filters,
+                  limit: 50
+                }
+              })
+              .then(response => {
+                const data = response.data.map(f => {
+                  const buckets = (f.buckets as { value: number }[]).sort(
+                    (a, b) => a.value - b.value
+                  ) // sort buckets by key (numerical order)
+                  return new FacetModel({
+                    ...f,
+                    buckets
+                  } as any)
+                })
+                return data
+              }),
+            searchFacetsService
+              .find({
+                query: {
+                  facets: FacetTypes,
+                  filters
+                }
+              })
+              .then(response => response.data.map(f => new FacetModel(f as any))),
+            this.shouldLoadCollections
+              ? searchFacetsService
+                  .find({
+                    query: {
+                      facets: UserFacetTypes,
+                      filters
+                    }
+                  })
+                  .then(response => response.data.map(f => new FacetModel(f as any)))
+              : Promise.resolve([])
+          ])
+
+          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
+          // this.searchInfo = info
+          console.info(
+            '[Search] @searchServiceQuery: took',
+            new Date().getTime() - startTime.getTime(),
+            'ms. Total results:',
+            total
+          )
+
+          // @todo next tick
+          this.$nextTick(() => {
+            if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+              this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
+            }
+          })
+
+          this.timelineFacets = timelineFacets
+          this.rangeFacets = rangeFacets
+          this.commonFacets = commonFacets
+          this.userFacets = this.shouldLoadCollections ? userFacets : []
+        } catch (error) {
+          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+            console.error('[Search] @searchServiceQuery failed:', error)
+          }
+        } finally {
+          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
+            this.isLoadingResults = false
+          }
+        }
       },
       deep: true,
       immediate: true
@@ -724,7 +794,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .navbar-nav {
   flex-direction: row;

@@ -19,7 +19,7 @@
         <div v-if="articlesLoaded && recommendedArticles.length > 0">
           <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
-              <b-col cols="12" v-for="(article, idx) in recommendedArticles" :key="article.uid">
+              <b-col cols="12" v-for="(article, idx) in recommendedArticles" :key="article.id">
                 <search-results-list-item v-model="recommendedArticles[idx]">
                   <template v-slot:secondary-action>
                     <b-button variant="outline-primary" size="sm" @click="addToCollection(article)">
@@ -36,7 +36,7 @@
                 md="4"
                 lg="3"
                 v-for="(article, idx) in recommendedArticles"
-                :key="article.uid"
+                :key="article.id"
               >
                 <search-results-tiles-item
                   v-if="article.type === ArticleType"
@@ -250,8 +250,8 @@ export default {
         // If this article has been added to current collection manually, add current collection
         // to the list of collections of this article.
         const extraCollections = this.articlesAddedToCollection
-          .map(({ uid }) => uid)
-          .includes(article.uid)
+          .map(({ id }) => id)
+          .includes(article.id)
           ? [this.collection]
           : []
 
@@ -327,10 +327,10 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: article.issue.uid,
+          issue_id: article.issue.id,
           page_number: article.pages[0]?.num,
-          page_uid: article.pages[0]?.uid,
-          article_uid: article.uid
+          page_id: article.pages[0]?.id,
+          article_id: article.id
         }
       })
     },
@@ -339,7 +339,7 @@ export default {
         await collectionsItemsService.patch(
           null,
           {
-            add: [article.uid]
+            add: [article.id]
           },
           {
             route: {

@@ -1,11 +1,19 @@
 <template>
   <div class="row align-items-start">
-    <div class="col-3">
-      <p class="m-0">{{ item.requester.firstname }} {{ item.requester.lastname }}</p>
-      <p class="m-0">{{ item.requester.email }}</p>
-      <p class="m-0 small">{{ item.requester.profile.affiliation }}</p>
+    <div class="col-3 small">
+      <p>
+        <b>full name:</b><br />
+        {{ item.requester.firstname }} {{ item.requester.lastname }}
+      </p>
+      <p>
+        <b>email:</b><br />
+        {{ item.requester.email }}
+      </p>
+      <p>
+        <b>affiliation:</b><br />
+        {{ item.requester.profile.affiliation }}
+      </p>
       <p class="mb-0 mt-1 small-caps">{{ userPlanLabel }}</p>
-      <p class="mb-0 mt-1 small-caps text-muted">{{ userBitmapStrings.binary }}</p>
     </div>
     <div class="col-3">
       <p class="m-0 small">{{ $d(new Date(item.dateCreated), 'short') }}</p>
@@ -17,29 +25,34 @@
         Last modified: <TimeAgo :date="new Date(item.dateLastModified)" />
       </p>
     </div>
-    <div class="col-3">
+    <div class="col-4">
       {{ item.specialMembershipAccess.title }}
-      <p v-for="(log, index) in item.changelog" :key="index" class="m-0 very-small">
-        {{ log }}
-      </p>
+      <p class="m-0 small"><b>Notes:</b></p>
+      <blockquote class="border small p-2 rounded bg-light">
+        {{ item.notes }}
+      </blockquote>
+
+      <details>
+        <summary class="small-caps">{{ $t('changelog') }}</summary>
+
+        <p v-for="(log, index) in item.changelog" :key="index" class="m-0 very-small">
+          {{ log }}
+        </p>
+      </details>
     </div>
-    <div class="col-1">
-      <Icon v-if="userHasAnySpecialMembershipAccess" :name="'check'" />
-      <span v-else>&mdash;</span>
-    </div>
+
     <div class="col-2">
-      {{ item.status }}
+      <p class="m-0">{{ item.status }}</p>
+      <slot name="actions" :item="item" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import type { SpecialMembershipAccess, UserSpecialMembershipRequestReview } from '@/services/types'
-import SpecialMembershipAccessItem from './SpecialMembershipAccessItem.vue'
+import type { UserSpecialMembershipRequestReview } from '@/services/types'
 
 import { computed } from 'vue'
 import { getUserBitmapAsString, getUserPlan, hasAnySpecialMembershipAccess } from '@/logic/user'
 import TimeAgo from '@/components/TimeAgo.vue'
-import Icon from '@/components/base/Icon.vue'
 
 export interface SpecialMembershipRequestItemProps {
   item: UserSpecialMembershipRequestReview

@@ -1,9 +1,13 @@
-import OpenSeadragon, { Options, Viewer, TiledImage, Rect } from 'openseadragon'
+import OpenSeadragon from 'openseadragon'
 import { getAuthenticationToken } from '@/services'
 import { defaultAuthCondition } from '@/util/imageAuth'
 import { getAuthHeaders } from '@/util/auth'
 
-export { Viewer, Rect, TiledImage }
+type Options = OpenSeadragon.Options
+
+export type Viewer = OpenSeadragon.Viewer
+export type Rect = OpenSeadragon.Rect
+export type TiledImage = OpenSeadragon.TiledImage
 
 /** Taken from openseadragon index.d.ts. Doesn't have a name. */
 interface ThingWithLevels {

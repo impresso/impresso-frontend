@@ -8,32 +8,35 @@
 
 
 /**
- * Admin maintenance action request.
+ * Collectable item group object
  */
-export interface AdminPatchRequest {
-  action: "clear-db-cache" | "clear-solr-cache" | "clear-wikidata-cache" | "rebuild-well-known-cache";
+export interface CollectableItemGroup {
+  /**
+   * The id of the collectable item group
+   */
+  itemId?: string;
+  /**
+   * Content type of the collectable item group: (A)rticle, (E)ntities, (P)ages, (I)ssues
+   */
+  contentType?: "A" | "E" | "P" | "I";
+  /**
+   * Ids of the collections
+   */
+  collectionIds?: string[];
+  /**
+   * Search queries
+   */
+  searchQueries?: string[];
+  /**
+   * Collection objects
+   */
+  collections?: Collection[];
+  /**
+   * The latest date added to the collectable item group
+   */
+  latestDateAdded?: string;
+  [k: string]: unknown;
 }
-
-
-export interface BaseFindResponse {
-  data: unknown[];
-  pagination: {
-    /**
-     * The total number of items matching the query
-     */
-    total: number;
-    /**
-     * The number of items returned in this response
-     */
-    limit: number;
-    /**
-     * Starting index of the items subset returned in this response
-     */
-    offset: number;
-  };
-}
-
-
 /**
  * Collection details.
  */
@@ -41,7 +44,7 @@ export interface Collection {
   /**
    * Unique identifier of the collection.
    */
-  uid: string;
+  id: string;
   /**
    * Title of the collection.
    */
@@ -66,196 +69,49 @@ export interface Collection {
    * Total number of items in the collection.
    */
   totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
 }
 
 
 /**
- * A journal/magazine content item (article, advertisement, etc.)
+ * Collection details.
  */
-export interface ContentItem {
+export interface Collection {
   /**
-   * The unique identifier of the content item.
+   * Unique identifier of the collection.
    */
-  uid: string;
+  id: string;
   /**
-   * Copyright status.
-   */
-  copyrightStatus?: "pbl" | "und" | "nkn" | "euo" | "unk" | "in_cpy";
-  /**
-   * The type of the content item, as present in the OLR provided by the data provider. All content items are not characterised by the same set of types.
-   */
-  type?: string;
-  /**
-   * Medium of the source (audio for audio radio broadcasts, print for newspapers, typescript for digitised radio bulletin typescripts).
-   */
-  sourceMedium?: "audio" | "print" | "typescript";
-  /**
-   * The title of the content item.
+   * Title of the collection.
    */
   title?: string;
   /**
-   * Transcript of the content item.
+   * Description of the collection.
    */
-  transcript?: string;
-  entities?: ContentItemNamedEntitiesInformation;
-  mentions?: ContentItemEntitiesMentionsInformation;
+  description?: string;
   /**
-   * Topics mentioned in the content item.
+   * Access level of the collection.
    */
-  topics?: TopicMention[];
+  accessLevel?: "public" | "private";
   /**
-   * Precomputed embeddings for the content item in the format: <model_type>:<base64_embedding_vector>.
+   * Creation date of the collection.
    */
-  embeddings?: string[];
+  createdAt?: string;
   /**
-   * The length of the transcript in characters.
+   * Last update date of the collection.
    */
-  transcriptLength?: number;
+  updatedAt?: string;
   /**
-   * Total number of pages the item covers.
+   * Total number of items in the collection.
    */
-  totalPages?: number;
+  totalItems?: number;
   /**
-   * ISO 639-1 language code of the content item.
+   * Identifier of the user who created the collection.
    */
-  languageCode?: string;
-  /**
-   * Whether the content item is on the front page of the publication.
-   */
-  isOnFrontPage?: boolean;
-  /**
-   * The publication date of the content item.
-   */
-  publicationDate?: string;
-  /**
-   * Unique issue identifier
-   */
-  issueUid?: string;
-  /**
-   * ISO 3166-1 alpha-2 country code of the content item.
-   */
-  countryCode?: string;
-  /**
-   * The code of the data provider.
-   */
-  providerCode?: string;
-  /**
-   * Media title alias. Usually a 3 letter code of the media title (newspaper, radio station, etc.).
-   */
-  mediaUid?: string;
-  /**
-   * The type of the media the content item belongs to.
-   */
-  mediaType?: "newspaper" | "radio_broadcast" | "radio_magazine" | "radio_schedule" | "monograph" | "encyclopedia";
-  /**
-   * Whether the content item has OCR/OLR data available.
-   */
-  hasOLR?: boolean;
-  /**
-   * OCR quality score of the content item (0 - 1).
-   */
-  ocrQualityScore?: number;
-  /**
-   * Relevance score of the content item (0 - 1).
-   */
-  relevanceScore?: number;
-  /**
-   * Page numbers the content item appears on.
-   */
-  pageNumbers?: number[];
-  /**
-   * Unique identifiers of collections the content item belongs to.
-   */
-  collectionUids?: string[];
-}
-/**
- * A collection of linked named entities (location, person, etc.) present in text.
- */
-export interface ContentItemNamedEntitiesInformation {
-  /**
-   * Linked location entities mentioned in the content item.
-   */
-  locations?: NamedEntity[];
-  /**
-   * Linked person entities mentioned in the content item.
-   */
-  persons?: NamedEntity[];
-  /**
-   * Linked organisation entities mentioned in the content item.
-   */
-  organisations?: NamedEntity[];
-  /**
-   * Linked news agency entities mentioned in the content item.
-   */
-  newsAgencies?: NamedEntity[];
-}
-/**
- * An named entity (location, persion, etc) present in text.
- */
-export interface NamedEntity {
-  /**
-   * Unique identifier of the entity
-   */
-  uid: string;
-  /**
-   * How many times it is mentioned in the text
-   */
-  count?: number;
-}
-/**
- * A collection of entity mentions (location, person, etc.) present in text.
- */
-export interface ContentItemEntitiesMentionsInformation {
-  /**
-   * Locations mentioned in the content item.
-   */
-  locations?: EntityMention[];
-  /**
-   * Persons mentioned in the content item.
-   */
-  persons?: EntityMention[];
-  /**
-   * Organisations mentioned in the content item.
-   */
-  organisations?: EntityMention[];
-  /**
-   * News agencies mentioned in the content item.
-   */
-  newsAgencies?: EntityMention[];
-}
-/**
- * An entity (location, person, etc.) mentioned in the content item.
- */
-export interface EntityMention {
-  /**
-   * The surface form (label) of the entity mention
-   */
-  surfaceForm: string;
-  /**
-   * Confidence score of the entity mention
-   */
-  mentionConfidence: number;
-  /**
-   * Start offset of the entity mention in the content item
-   */
-  startOffset?: number;
-  /**
-   * End offset of the entity mention in the content item
-   */
-  endOffset?: number;
-}
-/**
- * Topic presence in a content item.
- */
-export interface TopicMention {
-  /**
-   * Unique identifier of the topic.
-   */
-  uid: string;
-  /**
-   * Relevance of the topic in the content item.
-   */
-  relevance?: number;
+  creatorId?: string;
 }
 
 
@@ -284,6 +140,29 @@ export interface DataProvider {
      */
     name: string;
   }[];
+  /**
+   * Bitmap index used for efficient data provider filtering.
+   */
+  bitmapIndex?: number;
+}
+
+
+/**
+ * An entity like location, person, etc
+ */
+export interface Entity {
+  /**
+   * Unique identifier of the entity
+   */
+  id: string;
+  /**
+   * Relevance of the entity in the document
+   */
+  relevance: number;
+  /**
+   * Name of the entity
+   */
+  name?: string;
 }
 
 
@@ -294,7 +173,7 @@ export interface EntityDetails {
   /**
    * Unique identifier of the entity
    */
-  uid: string;
+  id: string;
   /**
    * Entity label
    */
@@ -481,73 +360,6 @@ export interface WikidataLocation2 {
 
 
 /**
- * An entity (location, person, etc.) mentioned in the content item.
- */
-export interface EntityMention {
-  /**
-   * The surface form (label) of the entity mention
-   */
-  surfaceForm: string;
-  /**
-   * Confidence score of the entity mention
-   */
-  mentionConfidence: number;
-  /**
-   * Start offset of the entity mention in the content item
-   */
-  startOffset?: number;
-  /**
-   * End offset of the entity mention in the content item
-   */
-  endOffset?: number;
-}
-
-
-/**
- * A collection of entity mentions (location, person, etc.) present in text.
- */
-export interface ContentItemEntitiesMentionsInformation {
-  /**
-   * Locations mentioned in the content item.
-   */
-  locations?: EntityMention[];
-  /**
-   * Persons mentioned in the content item.
-   */
-  persons?: EntityMention[];
-  /**
-   * Organisations mentioned in the content item.
-   */
-  organisations?: EntityMention[];
-  /**
-   * News agencies mentioned in the content item.
-   */
-  newsAgencies?: EntityMention[];
-}
-/**
- * An entity (location, person, etc.) mentioned in the content item.
- */
-export interface EntityMention {
-  /**
-   * The surface form (label) of the entity mention
-   */
-  surfaceForm: string;
-  /**
-   * Confidence score of the entity mention
-   */
-  mentionConfidence: number;
-  /**
-   * Start offset of the entity mention in the content item
-   */
-  startOffset?: number;
-  /**
-   * End offset of the entity mention in the content item
-   */
-  endOffset?: number;
-}
-
-
-/**
  * Information about an available experiment including its identifier, name, and description.
  */
 export interface ExperimentInfo {
@@ -567,10 +379,42 @@ export interface ExperimentInfo {
 
 
 /**
- * Freeform schema - a schema that allows any property to be added to the object.
+ * An facet that has a value and a label
  */
-export interface Freeform {
-  [k: string]: unknown;
+export interface FacetWithLabel {
+  /**
+   * Unique identifier of the facet
+   */
+  id: string;
+  /**
+   * Label of the facet
+   */
+  label: string;
+}
+
+
+/**
+ * A single search filter criteria
+ */
+export interface Filter {
+  context?: "include" | "exclude";
+  op?: "AND" | "OR";
+  /**
+   * Possible values are in 'impresso-jscomons Filter.type'
+   */
+  type: string;
+  precision?: "fuzzy" | "soft" | "exact" | "partial";
+  q?: string | string[];
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  daterange?: string;
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  uids?: string;
 }
 
 
@@ -581,7 +425,7 @@ export interface Image {
   /**
    * The unique identifier of the image
    */
-  uid: string;
+  id: string;
   /**
    * Image caption
    */
@@ -589,11 +433,11 @@ export interface Image {
   /**
    * The unique identifier of the issue that the image belongs to.
    */
-  issueUid: string;
+  issueId: string;
   /**
    * The unique identifier of the content item that the image belongs to.
    */
-  contentItemUid?: string;
+  contentItemId?: string;
   /**
    * The URL of the image preview
    */
@@ -627,7 +471,7 @@ export interface Image {
     /**
      * The unique identifier of the media source
      */
-    uid: string;
+    id: string;
     /**
      * The name of the media source
      */
@@ -649,13 +493,135 @@ export interface Image {
 
 
 /**
+ * Impresso NER entity
+ */
+export interface ImpressoNamedEntityRecognitionEntity {
+  /**
+   * ID of the entity
+   */
+  id: string;
+  /**
+   * Type of the entity
+   */
+  type:
+    | "comp.demonym"
+    | "comp.function"
+    | "comp.name"
+    | "comp.qualifier"
+    | "comp.title"
+    | "loc"
+    | "loc.add.elec"
+    | "loc.add.phys"
+    | "loc.adm.nat"
+    | "loc.adm.reg"
+    | "loc.adm.sup"
+    | "loc.adm.town"
+    | "loc.fac"
+    | "loc.oro"
+    | "loc.phys.astro"
+    | "loc.phys.geo"
+    | "loc.phys.hydro"
+    | "loc.unk"
+    | "org"
+    | "org.adm"
+    | "org.ent"
+    | "org.ent.pressagency"
+    | "org.ent.pressagency.AFP"
+    | "org.ent.pressagency.ANSA"
+    | "org.ent.pressagency.AP"
+    | "org.ent.pressagency.APA"
+    | "org.ent.pressagency.ATS-SDA"
+    | "org.ent.pressagency.Belga"
+    | "org.ent.pressagency.CTK"
+    | "org.ent.pressagency.DDP-DAPD"
+    | "org.ent.pressagency.DNB"
+    | "org.ent.pressagency.DPA"
+    | "org.ent.pressagency.Domei"
+    | "org.ent.pressagency.Europapress"
+    | "org.ent.pressagency.Extel"
+    | "org.ent.pressagency.Havas"
+    | "org.ent.pressagency.Kipa"
+    | "org.ent.pressagency.Reuters"
+    | "org.ent.pressagency.SPK-SMP"
+    | "org.ent.pressagency.Stefani"
+    | "org.ent.pressagency.TASS"
+    | "org.ent.pressagency.UP-UPI"
+    | "org.ent.pressagency.Wolff"
+    | "org.ent.pressagency.Xinhua"
+    | "org.ent.pressagency.ag"
+    | "org.ent.pressagency.unk"
+    | "pers"
+    | "pers.coll"
+    | "pers.ind"
+    | "pers.ind.articleauthor"
+    | "prod"
+    | "prod.doctr"
+    | "prod.media"
+    | "time"
+    | "time.date.abs"
+    | "time.hour.abs"
+    | "unk";
+  /**
+   * Surface form of the entity
+   */
+  surfaceForm?: string;
+  offset?: {
+    /**
+     * Start offset of the entity in the text
+     */
+    start: number;
+    /**
+     * End offset of the entity in the text
+     */
+    end: number;
+  };
+  /**
+   * Whether the entity type is nested
+   */
+  isTypeNested?: boolean;
+  confidence: {
+    /**
+     * Confidence score for the named entity recognition
+     */
+    ner?: number;
+    /**
+     * Confidence score for the named entity linking
+     */
+    nel?: number;
+  };
+  wikidata?: {
+    /**
+     * Wikidata ID of the entity
+     */
+    id: string;
+    /**
+     * Wikipedia page name of the entity
+     */
+    wikipediaPageName?: string;
+    /**
+     * Wikipedia page URL of the entity
+     */
+    wikipediaPageUrl?: string;
+  };
+  /**
+   * Function of the entity
+   */
+  function?: string;
+  /**
+   * Name of the entity
+   */
+  name?: string;
+}
+
+
+/**
  * A media source is what a content item belongs to. This can be a newspaper, a TV or a radio station, etc.
  */
 export interface MediaSource {
   /**
    * The unique identifier of the media source.
    */
-  uid: string;
+  id: string;
   /**
    * The type of the media source.
    */
@@ -713,93 +679,19 @@ export interface MediaSource {
 }
 
 
-/**
- * A collection of linked named entities (location, person, etc.) present in text.
- */
-export interface ContentItemNamedEntitiesInformation {
+export interface Partner {
   /**
-   * Linked location entities mentioned in the content item.
+   * Partner ID
    */
-  locations?: NamedEntity[];
+  id: string;
   /**
-   * Linked person entities mentioned in the content item.
+   * Partner Title
    */
-  persons?: NamedEntity[];
+  title: string;
   /**
-   * Linked organisation entities mentioned in the content item.
+   * URL of the partner's website
    */
-  organisations?: NamedEntity[];
-  /**
-   * Linked news agency entities mentioned in the content item.
-   */
-  newsAgencies?: NamedEntity[];
-}
-/**
- * An named entity (location, persion, etc) present in text.
- */
-export interface NamedEntity {
-  /**
-   * Unique identifier of the entity
-   */
-  uid: string;
-  /**
-   * How many times it is mentioned in the text
-   */
-  count?: number;
-}
-
-
-/**
- * An named entity (location, persion, etc) present in text.
- */
-export interface NamedEntity {
-  /**
-   * Unique identifier of the entity
-   */
-  uid: string;
-  /**
-   * How many times it is mentioned in the text
-   */
-  count?: number;
-}
-
-
-/**
- * A newspaper
- */
-export interface Newspaper {
-  /**
-   * The unique identifier of the newspaper.
-   */
-  uid: string;
-  /**
-   * The title of the newspaper.
-   */
-  title?: string;
-  /**
-   * The year of the first available article in the newspaper.
-   */
-  startYear?: number;
-  /**
-   * The year of the last available article in the newspaper.
-   */
-  endYear?: number;
-  /**
-   * ISO 639-1 codes of languages used in the newspaper.
-   */
-  languageCodes?: string[];
-  /**
-   * Total number of articles in the newspaper.
-   */
-  totalArticles?: number;
-  /**
-   * Total number of issues in the newspaper.
-   */
-  totalIssues?: number;
-  /**
-   * Total number of pages in the newspaper.
-   */
-  totalPages?: number;
+  url?: string;
 }
 
 
@@ -819,6 +711,232 @@ export interface SearchFacetBucket {
    * Label of the value, if relevant.
    */
   label?: string;
+  /**
+   * The item in the bucket. Particular object schema depends on the facet type
+   */
+  item?: MediaSource | Collection | Entity | Topic | Year | Partner | FacetWithLabel;
+}
+/**
+ * A media source is what a content item belongs to. This can be a newspaper, a TV or a radio station, etc.
+ */
+export interface MediaSource {
+  /**
+   * The unique identifier of the media source.
+   */
+  id: string;
+  /**
+   * The type of the media source.
+   */
+  type: "newspaper";
+  /**
+   * A display name of the media source.
+   */
+  name: string;
+  /**
+   * ISO 639-2 language codes this media source has content in.
+   */
+  languageCodes: string[];
+  /**
+   * The range of years this media source has been published for. Impresso may not have data for all this period. Is not defined if there is no information.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  publishedPeriodYears?: [number, number];
+  /**
+   * The range of dates this media source has content items for. This represents the earliest and the latest dates of the contet items.  Is not defined if there are no content items for this source.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  availableDatesRange?: [string, string];
+  totals: {
+    /**
+     * The number of articles in the media source.
+     */
+    articles?: number;
+    /**
+     * The number of issues in the media source.
+     */
+    issues?: number;
+    /**
+     * The number of pages in the media source.
+     */
+    pages?: number;
+  };
+  properties?: {
+    /**
+     * The unique identifier of the property.
+     */
+    id: string;
+    /**
+     * The name of the property.
+     */
+    label: string;
+    /**
+     * The value of the property.
+     */
+    value: string;
+  }[];
+}
+/**
+ * Collection details.
+ */
+export interface Collection {
+  /**
+   * Unique identifier of the collection.
+   */
+  id: string;
+  /**
+   * Title of the collection.
+   */
+  title?: string;
+  /**
+   * Description of the collection.
+   */
+  description?: string;
+  /**
+   * Access level of the collection.
+   */
+  accessLevel?: "public" | "private";
+  /**
+   * Creation date of the collection.
+   */
+  createdAt?: string;
+  /**
+   * Last update date of the collection.
+   */
+  updatedAt?: string;
+  /**
+   * Total number of items in the collection.
+   */
+  totalItems?: number;
+  /**
+   * Identifier of the user who created the collection.
+   */
+  creatorId?: string;
+}
+/**
+ * An entity like location, person, etc
+ */
+export interface Entity {
+  /**
+   * Unique identifier of the entity
+   */
+  id: string;
+  /**
+   * Relevance of the entity in the document
+   */
+  relevance: number;
+  /**
+   * Name of the entity
+   */
+  name?: string;
+}
+/**
+ * A topic
+ */
+export interface Topic {
+  /**
+   * The unique identifier of the topic
+   */
+  id: string;
+  /**
+   * The language code of the topic
+   */
+  language: string;
+  /**
+   * Number of content items with this topic
+   */
+  contentItemsCount?: number;
+  /**
+   * Top N words associated with the topic
+   */
+  words?: TopicWord[];
+  /**
+   * ID of the model used to generate the topic
+   */
+  model?: string;
+}
+/**
+ * A word included in a topic
+ */
+export interface TopicWord {
+  /**
+   * Word surface form
+   */
+  w: string;
+  /**
+   * Probability of the word in topic
+   */
+  p: number;
+  /**
+   * If word is highlighted
+   */
+  h?: boolean;
+}
+/**
+ * A year (TODO)
+ */
+export interface Year {
+  /**
+   * Numeric representation of the year
+   */
+  id: number;
+  values?: YearWeights;
+  refs?: YearWeights;
+}
+/**
+ * Total items counts within a year
+ */
+export interface YearWeights {
+  /**
+   * Number of content items
+   */
+  c?: number;
+  /**
+   * Number of articles
+   */
+  a?: number;
+  /**
+   * Number of pages
+   */
+  p?: number;
+  /**
+   * Number of issues
+   */
+  i?: number;
+  /**
+   * Number of images (with or without vectors)
+   */
+  m?: number;
+}
+export interface Partner {
+  /**
+   * Partner ID
+   */
+  id: string;
+  /**
+   * Partner Title
+   */
+  title: string;
+  /**
+   * URL of the partner's website
+   */
+  url?: string;
+}
+/**
+ * An facet that has a value and a label
+ */
+export interface FacetWithLabel {
+  /**
+   * Unique identifier of the facet
+   */
+  id: string;
+  /**
+   * Label of the facet
+   */
+  label: string;
 }
 
 
@@ -829,7 +947,7 @@ export interface TextReuseCluster {
   /**
    * Unique ID of the text reuse cluster.
    */
-  uid: string;
+  id: string;
   /**
    * Overlap in percents between the passages in the cluster.
    */
@@ -865,7 +983,7 @@ export interface TextReusePassage {
   /**
    * Unique ID of the text reuse passage.
    */
-  uid: string;
+  id: string;
   /**
    * Textual content of the passage.
    */
@@ -898,7 +1016,7 @@ export interface Topic {
   /**
    * The unique identifier of the topic
    */
-  uid: string;
+  id: string;
   /**
    * The language code of the topic
    */
@@ -936,21 +1054,6 @@ export interface TopicWord {
 
 
 /**
- * Topic presence in a content item.
- */
-export interface TopicMention {
-  /**
-   * Unique identifier of the topic.
-   */
-  uid: string;
-  /**
-   * Relevance of the topic in the content item.
-   */
-  relevance?: number;
-}
-
-
-/**
  * A word included in a topic
  */
 export interface TopicWord {
@@ -970,13 +1073,45 @@ export interface TopicWord {
 
 
 /**
- * Details of the current version of the API and details of its aspects.
+ * Wikidata location schema. Based on https://schema.org/Place
  */
-export interface VersionDetails {
+export interface WikidataLocation {
   /**
-   * Version of the API.
+   * The Q Wikidata ID of the location (https://www.wikidata.org/wiki/Wikidata:Identifiers)
    */
-  version: string;
+  id: string;
+  /**
+   * The type of the entity
+   */
+  type: "location";
+  /**
+   * Labels of the location in different languages
+   */
+  labels?: {
+    /**
+     * Description of the location in a specific language
+     */
+    [k: string]: string;
+  };
+  /**
+   * Descriptions of the location in different languages
+   */
+  descriptions?: {
+    /**
+     * Description of the location in a specific language
+     */
+    [k: string]: string;
+  };
+  coordinates?: {
+    /**
+     * The latitude of the location
+     */
+    latitude?: number;
+    /**
+     * The longitude of the location
+     */
+    longitude?: number;
+  };
 }
 
 
@@ -1106,49 +1241,6 @@ export interface WikidataLocation1 {
 
 
 /**
- * Wikidata location schema. Based on https://schema.org/Place
- */
-export interface WikidataLocation {
-  /**
-   * The Q Wikidata ID of the location (https://www.wikidata.org/wiki/Wikidata:Identifiers)
-   */
-  id: string;
-  /**
-   * The type of the entity
-   */
-  type: "location";
-  /**
-   * Labels of the location in different languages
-   */
-  labels?: {
-    /**
-     * Description of the location in a specific language
-     */
-    [k: string]: string;
-  };
-  /**
-   * Descriptions of the location in different languages
-   */
-  descriptions?: {
-    /**
-     * Description of the location in a specific language
-     */
-    [k: string]: string;
-  };
-  coordinates?: {
-    /**
-     * The latitude of the location
-     */
-    latitude?: number;
-    /**
-     * The longitude of the location
-     */
-    longitude?: number;
-  };
-}
-
-
-/**
  * Represents a word match result from word embeddings similarity search
  */
 export interface WordMatch {
@@ -1168,75 +1260,65 @@ export interface WordMatch {
 
 
 /**
- * Admin service response payload.
+ * A year (TODO)
  */
-export interface Admin {
-  contentItemsPermissionsDetails?: {
-    [k: string]: unknown;
-  };
-  imagesPermissionsDetails?: {
-    [k: string]: unknown;
-  };
-  userAccounts?: {
-    [k: string]: unknown;
-  }[];
-  cacheCounts?: {
-    db: number;
-    solr: number;
-    wikidata: number;
-  };
-  wellKnownComputedAt?: {
-    mediaSources: string | null;
-    topics: string | null;
-    years: string | null;
-  };
-  patchResult?: {
-    action: string;
-    cleared?: {
-      count: number;
-    };
-    jobId?: string;
-    [k: string]: unknown;
-  };
-  [k: string]: unknown;
+export interface Year {
+  /**
+   * Numeric representation of the year
+   */
+  id: number;
+  values?: YearWeights;
+  refs?: YearWeights;
+}
+/**
+ * Total items counts within a year
+ */
+export interface YearWeights {
+  /**
+   * Number of content items
+   */
+  c?: number;
+  /**
+   * Number of articles
+   */
+  a?: number;
+  /**
+   * Number of pages
+   */
+  p?: number;
+  /**
+   * Number of issues
+   */
+  i?: number;
+  /**
+   * Number of images (with or without vectors)
+   */
+  m?: number;
 }
 
 
 /**
- * Alias schema for admin find response.
+ * Total items counts within a year
  */
-export type AdminList = Admin;
-
-/**
- * Admin service response payload.
- */
-export interface Admin {
-  contentItemsPermissionsDetails?: {
-    [k: string]: unknown;
-  };
-  imagesPermissionsDetails?: {
-    [k: string]: unknown;
-  };
-  userAccounts?: {
-    [k: string]: unknown;
-  }[];
-  cacheCounts?: {
-    db: number;
-    solr: number;
-    wikidata: number;
-  };
-  wellKnownComputedAt?: {
-    mediaSources: string | null;
-    topics: string | null;
-    years: string | null;
-  };
-  patchResult?: {
-    action: string;
-    cleared?: {
-      count: number;
-    };
-    jobId?: string;
-    [k: string]: unknown;
-  };
-  [k: string]: unknown;
+export interface YearWeights {
+  /**
+   * Number of content items
+   */
+  c?: number;
+  /**
+   * Number of articles
+   */
+  a?: number;
+  /**
+   * Number of pages
+   */
+  p?: number;
+  /**
+   * Number of issues
+   */
+  i?: number;
+  /**
+   * Number of images (with or without vectors)
+   */
+  m?: number;
 }

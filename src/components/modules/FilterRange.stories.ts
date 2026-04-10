@@ -63,7 +63,7 @@ export const Default: Story = {
     facet: {
       type: 'year',
       buckets: Array.from({ length: 11 }, (_, i) => ({
-        val: 1900 + i * 10,
+        value: 1900 + i * 10,
         count: Math.floor(Math.random() * 1000) + 100
       }))
     } as Facet,
@@ -81,7 +81,7 @@ export const WithPreselectedRange: Story = {
     facet: {
       type: 'year',
       buckets: Array.from({ length: 11 }, (_, i) => ({
-        val: 1900 + i * 10,
+        value: 1900 + i * 10,
         count: Math.floor(Math.random() * 1000) + 100
       }))
     } as Facet,
@@ -102,9 +102,9 @@ export const PageCountRange: Story = {
   args: {
     ...Default.args,
     facet: {
-      type: 'pageCount',
+      type: 'contentLength',
       buckets: Array.from({ length: 10 }, (_, i) => ({
-        val: i + 1,
+        value: i + 1,
         count: Math.floor(Math.random() * 500) + 50
       }))
     } as Facet,
@@ -122,7 +122,7 @@ export const WithManyBuckets: Story = {
     facet: {
       type: 'year',
       buckets: Array.from({ length: 100 }, (_, i) => ({
-        val: 1900 + i,
+        value: 1900 + i,
         count: Math.floor(Math.random() * 200) + 10
       }))
     } as Facet,

@@ -165,7 +165,7 @@ import Alert from 'impresso-ui-components/components/Alert.vue'
 import { computed, onMounted, ref } from 'vue'
 import { admin as adminService } from '@/services'
 import LoadingBlock from '@/components/LoadingBlock.vue'
-import type { Admin } from '@/models/generated/schemasPublic'
+import type { AdminGETResponse as Admin } from '@/models/generated/app/responses'
 import { useNotificationsStore } from '@/stores/notifications'
 
 const isLoading = ref(false)

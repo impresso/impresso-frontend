@@ -126,7 +126,6 @@ watch(
         }
       })
       .then(joinFiltersWithItems)
-      .then(filters => filters.map(toCanonicalFilter))
   },
   { immediate: true }
 )

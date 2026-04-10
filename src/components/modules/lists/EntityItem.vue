@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
+
 export default {
   props: {
     observed: Boolean,
@@ -52,7 +54,7 @@ export default {
         name: 'entity',
         query: this.$route.query,
         params: {
-          entity_id: this.item.uid
+          entity_id: this.item.id
         }
       }
     },
@@ -63,19 +65,19 @@ export default {
       return this.item?.wikidata?.images || []
     },
     countItems() {
-      return this.$tc('countItems', this.item.countItems, {
+      return this.$t('countItems', {
         count: `<span class="number">${this.$n(this.item.countItems)}</span>`
-      })
+      }, this.item.countItems)
     },
     countMentions() {
-      return this.$tc('countMentions', this.item.countMentions, {
+      return this.$t('countMentions', {
         count: `<span class="number">${this.$n(this.item.countMentions)}</span>`
-      })
+      }, this.item.countMentions)
     }
   },
   methods: {
     getWikidataImageURL(image, { width = 60 } = {}) {
-      return `http://commons.wikimedia.org/wiki/Special:FilePath/${image.value}?width=${width}px`
+      return getWikimediaRedirectFileUrl(image.value, { width })
     }
   }
 }

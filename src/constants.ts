@@ -11,7 +11,7 @@ export const PlanLabels: Record<string, string> = {
   [PlanImpressoUser]: 'Basic User',
   [PlanEducational]: 'Student User',
   [PlanResearcher]: 'Academic User',
-  [PlanResearcherPlus]: 'Academic User +',
+  [PlanResearcherPlus]: 'Academic User +', // reserved for future use
   [PlanNone]: 'No Plan'
 }
 export const Plans: string[] = [
@@ -19,9 +19,27 @@ export const Plans: string[] = [
   PlanImpressoUser,
   PlanEducational,
   PlanResearcher,
-  PlanResearcherPlus,
+  PlanResearcherPlus, // reserved for future use
   PlanNone
 ]
+
+export const PlanBigints: Record<string, bigint> = {
+  [PlanGuest]: 1n,
+  [PlanImpressoUser]: 2n,
+  [PlanEducational]: 4n,
+  [PlanResearcher]: 8n,
+  [PlanResearcherPlus]: 16n // reserved for future use
+}
+
+export const PlanBitPositions: Record<string, number> = {
+  [PlanGuest]: 0,
+  [PlanImpressoUser]: 1,
+  [PlanEducational]: 2,
+  [PlanResearcher]: 3,
+  [PlanResearcherPlus]: 4 // reserved for future use
+}
+
+export const MaxPlanBitPosition = Math.max(...Object.values(PlanBitPositions)) + 1
 
 export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher]
 
@@ -51,6 +69,8 @@ export const AvailablePlansWithLabels = [
     excludeCommonEmailProviders: true
   }
 ]
+
+export const InstitutionalAccessGroup = 'institutions-access'
 
 export const ViewTermsOfUse = 'terms-of-use'
 export const ViewChangePlanRequest = 'change-plan-request'

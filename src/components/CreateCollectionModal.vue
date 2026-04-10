@@ -45,6 +45,7 @@ import {
   collectionsItems as collectionsItemsService
 } from '@/services'
 import type Collection from '@/models/Collection'
+import { NewCollectionRequest } from '@/models/generated/app/requests'
 
 const isLoading = ref(true)
 const error = ref<FeathersError | null>(null)
@@ -94,9 +95,9 @@ async function createQueryCollection({ name, description }) {
   isLoading.value = true
   const collection = await collectionsService
     .create({
-      name,
+      title: name,
       description
-    })
+    } as NewCollectionRequest)
     .catch((err: FeathersError) => {
       error.value = err
     })
@@ -118,7 +119,7 @@ async function createQueryCollection({ name, description }) {
         filters: props.filters
       },
       {
-        route: { collection_id: collection.uid }
+        route: { collection_id: collection.id }
       }
     )
     emit('success', collection)

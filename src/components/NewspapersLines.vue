@@ -48,7 +48,7 @@
     }"></div> -->
     <div
       v-for="newspaper in newspapers"
-      :key="newspaper.uid"
+      :key="newspaper.id"
       class="n"
       v-on:mouseover="onMouseover(newspaper, $event)"
       v-on:click="selectNewspaper(newspaper)"
@@ -205,7 +205,7 @@ export default {
       this.$router.push({
         name: 'newspaper_metadata',
         params: {
-          newspaper_uid: newspaper.uid
+          newspaper_id: newspaper.id
         }
       })
     },
@@ -319,7 +319,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 $clr-white: #ffffff;
 $clr-grey-100: #17191c;

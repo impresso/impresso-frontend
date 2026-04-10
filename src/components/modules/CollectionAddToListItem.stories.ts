@@ -13,7 +13,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 const MockCollection: Collection = new Collection({
-  uid: 'coll1',
+  id: 'coll1',
   name: 'My Research Collection',
   description: 'A collection of my favorite research articles.',
   creationDate: new Date('2024-01-10T09:00:00'),

@@ -1,22 +1,31 @@
 <template>
-  <div class="ContentItemAccess d-inline-flex align-items-center">
-    <div class="d-inline-flex align-items-center">
-      <div class="very-small-caps m-1">{{ $t(accessTranslationKey) }}</div>
+  <div class="ContentItemAccess d-flex align-items-center gap-3">
+    <div class="d-inline-flex align-items-center gap-2">
+      <div class="very-small-caps">{{ $t(accessTranslationKey) }}</div>
       <InfoButton
         style="margin-top: -2px"
         :default-content="$t(accessDescriptionTranslationKey)"
         :name="$t(accessTranslationKey)"
-      ></InfoButton>
+      >
+      </InfoButton>
     </div>
+    <ContentItemAccessButton
+      :specialMembershipAccessBitPositions="
+        normalizedContentItemSpecialMembershipBitmapBitsPositions
+      "
+      v-if="isSpecialMembershipsEnabled && contentItemRequiresSpecialMembershipAccess"
+    />
   </div>
 </template>
-
 <script setup lang="ts">
-import type { ContentItem } from '@/models/generated/schemas/contentItem.d.ts'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
-import { base64BytesToBigInt, bigIntToBitString } from '@/util/bigint'
+import { base64BytesToBigInt } from '@/util/bigint'
 import { computed } from 'vue'
 import InfoButton from './base/InfoButton.vue'
+import ContentItemAccessButton from './ContentItemAccessButton.vue'
+import { MaxPlanBitPosition } from '@/constants'
+import { Features } from '@/init'
 
 const FullAccessLevel = 3
 
@@ -27,6 +36,14 @@ export interface ContentItemAccessProps {
 const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
 
+const isLoggedIn = computed(() => !!userStore.userData)
+const isSpecialMembershipsEnabled = computed(() => {
+  if (!isLoggedIn.value) {
+    return false
+  }
+  return (window as any as { impressoFeatures: Features }).impressoFeatures?.specialMemberships
+    ?.enabled
+})
 /**
  * Computed property that converts the user's access bitmap from base64 to BigInt.
  *
@@ -40,6 +57,38 @@ const userBitmapAsBigInt = computed(() => {
   return base64BytesToBigInt(userStore.bitmap)
 })
 
+/**
+ * Computed property that extracts the positions of bits set to 1 in
+ * the content item's access bitmaps (explore, transcript, facsimile).
+ */
+const contentItemBitmapBitsPositions = computed<number[]>(() => {
+  const positions: number[] = []
+  let position = 0n
+  const combinedBitmap =
+    contentItemBitmapsAsBigInts.value.explore |
+    contentItemBitmapsAsBigInts.value.transcript |
+    (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)
+  while (combinedBitmap >> position) {
+    if ((combinedBitmap >> position) & 1n) {
+      positions.push(Number(position))
+    }
+    position++
+  }
+  return positions
+})
+const normalizedContentItemSpecialMembershipBitmapBitsPositions = computed(() => {
+  return contentItemBitmapBitsPositions.value
+    .filter(pos => pos > MaxPlanBitPosition)
+    .map(pos => pos - MaxPlanBitPosition)
+})
+/**
+ * Computed property that checks if the **contentItem** demands **special membership access**.
+ * It doesn't check if the user has the required access.
+ */
+const contentItemRequiresSpecialMembershipAccess = computed<boolean>(() => {
+  return normalizedContentItemSpecialMembershipBitmapBitsPositions.value.length > 0
+})
+
 const hasExploreAccess = computed(() => {
   return (userBitmapAsBigInt.value & contentItemBitmapsAsBigInts.value.explore) !== 0n
 })
@@ -50,6 +99,14 @@ const hasTranscriptAccess = computed(() => {
 
 const hasFacsimileAccess = computed(() => {
   return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
+})
+
+/**
+ * Computed property that determines the user's access level to the content item
+ * based on the presence of explore, transcript, and facsimile access.
+ */
+const accessLevel = computed<number>(() => {
+  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
 })
 
 const accessTranslationKey = computed(() => {
@@ -77,9 +134,6 @@ const accessDescriptionTranslationKey = computed(() => {
   return accessTranslationKey.value + '_description'
 })
 
-const accessLevel = computed<number>(() => {
-  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
-})
 /**
  * Computed property that converts content item access bitmaps from base64 to BigInt format.
  *
@@ -121,23 +175,6 @@ const contentItemBitmapsAsBigInts = computed<{
       transcript: 0n,
       facsimile: 0n
     }
-  }
-})
-
-const userBitmapAsPlan = computed(() => {
-  // Helper to get last 5 bits as string, padded to 5 bits
-  return bigIntToBitString(userBitmapAsBigInt.value)
-})
-
-const contentItemBitmapsAsPlans = computed(() => {
-  // Helper to get last 5 bits as string, padded to 5 bits
-  function last5Bits(bitString: string) {
-    return bitString.slice(-5).padStart(5, '0')
-  }
-  return {
-    explore: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.explore)),
-    transcript: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.transcript)),
-    facsimile: last5Bits(bigIntToBitString(contentItemBitmapsAsBigInts.value.facsimile ?? 0n))
   }
 })
 </script>

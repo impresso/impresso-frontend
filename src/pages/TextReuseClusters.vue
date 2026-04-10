@@ -11,9 +11,9 @@
             <b-nav-item class="pl-2 active" active-class="none">
               <span
                 v-html="
-                  $tc('searchClustersLabel', paginationList.totalRows, {
+                  $t('searchClustersLabel', {
                     n: $n(paginationList.totalRows)
-                  })
+                  }, paginationList.totalRows)
                 "
               />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
@@ -368,7 +368,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/legacy/bootstrap-impresso-theme-variables.scss';
+@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
 
 .active {
   .selection-indicator {

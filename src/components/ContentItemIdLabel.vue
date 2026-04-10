@@ -9,7 +9,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import type { ContentItem } from '@/models/generated/schemas/contentItem.d.ts'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import InfoButton from './base/InfoButton.vue'
 
 export interface ContentItemIdLabelProps {

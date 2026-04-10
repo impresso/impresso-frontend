@@ -1,21 +1,28 @@
 <template>
   <div v-if="cluster && cluster.id">
-    <b-navbar >
+    <b-navbar>
       <section>
         <span class="label small-caps">
-          <span>{{$t("clustersLabel")}}</span>
+          <span>{{ $t('clustersLabel') }}</span>
         </span>
-        <info-button class="ml-2" name="text-reuse"/>
-        <h3>{{$t('clusterLabel')}} #{{clusterIdLabel}} </h3>
+        <info-button class="ml-2" name="text-reuse" />
+        <h3>{{ $t('clusterLabel') }} #{{ clusterIdLabel }}</h3>
         <div class="cluster-metadata">
-          <p class="m-0" v-html="$tc('numbers.articles', cluster.clusterSize, { n : $n(cluster.clusterSize) })" />
+          <p
+            class="m-0"
+            v-html="$t('numbers.articles', { n: $n(cluster.clusterSize) }, cluster.clusterSize)"
+          />
           <p class="m-0">
-            <span v-html="$t('clusterMetadata', {
-              from: $d(fromTime, 'short'),
-              to: $d(toTime, 'short'),
-              span: timeSpan,
-              lexicalOverlap: $n(lexicalOverlap / 100, 'percent')
-            })"/>
+            <span
+              v-html="
+                $t('clusterMetadata', {
+                  from: $d(fromTime, 'short'),
+                  to: $d(toTime, 'short'),
+                  span: timeSpan,
+                  lexicalOverlap: $n(lexicalOverlap / 100, 'percent')
+                })
+              "
+            />
             <info-button name="text-reuse-cluster-metadata" class="ml-2" />
           </p>
         </div>
@@ -24,29 +31,39 @@
 
     <b-tabs pills class="mx-3">
       <template v-slot:tabs-end>
-        <b-nav-item class="pl-2"
+        <b-nav-item
+          class="pl-2"
           :active="$route.name === TabToPageMapping[TabsIds.Details]"
-          :to="tabNavigation(TabsIds.Details)">
-          {{$tc('tabs.details')}}
+          :to="tabNavigation(TabsIds.Details)"
+        >
+          {{ $t('tabs.details') }}
         </b-nav-item>
 
-        <b-nav-item class="pl-2"
+        <b-nav-item
+          class="pl-2"
           :active="$route.name === TabToPageMapping[TabsIds.Passages]"
-          :to="tabNavigation(TabsIds.Passages)">
-          {{$tc('tabs.passages', cluster.clusterSize, { count: cluster.clusterSize })}}
+          :to="tabNavigation(TabsIds.Passages)"
+        >
+          {{ $t('tabs.passages', { count: cluster.clusterSize }, cluster.clusterSize) }}
         </b-nav-item>
 
-        <b-nav-item class="pl-2"
+        <b-nav-item
+          class="pl-2"
           :active="$route.name === TabToPageMapping[TabsIds.ConnectedClusters]"
-          :to="tabNavigation(TabsIds.ConnectedClusters)">
-          {{$tc('tabs.connectedClusters', cluster.connectedClustersCount, { count: cluster.connectedClustersCount })}}
+          :to="tabNavigation(TabsIds.ConnectedClusters)"
+        >
+          {{
+            $t(
+              'tabs.connectedClusters',
+              { count: cluster.connectedClustersCount },
+              cluster.connectedClustersCount
+            )
+          }}
         </b-nav-item>
-
       </template>
     </b-tabs>
 
     <slot name="toolbar"></slot>
-
   </div>
 </template>
 
@@ -64,7 +81,6 @@ const TabToPageMapping = Object.freeze({
   [TabsIds.Passages]: 'text-reuse-cluster-passages',
   [TabsIds.ConnectedClusters]: 'text-reuse-connected-clusters'
 })
-
 
 /**
  * @typedef {import('@/models').TextReuseCluster} TextReuseCluster
@@ -133,11 +149,11 @@ export default {
 </script>
 
 <style lang="scss">
-.cluster-metadata{
-  span.number{
+.cluster-metadata {
+  span.number {
     font-weight: bold;
   }
-  .date{
+  .date {
     font-variant: small-caps;
     text-transform: lowercase;
   }

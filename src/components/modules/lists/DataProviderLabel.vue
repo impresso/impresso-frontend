@@ -2,9 +2,9 @@
   &mdash; {{ $t('label_providedBy') }}
   <ItemSelector
     v-if="showLink"
-    :uid="item.id"
+    :id="item.id"
     :label="title"
-    :item="{ uid: item.id, name: title }"
+    :item="{ id: item.id, name: title }"
     type="partner"
     :class="titleClass"
     hideIcon

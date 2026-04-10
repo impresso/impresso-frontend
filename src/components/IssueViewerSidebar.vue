@@ -38,7 +38,7 @@
               </div>
               <span
                 v-if="ignoredFilters.length"
-                v-html="$tc('numbers.ignoredFilters', ignoredFilters.length)"
+                v-html="$t('numbers.ignoredFilters', ignoredFilters.length)"
               >
               </span>
             </b-alert>
@@ -81,9 +81,13 @@
               class="mt-2 IssueViewerPage_matchingContentItems text-small text-muted px-2"
               v-if="!serviceQuery.enabled || !showMatchingContentItems"
               v-html="
-                $tc('numbers.contentItems', contentItems.length, {
-                  n: $n(contentItems.length)
-                })
+                $t(
+                  'numbers.contentItems',
+                  {
+                    n: $n(contentItems.length)
+                  },
+                  contentItems.length
+                )
               "
             ></div>
             <div
@@ -95,28 +99,40 @@
               <div
                 v-else-if="applyCurrentSearchFilters && !suggestionQuery.length"
                 v-html="
-                  $tc('numbers.articlesMatchingSearchFilters', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatchingSearchFilters',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
               <div
                 v-else-if="applyCurrentSearchFilters"
                 v-html="
-                  $tc('numbers.articlesMatchingWithinSearch', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatchingWithinSearch',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
               <div
                 v-else
                 v-html="
-                  $tc('numbers.articlesMatching', paginationTotalRows, {
-                    n: $n(paginationTotalRows),
-                    q: suggestionQuery
-                  })
+                  $t(
+                    'numbers.articlesMatching',
+                    {
+                      n: $n(paginationTotalRows),
+                      q: suggestionQuery
+                    },
+                    paginationTotalRows
+                  )
                 "
               ></div>
             </div>
@@ -129,7 +145,7 @@
         <ContentItem
           class="p-3 border-bottom"
           :class="{
-            active: item.id === selectedContentItemUid
+            active: item.id === selectedContentItemId
           }"
           showLink
           showMatches
@@ -143,7 +159,7 @@
       <IssueViewerTableOfContents
         v-if="!showMatchingContentItems"
         :items="contentItems"
-        :selected-article-id="selectedContentItemUid"
+        :selected-article-id="selectedContentItemId"
         @article-selected="$emit('content-item-selected', $event)"
       />
     </template>
@@ -152,7 +168,7 @@
 
 <script setup lang="ts">
 import type { Issue, Filter } from '@/models'
-import type { ContentItem as ContentItemType } from '@/models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import IssueViewerTableOfContents from './IssueViewerTableOfContents.vue'
 import List from './modules/lists/List.vue'
 import ArticleBase from '@/models/ArticleBase'
@@ -165,7 +181,7 @@ import ContentItem from './modules/lists/ContentItem.vue'
 
 export interface IssueViewerSidebarProps {
   issue?: Issue | null
-  selectedContentItemUid: string
+  selectedContentItemId: string
   contentItems: ArticleBase[]
   allowedFilters: Filter[]
   ignoredFilters: Filter[]
@@ -221,7 +237,7 @@ const serviceQuery = computed<{
     })
   }
   if (props.issue) {
-    sq.filters.push({ type: 'issue', q: props.issue.uid })
+    sq.filters.push({ type: 'issue', q: props.issue.id })
   } // eslint-disable-next-line
   console.debug(
     '[IssueViewerPage] computed serviceQuery enabled:',

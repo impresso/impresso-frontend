@@ -88,6 +88,11 @@ export type components = {
         /** BaristaFormattedResponse */
         BaristaFormattedResponse: {
             /**
+             * Assistantclarification
+             * @description Message used when the user request does not match search construction,             web app guidance, or search analysis. Clarifies the assistant's role and redirects the user.
+             */
+            assistantClarification?: string | null;
+            /**
              * Impressohelp
              * @description Help message to the user about how to use the Impresso Barista.
              */
@@ -100,10 +105,10 @@ export type components = {
              */
             searchQueryDestination?: ("content_items" | "text_reuse" | "images") | null;
             /**
-             * Searchqueryfollowup
-             * @description A follow-up question to ask the user to refine their search query, suggestions or comments about the search query. Can be empty.
+             * Searchquerysteps
+             * @description Step-by-step narration of how the search query was constructed.
              */
-            searchQueryFollowUp?: string | null;
+            searchQuerySteps?: string[] | null;
             /**
              * Searchquerysummary
              * @description Analysed summary of facets of the search query filters (facets tool call required).
@@ -114,9 +119,16 @@ export type components = {
         BaristaRequest: {
             /**
              * Additionalinstructions
-             * @description Additional instructions to guide the agent's response. This is an extra added in addition to the system prompt.
+             * @description Additional instructions to guide the agent's response. This is an extra added in             addition to the system prompt.
              */
             additionalInstructions?: string | null;
+            /**
+             * Agenttype
+             * @description The type of agent to use.
+             * @default router
+             * @enum {string}
+             */
+            agentType: "react" | "router" | "skills";
             /**
              * Message
              * @description The message to send to the Barista agent.
@@ -270,6 +282,10 @@ export type components = {
         };
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */

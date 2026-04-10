@@ -134,7 +134,7 @@ class ViewerOverlay {
     this.overlayRegions.regions = this.overlayRegions.selectAll('div.regions')
       .data(this.page.regions).enter()
       .append('div')
-      .attr('data-uid', d => d.article_uid)
+      .attr('data-id', d => d.article_id)
       .classed('regions', true)
       .selectAll('div.region')
       .data(d => d.regions)

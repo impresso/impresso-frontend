@@ -7,7 +7,14 @@ import {
   MIDDLELAYER_MEDIA_PATH
 } from '@/services'
 import User from '@/models/User'
-import { PlanEducational, PlanGuest, PlanImpressoUser, PlanNone, PlanResearcher } from '@/constants'
+import {
+  InstitutionalAccessGroup,
+  PlanEducational,
+  PlanGuest,
+  PlanImpressoUser,
+  PlanNone,
+  PlanResearcher
+} from '@/constants'
 import { removeCookie, setCookie } from '@/util/cookies'
 import { TermsOfUse } from '@/services/types'
 import { decodeJwt } from '@/util/auth'
@@ -70,6 +77,12 @@ export const useUserStore = defineStore('user', {
         userPlan = PlanImpressoUser // default to Impresso User if no plan is set but there is a pending request
       }
       return userPlan
+    },
+    userHasInstitutionAccess(state) {
+      if (state.userData && Array.isArray(state.userData?.groups)) {
+        return state.userData.groups.some(g => g.name === InstitutionalAccessGroup)
+      }
+      return false
     }
   },
   actions: {

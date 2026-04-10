@@ -20,9 +20,9 @@
                 <span
                   v-if="contentItemsResponse.status === 'success'"
                   v-html="
-                    $tc('numbers.contentItems', contentItemsResponse.total, {
+                    $t('numbers.contentItems', {
                       n: contentItemsResponse.total
-                    })
+                    }, contentItemsResponse.total)
                   "
                 />
                 <span v-else v-html="$t('actions.loading')" />
@@ -100,9 +100,9 @@
             {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
             <b
               v-html="
-                $tc('numbers.contentItems', tooltipScope.tooltip.item.w ?? 0, {
+                $t('numbers.contentItems', {
                   n: tooltipScope.tooltip.item.w ?? 0
-                })
+                }, tooltipScope.tooltip.item.w ?? 0)
               "
             />
           </div>
@@ -150,7 +150,8 @@ import Facet from '@/models/Facet'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
-import { ContentItem } from '@/models/generated/schemas/contentItem'
+import { ContentItem } from '@/models/generated/canonical/contentItem'
+import { Filter } from 'impresso-jscommons'
 
 const userStore = useUserStore()
 
@@ -182,7 +183,7 @@ const collectionFilter = computed(() => {
   return {
     type: 'collection',
     q: collectionPrefix + '*'
-  }
+  } satisfies Filter
 })
 
 const selectedTab = computed(() => {
@@ -286,7 +287,7 @@ const fetchContentItems = async (query = {}) => {
   const collectableItemsIndex = await collectableItemsService
     .find({
       query: {
-        item_uids: contentItemsIds,
+        item_ids: contentItemsIds,
         limit: response.data.length
       }
     })

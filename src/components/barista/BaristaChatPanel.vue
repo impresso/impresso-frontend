@@ -5,18 +5,41 @@
         v-for="(message, index) in messages"
         :key="index"
         :message="message"
+        :hideToolCalls="shouldHideToolCalls(message)"
         :class="{
           'position-sticky top-0': message.type === 'user'
         }"
       />
-      <div class="text-muted very-small px-3">current session id: {{ baristaStore.sessionId }}</div>
       <div v-if="isLoading">working...</div>
     </div>
 
     <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
       <div class="border shadow-sm rounded p-2">
         <details class="mb-2">
-          <summary class="small text-muted" style="cursor: pointer">Settings</summary>
+          <summary
+            class="small text-muted d-flex align-items-center gap-2"
+            style="cursor: pointer; list-style: none"
+          >
+            <Icon name="chevron" :scale="0.7" :strokeWidth="2" class="details-chevron" />
+            <span class="mr-auto">Settings</span>
+            <BFormSelect
+              v-model="selectedAgentType"
+              :options="agentTypeOptions"
+              size="sm"
+              style="width: auto"
+              @click.stop
+            />
+            <WithTooltip
+              v-if="baristaStore.sessionId"
+              placement="top-end"
+              strategy="fixed"
+              :content="sessionIdTooltipContent"
+              :is-html="true"
+              class="session-id-tooltip-hint very-small text-muted"
+            >
+              <Icon name="info" :scale="0.6" :strokeWidth="2" />
+            </WithTooltip>
+          </summary>
           <div class="mt-2 px-1">
             <label class="small d-block mb-1">Model</label>
             <BFormSelect v-model="selectedModelId" :options="modelOptions" size="sm" class="mb-2" />
@@ -71,13 +94,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import type { Filter } from '@/models'
 import { BaristaRequest, ChatMessage } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
 import BaristaChatMessage from './BaristaChatMessage.vue'
+import Icon from '../base/Icon.vue'
+import WithTooltip from '../base/WithTooltip.vue'
 import { toSerializedFilters } from '@/logic/filters'
 
 export interface BaristaChatPanelProps {
@@ -97,10 +122,22 @@ const emit = defineEmits<{
   (e: 'updateHeight', height: number): void
 }>()
 
+const sessionIdTooltipContent = computed(
+  () =>
+    `<b>Chat Session ID</b><br><code style="white-space:nowrap;border:none;background:transparent;color:inherit;padding:0">${baristaStore.sessionId}</code>`
+)
+
 const inputMessage = ref('')
 const selectedModelId = ref('')
+const selectedAgentType = ref<'react' | 'router' | 'skills'>('skills')
 const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
+
+const agentTypeOptions: Option[] = [
+  { value: 'skills', text: 'Skills' },
+  { value: 'react', text: 'ReAct' },
+  { value: 'router', text: 'Router' }
+]
 
 const modelOptions: Option[] = [
   { value: '', text: 'Default' },
@@ -110,6 +147,21 @@ const modelOptions: Option[] = [
   { value: 'openai/gpt-oss-20b', text: 'openai/gpt-oss-20b' },
   { value: 'openai/gpt-oss-120b', text: 'openai/gpt-oss-120b' }
 ]
+
+const resolvedToolCallIds = computed(() => {
+  const ids = new Set<string>()
+  for (const msg of props.messages) {
+    if (msg.type === 'tool' && msg.toolCallIds) {
+      msg.toolCallIds.forEach(id => ids.add(id))
+    }
+  }
+  return ids
+})
+
+function shouldHideToolCalls(message: ChatMessage): boolean {
+  if (!message.toolCallIds?.length) return false
+  return message.toolCallIds.some(id => resolvedToolCallIds.value.has(id))
+}
 
 function handleSubmit() {
   if (!inputMessage.value.trim() || props.isLoading) return
@@ -127,7 +179,8 @@ function handleSubmit() {
     searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
     sessionId: baristaStore.sessionId,
     additionalInstructions: additionalInstructions.value.trim() || undefined,
-    modelId: modelId as any
+    modelId: modelId as any,
+    agentType: selectedAgentType.value
   })
   inputMessage.value = ''
 }
@@ -158,7 +211,23 @@ onMounted(() => {
 })
 </script>
 
+<style>
+.session-id-tooltip-hint .tooltip-inner {
+  max-width: none;
+}
+</style>
+
 <style scoped>
+details summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .details-chevron {
+  transform: rotate(180deg);
+}
+.details-chevron {
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
 .chat-history {
   flex: 1;
   overflow-y: auto;

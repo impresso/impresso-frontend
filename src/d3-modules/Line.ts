@@ -2,7 +2,52 @@ import * as d3 from 'd3'
 import Basic from './Basic'
 import Dimension from './Dimension'
 
-export default class Line extends Basic {
+interface Margin {
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+interface Ticks {
+  offset: number
+}
+
+interface Datum {
+  [key: string]: any
+}
+
+interface ContinuousScaleForLine {
+  (value: d3.NumberValue): number
+  invert(value: number): d3.NumberValue
+}
+
+export type LineDimensions<TDatum extends Datum> = {
+  x: Dimension<TDatum>
+  y: Dimension<TDatum>
+} & Record<string, any>
+
+interface LineOptions<TDatum extends Datum> {
+  element?: Element | null
+  svg?: d3.Selection<SVGSVGElement, TDatum, null, undefined> | null
+  margin?: Partial<Margin>
+  ticks?: Ticks
+  dimensions?: Partial<LineDimensions<TDatum>> & Record<string, any>
+}
+
+interface UpdateOptions<TDatum extends Datum> {
+  data?: TDatum[]
+}
+
+export default class Line<TDatum extends Datum = Datum> extends Basic<
+  LineDimensions<TDatum>,
+  TDatum
+> {
+  [key: string]: any
+
+  data: TDatum[] | undefined
+  ticks: Ticks
+
   constructor({
     element = null,
     svg = null,
@@ -16,26 +61,26 @@ export default class Line extends Basic {
       offset: 9
     },
     dimensions = {}
-  } = {}) {
+  }: LineOptions<TDatum> = {}) {
     super({
       element,
       svg,
       margin,
       dimensions: {
-        x: new Dimension({
+        x: new Dimension<TDatum>({
           name: 'x',
-          property: 'x',
+          property: 'x' as Extract<keyof TDatum, string>,
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleLinear
         }),
-        y: new Dimension({
+        y: new Dimension<TDatum>({
           name: 'y',
-          property: 'y',
+          property: 'y' as Extract<keyof TDatum, string>,
           type: Dimension.TYPE_CONTINUOUS,
           scaleFn: d3.scaleLinear
         }),
         ...dimensions
-      }
+      } as LineDimensions<TDatum>
     })
     this.ticks = ticks
     // setup main context
@@ -57,24 +102,28 @@ export default class Line extends Basic {
     this.resize()
   }
 
-  mouseenter() {
+  mouseenter(): void {
     this.contextPointer.classed('active', true)
     this.emit('mouseenter')
   }
 
-  mouseleave() {
+  mouseleave(): void {
     this.contextPointer.classed('active', false)
     this.emit('mouseleave')
   }
 
-  highlight(datum) {
-    if (datum) {
+  highlight(datum: TDatum | null | undefined): void {
+    if (datum && this.data && this.data.length) {
+      const xScale = this.dimensions.x.scale as ContinuousScaleForLine
+      const yScale = this.dimensions.y.scale as (value: d3.NumberValue) => number
       const { index, nearest } = this.dimensions.x.getNearestValue(
-        datum[this.dimensions.x.property]
+        datum[this.dimensions.x.property as keyof TDatum]
       )
       if (nearest) {
-        const pointerX = this.dimensions.x.scale(nearest)
-        const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property])
+        const pointerX = xScale(nearest as d3.NumberValue)
+        const pointerY = yScale(
+          this.data[index][this.dimensions.y.property as keyof TDatum]
+        )
 
         this.contextPointer
           .classed('active', true)
@@ -91,16 +140,20 @@ export default class Line extends Basic {
     }
   }
 
-  mousemove(event) {
+  mousemove(event: MouseEvent): void {
+    if (!this.data || !this.data.length) return
+
+    const xScale = this.dimensions.x.scale as ContinuousScaleForLine
+    const yScale = this.dimensions.y.scale as (value: d3.NumberValue) => number
     const [mouseX, mouseY] = d3.pointer(event)
-    const scaledX = this.dimensions.x.scale.invert(mouseX)
+    const scaledX = xScale.invert(mouseX)
     const { index, nearest } = this.dimensions.x.getNearestValue(scaledX)
 
     if (index === -1) return
     if (index < 0 || index >= this.data.length) return
 
-    const pointerX = this.dimensions.x.scale(nearest)
-    const pointerY = this.dimensions.y.scale(this.data[index][this.dimensions.y.property])
+    const pointerX = xScale(nearest as d3.NumberValue)
+    const pointerY = yScale(this.data[index][this.dimensions.y.property])
 
     this.contextPointer.attr('transform', `translate(${pointerX},${pointerY})`)
     this.emit('mousemove', {
@@ -116,7 +169,7 @@ export default class Line extends Basic {
     })
   }
 
-  resize() {
+  resize(): void {
     super.resize()
     // update dimension range
     if (this.data) {
@@ -129,7 +182,7 @@ export default class Line extends Basic {
    * @param  {Array}  [data=[]] For this, required at least
    * @return {[type]}           [description]
    */
-  update({ data = [] } = {}) {
+  update({ data = [] }: UpdateOptions<TDatum> = {}): void {
     this.data = data
     // console.info('update line', data);
     this.dimensions.x.update({
@@ -142,21 +195,21 @@ export default class Line extends Basic {
     })
   }
 
-  draw() {
+  draw(): void {
     this.contextBackground
       .attr('width', this.width - this.margin.right - this.margin.left)
       .attr('height', this.height - this.margin.bottom - this.margin.top)
 
     // setup curve
     this.curve = d3
-      .line()
+      .line<TDatum>()
       .curve(d3.curveLinear)
       .x(this.dimensions.x.accessor())
       .y(this.dimensions.y.accessor())
 
     // setup area
     this.area = d3
-      .area()
+      .area<TDatum>()
       .x(this.dimensions.x.accessor())
       .y0(this.height - this.margin.bottom - this.ticks.offset)
       .y1(this.dimensions.y.accessor())

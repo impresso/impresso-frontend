@@ -1,5 +1,7 @@
+import { FilterOperator } from 'impresso-jscommons'
 import Bucket from './Bucket'
-import { SearchFacet } from './generated/schemas'
+import { SearchFacet } from './generated/deprecated/models'
+import type { Facet as IFacet, Entity } from './index'
 
 /**
  * All supported facet types.
@@ -74,10 +76,10 @@ type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default class Facet<T = FacetType> {
+export default class Facet<T extends string = FacetType> implements IFacet<T, Entity> {
   type: T
   buckets: Bucket[]
-  operators: string[]
+  operators: FilterOperator[]
   numBuckets: number
 
   constructor({
@@ -88,7 +90,7 @@ export default class Facet<T = FacetType> {
   }: {
     type: T
     buckets?: Bucket[]
-    operators?: string[]
+    operators?: FilterOperator[]
     numBuckets?: number
   }) {
     this.type = type
@@ -117,7 +119,7 @@ export default class Facet<T = FacetType> {
     })
   }
 
-  static fromSearchFacet<T = FacetType>(facet: SearchFacet) {
+  static fromSearchFacet<T extends string = FacetType>(facet: SearchFacet) {
     return new Facet<T>({
       type: facet.type as T,
       buckets: (facet.buckets || []).map(

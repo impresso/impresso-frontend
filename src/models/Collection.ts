@@ -14,7 +14,7 @@ import type { Entity as IEntity } from '.'
  * @param {Date} lastModifiedDate Date object when the collection was last modified
  * @param {Integer} lastModifiedTime Timestamp when the collection was last modified
  * @param {String} name Name of collection set by the user
- * @param {String} uid Unique identifier for the Collection
+ * @param {String} id Unique identifier for the Collection
  */
 export default class Collection implements IEntity {
   countItems: number
@@ -30,7 +30,8 @@ export default class Collection implements IEntity {
   lastModifiedDate: Date
   lastModifiedTime: number
   name: string
-  uid: string
+  label: string
+  id: string
   creator: { username?: string }
   status: string
   checked?: boolean
@@ -48,8 +49,10 @@ export default class Collection implements IEntity {
     labels = [],
     lastModifiedDate = new Date(),
     lastModifiedTime = 0,
-    name = '',
-    uid = '',
+    name = undefined,
+    id = '',
+    label = undefined,
+    title = undefined,
     creator = {},
     status = 'private'
   } = {}) {
@@ -65,8 +68,9 @@ export default class Collection implements IEntity {
     this.labels = labels.map(label => String(label))
     this.lastModifiedDate = new Date(lastModifiedDate)
     this.lastModifiedTime = lastModifiedTime
-    this.name = String(name)
-    this.uid = String(uid)
+    this.name = name == undefined ? title : name
+    this.id = String(id)
+    this.label = label == undefined ? title : label
     this.creator = creator
     this.status = status
   }

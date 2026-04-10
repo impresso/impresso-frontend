@@ -16,11 +16,13 @@ export interface Features {
   textReuse?: { enabled: boolean }
   viewPlans?: { enabled: boolean }
   barista?: { enabled: boolean }
+  specialMemberships?: { enabled: boolean }
 }
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
-  viewPlans: { enabled: true }
+  viewPlans: { enabled: true },
+  specialMemberships: { enabled: false }
 } satisfies Features
 
 type ApiVersion = {
@@ -209,7 +211,7 @@ export const initUserTermsOfUse = async () => {
       )
       return null
     })
-  if (!termsOfuse.dateAcceptedTerms) {
+  if (!termsOfuse?.dateAcceptedTerms) {
     console.debug('[init:initUserTermsOfUse] No terms of use accepted date found.')
     userStore.setAcceptTermsDate(null)
     return

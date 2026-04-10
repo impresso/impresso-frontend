@@ -14,18 +14,18 @@
       :title="$t('listTitle')"
       :params="{
         query: {
-          limit: 10
+          limit: 100
         }
       }"
     >
-      <template #header>
-        <div class="p-2">
-          <div class="container-fluid">
+      <template #header="{ total }">
+        <div class="px-3 py-2">
+          <div class="container-fluid 2">
             <div class="row">
-              <div class="col-7 small">
-                {{ $t('specialMembershipAccessTitle') }}
+              <div class="col-6 small">
+                {{ $t('specialMembershipAccessTitle', { count: total }) }}
               </div>
-              <div class="col-5 small">{{ $t('userSpecialMembershipRequestsStatus') }}</div>
+              <div class="col-6 small">{{ $t('userSpecialMembershipRequestsStatus') }}</div>
             </div>
           </div>
         </div>
@@ -47,7 +47,17 @@
         </b-tabs>
       </template>
       <template #default="{ items }">
-        <div class="border-bottom py-2 mb-2" v-for="item in items" :key="item.id">
+        <div
+          class="border-bottom p-2 px-3 my-1 position-relative"
+          v-for="(item, i) in items"
+          :key="item.id"
+        >
+          <label
+            class="position-absolute very-small text-muted left-0 top-0 bottom-0 d-flex align-items-center p-2 m-0"
+            :for="'item-' + i"
+          >
+            {{ i + 1 }}
+          </label>
           <SpecialMembershipRequestItem
             v-if="mode === ModeUserSpecialMembershipRequests"
             :item="item"
@@ -80,7 +90,7 @@
     "listTitle": "Your Special Membership Access Requests",
     "ModeUserSpecialMembershipRequests": "Your requests",
     "ModeSpecialMembershipAccess": "All Special Membership Access",
-    "specialMembershipAccessTitle": "Membership and Provider",
+    "specialMembershipAccessTitle": "Available options ({ count })",
     "userSpecialMembershipRequestsStatus": "Status",
     "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>",
     "specialMembershipAccessPlaceholder": "Please provide a reason for your request."
@@ -98,7 +108,6 @@ import {
 import SpecialMembershipRequestItem from '../modules/lists/SpecialMembershipRequestItem.vue'
 import SpecialMembershipAccessItem from '../modules/lists/SpecialMembershipAccessItem.vue'
 import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
-import { SpecialMembershipAccess } from '@/services/types'
 import { useViewsStore } from '@/stores/views'
 
 const viewStore = useViewsStore()
@@ -112,7 +121,7 @@ export type SpecialMembershipModalProps = {
 }
 
 const props = withDefaults(defineProps<SpecialMembershipModalProps>(), {
-  dialogClass: ' modal-md p-0 modal-dialog-centered',
+  dialogClass: ' modal-lg p-0 modal-dialog-centered',
   title: 'Request Special Membership Access'
 })
 

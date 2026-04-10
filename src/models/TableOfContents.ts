@@ -1,7 +1,6 @@
 import ArticleBase from './ArticleBase'
 
 interface Newspaper {
-  uid?: string
   id?: string
   type?: string
 }
@@ -26,13 +25,13 @@ export default class TableOfContents {
       .filter(d => d.pages.length > 0)
       .sort((a, b) => {
         if (a.pages[0].num === b.pages[0].num) {
-          return a.uid.localeCompare(b.uid)
+          return a.id.localeCompare(b.id)
         }
         return a.pages[0].num - b.pages[0].num
       })
     this.images = images
     this.newspaper = {
-      id: newspaper.uid || '',
+      id: newspaper.id || '',
       type: 'newspaper'
     }
   }

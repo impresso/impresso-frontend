@@ -1,5 +1,5 @@
 import { ClientService } from '@feathersjs/feathers'
-import { EntityMention } from '../../models/generated/schemas'
+import { EntityMention } from '../../models/generated/deprecated/models'
 import { FindResponse, Filter } from '../../models/index.d'
 
 export interface FindQuery {

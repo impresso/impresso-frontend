@@ -10,10 +10,15 @@
         </div>
       </div>
     </div>
-    <div class="fullscreen-toggle position-absolute bottom-0 p-2" style="z-index: 1">
+    <div
+      class="controls position-absolute bottom-0 p-2 d-flex gap-2 align-items-center justify-content-between w-100"
+    >
       <button class="btn btn-sm small-caps btn-primary" @click="toggleFullscreen">
         {{ fullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen' }}
       </button>
+      <BFormCheckbox v-model="showOverlays" switch class="text-white">
+        <span class="small-caps-bold">{{ $t('showRegions') }}</span>
+      </BFormCheckbox>
     </div>
   </div>
 </template>
@@ -26,6 +31,7 @@ import {
   getAuthOptions,
   isAuthRequired
 } from '@/services/openseadragon'
+import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue'
 
 export interface OverlayCoords {
   x: number // x coordinate (in image pixel units)
@@ -53,6 +59,7 @@ export interface IIIFViewerProps {
   openseadragonCssClass?: string
 }
 
+const showOverlays = ref(true)
 const fullscreen = ref(false)
 
 const currentOverlayIdx = ref<[number, number]>([-1, -1])
@@ -107,6 +114,9 @@ const addOverlays = () => {
       const overlayElement = document.createElement('div') as HTMLDivElement
       overlayElement.setAttribute('data-id', `${itemIdx}-${regionIdx}`)
       overlayElement.classList.add('overlay', 'rounded-sm')
+      if (!showOverlays.value) {
+        overlayElement.classList.add('hidden')
+      }
       // add onclick and prevent zoom
       overlayElement.onclick = e => {
         e.stopPropagation()
@@ -306,6 +316,15 @@ watch(
   }
 )
 
+watch(showOverlays, isVisible => {
+  if (!viewer.value) return
+  console.debug('[IIIFViewer] showOverlays changed to:', isVisible)
+  const overlayElements = viewer.value.element.querySelectorAll('.overlay')
+  overlayElements.forEach(element => {
+    element.classList.toggle('hidden', !isVisible)
+  })
+})
+
 const toggleFullscreen = () => {
   if (!viewerContainer.value) return
   fullscreen.value = !fullscreen.value
@@ -364,18 +383,38 @@ onBeforeUnmount(() => {
   mix-blend-mode: multiply;
   transition:
     background-color 0.2s var(--impresso-transition-ease),
-    border-color 0.2s var(--impresso-transition-ease);
+    border-color 0.2s var(--impresso-transition-ease),
+    opacity 0.2s var(--impresso-transition-ease);
   box-shadow:
     0 0 8px rgba(0, 0, 0, 0.35),
     inset 0 0 2px rgba(0, 0, 0, 0.35);
+}
+.IIIFViewer .overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  border-color: transparent;
+  background-color: transparent;
+  box-shadow: none;
 }
 .IIIFViewer .overlay:hover,
 .IIIFViewer .overlay.active {
   background-color: rgba(86, 204, 242, 0.5);
   border-color: rgba(86, 204, 242, 1);
 }
+.IIIFViewer .overlay.active.hidden,
+.IIIFViewer .overlay.hidden {
+  opacity: 0;
+}
 .IIIFViewer .openseadragon-container {
   overflow: hidden;
+}
+
+.IIIFViewer .controls {
+  z-index: 1;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3), transparent);
+  border-radius: 8px;
+
+  padding: 0.75rem !important;
 }
 
 .IIIFViewer .forbidden-overlay {
@@ -421,7 +460,8 @@ onBeforeUnmount(() => {
 {
   "en": {
     "errorMessageForbidden": "This image is available with a different plan or special membership. Please check your subscription details.",
-    "errorMessageGeneric": "We ran into a problem while loading the image. Details: { errorMessage }. Please try again later or contact support if the problem persists."
+    "errorMessageGeneric": "We ran into a problem while loading the image. Details: { errorMessage }. Please try again later or contact support if the problem persists.",
+    "showRegions": "Show Regions"
   }
 }
 </i18n>

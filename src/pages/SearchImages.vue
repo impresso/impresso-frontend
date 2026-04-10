@@ -29,7 +29,7 @@
           <div class="align-self-center">
             <!-- <router-link
               block
-              :to="{ name: 'newspaper', params: { newspaper_uid: similarToImage.newspaper.uid } }"
+              :to="{ name: 'newspaper', params: { newspaper_id: similarToImage.newspaper.id } }"
               class="article-newspaper"
             >
               {{ similarToImage.newspaper.name }}
@@ -39,7 +39,7 @@
               block
               :to="{
                 name: 'newspaper',
-                params: { newspaper_uid: similarToImage?.mediaSourceRef?.uid }
+                params: { newspaper_id: similarToImage?.mediaSourceRef?.id }
               }"
               class="article-newspaper"
             >
@@ -118,7 +118,7 @@
       <!--  body -->
       <div class="p-1 my-2">
         <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-          <div class="mb-3" v-for="searchResult in searchResults" :key="searchResult.uid">
+          <div class="mb-3" v-for="searchResult in searchResults" :key="searchResult.id">
             <search-results-image-item
               class="mx-1"
               :item="searchResult"
@@ -279,7 +279,7 @@ export default defineComponent({
     excludedTypes() {
       return this.filters.map(d => d.type)
     },
-    similarToImageUid: {
+    similarToImageId: {
       get() {
         return this.$route.query.similarTo
       },
@@ -358,7 +358,7 @@ export default defineComponent({
       get() {
         return {
           seed: this.seed,
-          similarTo: this.similarToImageUid,
+          similarTo: this.similarToImageId,
           filters: this.filters,
           // groupBy: this.groupBy,
           orderBy: this.orderBy,
@@ -409,7 +409,7 @@ export default defineComponent({
       }
     },
     itemSelected(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     addSelectedItem(item) {
       if (!this.itemSelected(item)) {
@@ -418,7 +418,7 @@ export default defineComponent({
     },
     removeSelectedItem(item) {
       if (this.itemSelected(item)) {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
@@ -426,7 +426,7 @@ export default defineComponent({
       if (!this.itemSelected(item)) {
         this.selectedItems.push(item)
       } else {
-        const idx = this.selectedItems.findIndex(c => c.uid === item.uid)
+        const idx = this.selectedItems.findIndex(c => c.id === item.id)
         this.selectedItems.splice(idx, 1)
       }
     },
@@ -442,18 +442,18 @@ export default defineComponent({
       }
     },
     isChecked(item) {
-      return this.selectedItems.findIndex(c => c.uid === item.uid) !== -1
+      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
     onClearSelection() {
       this.selectedItems = []
     },
     onClickSearch(image) {
       console.info('.onClickSearch, image:', image)
-      this.similarToImageUid = image.uid
+      this.similarToImageId = image.id
     },
     onRemoveSimilarTo() {
       console.info('onRemoveSimilarTo')
-      this.similarToImageUid = ''
+      this.similarToImageId = ''
     },
     onSearchQuery({ q = '' }) {
       console.info('onSearchQuery:', q)
@@ -474,11 +474,11 @@ export default defineComponent({
     selectedItems() {
       this.updateselectAll()
     },
-    similarToImageUid: {
-      handler(uid) {
-        console.info('similarToImage', uid)
-        if (uid) {
-          imagesService.get(uid).then(res => {
+    similarToImageId: {
+      handler(id) {
+        console.info('similarToImage', id)
+        if (id) {
+          imagesService.get(id).then(res => {
             // this.similarToImage = new Image(res)
             this.similarToImage = res as IImage
           })

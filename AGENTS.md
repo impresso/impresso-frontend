@@ -90,7 +90,7 @@ const emit = defineEmits<{
 
 Never use the `useI18n` hook from 'vue-i18n' to access. Instead, use dynamic translation keys in the template section of the component.
 
-- do not use $n, $t or useI18n in components, as the current implementation is very fragile. You can use $n $t and $tc for translation inside the <template> section only.
+- do not use $n, $t or useI18n in components, as the current implementation is very fragile. You can use $n $t for translation inside the <template> section only.
 - for dynamic translations, use computed properties to build the translation key based on props or other reactive data.
 - use JSON i18n blocks for local component translations, and define only English translations there. Do not define other languages in the component files.
 
@@ -214,7 +214,7 @@ import { http, HttpResponse } from 'msw'
 export const getMediaSourceHandler = http.get('/api/media-sources/:id', async ({ params }) => {
   const { id } = params
   await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-  return HttpResponse.json(MockMediaSources.find(source => source.uid === id) || null)
+  return HttpResponse.json(MockMediaSources.find(source => source.id === id) || null)
 })
 
 export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ request }) => {

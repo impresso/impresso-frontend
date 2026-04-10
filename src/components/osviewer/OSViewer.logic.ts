@@ -1,4 +1,5 @@
-import { Rect } from 'openseadragon'
+import OpenSeadragon from 'openseadragon'
+import type { Viewer } from '@/services/openseadragon.js'
 
 export function getPageIndexFromCenterX(
   centerX: number,
@@ -15,7 +16,7 @@ export function getPageIndexFromCenterX(
 }
 
 export function highlightCurrentPage(
-  viewer: OpenSeadragon.Viewer | null,
+  viewer: Viewer | null,
   index: number,
   currentPageOverlay: HTMLDivElement | null,
   {
@@ -53,7 +54,7 @@ export function highlightCurrentPage(
   // Store it so we can remove later
   currentPageOverlay = overlay
 
-  const bounds = new Rect(x, y, pageWidth, pageHeight)
+  const bounds = new OpenSeadragon.Rect(x, y, pageWidth, pageHeight)
   viewer.addOverlay({
     element: overlay,
     location: bounds

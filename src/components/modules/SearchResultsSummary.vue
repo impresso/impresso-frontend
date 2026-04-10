@@ -1,18 +1,26 @@
 <template>
   <section
-    class="SearchResultsSummary search-results-summary text-serif textbox-fancy border-tertiary"
+    class="SearchResultsSummary search-results-summary border-tertiary"
     :class="{ loading: isLoading }"
   >
     <span
       v-html="
         props.isLoading
           ? $t(`loading.${props.groupBy}`)
-          : $tc('incipit', props.totalRows, {
-              n: $n(props.totalRows),
-              groupByLabel: $tc(`numbers.${props.groupBy}`, props.totalRows, {
-                n: $n(props.totalRows)
-              })
-            })
+          : $t(
+              'incipit',
+              {
+                n: $n(props.totalRows),
+                groupByLabel: $t(
+                  `numbers.${props.groupBy}`,
+                  {
+                    n: $n(props.totalRows)
+                  },
+                  props.totalRows
+                )
+              },
+              props.totalRows
+            )
       "
     />
     {{ ' ' }}

@@ -116,8 +116,18 @@ import ItemLabel from './modules/lists/ItemLabel.vue'
 import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import SearchQuery from '../models/SearchQuery'
 import { containsFilter } from '@/logic/filters'
-import type { Filter } from '@/models'
+import type { Entity, Filter, FilterWithItems } from '@/models'
 import { FacetType, FacetTypes } from '@/models/Facet'
+import { FilterContext } from 'impresso-jscommons'
+
+interface IData {
+  isDragging: boolean
+  position: { x: number; y: number }
+  transformStyle: { transform?: string }
+  tabs: string[]
+  tab: string
+  item?: Entity
+}
 
 /**
  * Display info about the current selected item.
@@ -136,13 +146,16 @@ import { FacetType, FacetTypes } from '@/models/Facet'
   */
 
 export default defineComponent({
-  data: () => ({
-    isDragging: false,
-    position: {} as { x: number; y: number },
-    transformStyle: {},
-    tabs: ['selectedItem'], // 'currentSearch'],
-    tab: 'selectedItem'
-  }),
+  data(): IData {
+    return {
+      isDragging: false,
+      position: {} as { x: number; y: number },
+      transformStyle: {},
+      tabs: ['selectedItem'], // 'currentSearch'],
+      tab: 'selectedItem'
+      // item: undefined // NOTE: something is setting this item via a property, not an event !!!
+    }
+  },
   methods: {
     dragstart({ x, y }: { x: number; y: number }) {
       this.isDragging = true
@@ -162,12 +175,17 @@ export default defineComponent({
     ...mapActions(useMonitorStore, {
       fadeOut: 'hide'
     }),
-    async applyFilter(context: string = 'include') {
+    async applyFilter(context: FilterContext = 'include') {
       const currentFilters = this.searchQueryFilters as Filter[]
-      const newFilter: Filter = {
+      const selectedItem: Entity = {
+        ...this.item,
+        id: this.item.id,
+        label: this.item.label ?? this.item.id
+      }
+      const newFilter: FilterWithItems = {
         type: this.type,
-        q: this.item.uid,
-        items: [this.item],
+        q: selectedItem.id,
+        items: [selectedItem],
         context
       }
 
@@ -241,28 +259,28 @@ export default defineComponent({
         return {
           name: 'newspaper',
           params: {
-            newspaper_uid: this.item.uid
+            newspaper_id: this.item.id
           }
         }
       } else if (this.type === 'topic') {
         return {
           name: 'topic',
           params: {
-            topic_uid: this.item.uid
+            topic_id: this.item.id
           }
         }
       } else if (['person', 'location'].includes(this.type)) {
         return {
           name: 'entity',
           params: {
-            entity_id: this.item.uid
+            entity_id: this.item.id
           }
         }
       } else if (this.type === 'textReuseCluster') {
         return {
           name: 'text-reuse-clusters',
           query: {
-            q: `#${this.item.uid}`
+            q: `#${this.item.id}`
           }
         }
       }

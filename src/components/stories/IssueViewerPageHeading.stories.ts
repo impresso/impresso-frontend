@@ -31,17 +31,17 @@ export const Default: Story = {
     label: 'issue',
     page: {
       num: 6,
-      uid: 'luxembourg1937-6'
+      id: 'luxembourg1937-6'
     },
     issue: {
-      uid: 'luxembourg1937',
+      id: 'luxembourg1937',
       countArticles: 90,
       countPages: 6,
       date: new Date()
     },
     mediaSource: {
       name: 'Luxembourg (1935)',
-      uid: 'luxembourg1937',
+      id: 'luxembourg1937',
       type: 'newspaper'
     },
     dataProvider: {
@@ -56,14 +56,14 @@ export const WithArticle: Story = {
     label: 'article',
     page: {
       num: 6,
-      uid: 'luxembourg1937-6'
+      id: 'luxembourg1937-6'
     },
     article: {
       title: 'Zaldoteatonn'
     },
     mediaSource: {
       name: 'Luxembourg (1935)',
-      uid: 'luxembourg1937',
+      id: 'luxembourg1937',
       type: 'newspaper'
     },
     dataProvider: {
@@ -71,7 +71,7 @@ export const WithArticle: Story = {
       name: 'impresso'
     },
     issue: {
-      uid: 'luxembourg1937',
+      id: 'luxembourg1937',
       countArticles: 90,
       countPages: 6,
       date: new Date()

@@ -156,7 +156,10 @@ export default ({ mode }: { mode: string }) => {
             if (id.includes('openseadragon')) return 'openseadragon'
             if (id.includes('d3')) return 'd3'
             if (id.includes('protobuf')) return 'protobuf'
-            if (id.includes('buffer')) return 'buffer'
+            // 'buffer', 'base64-js', 'ieee754' must be in the same chunk to
+            // avoid initialization order errors in the production build
+            if (id.includes('base64-js') || id.includes('ieee754') || id.includes('buffer'))
+              return 'buffer'
           }
         },
         input: entryPoints('index.html', 'widget/index.html', 'institutions-access/index.html')

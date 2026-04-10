@@ -26,27 +26,35 @@
           <span
             v-else-if="searchQueryModel.length === 0"
             v-html="
-              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel,
-                count: $n(totalResults)
-              })
+              $t(
+                `description.${searchingEnabled ? 'search' : 'facets'}`,
+                {
+                  searchQuery: searchQueryModel,
+                  count: $n(totalResults)
+                },
+                totalResults
+              )
             "
           />
           <span
             v-else
             v-html="
-              $tc(`description.${searchingEnabled ? 'search' : 'facets'}`, totalResults, {
-                searchQuery: searchQueryModel,
+              $t(
+                `description.${searchingEnabled ? 'search' : 'facets'}`,
+                {
+                  searchQuery: searchQueryModel,
 
-                count: $n(totalResults)
-              })
+                  count: $n(totalResults)
+                },
+                totalResults
+              )
             "
           ></span>
         </div>
         <form v-if="searchingEnabled" @submit.prevent="search" class="mt-2">
           <div class="input-group">
             <b-form-input
-              :placeholder="$tc('searchField.placeholder', totalResults)"
+              :placeholder="$t('searchField.placeholder', totalResults)"
               v-model.trim="searchQueryModel"
               autofocus
               data-testid="search-field"
@@ -67,7 +75,7 @@
         :filterType="
           currentType === 'mediaSource'
             ? 'newspaper' /* TODO add mediaSource in API to make this work */
-            : currentType
+            : (currentType as FilterType)
         "
         :itemType="currentType"
         :buckets="buckets"
@@ -122,6 +130,7 @@ import type { Filter } from '@/models'
 import { useUserStore } from '@/stores/user'
 import LoadingBlock from './LoadingBlock.vue'
 import { FacetType } from '@/models/Facet'
+import { FilterType } from 'impresso-jscommons'
 
 const userStore = useUserStore()
 // --- Constants ---
@@ -321,7 +330,7 @@ async function searchWithService(searchParams: SearchParams): Promise<{
     buckets: response.data.map(
       (item: any) =>
         new Bucket({
-          val: item.uid,
+          value: item.id,
           item,
           type: searchParams.type
         })

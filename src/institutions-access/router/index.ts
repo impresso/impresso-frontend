@@ -34,6 +34,30 @@ const router = createRouter({
       meta: {
         requiresAuth: false
       }
+    },
+    {
+      path: '/special-membership-request/:id',
+      name: 'SpecialMembershipRequest',
+      component: () => import('../views/Index.vue'),
+      props: route => ({ prefetchedItem: route.meta.prefetchedItem }),
+      meta: {
+        requiresAuth: true
+      },
+      beforeEnter: async to => {
+        console.debug(
+          '[router] Entering route for special membership request with ID:',
+          to.params.id
+        )
+        try {
+          const item = await services.userSpecialMembershipRequestsReviews.get(
+            to.params.id as string
+          )
+          to.meta.prefetchedItem = item
+          console.info('[router] Prefetched special membership request with ID:', to.params.id)
+        } catch (e) {
+          console.error('[router] Failed to prefetch special membership request:', e)
+        }
+      }
     }
   ]
 })
@@ -43,6 +67,7 @@ const router = createRouter({
  * Redirects unauthenticated users to the login page.
  */
 router.beforeEach((to, _from, next) => {
+  console.debug('[router] Checking authentication for route:', to.fullPath)
   if (to.meta.requiresAuth === false) {
     next()
   } else {
@@ -54,6 +79,7 @@ router.beforeEach((to, _from, next) => {
           console.info('[router] Your authentication token does not have the required group.')
           jwt = null
         }
+        console.debug('[router] JWT decoded successfully. Groups:', groups)
       } catch (e) {
         console.error('[router] Invalid JWT token:', e)
         jwt = null
@@ -62,14 +88,32 @@ router.beforeEach((to, _from, next) => {
         next()
       } else {
         next({
-          name: 'Login',
-          query: {
-            redirect: to.path
-          }
+          name: 'Login'
         })
       }
     })
   }
 })
 
+/**
+ * Re-authentication guard for protected routes.
+ * Ensures backend session is valid before route-level prefetch and JWT group checks.
+ */
+router.beforeEach(async (to, _from, next) => {
+  console.debug('[router] Checking backend session for route:', to.fullPath)
+  if (to.meta.requiresAuth === false) {
+    next()
+    return
+  }
+
+  try {
+    await services.app.reAuthenticate(true)
+    next()
+  } catch (e) {
+    console.warn('[router] Re-authentication failed:', e)
+    next({
+      name: 'Login'
+    })
+  }
+})
 export default router

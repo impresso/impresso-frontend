@@ -19,6 +19,7 @@ import {
   useFloating,
   autoUpdate,
   Placement,
+  Strategy,
   shift,
 } from '@floating-ui/vue'
 import { PropType, computed, ref } from 'vue';
@@ -28,6 +29,10 @@ const props = defineProps({
   placement: {
     type: String as PropType<Placement>,
     default: 'bottom',
+  },
+  strategy: {
+    type: String as PropType<Strategy>,
+    default: 'absolute',
   },
   delay: {
     type: Boolean,
@@ -48,6 +53,7 @@ const floatingArrow = ref<HTMLElement | null>(null)
 const { floatingStyles, middlewareData } = useFloating(anchorRef, tooltipRef, {
   open: isOpen,
   placement: props.placement,
+  strategy: props.strategy,
   middleware: [shift({ padding: 5 }), arrow({element: floatingArrow})],
   whileElementsMounted: autoUpdate,
 });

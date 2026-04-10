@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import IIIFViewer from '@/components/modules/IIIFViewer.vue'
 
-import type { ContentItem as ContentItemType } from '../../models/generated/schemas/contentItem'
+import type { ContentItem as ContentItemType } from '../../models/generated/canonical/contentItem'
 
 import { contentItems as contentItemsService } from '../../services'
 import { computed, ref, watch } from 'vue'
@@ -71,11 +71,12 @@ watch(
 const manifestUrls = computed<string[]>(() => {
   if (
     !contentItem.value ||
-    (Array.isArray(contentItem.value.image?.pages) && contentItem.value.image.pages.length === 0)
+    (Array.isArray(contentItem.value.facsimile?.pages) &&
+      contentItem.value.facsimile.pages.length === 0)
   ) {
     return []
   }
-  return contentItem.value.image.pages
+  return contentItem.value.facsimile.pages
     .map(page => page.iiif?.manifestUrl || '')
     .filter(url => url.length > 0)
 })

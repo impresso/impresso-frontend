@@ -79,10 +79,10 @@ export const useTopicsStore = defineStore('topics', {
           this.items = data
           this.itemsIndex = {}
           data.forEach((d: any, k: string) => {
-            if (this.visualizedItemsIndex[d.uid]) {
+            if (this.visualizedItemsIndex[d.id]) {
               data[k].visualized = true
             }
-            this.itemsIndex[d.uid] = k
+            this.itemsIndex[d.id] = k
           })
 
           this.pagination.currentPage = page
@@ -107,31 +107,31 @@ export const useTopicsStore = defineStore('topics', {
       this.visualizedItems = []
     },
     addVisualizedItem(item: any) {
-      if (this.visualizedItemsIndex[item.uid] != null) {
+      if (this.visualizedItemsIndex[item.id] != null) {
         return
       }
       this.visualizedItemsIndex = {
         ...this.visualizedItemsIndex,
-        [item.uid]: this.visualizedItems.length
+        [item.id]: this.visualizedItems.length
       }
       // copy the item, we don't want to loose it.
       const clonedTopic = new Topic({ ...item })
       this.visualizedItems.push(clonedTopic)
     },
     removeVisualizedItem(item: any) {
-      if (this.visualizedItemsIndex[item.uid] == null) {
+      if (this.visualizedItemsIndex[item.id] == null) {
         return
       }
-      const idx = this.visualizedItemsIndex[item.uid]
+      const idx = this.visualizedItemsIndex[item.id]
       this.visualizedItems.splice(idx as any, 1)
       // reset visualizedItemsIndex.
       this.visualizedItemsIndex = {}
       this.visualizedItems.forEach((d, k) => {
-        this.visualizedItemsIndex[d.uid] = k as any
+        this.visualizedItemsIndex[d.id] = k as any
       })
     },
     async toggleVisualizedItem(item: any) {
-      if (typeof this.visualizedItemsIndex[item.uid] !== 'undefined') {
+      if (typeof this.visualizedItemsIndex[item.id] !== 'undefined') {
         this.removeVisualizedItem(item)
         return false
       }

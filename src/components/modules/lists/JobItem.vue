@@ -22,7 +22,7 @@
         <router-link
           class="text-white text-decoration-underline"
           v-if="item.extra.collection.name && item.extra.collection.status !== 'DEL'"
-          :to="{ name: 'collection', params: { collection_uid: item.extra.collection.id } }"
+          :to="{ name: 'collection', params: { collection_id: item.extra.collection.id } }"
         >
           {{ item.extra.collection.name }}
         </router-link>

@@ -117,10 +117,14 @@ export default {
     },
     incipit() {
       const n = this.$n(this.paginationTotalRows)
-      return this.$tc('incipit', this.paginationTotalRows, {
-        n,
-        groupByLabel: this.$tc('numbers.results', this.paginationTotalRows, { n })
-      })
+      return this.$t(
+        'incipit',
+        {
+          n,
+          groupByLabel: this.$t('numbers.results', { n }, this.paginationTotalRows)
+        },
+        this.paginationTotalRows
+      )
     }
   },
   methods: {
@@ -147,9 +151,9 @@ export default {
       this.$router.push({
         name: 'article',
         params: {
-          issue_uid: article.issue.uid,
-          page_uid: article.pages[0]?.uid,
-          article_uid: article.uid
+          issue_id: article.issue.id,
+          page_id: article.pages[0]?.id,
+          article_id: article.id
         }
       })
     }

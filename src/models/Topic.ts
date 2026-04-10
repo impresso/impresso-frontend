@@ -10,7 +10,7 @@ const wordMapper = token => d => {
 }
 
 export default class Topic implements IEntity {
-  uid: string
+  id: string
   language: string
   model: string
   words: TopicWord[]
@@ -18,7 +18,7 @@ export default class Topic implements IEntity {
   matches: string[]
   countItems: number
   relatedTopics: string[]
-  label?: string
+  label: string
   hwp?: number
   highlighted?: TopicWord[]
   htmlExcerpt?: string
@@ -27,7 +27,7 @@ export default class Topic implements IEntity {
 
   constructor(
     {
-      uid = '',
+      id = '',
       language = '',
       model = '',
       // array of topicWords
@@ -36,11 +36,11 @@ export default class Topic implements IEntity {
       matches = [],
       relatedTopics = [],
       countItems = -1,
-      label = undefined
+      label = ''
     } = {},
     { highlight = '', quantizeRange = [0.4, 0.7, 1, 1] } = {}
   ) {
-    this.uid = String(uid)
+    this.id = String(id)
     this.language = String(language)
     this.model = String(model)
     this.words = words.filter(d => d.p > 0.0)
@@ -89,13 +89,13 @@ export default class Topic implements IEntity {
         this.htmlExcerpt = this.getHtmlExcerpt()
       }
     }
-    if (label != undefined) {
+    if (label != '') {
       this.htmlExcerpt = this.getHtmlExcerpt()
     }
   }
 
   getHtmlExcerpt({ token = null } = {}) {
-    if (this.label != undefined) {
+    if (this.label != '') {
       return this.label
     }
 

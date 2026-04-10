@@ -1,6 +1,6 @@
 export const MockMediaSources = [
   {
-    uid: 'waeschfra',
+    id: 'waeschfra',
     type: 'newspaper',
     name: "D'Wäschfra",
     languageCodes: ['fr', 'de', 'lb'],
@@ -18,8 +18,8 @@ export const MockMediaSources = [
         value: 'LU'
       },
       {
-        id: 'partnerUid',
-        label: 'partner uid',
+        id: 'partnerId',
+        label: 'partner id',
         value: 'BNL'
       }
     ]
