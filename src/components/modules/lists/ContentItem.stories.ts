@@ -76,7 +76,7 @@ export const MockContentItem: ContentItemType = {
       }
     ]
   },
-  image: {
+  facsimile: {
     isCoordinatesConverted: true,
     isFrontPage: false,
     pagesCount: 1,
@@ -287,8 +287,8 @@ export const WithManyPages: Story = {
   args: {
     item: {
       ...MockContentItem,
-      image: {
-        ...MockContentItem.image,
+      facsimile: {
+        ...MockContentItem.facsimile,
         pagesCount: 8,
         pages: [
           {

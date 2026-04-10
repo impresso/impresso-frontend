@@ -106,7 +106,7 @@ const AvailableFields = [
   'text.langCode',
   'text.originalLangCode',
 
-  'image.isFrontPage',
+  'facsimile.isFrontPage',
   'text.snippet'
 ] as const
 

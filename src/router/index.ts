@@ -376,7 +376,7 @@ const router = createRouter({
             issue_id: ci.issueId
           },
           query: {
-            p: ci.image?.pages?.[0]?.number,
+            p: ci.facsimile?.pages?.[0]?.number,
             articleId: getShortArticleId(ci.id),
             text: '2'
           }

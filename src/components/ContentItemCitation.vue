@@ -84,7 +84,7 @@ const generateCitation = async () => {
       'container-title': mediaName,
       publisher: archive,
       archive: archive,
-      page: props.item.image?.pages?.map(page => page.number).join(', ') ?? '',
+      page: props.item.facsimile?.pages?.map(page => page.number).join(', ') ?? '',
       URL: getContentItemPermalink(props.item.id),
       issued: {
         'date-parts': dateParts

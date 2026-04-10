@@ -26,7 +26,7 @@ export interface ContentItem {
   meta?: ContentItemMeta;
   text?: ContentItemText;
   semanticEnrichments?: ContentItemSemanticEnrichments;
-  image?: ContentItemImage;
+  facsimile?: ContentItemFacsimile;
   audio?: ContentItemAudio;
   access?: ContentItemAccessRights;
 }
@@ -282,9 +282,9 @@ export interface Collection {
   creatorId?: string;
 }
 /**
- * Image-related information for digitized content
+ * Facsimile-related information for digitized content
  */
-export interface ContentItemImage {
+export interface ContentItemFacsimile {
   /**
    * Total number of pages in the content item.
    */
@@ -643,9 +643,9 @@ export interface ContentItemAudioLocator {
 
 
 /**
- * Image-related information for digitized content
+ * Facsimile-related information for digitized content
  */
-export interface ContentItemImage {
+export interface ContentItemFacsimile {
   /**
    * Total number of pages in the content item.
    */
