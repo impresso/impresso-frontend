@@ -34,7 +34,7 @@ export const MockContentItemPublicDomain: ContentItem = {
       '! Consummatum est ! In der Sonntagsnummer der Etoile belge lefen wir in der revue politique : Le prince de Bismarck est parfaitement remis. Il a repri',
     matches: []
   },
-  image: {
+  facsimile: {
     isCoordinatesConverted: true,
     isFrontPage: false,
     lineBreaks: [19, 75, 93, 151, 213, 253, 299, 363, 424, 449, 503, 534, 600, 663, 693],

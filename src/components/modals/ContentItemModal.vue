@@ -102,7 +102,7 @@ const transcriptParagraphs = computed(() => {
   //     693
   //   ],
   // use line breaks to split the transcript into paragraphs
-  const lineBreaks = props.item.image?.lineBreaks ?? []
+  const lineBreaks = props.item.facsimile?.lineBreaks ?? []
   const content = props.item.text.content
   const paragraphs = []
   let lastIndex = 0

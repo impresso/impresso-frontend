@@ -16,8 +16,8 @@
         />{{ '' }}
         <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
         <span
-          v-if="item.image?.pagesCount"
-          v-html="` – ${$t('pp', { pages }, item.image?.pagesCount)}`"
+          v-if="item.facsimile?.pagesCount"
+          v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
         >
         </span>
       </p>
@@ -34,8 +34,8 @@
     <div v-if="!showMeta && showType" class="ContentItem__typePages">
       <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
       <span
-        v-if="item.image?.pagesCount"
-        v-html="` – ${$t('pp', { pages }, item.image?.pagesCount)}`"
+        v-if="item.facsimile?.pagesCount"
+        v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
       >
       </span>
     </div>
@@ -176,8 +176,8 @@ const routerLinkUrl = computed(() => {
 })
 
 const pages = computed(() => {
-  if (props.item.image?.pages?.length) {
-    const imagepages = props.item.image.pages.map(d => String(d.number))
+  if (props.item.facsimile?.pages?.length) {
+    const imagepages = props.item.facsimile.pages.map(d => String(d.number))
     if (imagepages.length > 5) {
       return imagepages
         .slice(0, 5)

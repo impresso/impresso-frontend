@@ -105,7 +105,7 @@ const mockContentItem: ContentItem = {
       }
     ]
   },
-  image: {
+  facsimile: {
     pagesCount: 2,
     isFrontPage: false,
     isCoordinatesConverted: true,

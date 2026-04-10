@@ -121,7 +121,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
    * @returns Article instance
    */
   static fromContentItem(contentItem: ContentItem): Article {
-    const { id, issueId, meta, text, semanticEnrichments, image, access } = contentItem
+    const { id, issueId, meta, text, semanticEnrichments, facsimile, access } = contentItem
 
     // Create a newspaper instance from meta data
     const newspaper = new Newspaper({
@@ -168,7 +168,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
 
     // Map pages
     const pages =
-      image?.pages?.map(
+      facsimile?.pages?.map(
         (page, idx) =>
           new Page({
             id: page.id ?? `page-${idx}`,
@@ -180,8 +180,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
 
     // Create regions from coordinates if available
     const regions = []
-    if (image?.pages) {
-      image.pages.forEach((page, pageIdx) => {
+    if (facsimile?.pages) {
+      facsimile.pages.forEach((page, pageIdx) => {
         if (page.regionCoordinates) {
           page.regionCoordinates.forEach(coords => {
             regions.push(
@@ -213,8 +213,8 @@ export default class Article extends ArticleBase implements ArticleInterface {
       })) ?? []
 
     // Extract line breaks
-    const contentLineBreaks = image?.lineBreaks ?? []
-    const regionBreaks = image?.regionBreaks ?? []
+    const contentLineBreaks = facsimile?.lineBreaks ?? []
+    const regionBreaks = facsimile?.regionBreaks ?? []
 
     // Extract mentions for highlighting
     const mentions = []
@@ -246,9 +246,9 @@ export default class Article extends ArticleBase implements ArticleInterface {
       time: meta?.date ? new Date(meta.date).getTime() : 0,
       size: text?.contentLength ?? 0,
       type: text?.itemType ?? '',
-      isCC: image?.isCoordinatesConverted ?? false,
-      isFront: image?.isFrontPage ?? false,
-      nbPages: image?.pagesCount ?? 0,
+      isCC: facsimile?.isCoordinatesConverted ?? false,
+      isFront: facsimile?.isFrontPage ?? false,
+      nbPages: facsimile?.pagesCount ?? 0,
       dl: semanticEnrichments?.namedEntities
         ? Object.values(semanticEnrichments.namedEntities).flat().filter(Boolean).length
         : 0,
