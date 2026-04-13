@@ -4,9 +4,9 @@
     @click="getSpecialMembershipAccess"
     :disabled="isLoading || isModalVisible"
   >
-    <span v-if="isLoading">Checking access option...</span>
-    <span v-else-if="isModalVisible">requesting access...</span>
-    <span v-else>check your request access</span>
+    <span v-if="isLoading">{{ $t('actions.loading') }}</span>
+    <span v-else-if="isModalVisible">{{ $t('actions.loading') }}</span>
+    <span v-else>{{ $t(accessLevelTranslationKeys[currentAccessLevel]) }}</span>
   </button>
 
   <Teleport to="body">
@@ -25,6 +25,14 @@ import SpecialMembershipRequestModal from './specialMembership/SpecialMembership
 
 export interface ContentItemAccessButtonProps {
   specialMembershipAccessBitPositions: number[]
+  currentAccessLevel: number
+}
+
+const accessLevelTranslationKeys: Record<number, string> = {
+  0: 'noAccess',
+  1: 'exploreOnly',
+  2: 'exploreAndTranscript',
+  3: 'fullAccess'
 }
 
 const props = defineProps<ContentItemAccessButtonProps>()
@@ -32,6 +40,11 @@ const isLoading = ref(false)
 const isAccessChecked = ref(false)
 const isModalVisible = ref(false)
 const specialMembershipAccessItem = ref<SpecialMembershipAccess | null>(null)
+
+const keyAccessLevel = (level: number): string => {
+  const prefix = accessLevelTranslationKeys[level] || 'unknownAccessLevel'
+  return prefix
+}
 
 const handleModalDismiss = () => {
   console.info('[ContentItemAccessButton] Modal dismissed')
@@ -76,3 +89,14 @@ const getSpecialMembershipAccess = async () => {
     })
 }
 </script>
+<i18n>
+{
+  "en": {
+    "noAccess": "No Access",
+    "exploreOnly": "apply for full access",
+    "exploreAndTranscript": "check your current access options",
+    "fullAccess": "check your current access options",
+    "unknownAccessLevel": "Unknown access level"
+  }
+}
+</i18n>

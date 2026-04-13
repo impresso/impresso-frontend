@@ -10,11 +10,18 @@
       </InfoButton>
     </div>
     <ContentItemAccessButton
+      :currentAccessLevel="accessLevel"
       :specialMembershipAccessBitPositions="
         normalizedContentItemSpecialMembershipBitmapBitsPositions
       "
       v-if="isSpecialMembershipsEnabled && contentItemRequiresSpecialMembershipAccess"
     />
+    <span
+      class="very-small"
+      v-else-if="isSpecialMembershipsEnabled && !contentItemRequiresSpecialMembershipAccess"
+    >
+      {{ $t('contentItemAccessNoOptions') }}
+    </span>
   </div>
 </template>
 <script setup lang="ts">
@@ -177,6 +184,22 @@ const contentItemBitmapsAsBigInts = computed<{
     }
   }
 })
+
+const contentItemAccessBitmapsAsBitStrings = computed(() => {
+  if (!props.item.access || !props.item.access.accessBitmaps) {
+    return {
+      explore: null,
+      transcript: null,
+      facsimile: null
+    }
+  }
+  const { explore, getTranscript, getImages } = props.item.access.accessBitmaps
+  return {
+    explore: explore ? base64BytesToBigInt(explore as string).toString(2) : null,
+    transcript: getTranscript ? base64BytesToBigInt(getTranscript as string).toString(2) : null,
+    facsimile: getImages ? base64BytesToBigInt(getImages as string).toString(2) : null
+  }
+})
 </script>
 <i18n lang="json">
 {
@@ -191,9 +214,9 @@ const contentItemBitmapsAsBigInts = computed<{
     "no_access_guest": "Annotation & semantic enrichment access",
     "no_access_guest_description": "You can view only the metadata and semantic enrichments of this content item. If you want to access this content in Datalab, please log in or create an account.",
 
-    "explore": "Web App access",
+    "explore": "Web App access only",
     "explore_description": "Your current user plan allows you to view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. However, via CSV export and the Datalab (Impresso Python library), you can access only its metadata and semantic enrichments.",
-    "explore_guest": "Web App access",
+    "explore_guest": "Web App access only",
     "explore_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
 
     "explore_transcript": "Web App & transcript access",
@@ -206,7 +229,8 @@ const contentItemBitmapsAsBigInts = computed<{
     "explore_facsimile_guest": "Web App access",
     "explore_facsimile_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
     "other": "Limited Access",
-    "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
+    "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript.",
+    "contentItemAccessNoOptions": "There is no other access option available for this content item"
   }
 }
 </i18n>
