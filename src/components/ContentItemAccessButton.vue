@@ -94,8 +94,8 @@ const getSpecialMembershipAccess = async () => {
   "en": {
     "noAccess": "No Access",
     "exploreOnly": "apply for full access",
-    "exploreAndTranscript": "check your current access options",
-    "fullAccess": "check your current access options",
+    "exploreAndTranscript": "check your current access status",
+    "fullAccess": "check your current access status",
     "unknownAccessLevel": "Unknown access level"
   }
 }
