@@ -101,7 +101,8 @@ const handleOnSubmit = async (event: Event) => {
   emit('submit', form.value)
   try {
     await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
-      status: reviewStatus.value
+      status: reviewStatus.value,
+      notes: form.value.notes
     })
     notificationStore.addNotification({
       type: 'success',
