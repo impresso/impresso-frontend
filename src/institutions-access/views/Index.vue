@@ -7,6 +7,7 @@
             <h4 class="p-2 m-0 font-weight-bold">{{ $t(`card.title.${card.name}`) }}</h4>
           </template>
           <ListOfFindResponseItems
+            :ref="instance => setListRef(card.name, instance)"
             :error-loading-items-message="$t(`card.errorLoadingItems.${card.name}`)"
             :list-is-empty-message="$t(`card.listisEmpty.${card.name}`)"
             :service="userSpecialMembershipRequestsReviewsService"
@@ -104,6 +105,7 @@
       <ToggleSpecialMembershipRequestStatusModal
         :is-visible="isToggleStatusModalVisible"
         :item="itemToUpdate"
+        @success="refreshLists"
         @dismiss="hideToggleStatusModal()"
       ></ToggleSpecialMembershipRequestStatusModal>
     </div>
@@ -113,10 +115,12 @@
 <script setup lang="ts">
 import Card from '../components/Card.vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import type { ListOfFindResponseItemsExposed } from '@/components/ListOfFindResponseItems.vue'
 import SpecialMembershipRequestReviewItem from '@/components/modules/lists/SpecialMembershipRequestReviewItem.vue'
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
 import ToggleSpecialMembershipRequestStatusModal from '../components/reviews/ToggleSpecialMembershipRequestStatusModal.vue'
 import { ref, computed, watch } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import { ServiceFindParams, UserSpecialMembershipRequestReview } from '@/services/types'
 import BSearchInputForm from '@/components/legacy/bootstrap/BSearchInputForm.vue'
 import ReviewerSettings from '../components/ReviewerSettings.vue'
@@ -134,12 +138,31 @@ const props = withDefaults(defineProps<IndexProps>(), {
 
 const itemToUpdate = ref<UserSpecialMembershipRequestReview>(null)
 const isToggleStatusModalVisible = ref(false)
+const listRefs = ref<Record<string, ListOfFindResponseItemsExposed | null>>({})
 
 const hideToggleStatusModal = () => {
   isToggleStatusModalVisible.value = false
   router.push({ name: 'Index' })
   performSearch('')
 }
+
+const setListRef = (name: string, instance: Element | ComponentPublicInstance | null) => {
+  if (instance && 'refresh' in instance && 'refreshFromFirstPage' in instance) {
+    listRefs.value[name] = instance as ListOfFindResponseItemsExposed
+    return
+  }
+
+  listRefs.value[name] = null
+}
+
+const refreshLists = async () => {
+  await Promise.all(
+    Object.values(listRefs.value)
+      .filter((instance): instance is ListOfFindResponseItemsExposed => instance !== null)
+      .map(instance => instance.refreshFromFirstPage())
+  )
+}
+
 const showToggleStatusModal = (item: UserSpecialMembershipRequestReview) => {
   itemToUpdate.value = item
   isToggleStatusModalVisible.value = true

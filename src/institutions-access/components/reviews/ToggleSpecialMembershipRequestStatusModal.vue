@@ -109,6 +109,7 @@ const handleOnSubmit = async (event: Event) => {
       title: 'Success',
       message: 'Special membership request status updated successfully.'
     })
+    emit('success')
     emit('dismiss')
   } catch (error) {
     console.error('Error updating special membership request review status:', error)
@@ -133,6 +134,7 @@ const v$ = useVuelidate(
 const emit = defineEmits<{
   dismiss: []
   submit: [payload: SpecialMembershipReviewFormValidation]
+  success: []
 }>()
 </script>
 <i18n lang="json">
