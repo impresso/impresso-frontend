@@ -6,7 +6,7 @@
   >
     <span v-if="isLoading">{{ $t('actions.loading') }}</span>
     <span v-else-if="isModalVisible">{{ $t('actions.loading') }}</span>
-    <span v-else>{{ $t(accessLevelTranslationKeys[currentAccessLevel]) }}</span>
+    <span v-else>{{ $t(keyAccessLevel(currentAccessLevel)) }}</span>
   </button>
 
   <Teleport to="body">
@@ -25,7 +25,7 @@ import SpecialMembershipRequestModal from './specialMembership/SpecialMembership
 
 export interface ContentItemAccessButtonProps {
   specialMembershipAccessBitPositions: number[]
-  currentAccessLevel: number
+  currentAccessLevel?: number
 }
 
 const accessLevelTranslationKeys: Record<number, string> = {
@@ -35,7 +35,9 @@ const accessLevelTranslationKeys: Record<number, string> = {
   3: 'fullAccess'
 }
 
-const props = defineProps<ContentItemAccessButtonProps>()
+const props = withDefaults(defineProps<ContentItemAccessButtonProps>(), {
+  currentAccessLevel: 1
+})
 const isLoading = ref(false)
 const isAccessChecked = ref(false)
 const isModalVisible = ref(false)

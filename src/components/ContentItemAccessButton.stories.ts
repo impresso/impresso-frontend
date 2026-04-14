@@ -27,7 +27,8 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    specialMembershipAccessBitPositions: [2]
+    specialMembershipAccessBitPositions: [2],
+    currentAccessLevel: 1
   },
   parameters: {
     msw: {
@@ -38,7 +39,8 @@ export const Default: Story = {
 
 export const WithoutExistingRequest: Story = {
   args: {
-    specialMembershipAccessBitPositions: [2]
+    specialMembershipAccessBitPositions: [2],
+    currentAccessLevel: 1
   },
   parameters: {
     msw: {

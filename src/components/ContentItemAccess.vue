@@ -184,22 +184,6 @@ const contentItemBitmapsAsBigInts = computed<{
     }
   }
 })
-
-const contentItemAccessBitmapsAsBitStrings = computed(() => {
-  if (!props.item.access || !props.item.access.accessBitmaps) {
-    return {
-      explore: null,
-      transcript: null,
-      facsimile: null
-    }
-  }
-  const { explore, getTranscript, getImages } = props.item.access.accessBitmaps
-  return {
-    explore: explore ? base64BytesToBigInt(explore as string).toString(2) : null,
-    transcript: getTranscript ? base64BytesToBigInt(getTranscript as string).toString(2) : null,
-    facsimile: getImages ? base64BytesToBigInt(getImages as string).toString(2) : null
-  }
-})
 </script>
 <i18n lang="json">
 {

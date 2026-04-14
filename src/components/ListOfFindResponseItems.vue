@@ -230,7 +230,7 @@ const refresh = async () => {
 const refreshFromFirstPage = async () => {
   serviceResponse.value.pagination = {
     ...serviceResponse.value.pagination,
-    offset: props.params?.query?.offset ?? 0
+    offset: 0
   }
   await fetchFindMethod()
 }

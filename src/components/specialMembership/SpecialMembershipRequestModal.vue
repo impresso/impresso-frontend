@@ -113,6 +113,7 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
   {
     "en": {
       "notYetRequested": "This content item requires special membership to access to its facsimile and transcript in Datalab or CSV Export. As it belongs to a restricted collection, you will need to request special access to them. <br><br> You have not yet requested access to this special membership.",
+      "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
       "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
       "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export."
     }
