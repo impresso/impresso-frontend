@@ -39,9 +39,13 @@
           <p
             v-if="serviceResponse.status == 'success'"
             v-html="
-              $t('numbers.itemsGeneric', {
-                n: $n(serviceResponse.data.length)
-              }, serviceResponse.data.length)
+              $t(
+                'numbers.itemsGeneric',
+                {
+                  n: $n(serviceResponse.data.length)
+                },
+                serviceResponse.data.length
+              )
             "
         /></slot>
       </div>
@@ -64,6 +68,11 @@ import { ServiceFindParams } from '@/services/types'
 interface FeathersServiceWithPath<T> extends FeathersService<T> {
   name?: string
   path?: string
+}
+
+export interface ListOfFindResponseItemsExposed {
+  refresh: () => Promise<void>
+  refreshFromFirstPage: () => Promise<void>
 }
 
 export interface ListOfFindResponseItemsProps<T> {
@@ -185,8 +194,8 @@ const fetchFindMethod = async () => {
   }
   const service = toRaw(props.service)
   // fetch user requests
-  service
-    .find({
+  try {
+    const { data, pagination } = await service.find({
       ...props.params,
       query: {
         ...props.params?.query,
@@ -195,20 +204,41 @@ const fetchFindMethod = async () => {
         // $sort: orderByModel.value ? { [orderByModel.value]: -1 } : undefined
       }
     })
-    .then(({ data, pagination }) => {
-      console.info('[ListOfFindResponseItems] @success', props.service.path)
-      serviceResponse.value = { data, status: 'success', pagination }
-    })
-    .catch((err: FeathersError) => {
-      console.error('[ListOfFindResponseItems] Error', err.message, err.data, err.code)
-      error.value = err
-      serviceResponse.value = {
-        data: [],
-        status: 'error',
-        pagination: serviceResponse.value.pagination
-      }
-    })
+    console.info('[ListOfFindResponseItems] @success', props.service.path)
+    serviceResponse.value = { data, status: 'success', pagination }
+  } catch (err) {
+    const feathersError = err as FeathersError
+    console.error(
+      '[ListOfFindResponseItems] Error',
+      feathersError.message,
+      feathersError.data,
+      feathersError.code
+    )
+    error.value = feathersError
+    serviceResponse.value = {
+      data: [],
+      status: 'error',
+      pagination: serviceResponse.value.pagination
+    }
+  }
 }
+
+const refresh = async () => {
+  await fetchFindMethod()
+}
+
+const refreshFromFirstPage = async () => {
+  serviceResponse.value.pagination = {
+    ...serviceResponse.value.pagination,
+    offset: 0
+  }
+  await fetchFindMethod()
+}
+
+defineExpose<ListOfFindResponseItemsExposed>({
+  refresh,
+  refreshFromFirstPage
+})
 
 /**
  * Watch for visibility changes to trigger lazy loading.

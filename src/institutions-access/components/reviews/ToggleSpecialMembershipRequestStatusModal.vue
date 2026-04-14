@@ -13,13 +13,13 @@
     <form @submit.prevent="handleOnSubmit">
       <RadioGroup
         class="my-1 p-3 rounded"
-        :modelValue="reviewStatus"
+        :modelValue="form.status"
         :options="[
           { value: 'pending', text: $t('userSpecialMembershipRequestsStatusPending') },
           { value: 'approved', text: $t('userSpecialMembershipRequestsStatusApproved') },
           { value: 'rejected', text: $t('userSpecialMembershipRequestsStatusRejected') }
         ]"
-        @update:modelValue="reviewStatus = $event"
+        @update:modelValue="form.status = $event"
         type="radio"
       />
       <textarea
@@ -91,7 +91,6 @@ const form = ref<SpecialMembershipReviewFormValidation>({
   status: props.item?.status || 'pending'
 })
 
-const reviewStatus = ref(props.item?.status)
 const handleOnSubmit = async (event: Event) => {
   event.preventDefault()
   v$.value.$validate() // Trigger validation
@@ -101,13 +100,15 @@ const handleOnSubmit = async (event: Event) => {
   emit('submit', form.value)
   try {
     await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
-      status: reviewStatus.value
+      status: form.value.status,
+      notes: form.value.notes
     })
     notificationStore.addNotification({
       type: 'success',
       title: 'Success',
       message: 'Special membership request status updated successfully.'
     })
+    emit('success')
     emit('dismiss')
   } catch (error) {
     console.error('Error updating special membership request review status:', error)
@@ -132,6 +133,7 @@ const v$ = useVuelidate(
 const emit = defineEmits<{
   dismiss: []
   submit: [payload: SpecialMembershipReviewFormValidation]
+  success: []
 }>()
 </script>
 <i18n lang="json">

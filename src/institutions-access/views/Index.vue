@@ -2,20 +2,24 @@
   <div class="container Index">
     <div class="row">
       <div class="col-lg-8 col-xl-9 order-2 order-lg-1">
-        <Card class="my-4" v-for="card in cardViewsWithServiceParams" :key="card.name">
+        <Card class="mb-4" v-for="card in cardViewsWithServiceParams" :key="card.name">
           <template #header>
             <h4 class="p-2 m-0 font-weight-bold">{{ $t(`card.title.${card.name}`) }}</h4>
           </template>
           <ListOfFindResponseItems
+            :ref="instance => setListRef(card.name, instance)"
             :error-loading-items-message="$t(`card.errorLoadingItems.${card.name}`)"
             :list-is-empty-message="$t(`card.listisEmpty.${card.name}`)"
             :service="userSpecialMembershipRequestsReviewsService"
             :title="$t(`card.title.${card.name}`)"
             items-class=""
             :params="card.serviceParams"
+            class="border rounded-sm"
           >
             <template #header="{ total }">
-              <div class="p-2 pb-3 d-flex gap-2 justify-content-between align-items-center">
+              <div
+                class="px-3 py-2 d-flex gap-2 justify-content-between align-items-center border-bottom mb-2"
+              >
                 <h5 class="m-0 font-size-inherit" v-html="$t(`card.listTitle.${card.name}`)"></h5>
                 <span v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
               </div>
@@ -72,7 +76,11 @@
             <p class="m-2">Manage special membership access for institutions.</p>
           </div>
           <div>
-            <BSearchInputForm @submit="performSearch" :placeholder="$t('searchPlaceholder')" />
+            <BSearchInputForm
+              @submit="performSearch"
+              :required="false"
+              :placeholder="$t('searchPlaceholder')"
+            />
           </div>
           <div class="mt-3 pt-2 border-top">
             <label class="m-2">{{ $t('sortBy') }}</label>
@@ -89,11 +97,15 @@
               variant="outline-primary"
             ></i-dropdown>
           </div>
+          <div class="mt-3 pt-3 border-top">
+            <ReviewerSettings></ReviewerSettings>
+          </div>
         </Card>
       </div>
       <ToggleSpecialMembershipRequestStatusModal
         :is-visible="isToggleStatusModalVisible"
         :item="itemToUpdate"
+        @success="refreshLists"
         @dismiss="hideToggleStatusModal()"
       ></ToggleSpecialMembershipRequestStatusModal>
     </div>
@@ -103,12 +115,15 @@
 <script setup lang="ts">
 import Card from '../components/Card.vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import type { ListOfFindResponseItemsExposed } from '@/components/ListOfFindResponseItems.vue'
 import SpecialMembershipRequestReviewItem from '@/components/modules/lists/SpecialMembershipRequestReviewItem.vue'
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
 import ToggleSpecialMembershipRequestStatusModal from '../components/reviews/ToggleSpecialMembershipRequestStatusModal.vue'
 import { ref, computed, watch } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
 import { ServiceFindParams, UserSpecialMembershipRequestReview } from '@/services/types'
 import BSearchInputForm from '@/components/legacy/bootstrap/BSearchInputForm.vue'
+import ReviewerSettings from '../components/ReviewerSettings.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -123,11 +138,31 @@ const props = withDefaults(defineProps<IndexProps>(), {
 
 const itemToUpdate = ref<UserSpecialMembershipRequestReview>(null)
 const isToggleStatusModalVisible = ref(false)
+const listRefs = ref<Record<string, ListOfFindResponseItemsExposed | null>>({})
 
 const hideToggleStatusModal = () => {
   isToggleStatusModalVisible.value = false
   router.push({ name: 'Index' })
+  performSearch('')
 }
+
+const setListRef = (name: string, instance: Element | ComponentPublicInstance | null) => {
+  if (instance && 'refresh' in instance && 'refreshFromFirstPage' in instance) {
+    listRefs.value[name] = instance as ListOfFindResponseItemsExposed
+    return
+  }
+
+  listRefs.value[name] = null
+}
+
+const refreshLists = async () => {
+  await Promise.all(
+    Object.values(listRefs.value)
+      .filter((instance): instance is ListOfFindResponseItemsExposed => instance !== null)
+      .map(instance => instance.refreshFromFirstPage())
+  )
+}
+
 const showToggleStatusModal = (item: UserSpecialMembershipRequestReview) => {
   itemToUpdate.value = item
   isToggleStatusModalVisible.value = true
@@ -154,7 +189,7 @@ const cardViewsWithServiceParams = computed(() => {
     order_by: orderBy.value,
     term: q.value
   }
-  return ['pending', 'approved'].map(status => ({
+  return ['pending', 'approved', 'rejected'].map(status => ({
     name: status,
     serviceParams: {
       query: {
@@ -203,19 +238,23 @@ const routeToModal = (item: UserSpecialMembershipRequestReview) => {
     "card": {
       "title": {
         "pending": "Pending Requests",
-        "approved": "Approved Requests"
+        "approved": "Approved Requests",
+        "rejected": "Rejected Requests"
       },
       "errorLoadingItems": {
         "pending": "Error loading pending requests.",
-        "approved": "Error loading approved requests."
+        "approved": "Error loading approved requests.",
+        "rejected": "Error loading rejected requests."
       },
       "listTitle": {
         "pending": "Pending Special Membership Requests",
-        "approved": "Approved Special Membership Requests"
+        "approved": "Approved Special Membership Requests",
+        "rejected": "Rejected Special Membership Requests"
       },
       "listisEmpty": {
         "pending": "There are no pending special membership requests.",
-        "approved": "There are no approved special membership requests."
+        "approved": "There are no approved special membership requests.",
+        "rejected": "There are no rejected special membership requests."
       }
     }
   }

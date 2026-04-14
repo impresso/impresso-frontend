@@ -7,8 +7,10 @@
     bodyClass="p-0"
     @close="emit('dismiss')"
   >
-    <SpecialMembershipAccessItem :as-container="false" :item="props.item" class="mt-3" />
-
+    <p class="m-3" v-html="$t(specialMembershipRequestStatusTranslationKey)"></p>
+    <section class="m-3 p-3 border rounded">
+      <SpecialMembershipAccessItem :as-container="false" :item="props.item" />
+    </section>
     <Alert class="m-3 border border-info" v-if="isAlreadyRequested">
       You have already requested access to this special membership.
     </Alert>
@@ -67,6 +69,11 @@ const emit = defineEmits<{
   dismiss: []
   success: []
 }>()
+const specialMembershipRequestStatusTranslationKey = computed(() => {
+  if (!Array.isArray(props.item?.requests) || props.item.requests.length === 0)
+    return 'notYetRequested'
+  return props.item.requests[0]?.status
+})
 
 const isAlreadyRequested = computed(() => {
   if (!props.item || !Array.isArray(props.item.requests)) return false
@@ -102,3 +109,13 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
   isLoading.value = false
 }
 </script>
+<i18n>
+  {
+    "en": {
+      "notYetRequested": "This content item requires special membership to access to its facsimile and transcript in Datalab or CSV Export. As it belongs to a restricted collection, you will need to request special access to them. <br><br> You have not yet requested access to this special membership.",
+      "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
+      "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
+      "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export."
+    }
+  }
+</i18n>

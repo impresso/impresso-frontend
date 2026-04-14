@@ -1,5 +1,5 @@
 <template>
-  <header class="Header position-fixed top-0 w-100 z-index-1">
+  <header class="Header position-fixed top-0 w-100">
     <nav class="h-100 navbar navbar-expand navbar-light">
       <div class="container-fluid">
         <span class="ml-2 navbar-brand">
@@ -59,6 +59,11 @@ const logout = () => {
 }
 </script>
 <style>
+.Header {
+  background-color: #f5f4f3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1003;
+}
 .Header > nav.navbar {
   --bs-gutter-x: 1.5rem;
   --bs-gutter-y: 0;
