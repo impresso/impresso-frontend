@@ -1,22 +1,34 @@
 <template>
   <div
     class="SourceOverviewNavigator bg-light border border-dark rounded shadow"
+    :class="{ 'SourceOverviewNavigator--reduced': isReduced }"
     :style="navigatorStyle"
     @pointerdown="onPointerDown"
   >
     <div
       ref="navigatorRef"
-      class="SourceOverviewNavigator__handle p-2 d-flex justify-content-center align-items-center bg-dark text-white border-bottom border-dark rounded-top gap-2"
+      class="SourceOverviewNavigator__handle p-2 d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-dark rounded-top gap-2"
     >
       <span class="very-small-caps-bold">{{ $t('sourcesOverviewNavigator.title') }}</span>
-      <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
+      <div class="mb-1">
+        <button
+          type="button"
+          class="SourceOverviewNavigator__toggle btn btn-sm btn-outline-light mr-2"
+          :aria-label="$t(toggleButtonLabelKey)"
+          :title="$t(toggleButtonLabelKey)"
+          @click.stop="toggleReduced"
+        >
+          {{ isReduced ? '+' : '-' }}
+        </button>
+        <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
+      </div>
     </div>
-    <div class="SourceOverviewNavigator__content flex-grow-1">
+    <div v-if="!isReduced" class="SourceOverviewNavigator__content flex-grow-1">
       <slot />
     </div>
     <div
       class="SourceOverviewNavigator__minimap m-2 position-relative"
-      v-if="tooltipPosition"
+      v-if="tooltipPosition && !isReduced"
       style="height: 200px"
       ref="minimapRef"
     >
@@ -76,13 +88,34 @@ const position = ref({
 const lastPointer = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const activePointerId = ref<number | null>(null)
+const isReduced = ref(false)
 
 const navigatorStyle = computed(() => {
+  if (isReduced.value) {
+    return {
+      position: 'fixed' as const,
+      transform: 'none',
+      bottom: '12px',
+      right: '12px',
+      left: 'auto',
+      top: 'auto',
+      zIndex: props.zIndex
+    }
+  }
+
   return {
     transform: `translate(${position.value.x}px, ${position.value.y}px)`,
     zIndex: props.zIndex
   }
 })
+
+const toggleButtonLabelKey = computed(() => {
+  return isReduced.value ? 'sourcesOverviewNavigator.restore' : 'sourcesOverviewNavigator.reduce'
+})
+
+const toggleReduced = () => {
+  isReduced.value = !isReduced.value
+}
 
 const onPointerMove = (event: PointerEvent) => {
   if (!isDragging.value) {
@@ -123,6 +156,10 @@ const endDrag = (event: PointerEvent) => {
 }
 
 const onPointerDown = (event: PointerEvent) => {
+  if (isReduced.value) {
+    return
+  }
+
   if (event.pointerType === 'mouse' && event.button !== 0) {
     return
   }
@@ -179,6 +216,10 @@ onBeforeUnmount(() => {
   min-width: 250px;
 }
 
+.SourceOverviewNavigator.SourceOverviewNavigator--reduced {
+  min-width: unset;
+}
+
 .SourceOverviewNavigator button {
   cursor: pointer;
   pointer-events: all;
@@ -191,6 +232,21 @@ onBeforeUnmount(() => {
 .SourceOverviewNavigator__handle {
   height: 30px;
   flex: 0 0 auto;
+}
+.SourceOverviewNavigator--reduced {
+  border: 0 !important;
+}
+.SourceOverviewNavigator--reduced .SourceOverviewNavigator__handle {
+  border-bottom: 0 !important;
+  border-bottom-left-radius: var(--impresso-border-radius-sm) !important;
+  border-bottom-right-radius: var(--impresso-border-radius-sm) !important;
+  border-top-left-radius: var(--impresso-border-radius-sm) !important;
+  border-top-right-radius: var(--impresso-border-radius-sm) !important;
+}
+
+.SourceOverviewNavigator__toggle {
+  line-height: 1;
+  min-width: 1.4rem;
 }
 
 .SourceOverviewNavigator__content {
@@ -220,7 +276,9 @@ onBeforeUnmount(() => {
 {
   "en": {
     "sourcesOverviewNavigator": {
-      "title": "Sources Overview Navigator"
+      "title": "Navigator",
+      "reduce": "Reduce navigator",
+      "restore": "Restore navigator"
     }
   }
 }

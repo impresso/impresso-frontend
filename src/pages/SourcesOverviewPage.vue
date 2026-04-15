@@ -342,7 +342,7 @@ onMounted(() => {
           :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
-          :z-index="1038"
+          :z-index="1040"
         >
           <footer class="m-2">
             <button
