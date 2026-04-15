@@ -89,55 +89,7 @@
         >
           <span>{{ $t('collections') }}</span>
         </b-nav-item>
-        <b-dropdown
-          v-if="user && jobs.length"
-          right
-          no-caret
-          ref="ddownJobs"
-          v-on:hidden="updateLastNotificationDate"
-        >
-          <template v-slot:button-content>
-            <div
-              class="d-inline-block dripicons-cloud-download position-relative"
-              style="top: 0.25em"
-            />
-            <span class="ml-1">{{ $t('label_jobs') }}</span>
-            <transition name="bounce">
-              <b-badge v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                {{ runningJobs.length }}
-              </b-badge>
-            </transition>
-          </template>
-          <template v-slot:button-icon>
-            <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
-          </template>
-          <div v-if="!jobs.length" class="bg-dark text-center text-white p-4">
-            {{ $t('no-jobs-yet') }}
-          </div>
-          <div v-else class="jobs-list">
-            <div class="list">
-              <job-item
-                :item="job"
-                class="job px-3 py-2 border-bottom"
-                v-for="(job, i) in jobs"
-                :key="i"
-                style="border-color: var(--clr-grey-200) !important"
-              />
-            </div>
-            <div class="pt-2 pb-1 d-flex justify-content-center">
-              <pagination
-                @click.prevent.stop
-                :current-page="jobsPaginationCurrentPage"
-                @change="$event => (jobsPaginationCurrentPage = $event)"
-                :total-rows="jobsPaginationTotalRows"
-                :per-page="jobsPaginationPerPage"
-                aria-controls="my-table"
-                class="small-caps d-inline-block"
-                :showDescription="false"
-              />
-            </div>
-          </div>
-        </b-dropdown>
+        <JobsModalButton v-if="user" />
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
@@ -203,13 +155,11 @@
 <script lang="js">
 import { defineComponent } from 'vue'
 import Icon from '@/components/base/Icon.vue'
-import JobItem from '@/components/modules/lists/JobItem.vue'
-import Pagination from '@/components/modules/Pagination.vue'
 import Logo from '@/components/Logo.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import JobsModalButton from '@/components/jobs/JobsModalButton.vue'
 import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
 import { mapStores } from 'pinia'
-import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -249,10 +199,7 @@ export default defineComponent({
         name: 'Nederlands',
         disabled: true
       }
-    },
-    jobsPaginationPerPage: 4,
-    jobsCurrentPage: 1,
-    jobsPaginationCurrentPage: 1
+    }
   }),
   // mounted() {
   //   if (this.user) {
@@ -262,7 +209,7 @@ export default defineComponent({
   //   }
   // },
   computed: {
-    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
+    ...mapStores(useSettingsStore, useUserStore, useNotificationsStore),
     searchQueryHash: searchQueryHashGetter(),
     searchQuery: searchQueryGetter(),
     loginRouteParams() {
@@ -287,15 +234,7 @@ export default defineComponent({
     countActiveItems() {
       return this.searchQuery.countActiveItems()
     },
-    jobs() {
-      return this.jobsStore.items
-    },
-    jobsPaginationTotalRows() {
-      return this.jobsStore.totalItems
-    },
-    runningJobs() {
-      return this.jobs.filter(d => d.status === 'RUN')
-    },
+
     activeLanguageCode() {
       return this.settingsStore.language_code
     },
@@ -338,12 +277,6 @@ export default defineComponent({
     }
   },
   methods: {
-    updateLastNotificationDate() {
-      this.settingsStore.updateLastNotificationDate()
-    },
-    test() {
-      return this.jobsStore.createTestJob()
-    },
     selectLanguage(languageCode) {
       window.app.$i18n.locale = languageCode
       this.settingsStore.setLanguageCode(languageCode)
@@ -359,60 +292,14 @@ export default defineComponent({
       }
     }
   },
-  watch: {
-    jobsPaginationCurrentPage: {
-      handler(page) {
-        if (this.user) {
-          this.jobsStore.loadJobs({
-            page,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      },
-      immediate: true
-    },
-    user: {
-      handler(user) {
-        if (user) {
-          this.jobsStore.loadJobs({
-            page: 1,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      }
-    },
-    jobs: {
-      handler(jobs) {
-        if (jobs.length && this.$refs.ddownJobs) {
-          const lastModifiedDate = jobs
-            .map(d => d.lastModifiedDate.getTime())
-            .sort()
-            .pop()
-          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
-
-          if (lastNotificationDate - lastModifiedDate < 0) {
-            console.info(
-              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
-            )
-            this.$refs.ddownJobs.show()
-          } else {
-            console.info(
-              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
-            )
-          }
-        }
-      }
-    }
-  },
+  watch: {},
   components: {
     Icon,
     Logo,
-    // Toast,
-    JobItem,
-    Pagination,
     InfoButton,
     UserArea,
-    SwitchBetweenAppDatalab
+    SwitchBetweenAppDatalab,
+    JobsModalButton
   }
 })
 </script>
