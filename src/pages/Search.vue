@@ -249,6 +249,7 @@ import {
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useSearchQueriesStore } from '@/stores/searchQueries'
 import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
@@ -345,7 +346,7 @@ export default defineComponent({
     return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
-    ...mapStores(useCollectionsStore, useNotificationsStore, useUserStore),
+    ...mapStores(useCollectionsStore, useNotificationsStore, useSearchQueriesStore, useUserStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -575,6 +576,9 @@ export default defineComponent({
       const searchQueryDescription = msg
         .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
         .replace('Found', this.$t('Based on search query with'))
+
+      this.searchQueriesStore.recordHash(this.searchQueryHash, searchQueryDescription)
+
       this.inputDescription = this.$t('collectionDescription', {
         inputDescription: searchQueryDescription
       })
