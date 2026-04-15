@@ -220,7 +220,14 @@ onMounted(() => {
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
           <template #summaryActions>
-            <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
+            <b-dropdown
+              size="sm"
+              variant="outline-secondary"
+              right
+              containsForm
+              initialIsOpen
+              class="mr-3"
+            >
               <template #button-content> {{ $t('visualisationSettings') }}</template>
               <section class="py-2">
                 <div
@@ -335,7 +342,7 @@ onMounted(() => {
           :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
-          :z-index="1038"
+          :z-index="1040"
         >
           <footer class="m-2">
             <button
@@ -370,8 +377,8 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "pageLabel": "Sources Overview",
-    "pageTitle": "Explore the sources in the archive",
+    "pageLabel": "Media Titles Overview",
+    "pageTitle": "Explore the media titles in the archive",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
     "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources",
@@ -388,7 +395,7 @@ onMounted(() => {
     "withPowerScale": "With Power Scale",
     "withPowerScaleInfoTitle": "With Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
-    "gettingStarted": "Getting Started Guide"
+    "gettingStarted": "Open Getting Started Guide"
   }
 }
 </i18n>

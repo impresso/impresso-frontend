@@ -13,7 +13,7 @@ const meta: Meta<typeof SearchFacets> = {
   argTypes: {
     groupBy: {
       control: 'select',
-      options: ['articles', 'images'],
+      options: ['contentItems', 'images'],
       description: 'Group by articles or images'
     },
     filters: {

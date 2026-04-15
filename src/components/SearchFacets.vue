@@ -80,8 +80,8 @@ export interface IData {
 export default {
   props: {
     groupBy: {
-      type: String as PropType<'articles' | 'images'>,
-      default: 'articles'
+      type: String as PropType<'contentItems' | 'images'>,
+      default: 'contentItems'
     },
     filters: {
       type: Array as PropType<Filter[]>,

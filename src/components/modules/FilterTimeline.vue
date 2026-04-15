@@ -1,7 +1,7 @@
 <template>
   <div class="FilterTimeline">
-    <base-title-bar
-      >{{ $t(`label.timeline.${groupBy}`) }}
+    <base-title-bar>
+      {{ $t(`label.timeline.${groupBy}`) }}
       <InfoButton v-if="infoButtonId" :name="infoButtonId" />
       <template v-slot:options>
         <b-button
@@ -61,8 +61,7 @@
           <div v-else>
             {{ $d(tooltipScope.tooltip.item.t, 'year') }}
             &middot;
-            <b>{{ tooltipScope.tooltip.item.w ? $n(tooltipScope.tooltip.item.w) : '0' }}</b>
-            {{ groupBy }}
+            <span v-html="$t(`numbers.${groupBy}`, { n: tooltipScope.tooltip.item.w || 0 })" />
           </div>
         </div>
       </template>
@@ -164,7 +163,7 @@ export default defineComponent({
     maxDate: Date,
     groupBy: {
       type: String,
-      default: 'articles'
+      default: 'contentItems'
     },
     filters: {
       type: Array as PropType<FilterWithItems<DaterangeFilterItem>[]>,
@@ -362,7 +361,7 @@ export default defineComponent({
     "label": {
       "timeline": {
         "passages": "Number of passages per year",
-        "articles": "publication date",
+        "contentItems": "publication date",
         "images": "publication date"
       },
       "timelineDescription": {
@@ -376,14 +375,14 @@ export default defineComponent({
             "percent": "Percentage of passages per year (filtered)"
           }
         },
-        "articles": {
+        "contentItems": {
           "description": {
-            "sum": "Number of articles per year",
-            "percent": "Percentage of articles per year"
+            "sum": "Number of content items per year",
+            "percent": "Percentage of content items per year"
           },
           "filtered": {
-            "sum": "Number of articles per year (filtered)",
-            "percent": "Percentage of articles per year (filtered)"
+            "sum": "Number of content items per year (filtered)",
+            "percent": "Percentage of content items per year (filtered)"
           }
         },
         "images": {

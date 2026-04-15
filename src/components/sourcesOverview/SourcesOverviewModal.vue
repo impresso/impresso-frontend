@@ -12,7 +12,7 @@
     <LoadingBlock v-if="isLoading" :height="300" />
     <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
       <template v-slot:tabs-end>
-        <b-nav-item class="w-50" v-for="tab in tabs" :key="tab.name">
+        <b-nav-item v-for="tab in tabs" :key="tab.name">
           <button
             size="sm"
             class="w-100 btn btn-transparent nav-link"
@@ -42,6 +42,23 @@
           </button>
         </div>
       </section>
+      <section v-else-if="activeTab === 'searchQueries'" class="p-3">
+        <SourcesOverviewSearchQueriesList>
+          <p class="mb-3">{{ $t('bySearchQueriesDescription') }}</p>
+          <template #action="{ entry }">
+            <RouterLink
+              class="small text-decoration-underline"
+              :to="{
+                name: 'sources',
+                query: { sq: entry.hash }
+              }"
+              @click="$emit('dismiss')"
+            >
+              {{ $t('explore') }}
+            </RouterLink>
+          </template>
+        </SourcesOverviewSearchQueriesList>
+      </section>
       <section v-else-if="activeTab === 'barista'" class="p-3">
         {{ $t('withBaristaDescription') }}
       </section>
@@ -55,6 +72,7 @@ import InfoModal from '../InfoModal.vue'
 import Icon from '../base/Icon.vue'
 import type { Filter } from '@/models'
 import SearchQuerySummary from '../modules/SearchQuerySummary.vue'
+import SourcesOverviewSearchQueriesList from './SourcesOverviewSearchQueriesList.vue'
 
 export type SourcesOverviewModalProps = {
   title?: string
@@ -65,7 +83,7 @@ export type SourcesOverviewModalProps = {
 }
 withDefaults(defineProps<SourcesOverviewModalProps>(), {
   title: 'Sources Overview: welcome!',
-  modalTitle: 'Sources Overview',
+  modalTitle: 'Getting started guide',
   requestDelay: 10,
   filters: () => []
 })
@@ -73,7 +91,8 @@ const emit = defineEmits(['dismiss', 'confirm'])
 const isLoading = ref(false)
 const tabs = ref([
   { name: 'metadata', label: 'byMetadata', icon: '' },
-  { name: 'barista', label: 'withBarista', icon: 'sparks' }
+  { name: 'searchQueries', label: 'bySearchQueries', icon: 'funnel' }
+  // { name: 'barista', label: 'withBarista', icon: 'sparks' }
 ])
 const activeTab = ref('metadata')
 </script>
@@ -95,6 +114,8 @@ ul.SourceOverviewModal__tabs.nav.nav-pills .nav-item .nav-link.active {
 {
   "en": {
     "byMetadata": "By Metadata",
+    "bySearchQueries": "By Search Queries",
+    "bySearchQueriesDescription": "Explore one of your recent search queries:",
     "withBarista": "With Barista",
     "withBaristaDescription": "(Not there yet!) Explore the sources overview using Barista to refine or start your search query.",
     "useCurrentFiltersToExploreSourcesOverview": "You can use the current filters to explore the Sources Overview. The following <strong>content items</strong> are considered:",
