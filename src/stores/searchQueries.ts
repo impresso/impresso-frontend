@@ -4,6 +4,7 @@ export const SearchQueryHistoryLimit = 10
 
 export interface SearchQueryHashEntry {
   hash: string
+  createdAt?: number
   timestamp: number
   summary?: string
 }
@@ -40,6 +41,7 @@ export const useSearchQueriesStore = defineStore('searchQueries', {
         const existingEntry = this.entries[existingIndex]
         const updatedEntry: SearchQueryHashEntry = {
           ...existingEntry,
+          createdAt: existingEntry.createdAt ?? existingEntry.timestamp,
           timestamp: now,
           summary: summary ?? existingEntry.summary
         }
@@ -50,6 +52,7 @@ export const useSearchQueriesStore = defineStore('searchQueries', {
 
       this.entries.unshift({
         hash: normalizedHash,
+        createdAt: now,
         timestamp: now,
         summary
       })

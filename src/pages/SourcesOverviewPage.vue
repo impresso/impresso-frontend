@@ -220,7 +220,14 @@ onMounted(() => {
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
           <template #summaryActions>
-            <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
+            <b-dropdown
+              size="sm"
+              variant="outline-secondary"
+              right
+              containsForm
+              initialIsOpen
+              class="mr-3"
+            >
               <template #button-content> {{ $t('visualisationSettings') }}</template>
               <section class="py-2">
                 <div
