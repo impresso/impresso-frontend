@@ -61,7 +61,15 @@
           <div v-else>
             {{ $d(tooltipScope.tooltip.item.t, 'year') }}
             &middot;
-            <span v-html="$t(`numbers.${groupBy}`, { n: tooltipScope.tooltip.item.w || 0 })" />
+            <span
+              v-html="
+                $t(
+                  `numbers.${groupBy}`,
+                  { n: $n(tooltipScope.tooltip.item.w || 0) },
+                  tooltipScope.tooltip.item.w || 0
+                )
+              "
+            />
           </div>
         </div>
       </template>

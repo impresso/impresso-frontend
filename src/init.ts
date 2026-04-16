@@ -22,7 +22,7 @@ export interface Features {
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
   viewPlans: { enabled: true },
-  specialMemberships: { enabled: true }
+  specialMemberships: { enabled: false }
 } satisfies Features
 
 type ApiVersion = {
