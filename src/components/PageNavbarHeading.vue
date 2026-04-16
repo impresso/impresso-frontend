@@ -12,11 +12,13 @@
         <slot name="title">
           <h3 class="mb-1">{{ title }}</h3>
         </slot>
+
+        <slot></slot>
       </div>
     </b-navbar-nav>
     <b-navbar-nav
       v-if="!!$slots.actions"
-      class="border-start border-left px-3 py-2 align-items-end"
+      class="border-start border-left px-3 py-2 align-items-end gap-3"
     >
       <slot name="actions" />
     </b-navbar-nav>
