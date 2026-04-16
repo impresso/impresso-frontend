@@ -21,6 +21,7 @@ import { useViewsStore } from '@/stores/views'
 import { useNotificationsStore } from '@/stores/notifications'
 import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
+import { Routes } from '@/router/routes'
 
 // eslint-disable-next-line
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
@@ -496,6 +497,44 @@ const router = createRouter({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: Routes.mediaSource.path,
+      component: () => import('@/pages/MediaSource.vue'),
+      name: Routes.mediaSource.name,
+      meta: {
+        requiresAuth: false
+      },
+      props: route => ({ mediaSource: route.meta.mediaSource }),
+      beforeEnter: async to => {
+        const mediaSourceId = to.params.media_source_id as string
+        try {
+          to.meta.mediaSource = await services.mediaSources.get(mediaSourceId)
+        } catch (error: any) {
+          // Redirect to 404 for missing resources; keep other errors visible in console.
+          if (error?.code === 404 || error?.statusCode === 404) {
+            return {
+              name: 'catchAll',
+              params: {
+                catchAll: to.path.replace(/^\//, '')
+              },
+              replace: true
+            }
+          }
+          console.error('[router] Failed to load media source:', error)
+        }
+      },
+      children: [
+        {
+          path: Routes.mediaSourceOverview.path,
+          name: Routes.mediaSourceOverview.name,
+          component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          meta: {
+            requiresAuth: false
+          },
+          props: route => ({ mediaSource: route.meta.mediaSource })
+        }
+      ]
     },
     {
       path: '/:catchAll(.*)',

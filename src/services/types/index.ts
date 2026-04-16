@@ -8,6 +8,7 @@ import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
 import { ICollectableItemsService } from './collectableItems'
 import { AdminService } from './admin'
+import { MediaSourcesService } from './mediaSources'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -51,6 +52,7 @@ export interface Services extends UntypedServices {
   ['search-facets/search']: SearchFacetsService
   mentions: MentionsService
   ['/collections/:collection_id/items']: ICollectableItemsService
+  ['media-sources']: MediaSourcesService
 }
 
 export interface Group {
