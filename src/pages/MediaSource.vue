@@ -1,6 +1,6 @@
 <template>
   <i-layout>
-    <i-layout-section>
+    <i-layout-section width="400px" class="d-none d-md-block">
       <template v-slot:header>
         <b-tabs pills class="mx-2 pt-2">
           <template v-slot:tabs-end>
@@ -18,20 +18,24 @@
     </i-layout-section>
     <i-layout-section main>
       <template v-slot:header>
-        <PageNavbarHeading :label="$t('types.' + props.mediaSource.type)" :title="title">
+        <PageNavbarHeading :label="$t('types.' + (mediaSource?.type || ''))" :title="title">
           <template #actions>
-            <b-nav-item :to="{ name: 'faq' }" class="active" active-class="none">
-              <span v-html="$t('tableOfContents')"></span>
-            </b-nav-item>
+            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+              {{ $t('actions.searchMore') }}
+            </router-link>
           </template>
+          {{ otherTitles }}
         </PageNavbarHeading>
-        <b-tabs pills class="mx-3">
+
+        <b-tabs pills class="mx-3" v-if="mediaSource">
           <template v-slot:tabs-end>
             <li class="nav-item pl-2" v-for="tab in nestedRoutes" :key="tab.name">
               <RouterLink
-                :to="{ name: tab.name, params: { id: props.mediaSource.id } }"
+                :to="{ name: tab.name, params: { media_source_id: mediaSource.id } }"
                 class="nav-link"
-                active-class-exact="active"
+                :class="{
+                  active: route.name === tab.name
+                }"
               >
                 {{ $t(`route.${tab.name}`) }}
               </RouterLink>
@@ -39,39 +43,7 @@
           </template>
         </b-tabs>
       </template>
-      <router-view :mediaSource="props.mediaSource">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
-              {{ otherTitles.join(', ') }}
-            </div>
-          </div>
-          <div class="row" v-for="category in Categories" :key="category">
-            <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
-              <h3 class="font-weight-bold font-size-inherit text-capitalize m-0">
-                {{ $t('category.' + category) }}
-              </h3>
-            </div>
-            <div
-              class="col-sm-12 col-md-6 col-lg-6 col-xl-3"
-              v-for="(values, prop) in mappedProperties[category]"
-              :key="prop"
-            >
-              <div class="py-2 small">
-                <div class="font-weight-bold mb-2">{{ $t('property.' + prop) }}</div>
-                <div class="border rounded px-2 bg-light d-inline-block">
-                  <div v-for="(value, i) in values" :key="i">{{ value }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <pre>
-        {{ JSON.stringify(props.mediaSource, null, 2) }}
-      </pre
-        >
-      </router-view>
+      <router-view :mediaSource="mediaSource" />
     </i-layout-section>
   </i-layout>
 </template>
@@ -79,86 +51,84 @@
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import type { MediaSource } from '@/models/generated/canonical'
 import { Routes } from '@/router/routes'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { me, mediaSources as mediaSourcesService } from '@/services'
+import { watch } from 'vue'
+import { Filter } from '@/models'
+import { serializeFilters } from '@/logic/filters'
+import { CommonQueryParameters } from '@/router/util'
+const route = useRoute()
+const mediaSource = ref<MediaSource>()
+const loading = ref(true)
+const error = ref(false)
 
-const props = defineProps<{ mediaSource: MediaSource }>()
-const nestedRoutes = [Routes.mediaSource, Routes.mediaSourceOverview]
-const Categories = [
-  'identity',
-  'temporal',
-  'geo',
-  'specs',
-  'historiography',
-  'production',
-  'resourceHolder'
-] as const
-
-const propertiesByCategories: Record<(typeof Categories)[number], string[]> = {
-  identity: [
-    'longTitle',
-    'variantTitle',
-    'otherTitle',
-    'subtitle',
-    'partnerUid',
-    'description',
-    'bibRecText',
-    'topics'
-  ],
-  temporal: ['firstPubYear', 'lastPubYear', 'periodicity', 'formerPeriodicity'],
-  geo: [],
-  specs: [],
-  historiography: [],
-  production: [],
-  resourceHolder: []
-}
-
-const categoryByProperty: Record<string, string> = Object.entries(propertiesByCategories).reduce(
-  (acc, [category, props]: [string, string[]]) => {
-    props.forEach(prop => {
-      acc[prop] = category
-    })
-    return acc
-  },
-  {} as Record<string, string>
-)
-
-const otherTitles = computed(() => {
-  return props.mediaSource.properties
-    .filter(prop => ['otherTitle', 'variantTitle'].includes(prop.id))
-    .map(prop => prop.value)
+const props = withDefaults(defineProps<{ filtersWithItems: Filter[] }>(), {
+  filtersWithItems: () => []
 })
 
-const mappedProperties = computed(() => {
-  // fill the propertiesByCategories with the values from mediaSource.properties
-  const mapped: Record<string, Record<string, string[]>> = {}
-  props.mediaSource.properties.forEach(prop => {
-    const category = categoryByProperty[prop.id] || 'uncategorized'
-    if (!mapped[category]) {
-      mapped[category] = {}
+const serializedFilters = computed(() => {
+  return serializeFilters([{ type: 'newspaper', q: mediaSource.value?.id || '' }])
+})
+
+const searchPageLink = computed(() => {
+  return {
+    name: 'search',
+    query: {
+      [CommonQueryParameters.SearchFilters]: serializedFilters.value
     }
-    if (!mapped[category][prop.id]) {
-      mapped[category][prop.id] = []
-    }
-    mapped[category][prop.id].push(prop.value)
-  })
-  return mapped
+  }
+})
+const nestedRoutes = [Routes.mediaSourceMetadata, Routes.mediaSourceOverview]
+
+const otherTitles = computed(() => {
+  return mediaSource.value?.properties
+    .filter(prop => ['otherTitle', 'variantTitle'].includes(prop.id))
+    .map(prop => prop.value.trim())
+    .join(', ')
 })
 
 const title = computed(() => {
-  const startYear = mappedProperties.value.temporal.firstPubYear?.[0]?.trim()
-  const endYear = mappedProperties.value.temporal.lastPubYear?.[0]?.trim()
+  if (!mediaSource.value) {
+    return '...'
+  }
+  const startYear = mediaSource.value?.properties
+    .find(prop => prop.id === 'firstPubYear')
+    ?.value?.trim()
+  const endYear = mediaSource.value?.properties
+    .find(prop => prop.id === 'lastPubYear')
+    ?.value?.trim()
 
   return (
-    props.mediaSource.name +
+    mediaSource.value.name +
     (startYear ? ` (${startYear}` : '') +
     (endYear ? ` - ${endYear})` : startYear ? ')' : '')
   )
 })
+
+async function fetchMediaSource(): Promise<MediaSource | void> {
+  loading.value = true
+  error.value = false
+  try {
+    const response = await mediaSourcesService.get(route.params.media_source_id as string)
+    mediaSource.value = response
+  } catch (err) {
+    console.error('Error fetching media source:', err)
+    error.value = true
+  } finally {
+    loading.value = false
+  }
+}
+watch(() => route.params.media_source_id, fetchMediaSource, { immediate: true })
 </script>
 <i18n lang="json">
 {
   "en": {
     "mediaSource": "Media Source",
+    "route": {
+      "mediaSourceMetadata": "List of Metadata",
+      "mediaSourceOverview": "Overview"
+    },
     "types": {
       "newspaper": "Newspaper",
       "periodical": "Periodical",
@@ -169,29 +139,6 @@ const title = computed(() => {
       "audioRecording": "Audio Recording",
       "videoRecording": "Video Recording",
       "other": "Other"
-    },
-    "category": {
-      "identity": "Identity",
-      "temporal": "Temporal",
-      "geo": "Geographical",
-      "specs": "Specifications",
-      "historiography": "Historiography",
-      "production": "Production",
-      "resourceHolder": "Resource Holder"
-    },
-    "property": {
-      "longTitle": "Long Title",
-      "variantTitle": "Variant Title",
-      "otherTitle": "Other Title",
-      "subtitle": "Subtitle",
-      "partnerUid": "Partner UID",
-      "description": "Description",
-      "bibRecText": "Bibliographical Record Text",
-      "topics": "Topics",
-      "firstPubYear": "First Publication Year",
-      "lastPubYear": "Last Publication Year",
-      "periodicity": "Periodicity",
-      "formerPeriodicity": "Former Periodicity"
     }
   }
 }
