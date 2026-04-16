@@ -3,8 +3,12 @@ export const Routes = {
     path: '/media-source/:media_source_id',
     name: 'mediaSource'
   },
+  mediaSourceMetadata: {
+    path: '',
+    name: 'mediaSourceMetadata'
+  },
   mediaSourceOverview: {
-    path: '/media-source/:media_source_id/overview',
+    path: 'overview',
     name: 'mediaSourceOverview'
   }
 } as const

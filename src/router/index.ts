@@ -505,34 +505,20 @@ const router = createRouter({
       meta: {
         requiresAuth: false
       },
-      props: route => ({ mediaSource: route.meta.mediaSource }),
-      beforeEnter: async to => {
-        const mediaSourceId = to.params.media_source_id as string
-        try {
-          to.meta.mediaSource = await services.mediaSources.get(mediaSourceId)
-        } catch (error: any) {
-          // Redirect to 404 for missing resources; keep other errors visible in console.
-          if (error?.code === 404 || error?.statusCode === 404) {
-            return {
-              name: 'catchAll',
-              params: {
-                catchAll: to.path.replace(/^\//, '')
-              },
-              replace: true
-            }
-          }
-          console.error('[router] Failed to load media source:', error)
-        }
-      },
+
       children: [
+        {
+          path: Routes.mediaSourceMetadata.path,
+          component: () => import('@/components/mediaSource/MediaSourceMetadata.vue'),
+          name: Routes.mediaSourceMetadata.name
+        },
         {
           path: Routes.mediaSourceOverview.path,
           name: Routes.mediaSourceOverview.name,
           component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
           meta: {
             requiresAuth: false
-          },
-          props: route => ({ mediaSource: route.meta.mediaSource })
+          }
         }
       ]
     },
