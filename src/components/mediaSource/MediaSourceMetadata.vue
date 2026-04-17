@@ -35,7 +35,7 @@
         <button
           class="btn btn-sm btn-outline-secondary"
           @click="downloadAsCSV"
-          title="$t('actions.downloadMetadataAsCSV')"
+          :title="$t('actions.downloadMetadataAsCSV')"
         >
           <Icon name="download" />
           <span>{{ $t('actions.downloadMetadataAsCSV') }}</span>
