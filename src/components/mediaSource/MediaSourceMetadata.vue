@@ -107,13 +107,13 @@ const institutionLogosSrc = computed<string[]>(() => {
     return []
   }
   const regex = /([\w-_ ])+\.(svg|png|jpg|jpeg|gif|bmp)/gi
-  const images = logos.match(regex)
+  const images = logos.match(regex) ?? []
 
   return images.map((d, i) => `https://impresso-project.ch/assets/images/${d.trim()}`)
 })
 
 const mappedProperties = computed(() => {
-  if (!props.mediaSource) {
+  if (!props.mediaSource || !Array.isArray(props.mediaSource.properties)) {
     return {}
   }
   const categoryByProperty: Record<string, string> = Object.entries(propertiesByCategories).reduce(

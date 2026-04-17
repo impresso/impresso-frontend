@@ -81,17 +81,18 @@
   </i-layout>
 </template>
 <script lang="ts" setup>
-import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import type { MediaSource } from '@/models/generated/canonical'
 import { Routes } from '@/router/routes'
-import { computed, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { me, mediaSources as mediaSourcesService } from '@/services'
-import { watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { mediaSources as mediaSourcesService } from '@/services'
 import { Filter } from '@/models'
 import { serializeFilters } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
+
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
+
 const route = useRoute()
 const mediaSource = ref<MediaSource>()
 const loading = ref(true)
