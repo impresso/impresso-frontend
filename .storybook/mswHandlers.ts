@@ -13,6 +13,41 @@ import {
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
 
+export const findSearchFacetsHandler = http.get(
+  '/api/search-facets/search',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const facets = []
+    for (const [key, value] of url.searchParams.entries()) {
+      const match = key.match(/^facets\[(\d+)\]$/)
+      if (match) {
+        facets[parseInt(match[1], 10)] = value
+      }
+    }
+    console.debug('Received request for search facets with params:', request.url, facets)
+    const numBuckets = 200
+    const buildYearFacet = () => ({
+      type: 'year',
+      numBuckets,
+      buckets: Array.from({ length: numBuckets }, (_, i) => {
+        let c = Math.floor(Math.random() * 10000)
+        // add some zeroes to the count to make the timeline more interesting
+        if (Math.random() < 0.1) {
+          c = 0
+        }
+        return {
+          count: c,
+          value: String(1800 + i),
+          id: String(1800 + i),
+          item: { y: 1800 + i, refs: { c, a: c } }
+        }
+      })
+    })
+    const data = facets.includes('year') ? [buildYearFacet()] : []
+    return HttpResponse.json({ data, total: data.length })
+  }
+)
+
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
   return HttpResponse.json({

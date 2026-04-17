@@ -21,6 +21,7 @@ import { useViewsStore } from '@/stores/views'
 import { useNotificationsStore } from '@/stores/notifications'
 import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
+import { Routes } from '@/router/routes'
 
 // eslint-disable-next-line
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
@@ -496,6 +497,30 @@ const router = createRouter({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: Routes.mediaSource.path,
+      component: () => import('@/pages/MediaSource.vue'),
+      name: Routes.mediaSource.name,
+      meta: {
+        requiresAuth: false
+      },
+
+      children: [
+        {
+          path: Routes.mediaSourceMetadata.path,
+          component: () => import('@/components/mediaSource/MediaSourceMetadata.vue'),
+          name: Routes.mediaSourceMetadata.name
+        },
+        {
+          path: Routes.mediaSourceOverview.path,
+          name: Routes.mediaSourceOverview.name,
+          component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        }
+      ]
     },
     {
       path: '/:catchAll(.*)',

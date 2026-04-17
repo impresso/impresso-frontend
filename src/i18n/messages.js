@@ -123,6 +123,7 @@ export default {
     },
     actions: {
       search: 'Search',
+      downloadMetadataAsCSV: 'Download metadata as CSV',
       confirm: 'confirm',
       register: 'Create account',
       addFilter: 'Refine your search with additional filters ...',
