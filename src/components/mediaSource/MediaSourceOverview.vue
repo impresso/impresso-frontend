@@ -16,15 +16,18 @@ import { computed } from 'vue'
 import type { Filter } from '@/models'
 import LoadingBlock from '../LoadingBlock.vue'
 const props = defineProps<{
-  mediaSource: MediaSource
+  mediaSource?: MediaSource
 }>()
 
-const filters = computed<Filter[]>(() => [
-  {
-    type: 'newspaper',
-    q: props.mediaSource.id
-  }
-])
+const filters = computed<Filter[]>(() => {
+  if (!props.mediaSource) return []
+  return [
+    {
+      type: 'newspaper',
+      q: props.mediaSource.id
+    }
+  ]
+})
 </script>
 <i18n lang="json">
 {
