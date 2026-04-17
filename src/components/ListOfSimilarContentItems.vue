@@ -40,6 +40,9 @@
       :error="error"
       :defaultLabel="$t('fetchingSimilarContentItems.errorLabel')"
     />
+    <Alert v-if="notice" type="info" class="mt-3">
+      {{ $t(`fetchingSimilarContentItems.${notice}`) }}
+    </Alert>
   </div>
 </template>
 
@@ -83,7 +86,7 @@ import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import { Filter } from 'impresso-jscommons'
-
+import Alert from 'impresso-ui-components/components/Alert.vue'
 export interface ListOfSimilarContentItemsProps {
   contentItem: ContentItemType
   minHeight?: number
@@ -97,6 +100,7 @@ const similarItems = ref<ContentItemType[]>([])
 
 const isLoading = ref(false)
 const error = ref<Error | null>(null)
+const notice = ref<string | null>(null)
 const addTimeframeFilter = ref<boolean>(true)
 const contentItemEmbedding = ref<string>('')
 /**
@@ -136,6 +140,7 @@ const fetchSimilarItems = async (): Promise<void> => {
   isLoading.value = true
   similarItems.value = []
   error.value = null
+  notice.value = null
   // Add a minimum delay for smooth transitions
   await new Promise(resolve => setTimeout(resolve, 500))
   console.info('[ListOfSimilarContentItems] Fetching embedding for:', props.contentItem.id)
@@ -155,7 +160,7 @@ const fetchSimilarItems = async (): Promise<void> => {
   }
   if (!contentItemEmbedding.value.length) {
     isLoading.value = false
-    error.value = new Error('No embeddings found for the content item.')
+    notice.value = 'noEmbeddingsForThisContentItem'
     console.warn('No embeddings found for content item:', props.contentItem.id)
     return
   }
@@ -222,7 +227,8 @@ watch(
   "en": {
     "description": "Find and display content items similar to the current one using semantic embeddings. This process may take a few moments.",
     "fetchingSimilarContentItems": {
-      "errorLabel": "Error fetching similar content items. Please try again later. Received: "
+      "errorLabel": "Error fetching similar content items. Please try again later. Received: ",
+      "noEmbeddingsForThisContentItem": "No semantic embeddings available for this content item."
     },
     "actions": {
       "fetchSimilarItems": "load Similar Items",
