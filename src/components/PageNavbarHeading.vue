@@ -19,7 +19,7 @@
       </b-navbar-nav>
       <b-navbar-nav
         v-if="!!$slots.actions"
-        class="border-start border-left px-3 py-2 align-items-end gap-3"
+        class="border-start border-left px-3 py-2 align-items-end gap-2"
       >
         <slot name="actions" />
       </b-navbar-nav>
@@ -43,6 +43,7 @@ export interface PageNavbarHeadingProps {
   label?: string
   title?: string
 }
+
 withDefaults(defineProps<PageNavbarHeadingProps>(), {
   label: 'Label',
   title: 'Title'
