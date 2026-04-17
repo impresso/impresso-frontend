@@ -3,18 +3,27 @@
     <i-layout-section main>
       <template v-slot:header
         ><div class="container">
-          <PageNavbarHeading
-            :label="$t('types.' + (mediaSource?.type || ''))"
-            :title="title"
-            class="row"
-          >
-            <template #actions>
-              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-                {{ $t('actions.searchMore') }}
-              </router-link>
-            </template>
-            {{ otherTitles }}
-          </PageNavbarHeading>
+          <div class="row">
+            <PageNavbarHeading
+              :label="$t('types.' + (mediaSource?.type || ''))"
+              :title="title"
+              class="w-100"
+            >
+              <template #actions>
+                <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                  {{ $t('actions.searchMore') }}
+                </router-link>
+                <router-link
+                  v-if="!isThisMediaSourceInCurrentFilter"
+                  class="btn btn-outline-primary btn-sm"
+                  :to="addMediaSourceFilterToSearchPage"
+                >
+                  {{ $t('actions.addToCurrentFilters') }}
+                </router-link>
+              </template>
+              {{ otherTitles }}
+            </PageNavbarHeading>
+          </div>
           <div class="row">
             <b-tabs pills v-if="mediaSource">
               <template v-slot:tabs-end>
@@ -112,10 +121,32 @@ const searchPageLink = computed(() => {
     }
   }
 })
+
+const isThisMediaSourceInCurrentFilter = computed(() => {
+  return props.filters.some(
+    filter => filter.type === 'newspaper' && filter.q === mediaSource.value?.id
+  )
+})
+
+const addMediaSourceFilterToSearchPage = computed(() => {
+  if (isThisMediaSourceInCurrentFilter.value) {
+    return searchPageLink.value
+  }
+  return {
+    name: 'search',
+    query: {
+      [CommonQueryParameters.SearchFilters]: serializeFilters(
+        props.filters.concat([{ type: 'newspaper', q: mediaSource.value?.id || '' }])
+      )
+    }
+  }
+})
+
 const nestedRoutes = [Routes.mediaSourceMetadata, Routes.mediaSourceOverview]
 
 const otherTitles = computed(() => {
-  return mediaSource.value?.properties
+  if (!Array.isArray(mediaSource.value?.properties)) return ''
+  return mediaSource.value.properties
     .filter(prop => ['otherTitle', 'variantTitle'].includes(prop.id))
     .map(prop => prop.value.trim())
     .join(', ')
@@ -125,10 +156,13 @@ const title = computed(() => {
   if (!mediaSource.value) {
     return '...'
   }
-  const startYear = mediaSource.value?.properties
+  if (!Array.isArray(mediaSource.value?.properties)) {
+    return mediaSource.value.name
+  }
+  const startYear = mediaSource.value.properties
     .find(prop => prop.id === 'firstPubYear')
     ?.value?.trim()
-  const endYear = mediaSource.value?.properties
+  const endYear = mediaSource.value.properties
     .find(prop => prop.id === 'lastPubYear')
     ?.value?.trim()
 
