@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="props.mediaSource">
+  <div class="MediaSourceOverview" v-if="props.mediaSource">
     <ListOfSearchFacetsStackedBars
       :facet-types="['type', 'language', 'person', 'location', 'topic', 'organisation', 'nag']"
       :filters="filters"
@@ -26,3 +26,10 @@ const filters = computed<Filter[]>(() => [
   }
 ])
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "contentItemsOverTime": "Content items over time"
+  }
+}
+</i18n>

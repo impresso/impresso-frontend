@@ -34,6 +34,39 @@
           </div>
         </div>
       </template>
+      <!-- Timeline -->
+      <div class="container my-3" v-if="mediaSource">
+        <div class="row">
+          <div class="col-12">
+            <SearchFacetTimeline
+              facetType="year"
+              searchIndex="search"
+              :title="$t('contentItemOverTime.title')"
+              height="85px"
+              :filters="timelineFilters"
+            >
+              <template #afterHeader>
+                <p class="small mb-2" v-html="$t('contentItemOverTime.description')"></p>
+              </template>
+              <template #tooltip="{ tooltip }">
+                <div v-if="tooltip?.item">
+                  {{ $d(tooltip.item.t, 'year') }}
+                  &middot;
+                  <span
+                    v-html="
+                      $t(
+                        'numbers.contentItems',
+                        { n: $n(tooltip.item.w || 0) },
+                        tooltip.item.w || 0
+                      )
+                    "
+                  />
+                </div>
+              </template>
+            </SearchFacetTimeline>
+          </div>
+        </div>
+      </div>
       <router-view :mediaSource="mediaSource" />
     </i-layout-section>
   </i-layout>
@@ -49,6 +82,7 @@ import { watch } from 'vue'
 import { Filter } from '@/models'
 import { serializeFilters } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
+import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
 const route = useRoute()
 const mediaSource = ref<MediaSource>()
 const loading = ref(true)
@@ -58,6 +92,13 @@ const props = withDefaults(defineProps<{ filtersWithItems: Filter[]; filters: Fi
   filtersWithItems: () => [],
   filters: () => []
 })
+
+const timelineFilters = computed<Filter[]>(() => [
+  {
+    type: 'newspaper',
+    q: mediaSource.value?.id || ''
+  }
+])
 
 const serializedFilters = computed(() => {
   return serializeFilters([{ type: 'newspaper', q: mediaSource.value?.id || '' }])
@@ -117,6 +158,10 @@ watch(() => route.params.media_source_id, fetchMediaSource, { immediate: true })
 {
   "en": {
     "mediaSource": "Media Source",
+    "contentItemOverTime": {
+      "title": "Content items over time",
+      "description": "Number of content items associated with this media source over time"
+    },
     "route": {
       "mediaSourceMetadata": "List of Metadata",
       "mediaSourceOverview": "Overview"

@@ -1,5 +1,5 @@
 <template>
-  <div class="ListOfSearchFacetsStackedBars">
+  <div class="ListOfSearchFacetsStackedBars container">
     <slot name="beforeHeader"></slot>
     <slot name="header" :total="facets.length">
       <div class="p-3 d-flex gap-2 justify-content-between align-items-center">

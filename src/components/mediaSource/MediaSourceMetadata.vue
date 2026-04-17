@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-if="props.mediaSource">
+  <div class="MediaSourceMetadata container" v-if="props.mediaSource">
     <div class="row" v-for="category in Categories" :key="category">
       <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
         <h3 class="font-weight-bold font-size-inherit text-capitalize m-0">
@@ -14,7 +14,7 @@
         <div class="py-2">
           <div class="font-weight-bold very-small mb-2">{{ $t('property.' + prop) }}</div>
           <div class="border rounded px-2 bg-light d-inline-block">
-            <div v-for="(value, i) in values" :key="i">{{ value }}</div>
+            <div v-for="(value, i) in values" :key="i" v-html="value"></div>
           </div>
         </div>
       </div>
@@ -67,6 +67,13 @@ const propertiesByCategories: Record<(typeof Categories)[number], string[]> = {
   ]
 }
 
+const urlsToHtml = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g
+  return text.replace(urlRegex, url => {
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+  })
+}
+
 const mappedProperties = computed(() => {
   if (!props.mediaSource) {
     return {}
@@ -90,7 +97,7 @@ const mappedProperties = computed(() => {
     if (!mapped[category][prop.id]) {
       mapped[category][prop.id] = []
     }
-    mapped[category][prop.id].push(prop.value)
+    mapped[category][prop.id].push(urlsToHtml(prop.value))
   })
   return mapped
 })
@@ -98,6 +105,7 @@ const mappedProperties = computed(() => {
 <i18n lang="json">
 {
   "en": {
+    "contentItemOverTime": "Content items over time",
     "category": {
       "identity": "Identity",
       "temporal": "Temporal",
