@@ -1,8 +1,8 @@
 <template>
   <i-layout>
     <i-layout-section main>
-      <template v-slot:header
-        ><div class="container">
+      <template v-slot:header>
+        <div class="container-xxl">
           <div class="row">
             <PageNavbarHeading
               :label="$t('types.' + (mediaSource?.type || ''))"
@@ -44,7 +44,7 @@
         </div>
       </template>
       <!-- Timeline -->
-      <div class="container my-3" v-if="mediaSource">
+      <div class="container-xxl my-3" v-if="mediaSource">
         <div class="row">
           <div class="col-12">
             <SearchFacetTimeline

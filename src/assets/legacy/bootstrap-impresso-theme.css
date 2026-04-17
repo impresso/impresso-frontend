@@ -562,7 +562,8 @@ pre code {
 .container-sm,
 .container-md,
 .container-lg,
-.container-xl {
+.container-xl,
+.container-xxl {
   width: 100%;
   padding-right: 15px;
   padding-left: 15px;
@@ -572,7 +573,11 @@ pre code {
 
 @media (min-width: 576px) {
   .container,
-  .container-sm {
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl,
+  .container-xxl {
     max-width: 540px;
   }
 }
@@ -580,7 +585,10 @@ pre code {
 @media (min-width: 768px) {
   .container,
   .container-sm,
-  .container-md {
+  .container-md,
+  .container-lg,
+  .container-xl,
+  .container-xxl {
     max-width: 720px;
   }
 }
@@ -589,7 +597,9 @@ pre code {
   .container,
   .container-sm,
   .container-md,
-  .container-lg {
+  .container-lg,
+  .container-xl,
+  .container-xxl {
     max-width: 960px;
   }
 }
@@ -599,7 +609,8 @@ pre code {
   .container-sm,
   .container-md,
   .container-lg,
-  .container-xl {
+  .container-xl,
+  .container-xxl {
     max-width: 1140px;
   }
 }

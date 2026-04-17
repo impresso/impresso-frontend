@@ -825,13 +825,13 @@ svg path.domain {
 
 /** container for very big screens */
 @media (min-width: 1200px) {
-  .container {
+  .container-xxl {
     max-width: 1200px;
   }
 }
 
 @media (min-width: 1400px) {
-  .container {
+  .container-xxl {
     max-width: 1400px;
   }
 }
