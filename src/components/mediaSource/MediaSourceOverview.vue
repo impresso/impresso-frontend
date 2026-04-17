@@ -15,9 +15,12 @@ import ListOfSearchFacetsStackedBars from '../ListOfSearchFacetsStackedBars.vue'
 import { computed } from 'vue'
 import type { Filter } from '@/models'
 import LoadingBlock from '../LoadingBlock.vue'
-const props = defineProps<{
+
+export interface MediaSourceOverviewProps {
   mediaSource?: MediaSource
-}>()
+}
+
+const props = defineProps<MediaSourceOverviewProps>()
 
 const filters = computed<Filter[]>(() => {
   if (!props.mediaSource) return []

@@ -1,5 +1,5 @@
 <template>
-  <div class="MediaSourceMetadata container" v-if="props.mediaSource">
+  <div class="MediaSourceMetadata container-xxl" v-if="props.mediaSource">
     <div class="row" v-for="category in Categories" :key="category">
       <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
         <h3 class="font-weight-bold font-size-inherit text-capitalize m-0">
@@ -51,9 +51,11 @@ import { computed } from 'vue'
 import LoadingBlock from '../LoadingBlock.vue'
 import Icon from 'impresso-ui-components/components/Icon.vue'
 
-const props = defineProps<{
+export interface MediaSourceMetadataProps {
   mediaSource?: MediaSource
-}>()
+}
+
+const props = defineProps<MediaSourceMetadataProps>()
 
 const Categories = [
   'identity',
