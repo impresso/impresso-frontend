@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid" v-if="props.mediaSource">
+  <div class="container" v-if="props.mediaSource">
     <ListOfSearchFacetsStackedBars
       :facet-types="['type', 'language', 'person', 'location', 'topic', 'organisation', 'nag']"
       :filters="filters"
@@ -14,6 +14,7 @@ import type { MediaSource } from '@/models/generated/canonical'
 import ListOfSearchFacetsStackedBars from '../ListOfSearchFacetsStackedBars.vue'
 import { computed } from 'vue'
 import type { Filter } from '@/models'
+import LoadingBlock from '../LoadingBlock.vue'
 const props = defineProps<{
   mediaSource: MediaSource
 }>()

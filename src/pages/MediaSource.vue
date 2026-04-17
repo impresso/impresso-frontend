@@ -1,47 +1,38 @@
 <template>
   <i-layout>
-    <i-layout-section width="400px" class="d-none d-md-block">
-      <template v-slot:header>
-        <b-tabs pills class="mx-2 pt-2">
-          <template v-slot:tabs-end>
-            <b-nav-item :to="{ name: 'faq' }" class="active" active-class="none">
-              <span v-html="$t('tableOfContents')"></span>
-            </b-nav-item>
-          </template>
-        </b-tabs>
-      </template>
-      <nav class="faq-toc mt-2">
-        <ul class="list-unstyled">
-          <li>test</li>
-        </ul>
-      </nav>
-    </i-layout-section>
     <i-layout-section main>
-      <template v-slot:header>
-        <PageNavbarHeading :label="$t('types.' + (mediaSource?.type || ''))" :title="title">
-          <template #actions>
-            <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-              {{ $t('actions.searchMore') }}
-            </router-link>
-          </template>
-          {{ otherTitles }}
-        </PageNavbarHeading>
-
-        <b-tabs pills class="mx-3" v-if="mediaSource">
-          <template v-slot:tabs-end>
-            <li class="nav-item pl-2" v-for="tab in nestedRoutes" :key="tab.name">
-              <RouterLink
-                :to="{ name: tab.name, params: { media_source_id: mediaSource.id } }"
-                class="nav-link"
-                :class="{
-                  active: route.name === tab.name
-                }"
-              >
-                {{ $t(`route.${tab.name}`) }}
-              </RouterLink>
-            </li>
-          </template>
-        </b-tabs>
+      <template v-slot:header
+        ><div class="container">
+          <PageNavbarHeading
+            :label="$t('types.' + (mediaSource?.type || ''))"
+            :title="title"
+            class="row"
+          >
+            <template #actions>
+              <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
+                {{ $t('actions.searchMore') }}
+              </router-link>
+            </template>
+            {{ otherTitles }}
+          </PageNavbarHeading>
+          <div class="row">
+            <b-tabs pills v-if="mediaSource">
+              <template v-slot:tabs-end>
+                <li class="nav-item pl-2" v-for="tab in nestedRoutes" :key="tab.name">
+                  <RouterLink
+                    :to="{ name: tab.name, params: { media_source_id: mediaSource.id } }"
+                    class="nav-link"
+                    :class="{
+                      active: route.name === tab.name
+                    }"
+                  >
+                    {{ $t(`route.${tab.name}`) }}
+                  </RouterLink>
+                </li>
+              </template>
+            </b-tabs>
+          </div>
+        </div>
       </template>
       <router-view :mediaSource="mediaSource" />
     </i-layout-section>
@@ -63,8 +54,9 @@ const mediaSource = ref<MediaSource>()
 const loading = ref(true)
 const error = ref(false)
 
-const props = withDefaults(defineProps<{ filtersWithItems: Filter[] }>(), {
-  filtersWithItems: () => []
+const props = withDefaults(defineProps<{ filtersWithItems: Filter[]; filters: Filter[] }>(), {
+  filtersWithItems: () => [],
+  filters: () => []
 })
 
 const serializedFilters = computed(() => {

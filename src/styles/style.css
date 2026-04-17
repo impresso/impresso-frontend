@@ -822,3 +822,16 @@ svg path.domain {
 .pe-auto {
   pointer-events: auto;
 }
+
+/** container for very big screens */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1400px;
+  }
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid" v-if="props.mediaSource">
+  <div class="container" v-if="props.mediaSource">
     <div class="row" v-for="category in Categories" :key="category">
       <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
         <h3 class="font-weight-bold font-size-inherit text-capitalize m-0">
