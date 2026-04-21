@@ -2,6 +2,11 @@
   <div class="SourcesOverviewTimeline position-relative">
     <slot name="tooltip">
       <Tooltip :tooltip="tooltip">
+        <div v-if="!tooltip.dataValue && tooltip.currentDate">
+          <div class="mb-0">{{ $d(tooltip.currentDate, 'year') }} &mdash;</div>
+          <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
+          {{ props.dataValues[tooltip.idx]?.label }} of {{ props.dataValues.length }}
+        </div>
         <div v-if="tooltip.dataValue">
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
@@ -14,9 +19,13 @@
               <span
                 v-if="tooltip.exactDataValue?.value > 0"
                 v-html="
-                  $t('numbers.contentItems', {
-                    n: $n(tooltip.exactDataValue?.value || 0)
-                  }, tooltip.exactDataValue?.value || 0)
+                  $t(
+                    'numbers.contentItems',
+                    {
+                      n: $n(tooltip.exactDataValue?.value || 0)
+                    },
+                    tooltip.exactDataValue?.value || 0
+                  )
                 "
               />
               <span v-else class="SourcesOverviewTimeline__empty">
@@ -36,9 +45,13 @@
             <div class="small" v-if="tooltip.dataValue.dateRange">
               <span
                 v-html="
-                  $t('numbers.contentItems', {
-                    n: $n(tooltip.dataValue?.value || 0)
-                  }, tooltip.dataValue?.value || 0)
+                  $t(
+                    'numbers.contentItems',
+                    {
+                      n: $n(tooltip.dataValue?.value || 0)
+                    },
+                    tooltip.dataValue?.value || 0
+                  )
                 "
               ></span
               >&nbsp;<span
@@ -237,6 +250,8 @@ export interface TooltipPosition {
   date: Date
   x: number
   y: number
+  /* idx corresponds to vertical position */
+  idx: number
   value?: DataValue
   otherValuesOnDate: DataValue[]
   scrollTop: number
@@ -324,6 +339,7 @@ const xScale = computed(() => {
 const tooltip = ref<{
   x: number
   y: number
+  idx: number
   isActive: boolean
   dataValue?: DataValue
   exactDataValue?: DataValue
@@ -331,6 +347,7 @@ const tooltip = ref<{
 }>({
   x: 0,
   y: 0,
+  idx: -1,
   isActive: false,
   dataValue: undefined,
   exactDataValue: undefined,
@@ -430,17 +447,20 @@ const emitTooltipEvent = () => {
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
+      idx: -1,
       isActive: false
     }
     return
   }
 
-  const { dataValue, otherValuesOnDate } = getDataValuesAtPosition(visX, visY)
+  const { dataValue, otherValuesOnDate, idx } = getDataValuesAtPosition(visX, visY)
   if (dataValue) {
     console.log('dataValue', dataValue.label)
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
+      idx: idx,
+
       isActive: true,
       dataValue,
       exactDataValue: otherValuesOnDate[0],
@@ -450,13 +470,16 @@ const emitTooltipEvent = () => {
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
-      isActive: false
+      idx: idx,
+      isActive: true,
+      currentDate: date
     }
   }
   emit('tooltipMove', {
     date,
     x: visX,
     y: visY,
+    idx: idx,
     value: dataValue,
     otherValuesOnDate,
     scrollTop: containerRef.value!.scrollTop,
@@ -483,6 +506,7 @@ const getDataValuesAtPosition = (
 ): {
   dataValue: DataValue | undefined
   otherValuesOnDate: DataValue[]
+  idx: number
 } => {
   // Find the closest data value to the given date
   const date = xScale.value.invert(x)
@@ -498,10 +522,10 @@ const getDataValuesAtPosition = (
     }
   }
   if (!dataValue) {
-    return { dataValue: undefined, otherValuesOnDate: [] }
+    return { dataValue: undefined, otherValuesOnDate: [], idx: dataValuesIndex }
   }
   if (dataValue && !Array.isArray(dataValue.dataValues)) {
-    return { dataValue, otherValuesOnDate: [] }
+    return { dataValue, otherValuesOnDate: [], idx: dataValuesIndex }
   }
   // check current overlap
   if (dataValue && Array.isArray(dataValue.dataValues)) {
@@ -513,7 +537,7 @@ const getDataValuesAtPosition = (
     })
   }
 
-  return { dataValue, otherValuesOnDate }
+  return { dataValue, otherValuesOnDate, idx: dataValuesIndex }
 }
 
 const containerOnScrollHandler = (event: Event) => {
