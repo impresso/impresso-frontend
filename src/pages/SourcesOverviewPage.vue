@@ -87,6 +87,10 @@ const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
 
+const handleTooltipClick = (pos: TooltipPosition) => {
+  console.info('tooltipClick', pos)
+}
+
 const handleScrollUpdate = (updated: TooltipPosition) => {
   tooltipPosition.value = updated
   timelineRef.value?.scrollTo(updated.scrollLeft, updated.scrollTop)
@@ -335,6 +339,7 @@ onMounted(() => {
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
+        @tooltip-click="handleTooltipClick"
       />
       <div class="position-absolute top-0 end-0 p-2">
         <SourceOverviewNavigator

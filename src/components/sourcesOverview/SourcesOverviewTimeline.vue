@@ -81,6 +81,7 @@
     <div
       class="timeline-container position-relative"
       @mousemove="containerOnMousemove"
+      @click="containerOnClick"
       @mouseout="containerOnMouseout"
       ref="containerRef"
       :style="{ height: '100%', overflow: 'auto' }"
@@ -201,6 +202,7 @@
             :reducedLabel="xScale(dataValue.dateRange[0]) < 200"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
             :exponent="props.scaleExponent"
+            @item-click="onDataValueItemClick"
           />
         </div>
       </div>
@@ -264,6 +266,7 @@ export interface TooltipPosition {
 
 const emit = defineEmits<{
   (e: 'tooltipMove', payload: TooltipPosition): void
+  (e: 'tooltipClick', payload: TooltipPosition): void
   (e: 'tooltipOut'): void
 }>()
 
@@ -490,6 +493,33 @@ const emitTooltipEvent = () => {
     clientHeight: containerHeight.value
   })
 }
+
+const emitClickEvent = () => {
+  // Reuse the same interaction payload shape as tooltipMove.
+  const visX = containerClientX.value + containerScrollLeft.value
+  const visY = containerClientY.value + containerScrollTop.value
+  const isOutOfContainer = visX < margin.left || visX > svgWidth.value - margin.right
+  if (isOutOfContainer || !containerRef.value) {
+    return
+  }
+
+  const date = xScale.value.invert(visX)
+  const { dataValue, otherValuesOnDate, idx } = getDataValuesAtPosition(visX, visY)
+  emit('tooltipClick', {
+    date,
+    x: visX,
+    y: visY,
+    idx,
+    value: dataValue,
+    otherValuesOnDate,
+    scrollTop: containerRef.value.scrollTop,
+    scrollWidth: containerRef.value.scrollWidth,
+    scrollHeight: containerRef.value.scrollHeight,
+    scrollLeft: containerRef.value.scrollLeft,
+    clientWidth: containerWidth.value,
+    clientHeight: containerHeight.value
+  })
+}
 /**
  * Finds the closest data value to the given position coordinates.
  * First finds the closest date match based on x coordinate,
@@ -554,6 +584,24 @@ const containerOnMousemove = ({ clientX, clientY }: MouseEvent) => {
   containerClientX.value = x
   containerClientY.value = y
   emitTooltipEvent()
+}
+
+const containerOnClick = ({ clientX, clientY }: MouseEvent) => {
+  const x = clientX - containerRef.value!.getBoundingClientRect().left
+  const y = clientY - containerRef.value!.getBoundingClientRect().top
+  containerClientX.value = x
+  containerClientY.value = y
+  emitTooltipEvent()
+  emitClickEvent()
+}
+
+const onDataValueItemClick = ({ event }: { event: MouseEvent; dataValue: DataValue }) => {
+  const x = event.clientX - containerRef.value!.getBoundingClientRect().left
+  const y = event.clientY - containerRef.value!.getBoundingClientRect().top
+  containerClientX.value = x
+  containerClientY.value = y
+  emitTooltipEvent()
+  emitClickEvent()
 }
 
 const containerOnMouseout = () => {
