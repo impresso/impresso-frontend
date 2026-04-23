@@ -34,29 +34,7 @@
               :name="filter.type"
             ></Icon>
           </span>
-          <!-- <span
-            class="filter-icon"
-            :class="[
-              { 'dripicons-align-justify': filter.type === 'string' },
-              { 'dripicons-minus': filter.type === 'title' },
-              { 'dripicons-message': filter.type === 'topic' },
-              { 'dripicons-user': filter.type === 'person' },
-              { 'dripicons-location': filter.type === 'location' },
-              { 'dripicons-star': filter.type === 'entity' },
-              { 'dripicons-pamphlet': filter.type === 'newspaper' },
-              { 'dripicons-web': filter.type === 'language' },
-              { 'dripicons-pulse': filter.type === 'daterange' },
-              { 'dripicons-calendar': filter.type === 'year' },
-              { 'dripicons-suitcase': filter.type === 'collection' },
-              { 'dripicons-tag': filter.type === 'type' },
-              { 'dripicons-print': filter.type === 'country' },
-              { 'dripicons-shopping-bag': filter.type === 'accessRight' },
-              { 'dripicons-store': filter.type === 'partner' },
-              { 'dripicons-conversation': filter.type === 'textReuseCluster' },
-              { 'dripicons-scale': numericTypes.includes(filter.type) }
-            ]"
-            :title="$t(`label.${filter.type}.title`, 0)"
-          /> -->
+
           <!--  type:string, type:title -->
           <span
             class="label sp-string sp-title"
@@ -265,7 +243,8 @@
 <script lang="ts">
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
-import { NumericRangeFacets, RangeFacets } from '@/logic/filters'
+import { RangeFacets } from '@/logic/filters'
+import { NumericRangeFacets } from '@/logic/facets'
 import FilterFactory from '@/models/FilterFactory'
 import type { Entity, Filter, FilterWithItems } from '@/models'
 import type { FacetType } from '@/models/Facet'
@@ -483,6 +462,7 @@ export default defineComponent({
     },
     labelForNumeric({ items = [], type }: LabelForNumericOptions): string {
       const { start, end } = items[0] || {}
+
       const label = this.$t(`label.${type}.item`)
       const toNumber = (value: number | Date | string | undefined): number => {
         if (typeof value === 'number') return value
