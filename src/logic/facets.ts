@@ -1,5 +1,6 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
+import type { FacetType } from '@/models/Facet'
 import Topic from '@/models/Topic'
 import type { Bucket, Facet, Entity } from '../models'
 import {
@@ -33,6 +34,40 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
     .sort((a, b) => a.t - b.t)
   return Helpers.timeline.addEmptyIntervals(values) as TimelineValue[]
 }
+
+/**
+ * Facet type groupings for the Search page.
+ * Used both by Search.vue (to determine what to fetch) and SearchFacets.vue (to determine how to render).
+ */
+
+/** Fetched from API as timeline facet. */
+export const SearchTimelineFacetTypes: FacetType[] = ['year']
+/** Used for display-side categorisation only; 'daterange' is a filter type, not fetched as a facet. */
+export const SearchTimelineDisplayFacetTypes: FacetType[] = ['year', 'daterange']
+/** Range facets (currently none for search). */
+export const SearchRangeFacetTypes: FacetType[] = []
+/** Dynamic range facets (rendered as sliders). */
+export const SearchDynamicFacetTypes: FacetType[] = ['contentLength', 'ocrQuality']
+/** Standard filterable facets shown in the sidebar. */
+export const SearchStandardFacetTypes: FacetType[] = [
+  'language',
+  'newspaper',
+  'type',
+  'country',
+  'partner',
+  // 'year',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  // DPFS facets
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+]
+/** User-specific facets that require authentication. */
+export const SearchUserFacetTypes: FacetType[] = ['collection']
 
 /**
  * A list of default facet types to be exposed as filter facets

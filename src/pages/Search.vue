@@ -240,6 +240,13 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
+import {
+  SearchStandardFacetTypes,
+  SearchRangeFacetTypes,
+  SearchDynamicFacetTypes,
+  SearchTimelineFacetTypes,
+  SearchUserFacetTypes
+} from '@/logic/facets'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -263,27 +270,11 @@ import { DatalabPublicApiUrl } from '@/constants'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-export const FacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'partner',
-  // 'year',
-  'copyright',
-  'sourceType',
-  'sourceMedium',
-  // DPFS facets
-  'person',
-  'location',
-  'nag',
-  'organisation',
-  'topic'
-] satisfies FacetType[]
-export const RangeFacetTypes = [] satisfies FacetType[]
-export const DynamicFacetTypes = ['contentLength'] satisfies FacetType[]
-export const TimelineFacetTypes = ['year'] satisfies FacetType[]
-const UserFacetTypes = ['collection'] satisfies FacetType[]
+export const FacetTypes = SearchStandardFacetTypes
+export const RangeFacetTypes = SearchRangeFacetTypes
+export const DynamicFacetTypes = SearchDynamicFacetTypes
+export const TimelineFacetTypes = SearchTimelineFacetTypes
+const UserFacetTypes = SearchUserFacetTypes
 
 export interface IData {
   _activeSearchRequestId: number
