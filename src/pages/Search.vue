@@ -245,7 +245,8 @@ import {
   SearchRangeFacetTypes,
   SearchDynamicFacetTypes,
   SearchTimelineFacetTypes,
-  SearchUserFacetTypes
+  SearchUserFacetTypes,
+  SearchDecimalFacetTypes
 } from '@/logic/facets'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -302,6 +303,10 @@ export interface IData {
    * Dynamic facets are expected to be loaded first and are treated differently in the UI.
    */
   dynamicFacets: Facet[]
+  /**
+   * Decimal range facets are expected to be loaded first and are treated differently in the UI.
+   */
+  decimalRangeFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -322,7 +327,8 @@ export default defineComponent({
       _activeSearchRequestId: 0,
       _isUnmounted: false,
       visibleModal: null,
-      isLoadingResults: false
+      isLoadingResults: false,
+      decimalRangeFacets: []
     } satisfies IData
   },
   props: {
@@ -518,6 +524,7 @@ export default defineComponent({
         ...this.timelineFacets,
         ...this.commonFacets,
         ...this.dynamicFacets,
+        ...this.decimalRangeFacets,
         ...this.rangeFacets,
         ...this.userFacets
       ]
@@ -529,6 +536,7 @@ export default defineComponent({
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
     this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
+    this.decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
   },
   beforeUnmount() {
     this._isUnmounted = true
