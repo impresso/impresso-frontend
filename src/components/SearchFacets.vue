@@ -13,6 +13,19 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
+    <filter-decimal-range
+      v-for="(facet, index) in decimalRangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`dr-${index}`"
+      :facetType="facet.type"
+      :facet-filters="filters"
+      @changed="onDynamicRangeChanged"
+      count-label="numbers.contentItems"
+    >
+      <template #description>
+        <div v-html="$t(`label.${facet.type}.description`)" />
+      </template>
+    </filter-decimal-range>
     <filter-dynamic-range
       v-for="(facet, index) in dynamicRangeFacets"
       class="border-top py-2 mx-3"
@@ -58,7 +71,7 @@ import FilterFacet from '@/components/modules/FilterFacet.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
-import { facetToTimelineValues } from '@/logic/facets'
+import { facetToTimelineValues, SearchDecimalFacetTypes } from '@/logic/facets'
 import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
@@ -69,6 +82,7 @@ import {
 } from '@/logic/facets'
 import { computed } from 'vue'
 import { FacetType } from '@/models/Facet'
+import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 
 type DaterangeFilterItem = Entity & {
   start?: string | number | Date
@@ -109,6 +123,9 @@ const rangeFacets = computed(() => {
   return props.facets.filter(({ type }) => SearchRangeFacetTypes.includes(type as FacetType))
 })
 
+const decimalRangeFacets = computed(() => {
+  return props.facets.filter(({ type }) => SearchDecimalFacetTypes.includes(type as FacetType))
+})
 const dynamicRangeFacets = computed(() => {
   return props.facets.filter(({ type }) => SearchDynamicFacetTypes.includes(type as FacetType))
 })
