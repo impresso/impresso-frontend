@@ -115,9 +115,13 @@
             <span v-if="item.count"
               >&nbsp;(<span
                 v-html="
-                  $t(type === 'collection'
+                  $t(
+                    type === 'collection'
                       ? 'numbers.articlesMatchingSearchFilters'
-                      : 'numbers.results', { n: $n(item.count) }, item.count)
+                      : 'numbers.results',
+                    { n: $n(item.count) },
+                    item.count
+                  )
                 "
               />)&nbsp;</span
             >
@@ -253,7 +257,7 @@
 <script lang="ts">
 // import FilterDaterange from '@/components/modules/FilterDateRange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
-import FilterNumberRange from '@/components/modules/FilterNumberRange.vue'
+import FilterNumericRange from '@/components/modules/FilterNumericRange.vue'
 import ItemSelector from '@/components/modules/ItemSelector.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
@@ -637,7 +641,7 @@ export default defineComponent({
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
-    FilterNumberRange,
+    FilterNumericRange,
     EntitySuggester,
     RadioGroup
   },
