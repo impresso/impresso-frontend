@@ -74,6 +74,8 @@ import ItemSelector from '../ItemSelector.vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
+import { NumericRangeFacets } from '@/logic/facets'
+import { NumericRangeFilters } from '@/logic/filters'
 
 type FilterLabelItem = Entity & {
   name?: string
@@ -103,14 +105,7 @@ const contextTranslationKey = computed(() => {
 
 const contextTranslationOptions = computed(() => {
   const options: { [key: string]: any } = {}
-  if (
-    [
-      'contentLength',
-      'textReuseClusterSize',
-      'textReuseClusterLexicalOverlap',
-      'textReuseClusterDayDelta'
-    ].includes(props.filter.type)
-  ) {
+  if (NumericRangeFilters.includes(props.filter.type)) {
     options.min = props.filter.q[0]
     options.max = props.filter.q[1]
   }
@@ -166,6 +161,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "sourceMedium": "only",
       "accessRight": "available as",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+      "ocrQuality": "with OCR quality between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "copyright": "©",
       "topic": "tagged with topic",
       "isFront": "appearing on the <em>front page</em>",
@@ -202,6 +198,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "sourceType": "not in",
       "accessRight": "not available as",
       "contentLength": "textual content not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+      "ocrQuality": "with OCR quality not between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "isFront": "not appearing on the <em>front page</em>",
       "copyright": "not available as",
       "topic": "not tagged with topic",
