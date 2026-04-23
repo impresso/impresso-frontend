@@ -18,11 +18,28 @@ export function toSerializedFilters(filters) {
   return protobuf.searchQuery.serialize({ filters: filters?.map(toCanonicalFilter) ?? [] })
 }
 
+/**
+ * List of facet keys that represent numeric ranges used for filtering.
+ *
+ * @deprecated This constant is deprecated and should not be used in new code.
+ * Use NumericRangeFacets from @/logic/facets module instead.
+ *
+ * @type {readonly string[]}
+ */
 export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'contentLength'
+  'contentLength',
+  'ocrQuality'
+]
+
+export const NumericRangeFilters = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'contentLength',
+  'ocrQuality'
 ]
 
 export const TimeRangeFacets = ['daterange']
