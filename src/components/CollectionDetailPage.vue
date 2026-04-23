@@ -496,11 +496,13 @@ export default defineComponent({
       /** @returns {import('impresso-jscommons').CollectionRecommendersSettings|undefined} */
       get() {
         const settingsString = getQueryParameter(this, QueryParameters.RecommendersSettings)
-        return protobuf.collectionRecommendersSettings.deserialize(settingsString || '')
+        // return protobuf.collectionRecommendersSettings.deserialize(settingsString || '')
+        return ''
       },
       /** @param {import('impresso-jscommons').CollectionRecommendersSettings} val */
       set(val) {
-        const settingsString = protobuf.collectionRecommendersSettings.serialize(val)
+        // const settingsString = protobuf.collectionRecommendersSettings.serialize(val)
+        const settingsString = ''
         this.$navigation.updateQueryParameters({
           [QueryParameters.RecommendersSettings]: settingsString
         })
