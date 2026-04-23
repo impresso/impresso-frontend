@@ -62,7 +62,7 @@
     <div class="items" :class="{ reduced: tooManyItems }">
       <div v-for="(item, idx) in filterItems" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
-          <filter-number-range
+          <FilterNumericRange
             v-if="NumericRangeFacets.includes(type)"
             :start="asNumber(item.start)"
             :end="asNumber(item.end)"
@@ -264,12 +264,8 @@ import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import {
-  toCanonicalFilter,
-  toSerializedFilter,
-  RangeFacets,
-  NumericRangeFacets
-} from '@/logic/filters'
+import { toCanonicalFilter, toSerializedFilter, RangeFacets } from '@/logic/filters'
+import { NumericRangeFacets } from '@/logic/facets'
 import { defineComponent, PropType } from 'vue'
 import type { Entity, FilterWithItems } from '@/models'
 

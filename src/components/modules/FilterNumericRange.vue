@@ -1,7 +1,7 @@
 <template>
   <div class="FilterNumericRange d-flex align-items-center">
     <BFormInput v-model="startInputModel" type="number" class="px-2 py-0 rounded-sm"></BFormInput>
-    <div class="mx-2 text-small">and</div>
+    <div class="mx-2 text-small">{{ $t('and') }}</div>
     <BFormInput v-model="endInputModel" type="number" class="px-2 py-0 rounded-sm"></BFormInput>
   </div>
 </template>
