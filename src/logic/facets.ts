@@ -40,14 +40,26 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
  * Used both by Search.vue (to determine what to fetch) and SearchFacets.vue (to determine how to render).
  */
 
+/**
+ * Facet types that can have a numeric range value
+ */
+export const NumericRangeFacets: FacetType[] = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'contentLength',
+  'ocrQuality'
+]
+
 /** Fetched from API as timeline facet. */
 export const SearchTimelineFacetTypes: FacetType[] = ['year']
+export const SearchDecimalFacetTypes: FacetType[] = ['ocrQuality']
 /** Used for display-side categorisation only; 'daterange' is a filter type, not fetched as a facet. */
 export const SearchTimelineDisplayFacetTypes: FacetType[] = ['year', 'daterange']
 /** Range facets (currently none for search). */
 export const SearchRangeFacetTypes: FacetType[] = []
 /** Dynamic range facets (rendered as sliders). */
-export const SearchDynamicFacetTypes: FacetType[] = ['contentLength', 'ocrQuality']
+export const SearchDynamicFacetTypes: FacetType[] = ['contentLength']
 /** Standard filterable facets shown in the sidebar. */
 export const SearchStandardFacetTypes: FacetType[] = [
   'language',
