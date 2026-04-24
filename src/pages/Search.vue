@@ -797,8 +797,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
-
 .navbar-nav {
   flex-direction: row;
   align-items: center;

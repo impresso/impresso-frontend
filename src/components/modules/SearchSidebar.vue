@@ -8,13 +8,17 @@
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
           <SearchPills :filters="filters" @changed="handleFiltersChanged" />
-          <span class="d-block mb-2" v-if="filters.length && ignoredFilters.length">
+          <span class="d-block mb-2" v-if="filters.length && ignoredFilterTypes.length">
             <i
               class="small"
               v-html="
-                $t('numbers.ignoredFilters', {
-                  n: ignoredFilters.length
-                }, ignoredFilters.length)
+                $t(
+                  'numbers.ignoredFilterTypes',
+                  {
+                    n: ignoredFilterTypes.length
+                  },
+                  ignoredFilterTypes.length
+                )
               "
             />{{ ' ' }}<InfoButton :name="infoButtonName" />
           </span>
@@ -30,7 +34,7 @@
         <!-- slot here for extra facets -->
       </slot>
       <SearchFacets
-        :facets="facets"
+        :facets="includedFacets"
         :filters="filters"
         :start-year="startYear"
         :end-year="endYear"
@@ -44,6 +48,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * SearchSidebar provides the filtering panel used in search pages: it renders active filter pills,
+ * facet controls, and optional contextual help while honoring ignored facet/filter types and
+ * relaying filter updates to parent views through the changed event.
+ */
 import { computed, ref } from 'vue'
 import SearchPills from '@/components/SearchPills.vue'
 import SearchTabs from '@/components/modules/SearchTabs.vue'
@@ -51,21 +60,28 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
 import type { Facet, Filter } from '@/models'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
+import { FacetType } from '@/models/Facet'
+import { FilterType } from 'impresso-jscommons'
 
 export interface SearchSidebarProps {
   /** Used for helper button */
   contextTag?: string
   width?: string
   filters?: Filter[]
+  /** facets to visualize */
   facets?: Facet[]
-  ignoredFilters?: Filter[]
+  /** filter types to ignore */
+  ignoredFilterTypes?: FilterType[]
+  /** facet types to ignore (this could be a subset of Facets)*/
+  ignoredFacetTypes?: FacetType[]
 }
 
 const props = withDefaults(defineProps<SearchSidebarProps>(), {
   width: '400px',
   filters: () => [],
   facets: () => [],
-  ignoredFilters: () => []
+  ignoredFilterTypes: () => [],
+  ignoredFacetTypes: () => []
 })
 
 const emit = defineEmits<{
@@ -73,6 +89,16 @@ const emit = defineEmits<{
 }>()
 
 const hasFocus = ref(false)
+/**
+ * Included facets are the ones that will be rendered in the sidebar. They are the ones that are not ignored (by filter type) and not explicitly excluded by facet type.
+ */
+const includedFacets = computed<Facet[]>(() => {
+  // combine ignored filterType and explicitely mentioned ignoredFacetTypes
+  const excludedTypes = new Set([...props.ignoredFilterTypes, ...props.ignoredFacetTypes])
+  if (!excludedTypes.size) return props.facets
+
+  return props.facets.filter(({ type }) => !excludedTypes.has(type as FacetType))
+})
 
 const handleFiltersChanged = (filters: Filter[]) => {
   emit('changed', filters)

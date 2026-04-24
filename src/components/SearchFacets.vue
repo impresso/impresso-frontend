@@ -53,7 +53,7 @@
       count-label="numbers.contentItems"
     >
     </filter-range>
-    <filter-facet
+    <FilterFacet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
       :key="index"
@@ -71,14 +71,17 @@ import FilterFacet from '@/components/modules/FilterFacet.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
-import { facetToTimelineValues, SearchDecimalFacetTypes } from '@/logic/facets'
+
 import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import {
-  SearchTimelineDisplayFacetTypes,
-  SearchRangeFacetTypes,
-  SearchDynamicFacetTypes
+  DecimalRangeDisplayFacetTypes,
+  DynamicRangeDisplayFacetTypes,
+  facetToTimelineValues,
+  RangeFacetTypes,
+  StandardDisplayFacetTypes,
+  TimelineDisplayFacetTypes
 } from '@/logic/facets'
 import { computed } from 'vue'
 import { FacetType } from '@/models/Facet'
@@ -111,29 +114,26 @@ const emit = defineEmits<{
 }>()
 
 const standardFacets = computed(() => {
-  return props.facets.filter(
-    ({ type }) =>
-      !SearchTimelineDisplayFacetTypes.includes(type as FacetType) &&
-      !SearchRangeFacetTypes.includes(type as FacetType) &&
-      !SearchDynamicFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.filter(({ type }) => StandardDisplayFacetTypes.includes(type as FacetType))
 })
 
 const rangeFacets = computed(() => {
-  return props.facets.filter(({ type }) => SearchRangeFacetTypes.includes(type as FacetType))
+  return props.facets.filter(({ type }) => RangeFacetTypes.includes(type as FacetType))
 })
 
 const decimalRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) => SearchDecimalFacetTypes.includes(type as FacetType))
+  return props.facets.filter(({ type }) =>
+    DecimalRangeDisplayFacetTypes.includes(type as FacetType)
+  )
 })
 const dynamicRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) => SearchDynamicFacetTypes.includes(type as FacetType))
+  return props.facets.filter(({ type }) =>
+    DynamicRangeDisplayFacetTypes.includes(type as FacetType)
+  )
 })
 
 const containsTimelineFacets = computed(() => {
-  return props.facets.some(({ type }) =>
-    SearchTimelineDisplayFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.some(({ type }) => TimelineDisplayFacetTypes.includes(type as FacetType))
 })
 
 const daterangeFilters = computed(() => {

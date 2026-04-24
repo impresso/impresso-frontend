@@ -62,9 +62,13 @@
               <span
                 class="border-bottom d-block my-1 pb-2"
                 v-html="
-                  $t('numbers.results', {
-                    n: $n(tooltip.item.point.value.count)
-                  }, tooltip.item.point.value.count)
+                  $t(
+                    'numbers.results',
+                    {
+                      n: $n(tooltip.item.point.value.count)
+                    },
+                    tooltip.item.point.value.count
+                  )
                 "
               />
               {{ tooltip.item.valueKey }}
@@ -280,11 +284,6 @@ export default defineComponent({
     return { itemClicked }
   },
   methods: {
-    isFilterTypeSupporedInIndex(index: keyof typeof NoFacetFilters, type: string) {
-      // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
-      const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
-      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type as never)
-    },
     handleMousemove(event: any) {
       // if it is term, get the right label.
       const term =

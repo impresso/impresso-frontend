@@ -268,6 +268,7 @@ import { toCanonicalFilter, toSerializedFilter, RangeFacets } from '@/logic/filt
 import { NumericRangeFacets } from '@/logic/facets'
 import { defineComponent, PropType } from 'vue'
 import type { Entity, FilterWithItems } from '@/models'
+import { FacetType } from '@/models/Facet'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
@@ -623,7 +624,7 @@ export default defineComponent({
         // items: [item],
         q
       }
-      if (!NumericRangeFacets.includes(this.editedFilter.type))
+      if (!NumericRangeFacets.includes(this.editedFilter.type as FacetType))
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged(newFilter: FilterMonitorFilter): void {
