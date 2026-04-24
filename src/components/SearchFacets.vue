@@ -114,7 +114,9 @@ const emit = defineEmits<{
 }>()
 
 const standardFacets = computed(() => {
-  return props.facets.filter(({ type }) => StandardDisplayFacetTypes.includes(type as FacetType))
+  return props.facets.filter(
+    ({ type }) => StandardDisplayFacetTypes.includes(type as FacetType) || type === 'collection'
+  )
 })
 
 const rangeFacets = computed(() => {
