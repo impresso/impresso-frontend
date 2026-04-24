@@ -3,8 +3,9 @@
     <!-- sidebar (contains i-layout-section) -->
     <SearchSidebar
       :filters="enrichedFilters"
-      :ignored-filters="ignoredFilters"
+      :ignored-filter-types="ignoredFilters.map(({ type }) => type)"
       :facets="facets"
+      :excluded-facet-types="['mediaSource']"
       contextTag="search-ngrams"
       @changed="handleFiltersChanged"
     >
@@ -36,9 +37,7 @@
                 <span v-html="unigramsSummary"></span>
                 <span
                   class="ml-1"
-                  v-html="
-                    $t('numbers.articles', { n: $n(totalArticlesCount) }, totalArticlesCount)
-                  "
+                  v-html="$t('numbers.articles', { n: $n(totalArticlesCount) }, totalArticlesCount)"
                 />
                 <search-query-summary
                   class="d-inline ml-0"
@@ -369,10 +368,14 @@ export default {
       }
       const trends = this.trends
         .map(trend =>
-          this.$t('numbers.unigramMentions', {
-            unigram: trend.ngram,
-            n: this.$n(trend.total)
-          }, trend.total || 0)
+          this.$t(
+            'numbers.unigramMentions',
+            {
+              unigram: trend.ngram,
+              n: this.$n(trend.total)
+            },
+            trend.total || 0
+          )
         )
         .join('; ')
       return this.$t('label.withTrends', { trends }).toString()

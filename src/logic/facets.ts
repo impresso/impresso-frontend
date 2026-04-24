@@ -157,7 +157,7 @@ export const DefaultFacetTypesForIndex = {
     'year',
     'language',
     'newspaper',
-    'mediaSource',
+    // 'mediaSource',
     'type',
     'country',
     'topic',

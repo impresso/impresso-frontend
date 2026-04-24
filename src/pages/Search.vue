@@ -5,6 +5,7 @@
       :filters="enrichedFilters"
       :facets="facets"
       contextTag="search"
+      :ignored-filter-types="ignoredFilters.map(({ type }) => type)"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header="{ focusHandler }">

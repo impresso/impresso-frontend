@@ -13,9 +13,9 @@
               class="small"
               v-html="
                 $t(
-                  'numbers.ignoredFilterTypes',
+                  'numbers.ignoredFilters',
                   {
-                    n: ignoredFilterTypes.length
+                    n: $n(ignoredFilterTypes.length)
                   },
                   ignoredFilterTypes.length
                 )

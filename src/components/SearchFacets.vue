@@ -19,6 +19,7 @@
       :key="`dr-${index}`"
       :facetType="facet.type"
       :facet-filters="filters"
+      :isFiltered="filters.some(({ type }) => type === facet.type)"
       @changed="onDynamicRangeChanged"
       count-label="numbers.contentItems"
     >
