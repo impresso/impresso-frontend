@@ -13,6 +13,20 @@
       @reset-filters="resetFilters"
       @changed="updateDaterangeFilters"
     />
+    <filter-decimal-range
+      v-for="(facet, index) in decimalRangeFacets"
+      class="border-top py-2 mx-3"
+      :key="`dr-${index}`"
+      :facetType="facet.type"
+      :facet-filters="filters"
+      :isFiltered="filters.some(({ type }) => type === facet.type)"
+      @changed="onDynamicRangeChanged"
+      count-label="numbers.contentItems"
+    >
+      <template #description>
+        <div v-html="$t(`label.${facet.type}.description`)" />
+      </template>
+    </filter-decimal-range>
     <filter-dynamic-range
       v-for="(facet, index) in dynamicRangeFacets"
       class="border-top py-2 mx-3"
@@ -20,7 +34,8 @@
       :facetType="facet.type"
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
-      @changed="changedFilters => $emit('changed', changedFilters)"
+      :isPercentage="facet.type === 'ocrQuality'"
+      @changed="onDynamicRangeChanged"
       count-label="numbers.contentItems"
     >
       <template #description>
@@ -39,7 +54,7 @@
       count-label="numbers.contentItems"
     >
     </filter-range>
-    <filter-facet
+    <FilterFacet
       class="border-top py-2 mx-3"
       v-for="(facet, index) in standardFacets"
       :key="index"
@@ -52,191 +67,152 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import FilterFacet from '@/components/modules/FilterFacet.vue'
 import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
-import { facetToTimelineValues } from '@/logic/facets'
+
 import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
-import { PropType } from 'vue'
-
-const TimelineFacetTypes = ['year', 'daterange']
-const RangeFacetTypes = []
-const DynamicRangeFacetTypes = ['contentLength']
+import {
+  DecimalRangeDisplayFacetTypes,
+  DynamicRangeDisplayFacetTypes,
+  facetToTimelineValues,
+  RangeFacetTypes,
+  StandardDisplayFacetTypes,
+  TimelineDisplayFacetTypes
+} from '@/logic/facets'
+import { computed } from 'vue'
+import { FacetType } from '@/models/Facet'
+import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 
 type DaterangeFilterItem = Entity & {
   start?: string | number | Date
   end?: string | number | Date
 }
 
-export interface IData {
-  selectedFacet: boolean
-  selectedDaterangeFilter: Filter | null
+interface SearchFacetsProps {
+  groupBy?: 'contentItems' | 'images'
+  filters?: Filter[]
+  facets?: Facet[]
+  startYear?: number
+  endYear?: number
 }
 
-export default {
-  props: {
-    groupBy: {
-      type: String as PropType<'contentItems' | 'images'>,
-      default: 'contentItems'
-    },
-    filters: {
-      type: Array as PropType<Filter[]>,
-      default: () => []
-    },
-    facets: {
-      type: Array as PropType<Facet[]>,
-      default: () => []
-    },
-    startYear: {
-      type: Number,
-      default: () => {
-        const defaultYear = getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700
-        return defaultYear
-      }
-    },
-    endYear: {
-      type: Number,
-      default: () => {
-        const defaultYear =
-          getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
-        return defaultYear
-      }
-    }
-  },
-  data: () =>
-    ({
-      selectedFacet: false,
-      selectedDaterangeFilter: null
-    }) satisfies IData,
-  computed: {
-    /** @returns {Facet[]} */
-    standardFacets() {
-      return this.facets.filter(
-        ({ type }) =>
-          !TimelineFacetTypes.includes(type) &&
-          !RangeFacetTypes.includes(type) &&
-          !DynamicRangeFacetTypes.includes(type)
-      )
-    },
-    /** @returns {Facet[]} */
-    rangeFacets() {
-      return this.facets.filter(({ type }) => RangeFacetTypes.includes(type))
-    },
-    dynamicRangeFacets() {
-      return this.facets.filter(({ type }) => DynamicRangeFacetTypes.includes(type))
-    },
-    /** @returns {boolean} */
-    containsTimelineFacets() {
-      return this.facets.filter(({ type }) => TimelineFacetTypes.includes(type)).length > 0
-    },
-    /** @returns {Filter[]} */
-    daterangeFilters() {
-      return this.filters
-        .filter(({ type }) => type === 'daterange')
-        .map(filter => FilterFactory.create(filter) as FilterWithItems<DaterangeFilterItem>)
-    },
-    impressoMinDate() {
-      const defaultYear = getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700
-      const date = new Date(defaultYear + '-01-01')
-      date.setUTCHours(0, 0, 0, 0)
-      return date
-    },
-    impressoMaxDate() {
-      const defaultYear =
-        getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
-      const date = new Date(defaultYear + '-12-31')
-      date.setUTCHours(23, 59, 59, 0)
-      return date
-    },
-    /** @returns {Date} */
-    minDate() {
-      if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce(
-          (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t
-        )
-        return new Date(`${y}-01-01`)
-      }
-      return new Date(`${this.startYear}-01-01`)
-    },
-    /** @returns {Date} */
-    maxDate() {
-      if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce(
-          (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t
-        )
-        return new Date(`${y}-12-31`)
-      }
-      return new Date(`${this.endYear}-12-31`)
-    },
-    /** @returns {any[]} */
-    timelineValues() {
-      const yearFacet = this.facets.find(({ type }) => type === 'year')
-      if (!yearFacet || !yearFacet.buckets.length) return []
-      return facetToTimelineValues(yearFacet)
-    }
-  },
-  methods: {
-    /**
-     * @param {string} type
-     * @returns {Filter[]}
-     */
-    getFacetFilters(type) {
-      return this.filters.filter(d => d.type === type).map(filter => FilterFactory.create(filter))
-    },
-    /**
-     * @param {string} type
-     */
-    resetFilters(type) {
-      this.$emit(
-        'changed',
-        this.filters.filter(d => d.type !== type)
-      )
-    },
-    /**
-     * @param {Filter[]} daterangeFilters
-     */
-    updateDaterangeFilters(daterangeFilters) {
-      this.$emit(
-        'changed',
-        this.filters.filter(({ type }) => type !== 'daterange').concat(daterangeFilters)
-      )
-    },
-    /**
-     * @param {string} type
-     * @param {Filter[]} updatedFilters
-     */
-    facetFiltersUpdated(type, updatedFilters) {
-      let updatedFiltersIndex = 0
+const props = withDefaults(defineProps<SearchFacetsProps>(), {
+  groupBy: 'contentItems',
+  filters: () => [],
+  facets: () => [],
+  startYear: () => getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700,
+  endYear: () =>
+    getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+})
 
-      const mergedFilters = this.filters
-        .map(filter => {
-          if (filter.type === type) {
-            if (updatedFiltersIndex < updatedFilters.length - 1) {
-              updatedFiltersIndex += 1
-              return updatedFilters[updatedFiltersIndex - 1]
-            }
-            return undefined
-          }
-          return filter
-        })
-        .filter(filter => filter != null)
-      const remainingUpdatedFilters = updatedFilters.slice(updatedFiltersIndex)
+const emit = defineEmits<{
+  (e: 'changed', filters: Filter[]): void
+}>()
 
-      this.$emit('changed', mergedFilters.concat(remainingUpdatedFilters))
-    }
-  },
-  components: {
-    FilterTimeline,
-    FilterFacet,
-    FilterRange,
-    FilterDynamicRange
+const standardFacets = computed(() => {
+  return props.facets.filter(
+    ({ type }) => StandardDisplayFacetTypes.includes(type as FacetType) || type === 'collection'
+  )
+})
+
+const rangeFacets = computed(() => {
+  return props.facets.filter(({ type }) => RangeFacetTypes.includes(type as FacetType))
+})
+
+const decimalRangeFacets = computed(() => {
+  return props.facets.filter(({ type }) =>
+    DecimalRangeDisplayFacetTypes.includes(type as FacetType)
+  )
+})
+const dynamicRangeFacets = computed(() => {
+  return props.facets.filter(({ type }) =>
+    DynamicRangeDisplayFacetTypes.includes(type as FacetType)
+  )
+})
+
+const containsTimelineFacets = computed(() => {
+  return props.facets.some(({ type }) => TimelineDisplayFacetTypes.includes(type as FacetType))
+})
+
+const daterangeFilters = computed(() => {
+  return props.filters
+    .filter(({ type }) => type === 'daterange')
+    .map(filter => FilterFactory.create(filter) as FilterWithItems<DaterangeFilterItem>)
+})
+
+const timelineValues = computed(() => {
+  const yearFacet = props.facets.find(({ type }) => type === 'year')
+  if (!yearFacet || !yearFacet.buckets.length) return []
+  return facetToTimelineValues(yearFacet)
+})
+
+const minDate = computed(() => {
+  if (timelineValues.value.length) {
+    const y = timelineValues.value.reduce(
+      (min, d) => (d.t < min ? d.t : min),
+      timelineValues.value[0].t
+    )
+    return new Date(`${y}-01-01`)
   }
+  return new Date(`${props.startYear}-01-01`)
+})
+
+const maxDate = computed(() => {
+  if (timelineValues.value.length) {
+    const y = timelineValues.value.reduce(
+      (max, d) => (d.t > max ? d.t : max),
+      timelineValues.value[0].t
+    )
+    return new Date(`${y}-12-31`)
+  }
+  return new Date(`${props.endYear}-12-31`)
+})
+
+function getFacetFilters(type: string) {
+  return props.filters.filter(d => d.type === type).map(filter => FilterFactory.create(filter))
+}
+
+function resetFilters(type: string) {
+  emit(
+    'changed',
+    props.filters.filter(d => d.type !== type)
+  )
+}
+
+function updateDaterangeFilters(updatedDaterangeFilters: Filter[]) {
+  emit(
+    'changed',
+    props.filters.filter(({ type }) => type !== 'daterange').concat(updatedDaterangeFilters)
+  )
+}
+
+function facetFiltersUpdated(type: string, updatedFilters: Filter[]) {
+  let updatedFiltersIndex = 0
+
+  const mergedFilters = props.filters
+    .map(filter => {
+      if (filter.type === type) {
+        if (updatedFiltersIndex < updatedFilters.length - 1) {
+          updatedFiltersIndex += 1
+          return updatedFilters[updatedFiltersIndex - 1]
+        }
+        return undefined
+      }
+      return filter
+    })
+    .filter(filter => filter != null)
+  const remainingUpdatedFilters = updatedFilters.slice(updatedFiltersIndex)
+
+  emit('changed', mergedFilters.concat(remainingUpdatedFilters))
+}
+
+function onDynamicRangeChanged(changedFilters: Filter[]) {
+  emit('changed', changedFilters)
 }
 </script>
 

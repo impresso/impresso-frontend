@@ -62,7 +62,7 @@
     <div class="items" :class="{ reduced: tooManyItems }">
       <div v-for="(item, idx) in filterItems" :key="idx" class="mt-2">
         <div v-if="RangeFacets.includes(type)">
-          <filter-number-range
+          <FilterNumericRange
             v-if="NumericRangeFacets.includes(type)"
             :start="asNumber(item.start)"
             :end="asNumber(item.end)"
@@ -115,9 +115,13 @@
             <span v-if="item.count"
               >&nbsp;(<span
                 v-html="
-                  $t(type === 'collection'
+                  $t(
+                    type === 'collection'
                       ? 'numbers.articlesMatchingSearchFilters'
-                      : 'numbers.results', { n: $n(item.count) }, item.count)
+                      : 'numbers.results',
+                    { n: $n(item.count) },
+                    item.count
+                  )
                 "
               />)&nbsp;</span
             >
@@ -253,21 +257,18 @@
 <script lang="ts">
 // import FilterDaterange from '@/components/modules/FilterDateRange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
-import FilterNumberRange from '@/components/modules/FilterNumberRange.vue'
+import FilterNumericRange from '@/components/modules/FilterNumericRange.vue'
 import ItemSelector from '@/components/modules/ItemSelector.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import {
-  toCanonicalFilter,
-  toSerializedFilter,
-  RangeFacets,
-  NumericRangeFacets
-} from '@/logic/filters'
+import { toCanonicalFilter, toSerializedFilter, RangeFacets } from '@/logic/filters'
+import { NumericRangeFacets } from '@/logic/facets'
 import { defineComponent, PropType } from 'vue'
 import type { Entity, FilterWithItems } from '@/models'
+import { FacetType } from '@/models/Facet'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
@@ -623,7 +624,7 @@ export default defineComponent({
         // items: [item],
         q
       }
-      if (!NumericRangeFacets.includes(this.editedFilter.type))
+      if (!NumericRangeFacets.includes(this.editedFilter.type as FacetType))
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged(newFilter: FilterMonitorFilter): void {
@@ -637,7 +638,7 @@ export default defineComponent({
     EmbeddingsSearch,
     ItemLabel,
     ItemSelector,
-    FilterNumberRange,
+    FilterNumericRange,
     EntitySuggester,
     RadioGroup
   },

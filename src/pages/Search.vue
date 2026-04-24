@@ -5,6 +5,7 @@
       :filters="enrichedFilters"
       :facets="facets"
       contextTag="search"
+      :ignored-filter-types="ignoredFilters.map(({ type }) => type)"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header="{ focusHandler }">
@@ -240,6 +241,14 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
+import {
+  SearchStandardFacetTypes,
+  SearchRangeFacetTypes,
+  SearchDynamicFacetTypes,
+  SearchTimelineFacetTypes,
+  SearchUserFacetTypes,
+  SearchDecimalFacetTypes
+} from '@/logic/facets'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -263,27 +272,11 @@ import { DatalabPublicApiUrl } from '@/constants'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-export const FacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'partner',
-  // 'year',
-  'copyright',
-  'sourceType',
-  'sourceMedium',
-  // DPFS facets
-  'person',
-  'location',
-  'nag',
-  'organisation',
-  'topic'
-] satisfies FacetType[]
-export const RangeFacetTypes = [] satisfies FacetType[]
-export const DynamicFacetTypes = ['contentLength'] satisfies FacetType[]
-export const TimelineFacetTypes = ['year'] satisfies FacetType[]
-const UserFacetTypes = ['collection'] satisfies FacetType[]
+export const FacetTypes = SearchStandardFacetTypes
+export const RangeFacetTypes = SearchRangeFacetTypes
+export const DynamicFacetTypes = SearchDynamicFacetTypes
+export const TimelineFacetTypes = SearchTimelineFacetTypes
+const UserFacetTypes = SearchUserFacetTypes
 
 export interface IData {
   _activeSearchRequestId: number
@@ -311,6 +304,10 @@ export interface IData {
    * Dynamic facets are expected to be loaded first and are treated differently in the UI.
    */
   dynamicFacets: Facet[]
+  /**
+   * Decimal range facets are expected to be loaded first and are treated differently in the UI.
+   */
+  decimalRangeFacets: Facet[]
   visibleModal?: string
   isLoadingResults: boolean
 }
@@ -331,7 +328,8 @@ export default defineComponent({
       _activeSearchRequestId: 0,
       _isUnmounted: false,
       visibleModal: null,
-      isLoadingResults: false
+      isLoadingResults: false,
+      decimalRangeFacets: []
     } satisfies IData
   },
   props: {
@@ -527,6 +525,7 @@ export default defineComponent({
         ...this.timelineFacets,
         ...this.commonFacets,
         ...this.dynamicFacets,
+        ...this.decimalRangeFacets,
         ...this.rangeFacets,
         ...this.userFacets
       ]
@@ -538,6 +537,7 @@ export default defineComponent({
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
     this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
+    this.decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
   },
   beforeUnmount() {
     this._isUnmounted = true
@@ -798,8 +798,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
-
 .navbar-nav {
   flex-direction: row;
   align-items: center;

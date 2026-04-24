@@ -130,7 +130,7 @@ import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import Facet from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
-import { facetToTimelineValues } from '@/logic/facets'
+import { facetToTimelineValues, TextReuseStandardFacetTypes } from '@/logic/facets'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { mapStores } from 'pinia'
@@ -143,23 +143,7 @@ import { Navigation } from '@/plugins/Navigation'
  * @typedef {import('@/models').Facet} Facet
  */
 
-const FacetTypes = [
-  'textReuseCluster',
-  'newspaper',
-  'topic',
-  'collection',
-  'year',
-  'country',
-  // 'type',
-  'language',
-  'person',
-  'location',
-  'organisation',
-  'nag',
-  'textReuseClusterSize',
-  'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta'
-]
+const FacetTypes = TextReuseStandardFacetTypes
 
 export default {
   components: {
@@ -425,7 +409,6 @@ export default {
         // eslint-disable-next-line
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
-        await this.loadFacet('collection')
 
         await this.loadFacets([
           'newspaper',

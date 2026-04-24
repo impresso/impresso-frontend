@@ -358,6 +358,20 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      ocrQuality: {
+        title: 'OCR quality | OCR quality | OCR qualities',
+        filterTitle: 'OCR quality',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if their OCR quality is within the range',
+        description: 'filter results based on OCR quality',
+        empty: '(no results)',
+        context: {
+          include: 'OCR quality is within the range',
+          exclude: 'OCR quality is <b>NOT</b> within the range'
+        },
+        item: 'OCR quality'
+      },
+
       embedding: {
         title: 'Embedding | Embedding | Embeddings',
         filterTitle: 'embedding',
@@ -536,7 +550,7 @@ export default {
       },
       range: {
         title: 'filter by {label}',
-        item: '{label} between {start} and {end}'
+        item: '{label} [{start} TO {end}]'
       },
       string: {
         title: 'article text'

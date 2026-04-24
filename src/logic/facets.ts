@@ -1,5 +1,6 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
+import type { FacetType } from '@/models/Facet'
 import Topic from '@/models/Topic'
 import type { Bucket, Facet, Entity } from '../models'
 import {
@@ -35,6 +36,115 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
 }
 
 /**
+ * List fo facet types that are rendered as filterable numeric range facets (e.g; [0 to 123]).
+ */
+export const NumericRangeFacets: FacetType[] = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'contentLength',
+  'ocrQuality'
+]
+
+/** Fetched from API as timeline facet. */
+export const SearchTimelineFacetTypes: FacetType[] = ['year']
+export const SearchDecimalFacetTypes: FacetType[] = ['ocrQuality']
+/** Used for display-side categorisation only; 'daterange' is a filter type, not fetched as a facet. */
+export const SearchTimelineDisplayFacetTypes: FacetType[] = ['year', 'daterange']
+/** Range facets (currently none for search). */
+export const SearchRangeFacetTypes: FacetType[] = []
+/** Dynamic range facets (rendered as sliders). */
+export const SearchDynamicFacetTypes: FacetType[] = ['contentLength']
+/** Standard filterable facets shown in the sidebar. */
+export const SearchStandardFacetTypes: FacetType[] = [
+  'language',
+  'newspaper',
+  // 'mediaSource',
+  'type',
+  'country',
+  'partner',
+  // 'year',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  // DPFS facets
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+]
+/** User-specific facets that require authentication. */
+export const SearchUserFacetTypes: FacetType[] = ['collection']
+
+export const TextReuseStandardFacetTypes: FacetType[] = [
+  'textReuseCluster',
+  'newspaper',
+  'topic',
+  // 'collection',
+  // 'year',
+  'country',
+  // 'type',
+  'language',
+  'person',
+  'location',
+  'organisation',
+  'nag',
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+]
+/**
+ * A list of facet types that are displayed as standard filterable facets, e.g; checkboxes, in the sidebar.
+ * Order matters.
+ */
+export const StandardDisplayFacetTypes: FacetType[] = [
+  'language',
+  'newspaper',
+  'mediaSource',
+  'type',
+  'country',
+  'partner',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  // DPFS facets
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic',
+  // image mostly
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+]
+/**
+ * A list of facet types that requires stats to be loaded before showing them.
+ * Order matters.
+ */
+export const DynamicRangeDisplayFacetTypes: FacetType[] = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'contentLength'
+]
+/**
+ * A list of facet types that are rendered as filterable numeric (float )range facets (e.g; [0.00 to 123.00])
+ * and require stats to be loaded before showing them.
+ */
+export const DecimalRangeDisplayFacetTypes: FacetType[] = ['ocrQuality']
+/**
+ * A list of facet types that are rendered as range facets (e.g; a slider with min and max values). Order matters.
+ */
+export const RangeFacetTypes: FacetType[] = []
+/**
+ * A list of facet types that are rendered as timeline facets (e.g; a timeline with points representing buckets). Order matters.
+ */
+export const TimelineDisplayFacetTypes: FacetType[] = ['year', 'daterange']
+
+/**
  * A list of default facet types to be exposed as filter facets
  * on any page that deals with filtering.
  *
@@ -42,11 +152,12 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
  *
  * Must be valid filter names from https://github.com/impresso/impresso-middle-layer/blob/develop/src/util/solr/solrFilters.yml
  */
-export const DefaultFacetTypesForIndex = Object.freeze({
-  search: Object.freeze([
+export const DefaultFacetTypesForIndex = {
+  search: [
     'year',
     'language',
     'newspaper',
+    // 'mediaSource',
     'type',
     'country',
     'topic',
@@ -58,10 +169,10 @@ export const DefaultFacetTypesForIndex = Object.freeze({
     'organisation',
     'nag',
     'year'
-  ]),
-  tr_clusters: Object.freeze(['newspaper']),
-  tr_passages: Object.freeze(['newspaper'])
-})
+  ],
+  tr_clusters: ['newspaper'],
+  tr_passages: ['newspaper']
+} as const
 
 export interface BucketData {
   value: string

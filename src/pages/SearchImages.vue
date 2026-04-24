@@ -3,9 +3,9 @@
     <search-sidebar
       width="400px"
       :filters="filters"
-      :ignored-filters="ignoredFilters"
+      :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
-      :excludedTypes="excludedTypes"
+      :ignored-facet-types="excludedTypes"
       contextTag="search-images"
       @changed="handleFiltersChanged"
     >
@@ -166,7 +166,7 @@ import Ellipsis from '@/components/modules/Ellipsis.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
 import FilterFactory from '@/models/FilterFactory'
 import SearchQuery from '@/models/SearchQuery'
-import FacetModel from '@/models/Facet'
+import FacetModel, { FacetType } from '@/models/Facet'
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 import { Navigation } from '@/plugins/Navigation'
@@ -269,15 +269,17 @@ export default defineComponent({
     ignoredFilters() {
       return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
     },
+    ignoredFilterTypes() {
+      return this.ignoredFilters.map(({ type }) => type)
+    },
     /**
      * Filters used for searching images
      */
     filters() {
       return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
     },
-    /** @returns {string[]} */
     excludedTypes() {
-      return this.filters.map(d => d.type)
+      return this.filters.map(d => d.type) as FacetType[]
     },
     similarToImageId: {
       get() {
