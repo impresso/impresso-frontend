@@ -74,7 +74,6 @@ import ItemSelector from '../ItemSelector.vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
-import { NumericRangeFacets } from '@/logic/facets'
 import { NumericRangeFilters } from '@/logic/filters'
 
 type FilterLabelItem = Entity & {
