@@ -35,6 +35,10 @@ export type FacetType = Extract<
   | 'textReuseClusterLexicalOverlap'
   | 'textReuseClusterDayDelta'
   | 'daterange'
+  | 'imageVisualContent'
+  | 'imageTechnique'
+  | 'imageCommunicationGoal'
+  | 'imageContentType'
 >
 
 /**
