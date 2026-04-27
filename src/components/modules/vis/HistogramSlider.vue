@@ -8,7 +8,7 @@
             $t('maxvalrange', {
               lower: maxBucket.lower,
               upper: maxBucket.upper,
-              n: maxBucket.count
+              n: $n(maxBucket.count)
             })
           "
         ></span>
@@ -17,14 +17,14 @@
           v-html="
             $t('maxval', {
               val: maxBucket.value,
-              n: maxBucket.count
+              n: $n(maxBucket.count)
             })
           "
         ></span>
       </template>
       <span
         v-else-if="maxBucket"
-        v-html="$t('maxval', { val: maxBucket.value, n: maxBucket.count })"
+        v-html="$t('maxval', { val: maxBucket.value, n: $n(maxBucket.count) })"
       ></span>
     </div>
     <div ref="chartContainer" class="position-relative">
@@ -197,9 +197,7 @@ const shouldEnableSlider = computed(() => {
   const [min, max] = range
   const [v0, v1] = value
 
-  return [min, max, v0, v1].every(
-    n => typeof n === 'number' && !isNaN(n) && isFinite(n)
-  )
+  return [min, max, v0, v1].every(n => typeof n === 'number' && !isNaN(n) && isFinite(n))
 })
 /**
  * The bucket with the maximum count, used for annotating the chart with the max value.
@@ -225,8 +223,7 @@ const parsedBuckets = computed<(Bucket & { lower: number; upper: number })[]>(()
     // Preserve existing lower/upper bounds when provided (e.g., dynamic-range facets).
     const existingLower = (bucket as any).lower
     const existingUpper = (bucket as any).upper
-    const hasExistingBounds =
-      typeof existingLower === 'number' && typeof existingUpper === 'number'
+    const hasExistingBounds = typeof existingLower === 'number' && typeof existingUpper === 'number'
 
     if (hasExistingBounds) {
       return {
@@ -465,8 +462,8 @@ watch(
 <i18n lang="json">
 {
   "en": {
-    "maxval": "max: <span class='number'>{n}</span> results ({val})",
-    "maxvalrange": "max: <span class='number'>{n}</span> results ({lower} - {upper})",
+    "maxval": "max:  [<span class='number'>{val}</span>] {n} results",
+    "maxvalrange": "max: [<span class='number'>{lower} - {upper}</span>] {n} results ",
     "valRange": "{lower} - {upper} ({n} results)",
     "val": "{val} ({n} results)",
     "valueLabel": "{n}",
