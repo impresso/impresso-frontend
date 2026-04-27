@@ -22,6 +22,7 @@
       :isFiltered="filters.some(({ type }) => type === facet.type)"
       @changed="onDynamicRangeChanged"
       count-label="numbers.contentItems"
+      :info-button-id="getFacetInfoButtonContent(facet)"
     >
       <template #description>
         <div v-html="$t(`label.${facet.type}.description`)" />
@@ -87,6 +88,7 @@ import {
 import { computed } from 'vue'
 import { FacetType } from '@/models/Facet'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
+import InfoButton from './base/InfoButton.vue'
 
 type DaterangeFilterItem = Entity & {
   start?: string | number | Date
@@ -172,6 +174,16 @@ const maxDate = computed(() => {
   }
   return new Date(`${props.endYear}-12-31`)
 })
+
+function getFacetInfoButtonContent(facet: Facet) {
+  const LookUp = {
+    ocrQuality: 'What-does-OCR-filter-mean'
+  } as const
+  if (facet.type in LookUp) {
+    return LookUp[facet.type as keyof typeof LookUp]
+  }
+  return null
+}
 
 function getFacetFilters(type: string) {
   return props.filters.filter(d => d.type === type).map(filter => FilterFactory.create(filter))
