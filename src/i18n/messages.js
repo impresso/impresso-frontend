@@ -423,7 +423,7 @@ export default {
         filterTitle: 'transcript length',
         filtered: 'Results are filtered when:',
         selected: 'Filter results if they are within the range',
-        description: 'Distribution of Content Items by number of tokens',
+        description: 'Distribution of content items by number of tokens',
         empty: '(no results)',
         item: 'Transcript length'
       },
