@@ -10,20 +10,21 @@
   >
     <h5 class="mt-3">{{ title }}</h5>
     <LoadingBlock v-if="isLoading" :height="300" />
-    <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
-      <template v-slot:tabs-end>
-        <b-nav-item v-for="tab in tabs" :key="tab.name">
-          <button
-            size="sm"
-            class="w-100 btn btn-transparent nav-link"
-            :class="{ active: activeTab === tab.name }"
-            @click="activeTab = tab.name"
-          >
-            {{ $t(tab.label) }} <Icon :name="tab.icon" class="ms-1" />
-          </button>
-        </b-nav-item>
-      </template>
-    </b-tabs>
+    <template #modal-header-extra>
+      <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
+        <template v-slot:tabs-end>
+          <b-nav-item v-for="tab in tabs" :key="tab.name">
+            <button
+              size="sm"
+              class="w-100 btn btn-transparent nav-link"
+              :class="{ active: activeTab === tab.name }"
+              @click="activeTab = tab.name"
+            >
+              {{ $t(tab.label) }} <Icon :name="tab.icon" class="ms-1" />
+            </button>
+          </b-nav-item>
+        </template> </b-tabs
+    ></template>
     <div>
       <section v-if="activeTab === 'metadata'" class="p-2 pt-3">
         <div v-if="filters.length">
