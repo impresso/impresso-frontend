@@ -16,6 +16,7 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
 import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -86,9 +87,20 @@ const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
+const selectionMonitorStore = useSelectionMonitorStore()
 
 const handleTooltipClick = (pos: TooltipPosition) => {
-  console.info('tooltipClick', pos)
+  console.info('tooltipClick', pos, dataValues[pos.idx])
+  const item = dataValues.value[pos.idx]
+  if (item) {
+    selectionMonitorStore.show({
+      item,
+      searchIndex: 'search',
+      type: 'newspaper',
+      applyCurrentSearchFilters: true,
+      displayCurrentSearchFilters: true
+    })
+  }
 }
 
 const handleScrollUpdate = (updated: TooltipPosition) => {

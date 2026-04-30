@@ -3,9 +3,8 @@
     class="ModalDraggable"
     :class="{ 'ModalDraggable--reduced': isReduced }"
     :style="containerStyle"
-    @pointerdown="onPointerDown"
   >
-    <div ref="handleRef" class="ModalDraggable__handle">
+    <div ref="handleRef" class="ModalDraggable__handle" @pointerdown="onPointerDown">
       <slot name="header" :isReduced="isReduced" :toggleReduced="toggleReduced" />
     </div>
     <div v-if="!isReduced" class="ModalDraggable__content">
@@ -148,7 +147,7 @@ onBeforeUnmount(() => {
 <style>
 .ModalDraggable {
   position: absolute;
-  cursor: grab;
+
   touch-action: none;
   user-select: none;
   display: flex;
@@ -161,8 +160,15 @@ onBeforeUnmount(() => {
 
 .ModalDraggable__handle {
   flex: 0 0 auto;
+  cursor: grab;
 }
-
+.ModalDraggable__handle:hover {
+  opacity: 0.8;
+}
+.ModalDraggable__handle:active {
+  cursor: grabbing;
+  opacity: 0.5;
+}
 .ModalDraggable__content {
   flex: 1 1 auto;
   min-height: 0;

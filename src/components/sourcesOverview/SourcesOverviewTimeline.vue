@@ -593,6 +593,7 @@ const containerOnClick = ({ clientX, clientY }: MouseEvent) => {
   containerClientY.value = y
   emitTooltipEvent()
   emitClickEvent()
+  emit('tooltipOut')
 }
 
 const onDataValueItemClick = ({ event }: { event: MouseEvent; dataValue: DataValue }) => {

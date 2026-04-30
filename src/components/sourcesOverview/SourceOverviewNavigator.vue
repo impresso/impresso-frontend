@@ -1,9 +1,9 @@
 <template>
   <ModalDraggable
     class="SourceOverviewNavigator bg-light border border-dark rounded shadow"
-    :initialX="initialX"
-    :initialY="initialY"
-    :zIndex="zIndex"
+    :initialX="props.initialX"
+    :initialY="props.initialY"
+    :zIndex="props.zIndex"
   >
     <template #header="{ isReduced, toggleReduced }">
       <div
@@ -30,21 +30,21 @@
       </div>
       <div
         class="SourceOverviewNavigator__minimap m-2 position-relative"
-        v-if="tooltipPosition && !isReduced"
+        v-if="props.tooltipPosition && !isReduced"
         style="height: 200px"
         ref="minimapRef"
       >
         <Minimap
-          :clientHeight="tooltipPosition.clientHeight"
-          :clientWidth="tooltipPosition.clientWidth"
-          :scrollHeight="tooltipPosition.scrollHeight"
-          :scrollWidth="tooltipPosition.scrollWidth"
-          :scrollLeft="tooltipPosition.scrollLeft"
-          :scrollTop="tooltipPosition.scrollTop"
+          :clientHeight="props.tooltipPosition.clientHeight"
+          :clientWidth="props.tooltipPosition.clientWidth"
+          :scrollHeight="props.tooltipPosition.scrollHeight"
+          :scrollWidth="props.tooltipPosition.scrollWidth"
+          :scrollLeft="props.tooltipPosition.scrollLeft"
+          :scrollTop="props.tooltipPosition.scrollTop"
           @updateScroll="
             value => {
               emit('update:tooltipPosition', {
-                ...tooltipPosition,
+                ...props.tooltipPosition,
                 scrollLeft: value.scrollLeft,
                 scrollTop: value.scrollTop
               })
@@ -84,7 +84,6 @@ const emit = defineEmits<{
 }>()
 
 const minimapRef = ref<HTMLDivElement | null>(null)
-const { initialX, initialY, zIndex, tooltipPosition } = props
 
 const getToggleButtonLabelKey = (isReduced: boolean) => {
   return isReduced ? 'sourcesOverviewNavigator.restore' : 'sourcesOverviewNavigator.reduce'
