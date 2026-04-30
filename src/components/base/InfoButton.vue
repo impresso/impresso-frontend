@@ -11,7 +11,7 @@
       ref="floating"
       role="tooltip"
       tabindex="-1"
-      class="popover b-popover bs-popover-right drop-shadow bg-dark"
+      class="popover b-popover bs-popover-right drop-shadow bg-dark font-weight-inherit"
       :style="floatingStyles"
     >
       <div class="position-absolute" ref="floatingArrow" :style="floatingArrowStyles"></div>

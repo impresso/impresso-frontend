@@ -20,10 +20,14 @@
           <span class="pages" v-if="article?.pages"
             >&nbsp;&mdash;
             {{
-              $t('pp', {
-                pages: article.pages.map(p => p.num).join(', '),
-                n: article.pages.length
-              }, article.pages.length)
+              $t(
+                'pp',
+                {
+                  pages: article.pages.map(p => p.num).join(', '),
+                  n: article.pages.length
+                },
+                article.pages.length
+              )
             }}</span
           >
           <span class="pages" v-else-if="page"
@@ -34,11 +38,9 @@
         </h3>
         <InfoButton v-if="infoButtonRef" :name="infoButtonRef" />
         <div class="d-flex align-items-center">
-          <div class="">
-            <span v-if="article" class="small-caps"
-              >{{ $t('buckets.type.' + article.type) }} &nbsp;</span
-            >
-            <span
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div v-if="article" class="small-caps">{{ $t('buckets.type.' + article.type) }}</div>
+            <div
               v-else-if="issue"
               v-html="
                 $t('label_stats', {
@@ -46,13 +48,13 @@
                   countPages: issue.countPages
                 })
               "
-            ></span>
-            <span v-if="article && article.copyright">
-              {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}</span
-            >
-            <DataProviderLabel v-if="dataProvider" class="d-inline-block" :item="dataProvider" />
-            <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="ml-3" />
-            <ContentItemAccess v-if="contentItem" :item="contentItem" class="ml-3" />
+            ></div>
+            <div v-if="article && article.copyright">
+              {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}
+            </div>
+            <DataProviderLabel v-if="dataProvider" :item="dataProvider" class="mb-1" />
+            <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+            <ContentItemAccess v-if="contentItem" :item="contentItem" class="mt-1" />
           </div>
           <div class="ml-auto" style="min-width: 200px">
             <slot name="actions"></slot>

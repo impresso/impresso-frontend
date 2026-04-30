@@ -32,8 +32,8 @@ const AvailableFilterTypes = [
   'string',
   'title',
   'isFront',
-
   'contentLength',
+  'ocrQuality',
   'source',
   'sourceType',
   'sourceMedium',
@@ -134,11 +134,12 @@ watch(
 <i18n lang="json">
 {
   "en": {
-    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength}",
+    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength} {ocrQuality}",
     "isFront": "appearing on the <em>front page</em>",
     "include": {
       "accessRight": "available as",
       "contentLength": "<span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+      "ocrQuality": "with OCR quality between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "copyright": "available as",
       "topic": "with topic",
       "pub": {
@@ -171,7 +172,7 @@ watch(
     "exclude": {
       "accessRight": "not available as",
       "contentLength": "not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
-
+      "ocrQuality": "with OCR quality not between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "copyright": "not available as",
       "topic": "without topic",
       "pub": {

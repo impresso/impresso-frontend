@@ -350,7 +350,7 @@ export default {
         title: 'Access right | Access right | Access Rights',
         filterTitle: 'access right',
         filtered: 'results are filtered when:',
-        selected: 'filter results if their access right is <b>one of {count} selected</b>',
+        selected: 'Filter results if their access right is <b>one of {count} selected</b>',
         description: 'filter results based on access right',
         empty: '(no results)',
         context: {
@@ -358,12 +358,26 @@ export default {
           exclude: 'content <b>NOT</b> available as'
         }
       },
+      ocrQuality: {
+        title: 'OCR quality | OCR quality | OCR qualities',
+        filterTitle: 'OCR quality',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their OCR quality is within the range',
+        description: 'Filter results based on OCR quality',
+        empty: '(no results)',
+        context: {
+          include: 'OCR quality is within the range',
+          exclude: 'OCR quality is <b>NOT</b> within the range'
+        },
+        item: 'OCR quality'
+      },
+
       embedding: {
         title: 'Embedding | Embedding | Embeddings',
         filterTitle: 'embedding',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> embeddings applies',
-        description: 'check one or more embeddings to filter results',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> embeddings applies',
+        description: 'Check one or more embeddings to filter results',
         empty: '(no results)',
         context: {
           include: 'similar to selected embeddings',
@@ -373,9 +387,9 @@ export default {
       sourceType: {
         title: 'Media Type | Media Type | Media Types',
         filterTitle: 'media type',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if their media type is <b>one of {count} selected</b>',
-        description: 'filter results based on media type',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their media type is <b>one of {count} selected</b>',
+        description: 'Filter results based on media type',
         empty: '(no results)',
         context: {
           include: 'content available as',
@@ -385,9 +399,9 @@ export default {
       sourceMedium: {
         title: 'Source Medium | Source Medium | Source Mediums',
         filterTitle: 'source medium',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if their source medium is <b>one of {count} selected</b>',
-        description: 'filter results based on source medium',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their source medium is <b>one of {count} selected</b>',
+        description: 'Filter results based on source medium',
         empty: '(no results)',
         context: {
           include: 'content available as',
@@ -397,9 +411,9 @@ export default {
       collection: {
         title: 'Collection | Collection | Collections',
         filterTitle: 'collection',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> collection applies',
-        description: 'check one or more collection to filter results',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> collection applies',
+        description: 'Check one or more collection to filter results',
         // eslint-disable-next-line quotes
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
@@ -407,9 +421,9 @@ export default {
       contentLength: {
         title: 'Transcript Length | Transcript Length | Transcript Lengths',
         filterTitle: 'transcript length',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they are within the range',
-        description: 'Distribution of Content Items by number of tokens',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if they are within the range',
+        description: 'Distribution of content items by number of tokens',
         empty: '(no results)',
         item: 'Transcript length'
       },
@@ -536,7 +550,7 @@ export default {
       },
       range: {
         title: 'filter by {label}',
-        item: '{label} between {start} and {end}'
+        item: '{label} [{start} TO {end}]'
       },
       string: {
         title: 'article text'

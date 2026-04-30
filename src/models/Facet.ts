@@ -1,4 +1,4 @@
-import { FilterOperator } from 'impresso-jscommons'
+import { FilterOperator, FilterType } from 'impresso-jscommons'
 import Bucket from './Bucket'
 import { SearchFacet } from './generated/deprecated/models'
 import type { Facet as IFacet, Entity } from './index'
@@ -7,7 +7,8 @@ import type { Facet as IFacet, Entity } from './index'
  * All supported facet types.
  * TODO: load from impresso-jscommons.
  */
-export type FacetType =
+export type FacetType = Extract<
+  FilterType,
   | 'topic'
   | 'textReuseCluster'
   | 'textReusePassage'
@@ -26,6 +27,7 @@ export type FacetType =
   | 'copyright'
   | 'partner'
   | 'contentLength'
+  | 'ocrQuality'
   | 'nag'
   | 'organisation'
   | 'month'
@@ -33,6 +35,11 @@ export type FacetType =
   | 'textReuseClusterLexicalOverlap'
   | 'textReuseClusterDayDelta'
   | 'daterange'
+  | 'imageVisualContent'
+  | 'imageTechnique'
+  | 'imageCommunicationGoal'
+  | 'imageContentType'
+>
 
 /**
  * Read-only array of all supported facet types.
@@ -42,7 +49,6 @@ export const FacetTypes: ReadonlyArray<FacetType> = Object.freeze([
   ...new Set<FacetType>([
     'topic',
     'textReuseCluster',
-    'textReusePassage',
     'collection',
     'year',
     'type',
