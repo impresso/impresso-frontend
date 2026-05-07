@@ -106,6 +106,9 @@ export interface SpecialMembershipAccess {
   metadata?: {
     provider?: string
     note?: string
+    modality?: 'cc_reviewer' | 'notify_reviewer'
+    revokeAfterDays?: number
+    enableTemporaryAutomaticAcceptance?: boolean
   }
   requests?: UserSpecialMembershipRequest[]
 }
@@ -118,7 +121,7 @@ export interface UserSpecialMembershipRequest {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'temporary'
   changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
@@ -132,7 +135,7 @@ export interface UserSpecialMembershipRequestReview {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'temporary'
   notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
   requester: {

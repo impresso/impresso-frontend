@@ -25,9 +25,22 @@ export const Default: Story = {
     specialMembershipAccess: {
       id: 1,
       title: 'Data Domain Access Example',
-      bitmapPosition: 1
+      bitmapPosition: 1,
+      metadata: {
+        modality: 'notify_reviewer',
+        revokeAfterDays: 30,
+        enableTemporaryAutomaticAcceptance: true
+      }
     },
     notesMinLength: 20,
     notesMaxLength: 500
   } as SpecialMembershipRequestFormProps
+}
+
+export const Rejected: Story = {
+  args: { ...Default.args, currentRequestStatus: 'rejected' }
+}
+
+export const Revoked: Story = {
+  args: { ...Default.args, currentRequestStatus: 'revoked' }
 }

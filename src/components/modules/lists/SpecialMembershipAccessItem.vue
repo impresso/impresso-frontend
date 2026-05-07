@@ -15,39 +15,38 @@
         <p class="small m-0">{{ item.metadata?.provider }}</p>
       </div>
       <div
-        v-if="item.requests && item.requests.length > 0"
         :class="{
           'col-6': props.asContainer
         }"
-        class="d-flex align-items-center justify-content-start gap-2"
       >
-        <Icon v-bind="iconArgs" />
-        <div class="small">
-          <span
-            :class="{
-              'text-success font-weight-bold': item.requests[0].status === 'approved'
-            }"
-            >{{ $t(`status.${item.requests[0].status}`) }}
-          </span>
-          <div class="text-muted small">
-            {{ $t('dateCreated') }}
-            <TimeAgo :date="item.requests[0].dateCreated" />
+        <section class="d-flex gap-2 align-items-center flex-wrap w-100">
+          <div
+            v-if="hasRequests"
+            class="d-flex align-items-center justify-content-start gap-2 flex-grow-1"
+          >
+            <Icon v-bind="iconArgs" />
+            <div class="small">
+              <span
+                :class="{
+                  'text-success font-weight-bold': item.requests[0].status === 'approved'
+                }"
+                >{{ $t(`status.${item.requests[0].status}`) }}
+              </span>
+              <div class="text-muted small">
+                {{ $t('dateCreated') }}
+                <TimeAgo :date="item.requests[0].dateCreated" />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div
-        v-else-if="withActions && (!item.requests || item.requests.length === 0)"
-        :class="{
-          'col-6': props.asContainer
-        }"
-        class="SpecialMembershipAccessItem__requestAccess"
-      >
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          @click="() => emit('request-access', props.item)"
-        >
-          {{ $t('action.requestAccess') }}
-        </button>
+          <div v-if="showActions" class="SpecialMembershipAccessItem__requestAccess">
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              @click="() => emit('request-access', props.item)"
+            >
+              {{ $t('action.requestAccess') }}
+            </button>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -73,23 +72,43 @@ const emit = defineEmits<{
   (e: 'request-access', item: SpecialMembershipAccess): void
 }>()
 
+const hasRequests = computed(() => {
+  return props.item.requests && props.item.requests.length > 0
+})
+
+const showActions = computed(() => {
+  if (!hasRequests.value) {
+    return props.withActions
+  }
+  // # with requests, show actions only if the status is NOT pending, approved or temporary (i.e. if the user can still do something about it)
+  const status = props.item.requests[0].status
+  const isFinal = status === 'approved' || status === 'pending' || status === 'temporary'
+  return props.withActions && !isFinal
+})
+
 const iconArgs = computed<IconProps>(() => {
   if (!props.item.requests || props.item.requests.length === 0) {
     return {}
   }
-  if (props.item.requests[0].status === 'approved') {
+  if (
+    props.item.requests[0].status === 'approved' ||
+    props.item.requests[0].status === 'temporary'
+  ) {
     return {
       name: 'check',
       strokeWidth: 1.5,
       color: 'green'
     }
-  } else if (props.item.requests[0].status === 'pending') {
+  } else if (
+    props.item.requests[0].status === 'pending' ||
+    props.item.requests[0].status === 'revoked'
+  ) {
     return {
       name: 'warningCircle',
       strokeWidth: 1.5,
       color: 'var(--bs-warning)'
     }
-  } else {
+  } else if (props.item.requests[0].status === 'rejected') {
     return {
       name: 'xCircle',
 
@@ -105,7 +124,9 @@ const iconArgs = computed<IconProps>(() => {
     "status": {
       "approved": "Approved",
       "pending": "Pending",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "revoked": "Temporary Access Ended",
+      "temporary": "Temporary Access"
     },
     "action": {
       "requestAccess": "Request Full Access"

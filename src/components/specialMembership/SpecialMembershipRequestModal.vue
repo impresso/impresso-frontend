@@ -26,6 +26,7 @@
         @submit="onSubmitHandler"
       >
         <FeathersErrorManager v-if="error" :error="error" class="m-3" />
+        {{ props.item }}
       </SpecialMembershipRequestForm>
     </div>
 
@@ -59,7 +60,7 @@ export type SpecialMembershipRequestModalProps = {
 }
 
 const props = withDefaults(defineProps<SpecialMembershipRequestModalProps>(), {
-  dialogClass: ' modal-md p-0 modal-dialog-centered',
+  dialogClass: ' modal-lg p-0 modal-dialog-centered',
   title: 'Request Special Membership Access'
 })
 const isLoading = ref(false)
@@ -75,9 +76,12 @@ const specialMembershipRequestStatusTranslationKey = computed(() => {
   return props.item.requests[0]?.status
 })
 
+const hasRequests = computed(() => {
+  return Array.isArray(props.item?.requests) && props.item.requests.length > 0
+})
+
 const isAlreadyRequested = computed(() => {
-  if (!props.item || !Array.isArray(props.item.requests)) return false
-  return props.item.requests.length > 0
+  return false
 })
 const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => {
   if (!props.item) {
@@ -115,7 +119,9 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
       "notYetRequested": "This content item requires special membership to access to its facsimile and transcript in Datalab or CSV Export. As it belongs to a restricted collection, you will need to request special access to them. <br><br> You have not yet requested access to this special membership.",
       "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
       "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
-      "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export."
+      "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
+      "revoked": "Your temporary access to this special membership has ended. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export anymore.",
+      "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details."
     }
   }
 </i18n>
