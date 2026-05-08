@@ -1,5 +1,5 @@
 <template>
-  <div class="SpecialMembershipAccessItem container-fluid">
+  <div class="SpecialMembershipAccessItem" :class="{ 'container-fluid': props.asContainer }">
     <div
       :class="{
         row: props.asContainer
@@ -38,6 +38,39 @@
               </div>
             </div>
           </div>
+          <div v-if="showMetadata">
+            <div
+              class="d-flex align-items-center gap-2"
+              v-for="metadataKey in ['enableTemporaryAutomaticAcceptance', 'revokeAfterDays']"
+              :key="metadataKey"
+            >
+              <div class="text-muted small">{{ $t(`metadata.${metadataKey}.label`) }}</div>
+
+              <div
+                class="smallcaps"
+                v-html="
+                  $t(
+                    `metadata.${metadataKey}.${item.metadata![metadataKey] ? 'available' : 'disabled'}`,
+                    { value: item.metadata![metadataKey] }
+                  )
+                "
+              ></div>
+
+              <InfoButton
+                :name="
+                  $t(
+                    `metadata.${metadataKey}.infoTitle.${item.metadata![metadataKey] ? 'available' : 'disabled'}`
+                  )
+                "
+                :default-content="
+                  $t(
+                    `metadata.${metadataKey}.infoText.${item.metadata![metadataKey] ? 'available' : 'disabled'}`
+                  )
+                "
+              >
+              </InfoButton>
+            </div>
+          </div>
           <div v-if="showActions" class="SpecialMembershipAccessItem__requestAccess">
             <button
               class="btn btn-sm btn-outline-secondary"
@@ -56,16 +89,19 @@ import type { SpecialMembershipAccess } from '@/services/types'
 import TimeAgo from '../../TimeAgo.vue'
 import Icon, { IconProps } from 'impresso-ui-components/components/Icon.vue'
 import { computed } from 'vue'
+import InfoButton from '@/components/base/InfoButton.vue'
 
 export interface SpecialMembershipAccessItemProps {
   item: SpecialMembershipAccess
   withActions?: boolean
+  withMetadata?: boolean
   asContainer?: boolean
 }
 
 const props = withDefaults(defineProps<SpecialMembershipAccessItemProps>(), {
   withActions: false,
-  asContainer: true
+  asContainer: true,
+  withMetadata: false
 })
 
 const emit = defineEmits<{
@@ -76,6 +112,9 @@ const hasRequests = computed(() => {
   return props.item.requests && props.item.requests.length > 0
 })
 
+const showMetadata = computed(() => {
+  return props.withMetadata && props.item.metadata
+})
 const showActions = computed(() => {
   if (!hasRequests.value) {
     return props.withActions
@@ -127,6 +166,34 @@ const iconArgs = computed<IconProps>(() => {
       "rejected": "Rejected",
       "revoked": "Temporary Access Ended",
       "temporary": "Temporary Access"
+    },
+    "metadata": {
+      "enableTemporaryAutomaticAcceptance": {
+        "label": "Provisional access:",
+        "available": "available",
+        "disabled": "Disabled",
+        "infoTitle": {
+          "available": "What is Provisional Access?",
+          "disabled": "What is Provisional Access?"
+        },
+        "infoText": {
+          "available": "This special membership access is automatically granted for a limited time. When you request access, you’ll receive immediate provisional access to items in this domain in Datalab or CSV Export. After your access expires, you can reapply, but your request will be reviewed and may take some time.",
+          "disabled": "This special membership access is not set for automatic approval. When you request access, it will be reviewed before you can access the content item and other items in the same domain in Datalab or in CSV Export. Thank you for your patience while your request is being processed!"
+        }
+      },
+      "revokeAfterDays": {
+        "label": "Duration of provisional access: ",
+        "available": "{value} days",
+        "disabled": "N/A",
+        "infoTitle": {
+          "available": "Provisional access available",
+          "disabled": "Access revocation disabled"
+        },
+        "infoText": {
+          "available": "This special membership access is configured to be automatically revoked after a certain number of days. This means that when you request access, you will have temporary access to the content item and other items in the same domain in Datalab or in CSV Export. Please note that this temporary access will last only for a limited time, after which your access will be automatically revoked.",
+          "disabled": "This special membership does not offer provisional access, normally the access duration would be specified here."
+        }
+      }
     },
     "action": {
       "requestAccess": "Request Full Access"

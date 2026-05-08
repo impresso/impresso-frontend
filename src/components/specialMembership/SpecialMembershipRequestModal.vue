@@ -8,16 +8,19 @@
     @close="emit('dismiss')"
   >
     <p class="m-3" v-html="$t(specialMembershipRequestStatusTranslationKey)"></p>
-    <section class="m-3 p-3 border rounded">
-      <SpecialMembershipAccessItem :as-container="false" :item="props.item" />
+    <section class="m-3 p-3 border border-dark rounded">
+      <SpecialMembershipAccessItem :as-container="false" :item="props.item" with-metadata />
     </section>
-    <Alert class="m-3 border border-info" v-if="isAlreadyRequested">
+    <Alert class="m-3 border border-info" v-if="isPending">
+      You have already requested access to this special membership.
+    </Alert>
+    <Alert class="m-3 border border-danger" type="warning" v-if="isRevoked">
       You have already requested access to this special membership.
     </Alert>
     <Alert type="success" class="m-3 border border-success" v-else-if="isSuccess">
       Your request for special membership access has been submitted successfully.
     </Alert>
-    <div v-else>
+    <div v-if="showForm">
       <SpecialMembershipRequestForm
         class="p-3"
         :isLoading="isLoading"
@@ -26,7 +29,6 @@
         @submit="onSubmitHandler"
       >
         <FeathersErrorManager v-if="error" :error="error" class="m-3" />
-        {{ props.item }}
       </SpecialMembershipRequestForm>
     </div>
 
@@ -80,7 +82,21 @@ const hasRequests = computed(() => {
   return Array.isArray(props.item?.requests) && props.item.requests.length > 0
 })
 
-const isAlreadyRequested = computed(() => {
+const isPending = computed(() => {
+  return hasRequests.value && props.item!.requests![0].status === 'pending'
+})
+
+const isRevoked = computed(() => {
+  return hasRequests.value && props.item!.requests![0].status === 'revoked'
+})
+
+const showForm = computed(() => {
+  if (!hasRequests.value) {
+    return true
+  }
+  if (isRevoked.value) {
+    return true
+  }
   return false
 })
 const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => {
@@ -113,15 +129,15 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
   isLoading.value = false
 }
 </script>
-<i18n>
-  {
-    "en": {
-      "notYetRequested": "This content item requires special membership to access to its facsimile and transcript in Datalab or CSV Export. As it belongs to a restricted collection, you will need to request special access to them. <br><br> You have not yet requested access to this special membership.",
-      "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
-      "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
-      "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
-      "revoked": "Your temporary access to this special membership has ended. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export anymore.",
-      "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details."
-    }
+<i18n lang="json">
+{
+  "en": {
+    "notYetRequested": "To access the facsimile and transcript of content items in this domain via Datalab or CSV Export, special membership is required.",
+    "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
+    "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
+    "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
+    "revoked": "Your temporary access to this special membership has ended. <br/>However, you can now submit a request to regain access. Please note that your request will need to be reviewed before you can once again access the transcript of the items in this domain in Datalab or in CSV Export. Thank you for your understanding!",
+    "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details."
   }
+}
 </i18n>
