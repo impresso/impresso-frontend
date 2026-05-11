@@ -200,6 +200,7 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
+    "help": "Documentation",
     "tableOfContents": "Table of Contents",
     "title": {
       "faq": "Frequently Asked Questions",
