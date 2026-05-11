@@ -129,14 +129,14 @@ const sessionIdTooltipContent = computed(
 
 const inputMessage = ref('')
 const selectedModelId = ref('')
-const selectedAgentType = ref<'react' | 'router' | 'skills'>('skills')
+const selectedAgentType = ref<'react' | 'router' | 'skills'>('router')
 const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
 
 const agentTypeOptions: Option[] = [
-  { value: 'skills', text: 'Skills' },
-  { value: 'react', text: 'ReAct' },
-  { value: 'router', text: 'Router' }
+  { value: 'skills', text: 'Skills (experimental)' },
+  { value: 'react', text: 'ReAct (deprecated)' },
+  { value: 'router', text: 'Router (default)' }
 ]
 
 const modelOptions: Option[] = [
