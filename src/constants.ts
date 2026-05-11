@@ -39,6 +39,23 @@ export const PlanBitPositions: Record<string, number> = {
   [PlanResearcherPlus]: 4 // reserved for future use
 }
 
+export const SpecialMembershipRequestStatusPending = 'pending'
+export const SpecialMembershipRequestStatusApproved = 'approved'
+export const SpecialMembershipRequestStatusRejected = 'rejected'
+export const SpecialMembershipRequestStatusRevoked = 'revoked'
+export const SpecialMembershipRequestStatusTemporary = 'temporary'
+/** Pending temporary is transitional status for requests with temporary auto acceptance enabled */
+export const SpecialMembershipRequestStatusPendingTemporary = 'pending-t'
+
+export const SpecialMembershipRequestStatuses = [
+  SpecialMembershipRequestStatusPending,
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusRejected,
+  SpecialMembershipRequestStatusRevoked,
+  SpecialMembershipRequestStatusTemporary,
+  SpecialMembershipRequestStatusPendingTemporary
+] as const
+
 export const MaxPlanBitPosition = Math.max(...Object.values(PlanBitPositions)) + 1
 
 export const AvailablePlans = [PlanImpressoUser, PlanEducational, PlanResearcher]

@@ -2,6 +2,15 @@
   <form class="form" @submit.prevent="submitHandler">
     <LoadingBlock v-if="isLoading"></LoadingBlock>
     <section v-else>
+      <b-form-checkbox
+        class="mb-3"
+        :disabled="isLoading || !isTemporaryAutoAcceptEnabled"
+        v-model="requestProvisionalAccess"
+        switch
+      >
+        {{ $t('actions.requestProvisionalAccess') }}
+      </b-form-checkbox>
+
       <textarea
         autofocus
         class="form-control border rounded-sm shadow-sm"
@@ -42,7 +51,7 @@
   </form>
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { SpecialMembershipAccess, UserSpecialMembershipRequest } from '@/services/types'
 import LoadingBlock from '../LoadingBlock.vue'
 import Icon from 'impresso-ui-components/components/Icon.vue'
@@ -54,17 +63,20 @@ export interface SpecialMembershipRequestFormProps {
   isLoading?: boolean
   notesMinLength?: number
   notesMaxLength?: number
+  isRevoked?: boolean
 }
 
 export type SpecialMembershipRequestFormPayload = {
   specialMembershipAccess: SpecialMembershipAccess
   notes: string
+  requestProvisionalAccess: boolean
 }
 
 const props = withDefaults(defineProps<SpecialMembershipRequestFormProps>(), {
   isLoading: false,
   notesMinLength: 10,
-  notesMaxLength: 1000
+  notesMaxLength: 1000,
+  isRevoked: false
 })
 const emit = defineEmits<{
   (e: 'submit', payload: SpecialMembershipRequestFormPayload): void
@@ -76,6 +88,14 @@ export interface SpecialMembershipRequestFormValidation {
 }
 const form = ref<SpecialMembershipRequestFormValidation>({
   notes: ''
+})
+
+const requestProvisionalAccess = ref(false)
+const isTemporaryAutoAcceptEnabled = computed(() => {
+  if (props.isRevoked) {
+    return false
+  }
+  return props.specialMembershipAccess?.metadata?.enableTemporaryAutomaticAcceptance ?? false
 })
 
 const submitHandler = (event: Event) => {
@@ -91,7 +111,8 @@ const submitHandler = (event: Event) => {
 
   emit('submit', {
     specialMembershipAccess: props.specialMembershipAccess,
-    notes: form.value.notes
+    notes: form.value.notes,
+    requestProvisionalAccess: requestProvisionalAccess.value
   })
 }
 
@@ -109,6 +130,16 @@ const v$ = useVuelidate(
 const handleContentInput = () => {
   v$.value.notes.$touch() // This triggers validation for this field
 }
+
+watch(
+  () => isTemporaryAutoAcceptEnabled.value,
+  v => {
+    requestProvisionalAccess.value = v
+  },
+  {
+    immediate: true
+  }
+)
 </script>
 <i18n lang="json">
 {
@@ -117,6 +148,7 @@ const handleContentInput = () => {
     "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>",
     "specialMembershipAccessPlaceholder": "Please provide a reason for your request.",
     "actions": {
+      "requestProvisionalAccess": "Request Provisional Access",
       "discard": "Discard"
     },
     "specialMembershipRequestModal": {

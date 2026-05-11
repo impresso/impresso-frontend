@@ -90,6 +90,14 @@ import TimeAgo from '../../TimeAgo.vue'
 import Icon, { IconProps } from 'impresso-ui-components/components/Icon.vue'
 import { computed } from 'vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import {
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusPendingTemporary,
+  SpecialMembershipRequestStatusTemporary,
+  SpecialMembershipRequestStatusRevoked,
+  SpecialMembershipRequestStatusPending,
+  SpecialMembershipRequestStatusRejected
+} from '@/constants'
 
 export interface SpecialMembershipAccessItemProps {
   item: SpecialMembershipAccess
@@ -121,7 +129,11 @@ const showActions = computed(() => {
   }
   // # with requests, show actions only if the status is NOT pending, approved or temporary (i.e. if the user can still do something about it)
   const status = props.item.requests[0].status
-  const isFinal = status === 'approved' || status === 'pending' || status === 'temporary'
+  const isFinal =
+    status === SpecialMembershipRequestStatusApproved ||
+    status === SpecialMembershipRequestStatusPending ||
+    status === SpecialMembershipRequestStatusTemporary ||
+    status === SpecialMembershipRequestStatusPendingTemporary
   return props.withActions && !isFinal
 })
 
@@ -130,8 +142,9 @@ const iconArgs = computed<IconProps>(() => {
     return {}
   }
   if (
-    props.item.requests[0].status === 'approved' ||
-    props.item.requests[0].status === 'temporary'
+    props.item.requests[0].status === SpecialMembershipRequestStatusApproved ||
+    props.item.requests[0].status === SpecialMembershipRequestStatusTemporary ||
+    props.item.requests[0].status === SpecialMembershipRequestStatusPendingTemporary
   ) {
     return {
       name: 'check',
@@ -139,15 +152,15 @@ const iconArgs = computed<IconProps>(() => {
       color: 'green'
     }
   } else if (
-    props.item.requests[0].status === 'pending' ||
-    props.item.requests[0].status === 'revoked'
+    props.item.requests[0].status === SpecialMembershipRequestStatusPending ||
+    props.item.requests[0].status === SpecialMembershipRequestStatusRevoked
   ) {
     return {
       name: 'warningCircle',
       strokeWidth: 1.5,
       color: 'var(--bs-warning)'
     }
-  } else if (props.item.requests[0].status === 'rejected') {
+  } else if (props.item.requests[0].status === SpecialMembershipRequestStatusRejected) {
     return {
       name: 'xCircle',
 
@@ -164,8 +177,9 @@ const iconArgs = computed<IconProps>(() => {
       "approved": "Approved",
       "pending": "Pending",
       "rejected": "Rejected",
-      "revoked": "Temporary Access Ended",
-      "temporary": "Temporary Access"
+      "revoked": "Provisional Access Ended",
+      "temporary": "Temporary Access",
+      "rtemporary": "Pending Provisional Access request"
     },
     "metadata": {
       "enableTemporaryAutomaticAcceptance": {

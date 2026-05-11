@@ -1,7 +1,7 @@
 <template>
   <Modal
     :show="isVisible"
-    :title="titleModal ?? title"
+    :title="titleModal ?? (title || $t('title'))"
     modalClass="SpecialMembershipRequestModal"
     :dialogClass="props.dialogClass"
     bodyClass="p-0"
@@ -12,17 +12,20 @@
       <SpecialMembershipAccessItem :as-container="false" :item="props.item" with-metadata />
     </section>
     <Alert class="m-3 border border-info" v-if="isPending">
-      You have already requested access to this special membership.
+      {{ $t('alert.pending') }}
+    </Alert>
+    <Alert class="m-3 border border-success" v-else-if="isPendingTemporary">
+      {{ $t('alert.pendingTemporary') }}
     </Alert>
     <Alert class="m-3 border border-danger" type="warning" v-if="isRevoked">
-      You have already requested access to this special membership.
+      {{ $t('alert.revoked') }}
     </Alert>
     <Alert type="success" class="m-3 border border-success" v-else-if="isSuccess">
-      Your request for special membership access has been submitted successfully.
+      {{ $t('alert.success') }}
     </Alert>
     <div v-if="showForm">
       <SpecialMembershipRequestForm
-        class="p-3"
+        class="px-3 pb-3"
         :isLoading="isLoading"
         :specialMembershipAccess="props.item"
         @dismiss="emit('dismiss')"
@@ -52,6 +55,11 @@ import SpecialMembershipAccessItem from '../modules/lists/SpecialMembershipAcces
 import FeathersErrorManager from '../FeathersErrorManager.vue'
 import { computed } from 'vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
+import {
+  SpecialMembershipRequestStatusPending,
+  SpecialMembershipRequestStatusPendingTemporary,
+  SpecialMembershipRequestStatusRevoked
+} from '@/constants'
 
 export type SpecialMembershipRequestModalProps = {
   item?: SpecialMembershipAccess
@@ -63,7 +71,7 @@ export type SpecialMembershipRequestModalProps = {
 
 const props = withDefaults(defineProps<SpecialMembershipRequestModalProps>(), {
   dialogClass: ' modal-lg p-0 modal-dialog-centered',
-  title: 'Request Special Membership Access'
+  title: ''
 })
 const isLoading = ref(false)
 const isSuccess = ref(false)
@@ -82,12 +90,22 @@ const hasRequests = computed(() => {
   return Array.isArray(props.item?.requests) && props.item.requests.length > 0
 })
 
+const isPendingTemporary = computed(() => {
+  return (
+    hasRequests.value &&
+    props.item!.requests![0].status === SpecialMembershipRequestStatusPendingTemporary
+  )
+})
 const isPending = computed(() => {
-  return hasRequests.value && props.item!.requests![0].status === 'pending'
+  return (
+    hasRequests.value && props.item!.requests![0].status === SpecialMembershipRequestStatusPending
+  )
 })
 
 const isRevoked = computed(() => {
-  return hasRequests.value && props.item!.requests![0].status === 'revoked'
+  return (
+    hasRequests.value && props.item!.requests![0].status === SpecialMembershipRequestStatusRevoked
+  )
 })
 
 const showForm = computed(() => {
@@ -110,7 +128,8 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
   await userSpecialMembershipRequestsService
     .create({
       specialMembershipAccessId: props.item.id,
-      notes: payload.notes
+      notes: payload.notes,
+      isTemporary: payload.requestProvisionalAccess
     })
     .then(() => {
       console.debug('Special membership request created successfully')
@@ -132,12 +151,20 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
 <i18n lang="json">
 {
   "en": {
+    "title": "Request Special Membership Access",
+    "alert": {
+      "pending": "You have already requested access to this special membership, and your request is currently pending review. You will be notified once a decision has been made.",
+      "pendingTemporary": "Your Provisional Access request for this special membership is being processed and will be available shortly. If you don't see it soon, try refreshing the page or clearing your cache. If the issue continues, please contact us.",
+      "revoked": "You have already requested access to this special membership.",
+      "success": "Your request for special membership access has been submitted successfully."
+    },
     "notYetRequested": "To access the facsimile and transcript of content items in this domain via Datalab or CSV Export, special membership is required.",
     "pending": "Your request for special membership access is pending review. You will be notified once a decision has been made.",
     "approved": "Your request for special membership access has been approved. You can now access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
     "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
-    "revoked": "Your temporary access to this special membership has ended. <br/>However, you can now submit a request to regain access. Please note that your request will need to be reviewed before you can once again access the transcript of the items in this domain in Datalab or in CSV Export. Thank you for your understanding!",
-    "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details."
+    "revoked": "Your provisional access to this special membership has ended. <br/>However, you can now submit a request to regain access. Please note that your request will need to be reviewed before you can once again access the transcript of the items in this domain in Datalab or in CSV Export. Thank you for your understanding!",
+    "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details.",
+    "rtemporary": "Almost there: Provisional Access on the Way..."
   }
 }
 </i18n>

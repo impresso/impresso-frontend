@@ -9,6 +9,7 @@ import { MentionsService } from './mentions'
 import { ICollectableItemsService } from './collectableItems'
 import { AdminService } from './admin'
 import { MediaSourcesService } from './mediaSources'
+import { SpecialMembershipRequestStatuses } from '@/constants'
 
 interface ErrorsCollectorPayload {
   id: string
@@ -121,7 +122,9 @@ export interface UserSpecialMembershipRequest {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'temporary'
+  temporaryExpiresAt?: string | null
+  status: (typeof SpecialMembershipRequestStatuses)[number]
+  notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
@@ -135,7 +138,7 @@ export interface UserSpecialMembershipRequestReview {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'temporary'
+  status: (typeof SpecialMembershipRequestStatuses)[number]
   notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
   requester: {
