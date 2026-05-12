@@ -28,7 +28,16 @@ describe('optimizeFilters', () => {
       { type: 'string', q: ['foo'] },
       { type: 'string', q: ['de'] }
     ]
-    const optimizedFilters: FilterLike[] = [{ type: 'string', q: ['foo', 'de'] }]
+    const optimizedFilters: FilterLike[] = [
+      {
+        q: 'foo',
+        type: 'string'
+      },
+      {
+        q: 'de',
+        type: 'string'
+      }
+    ]
 
     assert.deepEqual(optimizeFilters(filters), optimizedFilters)
   })
