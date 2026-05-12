@@ -69,7 +69,7 @@ import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
 export interface Props {
   item: TextReuseCluster
   filters: Filter[] | FilterWithItemsInterface[]
-  orderByOptions: string[]
+  orderByOptions?: string[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
