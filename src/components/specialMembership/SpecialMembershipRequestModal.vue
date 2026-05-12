@@ -17,11 +17,11 @@
     <Alert class="m-3 border border-success" v-else-if="isPendingTemporary">
       {{ $t('alert.pendingTemporary') }}
     </Alert>
-    <Alert class="m-3 border border-danger" type="warning" v-if="isRevoked">
-      {{ $t('alert.revoked') }}
-    </Alert>
     <Alert type="success" class="m-3 border border-success" v-else-if="isSuccess">
       {{ $t('alert.success') }}
+    </Alert>
+    <Alert class="m-3 border border-danger" type="warning" v-else-if="isRevoked">
+      {{ $t('alert.revoked') }}
     </Alert>
     <div v-if="showForm">
       <SpecialMembershipRequestForm
@@ -164,7 +164,7 @@ const onSubmitHandler = async (payload: SpecialMembershipRequestFormPayload) => 
     "rejected": "Your request for special membership access has been rejected. You will not be able to access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export.",
     "revoked": "Your provisional access to this special membership has ended. <br/>However, you can now submit a request to regain access. Please note that your request will need to be reviewed before you can once again access the transcript of the items in this domain in Datalab or in CSV Export. Thank you for your understanding!",
     "temporary": "Your request for special membership access has been temporarily approved. You can access the transcript of this content item and of other items in the same domain in Datalab or in CSV Export for a limited time. Please check your notifications for more details.",
-    "rtemporary": "Almost there: Provisional Access on the Way..."
+    "pending-t": "Almost there: Provisional Access on the Way..."
   }
 }
 </i18n>

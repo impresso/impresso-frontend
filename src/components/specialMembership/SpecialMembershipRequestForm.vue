@@ -52,7 +52,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { SpecialMembershipAccess, UserSpecialMembershipRequest } from '@/services/types'
+import type { SpecialMembershipAccess } from '@/services/types'
 import LoadingBlock from '../LoadingBlock.vue'
 import Icon from 'impresso-ui-components/components/Icon.vue'
 import useVuelidate from '@vuelidate/core'
@@ -153,7 +153,7 @@ watch(
     },
     "specialMembershipRequestModal": {
       "specialMembershipAccess": {
-        "revoked": "You can now ask  for special membership access again if you want to, but your previous temporary access has ended."
+        "revoked": "You can now ask for special membership access again if you want to, but your previous provisional access has ended."
       }
     },
     "notesFieldHint": "You must provide additional information or context for your request here, between <span class=\"number\">{min}</span> and <span class=\"number\">{max}</span> characters."

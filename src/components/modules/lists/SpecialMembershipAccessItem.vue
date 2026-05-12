@@ -178,8 +178,8 @@ const iconArgs = computed<IconProps>(() => {
       "pending": "Pending",
       "rejected": "Rejected",
       "revoked": "Provisional Access Ended",
-      "temporary": "Temporary Access",
-      "rtemporary": "Pending Provisional Access request"
+      "temporary": "Provisional Access",
+      "pending-t": "Pending Provisional Access request"
     },
     "metadata": {
       "enableTemporaryAutomaticAcceptance": {
@@ -204,7 +204,7 @@ const iconArgs = computed<IconProps>(() => {
           "disabled": "Access revocation disabled"
         },
         "infoText": {
-          "available": "This special membership access is configured to be automatically revoked after a certain number of days. This means that when you request access, you will have temporary access to the content item and other items in the same domain in Datalab or in CSV Export. Please note that this temporary access will last only for a limited time, after which your access will be automatically revoked.",
+          "available": "This special membership access is configured to be automatically revoked after a certain number of days. This means that when you request access, you will have provisional access to the content item and other items in the same domain in Datalab or in CSV Export. Please note that this provisional access will last only for a limited time, after which your access will be automatically revoked.",
           "disabled": "This special membership does not offer provisional access, normally the access duration would be specified here."
         }
       }

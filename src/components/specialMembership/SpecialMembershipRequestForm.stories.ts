@@ -37,10 +37,6 @@ export const Default: Story = {
   } as SpecialMembershipRequestFormProps
 }
 
-export const Rejected: Story = {
-  args: { ...Default.args, currentRequestStatus: 'rejected' }
-}
-
 export const Revoked: Story = {
-  args: { ...Default.args, currentRequestStatus: 'revoked' }
+  args: { ...Default.args, isRevoked: true }
 }
