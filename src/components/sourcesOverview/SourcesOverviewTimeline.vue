@@ -1,7 +1,7 @@
 <template>
   <div class="SourcesOverviewTimeline position-relative">
     <slot name="tooltip">
-      <Tooltip :tooltip="tooltip">
+      <Tooltip :tooltip="tooltip" :style="{ zIndex: 10 }">
         <div v-if="!tooltip.dataValue && tooltip.currentDate">
           <div class="mb-0">{{ $d(tooltip.currentDate, 'year') }} &mdash;</div>
           <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>

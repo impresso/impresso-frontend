@@ -1,458 +1,452 @@
 <template>
   <div
+    style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px dashed #ced4da;
+      overflow: hidden;
+    "
     v-if="isActive"
-    class="SelectionMonitor rounded drop-shadow bg-light"
-    :class="monitor.type"
-    v-on:click.stop
   >
-    <div class="d-flex flex-column h-100">
-      <!-- top -->
-      <section>
-        <!-- header -->
-        <div class="d-flex my-2 ml-2 ms-2 align-items-center">
-          <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
-            <template v-slot:tabs-end>
-              <b-nav-item class="active">
-                <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`)" />
-              </b-nav-item>
-            </template>
-          </b-tabs>
-          <div class="pr-3 SelectionMonitor_close">
-            <span class="dripicons-cross" v-on:click="hide" />
-          </div>
+    <ModalDraggable
+      center-on-mount
+      respect-boundaries
+      class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
+      :style="{ width: '400px' }"
+    >
+      <template #header> Selection Monitor </template>
+      <div class="d-flex my-2 ml-2 ms-2 align-items-center bg-light">
+        <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
+          <template #tabs-end>
+            <b-nav-item class="active">
+              <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`)" />
+            </b-nav-item>
+          </template>
+        </b-tabs>
+        <div class="pr-3 SelectionMonitor_close">
+          <span class="dripicons-cross" @click="hide" />
         </div>
-        <!-- end header -->
-        <!-- title -->
-        <!-- if this is a range filter, allow to modify it with input text fields -->
-        <SelectionMonitorFilter
-          v-if="
-            [
-              'textReuseClusterLexicalOverlap',
-              'textReuseClusterDayDelta',
-              'textReuseClusterSize'
-            ].includes(monitor.type)
-          "
-          :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
-          @changeFilter="handleChangeFilter"
-          class="border p-2 rounded"
-        />
-        <h2 class="mx-3" v-if="monitor.item">
-          <ItemLabel :item="monitor.item" :type="monitor.type" />
-          <!-- <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span> -->
-        </h2>
+      </div>
+      <div
+        class="___SelectionMonitor rounded drop-shadow bg-light"
+        :class="monitor.type"
+        @click.stop
+      >
+        <div class="d-flex flex-column h-100">
+          <!-- top -->
+          <section>
+            <!-- title -->
+            <!-- if this is a range filter, allow to modify it with input text fields -->
+            <SelectionMonitorFilter
+              v-if="isRangeMonitorType"
+              :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
+              @changeFilter="handleChangeFilter"
+              class="border p-2 rounded"
+            />
+            <h2 class="mx-3" v-if="monitor.item">
+              <ItemLabel :item="monitor.item" :type="monitor.type" />
+              <!-- <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span> -->
+            </h2>
 
-        <!-- end title -->
-        <!-- timeline -->
-        <div v-if="monitor.displayTimeline" class="mx-2">
-          <timeline
-            class="bg-light"
-            :domain="[startYear, endYear]"
-            :contrast="false"
-            :values="timelineValues"
-          >
-            <template v-slot="{ tooltip }">
-              <div v-if="tooltip.item">
-                {{ $d(tooltip.item?.t ?? 0, 'year') }} &middot;
-                <div
+            <!-- end title -->
+            <!-- timeline -->
+            <div v-if="monitor.displayTimeline" class="mx-2">
+              <SearchFacetTimeline
+                facet-type="year"
+                :search-index="monitor.searchIndex"
+                :filters="timelineFilters"
+                :domain="timelineDomain"
+                items-class="p-0"
+                @update:state="handleTimelineStateChange"
+              >
+                <template #tooltip="{ tooltip }">
+                  <div v-if="tooltip.item">
+                    {{ $d(tooltip.item?.t ?? 0, 'year') }} &middot;
+                    <div
+                      class="d-inline"
+                      v-if="tooltip.item?.w"
+                      v-html="$t('numbers.contentItems', { n: $n(tooltip.item.w) }, tooltip.item.w)"
+                    />
+                  </div>
+                </template>
+              </SearchFacetTimeline>
+            </div>
+            <!-- end timeline -->
+            <!-- filters -->
+            <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
+              <b-form-group class="m-0">
+                <b-form-checkbox v-model="applyCurrentSearchFilters">
+                  <span
+                    v-html="
+                      $t('labels.applyCurrentSearchFilters', {
+                        count: supportedFilters.length
+                      })
+                    "
+                  />
+                </b-form-checkbox>
+              </b-form-group>
+              <p class="ml-1 SelectionMonitor_summary">
+                <span
+                  v-html="
+                    $t(statsLabelKey, {
+                      count: $n(total),
+                      searchIndex: $t('searchIndexes.' + monitor.searchIndex)
+                    })
+                  "
+                />{{ ' ' }}
+
+                <SearchQuerySummary
                   class="d-inline"
-                  v-if="tooltip.item?.w"
-                  v-html="$t('numbers.contentItems', { n: $n(tooltip.item.w) }, tooltip.item.w)"
+                  :search-query="{
+                    filters: additionalFilters.length ? additionalFilters : [monitorFilter]
+                  }"
                 />
+                <span v-if="monitor.displayTimeline && total">
+                  <br />
+                  <span
+                    v-html="
+                      $t('dates.allResultsFallBetween', {
+                        from: minDate.getFullYear(),
+                        to: maxDate.getFullYear()
+                      })
+                    "
+                  />
+                </span>
+              </p>
+            </div>
+            <!-- end filters -->
+          </section>
+          <!-- end top -->
+          <!-- bottom -->
+          <TextReuseClusterMonitor
+            :filters="applyCurrentSearchFilters ? monitorFilters : []"
+            :item="monitor.item"
+            v-if="monitor.type === 'textReuseCluster'"
+            class="flex-grow-1"
+          />
+          <TextReusePassageMonitor
+            :filters="applyCurrentSearchFilters ? monitorFilters : []"
+            :item="monitor.item"
+            v-if="monitor.type === 'textReusePassage'"
+            class="flex-grow-1 bg-dark mt-2"
+          ></TextReusePassageMonitor>
+          <!-- range closeup view-->
+          <ListOfItems
+            v-if="
+              [
+                'textReuseClusterLexicalOverlap',
+                'textReuseClusterDayDelta',
+                'textReuseClusterSize'
+              ].includes(monitor.type)
+            "
+            :params="{ addons: { newspaper: 'text' } }"
+            :filters="applyCurrentSearchFilters ? monitorFilters : []"
+            :searchIndex="monitor.searchIndex"
+          >
+            <template v-slot:default="props">
+              <div class="d-flex justify-content-center">
+                <TextReusePassageItem v-for="match in props.items" :key="match.id" :item="match" />
               </div>
             </template>
-          </timeline>
-        </div>
-        <!-- end timeline -->
-        <!-- filters -->
-        <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
-          <b-form-group class="m-0">
-            <b-form-checkbox v-model="applyCurrentSearchFilters">
-              <span
-                v-html="
-                  $t('labels.applyCurrentSearchFilters', { count: this.supportedFilters.length })
-                "
-              />
-            </b-form-checkbox>
-          </b-form-group>
-          <p class="ml-1 SelectionMonitor_summary">
-            <span v-html="statsLabel" />{{ ' ' }}
-
-            <SearchQuerySummary
-              class="d-inline"
-              :search-query="{
-                filters: additionalFilters.length ? additionalFilters : [monitorFilter]
-              }"
-            />
-            <span v-if="monitor.displayTimeline && this.total">
-              <br />
-              <span
-                v-html="
-                  $t('dates.allResultsFallBetween', {
-                    from: minDate.getFullYear(),
-                    to: maxDate.getFullYear()
-                  })
-                "
-              />
-            </span>
-          </p>
-        </div>
-        <!-- end filters -->
-      </section>
-      <!-- end top -->
-      <!-- bottom -->
-      <TextReuseClusterMonitor
-        :filters="applyCurrentSearchFilters ? monitorFilters : []"
-        :item="monitor.item"
-        v-if="monitor.type === 'textReuseCluster'"
-        class="flex-grow-1"
-      />
-      <TextReusePassageMonitor
-        :filters="applyCurrentSearchFilters ? monitorFilters : []"
-        :item="monitor.item"
-        v-if="monitor.type === 'textReusePassage'"
-        class="flex-grow-1 bg-dark mt-2"
-      ></TextReusePassageMonitor>
-      <!-- range closeup view-->
-      <ListOfItems
-        v-if="
-          [
-            'textReuseClusterLexicalOverlap',
-            'textReuseClusterDayDelta',
-            'textReuseClusterSize'
-          ].includes(monitor.type)
-        "
-        :params="{ addons: { newspaper: 'text' } }"
-        :filters="applyCurrentSearchFilters ? monitorFilters : []"
-        :searchIndex="monitor.searchIndex"
-      >
-        <template v-slot:default="props">
-          <div class="d-flex justify-content-center">
-            <TextReusePassageItem v-for="match in props.items" :key="match.id" :item="match" />
+          </ListOfItems>
+          <!-- detailed label -->
+          <EntityMonitor
+            v-else-if="['person', 'location', 'organisation'].includes(monitor.type)"
+            :filters="applyCurrentSearchFilters ? monitorFilters : []"
+            :id="monitor.item.id || monitor.item.id || ''"
+            :type="monitor.type"
+            :search-index="monitor.searchIndex"
+            @close="hide"
+          />
+          <div
+            v-else-if="['topic'].includes(monitor.type)"
+            class="mx-3 border-top border-bottom"
+            style="max-height: 150px; overflow: scroll"
+          >
+            <ItemLabel :item="monitor.item" :type="monitor.type" detailed />
           </div>
-        </template>
-      </ListOfItems>
-      <!-- detailed label -->
-      <EntityMonitor
-        v-else-if="['person', 'location', 'organisation'].includes(monitor.type)"
-        :filters="applyCurrentSearchFilters ? monitorFilters : []"
-        :id="monitor.item.id || monitor.item.id || ''"
-        :type="monitor.type"
-        :search-index="monitor.searchIndex"
-        @close="hide"
-      />
-      <div
-        v-else-if="['topic'].includes(monitor.type)"
-        class="mx-3 border-top border-bottom"
-        style="max-height: 150px; overflow: scroll"
-      >
-        <ItemLabel :item="monitor.item" :type="monitor.type" detailed />
-      </div>
 
-      <!-- button url  -->
-      <router-link
-        v-if="detailsUrl"
-        class="btn btn-outline-secondary m-3 btn-sm d-block"
-        :to="detailsUrl"
-        @click="hide"
-      >
-        {{ $t('actions.detail') }}
-      </router-link>
-      <!-- end bottom -->
-      <!-- actions -->
-      <div
-        class="p-2 border-tertiary border-top d-flex justify-content-between"
-        v-if="monitor.displayActionButtons"
-      >
-        <button v-on:click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
-          {{
-            $t(monitorFilterExists ? 'actions.updateCurrentFilters' : 'actions.addToCurrentFilters')
-          }}
-        </button>
-        <button v-on:click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
-          {{ $t('actions.close') }}
-        </button>
-      </div>
-      <!-- end actions -->
-      <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
-      <!-- <pre v-if="monitor.item" class="text-small">{{
+          <!-- button url  -->
+          <router-link
+            v-if="detailsUrl"
+            class="btn btn-outline-secondary m-3 btn-sm d-block"
+            :to="detailsUrl"
+            @click="hide"
+          >
+            {{ $t('actions.detail') }}
+          </router-link>
+          <!-- end bottom -->
+          <!-- actions -->
+          <div
+            class="p-2 border-tertiary border-top d-flex justify-content-between"
+            v-if="monitor.displayActionButtons"
+          >
+            <button @click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
+              {{
+                $t(
+                  monitorFilterExists
+                    ? 'actions.updateCurrentFilters'
+                    : 'actions.addToCurrentFilters'
+                )
+              }}
+            </button>
+            <button @click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
+              {{ $t('actions.close') }}
+            </button>
+          </div>
+          <!-- end actions -->
+          <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
+          <!-- <pre v-if="monitor.item" class="text-small">{{
         JSON.stringify(
           monitorFilters.map(d => ({ type: d.type, q: d.q })),
           null,
           2,
         )
       }}</pre> -->
-    </div>
+        </div>
+      </div>
+    </ModalDraggable>
   </div>
 </template>
 
-<script>
-import Helpers from '@/plugins/Helpers'
-import ItemLabel from './modules/lists/ItemLabel.vue'
-import SearchQuerySummary from './modules/SearchQuerySummary.vue'
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
+import type { Filter } from '@/models'
 import { SupportedFiltersByIndex } from '@/logic/filters'
-import { getSearchFacetsService } from '@/services'
-import Timeline from '@/components/modules/Timeline.vue'
 import FilterFactory from '@/models/FilterFactory'
-import TextReuseClusterMonitor from './TextReuseClusterMonitor.vue'
-import SelectionMonitorFilter from './SelectionMonitorFilter.vue'
-import ListOfItems from './ListOfItems.vue'
-import TextReusePassageItem from './modules/lists/TextReusePassageItem.vue'
-import { defineComponent } from 'vue'
-import { mapStores } from 'pinia'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import EntityMonitor from '@/components/EntityMonitor.vue'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
+import ListOfItems from '@/components/ListOfItems.vue'
 import TextReusePassageMonitor from '@/components/TextReusePassageMonitor.vue'
-/**
- * SelectionMonitor component is initialized in App.vue and it is always available.
- * The filters props is kept in sync with the current search filters.
- */
-export default defineComponent({
-  name: 'SelectionMonitor',
-  props: {
-    filters: {
-      type: Array,
-      default: () => []
-    },
-    startYear: {
-      type: Number
-    },
-    endYear: {
-      type: Number
-    }
-  },
-  components: {
-    Timeline,
-    SearchQuerySummary,
-    ItemLabel,
-    TextReuseClusterMonitor,
-    SelectionMonitorFilter,
-    TextReusePassageMonitor,
-    EntityMonitor,
-    ListOfItems,
-    TextReusePassageItem
-  },
-  beforeMount() {
-    const store = useSelectionMonitorStore()
-    this.applyCurrentSearchFilters = store.applyCurrentSearchFilters
-  },
-  computed: {
-    ...mapStores(useSelectionMonitorStore),
-    supportedFilters() {
-      return this.filters.filter(filter =>
-        SupportedFiltersByIndex[this.monitor.searchIndex].includes(filter.type)
-      )
-    },
-    monitorFilter() {
-      return FilterFactory.create({
-        type: this.monitor.type,
-        q: Array.isArray(this.monitor.item?.q)
-          ? this.monitor.item?.q?.map(d => String(d))
-          : [this.monitor.item?.id ?? this.monitor.item?.id],
-        items: this.monitor.item ? [this.monitor.item] : []
-      })
-    },
-    isMonitorFilterChanged() {
-      return !this.additionalFilters.length
-    },
-    monitorFilters() {
-      const otherFilters = this.supportedFilters.filter(filter => filter.type !== this.monitor.type)
-      if (this.additionalFilters.length) {
-        return otherFilters.concat(...this.additionalFilters)
-      }
-      return otherFilters.concat(this.monitorFilter)
-    },
-    monitorFilterExists() {
-      return this.filters.some(filter => filter.type === this.monitor.type)
-    },
-    /** @returns {object} */
-    detailsUrl() {
-      if (!this.monitor.item) {
-        return null
-      } else if (this.monitor.type === 'newspaper') {
-        return {
-          name: 'newspaper_metadata',
-          params: {
-            newspaper_id: this.monitor.item.id
-          }
-        }
-      } else if (this.monitor.type === 'topic') {
-        return {
-          name: 'topic',
-          params: {
-            topic_id: this.monitor.item.id
-          }
-        }
-        // @ts-ignore
-      }
-      return null
-    },
-    /** @returns {{ query: any, hash: string }} */
-    timelineApiQueryParams() {
-      const query = {
-        index: this.monitor.searchIndex,
-        limit: 500,
-        filters: []
-      }
-      console.debug(
-        '[SelectionMonitor] timelineApiQueryParams',
-        this.displayCurrentSearchFilters,
-        this.applyCurrentSearchFilters,
-        query
-      )
-      if (this.monitor.displayCurrentSearchFilters && this.applyCurrentSearchFilters) {
-        query.filters = [...this.monitorFilters]
-      } else if (!this.applyCurrentSearchFilters && this.monitor.item) {
-        query.filters = [{ ...this.monitorFilter }]
-      }
-      return {
-        query,
-        hash: JSON.stringify(query).split('').sort().join('')
-      }
-    },
-    isActive() {
-      return this.selectionMonitorStore.isActive
-    },
-    monitor() {
-      return this.selectionMonitorStore
-    },
-    /** @returns {string} */
-    statsLabel() {
-      if (this.isLoading) {
-        return this.$t('actions.loading')
-      }
-      let key = 'itemStats'
+import ModalDraggable from '@/components/ModalDraggable.vue'
+import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
+import type { SearchFacetTimelineState } from '@/components/SearchFacetTimeline.vue'
+import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
+import SelectionMonitorFilter from '@/components/SelectionMonitorFilter.vue'
+import TextReuseClusterMonitor from '@/components/TextReuseClusterMonitor.vue'
+import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
+import type { TimelineValue } from '@/logic/facets'
 
-      if (this.applyCurrentSearchFilters && this.filters.length) {
-        key = 'itemStatsFiltered'
-      }
-      return this.$t(key, {
-        count: this.$n(this.total),
-        searchIndex: this.$t('searchIndexes.' + this.monitor.searchIndex)
-      })
-    },
-    /** @returns {Date} */
-    minDate() {
-      if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce(
-          (min, d) => (d.t < min ? d.t : min),
-          this.timelineValues[0].t
-        )
-        return new Date(`${y}-01-01`)
-      }
-      return new Date(`${this.startYear}-01-01`)
-    },
-    /** @returns {Date} */
-    maxDate() {
-      if (this.timelineValues.length) {
-        const y = this.timelineValues.reduce(
-          (max, d) => (d.t > max ? d.t : max),
-          this.timelineValues[0].t
-        )
-        return new Date(`${y}-12-31`)
-      }
-      return new Date(`${this.endYear}-12-31`)
-    },
-    monitorType() {
-      return this.monitor.type
-    }
-  },
-  data: () => ({
-    total: 0,
-    timelineValues: [],
-    applyCurrentSearchFilters: false,
-    isLoading: false,
-    additionalFilters: []
-  }),
-  methods: {
-    handleChangeFilter(newFilter) {
-      // eslint-disable-next-line
-      console.debug('[SelectionMonitor] handleChangeFilter', newFilter)
-      this.additionalFilters = [newFilter]
-    },
-    hide() {
-      this.selectionMonitorStore.hide()
-    },
-    applyFilter() {
-      if (!this.monitorFilterExists) {
-        this.$emit('change', this.monitorFilters)
-      } else if (this.additionalFilters.length) {
-        // additionalFilters are the edited version of the monitorFilter filter.
-        // if they're present we substitute the current filter with the edited version.
-        this.$emit(
-          'change',
-          this.filters
-            .filter(f => f.type !== this.monitorFilter.type)
-            .concat(this.additionalFilters)
-        )
-      } else {
-        // we replace the current filter with the monitorFilter
-        this.$emit(
-          'change',
-          this.filters.filter(f => f.type !== this.monitorFilter.type).concat(this.monitorFilter)
-        )
-      }
-    },
-    loadTimeline() {
-      // eslint-disable-next-line
-      console.debug(
-        '[SelectionMonitor] loadTimeline index:',
-        this.timelineApiQueryParams.query.index
-      )
-      const searchFacets = getSearchFacetsService(this.timelineApiQueryParams.query.index)
-      searchFacets
-        .get(
-          'year',
-          {
-            query: this.timelineApiQueryParams.query
-          },
-          { ignoreErrors: true }
-        )
-        .then(response => {
-          // eslint-disable-next-line no-console
-          console.debug('[SelectionMonitor] loadTimeline success', response)
-          this.timelineValues = Helpers.timeline.fromBuckets(response.buckets)
-          this.total = response.buckets.reduce((acc, bucket) => acc + bucket.count, 0)
-        })
-        .catch(error => {
-          // eslint-disable-next-line no-console
-          console.error('[SelectionMonitor] loadTimeline error', error)
-        })
-    }
-  },
-  watch: {
-    monitorType: {
-      handler() {
-        this.additionalFilters = []
-      }
-    },
-    timelineApiQueryParams: {
-      async handler({ query, hash }, previousValue) {
-        if (previousValue && previousValue.hash === hash) {
-          return false
-        }
-        // eslint-disable-next-line
-        console.debug('[ItemSelector] @searchApiQueryParameters \n query:', query)
-        if (this.isActive && this.monitor.displayTimeline) {
-          this.loadTimeline()
-        }
-      },
-      immediate: true,
-      deep: false
-    }
-  },
-  emits: ['change']
+interface SelectionMonitorProps {
+  filters?: Filter[]
+  startYear?: number
+  endYear?: number
+}
+
+const props = withDefaults(defineProps<SelectionMonitorProps>(), {
+  filters: () => []
 })
+
+const emit = defineEmits<{
+  (e: 'change', filters: Filter[]): void
+}>()
+
+const rangeMonitorTypes = [
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta',
+  'textReuseClusterSize'
+]
+
+const selectionMonitorStore = useSelectionMonitorStore()
+const monitor = selectionMonitorStore
+
+const total = ref(0)
+const timelineValues = ref<TimelineValue[]>([])
+const timelineStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
+const applyCurrentSearchFilters = ref(false)
+const additionalFilters = ref<Filter[]>([])
+
+const isActive = computed(() => selectionMonitorStore.isActive)
+const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.type ?? ''))
+
+const supportedFilters = computed(() => {
+  const availableFilters = SupportedFiltersByIndex[monitor.searchIndex] ?? []
+  return props.filters.filter(filter => availableFilters.includes(filter.type))
+})
+
+const monitorFilter = computed<Filter>(() => {
+  const monitorItem = monitor.item as { id?: string; q?: string | string[] } | null
+  const query = Array.isArray(monitorItem?.q)
+    ? monitorItem.q.map(value => String(value))
+    : [String(monitorItem?.q ?? monitorItem?.id ?? '')]
+
+  return FilterFactory.create({
+    type: monitor.type,
+    q: query,
+    items: monitor.item ? [monitor.item] : []
+  }) as Filter
+})
+
+const monitorFilters = computed<Filter[]>(() => {
+  const otherFilters = supportedFilters.value.filter(filter => filter.type !== monitor.type)
+  if (additionalFilters.value.length) {
+    return otherFilters.concat(additionalFilters.value)
+  }
+  return otherFilters.concat(monitorFilter.value)
+})
+
+const monitorFilterExists = computed(() =>
+  props.filters.some(filter => filter.type === monitor.type)
+)
+
+const detailsUrl = computed<RouteLocationRaw | null>(() => {
+  const monitorItem = monitor.item as { id?: string } | null
+
+  if (!monitorItem?.id) {
+    return null
+  }
+
+  if (monitor.type === 'newspaper') {
+    return {
+      name: 'newspaper_metadata',
+      params: {
+        newspaper_id: monitorItem.id
+      }
+    }
+  }
+
+  if (monitor.type === 'topic') {
+    return {
+      name: 'topic',
+      params: {
+        topic_id: monitorItem.id
+      }
+    }
+  }
+
+  return null
+})
+
+const timelineFilters = computed<Filter[]>(() => {
+  if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
+    return monitorFilters.value
+  }
+
+  if (!applyCurrentSearchFilters.value && monitor.item) {
+    return [monitorFilter.value]
+  }
+
+  return []
+})
+
+const statsLabelKey = computed(() => {
+  if (timelineStatus.value === 'loading') {
+    return 'actions.loading'
+  }
+
+  return applyCurrentSearchFilters.value && props.filters.length ? 'itemStatsFiltered' : 'itemStats'
+})
+
+const fallbackStartYear = computed(() => props.startYear ?? new Date().getFullYear())
+const fallbackEndYear = computed(() => props.endYear ?? new Date().getFullYear())
+
+const minDate = computed(() => {
+  if (timelineValues.value.length) {
+    const year = timelineValues.value.reduce(
+      (min, item) => (item.t < min ? item.t : min),
+      timelineValues.value[0].t
+    )
+    return new Date(`${year}-01-01`)
+  }
+
+  return new Date(`${fallbackStartYear.value}-01-01`)
+})
+
+const maxDate = computed(() => {
+  if (timelineValues.value.length) {
+    const year = timelineValues.value.reduce(
+      (max, item) => (item.t > max ? item.t : max),
+      timelineValues.value[0].t
+    )
+    return new Date(`${year}-12-31`)
+  }
+
+  return new Date(`${fallbackEndYear.value}-12-31`)
+})
+
+const timelineDomain = computed<number[] | undefined>(() => {
+  if (props.startYear == null || props.endYear == null) {
+    return undefined
+  }
+
+  return [props.startYear, props.endYear]
+})
+
+const resetTimelineState = () => {
+  total.value = 0
+  timelineValues.value = []
+  timelineStatus.value = 'idle'
+}
+
+const handleTimelineStateChange = (state: SearchFacetTimelineState) => {
+  timelineStatus.value = state.status
+  timelineValues.value = state.values
+  total.value = state.total
+}
+
+const handleChangeFilter = (newFilter: Filter) => {
+  console.debug('[SelectionMonitor] handleChangeFilter', newFilter)
+  additionalFilters.value = [newFilter]
+}
+
+const hide = (event: MouseEvent) => {
+  console.debug('[SelectionMonitor] hide')
+  selectionMonitorStore.hide()
+  event.stopImmediatePropagation()
+}
+
+const applyFilter = () => {
+  if (!monitorFilterExists.value) {
+    emit('change', monitorFilters.value)
+    return
+  }
+
+  if (additionalFilters.value.length) {
+    emit(
+      'change',
+      props.filters
+        .filter(filter => filter.type !== monitorFilter.value.type)
+        .concat(additionalFilters.value)
+    )
+    return
+  }
+
+  emit(
+    'change',
+    props.filters
+      .filter(filter => filter.type !== monitorFilter.value.type)
+      .concat(monitorFilter.value)
+  )
+}
+
+watch(
+  () => selectionMonitorStore.applyCurrentSearchFilters,
+  value => {
+    applyCurrentSearchFilters.value = value
+  },
+  { immediate: true }
+)
+
+watch(
+  () => monitor.type,
+  () => {
+    additionalFilters.value = []
+    resetTimelineState()
+  }
+)
 </script>
 
 <style lang="css">
 .SelectionMonitor {
   border: 1px solid #343a40;
   position: absolute;
-  top: 50%;
-  left: 50%;
+
   width: 400px;
-  margin-left: -200px;
-  margin-top: -175px;
   pointer-events: auto;
 }
 

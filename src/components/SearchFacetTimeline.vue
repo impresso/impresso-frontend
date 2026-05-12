@@ -1,7 +1,7 @@
 <template>
   <div class="SearchFacetTimeline">
     <slot name="beforeHeader"></slot>
-    <slot name="header" :total="1">
+    <slot name="header" :total="total" :values="timelineValues" :status="status">
       <h5 class="m-0 font-size-inherit" v-if="props.title">
         <span class="small-caps-bold" v-html="props.title"></span>
       </h5>
@@ -34,7 +34,7 @@
         :brushable="false"
       >
         <template #default="{ tooltip }">
-          <slot name="tooltip" :tooltip="tooltip">
+          <slot name="tooltip" :tooltip="tooltip" :values="timelineValues" :total="total">
             <div class="p-2">{{ tooltip }}</div>
           </slot>
         </template>
@@ -56,6 +56,13 @@ import Timeline from '@/components/modules/Timeline.vue'
 import { getSearchFacetsService } from '@/services'
 import { facetToTimelineValues } from '@/logic/facets'
 import type { TimelineValue } from '@/logic/facets'
+
+export interface SearchFacetTimelineState {
+  status: 'idle' | 'loading' | 'success' | 'error'
+  total: number
+  values: TimelineValue[]
+  error: FeathersError | null
+}
 
 export interface SearchFacetTimelineProps {
   title?: string
@@ -83,6 +90,10 @@ const props = withDefaults(defineProps<SearchFacetTimelineProps>(), {
   height: '85px'
 })
 
+const emit = defineEmits<{
+  (e: 'update:state', value: SearchFacetTimelineState): void
+}>()
+
 const status = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const error = ref<FeathersError | null>(null)
 const facet = ref<FacetModel | null>(null)
@@ -93,6 +104,15 @@ const timelineValues = computed<TimelineValue[]>(() => {
   if (!facet.value) return []
   return facetToTimelineValues(facet.value)
 })
+
+const total = computed(() => timelineValues.value.reduce((sum, item) => sum + item.count, 0))
+
+const timelineState = computed<SearchFacetTimelineState>(() => ({
+  status: status.value,
+  total: total.value,
+  values: timelineValues.value,
+  error: error.value
+}))
 
 const queryPayload = computed(() => ({
   index: props.searchIndex,
@@ -148,6 +168,14 @@ const fetchFacet = async () => {
     console.error('[SearchFacetTimeline] Error', error.value?.message)
   }
 }
+
+watch(
+  timelineState,
+  value => {
+    emit('update:state', value)
+  },
+  { immediate: true }
+)
 
 watch(
   () => props.fetchItemsWhenVisible,

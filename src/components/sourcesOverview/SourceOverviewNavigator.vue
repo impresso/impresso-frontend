@@ -1,8 +1,8 @@
 <template>
   <ModalDraggable
-    class="SourceOverviewNavigator bg-light border border-dark rounded shadow"
-    :initialX="props.initialX"
-    :initialY="props.initialY"
+    class="SourceOverviewNavigator bg-light border border-dark rounded shadow pointer-events-auto"
+    respect-boundaries
+    center-on-mount
     :zIndex="props.zIndex"
   >
     <template #header="{ isReduced, toggleReduced }">
