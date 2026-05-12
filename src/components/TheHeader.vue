@@ -761,7 +761,7 @@ export default defineComponent({
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
-    "label_faq": "Help",
+    "label_faq": "Documentation",
     "label_terms": "Terms of Use",
     "label_jobs": "Tasks"
   }
