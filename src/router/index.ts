@@ -71,8 +71,8 @@ const router = createRouter({
       }
     },
     {
-      path: '/faq',
-      alias: '/docs',
+      path: '/docs',
+      alias: '/faq',
       name: 'faq',
       component: FaqPage,
       meta: {

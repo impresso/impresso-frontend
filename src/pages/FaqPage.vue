@@ -203,7 +203,7 @@ onMounted(() => {
     "help": "Documentation",
     "tableOfContents": "Table of Contents",
     "title": {
-      "faq": "Frequently Asked Questions",
+      "faq": "Impresso Web App Documentation",
       "version": "Version",
       "whichVersion": "Which version of Impresso am I using"
     },
