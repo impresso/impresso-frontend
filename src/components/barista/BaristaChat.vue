@@ -122,7 +122,7 @@ const convertBaristaMessageToChat = (
     const structuredContent =
       sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQuerySummary
 
-    const toolCallId = message.source?.['tool_call_id'] as string | undefined
+    const toolCallId = message.toolCallId
 
     return {
       content: structuredContent ?? `[${message.name}] ${message.content}`,

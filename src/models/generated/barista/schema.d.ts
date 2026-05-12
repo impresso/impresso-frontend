@@ -24,6 +24,23 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/chat/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Chat History Endpoint */
+        get: operations["chat_history_endpoint_chat_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/chat/stream": {
         parameters: {
             query?: never;
@@ -49,34 +66,30 @@ export type paths = {
 export type webhooks = Record<string, never>;
 export type components = {
     schemas: {
-        /** AIMessage */
-        AIMessage: {
+        /** BaristaAIMessage */
+        BaristaAIMessage: {
             /**
              * Content
              * @description The content of the LLM response.
              */
             content: string;
             /**
+             * Id
+             * @description Unique identifier for the message.
+             */
+            id?: string;
+            /**
              * Reasoningcontent
              * @description The reasoning content of the LLM response.
              */
             reasoningContent?: string | null;
-            /**
-             * Source
-             * @description Source message from the underlying system.
-             */
-            source?: {
-                [key: string]: unknown;
-            } | null;
             /** @description Structured response from Barista agent. */
             structuredResponse?: components["schemas"]["BaristaFormattedResponse"] | null;
             /**
              * Toolcalls
              * @description List of tool calls requested by the LLM.
              */
-            toolCalls?: {
-                [key: string]: unknown;
-            }[] | null;
+            toolCalls?: components["schemas"]["BaristaToolCall"][] | null;
             /**
              * Type
              * @description The type of the message.
@@ -84,6 +97,21 @@ export type components = {
              * @constant
              */
             type: "ai";
+        };
+        /** BaristaErrorMessage */
+        BaristaErrorMessage: {
+            /**
+             * Content
+             * @description The content of the error message.
+             */
+            content: string;
+            /**
+             * Type
+             * @description The type of the message.
+             * @default error
+             * @constant
+             */
+            type: "error";
         };
         /** BaristaFormattedResponse */
         BaristaFormattedResponse: {
@@ -114,6 +142,38 @@ export type components = {
              * @description Analysed summary of facets of the search query filters (facets tool call required).
              */
             searchQuerySummary?: string | null;
+        };
+        /** BaristaHumanMessage */
+        BaristaHumanMessage: {
+            /**
+             * Content
+             * @description The content of the human message.
+             */
+            content: string;
+            /**
+             * Id
+             * @description Unique identifier for the message.
+             */
+            id?: string;
+            /**
+             * Intent
+             * @description The intent of the human message, if it can be determined.
+             */
+            intent?: string | null;
+            /** @description The search query context included with the human message, if any. */
+            searchQuery?: components["schemas"]["Filters"] | null;
+            /**
+             * Suggestedconversationtitle
+             * @description A suggested title for the conversation.
+             */
+            suggestedConversationTitle?: string | null;
+            /**
+             * Type
+             * @description The type of the message.
+             * @default human
+             * @constant
+             */
+            type: "human";
         };
         /** BaristaRequest */
         BaristaRequest: {
@@ -153,22 +213,64 @@ export type components = {
              * Messages
              * @description List of messages in the conversation.
              */
-            messages: (components["schemas"]["HumanMessage"] | components["schemas"]["AIMessage"] | components["schemas"]["ToolMessage"] | components["schemas"]["ErrorMessage"])[];
+            messages: (components["schemas"]["BaristaHumanMessage"] | components["schemas"]["BaristaAIMessage"] | components["schemas"]["BaristaToolMessage"] | components["schemas"]["BaristaErrorMessage"])[];
         };
-        /** ErrorMessage */
-        ErrorMessage: {
+        /** BaristaToolCall */
+        BaristaToolCall: {
+            /**
+             * Args
+             * @description The arguments to pass to the tool
+             */
+            args: {
+                [key: string]: unknown;
+            };
+            /**
+             * Id
+             * @description Unique identifier for the tool call.
+             */
+            id?: string;
+            /**
+             * Name
+             * @description The name of the tool to call.
+             */
+            name: string;
+        };
+        /** BaristaToolMessage */
+        BaristaToolMessage: {
             /**
              * Content
-             * @description The content of the error message.
+             * @description The content returned by the tool.
              */
             content: string;
             /**
+             * Id
+             * @description Unique identifier for the message.
+             */
+            id?: string;
+            /**
+             * Name
+             * @description The name of the tool used.
+             */
+            name: string;
+            /**
+             * Status
+             * @description The status of the tool execution.
+             */
+            status: string;
+            /** @description Structured response from Barista agent. */
+            structuredResponse?: components["schemas"]["BaristaFormattedResponse"] | null;
+            /**
+             * Toolcallid
+             * @description The ID of the tool call that this message is responding to, if applicable.
+             */
+            toolCallId?: string | null;
+            /**
              * Type
              * @description The type of the message.
-             * @default error
+             * @default tool
              * @constant
              */
-            type: "error";
+            type: "tool";
         };
         /**
          * Filter
@@ -206,16 +308,16 @@ export type components = {
              * @description Filter type
              * @enum {string}
              */
-            type: "hasTextContents" | "ocrQuality" | "contentLength" | "isFront" | "string" | "title" | "daterange" | "uid" | "copyright" | "partner" | "language" | "page" | "issue" | "newspaper" | "topic" | "year" | "type" | "sourceMedium" | "sourceType" | "country" | "mention" | "person" | "location" | "nag" | "org" | "regex" | "textReuseClusterSize" | "textReuseClusterLexicalOverlap" | "textReuseClusterDayDelta" | "contentItemId" | "textReusePassage" | "imageTechnique";
+            type: "hasTextContents" | "ocrQuality" | "contentLength" | "isFront" | "string" | "title" | "daterange" | "uid" | "copyright" | "partner" | "language" | "page" | "issue" | "newspaper" | "topic" | "year" | "type" | "sourceMedium" | "sourceType" | "country" | "mention" | "person" | "location" | "nag" | "organisation" | "regex" | "textReuseClusterSize" | "textReuseClusterLexicalOverlap" | "textReuseClusterDayDelta" | "contentItemId" | "textReusePassage" | "imageTechnique";
         };
         /**
          * Filters
-         * @description Always use this tool to structure your response to the user.
+         * @description Use this tool to parse search query.
          */
         Filters: {
             /**
              * Filters
-             * @description List of filters to apply
+             * @description List of filters
              */
             filters?: components["schemas"]["Filter"][];
         };
@@ -223,62 +325,6 @@ export type components = {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
-        };
-        /** HumanMessage */
-        HumanMessage: {
-            /**
-             * Content
-             * @description The content of the human message.
-             */
-            content: string;
-            /**
-             * Source
-             * @description Source message from the underlying system.
-             */
-            source?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Type
-             * @description The type of the message.
-             * @default human
-             * @constant
-             */
-            type: "human";
-        };
-        /** ToolMessage */
-        ToolMessage: {
-            /**
-             * Content
-             * @description The content returned by the tool.
-             */
-            content: string;
-            /**
-             * Name
-             * @description The name of the tool used.
-             */
-            name: string;
-            /**
-             * Source
-             * @description Source message from the underlying system.
-             */
-            source?: {
-                [key: string]: unknown;
-            } | null;
-            /**
-             * Status
-             * @description The status of the tool execution.
-             */
-            status: string;
-            /** @description Structured response from Barista agent. */
-            structuredResponse?: components["schemas"]["BaristaFormattedResponse"] | null;
-            /**
-             * Type
-             * @description The type of the message.
-             * @default tool
-             * @constant
-             */
-            type: "tool";
         };
         /** ValidationError */
         ValidationError: {
@@ -314,6 +360,38 @@ export interface operations {
                 "application/json": components["schemas"]["BaristaRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BaristaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    chat_history_endpoint_chat_history_get: {
+        parameters: {
+            query: {
+                agentType?: "react" | "router" | "skills";
+                sessionId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
