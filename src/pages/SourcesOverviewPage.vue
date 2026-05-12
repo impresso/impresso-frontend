@@ -353,10 +353,8 @@ onMounted(() => {
         @tooltip-move="handleTooltipMove"
         @tooltip-click="handleTooltipClick"
       />
-      <div class="position-absolute top-0 end-0 p-2">
+      <div class="position-absolute top-0 right-0 left-0 bottom-0 pointer-events-none">
         <SourceOverviewNavigator
-          :initialX="20"
-          :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
           :z-index="1040"
