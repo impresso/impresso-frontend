@@ -49,8 +49,8 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    initialX: 20,
-    initialY: 20,
-    zIndex: 2
+    zIndex: 2,
+    respectBoundaries: true,
+    centerOnMount: true
   } as ModalDraggableProps
 }

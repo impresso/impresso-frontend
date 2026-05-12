@@ -564,6 +564,13 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 
+/** pointer events */
+.pointer-events-none {
+  pointer-events: none;
+}
+.pointer-events-auto {
+  pointer-events: auto;
+}
 /* vh */
 .vh-75 {
   height: 75vh !important;

@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="rootRef"
     class="ModalDraggable"
     :class="{ 'ModalDraggable--reduced': isReduced }"
     :style="containerStyle"
@@ -14,29 +15,82 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 export interface ModalDraggableProps {
   initialX?: number
   initialY?: number
   zIndex?: number
+  respectBoundaries?: boolean
+  centerOnMount?: boolean
 }
 
 const props = withDefaults(defineProps<ModalDraggableProps>(), {
   initialX: 0,
   initialY: 0,
-  zIndex: 2
+  zIndex: 2,
+  respectBoundaries: false,
+  centerOnMount: false
 })
 
+const rootRef = ref<HTMLElement | null>(null)
 const handleRef = ref<HTMLElement | null>(null)
 const position = ref({
   x: props.initialX,
   y: props.initialY
 })
+const containerSize = ref({ width: 0, height: 0 })
+const modalSize = ref({ width: 0, height: 0 })
 const lastPointer = ref({ x: 0, y: 0 })
 const isDragging = ref(false)
 const activePointerId = ref<number | null>(null)
 const isReduced = ref(false)
+const hasInitializedPosition = ref(false)
+const clampedPosition = computed(() => clampPosition(position.value))
+
+const clampPosition = (nextPosition: { x: number; y: number }) => {
+  if (!props.respectBoundaries) {
+    return nextPosition
+  }
+
+  const maxX = Math.max(0, containerSize.value.width - modalSize.value.width)
+  const maxY = Math.max(0, containerSize.value.height - modalSize.value.height)
+
+  return {
+    x: Math.min(Math.max(0, nextPosition.x), maxX),
+    y: Math.min(Math.max(0, nextPosition.y), maxY)
+  }
+}
+
+const updateDimensions = () => {
+  const element = rootRef.value
+  if (!element) {
+    return
+  }
+
+  const parent = element.parentElement
+  if (parent) {
+    containerSize.value = {
+      width: parent.clientWidth,
+      height: parent.clientHeight
+    }
+  }
+
+  modalSize.value = {
+    width: element.offsetWidth,
+    height: element.offsetHeight
+  }
+
+  if (!hasInitializedPosition.value && props.centerOnMount) {
+    position.value = {
+      x: Math.max(0, (containerSize.value.width - modalSize.value.width) / 2),
+      y: Math.max(0, (containerSize.value.height - modalSize.value.height) / 2)
+    }
+    hasInitializedPosition.value = true
+  }
+
+  position.value = clampPosition(position.value)
+}
 
 const containerStyle = computed(() => {
   if (isReduced.value) {
@@ -52,7 +106,7 @@ const containerStyle = computed(() => {
   }
 
   return {
-    transform: `translate(${position.value.x}px, ${position.value.y}px)`,
+    transform: `translate(${clampedPosition.value.x}px, ${clampedPosition.value.y}px)`,
     zIndex: props.zIndex
   }
 })
@@ -73,10 +127,12 @@ const onPointerMove = (event: PointerEvent) => {
   const deltaX = event.clientX - lastPointer.value.x
   const deltaY = event.clientY - lastPointer.value.y
 
-  position.value = {
+  const nextPosition = clampPosition({
     x: position.value.x + deltaX,
     y: position.value.y + deltaY
-  }
+  })
+
+  position.value = nextPosition
 
   lastPointer.value = { x: event.clientX, y: event.clientY }
 }
@@ -130,6 +186,8 @@ const onPointerDown = (event: PointerEvent) => {
   activePointerId.value = event.pointerId
   lastPointer.value = { x: event.clientX, y: event.clientY }
 
+  updateDimensions()
+
   element.setPointerCapture(event.pointerId)
 
   window.addEventListener('pointermove', onPointerMove)
@@ -141,6 +199,36 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onPointerMove)
   window.removeEventListener('pointerup', endDrag)
   window.removeEventListener('pointercancel', endDrag)
+})
+
+let resizeObserver: ResizeObserver | null = null
+
+onMounted(() => {
+  updateDimensions()
+
+  if (window.ResizeObserver) {
+    resizeObserver = new ResizeObserver(() => {
+      updateDimensions()
+    })
+
+    if (rootRef.value) {
+      resizeObserver.observe(rootRef.value)
+    }
+
+    if (rootRef.value?.parentElement) {
+      resizeObserver.observe(rootRef.value.parentElement)
+    }
+  } else {
+    window.addEventListener('resize', updateDimensions)
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateDimensions)
+
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  }
 })
 </script>
 
