@@ -1,10 +1,10 @@
 import { ClientService } from '@feathersjs/feathers'
 import type { components } from '@/models/generated/barista/schema'
 
-export type AIMessage = components['schemas']['AIMessage']
-export type HumanMessage = components['schemas']['HumanMessage']
-export type ToolMessage = components['schemas']['ToolMessage']
-export type ErrorMessage = components['schemas']['ErrorMessage']
+export type AIMessage = components['schemas']['BaristaAIMessage']
+export type HumanMessage = components['schemas']['BaristaHumanMessage']
+export type ToolMessage = components['schemas']['BaristaToolMessage']
+export type ErrorMessage = components['schemas']['BaristaErrorMessage']
 
 export type BaristaFormattedResponse = components['schemas']['BaristaFormattedResponse']
 
