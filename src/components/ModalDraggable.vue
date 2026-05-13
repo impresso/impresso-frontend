@@ -5,8 +5,29 @@
     :class="{ 'ModalDraggable--reduced': isReduced }"
     :style="containerStyle"
   >
-    <div ref="handleRef" class="ModalDraggable__handle" @pointerdown="onPointerDown">
-      <slot name="header" :isReduced="isReduced" :toggleReduced="toggleReduced" />
+    <div
+      ref="handleRef"
+      class="ModalDraggable__handle"
+      :class="props.handleClass"
+      @pointerdown="onPointerDown"
+    >
+      <slot name="header" :isReduced="isReduced" :toggleReduced="toggleReduced">
+        <div class="ModalDraggable__defaultHeader">
+          <span v-if="props.title" class="ModalDraggable__title small-caps">{{ props.title }}</span>
+          <div class="ModalDraggable__headerActions">
+            <button
+              type="button"
+              class="ModalDraggable__toggle btn btn-sm btn-outline-light"
+              :aria-label="isReduced ? props.restoreLabel : props.reduceLabel"
+              :title="isReduced ? props.restoreLabel : props.reduceLabel"
+              @click.stop="toggleReduced"
+            >
+              {{ isReduced ? '+' : '-' }}
+            </button>
+            <slot name="header-actions" :isReduced="isReduced" :toggleReduced="toggleReduced" />
+          </div>
+        </div>
+      </slot>
     </div>
     <div v-if="!isReduced" class="ModalDraggable__content">
       <slot :isReduced="isReduced" :toggleReduced="toggleReduced" />
@@ -23,6 +44,10 @@ export interface ModalDraggableProps {
   zIndex?: number
   respectBoundaries?: boolean
   centerOnMount?: boolean
+  title?: string
+  reduceLabel?: string
+  restoreLabel?: string
+  handleClass?: string
 }
 
 const props = withDefaults(defineProps<ModalDraggableProps>(), {
@@ -30,7 +55,11 @@ const props = withDefaults(defineProps<ModalDraggableProps>(), {
   initialY: 0,
   zIndex: 2,
   respectBoundaries: false,
-  centerOnMount: false
+  centerOnMount: false,
+  title: '',
+  reduceLabel: 'Reduce',
+  restoreLabel: 'Restore',
+  handleClass: ''
 })
 
 const rootRef = ref<HTMLElement | null>(null)
@@ -249,6 +278,28 @@ onBeforeUnmount(() => {
 .ModalDraggable__handle {
   flex: 0 0 auto;
   cursor: grab;
+}
+.ModalDraggable__defaultHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ModalDraggable__headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+.ModalDraggable__title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.btn.ModalDraggable__toggle {
+  line-height: 1;
+  min-width: 1.4rem;
+  padding: var(spacing-1) var(spacing-2);
 }
 .ModalDraggable__handle:hover {
   opacity: 0.8;
