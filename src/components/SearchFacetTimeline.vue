@@ -9,7 +9,7 @@
     <slot name="afterHeader"></slot>
 
     <div :class="props.itemsClass" style="min-height: 100px">
-      <LoadingBlock v-if="status === 'loading'" :height="100" />
+      <LoadingBlock v-if="status === 'loading'" :height="85" />
 
       <div v-if="status === 'error'" class="p-3">
         <Alert type="warning" :closable="false">
@@ -105,7 +105,7 @@ const timelineValues = computed<TimelineValue[]>(() => {
   return facetToTimelineValues(facet.value)
 })
 
-const total = computed(() => timelineValues.value.reduce((sum, item) => sum + item.count, 0))
+const total = computed(() => timelineValues.value.reduce((sum, item) => sum + (item.count ?? 0), 0))
 
 const timelineState = computed<SearchFacetTimelineState>(() => ({
   status: status.value,
