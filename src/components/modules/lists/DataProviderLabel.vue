@@ -1,21 +1,24 @@
 <template>
-  &mdash; {{ $t('label_providedBy') }}
-  <ItemSelector
-    v-if="showLink"
-    :id="item.id"
-    :label="title"
-    :item="{ id: item.id, name: title }"
-    type="partner"
-    :class="titleClass"
-    hideIcon
-  />
-  <span v-else :class="titleClass">{{ title }}</span>
+  <span :class="class">
+    <span v-html="$t(withDash ? 'label_provided_by_dash_before' : 'label_providedBy')" />
+    <ItemSelector
+      v-if="showLink"
+      :id="item.id"
+      :label="title"
+      :item="{ id: item.id, name: title }"
+      type="partner"
+      :class="titleClass"
+      hideIcon
+    />
+    <span v-else :class="titleClass">{{ title }}</span>
+  </span>
 </template>
 
 <i18n lang="json">
 {
   "en": {
-    "label_providedBy": "provided by"
+    "label_provided_by_dash_before": "&mdash; provided by ",
+    "label_providedBy": "Provided by "
   }
 }
 </i18n>
@@ -31,12 +34,14 @@ export interface DataProviderLabelProps {
   showLink?: boolean
   titleClass?: string
   class?: string
+  withDash?: boolean
 }
 
 const props = withDefaults(defineProps<DataProviderLabelProps>(), {
   showLink: true,
   titleClass: '',
-  class: ''
+  class: '',
+  withDash: true
 })
 
 const title = computed(() => {

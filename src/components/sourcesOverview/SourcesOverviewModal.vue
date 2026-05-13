@@ -23,8 +23,9 @@
               {{ $t(tab.label) }} <Icon :name="tab.icon" class="ms-1" />
             </button>
           </b-nav-item>
-        </template> </b-tabs
-    ></template>
+        </template>
+      </b-tabs>
+    </template>
     <div>
       <section v-if="activeTab === 'metadata'" class="p-2 pt-3">
         <div v-if="filters.length">

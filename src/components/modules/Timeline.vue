@@ -36,7 +36,6 @@ import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import * as d3 from 'd3'
 import Dimension from '@/d3-modules/Dimension'
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 type TimelineResolution = 'year' | 'month' | 'day'
 type TimelineDomainValue = string | number | Date
@@ -58,6 +57,8 @@ export interface TimelineProps {
   highlight?: TimelineDatum | null
   contrast?: boolean
   percentage?: boolean
+  percentageTranslationFn?: (v: number) => string
+  numberTranslationFn?: (v: number) => string
   highlightEnabledState?: boolean
   brushable?: boolean
   height?: string
@@ -106,7 +107,10 @@ const props = withDefaults(defineProps<TimelineProps>(), {
   brushable: true,
   height: '85px',
   resolution: 'year',
-  dataTestid: 'timeline'
+  dataTestid: 'timeline',
+  percentageTranslationFn: (v: number) =>
+    Intl.NumberFormat('en', { style: 'percent', maximumFractionDigits: 2 }).format(v),
+  numberTranslationFn: (v: number) => Intl.NumberFormat('en').format(v)
 })
 
 const emit = defineEmits<{
@@ -117,8 +121,6 @@ const emit = defineEmits<{
   (e: 'brush-end', data: unknown): void
   (e: 'clear-selection'): void
 }>()
-
-const { n } = useI18n()
 
 const timelineEl = ref<HTMLElement | null>(null)
 const tooltip = ref<{
@@ -188,10 +190,10 @@ onMounted(() => {
       isScalePow: true
     })
   }
-
+  const n = d3.format('.2~s')
   const contextPeakTextFn = (v: number) => {
-    if (props.percentage) return n(v) + '%'
-    return n(v)
+    if (props.percentage) return props.percentageTranslationFn(v)
+    return props.numberTranslationFn(v)
   }
 
   if (props.contrast) {

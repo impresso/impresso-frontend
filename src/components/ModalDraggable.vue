@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
 .btn.ModalDraggable__toggle {
   line-height: 1;
   min-width: 1.4rem;
-  padding: var(spacing-1) var(spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
 }
 .ModalDraggable__handle:hover {
   opacity: 0.8;

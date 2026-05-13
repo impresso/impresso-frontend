@@ -90,7 +90,6 @@ const handleTooltipMove = (pos: TooltipPosition) => {
 const selectionMonitorStore = useSelectionMonitorStore()
 
 const handleTooltipClick = (pos: TooltipPosition) => {
-  console.info('tooltipClick', pos, dataValues[pos.idx])
   const item = dataValues.value[pos.idx]
   if (item) {
     selectionMonitorStore.show({

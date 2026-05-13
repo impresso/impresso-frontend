@@ -319,7 +319,6 @@ const years = computed(() => {
 
 const svgWidth = computed(() => {
   if (props.fitToContainerWidth) {
-    console.log('fitToContainerWidth', containerWidth.value)
     return containerWidth.value
   }
   // check if gap should increase based on width minum margindivided by years length
@@ -399,7 +398,6 @@ const shouldShowLabel = (year: number): boolean => {
   // Always show decades (bold)
   // get available width in pixel per year
   const yearWidth = (svgWidth.value - margin.left - margin.right) / years.value.length
-  console.debug('yearWidth', yearWidth)
   if (yearWidth < 5) {
     return year % 20 === 0
   }
@@ -458,7 +456,6 @@ const emitTooltipEvent = () => {
 
   const { dataValue, otherValuesOnDate, idx } = getDataValuesAtPosition(visX, visY)
   if (dataValue) {
-    console.log('dataValue', dataValue.label)
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,

@@ -1,15 +1,23 @@
 <template>
   <div class="ItemPreview">
-    <span v-html="previewAsHtml"></span>{{ ' ' }}
-    <router-link
-      :to="{
-        name: 'mediaSource',
-        params: { media_source_id: item.id }
-      }"
-      @click="emit('more')"
-    >
-      {{ $t('actions.more') }}
-    </router-link>
+    <DataProviderLabel
+      v-if="dataProviderId"
+      :item="{ id: dataProviderId }"
+      class="small"
+      :withDash="false"
+    />
+    <blockquote class="border px-2 py-1 mt-2 rounded bg-light">
+      <span v-html="previewAsHtml" class="small"></span>{{ ' ' }}
+      <router-link
+        :to="{
+          name: 'mediaSource',
+          params: { media_source_id: item.id }
+        }"
+        @click="emit('more')"
+      >
+        {{ $t('actions.more') }}
+      </router-link>
+    </blockquote>
   </div>
 </template>
 <script setup lang="ts">
@@ -17,6 +25,7 @@ import { computed, ref, watch } from 'vue'
 import type { Topic, MediaSource } from '@/models/generated/canonical'
 import { mediaSources as mediaSourceService } from '@/services'
 import { CategorizedProperties, getMappedProperties, getNestedProperty } from './utils'
+import DataProviderLabel from '../modules/lists/DataProviderLabel.vue'
 
 export interface ItemPreviewProps {
   item: MediaSource | Topic
@@ -47,7 +56,9 @@ const previewAsHtml = computed(() => {
 
   const paths = [
     'identity.longTitle',
+    'identity.longTitle',
     'identity.subtitle',
+    'identity.description',
     'production.founder',
     'production.publisher'
   ]
@@ -64,6 +75,18 @@ const previewAsHtml = computed(() => {
     .filter(Boolean)
 
   return values.join(' · ')
+})
+
+const dataProviderId = computed(() => {
+  if (!loadedMediaSource.value) {
+    return null
+  }
+  const dataProviderPath = 'identity.partnerUid'
+  const dataProviderValue = getNestedProperty(mappedMetadataProperties.value, dataProviderPath)
+  if (Array.isArray(dataProviderValue)) {
+    return dataProviderValue[0]
+  }
+  return dataProviderValue
 })
 
 async function fetchMediaSource() {
