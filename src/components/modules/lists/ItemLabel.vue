@@ -12,6 +12,8 @@
       {{ $t(`buckets.${itemType}.${item.id}`) }}
     </span>
     <span v-else v-html="computedLabel"></span>
+    <!-- detailed type -->
+    <span v-if="itemType === 'newspaper'" class="small-caps">{{ ' ' }}&middot; newspaper</span>
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
@@ -93,15 +95,23 @@ export default defineComponent({
       }
       const clusterSizeLabel =
         item.clusterSize != null
-          ? this.$t('numbers.clusterSize', {
-              n: this.$n(item.clusterSize)
-            }, item.clusterSize)
+          ? this.$t(
+              'numbers.clusterSize',
+              {
+                n: this.$n(item.clusterSize)
+              },
+              item.clusterSize
+            )
           : 'size'
       const lexicalOverlapLabel =
         item.lexicalOverlap != null
-          ? this.$t('numbers.lexicalOverlap', {
-              n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
-            }, item.lexicalOverlap)
+          ? this.$t(
+              'numbers.lexicalOverlap',
+              {
+                n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
+              },
+              item.lexicalOverlap
+            )
           : ''
       let dates = []
       if (!item.maxDate || !item.minDate) {
@@ -128,9 +138,13 @@ export default defineComponent({
         textSampleExcerpt: item.textSampleExcerpt,
         size: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$t('numbers.days', {
-          n: this.$n(item.timeDifferenceDay)
-        }, item.timeDifferenceDay),
+        timespan: this.$t(
+          'numbers.days',
+          {
+            n: this.$n(item.timeDifferenceDay)
+          },
+          item.timeDifferenceDay
+        ),
         dates: dates.join(' - ')
       })
     },

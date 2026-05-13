@@ -1,5 +1,10 @@
 <template>
-  <div class="d3-timeline" ref="timeline" :style="`height: ${heightVal}`" :data-testid="dataTestid">
+  <div
+    class="d3-timeline"
+    ref="timelineEl"
+    :style="`height: ${heightVal}`"
+    :data-testid="dataTestid"
+  >
     <tooltip :tooltip="tooltip">
       <!-- "meta" tooltip -->
       <slot :tooltip="tooltip">
@@ -9,29 +14,29 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 /**
-
- Usage with custom tooltip (local computed variable)
- <timeline :values="values"
-   :brush="[startDaterange, endDaterange]"
-   :domain="[startYear, endYear]"
-   @brushed="afterBrush()">
-   <template v-slot="tooltipScope">
-     <div v-if="tooltipScope.tooltip.item">
-       {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
-       <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
-     </div>
-   </template>
- </timeline>
-*/
+ * Usage with custom tooltip (local computed variable)
+ * <Timeline :values="values"
+ *   :brush="[startDaterange, endDaterange]"
+ *   :domain="[startYear, endYear]"
+ *   @brushed="afterBrush()">
+ *   <template v-slot="tooltipScope">
+ *     <div v-if="tooltipScope.tooltip.item">
+ *       {{ $d(tooltipScope.tooltip.item.t, 'year') }} &middot;
+ *       <b>{{ tooltipScope.tooltip.item.w }}</b> {{ localComputedVar }}
+ *     </div>
+ *   </template>
+ * </Timeline>
+ */
 
 import ContrastTimeline from '@/d3-modules/ContrastTimeline'
-import Timeline from '@/d3-modules/Timeline'
+import TimelineD3 from '@/d3-modules/Timeline'
 import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import * as d3 from 'd3'
 import Dimension from '@/d3-modules/Dimension'
-import { defineComponent, PropType } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 type TimelineResolution = 'year' | 'month' | 'day'
 type TimelineDomainValue = string | number | Date
@@ -83,6 +88,7 @@ interface TimelineBrushedPayload {
 
 interface TimelineInstance {
   dimensions: Record<string, any>
+  timeParse: (s: string) => Date | null
   on(event: string, handler: (data?: unknown) => void): TimelineInstance
   resize(): void
   update(payload: any): void
@@ -92,281 +98,262 @@ interface TimelineInstance {
   updateTimeFormat(format: string): void
 }
 
-export interface IData {
-  tooltip: {
-    x: number
-    y: number
-    isActive: boolean
-    item?: TimelineDatum
-  }
-  item: Record<string, unknown>
-  timeline: TimelineInstance | null
-  timelineTimer: ReturnType<typeof setTimeout> | null
-}
-
 const getTimeFormatForResolution = (resolution?: TimelineResolution) =>
   resolution === 'day' ? '%d %b %Y' : resolution === 'month' ? '%B %Y' : '%Y'
 
-export default defineComponent({
-  name: 'Timeline',
-  props: {
-    values: Array as PropType<object[]>,
-    brush: Array as PropType<TimelineBrushRange>, // brush values
-    domain: Array as PropType<TimelineDomainValue[]>,
-    exponent: {
-      type: Number,
-      default: 1
-    },
-    highlight: Object as PropType<TimelineDatum | null>,
-    contrast: Boolean,
-    percentage: Boolean,
-    highlightEnabledState: Boolean,
-    brushable: {
-      type: Boolean,
-      default: true
-    },
-    height: {
-      type: String,
-      default: '85px'
-    },
-    resolution: {
-      type: String as PropType<TimelineResolution>,
-      default: 'year',
-      validator(value: TimelineResolution | undefined): boolean {
-        return [undefined, 'year', 'month', 'day'].includes(value)
-      }
-    },
-    dataTestid: {
-      type: String,
-      default: 'timeline'
-    }
-  },
-  data(): IData {
-    return {
-      tooltip: {
-        x: 0,
-        y: 0,
-        isActive: false
-      },
-      item: {},
-      timeline: null,
-      timelineTimer: null
-    }
-  },
-  computed: {
-    heightVal(): string {
-      if (typeof this.height === 'string') return this.height
-      return 'auto'
-    }
-  },
-  methods: {
-    moveTooltip(data: TimelineInteractionPayload): void {
-      this.tooltip = {
-        isActive: true,
-        x: data.pointer.x + 50,
-        y: data.pointer.y - 50,
-        item: data.datum
-      }
-    },
-    onResize(): void {
-      this.timeline?.resize()
-    },
-    forceTimelineUpdate(): void {
-      if (!this.timeline) {
-        console.warn('Timeline not initialized.')
-        return
-      }
-      if (!this.values) {
-        console.warn('No values provided to the timeline.')
-        return
-      }
-      this.timeline.dimensions.y.domain[0] = 0
-      const yProperty = this.timeline.dimensions.y.property
-      this.timeline.dimensions.y.domain[1] = d3.max(this.values, d =>
-        Number((d as Record<string, unknown>)[yProperty] ?? 0)
-      ) as number
-      this.timeline.update({
-        data: this.values as TimelineDatum[]
-      })
-      this.timeline.draw()
-    }
-  },
-  mounted() {
-    const dimensions = {
-      x: new Dimension<TimelineDatum>({
-        name: 'x',
-        property: 't',
-        type: Dimension.TYPE_CONTINUOUS,
-        scaleFn: d3.scaleTime
-      }),
-      y: new Dimension<TimelineDatum>({
-        name: 'y',
-        property: this.percentage ? 'p' : 'w',
-        type: Dimension.TYPE_CONTINUOUS,
-        scaleFn: d3.scalePow,
-        autoCalculateDomain: false,
-        exponent: 1,
-        isScalePow: true
-      })
-    }
-    const contextPeakTextFn = (v: number) => {
-      if (this.percentage) {
-        return this.$n(v) + '%'
-      }
-      return this.$n(v)
-    }
-    if (this.contrast) {
-      this.timeline = new ContrastTimeline({
-        element: this.$refs.timeline as HTMLElement,
-        margin: {
-          left: 10,
-          right: 10,
-          top: 15
-        },
-        domain: this.domain,
-        format: getTimeFormatForResolution(this.resolution),
-        dimensions,
-        contextPeakTextFn
-      })
-    } else {
-      this.timeline = new Timeline({
-        element: this.$refs.timeline as HTMLElement,
-        margin: {
-          left: 10,
-          right: 10,
-          top: 15
-        },
-        domain: this.domain,
-        brushable: this.brushable,
-        format: getTimeFormatForResolution(this.resolution),
-        dimensions,
-        contextPeakTextFn
-      })
-    }
-    setTimeout(() => {
-      this.forceTimelineUpdate()
-      this.timeline?.resize()
-    }, 0)
-    this.timeline.on('mouseleave', () => {
-      this.tooltip.isActive = false
-      this.$emit('highlight-off')
-    })
-
-    this.timeline.on('mousemove', data => {
-      const typedData = data as TimelineInteractionPayload
-      this.moveTooltip(typedData)
-      this.$emit('highlight', typedData)
-    })
-
-    this.timeline.on('brushed', data => {
-      const typedData = data as TimelineBrushedPayload
-      if (this.timelineTimer) {
-        clearTimeout(this.timelineTimer)
-      }
-      this.timelineTimer = setTimeout(() => {
-        this.$emit('brushed', typedData)
-      }, 50)
-      this.$emit('brushing', typedData)
-    })
-
-    this.timeline.on('brush-end', data => {
-      this.$emit('brush-end', data)
-    })
-
-    this.timeline.on('highlighted', data => {
-      this.moveTooltip(data as TimelineInteractionPayload)
-    })
-    this.timeline.on('clear-selection', () => {
-      this.$emit('clear-selection')
-    })
-
-    window.addEventListener('resize', this.onResize)
-  },
-  beforeUnmount() {
-    window.removeEventListener('resize', this.onResize)
-  },
-  watch: {
-    exponent: {
-      immediate: false,
-      handler(val: number) {
-        if (this.timeline) {
-          this.timeline.dimensions.y.exponent = val
-          this.forceTimelineUpdate()
-        }
-      }
-    },
-    percentage: {
-      immediate: false,
-      handler() {
-        if (this.timeline) {
-          this.timeline.dimensions.y.property = this.percentage ? 'p' : 'w'
-          this.forceTimelineUpdate()
-        }
-      }
-    },
-    highlight: {
-      immediate: false,
-      handler(val: TimelineDatum | null) {
-        if (this.timeline && val) {
-          this.timeline.highlight(val)
-        }
-      }
-    },
-    highlightEnabledState: {
-      immediate: false,
-      handler(val: boolean | undefined) {
-        this.tooltip.isActive = Boolean(val)
-      }
-    },
-    brush: {
-      immediate: false,
-      handler(val: TimelineBrushRange) {
-        if (this.timeline && val.length >= 2) {
-          const [min, max] = val
-          if (min == null || max == null) {
-            return
-          }
-          this.timeline.brushTo({
-            min,
-            max
-          })
-        }
-      }
-    },
-    values: {
-      immediate: true,
-      deep: true,
-      handler() {
-        if (this.timeline) {
-          this.forceTimelineUpdate()
-
-          if (this.brush && this.brush.length >= 2) {
-            const [min, max] = this.brush
-            if (min == null || max == null) {
-              return
-            }
-            this.timeline.brushTo({
-              min,
-              max
-            })
-          }
-        }
-      }
-    },
-    resolution: {
-      handler(resolution: TimelineResolution | undefined) {
-        if (!this.timeline) {
-          return
-        }
-        this.timeline.updateTimeFormat(getTimeFormatForResolution(resolution))
-        this.timeline.draw()
-      }
-    }
-  },
-  components: {
-    Tooltip
-  }
+const props = withDefaults(defineProps<TimelineProps>(), {
+  exponent: 1,
+  brushable: true,
+  height: '85px',
+  resolution: 'year',
+  dataTestid: 'timeline'
 })
+
+const emit = defineEmits<{
+  (e: 'highlight-off'): void
+  (e: 'highlight', data: TimelineInteractionPayload): void
+  (e: 'brushed', data: TimelineBrushedPayload): void
+  (e: 'brushing', data: TimelineBrushedPayload): void
+  (e: 'brush-end', data: unknown): void
+  (e: 'clear-selection'): void
+}>()
+
+const { n } = useI18n()
+
+const timelineEl = ref<HTMLElement | null>(null)
+const tooltip = ref<{
+  x: number
+  y: number
+  isActive: boolean
+  item?: TimelineDatum
+}>({
+  x: 0,
+  y: 0,
+  isActive: false
+})
+const timeline = ref<TimelineInstance | null>(null)
+let timelineTimer: ReturnType<typeof setTimeout> | null = null
+
+const heightVal = computed(() => {
+  if (typeof props.height === 'string') return props.height
+  return 'auto'
+})
+
+function moveTooltip(data: TimelineInteractionPayload): void {
+  tooltip.value = {
+    isActive: true,
+    x: data.pointer.x + 50,
+    y: data.pointer.y - 50,
+    item: data.datum
+  }
+}
+
+function onResize(): void {
+  timeline.value?.resize()
+}
+
+function forceTimelineUpdate(): void {
+  if (!timeline.value) {
+    console.warn('Timeline not initialized.')
+    return
+  }
+  if (!props.values) {
+    console.warn('No values provided to the timeline.')
+    return
+  }
+  timeline.value.dimensions.y.domain[0] = 0
+  const yProperty = timeline.value.dimensions.y.property
+  timeline.value.dimensions.y.domain[1] = d3.max(props.values, d =>
+    Number((d as Record<string, unknown>)[yProperty] ?? 0)
+  ) as number
+  timeline.value.update({ data: props.values as TimelineDatum[] })
+  timeline.value.draw()
+}
+
+onMounted(() => {
+  const dimensions = {
+    x: new Dimension<TimelineDatum>({
+      name: 'x',
+      property: 't',
+      type: Dimension.TYPE_CONTINUOUS,
+      scaleFn: d3.scaleTime
+    }),
+    y: new Dimension<TimelineDatum>({
+      name: 'y',
+      property: props.percentage ? 'p' : 'w',
+      type: Dimension.TYPE_CONTINUOUS,
+      scaleFn: d3.scalePow,
+      autoCalculateDomain: false,
+      exponent: 1,
+      isScalePow: true
+    })
+  }
+
+  const contextPeakTextFn = (v: number) => {
+    if (props.percentage) return n(v) + '%'
+    return n(v)
+  }
+
+  if (props.contrast) {
+    timeline.value = new ContrastTimeline({
+      element: timelineEl.value as HTMLElement,
+      margin: { left: 10, right: 10, top: 15 },
+      domain: props.domain,
+      format: getTimeFormatForResolution(props.resolution),
+      dimensions,
+      contextPeakTextFn
+    }) as unknown as TimelineInstance
+  } else {
+    timeline.value = new TimelineD3({
+      element: timelineEl.value as HTMLElement,
+      margin: { left: 10, right: 10, top: 15 },
+      domain: props.domain,
+      brushable: props.brushable,
+      format: getTimeFormatForResolution(props.resolution),
+      dimensions,
+      contextPeakTextFn
+    }) as unknown as TimelineInstance
+  }
+
+  setTimeout(() => {
+    forceTimelineUpdate()
+    timeline.value?.resize()
+  }, 0)
+
+  timeline.value.on('mouseleave', () => {
+    tooltip.value.isActive = false
+    emit('highlight-off')
+  })
+
+  timeline.value.on('mousemove', data => {
+    const typedData = data as TimelineInteractionPayload
+    moveTooltip(typedData)
+    emit('highlight', typedData)
+  })
+
+  timeline.value.on('brushed', data => {
+    const typedData = data as TimelineBrushedPayload
+    if (timelineTimer) clearTimeout(timelineTimer)
+    timelineTimer = setTimeout(() => {
+      emit('brushed', typedData)
+    }, 50)
+    emit('brushing', typedData)
+  })
+
+  timeline.value.on('brush-end', data => {
+    emit('brush-end', data)
+  })
+
+  timeline.value.on('highlighted', data => {
+    moveTooltip(data as TimelineInteractionPayload)
+  })
+
+  timeline.value.on('clear-selection', () => {
+    emit('clear-selection')
+  })
+
+  window.addEventListener('resize', onResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', onResize)
+})
+
+watch(
+  () => props.exponent,
+  (val: number) => {
+    if (timeline.value) {
+      timeline.value.dimensions.y.exponent = val
+      forceTimelineUpdate()
+    }
+  }
+)
+
+watch(
+  () => props.percentage,
+  () => {
+    if (timeline.value) {
+      timeline.value.dimensions.y.property = props.percentage ? 'p' : 'w'
+      forceTimelineUpdate()
+    }
+  }
+)
+
+watch(
+  () => props.highlight,
+  (val: TimelineDatum | null | undefined) => {
+    if (timeline.value && val) {
+      timeline.value.highlight(val)
+    }
+  }
+)
+
+watch(
+  () => props.highlightEnabledState,
+  (val: boolean | undefined) => {
+    tooltip.value.isActive = Boolean(val)
+  }
+)
+
+watch(
+  () => props.brush,
+  (val: TimelineBrushRange | undefined) => {
+    if (!timeline.value || !val || val.length < 2) return
+    const [min, max] = val
+    if (min == null || max == null) return
+    timeline.value.brushTo({ min, max })
+  }
+)
+
+watch(
+  () => props.values,
+  () => {
+    if (!timeline.value) return
+    forceTimelineUpdate()
+    if (props.brush && props.brush.length >= 2) {
+      const [min, max] = props.brush
+      if (min == null || max == null) return
+      timeline.value.brushTo({ min, max })
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+watch(
+  () => props.resolution,
+  (resolution: TimelineResolution | undefined) => {
+    if (!timeline.value) return
+    timeline.value.updateTimeFormat(getTimeFormatForResolution(resolution))
+    timeline.value.draw()
+  }
+)
+
+function applyXDomain(domainProp: TimelineDomainValue[] | undefined): void {
+  if (!timeline.value) return
+
+  if (domainProp && domainProp.length >= 2) {
+    timeline.value.dimensions.x.setDomain({
+      domain: domainProp.map(d => (d instanceof Date ? d : timeline.value!.timeParse(String(d))))
+    })
+  } else if (props.values && props.values.length > 0) {
+    const extent = d3.extent(
+      props.values as TimelineDatum[],
+      d => (d.t instanceof Date ? d.t : timeline.value!.timeParse(String(d.t))) as Date
+    )
+    if (extent[0] && extent[1]) {
+      timeline.value.dimensions.x.setDomain({ domain: [extent[0], extent[1]] })
+    }
+  }
+}
+
+watch(
+  () => props.domain,
+  (val: TimelineDomainValue[] | undefined) => {
+    if (!timeline.value) return
+    applyXDomain(val)
+    forceTimelineUpdate()
+  }
+)
 </script>
 
 <style lang="scss">

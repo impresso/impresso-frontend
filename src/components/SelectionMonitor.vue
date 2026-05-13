@@ -1,14 +1,7 @@
 <template>
   <div
-    style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border: 1px dashed #ced4da;
-      overflow: hidden;
-    "
+    class="pointer-events-none"
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden"
     v-if="isActive"
   >
     <ModalDraggable
@@ -44,10 +37,8 @@
             />
             <h2 class="mx-3" v-if="monitor.item">
               <ItemLabel :item="monitor.item" :type="monitor.type" />
-              <!-- <span class="small-caps pl-2">{{ $t('types_' + monitor.type) }}</span> -->
             </h2>
 
-            <!-- end title -->
             <!-- timeline -->
             <div v-if="monitor.displayTimeline" class="mx-2">
               <SearchFacetTimeline
@@ -73,41 +64,44 @@
             <!-- end timeline -->
             <!-- filters -->
             <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
-              <b-form-group class="m-0">
-                <b-form-checkbox switch v-model="applyCurrentSearchFilters">
-                  <span
-                    v-html="
-                      $t('labels.applyCurrentSearchFilters', {
-                        count: supportedFilters.length
-                      })
-                    "
-                  />
-                </b-form-checkbox>
-              </b-form-group>
-              <p>
+              <BFormCheckbox
+                switch
+                v-model="applyCurrentSearchTimespan"
+                :disabled="!(monitor.displayTimeline && total)"
+              >
                 <span
-                  class="small"
                   v-html="
-                    $t(statsLabelKey, {
-                      count: $n(total),
-                      searchIndex: $t('searchIndexes.' + monitor.searchIndex)
+                    $t('reduceTimelineToCurrentSearchTimespan', {
+                      from: minDate.getFullYear(),
+                      to: maxDate.getFullYear()
                     })
                   "
-                />{{ ' ' }} - {{ total }} -
-
-                <SearchQuerySummary class="d-inline small" :search-query="searchQuery" />
-                <span v-if="monitor.displayTimeline && total">
-                  <br />
-                  <span
-                    v-html="
-                      $t('dates.allResultsFallBetween', {
-                        from: minDate.getFullYear(),
-                        to: maxDate.getFullYear()
-                      })
-                    "
-                  />
-                </span>
-              </p>
+              /></BFormCheckbox>
+              <BFormCheckbox switch v-model="applyCurrentSearchFilters">
+                <span
+                  v-html="
+                    $t('labels.applyCurrentSearchFilters', {
+                      count: supportedFilters.length
+                    })
+                  "
+                />
+              </BFormCheckbox>
+              <section class="border-top pt-2 mt-2">
+                <Ellipsis :initialHeight="100">
+                  <div>
+                    <span
+                      class="small"
+                      v-html="
+                        $t(statsLabelKey, {
+                          count: $n(total),
+                          searchIndex: $t('searchIndexes.' + monitor.searchIndex)
+                        })
+                      "
+                    />{{ ' ' }}
+                    <SearchQuerySummary class="d-inline small" :search-query="searchQuery" />
+                  </div>
+                </Ellipsis>
+              </section>
             </div>
             <!-- end filters -->
           </section>
@@ -124,7 +118,7 @@
             :item="monitor.item"
             v-if="monitor.type === 'textReusePassage'"
             class="flex-grow-1 bg-dark mt-2"
-          ></TextReusePassageMonitor>
+          />
           <!-- range closeup view-->
           <ListOfItems
             v-if="
@@ -191,13 +185,6 @@
           </div>
           <!-- end actions -->
           <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
-          <!-- <pre v-if="monitor.item" class="text-small">{{
-        JSON.stringify(
-          monitorFilters.map(d => ({ type: d.type, q: d.q })),
-          null,
-          2,
-        )
-      }}</pre> -->
         </div>
       </div>
     </ModalDraggable>
@@ -225,6 +212,8 @@ import TextReuseClusterMonitor from '@/components/TextReuseClusterMonitor.vue'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
 import type { TimelineValue } from '@/logic/facets'
 import Icon from 'impresso-ui-components/components/Icon.vue'
+import BFormCheckbox from './legacy/bootstrap/BFormCheckbox.vue'
+import Ellipsis from './modules/Ellipsis.vue'
 
 interface SelectionMonitorProps {
   filters?: Filter[]
@@ -253,6 +242,7 @@ const total = ref(0)
 const timelineValues = ref<TimelineValue[]>([])
 const timelineStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const applyCurrentSearchFilters = ref(false)
+const applyCurrentSearchTimespan = ref(false) // separate ref to avoid unnecessary timeline re-fetch when toggling the checkbox (since the timeline only depends on monitorFilters, not on applyCurrentSearchFilters directly)
 const additionalFilters = ref<Filter[]>([])
 const filtersWithItems = ref<Filter[]>([])
 const isLoadingFilterItems = ref(false)
@@ -261,30 +251,48 @@ const filterItemsRequestId = ref(0)
 const isActive = computed(() => selectionMonitorStore.isActive)
 const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.type ?? ''))
 
+// Memoized independently so everything downstream doesn't re-run on unrelated changes.
+// Previously this was inlined inside monitorFilter, causing FilterFactory.create() to
+// be called on every computed that touched monitorFilter (monitorFilters, timelineFilters,
+// summaryFilters, displayFilters) — even when monitor.item hadn't changed.
+const monitorItem = computed(() => monitor.item as { id?: string; q?: string | string[] } | null)
+
+// Stable memoization of the filter built from the current monitor item.
+// FilterFactory.create() is now called exactly once per monitor.item / monitor.type change,
+// not once per downstream consumer per reactive update.
+const monitorFilter = computed<Filter>(() => {
+  const item = monitorItem.value
+  const query = Array.isArray(item?.q)
+    ? item.q.map(value => String(value))
+    : [String(item?.q ?? item?.id ?? '')]
+
+  return FilterFactory.create({
+    type: monitor.type,
+    q: query,
+    items: item ? [item] : []
+  }) as Filter
+})
+
+// Memoized separately from monitorFilters so the merge with additionalFilters /
+// monitorFilter doesn't invalidate whenever supportedFilters hasn't actually changed.
+// Previously supportedFilters was re-evaluated inside monitorFilters on every call.
 const supportedFilters = computed(() => {
   const availableFilters = SupportedFiltersByIndex[monitor.searchIndex] ?? []
   return props.filters.filter(filter => availableFilters.includes(filter.type))
 })
 
-const monitorFilter = computed<Filter>(() => {
-  const monitorItem = monitor.item as { id?: string; q?: string | string[] } | null
-  const query = Array.isArray(monitorItem?.q)
-    ? monitorItem.q.map(value => String(value))
-    : [String(monitorItem?.q ?? monitorItem?.id ?? '')]
-
-  return FilterFactory.create({
-    type: monitor.type,
-    q: query,
-    items: monitor.item ? [monitor.item] : []
-  }) as Filter
-})
+// otherFilters: the part of monitorFilters that does NOT depend on additionalFilters or
+// monitorFilter. By separating it, a change to additionalFilters no longer re-runs the
+// supportedFilters scan — it only re-runs the cheap concat at the end.
+const otherFilters = computed<Filter[]>(() =>
+  supportedFilters.value.filter(filter => filter.type !== monitor.type)
+)
 
 const monitorFilters = computed<Filter[]>(() => {
-  const otherFilters = supportedFilters.value.filter(filter => filter.type !== monitor.type)
   if (additionalFilters.value.length) {
-    return otherFilters.concat(additionalFilters.value)
+    return otherFilters.value.concat(additionalFilters.value)
   }
-  return otherFilters.concat(monitorFilter.value)
+  return otherFilters.value.concat(monitorFilter.value)
 })
 
 const monitorFilterExists = computed(() =>
@@ -292,30 +300,15 @@ const monitorFilterExists = computed(() =>
 )
 
 const detailsUrl = computed<RouteLocationRaw | null>(() => {
-  const monitorItem = monitor.item as { id?: string } | null
-
-  if (!monitorItem?.id) {
-    return null
-  }
+  const id = monitorItem.value?.id
+  if (!id) return null
 
   if (monitor.type === 'newspaper') {
-    return {
-      name: 'newspaper_metadata',
-      params: {
-        newspaper_id: monitorItem.id
-      }
-    }
+    return { name: 'newspaper_metadata', params: { newspaper_id: id } }
   }
-
   if (monitor.type === 'topic') {
-    return {
-      name: 'topic',
-      params: {
-        topic_id: monitorItem.id
-      }
-    }
+    return { name: 'topic', params: { topic_id: id } }
   }
-
   return null
 })
 
@@ -323,42 +316,38 @@ const timelineFilters = computed<Filter[]>(() => {
   if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
     return monitorFilters.value
   }
-
   if (!applyCurrentSearchFilters.value && monitor.item) {
     return [monitorFilter.value]
   }
-
   return []
 })
+
+// displayFilters moved before summaryFilters (it was referenced before being defined).
+// It is also the stable base used by summaryFilters and the watch below, so keeping
+// it earlier in the file makes the dependency order explicit.
+const displayFilters = computed<Filter[]>(() =>
+  additionalFilters.value.length ? additionalFilters.value : [monitorFilter.value]
+)
 
 const summaryFilters = computed<Filter[]>(() => {
   if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
     return monitorFilters.value
   }
-
   return displayFilters.value
 })
 
-const summaryFiltersWithFallback = computed<Filter[]>(() => {
-  return filtersWithItems.value.length ? filtersWithItems.value : summaryFilters.value
-})
-
+// summaryFiltersWithFallback had a single consumer (searchQuery). Inlining it removes
+// one reactive node from the dependency graph and makes the data flow easier to follow.
 const searchQuery = computed(() => ({
-  filters: summaryFiltersWithFallback.value
+  filters: filtersWithItems.value.length ? filtersWithItems.value : summaryFilters.value
 }))
 
 const statsLabelKey = computed(() => {
   if (timelineStatus.value === 'loading' || isLoadingFilterItems.value) {
     return 'actions.loading'
   }
-
   return applyCurrentSearchFilters.value && props.filters.length ? 'itemStatsFiltered' : 'itemStats'
 })
-
-// Filters to enrich with item labels for display in SearchQuerySummary
-const displayFilters = computed<Filter[]>(() =>
-  additionalFilters.value.length ? additionalFilters.value : [monitorFilter.value]
-)
 
 const fallbackStartYear = computed(() => props.startYear ?? new Date().getFullYear())
 const fallbackEndYear = computed(() => props.endYear ?? new Date().getFullYear())
@@ -371,7 +360,6 @@ const minDate = computed(() => {
     )
     return new Date(`${year}-01-01`)
   }
-
   return new Date(`${fallbackStartYear.value}-01-01`)
 })
 
@@ -383,7 +371,6 @@ const maxDate = computed(() => {
     )
     return new Date(`${year}-12-31`)
   }
-
   return new Date(`${fallbackEndYear.value}-12-31`)
 })
 
@@ -391,8 +378,10 @@ const timelineDomain = computed<number[] | undefined>(() => {
   if (props.startYear == null || props.endYear == null) {
     return undefined
   }
-
-  return [props.startYear, props.endYear]
+  if (!applyCurrentSearchTimespan.value) {
+    return [props.startYear, props.endYear]
+  }
+  return undefined
 })
 
 const resetTimelineState = () => {
@@ -424,22 +413,14 @@ const applyFilter = () => {
     return
   }
 
+  const baseFilters = props.filters.filter(filter => filter.type !== monitorFilter.value.type)
+
   if (additionalFilters.value.length) {
-    emit(
-      'change',
-      props.filters
-        .filter(filter => filter.type !== monitorFilter.value.type)
-        .concat(additionalFilters.value)
-    )
+    emit('change', baseFilters.concat(additionalFilters.value))
     return
   }
 
-  emit(
-    'change',
-    props.filters
-      .filter(filter => filter.type !== monitorFilter.value.type)
-      .concat(monitorFilter.value)
-  )
+  emit('change', baseFilters.concat(monitorFilter.value))
 }
 
 watch(
@@ -459,39 +440,46 @@ watch(
   }
 )
 
+// Watch gated on isActive + monitor.item so the async fetch only fires when the
+// monitor is actually open and has something to display. Previously it ran
+// immediately on mount (even with isActive=false) because immediate:true was set
+// and there was no isActive guard — this could trigger a network request before
+// the panel was ever shown.
 watch(
-  summaryFilters,
-  async newFilters => {
-    if (!isActive.value || !monitor.item) {
+  [isActive, summaryFilters],
+  async ([active], _old, onCleanup) => {
+    if (!active || !monitor.item) {
       filtersWithItems.value = []
       return
     }
+
     const requestId = ++filterItemsRequestId.value
+    let cancelled = false
+    onCleanup(() => {
+      cancelled = true
+    })
+
     isLoadingFilterItems.value = true
     try {
       const nextFiltersWithItems = await filterItemsService
-        .find({
-          query: {
-            filters: serializeFilters(newFilters)
-          }
-        })
+        .find({ query: { filters: serializeFilters(summaryFilters.value) } })
         .then(joinFiltersWithItems)
-      // Ignore stale responses when a newer request has already started.
-      if (requestId === filterItemsRequestId.value) {
+
+      if (!cancelled && requestId === filterItemsRequestId.value) {
         filtersWithItems.value = nextFiltersWithItems
       }
     } catch (e) {
       console.error('[SelectionMonitor] Failed to load filter items', e)
-      if (requestId === filterItemsRequestId.value) {
-        filtersWithItems.value = newFilters
+      if (!cancelled && requestId === filterItemsRequestId.value) {
+        filtersWithItems.value = summaryFilters.value
       }
     } finally {
-      if (requestId === filterItemsRequestId.value) {
+      if (!cancelled && requestId === filterItemsRequestId.value) {
         isLoadingFilterItems.value = false
       }
     }
   },
-  { immediate: true }
+  { immediate: false }
 )
 </script>
 
@@ -516,7 +504,6 @@ watch(
 .SelectionMonitor.textReusePassageSize,
 .SelectionMonitor.textReuseClusterDayDelta,
 .SelectionMonitor.textReuseClusterLexicalOverlap {
-  /** pu the  */
   top: 100px;
   width: 400px;
   margin-top: auto;
@@ -538,12 +525,10 @@ watch(
 
 .SelectionMonitor_summary .date {
   font-weight: bold;
-  /* all-small-caps */
   text-transform: lowercase;
   font-variant: small-caps;
 }
 
-/** for lg screen,increase selectionMonitorWidth */
 @media (min-width: 992px) {
   .SelectionMonitor.textReuseCluster,
   .SelectionMonitor.textReusePassage {
@@ -571,7 +556,7 @@ watch(
       "applyCurrentSearchFilters": "Apply current search filters (<span class='number'>{count}</span>)"
     },
     "searchIndexes": {
-      "search": "articles",
+      "search": "content items",
       "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
@@ -616,9 +601,11 @@ watch(
     "tabs_organisations_overview": "organisation",
     "tabs_newsagencies_overview": "news agency",
     "tabs_nag_overview": "news agency",
+    "actions.loading": "Loading…",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
-    "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters"
+    "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters",
+    "reduceTimelineToCurrentSearchTimespan": "Only display current search timespan ({from} - {to})"
   }
 }
 </i18n>
