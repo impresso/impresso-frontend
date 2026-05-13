@@ -155,7 +155,7 @@ export default {
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       applyChangesDetailedAddedOnly: 'apply changes (added: {added})',
-      addToCurrentFilters: 'Add as search filter',
+      addToCurrentFilters: 'Add to search',
       removeFromCurrentFilters: 'Remove filter from current search',
       resetPassword: 'Reset my password',
       addToCurrentFiltersDetailed:

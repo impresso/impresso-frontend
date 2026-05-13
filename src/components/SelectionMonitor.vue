@@ -9,10 +9,11 @@
       respect-boundaries
       class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
       :style="{ width: '400px' }"
-      :title="$t(`tabs_${monitor.type}_${monitor.scope}`)"
-      handle-class="pl-3 py-2"
+      :title="$t('selectionMonitorTitle', { type: $t(`tabs_${monitor.type}_${monitor.scope}`) })"
+      handle-class="pl-3 d-flex justify-content-between align-items-center gap-2"
     >
       <template #header-actions>
+        <Icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="black" />
         <button
           class="btn btn-transparent text-dark"
           type="button"
@@ -35,9 +36,18 @@
               @changeFilter="handleChangeFilter"
               class="border p-2 rounded"
             />
-            <h2 class="mx-3" v-if="monitor.item">
+            <h2 class="mx-3 my-2" v-if="monitor.item">
               <ItemLabel :item="monitor.item" :type="monitor.type" />
             </h2>
+            <!-- item previews -->
+            <MediaSourcePreview
+              v-if="monitor.type === 'newspaper'"
+              :item="monitor.item"
+              :itemType="monitor.type"
+              class="mx-3 mb-2 text-muted"
+            >
+            </MediaSourcePreview>
+            <div class="mx-3 very-small">Number of content items per year</div>
 
             <!-- timeline -->
             <div v-if="monitor.displayTimeline" class="mx-2">
@@ -48,6 +58,7 @@
                 :domain="timelineDomain"
                 items-class="p-0"
                 @update:state="handleTimelineStateChange"
+                :errorLoadingItemsMessage="$t('error.loadingTimelineItems')"
               >
                 <template #tooltip="{ tooltip }">
                   <div v-if="tooltip.item">
@@ -86,7 +97,7 @@
                   "
                 />
               </BFormCheckbox>
-              <section class="border-top pt-2 mt-2">
+              <section class="border-top pt-2 my-2">
                 <Ellipsis :initialHeight="100">
                   <div>
                     <span
@@ -156,20 +167,10 @@
           </div>
 
           <!-- button url  -->
-          <router-link
-            v-if="detailsUrl"
-            class="btn btn-outline-secondary m-3 btn-sm d-block"
-            :to="detailsUrl"
-            @click="hide"
-          >
-            {{ $t('actions.detail') }}
-          </router-link>
+
           <!-- end bottom -->
           <!-- actions -->
-          <div
-            class="p-2 border-tertiary border-top d-flex justify-content-between"
-            v-if="monitor.displayActionButtons"
-          >
+          <div class="p-3 d-flex justify-content-between" v-if="monitor.displayActionButtons">
             <button @click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
               {{
                 $t(
@@ -211,9 +212,10 @@ import SelectionMonitorFilter from '@/components/SelectionMonitorFilter.vue'
 import TextReuseClusterMonitor from '@/components/TextReuseClusterMonitor.vue'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
 import type { TimelineValue } from '@/logic/facets'
-import Icon from 'impresso-ui-components/components/Icon.vue'
 import BFormCheckbox from './legacy/bootstrap/BFormCheckbox.vue'
 import Ellipsis from './modules/Ellipsis.vue'
+import Icon from './base/Icon.vue'
+import MediaSourcePreview from './mediaSource/MediaSourcePreview.vue'
 
 interface SelectionMonitorProps {
   filters?: Filter[]
@@ -299,6 +301,9 @@ const monitorFilterExists = computed(() =>
   props.filters.some(filter => filter.type === monitor.type)
 )
 
+const isItemPreviewAvailable = computed(() => {
+  return monitor.type === 'newspaper' && monitor.item?.id
+})
 const detailsUrl = computed<RouteLocationRaw | null>(() => {
   const id = monitorItem.value?.id
   if (!id) return null
@@ -553,7 +558,7 @@ watch(
 {
   "en": {
     "labels": {
-      "applyCurrentSearchFilters": "Apply current search filters (<span class='number'>{count}</span>)"
+      "applyCurrentSearchFilters": "Show within current search"
     },
     "searchIndexes": {
       "search": "content items",
@@ -605,7 +610,11 @@ watch(
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
     "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters",
-    "reduceTimelineToCurrentSearchTimespan": "Only display current search timespan ({from} - {to})"
+    "reduceTimelineToCurrentSearchTimespan": "Limit timeline to search range ({from} - {to})",
+    "error": {
+      "loadingTimelineItems": "Failed to load timeline items"
+    },
+    "selectionMonitorTitle": "Previewing: {type}"
   }
 }
 </i18n>

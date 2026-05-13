@@ -11,7 +11,7 @@
     <div :class="props.itemsClass" style="min-height: 100px">
       <LoadingBlock v-if="status === 'loading'" :height="85" />
 
-      <div v-if="status === 'error'" class="p-3">
+      <div v-if="status === 'error'" class="p-1">
         <Alert type="warning" :closable="false">
           <span v-html="$t(props.errorLoadingItemsMessage)"></span>
         </Alert>
