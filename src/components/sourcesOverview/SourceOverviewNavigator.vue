@@ -3,26 +3,14 @@
     class="SourceOverviewNavigator bg-light border border-dark rounded shadow pointer-events-auto"
     respect-boundaries
     center-on-mount
+    :title="$t('sourcesOverviewNavigator.title')"
+    :reduce-label="$t('sourcesOverviewNavigator.reduce')"
+    :restore-label="$t('sourcesOverviewNavigator.restore')"
+    handle-class="SourceOverviewNavigator__handle p-2 d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-dark rounded-top gap-2"
     :zIndex="props.zIndex"
   >
-    <template #header="{ isReduced, toggleReduced }">
-      <div
-        class="SourceOverviewNavigator__handle p-2 d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-dark rounded-top gap-2"
-      >
-        <span class="very-small-caps-bold">{{ $t('sourcesOverviewNavigator.title') }}</span>
-        <div class="mb-1">
-          <button
-            type="button"
-            class="SourceOverviewNavigator__toggle btn btn-sm btn-outline-light mr-2"
-            :aria-label="$t(getToggleButtonLabelKey(isReduced))"
-            :title="$t(getToggleButtonLabelKey(isReduced))"
-            @click.stop="toggleReduced()"
-          >
-            {{ isReduced ? '+' : '-' }}
-          </button>
-          <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
-        </div>
-      </div>
+    <template #header-actions>
+      <icon name="dots" :scale="0.3" :stroke-width="8" class="m-1" color="white" />
     </template>
     <template #default="{ isReduced }">
       <div v-if="!isReduced" class="SourceOverviewNavigator__content flex-grow-1">
@@ -59,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import ModalDraggable from '@/components/ModalDraggable.vue'
 import Icon from '../base/Icon.vue'
 import Minimap from '../Minimap.vue'
@@ -82,12 +69,6 @@ const props = withDefaults(defineProps<SourceOverviewNavigatorProps>(), {
 const emit = defineEmits<{
   (e: 'update:tooltipPosition', value: TooltipPosition): void
 }>()
-
-const minimapRef = ref<HTMLDivElement | null>(null)
-
-const getToggleButtonLabelKey = (isReduced: boolean) => {
-  return isReduced ? 'sourcesOverviewNavigator.restore' : 'sourcesOverviewNavigator.reduce'
-}
 </script>
 
 <style>
@@ -116,11 +97,6 @@ const getToggleButtonLabelKey = (isReduced: boolean) => {
   border-bottom-right-radius: var(--impresso-border-radius-sm) !important;
   border-top-left-radius: var(--impresso-border-radius-sm) !important;
   border-top-right-radius: var(--impresso-border-radius-sm) !important;
-}
-
-.SourceOverviewNavigator__toggle {
-  line-height: 1;
-  min-width: 1.4rem;
 }
 
 .SourceOverviewNavigator__minimap {
