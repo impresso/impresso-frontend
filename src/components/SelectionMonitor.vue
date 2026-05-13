@@ -16,25 +16,21 @@
       respect-boundaries
       class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
       :style="{ width: '400px' }"
+      :title="$t(`tabs_${monitor.type}_${monitor.scope}`)"
+      handle-class="pl-3 py-2"
     >
-      <template #header> Selection Monitor </template>
-      <div class="d-flex my-2 ml-2 ms-2 align-items-center bg-light">
-        <b-tabs pills class="px-2 pb-2 pt-1 small-caps" style="flex-grow: 1">
-          <template #tabs-end>
-            <b-nav-item class="active">
-              <span v-html="$t(`tabs_${monitor.type}_${monitor.scope}`)" />
-            </b-nav-item>
-          </template>
-        </b-tabs>
-        <div class="pr-3 SelectionMonitor_close">
-          <span class="dripicons-cross" @click="hide" />
-        </div>
-      </div>
-      <div
-        class="___SelectionMonitor rounded drop-shadow bg-light"
-        :class="monitor.type"
-        @click.stop
-      >
+      <template #header-actions>
+        <button
+          class="btn btn-transparent text-dark"
+          type="button"
+          aria-label="Close"
+          @click.stop="hide"
+        >
+          <Icon name="cross" color />
+        </button>
+      </template>
+
+      <div :class="monitor.type" @click.stop>
         <div class="d-flex flex-column h-100">
           <!-- top -->
           <section>
@@ -78,7 +74,7 @@
             <!-- filters -->
             <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
               <b-form-group class="m-0">
-                <b-form-checkbox v-model="applyCurrentSearchFilters">
+                <b-form-checkbox switch v-model="applyCurrentSearchFilters">
                   <span
                     v-html="
                       $t('labels.applyCurrentSearchFilters', {
@@ -88,22 +84,18 @@
                   />
                 </b-form-checkbox>
               </b-form-group>
-              <p class="ml-1 SelectionMonitor_summary">
+              <p>
                 <span
+                  class="small"
                   v-html="
                     $t(statsLabelKey, {
                       count: $n(total),
                       searchIndex: $t('searchIndexes.' + monitor.searchIndex)
                     })
                   "
-                />{{ ' ' }}
+                />{{ ' ' }} - {{ total }} -
 
-                <SearchQuerySummary
-                  class="d-inline"
-                  :search-query="{
-                    filters: additionalFilters.length ? additionalFilters : [monitorFilter]
-                  }"
-                />
+                <SearchQuerySummary class="d-inline small" :search-query="searchQuery" />
                 <span v-if="monitor.displayTimeline && total">
                   <br />
                   <span
@@ -216,7 +208,8 @@
 import { computed, ref, watch } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 import type { Filter } from '@/models'
-import { SupportedFiltersByIndex } from '@/logic/filters'
+import { SupportedFiltersByIndex, joinFiltersWithItems, serializeFilters } from '@/logic/filters'
+import { filtersItems as filterItemsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import EntityMonitor from '@/components/EntityMonitor.vue'
@@ -231,6 +224,7 @@ import SelectionMonitorFilter from '@/components/SelectionMonitorFilter.vue'
 import TextReuseClusterMonitor from '@/components/TextReuseClusterMonitor.vue'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
 import type { TimelineValue } from '@/logic/facets'
+import Icon from 'impresso-ui-components/components/Icon.vue'
 
 interface SelectionMonitorProps {
   filters?: Filter[]
@@ -260,6 +254,9 @@ const timelineValues = ref<TimelineValue[]>([])
 const timelineStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const applyCurrentSearchFilters = ref(false)
 const additionalFilters = ref<Filter[]>([])
+const filtersWithItems = ref<Filter[]>([])
+const isLoadingFilterItems = ref(false)
+const filterItemsRequestId = ref(0)
 
 const isActive = computed(() => selectionMonitorStore.isActive)
 const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.type ?? ''))
@@ -334,13 +331,34 @@ const timelineFilters = computed<Filter[]>(() => {
   return []
 })
 
+const summaryFilters = computed<Filter[]>(() => {
+  if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
+    return monitorFilters.value
+  }
+
+  return displayFilters.value
+})
+
+const summaryFiltersWithFallback = computed<Filter[]>(() => {
+  return filtersWithItems.value.length ? filtersWithItems.value : summaryFilters.value
+})
+
+const searchQuery = computed(() => ({
+  filters: summaryFiltersWithFallback.value
+}))
+
 const statsLabelKey = computed(() => {
-  if (timelineStatus.value === 'loading') {
+  if (timelineStatus.value === 'loading' || isLoadingFilterItems.value) {
     return 'actions.loading'
   }
 
   return applyCurrentSearchFilters.value && props.filters.length ? 'itemStatsFiltered' : 'itemStats'
 })
+
+// Filters to enrich with item labels for display in SearchQuerySummary
+const displayFilters = computed<Filter[]>(() =>
+  additionalFilters.value.length ? additionalFilters.value : [monitorFilter.value]
+)
 
 const fallbackStartYear = computed(() => props.startYear ?? new Date().getFullYear())
 const fallbackEndYear = computed(() => props.endYear ?? new Date().getFullYear())
@@ -394,10 +412,10 @@ const handleChangeFilter = (newFilter: Filter) => {
   additionalFilters.value = [newFilter]
 }
 
-const hide = (event: MouseEvent) => {
+const hide = (event?: MouseEvent) => {
   console.debug('[SelectionMonitor] hide')
   selectionMonitorStore.hide()
-  event.stopImmediatePropagation()
+  event?.stopImmediatePropagation()
 }
 
 const applyFilter = () => {
@@ -436,8 +454,44 @@ watch(
   () => monitor.type,
   () => {
     additionalFilters.value = []
+    filtersWithItems.value = []
     resetTimelineState()
   }
+)
+
+watch(
+  summaryFilters,
+  async newFilters => {
+    if (!isActive.value || !monitor.item) {
+      filtersWithItems.value = []
+      return
+    }
+    const requestId = ++filterItemsRequestId.value
+    isLoadingFilterItems.value = true
+    try {
+      const nextFiltersWithItems = await filterItemsService
+        .find({
+          query: {
+            filters: serializeFilters(newFilters)
+          }
+        })
+        .then(joinFiltersWithItems)
+      // Ignore stale responses when a newer request has already started.
+      if (requestId === filterItemsRequestId.value) {
+        filtersWithItems.value = nextFiltersWithItems
+      }
+    } catch (e) {
+      console.error('[SelectionMonitor] Failed to load filter items', e)
+      if (requestId === filterItemsRequestId.value) {
+        filtersWithItems.value = newFilters
+      }
+    } finally {
+      if (requestId === filterItemsRequestId.value) {
+        isLoadingFilterItems.value = false
+      }
+    }
+  },
+  { immediate: true }
 )
 </script>
 
