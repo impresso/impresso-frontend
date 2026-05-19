@@ -230,7 +230,6 @@ import BFormCheckbox from './legacy/bootstrap/BFormCheckbox.vue'
 import Ellipsis from './modules/Ellipsis.vue'
 import Icon from './base/Icon.vue'
 import MediaSourcePreview from './mediaSource/MediaSourcePreview.vue'
-import Topic from '@/models/Topic'
 import TopicPreview from './topics/TopicPreview.vue'
 
 interface SelectionMonitorProps {
@@ -316,22 +315,6 @@ const monitorFilters = computed<Filter[]>(() => {
 const monitorFilterExists = computed(() =>
   props.filters.some(filter => filter.type === monitor.type)
 )
-
-const isItemPreviewAvailable = computed(() => {
-  return monitor.type === 'newspaper' && monitor.item?.id
-})
-const detailsUrl = computed<RouteLocationRaw | null>(() => {
-  const id = monitorItem.value?.id
-  if (!id) return null
-
-  if (monitor.type === 'newspaper') {
-    return { name: 'newspaper_metadata', params: { newspaper_id: id } }
-  }
-  if (monitor.type === 'topic') {
-    return { name: 'topic', params: { topic_id: id } }
-  }
-  return null
-})
 
 const timelineFilters = computed<Filter[]>(() => {
   if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
@@ -511,22 +494,6 @@ watch(
 
   width: 400px;
   pointer-events: auto;
-}
-
-.SelectionMonitor.textReuseCluster,
-.SelectionMonitor.textReuseCluster {
-  width: 800px;
-  top: 100px;
-  height: calc(100% - 200px);
-  margin-top: auto;
-  margin-left: -400px;
-}
-.SelectionMonitor.textReuseClusterSize,
-.SelectionMonitor.textReuseClusterDayDelta,
-.SelectionMonitor.textReuseClusterLexicalOverlap {
-  top: 100px;
-  width: 400px;
-  margin-top: auto;
 }
 
 .SelectionMonitor_body {

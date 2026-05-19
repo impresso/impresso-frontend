@@ -10,7 +10,7 @@
       <span v-html="previewAsHtml" class="small"></span>{{ ' ' }}
       <router-link
         :to="{
-          name: 'mediaSource',
+          name: Routes.mediaSourceMetadata.name,
           params: { media_source_id: item.id }
         }"
         @click="emit('more')"
@@ -26,6 +26,7 @@ import type { Topic, MediaSource } from '@/models/generated/canonical'
 import { mediaSources as mediaSourceService } from '@/services'
 import { CategorizedProperties, getMappedProperties, getNestedProperty } from './utils'
 import DataProviderLabel from '../modules/lists/DataProviderLabel.vue'
+import { Routes } from '@/router/routes'
 
 export interface ItemPreviewProps {
   item: MediaSource | Topic

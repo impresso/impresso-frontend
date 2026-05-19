@@ -12,7 +12,7 @@ export const Routes = {
     name: 'mediaSourceOverview'
   },
   topic: {
-    path: '/topic/:topic_id',
+    path: '/topics/:topic_id',
     name: 'topic'
   }
 } as const

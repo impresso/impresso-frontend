@@ -29,7 +29,7 @@
       size="sm"
       class="TextReusePassageItem_compareBtn float-left rounded shadow-sm"
       @click="handleClusterClick"
-      >test
+    >
       {{ $t('seeTextReuseCluster') }}
     </b-button>
     <Teleport to="body">

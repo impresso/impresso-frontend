@@ -10,7 +10,7 @@
 
         <p class="m-0">
           <span v-if="item.wikidata.type === 'location'">
-            <a :href="geographicUrl" taget="_blank">{{ geoCoordinates }}</a>
+            <a :href="geographicUrl" target="_blank">{{ geoCoordinates }}</a>
           </span>
           <a
             v-if="item.wikidata.birthPlace"
