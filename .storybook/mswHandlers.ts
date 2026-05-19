@@ -376,12 +376,11 @@ export const findEmpty = (mswHandler: HttpHandler) => {
     })
   })
 }
-@@export const getTopicHandler = http.get('/api/topics/:id', async ({ params }) => {
-@@  const { id } = params
-@@  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-@@  return HttpResponse.json(MockTopic.id === id ? MockTopic : null)
-@@})
-@@
+export const getTopicHandler = http.get('/api/topics/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  return HttpResponse.json(MockTopic.id === id ? MockTopic : null)
+})
 
 export const handlers = {
   getYearFacetHandler,
