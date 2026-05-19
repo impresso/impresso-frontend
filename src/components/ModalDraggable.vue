@@ -2,7 +2,10 @@
   <div
     ref="rootRef"
     class="ModalDraggable"
-    :class="{ 'ModalDraggable--reduced': isReduced }"
+    :class="{
+      'ModalDraggable--reduced': isReduced,
+      'ModalDraggable--bounded': props.respectBoundaries
+    }"
     :style="containerStyle"
   >
     <div
@@ -134,9 +137,18 @@ const containerStyle = computed(() => {
     }
   }
 
+  const boundedStyles =
+    props.respectBoundaries && containerSize.value.width > 0 && containerSize.value.height > 0
+      ? {
+          maxWidth: `${containerSize.value.width}px`,
+          maxHeight: `${containerSize.value.height * 0.8}px`
+        }
+      : {}
+
   return {
     transform: `translate(${clampedPosition.value.x}px, ${clampedPosition.value.y}px)`,
-    zIndex: props.zIndex
+    zIndex: props.zIndex,
+    ...boundedStyles
   }
 })
 
@@ -264,8 +276,6 @@ onBeforeUnmount(() => {
 <style>
 .ModalDraggable {
   position: absolute;
-
-  touch-action: none;
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -278,6 +288,7 @@ onBeforeUnmount(() => {
 .ModalDraggable__handle {
   flex: 0 0 auto;
   cursor: grab;
+  touch-action: none;
 }
 .ModalDraggable__defaultHeader {
   width: 100%;
@@ -311,5 +322,9 @@ onBeforeUnmount(() => {
 .ModalDraggable__content {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.ModalDraggable--bounded .ModalDraggable__content {
+  overflow: auto;
 }
 </style>

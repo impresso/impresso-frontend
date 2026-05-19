@@ -1,6 +1,10 @@
 <template>
   <div class="ItemPreview">
-    <WikidataBlock v-if="loadedEntity && loadedEntity.wikidataId" :item="loadedEntity">
+    <WikidataBlock
+      v-if="loadedEntity && loadedEntity.wikidataId"
+      :item="loadedEntity"
+      class="rounded bg-light border p-2"
+    >
       <router-link
         v-if="loadedEntity.id"
         :to="{

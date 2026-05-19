@@ -45,9 +45,13 @@
         <div v-if="textReusePassages.length" class="small d-flex align-items-center m-0">
           <div
             v-html="
-              $t('textReuseLabel', {
-                n: textReusePassages.length
-              }, textReusePassages.length)
+              $t(
+                'textReuseLabel',
+                {
+                  n: textReusePassages.length
+                },
+                textReusePassages.length
+              )
             "
           />
           <info-button class="ml-2" name="text-reuse" />
@@ -149,6 +153,12 @@
         {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
       </div>
     </div>
+
+    <CompareTextReusePassageModal
+      :is-visible="isCompareTextReusePassageModalVisible"
+      :item="selectedTextReusePassageItem"
+      @dismiss="dismissCompareTextReusePassageModal"
+    />
   </div>
 </template>
 
@@ -159,6 +169,7 @@ import { articleTextReusePassages, contentItems as contentItemsService } from '@
 import ContentItem from './lists/ContentItem.vue'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import AnnotatedText from './AnnotatedText.vue'
+import CompareTextReusePassageModal from '@/components/CompareTextReusePassageModal.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import IIIFViewer from './IIIFViewer.vue'
 
@@ -171,7 +182,6 @@ import {
   getAnnotateTextTree,
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
-import TextReuseCluster from '@/models/TextReuseCluster'
 import IIIFFragment from '../IIIFFragment.vue'
 import ListOfSimilarContentItems from '../ListOfSimilarContentItems.vue'
 import Collection from '@/models/Collection'
@@ -201,7 +211,9 @@ export default {
       fitBoundsToOverlayIdx: [0, 0],
       iiifViewerMinHeight: 500,
       iiifViewerHeight: 500,
-      iiifViewerMarginTop: 20
+      iiifViewerMarginTop: 20,
+      isCompareTextReusePassageModalVisible: false,
+      selectedTextReusePassageItem: null
     } as {
       article: Article
       textReusePassages: any[]
@@ -211,6 +223,8 @@ export default {
       iiifViewerMinHeight: number
       iiifViewerHeight: number
       iiifViewerMarginTop: number
+      isCompareTextReusePassageModalVisible: boolean
+      selectedTextReusePassageItem: any | null
     }
   },
 
@@ -336,6 +350,7 @@ export default {
     ContentItem,
     ListOfSimilarContentItems,
     AnnotatedText,
+    CompareTextReusePassageModal,
     InfoButton,
     IIIFViewer,
     IIIFFragment
@@ -411,21 +426,27 @@ export default {
         )
         return
       }
-      const item = new TextReuseCluster({
-        id: trClusterId,
-        maxDate: new Date(trPassage.timeCoverage.to),
-        minDate: new Date(trPassage.timeCoverage.from),
-        clusterSize: trPassage.clusterSize,
-        lexicalOverlap: trPassage.lexicalOverlap
-      })
-      console.info('[issueViewerText] @passageSelectedHandler', item)
-      this.selectionMonitorStore.show({
-        type: 'textReuseCluster',
-        item,
-        scope: 'comparePassages',
-        applyCurrentSearchFilters: false,
-        displayCurrentSearchFilters: false
-      })
+      this.selectedTextReusePassageItem = {
+        id: trPassage.id,
+        title: trPassage.title,
+        date: trPassage.date,
+        content: trPassage.content,
+        article: {
+          id: trPassage.articleId || trPassage.article?.id
+        },
+        textReuseCluster: {
+          id: trClusterId,
+          clusterSize: trPassage.clusterSize,
+          lexicalOverlap: trPassage.lexicalOverlap,
+          timeDifferenceDay: trPassage.timeDifferenceDay
+        }
+      }
+      // Defensive: if any parallel UI path opens the selection monitor, force-close it.
+      this.selectionMonitorStore.hide()
+      this.isCompareTextReusePassageModalVisible = true
+    },
+    dismissCompareTextReusePassageModal() {
+      this.isCompareTextReusePassageModalVisible = false
     },
     clusterSelectedHandler(trClusterId: string) {
       this.$router.replace({

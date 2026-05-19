@@ -8,7 +8,6 @@
       center-on-mount
       respect-boundaries
       class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
-      :style="{ width: '400px' }"
       :title="$t('selectionMonitorTitle', { type: $t(`tabs_${monitor.type}_${monitor.scope}`) })"
       handle-class="pl-3 d-flex justify-content-between align-items-center gap-2"
     >
@@ -47,18 +46,32 @@
               class="mx-3 mb-2 text-muted"
             >
             </MediaSourcePreview>
+
             <EntityPreview
               class="mx-3 mb-2 text-muted"
-              v-else-if="
-                ['person', 'location', 'organisation', 'newsagency'].includes(monitor.type)
-              "
+              v-else-if="['person', 'location', 'organisation', 'nag'].includes(monitor.type)"
               :item="monitor.item"
               @more="hide"
             />
-            <div class="mx-3 very-small">Number of content items per year</div>
+            <TopicPreview
+              class="mx-3 mb-2 text-muted"
+              v-else-if="monitor.type === 'topic'"
+              :item="monitor.item"
+              @more="hide"
+            />
 
             <!-- timeline -->
             <div v-if="monitor.displayTimeline" class="mx-2">
+              <div
+                class="mx-3 very-small"
+                v-html="
+                  $t('timelineLabel', {
+                    count: $n(total),
+                    searchIndex: $t('searchIndexes.' + monitor.searchIndex)
+                  })
+                "
+              />
+
               <SearchFacetTimeline
                 facet-type="year"
                 :search-index="monitor.searchIndex"
@@ -97,7 +110,11 @@
                     })
                   "
               /></BFormCheckbox>
-              <BFormCheckbox switch v-model="applyCurrentSearchFilters">
+              <BFormCheckbox
+                switch
+                v-model="applyCurrentSearchFilters"
+                :disabled="!(monitor.displayTimeline && total)"
+              >
                 <span
                   v-html="
                     $t('labels.applyCurrentSearchFilters', {
@@ -133,14 +150,8 @@
             v-if="monitor.type === 'textReuseCluster'"
             class="flex-grow-1"
           />
-          <TextReusePassageMonitor
-            :filters="applyCurrentSearchFilters ? monitorFilters : []"
-            :item="monitor.item"
-            v-if="monitor.type === 'textReusePassage'"
-            class="flex-grow-1 bg-dark mt-2"
-          />
           <!-- range closeup view-->
-          <ListOfItems
+          <template
             v-if="
               [
                 'textReuseClusterLexicalOverlap',
@@ -148,29 +159,31 @@
                 'textReuseClusterSize'
               ].includes(monitor.type)
             "
-            :params="{ addons: { newspaper: 'text' } }"
-            :filters="applyCurrentSearchFilters ? monitorFilters : []"
-            :searchIndex="monitor.searchIndex"
           >
-            <template v-slot:default="props">
-              <div class="d-flex justify-content-center">
-                <TextReusePassageItem v-for="match in props.items" :key="match.id" :item="match" />
-              </div>
-            </template>
-          </ListOfItems>
-          <!-- detailed label -->
-
-          <div
-            v-else-if="['topic'].includes(monitor.type)"
-            class="mx-3 border-top border-bottom"
-            style="max-height: 150px; overflow: scroll"
-          >
-            <ItemLabel :item="monitor.item" :type="monitor.type" detailed />
-          </div>
-
-          <!-- button url  -->
-
-          <!-- end bottom -->
+            <div
+              class="mx-3 very-small border-top pt-2"
+              v-html="
+                $t('closeUpViewLabel', {
+                  searchIndex: $t('searchIndexes.' + monitor.searchIndex)
+                })
+              "
+            />
+            <ListOfItems
+              :params="{ addons: { newspaper: 'text' } }"
+              :filters="applyCurrentSearchFilters ? monitorFilters : []"
+              :searchIndex="monitor.searchIndex"
+            >
+              <template v-slot:default="props">
+                <div class="d-flex justify-content-center">
+                  <TextReusePassageItem
+                    v-for="match in props.items"
+                    :key="match.id"
+                    :item="match"
+                  />
+                </div>
+              </template>
+            </ListOfItems>
+          </template>
           <!-- actions -->
           <div class="p-3 d-flex justify-content-between" v-if="monitor.displayActionButtons">
             <button @click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
@@ -205,7 +218,6 @@ import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import EntityPreview from '@/components/entity/EntityPreview.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import ListOfItems from '@/components/ListOfItems.vue'
-import TextReusePassageMonitor from '@/components/TextReusePassageMonitor.vue'
 import ModalDraggable from '@/components/ModalDraggable.vue'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
 import type { SearchFacetTimelineState } from '@/components/SearchFacetTimeline.vue'
@@ -218,6 +230,8 @@ import BFormCheckbox from './legacy/bootstrap/BFormCheckbox.vue'
 import Ellipsis from './modules/Ellipsis.vue'
 import Icon from './base/Icon.vue'
 import MediaSourcePreview from './mediaSource/MediaSourcePreview.vue'
+import Topic from '@/models/Topic'
+import TopicPreview from './topics/TopicPreview.vue'
 
 interface SelectionMonitorProps {
   filters?: Filter[]
@@ -500,7 +514,7 @@ watch(
 }
 
 .SelectionMonitor.textReuseCluster,
-.SelectionMonitor.textReusePassage {
+.SelectionMonitor.textReuseCluster {
   width: 800px;
   top: 100px;
   height: calc(100% - 200px);
@@ -508,7 +522,6 @@ watch(
   margin-left: -400px;
 }
 .SelectionMonitor.textReuseClusterSize,
-.SelectionMonitor.textReusePassageSize,
 .SelectionMonitor.textReuseClusterDayDelta,
 .SelectionMonitor.textReuseClusterLexicalOverlap {
   top: 100px;
@@ -538,12 +551,11 @@ watch(
 
 @media (min-width: 992px) {
   .SelectionMonitor.textReuseCluster,
-  .SelectionMonitor.textReusePassage {
+  .SelectionMonitor.textReuseCluster {
     width: 800px;
     margin-left: -400px;
   }
   .SelectionMonitor.textReuseClusterSize,
-  .SelectionMonitor.textReusePassageSize,
   .SelectionMonitor.textReuseClusterDayDelta,
   .SelectionMonitor.textReuseClusterLexicalOverlap {
     width: 600px;
@@ -586,10 +598,9 @@ watch(
     "tabs_string_overview": "Text search",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
     "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
-    "tabs_textReusePassage_comparePassages": "compare text reuse passages",
-    "tabs_textReuseClusterSize_closeUp": "text reuse cluster size  - close-up view",
-    "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap  - close-up view",
-    "tabs_textReuseClusterDayDelta_closeUp": "Time span in days  - close-up view",
+    "tabs_textReuseClusterSize_closeUp": "text reuse cluster size",
+    "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap",
+    "tabs_textReuseClusterDayDelta_closeUp": "Time span in days",
     "tabs_newspaper_overview": "media source",
     "tabs_topic_overview": "topic",
     "tabs_partner_overview": "provider",
@@ -612,6 +623,8 @@ watch(
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",
     "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters",
+    "timelineLabel": "Number of {searchIndex} per year",
+    "closeUpViewLabel": "Close-up view of {searchIndex}",
     "reduceTimelineToCurrentSearchTimespan": "Limit timeline to search range ({from} - {to})",
     "error": {
       "loadingTimelineItems": "Failed to load timeline items"

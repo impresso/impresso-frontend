@@ -72,9 +72,13 @@
               :to="goToRoute({ name: 'textReuseClusters', query: { p: 1 } })"
               ><span
                 v-html="
-                  $t('routeTextReuseClusters', {
-                    n: isLoadingClusters ? '...' : $n(totalClusters)
-                  }, totalClusters)
+                  $t(
+                    'routeTextReuseClusters',
+                    {
+                      n: isLoadingClusters ? '...' : $n(totalClusters)
+                    },
+                    totalClusters
+                  )
                 "
               ></span>
             </RouterLink>
@@ -85,9 +89,13 @@
               :to="goToRoute({ name: 'textReusePassages', query: { p: 1 } })"
               ><span
                 v-html="
-                  $t('routeTextReusePassages', {
-                    n: isLoadingPassages ? '...' : $n(totalPassages)
-                  }, totalPassages)
+                  $t(
+                    'routeTextReusePassages',
+                    {
+                      n: isLoadingPassages ? '...' : $n(totalPassages)
+                    },
+                    totalPassages
+                  )
                 "
               ></span>
             </RouterLink>
@@ -364,7 +372,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
+          .find({ query: { ...query } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
@@ -582,17 +590,29 @@ export default {
     incipit() {
       if (!this.withClusters) {
         return this.$t('textReuseSummaryIncipitWithoutClusters', {
-          passages: this.$t('routeTextReusePassages', {
-            n: this.$n(this.totalPassages)
-          }, this.totalPassages)
+          passages: this.$t(
+            'routeTextReusePassages',
+            {
+              n: this.$n(this.totalPassages)
+            },
+            this.totalPassages
+          )
         })
       }
-      const passagesLabel = this.$t('routeTextReusePassages', {
-        n: this.$n(this.totalPassages)
-      }, this.totalPassages)
-      const clustersLabel = this.$t('routeTextReuseClusters', {
-        n: this.$n(this.totalClusters)
-      }, this.totalClusters)
+      const passagesLabel = this.$t(
+        'routeTextReusePassages',
+        {
+          n: this.$n(this.totalPassages)
+        },
+        this.totalPassages
+      )
+      const clustersLabel = this.$t(
+        'routeTextReuseClusters',
+        {
+          n: this.$n(this.totalClusters)
+        },
+        this.totalClusters
+      )
       return this.$t('textReuseSummaryIncipit', {
         passages: passagesLabel,
         clusters: clustersLabel

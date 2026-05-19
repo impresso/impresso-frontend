@@ -36,8 +36,8 @@
     <!--  description or other contents here -->
     <span class="wikidata-contents small" v-if="item.wikidata?.descriptions">
       <span class="text-serif px-1 mr-1 white border">W</span>
-      <em>{{ description }}</em>
-      <br />
+      {{ description }}
+
       <a
         class="small-caps"
         :href="`https://www.wikidata.org/wiki/${item.wikidata.id}`"
@@ -46,7 +46,7 @@
         <span v-html="$t('source.wikidata', { id: item.wikidata.id })" />
       </a>
     </span>
-    {{ ' ' }}
+    <br />
     <slot />
   </div>
 </template>
