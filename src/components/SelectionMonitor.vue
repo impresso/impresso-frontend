@@ -47,6 +47,14 @@
               class="mx-3 mb-2 text-muted"
             >
             </MediaSourcePreview>
+            <EntityPreview
+              class="mx-3 mb-2 text-muted"
+              v-else-if="
+                ['person', 'location', 'organisation', 'newsagency'].includes(monitor.type)
+              "
+              :item="monitor.item"
+              @more="hide"
+            />
             <div class="mx-3 very-small">Number of content items per year</div>
 
             <!-- timeline -->
@@ -59,6 +67,7 @@
                 items-class="p-0"
                 @update:state="handleTimelineStateChange"
                 :errorLoadingItemsMessage="$t('error.loadingTimelineItems')"
+                :listIsEmptyMessage="$t('timelineNoItems')"
               >
                 <template #tooltip="{ tooltip }">
                   <div v-if="tooltip.item">
@@ -150,14 +159,7 @@
             </template>
           </ListOfItems>
           <!-- detailed label -->
-          <EntityMonitor
-            v-else-if="['person', 'location', 'organisation'].includes(monitor.type)"
-            :filters="applyCurrentSearchFilters ? monitorFilters : []"
-            :id="monitor.item.id || monitor.item.id || ''"
-            :type="monitor.type"
-            :search-index="monitor.searchIndex"
-            @close="hide"
-          />
+
           <div
             v-else-if="['topic'].includes(monitor.type)"
             class="mx-3 border-top border-bottom"
@@ -200,7 +202,7 @@ import { SupportedFiltersByIndex, joinFiltersWithItems, serializeFilters } from 
 import { filtersItems as filterItemsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
-import EntityMonitor from '@/components/EntityMonitor.vue'
+import EntityPreview from '@/components/entity/EntityPreview.vue'
 import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import ListOfItems from '@/components/ListOfItems.vue'
 import TextReusePassageMonitor from '@/components/TextReusePassageMonitor.vue'
@@ -614,7 +616,8 @@ watch(
     "error": {
       "loadingTimelineItems": "Failed to load timeline items"
     },
-    "selectionMonitorTitle": "Previewing: {type}"
+    "selectionMonitorTitle": "Previewing: {type}",
+    "timelineNoItems": "No timeline items to display"
   }
 }
 </i18n>
