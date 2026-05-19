@@ -33,11 +33,11 @@
         </b-nav-item>
 
         <b-nav-item
-          :to="getRouteWithSearchQuery({ name: 'newspapers' })"
+          :to="getRouteWithSearchQuery({ name: 'sources' })"
           active-class="active"
-          title="Newspapers"
+          title="Sources"
         >
-          <span>{{ $t('label_newspapers') }}</span>
+          <span>{{ $t('label_media_sources') }}</span>
         </b-nav-item>
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{ $t('label_topics') }}</span>
@@ -753,7 +753,7 @@ export default defineComponent({
     "label_plans": "Plans",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
-    "label_newspapers": "Newspapers",
+    "label_media_sources": "Sources",
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_entities": "Entities",

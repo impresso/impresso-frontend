@@ -265,6 +265,7 @@ const router = createRouter({
     {
       path: '/sources',
       name: 'sources',
+      alias: '/media-sources',
       component: () => import('@/pages/SourcesOverviewPage.vue'),
       meta: {
         requiresAuth: false

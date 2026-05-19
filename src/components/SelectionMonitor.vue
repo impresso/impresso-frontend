@@ -31,7 +31,7 @@
             <!-- if this is a range filter, allow to modify it with input text fields -->
             <SelectionMonitorFilter
               v-if="isRangeMonitorType"
-              :filter="additionalFilters.length ? additionalFilters[0] : monitorFilter"
+              :filter="additionalFilters.length ? additionalFilters[0] : monitorItemAsFilter"
               @changeFilter="handleChangeFilter"
               class="border p-2 rounded"
             />
@@ -59,7 +59,6 @@
               :item="monitor.item"
               @more="hide"
             />
-
             <!-- timeline -->
             <div v-if="monitor.displayTimeline" class="mx-2">
               <div
@@ -75,7 +74,7 @@
               <SearchFacetTimeline
                 facet-type="year"
                 :search-index="monitor.searchIndex"
-                :filters="timelineFilters"
+                :filters="monitorFilters"
                 :domain="timelineDomain"
                 items-class="p-0"
                 @update:state="handleTimelineStateChange"
@@ -118,7 +117,7 @@
                 <span
                   v-html="
                     $t('labels.applyCurrentSearchFilters', {
-                      count: supportedFilters.length
+                      count: currentSearchFilters.length
                     })
                   "
                 />
@@ -145,7 +144,7 @@
           <!-- end top -->
           <!-- bottom -->
           <TextReuseClusterMonitor
-            :filters="applyCurrentSearchFilters ? monitorFilters : []"
+            :filters="monitorFilters"
             :item="monitor.item"
             v-if="monitor.type === 'textReuseCluster'"
             class="flex-grow-1"
@@ -170,7 +169,7 @@
             />
             <ListOfItems
               :params="{ addons: { newspaper: 'text' } }"
-              :filters="applyCurrentSearchFilters ? monitorFilters : []"
+              :filters="monitorFilters"
               :searchIndex="monitor.searchIndex"
             >
               <template v-slot:default="props">
@@ -189,7 +188,7 @@
             <button @click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
               {{
                 $t(
-                  monitorFilterExists
+                  shouldUpdateCurrentSearchFilters
                     ? 'actions.updateCurrentFilters'
                     : 'actions.addToCurrentFilters'
                 )
@@ -209,7 +208,6 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { RouteLocationRaw } from 'vue-router'
 import type { Filter } from '@/models'
 import { SupportedFiltersByIndex, joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import { filtersItems as filterItemsService } from '@/services'
@@ -233,6 +231,7 @@ import MediaSourcePreview from './mediaSource/MediaSourcePreview.vue'
 import TopicPreview from './topics/TopicPreview.vue'
 
 interface SelectionMonitorProps {
+  /* This list of filters represent the current search filters */
   filters?: Filter[]
   startYear?: number
   endYear?: number
@@ -261,7 +260,7 @@ const timelineStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const applyCurrentSearchFilters = ref(false)
 const applyCurrentSearchTimespan = ref(false) // separate ref to avoid unnecessary timeline re-fetch when toggling the checkbox (since the timeline only depends on monitorFilters, not on applyCurrentSearchFilters directly)
 const additionalFilters = ref<Filter[]>([])
-const filtersWithItems = ref<Filter[]>([])
+
 const isLoadingFilterItems = ref(false)
 const filterItemsRequestId = ref(0)
 
@@ -272,78 +271,68 @@ const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.typ
 // Previously this was inlined inside monitorFilter, causing FilterFactory.create() to
 // be called on every computed that touched monitorFilter (monitorFilters, timelineFilters,
 // summaryFilters, displayFilters) — even when monitor.item hadn't changed.
+const monitorType = computed(() => monitor.type)
 const monitorItem = computed(() => monitor.item as { id?: string; q?: string | string[] } | null)
 
-// Stable memoization of the filter built from the current monitor item.
-// FilterFactory.create() is now called exactly once per monitor.item / monitor.type change,
-// not once per downstream consumer per reactive update.
-const monitorFilter = computed<Filter>(() => {
+const monitorItemAsFilter = computed<Filter | null>(() => {
+  if (!monitorItem.value) {
+    return null
+  }
   const item = monitorItem.value
   const query = Array.isArray(item?.q)
     ? item.q.map(value => String(value))
     : [String(item?.q ?? item?.id ?? '')]
 
   return FilterFactory.create({
-    type: monitor.type,
+    type: monitorType.value,
     q: query,
     items: item ? [item] : []
   }) as Filter
 })
 
-// Memoized separately from monitorFilters so the merge with additionalFilters /
-// monitorFilter doesn't invalidate whenever supportedFilters hasn't actually changed.
-// Previously supportedFilters was re-evaluated inside monitorFilters on every call.
-const supportedFilters = computed(() => {
-  const availableFilters = SupportedFiltersByIndex[monitor.searchIndex] ?? []
-  return props.filters.filter(filter => availableFilters.includes(filter.type))
+const shouldUpdateCurrentSearchFilters = computed(() => {
+  if (!monitorItemAsFilter.value) {
+    return false
+  }
+  const currentFilterOfSameType = props.filters?.find(
+    filter => filter.type === monitorItemAsFilter.value.type
+  )
+  if (!currentFilterOfSameType) {
+    return false
+  }
+  // update (replace) the existing filter of the same type if there is one, instead of adding a new one
+  return true
+})
+const initialSearchFilters = computed<Filter[]>(() => {
+  return monitor.initialSearchFilters || []
 })
 
-// otherFilters: the part of monitorFilters that does NOT depend on additionalFilters or
-// monitorFilter. By separating it, a change to additionalFilters no longer re-runs the
-// supportedFilters scan — it only re-runs the cheap concat at the end.
-const otherFilters = computed<Filter[]>(() =>
-  supportedFilters.value.filter(filter => filter.type !== monitor.type)
-)
+const currentSearchFilters = computed<Filter[]>(() => {
+  const availableFilterTypes = SupportedFiltersByIndex[monitor.searchIndex] ?? []
+  return props.filters.filter(filter => availableFilterTypes.includes(filter.type))
+})
 
 const monitorFilters = computed<Filter[]>(() => {
-  if (additionalFilters.value.length) {
-    return otherFilters.value.concat(additionalFilters.value)
-  }
-  return otherFilters.value.concat(monitorFilter.value)
-})
-
-const monitorFilterExists = computed(() =>
-  props.filters.some(filter => filter.type === monitor.type)
-)
-
-const timelineFilters = computed<Filter[]>(() => {
+  const availableFilterTypes = SupportedFiltersByIndex[monitor.searchIndex] ?? []
+  let baseFilters: Filter[] = []
   if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
-    return monitorFilters.value
+    baseFilters = [...currentSearchFilters.value]
   }
-  if (!applyCurrentSearchFilters.value && monitor.item) {
-    return [monitorFilter.value]
+  if (initialSearchFilters.value.length) {
+    baseFilters = baseFilters.concat(initialSearchFilters.value)
   }
-  return []
+  return baseFilters
+    .concat([monitorItemAsFilter.value])
+    .filter((filter): filter is Filter => !!filter && availableFilterTypes.includes(filter.type))
 })
-
-// displayFilters moved before summaryFilters (it was referenced before being defined).
-// It is also the stable base used by summaryFilters and the watch below, so keeping
-// it earlier in the file makes the dependency order explicit.
-const displayFilters = computed<Filter[]>(() =>
-  additionalFilters.value.length ? additionalFilters.value : [monitorFilter.value]
-)
-
-const summaryFilters = computed<Filter[]>(() => {
-  if (monitor.displayCurrentSearchFilters && applyCurrentSearchFilters.value) {
-    return monitorFilters.value
-  }
-  return displayFilters.value
-})
+const monitorFiltersWithItems = ref<Filter[]>([])
 
 // summaryFiltersWithFallback had a single consumer (searchQuery). Inlining it removes
 // one reactive node from the dependency graph and makes the data flow easier to follow.
 const searchQuery = computed(() => ({
-  filters: filtersWithItems.value.length ? filtersWithItems.value : summaryFilters.value
+  filters: monitorFiltersWithItems.value.length
+    ? monitorFiltersWithItems.value
+    : monitorFilters.value
 }))
 
 const statsLabelKey = computed(() => {
@@ -412,19 +401,19 @@ const hide = (event?: MouseEvent) => {
 }
 
 const applyFilter = () => {
-  if (!monitorFilterExists.value) {
+  if (!shouldUpdateCurrentSearchFilters.value) {
     emit('change', monitorFilters.value)
     return
   }
 
-  const baseFilters = props.filters.filter(filter => filter.type !== monitorFilter.value.type)
+  const baseFilters = props.filters.filter(filter => filter.type !== monitorType.value)
 
-  if (additionalFilters.value.length) {
-    emit('change', baseFilters.concat(additionalFilters.value))
+  if (initialSearchFilters.value.length) {
+    emit('change', baseFilters.concat(initialSearchFilters.value))
     return
   }
 
-  emit('change', baseFilters.concat(monitorFilter.value))
+  emit('change', baseFilters.concat(monitorItemAsFilter.value))
 }
 
 watch(
@@ -439,21 +428,21 @@ watch(
   () => monitor.type,
   () => {
     additionalFilters.value = []
-    filtersWithItems.value = []
+    monitorFiltersWithItems.value = []
     resetTimelineState()
   }
 )
 
-// Watch gated on isActive + monitor.item so the async fetch only fires when the
+// Watch gated on isActive + monitorFilters so the async fetch only fires when the
 // monitor is actually open and has something to display. Previously it ran
 // immediately on mount (even with isActive=false) because immediate:true was set
 // and there was no isActive guard — this could trigger a network request before
 // the panel was ever shown.
 watch(
-  [isActive, summaryFilters],
+  [isActive, monitorFilters],
   async ([active], _old, onCleanup) => {
-    if (!active || !monitor.item) {
-      filtersWithItems.value = []
+    if (!active || !monitorItem.value) {
+      monitorFiltersWithItems.value = []
       return
     }
 
@@ -466,16 +455,16 @@ watch(
     isLoadingFilterItems.value = true
     try {
       const nextFiltersWithItems = await filterItemsService
-        .find({ query: { filters: serializeFilters(summaryFilters.value) } })
+        .find({ query: { filters: serializeFilters(monitorFilters.value) } })
         .then(joinFiltersWithItems)
 
       if (!cancelled && requestId === filterItemsRequestId.value) {
-        filtersWithItems.value = nextFiltersWithItems
+        monitorFiltersWithItems.value = nextFiltersWithItems
       }
     } catch (e) {
       console.error('[SelectionMonitor] Failed to load filter items', e)
       if (!cancelled && requestId === filterItemsRequestId.value) {
-        filtersWithItems.value = summaryFilters.value
+        monitorFiltersWithItems.value = monitorFilters.value
       }
     } finally {
       if (!cancelled && requestId === filterItemsRequestId.value) {
@@ -592,7 +581,7 @@ watch(
     "itemStatsFiltered": "<b class='number'>{count}</b> {searchIndex} using current search filters",
     "timelineLabel": "Number of {searchIndex} per year",
     "closeUpViewLabel": "Close-up view of {searchIndex}",
-    "reduceTimelineToCurrentSearchTimespan": "Limit timeline to search range ({from} - {to})",
+    "reduceTimelineToCurrentSearchTimespan": "Zoom to search results range ({from} - {to})",
     "error": {
       "loadingTimelineItems": "Failed to load timeline items"
     },

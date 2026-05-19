@@ -5,7 +5,12 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import { buildEmptyFacets } from '@/logic/facets'
+import {
+  buildEmptyFacets,
+  SearchDecimalFacetTypes,
+  SearchDynamicFacetTypes,
+  SearchStandardFacetTypes
+} from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
 import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
@@ -24,24 +29,24 @@ interface Props {
   onFiltersChanged?: (newFilters: Array<any>) => void
 }
 
-const FacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'partner',
-  // 'year',
-  'contentLength',
-  'copyright',
-  'sourceType',
-  'sourceMedium',
-  // DPFS facets
-  'person',
-  'location',
-  'nag',
-  'organisation',
-  'topic'
-] satisfies FacetType[]
+//  [
+//   'language',
+//   'newspaper',
+//   'type',
+//   'country',
+//   'partner',
+//   // 'year',
+//   'contentLength',
+//   'copyright',
+//   'sourceType',
+//   'sourceMedium',
+//   // DPFS facets
+//   'person',
+//   'location',
+//   'nag',
+//   'organisation',
+//   'topic'
+// ] satisfies FacetType[]
 
 const props = withDefaults(defineProps<Props>(), {
   filters: () => [],
@@ -115,10 +120,11 @@ watch(
   async newVal => {
     isLoading.value = true
     totalResults.value = 0
+    const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
     const facetsItems = await searchFacetsService
       .find({
         query: {
-          facets: FacetTypes,
+          facets: SearchStandardFacetTypes,
           filters: newVal
         }
       })
@@ -133,7 +139,7 @@ watch(
         }
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = [...timelineFacets, ...facetsItems]
+    facets.value = [...timelineFacets, ...decimalRangeFacets, ...facetsItems]
     const statsItems = await statsService.find({
       query: {
         facet: 'newspaper',
@@ -205,7 +211,7 @@ watch(
 )
 
 onMounted(() => {
-  facets.value = buildEmptyFacets(FacetTypes)
+  facets.value = []
 })
 </script>
 
