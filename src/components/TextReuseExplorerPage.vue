@@ -66,7 +66,7 @@
               ><span>{{ $t('routeTextReuseStatistics') }}</span>
             </RouterLink>
           </li> -->
-          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseClusters' }">
+          <!-- TEMPORARILY HIDDEN <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseClusters' }">
             <RouterLink
               class="nav-link"
               :to="goToRoute({ name: 'textReuseClusters', query: { p: 1 } })"
@@ -82,7 +82,7 @@
                 "
               ></span>
             </RouterLink>
-          </li>
+          </li> -->
           <li class="nav-item pl-2" :class="{ active: $route.name === 'textReusePassages' }">
             <RouterLink
               class="nav-link"
@@ -372,7 +372,7 @@ export default {
 
       try {
         const [clusters, total] = await textReusePassages
-          .find({ query: { ...query } })
+          .find({ query: { ...query, group_by: 'textReuseClusterId' } })
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
