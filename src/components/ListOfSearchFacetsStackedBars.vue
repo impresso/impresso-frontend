@@ -72,7 +72,13 @@ export interface ListOfSearchFacetsStackedBarsProps {
 }
 
 export interface BarItemClickPayload {
-  event: unknown
+  event: {
+    params: {
+      item: {
+        id: string
+      }
+    }
+  }
   facetType: FacetType
 }
 
