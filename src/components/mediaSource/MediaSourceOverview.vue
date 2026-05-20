@@ -13,7 +13,9 @@
 </template>
 <script setup lang="ts">
 import type { MediaSource } from '@/models/generated/canonical'
-import ListOfSearchFacetsStackedBars from '../ListOfSearchFacetsStackedBars.vue'
+import ListOfSearchFacetsStackedBars, {
+  BarItemClickPayload
+} from '../ListOfSearchFacetsStackedBars.vue'
 import { computed } from 'vue'
 import type { Filter } from '@/models'
 import LoadingBlock from '../LoadingBlock.vue'
@@ -35,19 +37,7 @@ const filters = computed<Filter[]>(() => {
   ]
 })
 
-const onBarItemClick = ({
-  event,
-  facetType
-}: {
-  event: {
-    params: {
-      item: {
-        id: string
-      }
-    }
-  }
-  facetType: string
-}) => {
+const onBarItemClick = ({ event, facetType }: BarItemClickPayload) => {
   console.debug('Bar item clicked:', { event, facetType })
   selectionMonitorStore.show({
     item: event.params.item,
