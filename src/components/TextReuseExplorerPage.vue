@@ -12,8 +12,27 @@
           </h3>
         </template>
         <template #summary>
-          <Ellipsis class="textbox-fancy text-serif" :initialHeight="60" :maxHeight="0">
-            <span v-html="incipit" />{{ ' ' }}
+          <Ellipsis :initialHeight="60" :maxHeight="0">
+            <span
+              v-html="
+                $t('textReuseSummaryIncipit', {
+                  passages: $t(
+                    'tabs.textReusePassages',
+                    {
+                      n: this.isLoadingPassages ? '...' : $n(this.totalPassages)
+                    },
+                    this.totalPassages
+                  ),
+                  clusters: $t(
+                    'tabs.textReuseClusters',
+                    {
+                      n: this.isLoadingClusters ? '...' : $n(this.totalClusters)
+                    },
+                    this.totalClusters
+                  )
+                })
+              "
+            />{{ ' ' }}
             <SearchQuerySummary
               class="d-inline"
               v-on:updated="summaryUpdatedHandler"
@@ -54,52 +73,30 @@
 
       <b-tabs pills class="mx-3">
         <template v-slot:tabs-end>
-          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseOverview' }">
-            <RouterLink
-              class="nav-link"
-              :to="goToRoute({ name: 'textReuseOverview', query: { p: 1 } })"
-              ><span>{{ $t('routeTextReuseOverview') }}</span>
-            </RouterLink>
-          </li>
-          <!-- hidden temporarily <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseStatistics' }">
-            <RouterLink class="nav-link" :to="goToRoute({ name: 'textReuseStatistics' })"
-              ><span>{{ $t('routeTextReuseStatistics') }}</span>
-            </RouterLink>
-          </li> -->
-          <!-- TEMPORARILY HIDDEN <li class="nav-item pl-2" :class="{ active: $route.name === 'textReuseClusters' }">
-            <RouterLink
-              class="nav-link"
-              :to="goToRoute({ name: 'textReuseClusters', query: { p: 1 } })"
-              ><span
+          <li
+            class="nav-item pl-2"
+            v-for="routeName in ['textReuseOverview', 'textReuseClusters', 'textReusePassages']"
+            :class="{ active: $route.name === routeName }"
+          >
+            <RouterLink class="nav-link" :to="goToRoute({ name: routeName, query: { p: 1 } })">
+              <span
                 v-html="
                   $t(
-                    'routeTextReuseClusters',
-                    {
-                      n: isLoadingClusters ? '...' : $n(totalClusters)
-                    },
-                    totalClusters
+                    `tabs.${routeName}`,
+                    routeName === 'textReuseClusters'
+                      ? {
+                          n: isLoadingClusters ? '...' : $n(totalClusters)
+                        }
+                      : {
+                          n: isLoadingPassages ? '...' : $n(totalPassages)
+                        },
+                    routeName === 'textReuseClusters' ? totalClusters : totalPassages
                   )
                 "
-              ></span>
-            </RouterLink>
-          </li> -->
-          <li class="nav-item pl-2" :class="{ active: $route.name === 'textReusePassages' }">
-            <RouterLink
-              class="nav-link"
-              :to="goToRoute({ name: 'textReusePassages', query: { p: 1 } })"
-              ><span
-                v-html="
-                  $t(
-                    'routeTextReusePassages',
-                    {
-                      n: isLoadingPassages ? '...' : $n(totalPassages)
-                    },
-                    totalPassages
-                  )
-                "
-              ></span>
+              />
             </RouterLink>
           </li>
+
           <li class="navbar-text p-0 d-flex align-items-center ml-3"></li>
         </template>
       </b-tabs>
@@ -314,10 +311,6 @@ export default {
     filters: {
       type: Array,
       default: () => []
-    },
-    withClusters: {
-      type: Boolean,
-      default: true
     }
   },
   data: () => ({
@@ -413,37 +406,6 @@ export default {
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     },
-    // UNUSED CODE
-    // handleTextReusePassageClick(passage) {
-    //   // eslint-disable-next-line
-    //   console.debug('[TextReuseExplorer] handleTextReusePassageClick', passage)
-    //   if (typeof passage.textReuseCluster?.id !== 'string') {
-    //     console.warn(
-    //       '[TextReuseExplorer] handleTextReusePassageClick \n - no textReuseCluster.id found in passage:',
-    //       passage
-    //     )
-    //     return
-    //   }
-    //   // filter exists, update it
-    //   const filterExists = this.filters.some(({ type }) => type === 'textReuseCluster')
-    //   const trcFilter = FilterFactory.create({
-    //     type: 'textReuseCluster',
-    //     q: passage.textReuseCluster.id
-    //   })
-    //   if (filterExists) {
-    //     this.handleFiltersChanged(
-    //       this.filters.map(filter => {
-    //         if (filter.type === 'textReuseCluster') {
-    //           return trcFilter
-    //         }
-    //         return filter
-    //       })
-    //     )
-    //     return
-    //   } else {
-    //     this.handleFiltersChanged([...this.filters, trcFilter])
-    //   }
-    // },
     handleAddToCollectionClick(item) {
       // eslint-disable-next-line
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
@@ -587,37 +549,7 @@ export default {
         hash: JSON.stringify(query).split('').sort().join('')
       }
     },
-    incipit() {
-      if (!this.withClusters) {
-        return this.$t('textReuseSummaryIncipitWithoutClusters', {
-          passages: this.$t(
-            'routeTextReusePassages',
-            {
-              n: this.$n(this.totalPassages)
-            },
-            this.totalPassages
-          )
-        })
-      }
-      const passagesLabel = this.$t(
-        'routeTextReusePassages',
-        {
-          n: this.$n(this.totalPassages)
-        },
-        this.totalPassages
-      )
-      const clustersLabel = this.$t(
-        'routeTextReuseClusters',
-        {
-          n: this.$n(this.totalClusters)
-        },
-        this.totalClusters
-      )
-      return this.$t('textReuseSummaryIncipit', {
-        passages: passagesLabel,
-        clusters: clustersLabel
-      })
-    },
+
     base64Filters() {
       return new SearchQuery({
         filters: this.filters
@@ -652,10 +584,12 @@ export default {
     "textReuse": "Text Reuse",
     "textReuseSummaryIncipit": "{passages} in {clusters}",
     "textReuseSummaryIncipitWithoutClusters": "{passages}",
-    "routeTextReuseClusters": "no clusters | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
-    "routeTextReusePassages": "no passages | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages",
-    "routeTextReuseOverview": "overview",
-    "routeTextReuseStatistics": "statistics",
+    "tabs": {
+      "textReuseStatistics": "Statistics",
+      "textReuseOverview": "Overview",
+      "textReuseClusters": "(no clusters) | <span class='number'>1</span> cluster | <span class='number'>{n}</span> clusters",
+      "textReusePassages": "(no passages) | view <span class='number'>1</span> passage | view <span class='number'>{n}</span> passages"
+    },
     "query_add_to_collection": "Create new collection",
     "no_collections_found": "No collections found",
     "addTrQueryResultsToCollection": "Save articles to collection",
