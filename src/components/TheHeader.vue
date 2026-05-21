@@ -31,36 +31,6 @@
             </b-badge>
           </transition> -->
         </b-nav-item>
-
-        <b-nav-item
-          :to="getRouteWithSearchQuery({ name: 'sources' })"
-          active-class="active"
-          title="Sources"
-        >
-          <span>{{ $t('label_media_sources') }}</span>
-        </b-nav-item>
-        <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
-          <span>{{ $t('label_topics') }}</span>
-        </b-nav-item> -->
-        <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
-          <span>{{$t("label_entities")}}</span>
-        </b-nav-item -->
-        <b-nav-item
-          :to="{ name: 'compare', query: { left: searchQueryHash } }"
-          active-class="active"
-          title="Inspect & Compare"
-        >
-          <span>{{ $t('label_compare') }}</span>
-        </b-nav-item>
-
-        <b-nav-item
-          v-if="textReuseEnabled"
-          :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
-          active-class="active"
-          title="Text reuse"
-        >
-          <span>{{ $t('label_text_reuse') }}</span>
-        </b-nav-item>
         <li class="nav-item">
           <RouterLink class="nav-link" to="/plans">
             <span>
@@ -68,6 +38,63 @@
             </span>
           </RouterLink>
         </li>
+        <BDropdown class="px-2 text-white">
+          <template v-slot:button-content>
+            <span class="text-white">{{ $t('label_tools') }}</span>
+          </template>
+          <li class="px-2">
+            <RouterLink
+              :to="getRouteWithSearchQuery({ name: 'sources' })"
+              active-class="active"
+              title="Sources"
+              class="nav-link"
+            >
+              <span>{{ $t('label_media_sources') }}</span>
+            </RouterLink>
+          </li>
+          <li class="px-2">
+            <RouterLink
+              :to="{ name: 'compare', query: { left: searchQueryHash } }"
+              active-class="active"
+              title="Inspect & Compare"
+              class="nav-link"
+            >
+              <span>{{ $t('label_compare') }}</span></RouterLink
+            >
+          </li>
+
+          <li class="px-2">
+            <RouterLink
+              v-if="textReuseEnabled"
+              :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
+              active-class="active"
+              title="Text reuse"
+              class="nav-link"
+            >
+              <span>{{ $t('label_text_reuse') }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
+        <BDropdown class="px-2">
+          <template v-slot:button-content>
+            <span class="text-white">{{ $t('label_faq') }}</span>
+          </template>
+          <li class="px-2">
+            <RouterLink :to="{ name: 'faq' }" active-class="active" class="nav-link px-2">
+              <span class="text-white">{{ $t('label_documentation') }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
+
+        <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
+          <span>{{ $t('label_topics') }}</span>
+        </b-nav-item> -->
+        <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
+          <span>{{$t("label_entities")}}</span>
+        </b-nav-item -->
+      </b-navbar-nav>
+
+      <b-navbar-nav class="ml-auto">
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -75,12 +102,6 @@
           <span class="badge border border-accent rounded">{{
             $t('connectivityStatus.online')
           }}</span>
-        </b-nav-item>
-      </b-navbar-nav>
-
-      <b-navbar-nav class="ml-auto">
-        <b-nav-item :to="{ name: 'faq' }" active-class="active">
-          <span>{{ $t('label_faq') }}</span>
         </b-nav-item>
         <b-nav-item
           v-if="user"
@@ -592,7 +613,7 @@ export default defineComponent({
 }
 
 #app-header .navbar-dark .b-nav-dropdown.show {
-  background: var(--clr-grey-100) !important;
+  background: var(--clr-grey-200) !important;
 }
 
 #app-header .navbar-dark .b-nav-dropdown.show > a {
@@ -753,7 +774,7 @@ export default defineComponent({
     "label_plans": "Plans",
     "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
     "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
-    "label_media_sources": "Sources",
+    "label_media_sources": "Media sources",
     "label_explore": "explore...",
     "label_topics": "Topics",
     "label_entities": "Entities",
@@ -762,8 +783,10 @@ export default defineComponent({
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_current_search": "browse results ...",
     "label_faq": "Documentation",
+    "label_documentation": "Impresso Web App Documentation",
     "label_terms": "Terms of Use",
-    "label_jobs": "Tasks"
+    "label_jobs": "Tasks",
+    "label_tools": "Sources, Tools..."
   }
 }
 </i18n>
