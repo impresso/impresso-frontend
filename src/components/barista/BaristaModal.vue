@@ -20,6 +20,74 @@
           {{ $t('new chat') }}
           <Icon name="dots" class="ms-1" :scale="0.25" :stroke-width="5" />
         </button>
+        <div class="dropdown" ref="conversationsDropdownRef">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+            @click="toggleConversationsDropdown"
+          >
+            {{ $t('conversations') }}
+            <Icon name="chevron-down" :scale="0.6" />
+          </button>
+          <ul
+            v-if="conversationsDropdownOpen"
+            class="dropdown-menu show shadow-sm"
+            style="max-height: 300px; overflow-y: auto; min-width: 220px"
+          >
+            <li v-if="conversationsLoading" class="dropdown-item text-muted small">
+              {{ $t('loading') }}…
+            </li>
+            <li v-else-if="!conversations.length" class="dropdown-item text-muted small">
+              {{ $t('no conversations') }}
+            </li>
+            <li v-for="conv in conversations" :key="conv.baristaSessionId">
+              <button
+                type="button"
+                class="dropdown-item small d-flex flex-column align-items-start"
+                @click="selectConversation(conv.baristaSessionId)"
+              >
+                <span class="text-truncate" style="max-width: 240px">{{ conv.label }}</span>
+                <span class="text-muted" style="font-size: 0.75em">{{ relativeTime(conv.dateLastModified) }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+        <template v-if="baristaStore.currentConversation">
+          <span
+            v-if="!editingTitle"
+            class="small text-muted text-truncate"
+            style="max-width: 200px; cursor: pointer"
+            :title="$t('click to rename')"
+            @click="startEditingTitle"
+            >{{ baristaStore.currentConversation.label }}</span
+          >
+          <div v-else class="d-flex align-items-center gap-1">
+            <input
+              ref="titleInputRef"
+              v-model="titleDraft"
+              type="text"
+              class="form-control form-control-sm"
+              style="width: 180px"
+              @keydown.enter="saveTitle"
+              @keydown.esc="cancelEditingTitle"
+            />
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              :disabled="savingTitle"
+              @click="saveTitle"
+            >
+              {{ $t('save') }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              @click="cancelEditingTitle"
+            >
+              {{ $t('cancel') }}
+            </button>
+          </div>
+        </template>
       </div>
       <button
         type="button"
@@ -75,9 +143,11 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
 import type { Filter } from 'impresso-jscommons'
 import BaristaChat from './BaristaChat.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters, toCanonicalFilter } from '@/logic/filters'
+import type { BaristaConversation } from '@/services/types/baristaConversations'
+import { relativeTime } from '@/util/time'
 import Icon from '../base/Icon.vue'
 import { useBaristaStore } from '@/stores/barista'
 
@@ -92,9 +162,73 @@ const props = withDefaults(defineProps<BaristaModalProps>(), {
 })
 const baristaStore = useBaristaStore()
 
+
+const conversations = ref<BaristaConversation[]>([])
+const conversationsLoading = ref(false)
+const conversationsDropdownOpen = ref(false)
+const conversationsDropdownRef = ref<HTMLElement | null>(null)
+
+async function toggleConversationsDropdown() {
+  conversationsDropdownOpen.value = !conversationsDropdownOpen.value
+  if (conversationsDropdownOpen.value) {
+    conversationsLoading.value = true
+    try {
+      const result = await baristaStore.getConversations()
+      conversations.value = result.data
+    } finally {
+      conversationsLoading.value = false
+    }
+  }
+}
+
+async function selectConversation(sessionId: string) {
+  conversationsDropdownOpen.value = false
+  await baristaStore.loadConversation(sessionId)
+}
+
+function handleClickOutside(event: MouseEvent) {
+  if (
+    conversationsDropdownRef.value &&
+    !conversationsDropdownRef.value.contains(event.target as Node)
+  ) {
+    conversationsDropdownOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
+
+const editingTitle = ref(false)
+const titleDraft = ref('')
+const savingTitle = ref(false)
+const titleInputRef = ref<HTMLInputElement | null>(null)
+
+function startEditingTitle() {
+  titleDraft.value = baristaStore.currentConversation?.label ?? ''
+  editingTitle.value = true
+  nextTick(() => titleInputRef.value?.focus())
+}
+
+function cancelEditingTitle() {
+  editingTitle.value = false
+}
+
+async function saveTitle() {
+  const conv = baristaStore.currentConversation
+  if (!conv || !titleDraft.value.trim()) return
+  savingTitle.value = true
+  try {
+    await baristaStore.editConversationTitle(conv.baristaSessionId, titleDraft.value.trim())
+    conv.label = titleDraft.value.trim()
+    editingTitle.value = false
+  } finally {
+    savingTitle.value = false
+  }
+}
+
 const resetChat = () => {
   console.debug('[BaristaModal] Reset chat requested')
-  baristaStore.clearMessages()
+  baristaStore.createNewSession()
 }
 const hasMessages = computed(() => baristaStore.messages.length > 0)
 const handleUpdateHeight = (height: number) => {
@@ -168,7 +302,13 @@ function dismiss() {
 {
   "en": {
     "baristaTitle": "Ask Barista",
-    "BaristaModalTitle": "Ask Barista"
+    "BaristaModalTitle": "Ask Barista",
+    "conversations": "Conversations",
+    "no conversations": "No conversations yet",
+    "loading": "Loading",
+    "click to rename": "Click to rename",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }
 </i18n>

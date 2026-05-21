@@ -14,7 +14,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
-import { barista as baristaService } from '@/services'
 import {
   type ChatMessage,
   type BaristaMessageItem,
@@ -122,7 +121,7 @@ const convertBaristaMessageToChat = (
     const structuredContent =
       sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQuerySummary
 
-    const toolCallId = message.source?.['tool_call_id'] as string | undefined
+    const toolCallId = message.toolCallId
 
     return {
       content: structuredContent ?? `[${message.name}] ${message.content}`,
@@ -147,26 +146,16 @@ const convertBaristaMessageToChat = (
 
 // State for messages
 const messages = ref<ChatMessage[]>([])
-const isLoading = ref(false)
 
 // Handler for sending messages
 const handleMessageSubmit = async (request: BaristaRequest) => {
   if (!request.message.trim()) return
-  // Add user message to panel using baristaStore
-  baristaStore.addMessage(
-    {
-      content: request.message,
-      type: 'human'
-    },
-    true
-  )
-
-  isLoading.value = true
-  baristaStore.setIsWorking(true)
+  if (!request.sessionId) {
+    throw new Error('Session ID is required to send a message to Barista.')
+  }
 
   try {
-    // Send message to barista service
-    await baristaService.create(request)
+    await baristaStore.sendMessage(request)
     emit('submit', request)
   } catch (error) {
     console.error(
@@ -175,17 +164,6 @@ const handleMessageSubmit = async (request: BaristaRequest) => {
       error.type,
       error.message
     )
-    // Add error message
-    baristaStore.addMessage(
-      {
-        content: 'Sorry, there was an error processing your message.',
-        type: 'ai'
-      },
-      true
-    )
-    baristaStore.setIsWorking(false)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -193,6 +171,17 @@ const handleUpdateHeight = (height: number) => {
   console.debug('[BaristaChat] Chat height updated:', height)
   emit('updateHeight', height)
 }
+
+function rebuildMessages() {
+  messages.value = baristaStore.messages
+    .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
+    .filter((msg): msg is ChatMessage => msg != null)
+}
+
+watch(
+  () => baristaStore.sessionId,
+  () => rebuildMessages()
+)
 
 // Watch for new socket messages and add them to the chat
 watch(
@@ -226,25 +215,13 @@ watch(
   }
 )
 
-// Initialize with a welcome message
 onMounted(() => {
-  if (!baristaStore.messages.length) {
-    baristaStore.addMessage(
-      {
-        content:
-          'Hello! I am Barista, I can serve you a query search and listen to your prompts. Tell me what you would like to find! I can also help you understanding better the Impresso ecosystem, just ask.',
-        type: 'ai'
-      },
-      true
-    )
-  } else {
+  if (baristaStore.messages.length) {
     console.debug(
       '[BaristaChat] Initializing chat with existing messages from store.',
       baristaStore.messages.length
     )
-    messages.value = baristaStore.messages
-      .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
-      .filter((msg): msg is ChatMessage => msg != null)
+    rebuildMessages()
   }
 })
 </script>
