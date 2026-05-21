@@ -7,7 +7,10 @@
       :withDash="false"
     />
     <blockquote class="border px-2 py-1 mt-2 rounded bg-light">
-      <span v-html="previewAsHtml" class="small"></span>{{ ' ' }}
+      <span v-html="title" class="small"></span>{{ ' ' }}
+      <span v-for="{ label, value } in labelsAndValues" :key="label" class="small">
+        &middot; <strong>{{ $t(`metadata.${label}`) }}:</strong> {{ value }} </span
+      >{{ ' ' }}
       <router-link
         :to="{
           name: Routes.mediaSourceMetadata.name,
@@ -71,14 +74,13 @@ const title = computed(() => {
   )
 })
 
-const previewAsHtml = computed(() => {
+const labelsAndValues = computed<{ label: string; value: string }[]>(() => {
   if (!loadedMediaSource.value) {
-    return ''
+    return []
   }
 
   const paths = [
     'identity.title',
-    'identity.longTitle',
     'identity.longTitle',
     'identity.subtitle',
     'identity.description',
@@ -86,18 +88,20 @@ const previewAsHtml = computed(() => {
     'production.publisher'
   ]
   // Build a compact preview by reading values from configured metadata paths.
-  const values = paths
-    .flatMap(path => {
+  const values: { label: string; value: string }[] = paths
+    .map(path => {
       const pathValue = getNestedProperty(mappedMetadataProperties.value, path)
       if (!pathValue) {
-        return []
+        return null
       }
-      return Array.isArray(pathValue) ? pathValue : [String(pathValue)]
+      const values = Array.isArray(pathValue) ? pathValue : [String(pathValue)]
+      return {
+        label: path,
+        value: values.map((v: string) => v.trim()).join(', ')
+      }
     })
-    .map(value => value.trim())
-    .filter(Boolean)
-
-  return title.value + ' · ' + values.join(' · ')
+    .filter(d => d && d.value.length > 0)
+  return values
 })
 
 const dataProviderId = computed(() => {
@@ -128,3 +132,24 @@ async function fetchMediaSource() {
 
 watch(() => props.item.id, fetchMediaSource, { immediate: true })
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "metadata": {
+      "identity": {
+        "title": "Title",
+        "longTitle": "Long Title",
+        "subtitle": "Subtitle",
+        "description": ""
+      },
+      "production": {
+        "founder": "Founder",
+        "publisher": "Publisher"
+      }
+    },
+    "actions": {
+      "more": "more..."
+    }
+  }
+}
+</i18n>
