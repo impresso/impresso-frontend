@@ -10,9 +10,15 @@ import FilterDaterange from '@/models/FilterDaterange'
 import FilterCollection from '@/models/FilterCollection'
 import { Filter } from 'impresso-jscommons'
 
-type FilterData = Record<string, unknown> & { type: string; key?: string; items?: unknown[] }
+type FilterData = Omit<Partial<Filter>, 'type' | 'q'> & {
+  type: string
+  q?: unknown
+  key?: string
+  items?: unknown[]
+  getHash?: unknown
+}
 
-const buildFilter = (filterData: any): Filter => {
+const buildFilter = (filterData: any | Filter): Filter => {
   let filter = { ...filterData }
 
   if (filterData.type === 'mention') {
@@ -98,11 +104,12 @@ const filterFactory = {
    * @param filterData - Plain object describing the filter.
    * @returns A fully constructed Filter instance.
    */
-  create(filterData: FilterData): Filter {
-    const filter = buildFilter(filterData)
+  create(filterData: Filter | FilterData): Filter {
+    const source = filterData as Partial<FilterData>
+    const filter = buildFilter(source)
 
     if ((filter as FilterData).getHash != null) {
-      ;(filter as FilterData).key = filterData.key ?? v4()
+      ;(filter as FilterData).key = source.key ?? v4()
     }
 
     return filter

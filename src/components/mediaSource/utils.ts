@@ -41,11 +41,52 @@ const propertiesByCategories: Record<(typeof Categories)[number], string[]> = {
   ]
 }
 
-const urlsToHtml = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g
-  return text.replace(urlRegex, url => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-  })
+const escapeHtml = (value: string): string => {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+const escapeHtmlAttribute = (value: string): string => {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+}
+
+const isSafeHttpUrl = (value: string): boolean => {
+  try {
+    const parsed = new URL(value)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+export const urlsToHtml = (text: string): string => {
+  const urlRegex = /https?:\/\/[^\s<>"']+/gi
+  let result = ''
+  let lastIndex = 0
+
+  for (const match of text.matchAll(urlRegex)) {
+    if (match.index === undefined) {
+      continue
+    }
+
+    const matchedUrl = match[0]
+    result += escapeHtml(text.slice(lastIndex, match.index))
+
+    if (isSafeHttpUrl(matchedUrl)) {
+      result += `<a href="${escapeHtmlAttribute(matchedUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(matchedUrl)}</a>`
+    } else {
+      result += escapeHtml(matchedUrl)
+    }
+
+    lastIndex = match.index + matchedUrl.length
+  }
+
+  result += escapeHtml(text.slice(lastIndex))
+  return result
 }
 
 export const getMappedProperties = (

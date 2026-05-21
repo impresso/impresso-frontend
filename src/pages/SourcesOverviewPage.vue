@@ -330,7 +330,7 @@ onMounted(() => {
               <SearchResultsSummary
                 :isLoading="isLoading"
                 group-by="articles"
-                :search-query="{ filters: filtersWithItems }"
+                :search-query="{ filters: allowedFiltersWithItems }"
                 :totalRows="totalContentItems"
               >
                 <template #beforeSummary>

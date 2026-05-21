@@ -1,7 +1,7 @@
 <template>
   <section
     class="SearchResultsSummary search-results-summary border-tertiary"
-    :class="{ loading: isLoading }"
+    :class="{ loading: props.isLoading }"
   >
     <slot name="beforeSummary">
       <span
@@ -23,8 +23,9 @@
                 props.totalRows
               )
         "
-      /> </slot
-    >{{ ' ' }}
+      />
+    </slot>
+    {{ ' ' }}
     <SearchQuerySummary
       class="d-inline"
       :search-query="searchQuery"

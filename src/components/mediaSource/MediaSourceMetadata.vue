@@ -50,6 +50,7 @@ import { MediaSource } from '@/models/generated/canonical'
 import { computed } from 'vue'
 import LoadingBlock from '../LoadingBlock.vue'
 import Icon from 'impresso-ui-components/components/Icon.vue'
+import { urlsToHtml } from './utils'
 
 export interface MediaSourceMetadataProps {
   mediaSource?: MediaSource
@@ -91,13 +92,6 @@ const propertiesByCategories: Record<(typeof Categories)[number], string[]> = {
     'permalink',
     'institutionPortal'
   ]
-}
-
-const urlsToHtml = (text: string) => {
-  const urlRegex = /(https?:\/\/[^\s]+)/g
-  return text.replace(urlRegex, url => {
-    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-  })
 }
 
 const institutionLogosSrc = computed<string[]>(() => {

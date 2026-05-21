@@ -17,7 +17,7 @@
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
-      <div><label className="small-caps">top words in topic</label></div>
+      <div><label class="small-caps">top words in topic</label></div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
       <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
         <span>{{ word.w }}</span>

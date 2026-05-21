@@ -6,7 +6,7 @@
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ props.dataValues[tooltip.idx]?.label }}
           </h4>
-          <div className="small-caps my-1">press</div>
+          <div class="small-caps my-1">press</div>
           <div class="mb-0">
             {{ $d(tooltip.currentDate, 'year') }} &mdash;
             <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
@@ -16,7 +16,7 @@
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
           </h4>
-          <div className="small-caps my-1">press</div>
+          <div class="small-caps my-1">press</div>
           <div v-if="tooltip.currentDate">
             <div class="mb-2">
               {{ $d(tooltip.currentDate, 'year') }} &mdash;

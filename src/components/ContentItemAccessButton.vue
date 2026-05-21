@@ -1,6 +1,6 @@
 <template>
   <button
-    className="btn btn-link small"
+    class="btn btn-link small"
     @click="getSpecialMembershipAccess"
     :disabled="isLoading || isModalVisible"
   >

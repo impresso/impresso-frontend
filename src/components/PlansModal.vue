@@ -27,11 +27,11 @@
         <div class="row position-sticky top-0 bg-light" style="z-index: 1">
           <div class="col-lg-2"></div>
           <div class="col py-3 d-flex align-items-end" v-for="plan in plans" :key="plan.id">
-            <h2 className="m-0 font-size-inherit  font-weight-bold">
+            <h2 class="m-0 font-size-inherit font-weight-bold">
               {{ plan.title }}
               <div
                 v-if="userPlan === plan.id"
-                className="badge d-block small-caps mt-2 shadow-sm bg-primary text-white"
+                class="badge d-block small-caps mt-2 shadow-sm bg-primary text-white"
               >
                 current plan
               </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="row">
           <div class="col">
-            <h3 className="font-size-inherit font-weight-medium mt-2">{{ $t('Requirements') }}</h3>
+            <h3 class="font-size-inherit font-weight-medium mt-2">{{ $t('Requirements') }}</h3>
           </div>
         </div>
         <div
