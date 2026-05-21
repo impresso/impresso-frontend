@@ -50,12 +50,34 @@ const mappedMetadataProperties = computed(() => {
   return getMappedProperties(loadedMediaSource.value.properties)
 })
 
+const title = computed(() => {
+  if (!loadedMediaSource.value) {
+    return '...'
+  }
+  if (!Array.isArray(loadedMediaSource.value?.properties)) {
+    return loadedMediaSource.value.name
+  }
+  const startYear = loadedMediaSource.value.properties
+    .find(prop => prop.id === 'firstPubYear')
+    ?.value?.trim()
+  const endYear = loadedMediaSource.value.properties
+    .find(prop => prop.id === 'lastPubYear')
+    ?.value?.trim()
+
+  return (
+    loadedMediaSource.value.name +
+    (startYear ? ` (${startYear}` : '') +
+    (endYear ? ` - ${endYear})` : startYear ? ')' : '')
+  )
+})
+
 const previewAsHtml = computed(() => {
   if (!loadedMediaSource.value) {
     return ''
   }
 
   const paths = [
+    'identity.title',
     'identity.longTitle',
     'identity.longTitle',
     'identity.subtitle',
@@ -75,7 +97,7 @@ const previewAsHtml = computed(() => {
     .map(value => value.trim())
     .filter(Boolean)
 
-  return values.join(' · ')
+  return title.value + ' · ' + values.join(' · ')
 })
 
 const dataProviderId = computed(() => {

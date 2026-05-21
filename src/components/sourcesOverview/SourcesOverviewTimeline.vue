@@ -3,15 +3,20 @@
     <slot name="tooltip">
       <Tooltip :tooltip="tooltip" :style="{ zIndex: 10 }">
         <div v-if="!tooltip.dataValue && tooltip.currentDate">
-          <div class="mb-0">{{ $d(tooltip.currentDate, 'year') }} &mdash;</div>
-          <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
-          {{ props.dataValues[tooltip.idx]?.label }} of {{ props.dataValues.length }}
+          <h4 class="text-white font-weight-bold font-size-inherit mb-0">
+            {{ props.dataValues[tooltip.idx]?.label }}
+          </h4>
+          <div className="small-caps my-1">press</div>
+          <div class="mb-0">
+            {{ $d(tooltip.currentDate, 'year') }} &mdash;
+            <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
+          </div>
         </div>
         <div v-if="tooltip.dataValue">
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
           </h4>
-          <div className="small-caps mb-1">press</div>
+          <div className="small-caps my-1">press</div>
           <div v-if="tooltip.currentDate">
             <div class="mb-2">
               {{ $d(tooltip.currentDate, 'year') }} &mdash;

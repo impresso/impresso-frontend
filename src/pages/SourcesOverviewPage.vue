@@ -5,12 +5,7 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import {
-  buildEmptyFacets,
-  SearchDecimalFacetTypes,
-  SearchDynamicFacetTypes,
-  SearchStandardFacetTypes
-} from '@/logic/facets'
+import { buildEmptyFacets, SearchDecimalFacetTypes, SearchStandardFacetTypes } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import FacetModel, { FacetType } from '@/models/Facet'
 import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
@@ -53,7 +48,9 @@ const props = withDefaults(defineProps<Props>(), {
   filtersWithItems: () => [],
   onFiltersChanged: () => {}
 })
-
+const allowedFilters = computed(() => {
+  return props.filters.filter(({ type }) => SupportedFiltersByContext.search.includes(type))
+})
 const allowedFiltersWithItems = computed(() => {
   return props.filtersWithItems.filter(({ type }) =>
     SupportedFiltersByContext.search.includes(type)
@@ -116,10 +113,11 @@ const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
 watch(
-  () => props.filters,
+  allowedFilters,
   async newVal => {
     isLoading.value = true
     totalResults.value = 0
+
     const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
     const facetsItems = await searchFacetsService
       .find({
