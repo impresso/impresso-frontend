@@ -25,12 +25,16 @@
     >
       {{ $t('seeTextReuseCluster') }}
     </b-button>
+    <CompareTextReusePassageModal
+      :is-visible="isCompareTextReusePassageModalVisible"
+      :item="textReusePassageItem"
+      @dismiss="dismissCompareTextReusePassageModal"
+    />
   </div>
 </template>
 
 <script>
-import { mapStores } from 'pinia'
-import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import CompareTextReusePassageModal from '@/components/CompareTextReusePassageModal.vue'
 
 import TextReusePassageItemLabel from './TextReusePassageItemLabel.vue'
 import Ellipsis from '../Ellipsis.vue'
@@ -38,6 +42,7 @@ import Ellipsis from '../Ellipsis.vue'
 export default {
   name: 'ClusterItem',
   components: {
+    CompareTextReusePassageModal,
     TextReusePassageItemLabel,
     Ellipsis
   },
@@ -51,30 +56,23 @@ export default {
       type: Object
     }
   },
+  data() {
+    return {
+      isCompareTextReusePassageModalVisible: false
+    }
+  },
   methods: {
-    handleClusterClick() {
-      // <ItemSelector
-      //     :id="item.textReuseCluster.id"
-      //     :item="item.textReuseCluster"
-      //     type="textReuseCluster"
-      //     context="textReuse"
-      //   >
-      //     {{ $t('seeTextReuseCluster') }}
-      //   </ItemSelector>
-      this.selectionMonitorStore.show({
-        type: 'textReusePassage',
-        item: this.textReusePassageItem,
-        context: 'textReuse',
-        scope: 'comparePassages',
-        applyCurrentSearchFilters: false,
-        displayTimeline: false,
-        displayActionButtons: false,
-        displayCurrentSearchFilters: false
-      })
+    handleClusterClick(event) {
+      this.isCompareTextReusePassageModalVisible = true
+      if (event) {
+        event.stopPropagation()
+      }
+    },
+    dismissCompareTextReusePassageModal() {
+      this.isCompareTextReusePassageModalVisible = false
     }
   },
   computed: {
-    ...mapStores(useSelectionMonitorStore),
     textReusePassageItem() {
       return {
         id: this.item.textSampleArticle.id,
@@ -103,19 +101,31 @@ export default {
       }
     },
     textReuseClusterSummary() {
-      const clusterSizeLabel = this.$t('numbers.clusterSize', {
-        n: this.$n(this.item.clusterSize)
-      }, this.item.clusterSize)
-      const lexicalOverlapLabel = this.$t('numbers.lexicalOverlap', {
-        n: this.$n(Math.round(this.item.lexicalOverlap * 100) / 100)
-      }, this.item.lexicalOverlap)
+      const clusterSizeLabel = this.$t(
+        'numbers.clusterSize',
+        {
+          n: this.$n(this.item.clusterSize)
+        },
+        this.item.clusterSize
+      )
+      const lexicalOverlapLabel = this.$t(
+        'numbers.lexicalOverlap',
+        {
+          n: this.$n(Math.round(this.item.lexicalOverlap * 100) / 100)
+        },
+        this.item.lexicalOverlap
+      )
 
       return this.$t('textReuseClusterSummary', {
         clusterSize: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$t('numbers.days', {
-          n: this.item.timeDifferenceDay
-        }, this.item.timeDifferenceDay)
+        timespan: this.$t(
+          'numbers.days',
+          {
+            n: this.item.timeDifferenceDay
+          },
+          this.item.timeDifferenceDay
+        )
       })
     }
   }

@@ -12,10 +12,12 @@
       {{ $t(`buckets.${itemType}.${item.id}`) }}
     </span>
     <span v-else v-html="computedLabel"></span>
+    <!-- detailed type -->
+    <span v-if="itemType === 'newspaper'" class="small-caps">{{ ' ' }}&middot; newspaper</span>
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
-      <div><label className="small-caps">top words in topic</label></div>
+      <div><label class="small-caps">top words in topic</label></div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
       <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
         <span>{{ word.w }}</span>
@@ -60,7 +62,9 @@ export default defineComponent({
     },
     computedLabel() {
       let t = ''
-      if (this.type === 'textReuseCluster') {
+      if (this.item.label) {
+        t = this.item.label
+      } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'textReusePassage') {
         t = this.getTextReusePassageSummary(this.item)
@@ -74,7 +78,7 @@ export default defineComponent({
           'imageContentType'
         ].includes(this.type)
       ) {
-        t = this.item.label ?? this.item.id
+        t = this.item.id
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
@@ -93,15 +97,23 @@ export default defineComponent({
       }
       const clusterSizeLabel =
         item.clusterSize != null
-          ? this.$t('numbers.clusterSize', {
-              n: this.$n(item.clusterSize)
-            }, item.clusterSize)
+          ? this.$t(
+              'numbers.clusterSize',
+              {
+                n: this.$n(item.clusterSize)
+              },
+              item.clusterSize
+            )
           : 'size'
       const lexicalOverlapLabel =
         item.lexicalOverlap != null
-          ? this.$t('numbers.lexicalOverlap', {
-              n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
-            }, item.lexicalOverlap)
+          ? this.$t(
+              'numbers.lexicalOverlap',
+              {
+                n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
+              },
+              item.lexicalOverlap
+            )
           : ''
       let dates = []
       if (!item.maxDate || !item.minDate) {
@@ -128,9 +140,13 @@ export default defineComponent({
         textSampleExcerpt: item.textSampleExcerpt,
         size: clusterSizeLabel,
         lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$t('numbers.days', {
-          n: this.$n(item.timeDifferenceDay)
-        }, item.timeDifferenceDay),
+        timespan: this.$t(
+          'numbers.days',
+          {
+            n: this.$n(item.timeDifferenceDay)
+          },
+          item.timeDifferenceDay
+        ),
         dates: dates.join(' - ')
       })
     },

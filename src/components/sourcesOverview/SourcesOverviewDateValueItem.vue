@@ -103,6 +103,10 @@ const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
   backgroundColor: 'purple'
 })
 
+const emit = defineEmits<{
+  (e: 'itemClick', payload: { event: MouseEvent; dataValue: DataValue }): void
+}>()
+
 const nestedDataValues = computed(() => {
   return props.dataValue.dataValues || []
 })
@@ -142,7 +146,7 @@ const yScale = computed(() => {
 })
 const onClick = (event: MouseEvent) => {
   event.stopPropagation()
-  console.log('Clicked on', props.dataValue)
+  emit('itemClick', { event, dataValue: props.dataValue })
 }
 </script>
 <style>

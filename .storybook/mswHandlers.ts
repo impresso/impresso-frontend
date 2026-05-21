@@ -12,6 +12,7 @@ import {
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
+import { MockTopic } from './mockData/topics'
 
 export const findSearchFacetsHandler = http.get(
   '/api/search-facets/search',
@@ -375,6 +376,11 @@ export const findEmpty = (mswHandler: HttpHandler) => {
     })
   })
 }
+export const getTopicHandler = http.get('/api/topics/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  return HttpResponse.json(MockTopic.id === id ? MockTopic : null)
+})
 
 export const handlers = {
   getYearFacetHandler,

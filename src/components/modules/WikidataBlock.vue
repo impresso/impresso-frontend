@@ -1,16 +1,16 @@
 <template lang="html">
-  <div class="wikidata-block bg-dark p-2">
+  <div class="wikidata-block">
     <div class="wikidata-head d-flex mb-2 align-items-center">
       <div class="images mr-2" v-if="preferredImage">
         <div class="image" :style="imageStyle(preferredImage)" />
       </div>
-      <div class="labels" v-if="item.wikidata">
+      <div class="labels small" v-if="item.wikidata">
         <strong>{{ title }}</strong> ({{ item.wikidata.id }})
         <span class="small-caps">{{ $t(`types.${item.wikidata.type}`) }}</span>
 
-        <p>
+        <p class="m-0">
           <span v-if="item.wikidata.type === 'location'">
-            <a :href="geographicUrl" taget="_blank">{{ geoCoordinates }}</a>
+            <a :href="geographicUrl" target="_blank">{{ geoCoordinates }}</a>
           </span>
           <a
             v-if="item.wikidata.birthPlace"
@@ -34,10 +34,10 @@
       </div>
     </div>
     <!--  description or other contents here -->
-    <div class="wikidata-contents" v-if="item.wikidata?.descriptions">
+    <span class="wikidata-contents small" v-if="item.wikidata?.descriptions">
       <span class="text-serif px-1 mr-1 white border">W</span>
-      <em>{{ description }}</em>
-      <br />
+      {{ description }}
+
       <a
         class="small-caps"
         :href="`https://www.wikidata.org/wiki/${item.wikidata.id}`"
@@ -45,7 +45,9 @@
       >
         <span v-html="$t('source.wikidata', { id: item.wikidata.id })" />
       </a>
-    </div>
+    </span>
+    <br />
+    <slot />
   </div>
 </template>
 
@@ -62,7 +64,7 @@ export default {
     },
     thumbnailSize: {
       type: Number,
-      default: 80
+      default: 50
     }
   },
   computed: {

@@ -257,7 +257,19 @@
             "title": "Why are search filters limited on ngram trends?",
             "summary": "Currently, the ngram trends page on the Impresso platform has limited search filtering options.",
             "description": [
-              "<p>You can use any of the filter facets e.g. for newspapers, collections, or topics. But you cannot directly narrow down results by applying additional keyword queries to filter ngram frequencies.</p> "
+              "<p>You can use any of the filter facets e.g. for newspapers, collections, or topics. But you cannot directly narrow down results by applying additional keyword queries to filter ngram frequencies.</p> ",
+              "<p>Ngram trends are calculated on aggregated word frequencies, which means that some advanced search filters available in other parts of the Impresso Web App are not supported on this page.</p>"
+            ]
+          },
+          {
+            "id": "how-search-work-with-search-filters",
+            "title": "Why are search filters limited on search results?",
+            "summary": "Some search filters are only available for specific types of searches, such as image search or text reuse.",
+            "description": [
+              "<p>If you applied filters related to Search Image or Text Reuse, they may not work in the general search results page because these filters are specific to those tools.</p>",
+              "<p>To use image-specific filters, go to the <strong>Search Images</strong> page in the Impresso Web App. These filters are only supported there.</p>",
+              "<p>To use text reuse filters, open the <strong>Text Reuse</strong> page in the Impresso Web App. Filters related to text reuse analysis are limited to this section.</p>",
+              "<p>General search results currently support only the standard search facets and filters available for content item transcript searches.</p>"
             ]
           },
           {

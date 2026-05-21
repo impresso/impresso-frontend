@@ -5,9 +5,14 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import { buildEmptyFacets } from '@/logic/facets'
+import {
+  buildEmptyFacets,
+  SearchDecimalFacetTypes,
+  SearchDynamicFacetTypes,
+  SearchStandardFacetTypes
+} from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
-import FacetModel, { FacetType } from '@/models/Facet'
+import FacetModel from '@/models/Facet'
 import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
@@ -16,6 +21,8 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
 import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -23,31 +30,33 @@ interface Props {
   onFiltersChanged?: (newFilters: Array<any>) => void
 }
 
-const FacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'partner',
-  // 'year',
-  'contentLength',
-  'copyright',
-  'sourceType',
-  'sourceMedium',
-  // DPFS facets
-  'person',
-  'location',
-  'nag',
-  'organisation',
-  'topic'
-] satisfies FacetType[]
+//  [
+//   'language',
+//   'newspaper',
+//   'type',
+//   'country',
+//   'partner',
+//   // 'year',
+//   'contentLength',
+//   'copyright',
+//   'sourceType',
+//   'sourceMedium',
+//   // DPFS facets
+//   'person',
+//   'location',
+//   'nag',
+//   'organisation',
+//   'topic'
+// ] satisfies FacetType[]
 
 const props = withDefaults(defineProps<Props>(), {
   filters: () => [],
   filtersWithItems: () => [],
   onFiltersChanged: () => {}
 })
-
+const allowedFilters = computed(() => {
+  return props.filters.filter(({ type }) => SupportedFiltersByContext.search.includes(type))
+})
 const allowedFiltersWithItems = computed(() => {
   return props.filtersWithItems.filter(({ type }) =>
     SupportedFiltersByContext.search.includes(type)
@@ -86,6 +95,20 @@ const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
+const selectionMonitorStore = useSelectionMonitorStore()
+
+const handleTooltipClick = (pos: TooltipPosition) => {
+  const item = dataValues.value[pos.idx]
+  if (item) {
+    selectionMonitorStore.show({
+      item,
+      searchIndex: 'search',
+      type: 'newspaper',
+      applyCurrentSearchFilters: true,
+      displayCurrentSearchFilters: true
+    })
+  }
+}
 
 const handleScrollUpdate = (updated: TooltipPosition) => {
   tooltipPosition.value = updated
@@ -96,14 +119,17 @@ const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
 watch(
-  () => props.filters,
+  allowedFilters,
   async newVal => {
     isLoading.value = true
     totalResults.value = 0
+
+    const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
+    const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
     const facetsItems = await searchFacetsService
       .find({
         query: {
-          facets: FacetTypes,
+          facets: SearchStandardFacetTypes,
           filters: newVal
         }
       })
@@ -118,7 +144,7 @@ watch(
         }
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = [...timelineFacets, ...facetsItems]
+    facets.value = [...timelineFacets, ...dynamicFacets, ...decimalRangeFacets, ...facetsItems]
     const statsItems = await statsService.find({
       query: {
         facet: 'newspaper',
@@ -190,7 +216,7 @@ watch(
 )
 
 onMounted(() => {
-  facets.value = buildEmptyFacets(FacetTypes)
+  facets.value = []
 })
 </script>
 
@@ -300,24 +326,33 @@ onMounted(() => {
             </b-dropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="60">
-              <div v-if="isLoading">Loading...</div>
-              <div v-else>
-                <span
-                  v-html="
-                    $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
-                  "
-                ></span>
-                {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
-                <span
-                  v-html="
-                    $t('dates.fromTo', {
-                      from: $d(minStartDate, 'short'),
-                      to: $d(maxEndDate, 'short')
-                    })
-                  "
-                ></span>
-              </div>
+            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
+              <SearchResultsSummary
+                :isLoading="isLoading"
+                group-by="articles"
+                :search-query="{ filters: allowedFiltersWithItems }"
+                :totalRows="totalContentItems"
+              >
+                <template #beforeSummary>
+                  <div v-if="isLoading">Loading...</div>
+                  <div v-else>
+                    <span
+                      v-html="
+                        $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
+                      "
+                    ></span>
+                    {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
+                    <span
+                      v-html="
+                        $t('dates.fromTo', {
+                          from: $d(minStartDate, 'short'),
+                          to: $d(maxEndDate, 'short')
+                        })
+                      "
+                    ></span>
+                  </div>
+                </template>
+              </SearchResultsSummary>
             </Ellipsis>
           </template>
         </PageNavbarHeading>
@@ -335,11 +370,10 @@ onMounted(() => {
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
+        @tooltip-click="handleTooltipClick"
       />
-      <div class="position-absolute top-0 end-0 p-2">
+      <div class="position-absolute top-0 right-0 left-0 bottom-0 pointer-events-none">
         <SourceOverviewNavigator
-          :initialX="20"
-          :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
           :z-index="1040"

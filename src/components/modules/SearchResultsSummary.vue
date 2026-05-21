@@ -1,28 +1,30 @@
 <template>
   <section
     class="SearchResultsSummary search-results-summary border-tertiary"
-    :class="{ loading: isLoading }"
+    :class="{ loading: props.isLoading }"
   >
-    <span
-      v-html="
-        props.isLoading
-          ? $t(`loading.${props.groupBy}`)
-          : $t(
-              'incipit',
-              {
-                n: $n(props.totalRows),
-                groupByLabel: $t(
-                  `numbers.${props.groupBy}`,
-                  {
-                    n: $n(props.totalRows)
-                  },
-                  props.totalRows
-                )
-              },
-              props.totalRows
-            )
-      "
-    />
+    <slot name="beforeSummary">
+      <span
+        v-html="
+          props.isLoading
+            ? $t(`loading.${props.groupBy}`)
+            : $t(
+                'incipit',
+                {
+                  n: $n(props.totalRows),
+                  groupByLabel: $t(
+                    `numbers.${props.groupBy}`,
+                    {
+                      n: $n(props.totalRows)
+                    },
+                    props.totalRows
+                  )
+                },
+                props.totalRows
+              )
+        "
+      />
+    </slot>
     {{ ' ' }}
     <SearchQuerySummary
       class="d-inline"
