@@ -83,6 +83,11 @@ export type components = {
              * @description The reasoning content of the LLM response.
              */
             reasoningContent?: string | null;
+            /**
+             * Sessionid
+             * @description Session ID for the conversation.
+             */
+            sessionId: string;
             /** @description Structured response from Barista agent. */
             structuredResponse?: components["schemas"]["BaristaFormattedResponse"] | null;
             /**
@@ -105,6 +110,11 @@ export type components = {
              * @description The content of the error message.
              */
             content: string;
+            /**
+             * Sessionid
+             * @description Session ID for the conversation.
+             */
+            sessionId: string;
             /**
              * Type
              * @description The type of the message.
@@ -163,6 +173,11 @@ export type components = {
             /** @description The search query context included with the human message, if any. */
             searchQuery?: components["schemas"]["Filters"] | null;
             /**
+             * Sessionid
+             * @description Session ID for the conversation.
+             */
+            sessionId: string;
+            /**
              * Suggestedconversationtitle
              * @description A suggested title for the conversation.
              */
@@ -205,7 +220,7 @@ export type components = {
              * Sessionid
              * @description Session ID for the conversation.
              */
-            sessionId?: string | null;
+            sessionId?: string;
         };
         /** BaristaResponse */
         BaristaResponse: {
@@ -252,6 +267,11 @@ export type components = {
              * @description The name of the tool used.
              */
             name: string;
+            /**
+             * Sessionid
+             * @description Session ID for the conversation.
+             */
+            sessionId: string;
             /**
              * Status
              * @description The status of the tool execution.
