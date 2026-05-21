@@ -36,6 +36,8 @@
               :content="sessionIdTooltipContent"
               :is-html="true"
               class="session-id-tooltip-hint very-small text-muted"
+              style="cursor: pointer"
+              @click.stop="copySessionId"
             >
               <Icon name="info" :scale="0.6" :strokeWidth="2" />
             </WithTooltip>
@@ -183,6 +185,10 @@ function handleSubmit() {
     agentType: selectedAgentType.value
   })
   inputMessage.value = ''
+}
+
+function copySessionId() {
+  navigator.clipboard.writeText(baristaStore.sessionId)
 }
 
 function updateHeight() {

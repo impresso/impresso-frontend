@@ -26,7 +26,7 @@ const meta = {
       const baristaStore = useBaristaStore()
       const scrollContainer = ref<HTMLElement | null>(null)
 
-      baristaStore.clearMessages()
+      baristaStore.createNewSession()
 
       const timers = []
       const mockStream = () => {
@@ -103,6 +103,7 @@ const MockBaristaPayloads = [
     type: 'chunk',
     data: [
       {
+        sessionId: 'test-session',
         type: 'ai',
         content: '',
         reasoningContent:
