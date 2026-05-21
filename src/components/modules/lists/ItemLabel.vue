@@ -62,7 +62,9 @@ export default defineComponent({
     },
     computedLabel() {
       let t = ''
-      if (this.type === 'textReuseCluster') {
+      if (this.item.label) {
+        t = this.item.label
+      } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'textReusePassage') {
         t = this.getTextReusePassageSummary(this.item)
@@ -76,7 +78,7 @@ export default defineComponent({
           'imageContentType'
         ].includes(this.type)
       ) {
-        t = this.item.label ?? this.item.id
+        t = this.item.id
       } else if (typeof this.item.name === 'string' && this.item.name.length) {
         t = this.item.name
       } else {
