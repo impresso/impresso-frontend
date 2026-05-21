@@ -19,11 +19,13 @@ export interface BaristaStoreMessage {
   message: BaristaMessageItem
 }
 
+const newSessionId = () => `iwa-${crypto.randomUUID()}`
+
 export const useBaristaStore = defineStore('barista', () => {
   /** Ordered list of all messages in the current session. */
   const messages = ref<BaristaStoreMessage[]>([])
   /** Unique identifier for the current conversation session, sent with every request. */
-  const sessionId = ref<string>(crypto.randomUUID())
+  const sessionId = ref<string>(newSessionId())
   /** True while a request has been sent and the stream has not yet signalled completion. */
   const isWorking = ref(false)
   /** When true, the current search filters are included in outgoing requests. */
@@ -43,7 +45,7 @@ export const useBaristaStore = defineStore('barista', () => {
   const lastFilters = computed(() => lastFiltersReceived.value)
 
   function addMessage(message: BaristaMessageItem, isLast: boolean) {
-    messages.value.push({ id: crypto.randomUUID(), timestamp: new Date(), isLast, message })
+    messages.value.push({ id: newSessionId(), timestamp: new Date(), isLast, message })
   }
 
   /**
@@ -76,7 +78,7 @@ export const useBaristaStore = defineStore('barista', () => {
    */
   function createNewSession() {
     messages.value = []
-    sessionId.value = crypto.randomUUID()
+    sessionId.value = newSessionId()
     currentConversation.value = undefined
   }
 
@@ -101,7 +103,7 @@ export const useBaristaStore = defineStore('barista', () => {
     const conversation = await baristaConversationsService.get(id)
     currentConversation.value = conversation
     messages.value = conversation.messages.map(msg => ({
-      id: crypto.randomUUID(),
+      id: newSessionId(),
       timestamp: new Date(),
       isLast: true,
       message: msg
