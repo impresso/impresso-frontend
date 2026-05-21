@@ -29,11 +29,14 @@
           <section>
             <!-- title -->
             <!-- if this is a range filter, allow to modify it with input text fields -->
-            <SelectionMonitorFilter
+            <SelectionMonitorFilterRange
               v-if="isRangeMonitorType"
-              :filter="additionalFilters.length ? additionalFilters[0] : monitorItemAsFilter"
+              :filter="monitorItemAsFilter"
               @changeFilter="handleChangeFilter"
-              class="border p-2 rounded"
+              class="border border-dark p-2 rounded"
+              :step="monitor.itemFilterRangeStep"
+              :min="monitor.itemFilterRangeMin"
+              :max="monitor.itemFilterRangeMax"
             />
             <h2 class="mx-3 my-2" v-if="monitor.item">
               <ItemLabel :item="monitor.item" :type="monitor.type" />
@@ -70,7 +73,6 @@
                   })
                 "
               />
-
               <SearchFacetTimeline
                 facet-type="year"
                 :search-index="monitor.searchIndex"
@@ -185,14 +187,12 @@
           </template>
           <!-- actions -->
           <div class="p-3 d-flex justify-content-between" v-if="monitor.displayActionButtons">
-            <button @click.prevent.stop="applyFilter" class="btn btn-sm btn-outline-primary">
-              {{
-                $t(
-                  shouldUpdateCurrentSearchFilters
-                    ? 'actions.updateCurrentFilters'
-                    : 'actions.addToCurrentFilters'
-                )
-              }}
+            <button
+              @click.prevent.stop="applyFilter"
+              :disabled="shouldUpdateCurrentSearchFilters"
+              class="btn btn-sm btn-outline-primary"
+            >
+              {{ $t('actions.addToCurrentFilters') }}
             </button>
             <button @click.prevent.stop="hide" class="btn btn-sm btn-outline-primary">
               {{ $t('actions.close') }}
@@ -220,7 +220,7 @@ import ModalDraggable from '@/components/ModalDraggable.vue'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
 import type { SearchFacetTimelineState } from '@/components/SearchFacetTimeline.vue'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
-import SelectionMonitorFilter from '@/components/SelectionMonitorFilter.vue'
+import SelectionMonitorFilterRange from '@/components/SelectionMonitorFilterRange.vue'
 import TextReuseClusterMonitor from '@/components/TextReuseClusterMonitor.vue'
 import TextReusePassageItem from '@/components/modules/lists/TextReusePassageItem.vue'
 import type { TimelineValue } from '@/logic/facets'
@@ -246,6 +246,8 @@ const emit = defineEmits<{
 }>()
 
 const rangeMonitorTypes = [
+  'ocrQuality',
+  'contentLength',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
   'textReuseClusterSize'
@@ -259,7 +261,6 @@ const timelineValues = ref<TimelineValue[]>([])
 const timelineStatus = ref<'idle' | 'loading' | 'success' | 'error'>('idle')
 const applyCurrentSearchFilters = ref(false)
 const applyCurrentSearchTimespan = ref(false) // separate ref to avoid unnecessary timeline re-fetch when toggling the checkbox (since the timeline only depends on monitorFilters, not on applyCurrentSearchFilters directly)
-const additionalFilters = ref<Filter[]>([])
 
 const isLoadingFilterItems = ref(false)
 const filterItemsRequestId = ref(0)
@@ -274,9 +275,13 @@ const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.typ
 const monitorType = computed(() => monitor.type)
 const monitorItem = computed(() => monitor.item as { id?: string; q?: string | string[] } | null)
 
+const editedMonitorItemAsFilter = ref<Filter | null>(null)
 const monitorItemAsFilter = computed<Filter | null>(() => {
   if (!monitorItem.value) {
     return null
+  }
+  if (editedMonitorItemAsFilter.value) {
+    return editedMonitorItemAsFilter.value
   }
   const item = monitorItem.value
   const query = Array.isArray(item?.q)
@@ -294,14 +299,17 @@ const shouldUpdateCurrentSearchFilters = computed(() => {
   if (!monitorItemAsFilter.value) {
     return false
   }
-  const currentFilterOfSameType = props.filters?.find(
-    filter => filter.type === monitorItemAsFilter.value.type
+  const currentMatchingFilter = props.filters?.find(
+    filter =>
+      filter.type === monitorItemAsFilter.value.type &&
+      FilterFactory.filtersAreEqual(filter, monitorItemAsFilter.value)
   )
-  if (!currentFilterOfSameType) {
+  if (!currentMatchingFilter) {
     return false
   }
+
   // update (replace) the existing filter of the same type if there is one, instead of adding a new one
-  return true
+  return FilterFactory.filtersAreEqual(monitorItemAsFilter.value, currentMatchingFilter)
 })
 const initialSearchFilters = computed<Filter[]>(() => {
   return monitor.initialSearchFilters || []
@@ -312,6 +320,12 @@ const currentSearchFilters = computed<Filter[]>(() => {
   return props.filters.filter(filter => availableFilterTypes.includes(filter.type))
 })
 
+/**
+ * The filters to apply to the timeline and display in the summary, which are a combination of:
+ * - the current search filters (if `monitor.displayCurrentSearchFilters` is true and there are any)
+ * - the initialSearchFilters provided by the monitor (if any)
+ * - the monitor item as a filter (if it can be represented as a filter and isn't already included in the above)
+ */
 const monitorFilters = computed<Filter[]>(() => {
   const availableFilterTypes = SupportedFiltersByIndex[monitor.searchIndex] ?? []
   let baseFilters: Filter[] = []
@@ -321,9 +335,14 @@ const monitorFilters = computed<Filter[]>(() => {
   if (initialSearchFilters.value.length) {
     baseFilters = baseFilters.concat(initialSearchFilters.value)
   }
-  return baseFilters
-    .concat([monitorItemAsFilter.value])
-    .filter((filter): filter is Filter => !!filter && availableFilterTypes.includes(filter.type))
+  if (editedMonitorItemAsFilter.value) {
+    baseFilters = baseFilters.concat([editedMonitorItemAsFilter.value])
+  } else if (monitorItemAsFilter.value) {
+    baseFilters = baseFilters.concat([monitorItemAsFilter.value])
+  }
+  return baseFilters.filter(
+    (filter: Filter) => !!filter && availableFilterTypes.includes(filter.type)
+  )
 })
 const monitorFiltersWithItems = ref<Filter[]>([])
 
@@ -391,7 +410,7 @@ const handleTimelineStateChange = (state: SearchFacetTimelineState) => {
 
 const handleChangeFilter = (newFilter: Filter) => {
   console.debug('[SelectionMonitor] handleChangeFilter', newFilter)
-  additionalFilters.value = [newFilter]
+  editedMonitorItemAsFilter.value = newFilter
 }
 
 const hide = (event?: MouseEvent) => {
@@ -427,7 +446,7 @@ watch(
 watch(
   () => monitor.type,
   () => {
-    additionalFilters.value = []
+    editedMonitorItemAsFilter.value = null
     monitorFiltersWithItems.value = []
     resetTimelineState()
   }
@@ -557,6 +576,8 @@ watch(
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size",
     "tabs_textReuseClusterLexicalOverlap_closeUp": "lexical overlap",
     "tabs_textReuseClusterDayDelta_closeUp": "Time span in days",
+    "tabs_ocrQuality_closeUp": "OCR quality",
+    "tabs_contentLength_closeUp": "Content length",
     "tabs_newspaper_overview": "media source",
     "tabs_topic_overview": "topic",
     "tabs_partner_overview": "provider",
