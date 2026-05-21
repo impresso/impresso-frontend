@@ -5,9 +5,14 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import { buildEmptyFacets, SearchDecimalFacetTypes, SearchStandardFacetTypes } from '@/logic/facets'
+import {
+  buildEmptyFacets,
+  SearchDecimalFacetTypes,
+  SearchDynamicFacetTypes,
+  SearchStandardFacetTypes
+} from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
-import FacetModel, { FacetType } from '@/models/Facet'
+import FacetModel from '@/models/Facet'
 import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
@@ -17,6 +22,7 @@ import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverview
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
 import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -119,6 +125,7 @@ watch(
     totalResults.value = 0
 
     const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
+    const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
     const facetsItems = await searchFacetsService
       .find({
         query: {
@@ -137,7 +144,7 @@ watch(
         }
       })
       .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = [...timelineFacets, ...decimalRangeFacets, ...facetsItems]
+    facets.value = [...timelineFacets, ...dynamicFacets, ...decimalRangeFacets, ...facetsItems]
     const statsItems = await statsService.find({
       query: {
         facet: 'newspaper',
@@ -319,24 +326,33 @@ onMounted(() => {
             </b-dropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="60">
-              <div v-if="isLoading">Loading...</div>
-              <div v-else>
-                <span
-                  v-html="
-                    $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
-                  "
-                ></span>
-                {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
-                <span
-                  v-html="
-                    $t('dates.fromTo', {
-                      from: $d(minStartDate, 'short'),
-                      to: $d(maxEndDate, 'short')
-                    })
-                  "
-                ></span>
-              </div>
+            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
+              <SearchResultsSummary
+                :isLoading="isLoading"
+                group-by="articles"
+                :search-query="{ filters: filtersWithItems }"
+                :totalRows="totalContentItems"
+              >
+                <template #beforeSummary>
+                  <div v-if="isLoading">Loading...</div>
+                  <div v-else>
+                    <span
+                      v-html="
+                        $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
+                      "
+                    ></span>
+                    {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
+                    <span
+                      v-html="
+                        $t('dates.fromTo', {
+                          from: $d(minStartDate, 'short'),
+                          to: $d(maxEndDate, 'short')
+                        })
+                      "
+                    ></span>
+                  </div>
+                </template>
+              </SearchResultsSummary>
             </Ellipsis>
           </template>
         </PageNavbarHeading>

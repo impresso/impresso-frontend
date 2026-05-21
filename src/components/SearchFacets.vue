@@ -20,7 +20,8 @@
       :facetType="facet.type"
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
-      @changed="onDynamicRangeChanged"
+      @changed="handleDynamicRangeChanged"
+      @clicked="handleFacetFilterRangeClicked"
       count-label="numbers.contentItems"
       :info-button-id="getFacetInfoButtonContent(facet)"
     >
@@ -36,7 +37,8 @@
       :facet-filters="filters"
       :isFiltered="filters.some(({ type }) => type === facet.type)"
       :isPercentage="facet.type === 'ocrQuality'"
-      @changed="onDynamicRangeChanged"
+      @changed="handleDynamicRangeChanged"
+      @clicked="handleFacetFilterRangeClicked"
       count-label="numbers.contentItems"
     >
       <template #description>
@@ -88,19 +90,22 @@ import {
 import { computed } from 'vue'
 import { FacetType } from '@/models/Facet'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
-import InfoButton from './base/InfoButton.vue'
+import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
+
+const selectionMonitorStore = useSelectionMonitorStore()
 
 type DaterangeFilterItem = Entity & {
   start?: string | number | Date
   end?: string | number | Date
 }
 
-interface SearchFacetsProps {
+export interface SearchFacetsProps {
   groupBy?: 'contentItems' | 'images'
   filters?: Filter[]
   facets?: Facet[]
   startYear?: number
   endYear?: number
+  searchIndex?: string
 }
 
 const props = withDefaults(defineProps<SearchFacetsProps>(), {
@@ -109,7 +114,8 @@ const props = withDefaults(defineProps<SearchFacetsProps>(), {
   facets: () => [],
   startYear: () => getImpressoMetadata()?.impressoDocumentsYearSpan?.firstYear ?? 1700,
   endYear: () =>
-    getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear()
+    getImpressoMetadata()?.impressoDocumentsYearSpan?.lastYear ?? new Date().getFullYear(),
+  searchIndex: 'search'
 })
 
 const emit = defineEmits<{
@@ -223,8 +229,36 @@ function facetFiltersUpdated(type: string, updatedFilters: Filter[]) {
   emit('changed', mergedFilters.concat(remainingUpdatedFilters))
 }
 
-function onDynamicRangeChanged(changedFilters: Filter[]) {
+function handleDynamicRangeChanged(changedFilters: Filter[]) {
   emit('changed', changedFilters)
+}
+
+function handleFacetFilterRangeClicked(filter: Filter) {
+  console.debug('[SearchFacets] Facet filters clicked:', filter)
+  const itemRangeProps: {
+    itemFilterRangeMin?: State['itemFilterRangeMin']
+    itemFilterRangeMax?: State['itemFilterRangeMax']
+    itemFilterRangeStep?: State['itemFilterRangeStep']
+  } = {}
+  if (filter.type === 'ocrQuality') {
+    itemRangeProps.itemFilterRangeMin = 0
+    itemRangeProps.itemFilterRangeMax = 1
+    itemRangeProps.itemFilterRangeStep = 0.01
+  } else if (filter.type === 'contentLength') {
+    itemRangeProps.itemFilterRangeMin = 0
+    itemRangeProps.itemFilterRangeMax = 1000000
+    itemRangeProps.itemFilterRangeStep = 10
+  }
+  // open selection monitor
+  selectionMonitorStore.show({
+    item: filter,
+    searchIndex: props.searchIndex,
+    type: filter.type,
+    scope: 'closeUp',
+    applyCurrentSearchFilters: true,
+    displayCurrentSearchFilters: true,
+    ...itemRangeProps
+  })
 }
 </script>
 

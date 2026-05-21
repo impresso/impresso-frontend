@@ -14,6 +14,10 @@ export interface State {
   displayActionButtons: boolean
   debug: boolean
   displayCurrentSearchFilters: boolean
+  /** used when item is defined as Filter of type range */
+  itemFilterRangeStep: number | undefined
+  itemFilterRangeMin: number | undefined
+  itemFilterRangeMax: number | undefined
 }
 
 export const useSelectionMonitorStore = defineStore('selectionMonitor', {
@@ -34,7 +38,10 @@ export const useSelectionMonitorStore = defineStore('selectionMonitor', {
     displayTimeline: true,
     displayActionButtons: true,
     debug: false,
-    displayCurrentSearchFilters: false
+    displayCurrentSearchFilters: false,
+    itemFilterRangeStep: undefined,
+    itemFilterRangeMin: undefined,
+    itemFilterRangeMax: undefined
   }),
   getters: {},
   actions: {
@@ -50,6 +57,9 @@ export const useSelectionMonitorStore = defineStore('selectionMonitor', {
       this.displayActionButtons = payload?.displayActionButtons ?? true
       this.displayCurrentSearchFilters = payload?.displayCurrentSearchFilters ?? false
       this.initialSearchFilters = payload?.initialSearchFilters ?? []
+      this.itemFilterRangeStep = payload?.itemFilterRangeStep ?? undefined
+      this.itemFilterRangeMin = payload?.itemFilterRangeMin ?? undefined
+      this.itemFilterRangeMax = payload?.itemFilterRangeMax ?? undefined
     },
     hide() {
       this.isActive = false
@@ -63,6 +73,9 @@ export const useSelectionMonitorStore = defineStore('selectionMonitor', {
       this.displayActionButtons = true
       this.displayCurrentSearchFilters = true
       this.initialSearchFilters = []
+      this.itemFilterRangeStep = undefined
+      this.itemFilterRangeMin = undefined
+      this.itemFilterRangeMax = undefined
     }
   },
   persist: {
