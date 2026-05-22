@@ -80,8 +80,8 @@
                 :domain="timelineDomain"
                 items-class="p-0"
                 @update:state="handleTimelineStateChange"
-                errorLoadingItemsMessage="error.loadingTimelineItems"
-                listIsEmptyMessage="timelineNoItems"
+                :errorLoadingItemsMessage="$t('error.loadingTimelineItems')"
+                :listIsEmptyMessage="$t('timelineNoItems')"
               >
                 <template #tooltip="{ tooltip }">
                   <div v-if="tooltip.item">

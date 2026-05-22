@@ -13,7 +13,7 @@
 
       <div v-if="status === 'error'" class="p-1">
         <Alert type="warning" :closable="false">
-          <span v-html="$t(props.errorLoadingItemsMessage)"></span>
+          <span v-html="props.errorLoadingItemsMessage"></span>
         </Alert>
       </div>
 
@@ -22,7 +22,7 @@
           type="info"
           class="border border-info"
           :closable="false"
-          v-html="$t(props.listIsEmptyMessage)"
+          v-html="props.listIsEmptyMessage"
         />
       </div>
 
