@@ -14,5 +14,17 @@ export const Routes = {
   topic: {
     path: '/topics/:topic_id',
     name: 'topic'
+  },
+  search: {
+    path: '/search',
+    name: 'search'
+  },
+  searchImages: {
+    path: '/search/images',
+    name: 'searchImages'
+  },
+  searchNgrams: {
+    path: '/search/ngrams',
+    name: 'searchNgrams'
   }
 } as const

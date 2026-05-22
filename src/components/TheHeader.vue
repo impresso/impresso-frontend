@@ -19,39 +19,44 @@
       </a>
 
       <b-navbar-nav class="align-items-center text-center">
-        <b-nav-item
-          :to="getRouteWithSearchQuery({ name: 'search' })"
-          active-class="active"
-          class="position-relative"
-          title="Search"
-        >
-          <span>{{ $t('label_search', 0) }}</span>
-          <!-- <transition name="bounce">
-            <b-badge v-if="countActiveFilters" pill variant="tiny" class="position-absolute">
-            </b-badge>
-          </transition> -->
-        </b-nav-item>
         <li class="nav-item">
-          <RouterLink class="nav-link" to="/plans">
-            <span>
-              {{ $t('label_plans') }}
-            </span>
+          <RouterLink
+            :to="getRouteWithSearchQuery({ name: 'sources' })"
+            active-class="active"
+            title="Sources"
+            class="nav-link"
+          >
+            <span>{{ $t('label_media_sources') }}</span>
           </RouterLink>
         </li>
         <BDropdown class="px-2 text-white">
           <template v-slot:button-content>
-            <span class="text-white">{{ $t('label_tools') }}</span>
+            <span class="text-white">{{ $t('label_search') }}</span>
           </template>
-          <li class="px-2">
+          <li
+            class="px-2"
+            v-for="routeName in [
+              Routes.search.name,
+              Routes.searchImages.name,
+              Routes.searchNgrams.name
+            ]"
+            :key="routeName"
+          >
             <RouterLink
-              :to="getRouteWithSearchQuery({ name: 'sources' })"
+              :to="getRouteWithSearchQuery({ name: routeName })"
               active-class="active"
-              title="Sources"
+              :title="$t(`label_${routeName}`)"
               class="nav-link"
             >
-              <span>{{ $t('label_media_sources') }}</span>
+              <span>{{ $t(`label_${routeName}`) }}</span>
             </RouterLink>
           </li>
+        </BDropdown>
+        <BDropdown class="px-2 text-white">
+          <template v-slot:button-content>
+            <span class="text-white">{{ $t('label_explore') }}</span>
+          </template>
+          <li class="px-2"></li>
           <li class="px-2">
             <RouterLink
               :to="{ name: 'compare', query: { left: searchQueryHash } }"
@@ -221,219 +226,141 @@
   </div>
 </template>
 
-<script lang="js">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
 import Icon from '@/components/base/Icon.vue'
 import JobItem from '@/components/modules/lists/JobItem.vue'
 import Pagination from '@/components/modules/Pagination.vue'
 import Logo from '@/components/Logo.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
-import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { mapStores } from 'pinia'
+import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import type { ErrorMessage } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
-import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
+import { PlanLabels } from '@/constants'
 import { RouterLink } from 'vue-router'
 import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/SwitchBetweenAppDatalab.vue'
+import { Routes } from '@/router/routes'
+import type { RouteLocationRaw } from 'vue-router'
+import { useRoute } from 'vue-router'
 
-export default defineComponent({
-  // props: {
-  //   searchQuery: Object,
-  // },
-  data: () => ({
-    ViewPlans,
-    languages: {
-      de: {
-        code: 'de',
-        name: 'Deutsch',
-        disabled: true
-      },
-      en: {
-        code: 'en',
-        name: 'English'
-      },
-      fr: {
-        code: 'fr',
-        name: 'Français',
-        disabled: true
-      },
-      it: {
-        code: 'it',
-        name: 'Italiano',
-        disabled: true
-      },
-      nl: {
-        code: 'nl',
-        name: 'Nederlands',
-        disabled: true
-      }
-    },
-    jobsPaginationPerPage: 4,
-    jobsCurrentPage: 1,
-    jobsPaginationCurrentPage: 1
-  }),
-  // mounted() {
-  //   if (this.user) {
-  //     this.jobsStore.loadJobs().then(() => {
-  //       console.info('Jobs loaded.');
-  //     });
-  //   }
-  // },
-  computed: {
-    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
-    searchQueryHash: searchQueryHashGetter(),
-    searchQuery: searchQueryGetter(),
-    loginRouteParams() {
-      return {
-        name: 'login',
-        query: {
-          redirect: this.$route.fullPath
-        }
-      }
-    },
-    registerRouteParams() {
-      return {
-        name: 'register',
-        query: {
-          redirect: this.$route.fullPath
-        }
-      }
-    },
-    countActiveFilters() {
-      return this.searchQuery.countActiveFilters()
-    },
-    countActiveItems() {
-      return this.searchQuery.countActiveItems()
-    },
-    jobs() {
-      return this.jobsStore.items
-    },
-    jobsPaginationTotalRows() {
-      return this.jobsStore.totalItems
-    },
-    runningJobs() {
-      return this.jobs.filter(d => d.status === 'RUN')
-    },
-    activeLanguageCode() {
-      return this.settingsStore.language_code
-    },
-    showAlert() {
-      return this.errorMessages.length > 0
-    },
-    errorMessages() {
-      return this.notificationsStore.errorMessages.filter(m => {
-        if (m.name === 'NotAuthenticated' && !this.user) {
-          return false
-        }
-        return true
+const route = useRoute()
+const jobsStore = useJobsStore()
+const settingsStore = useSettingsStore()
+const userStore = useUserStore()
+const notificationsStore = useNotificationsStore()
+
+const jobsPaginationPerPage = 4
+const jobsPaginationCurrentPage = ref(1)
+const ddownJobs = ref<{ show: () => void } | null>(null)
+
+const searchQueryHash = computed(() => {
+  const sq = route.query.sq
+  if (Array.isArray(sq) && sq[0] != null) return sq[0]
+  if (!Array.isArray(sq) && sq != null) return String(sq)
+  return getLatestSerializedSearchQuery() ?? ''
+})
+
+const loginRouteParams = computed(() => ({
+  name: 'login',
+  query: {
+    redirect: route.fullPath
+  }
+}))
+
+const registerRouteParams = computed(() => ({
+  name: 'register',
+  query: {
+    redirect: route.fullPath
+  }
+}))
+
+const jobs = computed(() => jobsStore.items)
+const jobsPaginationTotalRows = computed(() => jobsStore.totalItems)
+const runningJobs = computed(() => jobs.value.filter(d => d.status === 'RUN'))
+
+const user = computed(() => userStore.user)
+const userPlan = computed(() => userStore.userPlan)
+const userPlanLabel = computed(() => PlanLabels[userPlan.value] || '...')
+
+const errorMessages = computed<ErrorMessage[]>(() => {
+  return notificationsStore.errorMessages.filter(m => {
+    if (m.name === 'NotAuthenticated' && !user.value) {
+      return false
+    }
+    return true
+  })
+})
+const showAlert = computed(() => errorMessages.value.length > 0)
+const connectivityStatus = computed(() => notificationsStore.connectivityStatus)
+const textReuseEnabled = computed(
+  () =>
+    !!(window as typeof window & { impressoFeatures?: any }).impressoFeatures?.textReuse?.enabled
+)
+
+function updateLastNotificationDate() {
+  settingsStore.updateLastNotificationDate()
+}
+
+function getRouteWithSearchQuery(
+  routeParams: RouteLocationRaw,
+  additionalQueryParameters: Record<string, unknown> = {}
+) {
+  const normalizedRoute = routeParams as { query?: Record<string, unknown> }
+
+  return {
+    ...normalizedRoute,
+    query: {
+      ...normalizedRoute.query,
+      ...additionalQueryParameters,
+      sq: searchQueryHash.value
+    }
+  }
+}
+
+watch(
+  jobsPaginationCurrentPage,
+  page => {
+    if (user.value) {
+      void jobsStore.loadJobs({
+        page,
+        limit: jobsPaginationPerPage
       })
-    },
-    processingStatus() {
-      return this.notificationsStore.processingStatus
-    },
-    user() {
-      return this.userStore.user
-    },
-    userPlan() {
-      return this.userStore.userPlan
-    },
-    userPlanLabel() {
-      return PlanLabels[this.userPlan] || '...'
-    },
+    }
+  },
+  { immediate: true }
+)
 
-    connectivityStatus() {
-      return this.notificationsStore.connectivityStatus
-    },
-    version() {
-      return window.impressoFrontendVersion
-    },
-    viewPlansEnabled() {
-      return !!window.impressoFeatures?.viewPlans?.enabled
-    },
-    textReuseEnabled() {
-      // @ts-ignore
-      return !!window.impressoFeatures?.textReuse?.enabled
-    }
-  },
-  methods: {
-    updateLastNotificationDate() {
-      this.settingsStore.updateLastNotificationDate()
-    },
-    test() {
-      return this.jobsStore.createTestJob()
-    },
-    selectLanguage(languageCode) {
-      window.app.$i18n.locale = languageCode
-      this.settingsStore.setLanguageCode(languageCode)
-    },
-    getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
-      return {
-        ...route,
-        query: {
-          ...route.query,
-          ...additionalQueryParameters,
-          sq: this.searchQueryHash
-        }
-      }
-    }
-  },
-  watch: {
-    jobsPaginationCurrentPage: {
-      handler(page) {
-        if (this.user) {
-          this.jobsStore.loadJobs({
-            page,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      },
-      immediate: true
-    },
-    user: {
-      handler(user) {
-        if (user) {
-          this.jobsStore.loadJobs({
-            page: 1,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      }
-    },
-    jobs: {
-      handler(jobs) {
-        if (jobs.length && this.$refs.ddownJobs) {
-          const lastModifiedDate = jobs
-            .map(d => d.lastModifiedDate.getTime())
-            .sort()
-            .pop()
-          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
+watch(user, value => {
+  if (value) {
+    void jobsStore.loadJobs({
+      page: 1,
+      limit: jobsPaginationPerPage
+    })
+  }
+})
 
-          if (lastNotificationDate - lastModifiedDate < 0) {
-            console.info(
-              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
-            )
-            this.$refs.ddownJobs.show()
-          } else {
-            console.info(
-              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
-            )
-          }
-        }
-      }
+watch(jobs, value => {
+  if (value.length && ddownJobs.value) {
+    const lastModifiedDate = value
+      .map(d => d.lastModifiedDate.getTime())
+      .sort()
+      .pop()
+    const lastNotificationDate = settingsStore.lastNotificationDateAsDate
+
+    if (lastModifiedDate != null && lastNotificationDate.getTime() - lastModifiedDate < 0) {
+      console.info(
+        'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
+      )
+      ddownJobs.value.show()
+    } else {
+      console.info(
+        'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
+      )
     }
-  },
-  components: {
-    Icon,
-    Logo,
-    // Toast,
-    JobItem,
-    Pagination,
-    InfoButton,
-    UserArea,
-    SwitchBetweenAppDatalab
   }
 })
 </script>
@@ -772,21 +699,21 @@ export default defineComponent({
     "profile": "Profile",
     "label_home": "Home",
     "label_plans": "Plans",
-    "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
-    "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
-    "label_media_sources": "Media sources",
-    "label_explore": "explore...",
+    "label_search": "Search",
+    "label_media_sources": "Sources",
+    "label_explore": "Explore",
     "label_topics": "Topics",
     "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
-    "label_current_search": "browse results ...",
+    "label_search_text": "Search text",
+    "label_searchImages": "Search images",
+    "label_searchNgrams": "Search ngrams",
     "label_faq": "Documentation",
     "label_documentation": "Impresso Web App Documentation",
     "label_terms": "Terms of Use",
-    "label_jobs": "Tasks",
-    "label_tools": "Sources, Tools..."
+    "label_jobs": "Tasks"
   }
 }
 </i18n>

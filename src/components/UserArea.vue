@@ -56,6 +56,9 @@
     <li class="mx-3">
       <hr class="dropdown-divider" />
     </li>
+    <LinkToModal v-if="user" class="dropdown-item" :view="ViewPlans">
+      {{ $t('label_plans') }}
+    </LinkToModal>
 
     <LinkToModal
       v-if="user && isViewPlansFeatureEnabled"
@@ -90,7 +93,8 @@ import {
   // ViewPlans
   ViewCorpusOverview,
   ViewFeedback,
-  ViewChangePassword
+  ViewChangePassword,
+  ViewPlans
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
