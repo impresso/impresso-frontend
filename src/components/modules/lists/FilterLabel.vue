@@ -26,9 +26,15 @@
         <span
           class="small-caps"
           v-else-if="
-            ['type', 'language', 'country', 'copyright', 'sourceType', 'sourceMedium'].includes(
-              filter.type
-            )
+            [
+              'year',
+              'type',
+              'language',
+              'country',
+              'copyright',
+              'sourceType',
+              'sourceMedium'
+            ].includes(filter.type)
           "
           >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
@@ -43,6 +49,7 @@
         </template>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
+      <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
       <span
         v-else-if="['daterange'].includes(filter.type)"
         v-html="
@@ -82,6 +89,7 @@ type FilterLabelItem = Entity & {
   start?: string | number | Date
   end?: string | number | Date
   precision?: string
+  y?: number
 }
 
 const isFilterItem = (value: unknown): value is FilterLabelItem => {
