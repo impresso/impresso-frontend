@@ -452,19 +452,18 @@ const keyup = (event: KeyboardEvent) => {
 }
 
 // Lifecycle
-onMounted(() => {
-  useClickOutside(
-    autocomplete,
-    (e: MouseEvent) => {
-      if (e.target === input.value?.$el) {
-        showSuggestions.value = true
-      } else {
-        hideSuggestions()
-      }
-    },
-    searchButton
-  )
-})
+
+useClickOutside(
+  autocomplete,
+  (e: MouseEvent) => {
+    if (e.target === input.value?.$el) {
+      showSuggestions.value = true
+    } else {
+      hideSuggestions()
+    }
+  },
+  searchButton
+)
 </script>
 
 <style lang="css">

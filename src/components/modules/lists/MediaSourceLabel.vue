@@ -37,7 +37,7 @@ const cachedItem = computed(() => {
   if (typeof glob.impressoNewspapers === 'object') {
     return glob.impressoNewspapers[props.item.id]
   }
-  return { id: props.item.id, name: props.item.name || props.item.id }
+  return { id: props.item.id, name: props.item.name || props.item.id, type: 'newspaper' }
 })
 
 const title = computed(() => {
