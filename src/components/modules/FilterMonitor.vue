@@ -3,6 +3,7 @@
     <div v-if="filter.type === 'embedding'">
       <p class="small" v-html="$t('label.embedding.context.' + currentContext)"></p>
     </div>
+
     <div v-else-if="checkbox">
       <!--  context -->
       <b-form-group>
@@ -14,7 +15,7 @@
         />
       </b-form-group>
       <!--  operator -->
-      <b-form-group v-if="currentContext === 'include' && availableItems.length > 1">
+      <b-form-group v-if="showOperatorToggle">
         <radio-group
           :modelValue="editedFilter.op"
           @update:modelValue="editedFilter.op = $event"
@@ -89,17 +90,18 @@
           >
         </div>
         <b-form-checkbox
-          v-else-if="isStringType(type)"
-          v-model="checkedItems[item.id]"
-          @update:modelValue="toggleFilterItem($event, item.id)"
+          v-else-if="isStringType(type) || isIntegerType(type)"
+          v-model="checkedItems[String(item.id)]"
+          @update:modelValue="toggleFilterItem($event, String(item.id))"
         >
           <b-form-input
             size="sm"
             placeholder=""
             class="accepted"
             :value="item.id"
+            :type="isIntegerType(type) ? 'number' : 'text'"
             @click.prevent.stop
-            @update:modelValue="changeStringFilterItemAtIndex($event, idx)"
+            @update:modelValue="changeFilterItemAtIndex($event, idx)"
           >
           </b-form-input>
         </b-form-checkbox>
@@ -138,6 +140,7 @@
           <span v-if="['language', 'country'].indexOf(type) !== -1">{{
             $t(`buckets.${type}.${item.id}`)
           }}</span>
+
           <collection-item v-if="type === 'collection'" :item="item" />
           <span v-if="item.count"
             >(<span v-html="$t('numbers.results', { n: $n(item.count) }, item.count)" />)</span
@@ -159,17 +162,14 @@
             size="sm"
             placeholder="..."
             class="mr-1"
+            :type="isIntegerType(type) ? 'number' : 'text'"
             v-model="item.id"
             @click.prevent.stop
           >
           </b-form-input>
-          <b-button
-            class="dripicons-cross"
-            variant="transparent"
-            size="sm"
-            style="padding: 0.25rem 0.5rem 0 0.5rem"
-            @click.prevent.stop="removeStringItem(idx)"
-          />
+          <button class="btn btn-transparent btn-sm" @click.prevent.stop="removeStringItem(idx)">
+            <Icon name="cross" />
+          </button>
         </div>
       </div>
     </div>
@@ -185,7 +185,7 @@
     </div>
     <!-- @entity-selected="addEmbeddingSuggestion"/> -->
     <!-- add new string as an OR filter -->
-    <div class="mt-3" v-else-if="isStringType(type)">
+    <div class="mt-3" v-else-if="isStringType(type) || isIntegerType(type)">
       <b-row no-gutters>
         <b-col cols="6">
           <div class="mr-1">
@@ -200,7 +200,7 @@
             </b-button>
           </div>
         </b-col>
-        <b-col cols="6">
+        <b-col cols="6" v-if="isStringType(type)">
           <div class="ml-1">
             <b-button
               size="sm"
@@ -269,14 +269,20 @@ import { NumericRangeFacets } from '@/logic/facets'
 import { defineComponent, PropType } from 'vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { FacetType } from '@/models/Facet'
+import Icon from '../base/Icon.vue'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
+const IntegerTypes = ['year'] as const
+
 type StringType = (typeof StringTypes)[number]
+type IntegerType = (typeof IntegerTypes)[number]
 export type FilterMonitorFilter = FilterWithItems<FilterMonitorItem>
 type FilterContext = NonNullable<FilterMonitorFilter['context']>
 type FilterOperator = NonNullable<FilterMonitorFilter['op']>
 type FilterPrecision = NonNullable<FilterMonitorFilter['precision']>
+
+const NotSupportingOperatoryTypes: FacetType[] = ['year']
 
 export interface FilterMonitorItem extends Entity {
   id: string
@@ -287,6 +293,7 @@ export interface FilterMonitorItem extends Entity {
   count?: number
   start?: string | number | Date
   end?: string | number | Date
+  y?: number
 }
 
 export interface StringToAddItem {
@@ -342,6 +349,9 @@ const getFilterQueryAsArray = (filter: FilterMonitorFilter): string[] => {
 
 const isStringType = (type: string): type is StringType =>
   (StringTypes as readonly string[]).includes(type)
+
+const isIntegerType = (type: string): type is IntegerType =>
+  (IntegerTypes as readonly string[]).includes(type)
 
 interface WindowWithDocumentsYearSpan extends Window {
   impressoDocumentsYearSpan?: {
@@ -430,6 +440,12 @@ export default defineComponent({
       const filterItems = this.filter.items || []
       return this.stringsToAdd.length + filterItems.length + this.itemsToAdd.length > 5
     },
+    showOperatorToggle(): boolean {
+      if (NotSupportingOperatoryTypes.includes(this.type as FacetType)) {
+        return false
+      }
+      return this.checkbox && this.currentContext === 'include' && this.availableItems.length > 1
+    },
     hasEmptyStringItems(): boolean {
       return (
         this.stringsToAdd.length > 0 && this.stringsToAdd.filter(d => d.id.length === 0).length > 0
@@ -505,6 +521,7 @@ export default defineComponent({
   },
   methods: {
     isStringType,
+    isIntegerType,
     asDate(value: FilterMonitorItem['start']): Date {
       if (value instanceof Date) {
         return value
@@ -534,8 +551,17 @@ export default defineComponent({
     },
     applyChanges(): void {
       const { type } = this.editedFilter
-
-      if (!isStringType(type) && !RangeFacets.includes(type)) {
+      if (isStringType(type) || isIntegerType(type)) {
+        const editedFilterQ = getFilterQueryAsArray(this.editedFilter)
+        const newFilter = {
+          ...this.editedFilter,
+          q: editedFilterQ
+            .filter(d => !this.excludedItemsIds.includes(d))
+            .concat(this.validStringsToAdd.map(d => d.id))
+        }
+        this.$emit('changed', newFilter)
+        this.stringsToAdd = []
+      } else if (!RangeFacets.includes(type)) {
         const combinedItems = this.filterItems.concat(this.itemsToAdd)
         const allItemsDictionary = combinedItems.reduce<Record<string, FilterMonitorItem>>(
           (acc, item) => {
@@ -551,7 +577,10 @@ export default defineComponent({
           ...new Set(
             combinedItems
               .map(({ uid, id }) => uid || id)
-              .filter((id): id is string => typeof id === 'string' && id.length > 0)
+              .filter(
+                (id): id is string =>
+                  (typeof id === 'string' || typeof id === 'number') && String(id).length > 0
+              )
           )
         ]
         const selectedItemsIds = availableItemsIds.filter(id => !this.excludedItemsIds.includes(id))
@@ -564,16 +593,6 @@ export default defineComponent({
           items: selectedItems,
           q: selectedItemsIds
         })
-      } else if (isStringType(type)) {
-        const editedFilterQ = getFilterQueryAsArray(this.editedFilter)
-        const newFilter = {
-          ...this.editedFilter,
-          q: editedFilterQ
-            .filter(d => !this.excludedItemsIds.includes(d))
-            .concat(this.validStringsToAdd.map(d => d.id))
-        }
-        this.$emit('changed', newFilter)
-        this.stringsToAdd = []
       } else {
         this.$emit('changed', this.editedFilter)
       }
@@ -590,16 +609,24 @@ export default defineComponent({
     removeItem(idx: number): void {
       this.itemsToAdd.splice(idx, 1) // eslint-disable-line
     },
-    changeStringFilterItemAtIndex(value: string, idx: number): void {
-      const q = this.filterItems
-        .map((d, i) => {
+    changeFilterItemAtIndex(value: string | number, idx: number): void {
+      if (!this.filterItems[idx]) return
+
+      const changedQ: string[] = this.filterItems
+        .map((d: FilterMonitorItem, i) => {
           if (i === idx) {
-            return value
+            return String(value).trim()
           }
-          return d.id || ''
+          return String(d.id).trim() || ''
         })
-        .filter((d): d is string => d.length > 0)
-      this.editedFilter = { ...this.editedFilter, q }
+        .filter((d: string) => {
+          // remove empty values
+          if (this.isIntegerType(this.type)) {
+            return !Number.isInteger(Number(d))
+          }
+          return d.length > 0
+        })
+      this.editedFilter = { ...this.editedFilter, q: changedQ }
     },
     toggleFilterItem(selected: boolean, uid: string): void {
       console.info('[FilterMonitor] @toggleFilterItem', selected, uid)
@@ -640,7 +667,8 @@ export default defineComponent({
     ItemSelector,
     FilterNumericRange,
     EntitySuggester,
-    RadioGroup
+    RadioGroup,
+    Icon
   },
   watch: {
     /**
