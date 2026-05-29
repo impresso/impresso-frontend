@@ -151,7 +151,7 @@
 <script lang="ts">
 import AuthImg from '@/components/AuthImg.vue'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
-import { serializeFilters } from '@/logic/filters'
+import { FacetsByContext, serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
 import { buildEmptyFacets } from '@/logic/facets'
 import {
   images as imagesService,
@@ -172,26 +172,10 @@ import { mapStores } from 'pinia'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent, PropType } from 'vue'
 import { IImage, Filter, FilterType, FacetType } from '@/models'
+import { includes } from '@/util/fn'
 
-const AllowedFilterTypes: FilterType[] = [
-  'newspaper',
-  'isFront',
-  'daterange',
-  'title',
-  'imageVisualContent',
-  'imageTechnique',
-  'imageCommunicationGoal',
-  'imageContentType'
-]
-
-const AllowedFacetTypes: FacetType[] = [
-  'newspaper',
-  'year',
-  'imageVisualContent',
-  'imageTechnique',
-  'imageCommunicationGoal',
-  'imageContentType'
-]
+const AllowedFilterTypes = SupportedFiltersByContext.images
+const AllowedFacetTypes = FacetsByContext.images
 
 interface IData {
   q: string
@@ -276,7 +260,7 @@ export default defineComponent({
      * Filters used for searching images
      */
     filters() {
-      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
     },
     excludedTypes() {
       return this.filters.map(d => d.type) as FacetType[]

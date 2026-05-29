@@ -130,7 +130,8 @@ import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import Facet from '@/models/Facet'
 import { getSearchFacetsService } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
-import { facetToTimelineValues, TextReuseStandardFacetTypes } from '@/logic/facets'
+import { facetToTimelineValues } from '@/logic/facets'
+import { TextReuseFacets } from '@/logic/filters'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import { mapStores } from 'pinia'
@@ -143,7 +144,7 @@ import { Navigation } from '@/plugins/Navigation'
  * @typedef {import('@/models').Facet} Facet
  */
 
-const FacetTypes = TextReuseStandardFacetTypes
+const FacetTypes = TextReuseFacets
 
 export default {
   components: {
@@ -174,7 +175,9 @@ export default {
       return new Navigation(this)
     },
     allowedFilters() {
-      return this.filters.filter(({ type }) => SupportedFiltersByContext.textReuse.includes(type))
+      return this.filters.filter(({ type }) =>
+        SupportedFiltersByContext.textReusePassages.includes(type)
+      )
     },
     allowedFilterTypes() {
       // we have to remove the 'isFront' filter from the list of allowed filters, see front immplementation in searchPills

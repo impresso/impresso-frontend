@@ -155,9 +155,15 @@
 import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { serializeFilters, optimizeFilters, toCanonicalFilter } from '@/logic/filters'
+import {
+  serializeFilters,
+  optimizeFilters,
+  toCanonicalFilter,
+  FacetsByContext,
+  SupportedFiltersByContext
+} from '@/logic/filters'
 import { useUserStore } from '@/stores/user'
-import type { Filter, FacetType, FilterType, Facet } from '@/models'
+import type { Filter, Facet } from '@/models'
 
 import FacetModel from '@/models/Facet'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -171,10 +177,11 @@ import TagsInput from '@/components/base/TagsInput.vue'
 import PageHeading from '@/components/base/PageHeading.vue'
 
 import { ngramTrends as ngramTrendsService, searchFacets as searchFacetsService } from '@/services'
-import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
+import { buildEmptyFacets } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 import type { RouteLocationRaw } from 'vue-router'
+import { includes } from '@/util/fn'
 
 interface NgramTrend {
   ngram: string
@@ -233,27 +240,7 @@ const QueryParameters = Object.freeze({
   Unigrams: 'unigrams'
 })
 
-const AllowedFilterTypes: FilterType[] = [
-  'copyright',
-  'collection',
-  'country',
-  'isFront',
-  // 'issue',
-  'language',
-  'location',
-  'newspaper',
-  'partner',
-  'person',
-  'nag',
-  'organisation',
-  // 'string',
-  // 'title',
-  'topic',
-  'type',
-  'year',
-  'daterange',
-  'hasTextContents'
-]
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
 function getTotalNumberOfResults(facets: Facet[]): number {
   const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
@@ -281,7 +268,7 @@ const EmptyNgramResult: NgramResult = Object.freeze({
   timeInterval: 'year'
 })
 
-const SupportedFacetTypes = DefaultFacetTypesForIndex.search
+const SupportedFacetTypes = FacetsByContext.search
 const typedNgramTrendsService = ngramTrendsService as NgramTrendsService
 
 interface Props {
@@ -354,18 +341,18 @@ const unigramsSummary = computed<string>(() => {
 
 const enrichedFilters = computed<Filter[]>(() => {
   return props.filtersWithItems != null
-    ? props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+    ? props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
     : allowedFilters.value
 })
 
 const ignoredFilters = computed<Filter[]>(() => {
-  return props.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+  return props.filters.filter(({ type }) => !includes(AllowedFilterTypes, type))
 })
 
 const allowedFilters = computed<Filter[]>(() => {
   return (
     props.filters
-      .filter(({ type }) => type !== 'hasTextContents' && AllowedFilterTypes.includes(type))
+      .filter(({ type }) => includes(AllowedFilterTypes, type) && type !== 'hasTextContents')
       // add implicit filters
       .concat([{ type: 'hasTextContents' } as Filter])
   )

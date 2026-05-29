@@ -28,6 +28,7 @@ import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { ExtraContentSeparator } from '@/logic/barista'
+import { includes } from '@/util/fn.js'
 
 // Barista store for socket messages
 const baristaStore = useBaristaStore()
@@ -43,7 +44,9 @@ const props = withDefaults(
 
 const simplifiedFilters = computed(() => {
   return props.filters
-    ?.filter(f => SupportedFiltersByContext.search.includes(f.type) && f.type !== 'hasTextContents')
+    ?.filter(
+      f => includes(SupportedFiltersByContext.search, f.type) && f.type !== 'hasTextContents'
+    )
     .map(
       f =>
         ({

@@ -84,12 +84,12 @@ import {
   DynamicRangeDisplayFacetTypes,
   facetToTimelineValues,
   RangeFacetTypes,
-  StandardDisplayFacetTypes,
   TimelineDisplayFacetTypes
 } from '@/logic/facets'
 import { computed } from 'vue'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import { includes } from '@/util/fn.js'
 
 const selectionMonitorStore = useSelectionMonitorStore()
 
@@ -122,28 +122,22 @@ const emit = defineEmits<{
 }>()
 
 const standardFacets = computed(() => {
-  return props.facets.filter(
-    ({ type }) => StandardDisplayFacetTypes.includes(type as FacetType) || type === 'collection'
-  )
+  return props.facets
 })
 
 const rangeFacets = computed(() => {
-  return props.facets.filter(({ type }) => RangeFacetTypes.includes(type as FacetType))
+  return props.facets.filter(({ type }) => includes(RangeFacetTypes, type))
 })
 
 const decimalRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) =>
-    DecimalRangeDisplayFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.filter(({ type }) => includes(DecimalRangeDisplayFacetTypes, type))
 })
 const dynamicRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) =>
-    DynamicRangeDisplayFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.filter(({ type }) => includes(DynamicRangeDisplayFacetTypes, type))
 })
 
 const containsTimelineFacets = computed(() => {
-  return props.facets.some(({ type }) => TimelineDisplayFacetTypes.includes(type as FacetType))
+  return props.facets.some(({ type }) => includes(TimelineDisplayFacetTypes, type))
 })
 
 const daterangeFilters = computed(() => {

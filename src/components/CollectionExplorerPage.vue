@@ -160,7 +160,7 @@ import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import { CollectionFacetTypes } from '@/logic/facets.js'
+import { TextContentItemFacets } from '@/logic/filters.js'
 
 const userStore = useUserStore()
 
@@ -308,13 +308,13 @@ const fetchContentItems = async (query = {}) => {
 const searchFacetsResponse = ref<{
   data: any[]
 }>({
-  data: [...CollectionFacetTypes].map(type => new FacetModel({ type }))
+  data: TextContentItemFacets.map(type => new FacetModel({ type }))
 })
 
 const fetchSearchFacets = async () => {
   const response = await searchFacetsService.find({
     query: {
-      facets: [...CollectionFacetTypes],
+      facets: TextContentItemFacets,
       filters: [collectionFilter.value]
     }
   })

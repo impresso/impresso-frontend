@@ -120,6 +120,7 @@ import {
   SearchFacetRangeBucket
 } from '@/models/generated/deprecated/models'
 import { isBucket } from '@/models/typeGuards'
+import { includes } from '@/util/fn'
 
 type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 
@@ -132,7 +133,7 @@ export interface QueryResult {
 }
 
 const supportedSearchIndexFilters = (filter: Filter) =>
-  SupportedFiltersByContext.search.includes(filter.type)
+  includes(SupportedFiltersByContext.search, filter.type)
 
 function comparableIsEmpty(comparable: Comparable): boolean {
   const type = comparable?.type

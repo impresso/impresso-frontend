@@ -131,112 +131,129 @@ export const containsFilter = expectedFilter => filter => {
 }
 
 /**
+ * Facets and filters by context.
+ * Usually there are more facets than filters (some filters are hidden)
+ * Top to bottom as they are rendered in the UI.
+ */
+
+export const TextContentItemFacets = [
+  'language',
+  'newspaper', // should be mediaSource eventually
+  'type',
+  'country',
+  'partner',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] as const satisfies FilterType[]
+
+export const NumericContentItemsFacets = [
+  'ocrQuality',
+  'contentLength'
+] as const satisfies FilterType[]
+
+const TextSearchFacets = [
+  'daterange',
+  ...NumericContentItemsFacets,
+  ...TextContentItemFacets,
+  'collection'
+] as const satisfies FilterType[]
+
+const TextSearchFilters = [
+  ...TextSearchFacets,
+  'string',
+  'isFront',
+  'hasTextContents', // invisible filter - always applied
+  'title', // do we use it?
+  'page', // should become a facet
+  'year',
+  'mention',
+  'entity',
+  'textReuseCluster', // ??
+  'embedding',
+  'mediaSource' // to replace 'newspaper' eventually
+] as const satisfies FilterType[]
+
+export const TextReuseContentItemFacets = [
+  'language',
+  'newspaper', // should be mediaSource eventually
+  // 'type',
+  'country',
+  // 'partner',
+  // 'copyright',
+  // 'sourceType',
+  // 'sourceMedium',
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] as const satisfies FilterType[]
+
+export const TextReuseNumericFacets = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+] as const satisfies FilterType[]
+
+export const TextReuseFacets = [
+  ...TextReuseContentItemFacets,
+  ...TextReuseNumericFacets
+] as const satisfies FilterType[]
+
+const TextReuseFilters = [...TextReuseFacets, 'textReuseCluster', 'daterange']
+
+const TextReuseClusterFilters = [
+  'textReuseCluster',
+  ...TextReuseNumericFacets,
+  'newspaper'
+] as const satisfies FilterType[]
+
+const EntitiesFilters = ['string', 'type'] as const satisfies FilterType[]
+
+const ImagesFacets = [
+  'newspaper',
+  'year',
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+] as const satisfies FilterType[]
+
+const ImagesFilters = [
+  ...ImagesFacets,
+  'isFront',
+  'daterange',
+  'title'
+] as const satisfies FilterType[]
+
+export const FacetsByContext = Object.freeze({
+  search: TextSearchFacets,
+  textReusePassages: TextReuseFacets,
+  images: ImagesFacets
+})
+
+/**
  * Impresso has several indexes each supporting a different set of filters.
  * This lookup table below should be used to pick only those filters that are
  * supported by the particular search service. Using filters that are not supported
  * by a service will cause the API to return an error.
- *
- * NOTE: please keep up-to-date with the API when filters are added or changed.
  */
 export const SupportedFiltersByContext = Object.freeze({
-  search: [
-    'hasTextContents',
-    'ocrQuality',
-    'contentLength',
-    'isFront',
-    'string',
-    'title',
-    'daterange',
-    'uid',
-    'partner',
-    'language',
-    'page',
-    'collection',
-    'issue',
-    'newspaper',
-    'topic',
-    'year',
-    'type',
-    'country',
-    'mention',
-    'entity',
-    'person',
-    'location',
-    'topicmodel',
-    'topic-string',
-    'entity-string',
-    'entity-type',
-    'regex',
-    'textReuseCluster',
-    'organisation',
-    'nag',
-    'sourceType',
-    'sourceMedium',
-    'embedding'
-  ].concat(
-    // unsupported fields in new SOLR
-    import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
-      ? ['dataDomain', 'copyright']
-      : ['accessRight']
-  ),
-  textReuse: [
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'textReuseCluster',
-    'daterange',
-    'newspaper',
-    'collection',
-    'isFront',
-    'string',
-    'language',
-    'topic',
-    // 'type', // temporarily disabled in Text Reuse
-    'country',
-    'location',
-    'person',
-    'entity'
-  ],
-  textReusePassages: [
-    'textReuseCluster',
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'daterange',
-    'newspaper',
-    'collection',
-    'language',
-    'string',
-    'isFront',
-    'title',
-    'topic',
-    // 'type',
-    'country',
-    'location',
-    'person',
-    'entity',
-    'organisation',
-    'nag'
-  ],
-  textReuseClusters: [
-    'textReuseCluster',
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'newspaper'
-  ],
-  entities: ['string', 'type', 'uid']
+  search: TextSearchFilters,
+  textReusePassages: TextReuseFilters,
+  textReuseClusters: TextReuseClusterFilters,
+  entities: EntitiesFilters,
+  images: ImagesFilters
 })
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
   tr_passages: SupportedFiltersByContext.textReusePassages,
   tr_clusters: SupportedFiltersByContext.textReuseClusters
-})
-
-export const SupportedIndexByContext = Object.freeze({
-  search: 'search',
-  textReuse: 'tr_passages',
-  textReusePassages: 'tr_passages',
-  textReuseClusters: 'tr_clusters'
 })
