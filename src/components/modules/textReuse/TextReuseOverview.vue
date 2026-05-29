@@ -12,8 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Filter } from '@/models'
-import type { FacetType } from '@/models/Facet'
+import type { Filter, FacetType } from '@/models'
 import ListOfSearchFacetsStackedBars from '@/components/ListOfSearchFacetsStackedBars.vue'
 
 withDefaults(

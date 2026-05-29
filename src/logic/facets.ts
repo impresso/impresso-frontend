@@ -1,8 +1,7 @@
 import Helpers from '@/plugins/Helpers'
 import FacetModel from '@/models/Facet'
-import type { FacetType } from '@/models/Facet'
 import Topic from '@/models/Topic'
-import type { Bucket, Facet, Entity } from '../models'
+import type { Bucket, Facet, Entity, FacetType } from '../models'
 import {
   isEntityWithLanguageAndExcerpt,
   isEntityWithName,
@@ -38,13 +37,20 @@ export function facetToTimelineValues(facet: FacetModel | Facet): TimelineValue[
 /**
  * List fo facet types that are rendered as filterable numeric range facets (e.g; [0 to 123]).
  */
-export const NumericRangeFacets: FacetType[] = [
+export const NumericRangeFacets = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
   'contentLength',
   'ocrQuality'
-]
+] as const satisfies FacetType[]
+
+export const TimeRangeFacets = ['daterange'] as const satisfies FacetType[]
+
+export const RangeFacets = [
+  ...NumericRangeFacets,
+  ...TimeRangeFacets
+] as const satisfies FacetType[]
 
 /** Fetched from API as timeline facet. */
 export const SearchTimelineFacetTypes: FacetType[] = ['year']
@@ -162,17 +168,32 @@ export const DefaultFacetTypesForIndex = {
     'country',
     'topic',
     'collection',
-    'accessRight',
+    'copyright',
     'partner',
     'person',
     'location',
     'organisation',
     'nag',
     'year'
-  ],
-  tr_clusters: ['newspaper'],
-  tr_passages: ['newspaper']
+  ] satisfies FacetType[],
+  tr_clusters: ['newspaper'] satisfies FacetType[],
+  tr_passages: ['newspaper'] satisfies FacetType[]
 } as const
+
+export type CollectionFacetType = Extract<
+  FacetType,
+  'newspaper' | 'country' | 'type' | 'language' | 'person' | 'location' | 'topic' | 'partner'
+>
+export const CollectionFacetTypes: ReadonlySet<CollectionFacetType> = new Set<CollectionFacetType>([
+  'newspaper',
+  'country',
+  'type',
+  'language',
+  'person',
+  'location',
+  'topic',
+  'partner'
+] as CollectionFacetType[])
 
 export interface BucketData {
   value: string
@@ -181,7 +202,7 @@ export interface BucketData {
 }
 
 export interface FacetData {
-  type: string
+  type: FacetType
   numBuckets: number
   buckets: BucketData[]
 }
@@ -193,39 +214,41 @@ export const facetDataToFacet = (facetData: FacetData) =>
     ...facetData
   })
 
+type SearchServiceResponse = {
+  info: {
+    facets: {
+      [key: string]: number | FacetData
+    }
+  }
+}
+
 /**
  * Given a list of facet types returns an extractor function that parses
  * response from `search` service and extracts facets with buckets. Those facets
  * listed in `facetTypes` that do not exist in the search service response are created
  * as well but left empty.
  *
- * @typedef {{ info: { facets: {[key: string]: number | FacetData} } }} SearchServiceResponse
- * @param {readonly string[]} facetTypes
- * @returns {(response: SearchServiceResponse) => Facet[]}
  */
-const searchResponseToFacetsExtractor = facetTypes => response => {
-  const { facets: responseFacets = {} } = response.info
+const searchResponseToFacetsExtractor =
+  <T extends FacetType>(facetTypes: T[]) =>
+  (response: SearchServiceResponse) => {
+    const { facets: responseFacets = {} } = response.info
 
-  /**
-   * @param {string} type
-   * @returns {FacetData}
-   */
-  const getFacetData = type => {
-    if (typeof responseFacets[type] === 'object')
-      return /** @type {FacetData} */ responseFacets[type]
-    return { type, buckets: [], numBuckets: 0 }
+    const getFacetData = (type: T) => {
+      if (typeof responseFacets[type] === 'object') return responseFacets[type] as FacetData
+      return { type, buckets: [], numBuckets: 0 } satisfies FacetData
+    }
+    const facetDataSet = facetTypes.map(type => ({
+      ...getFacetData(type),
+      type
+    }))
+
+    return facetDataSet.map(facetDataToFacet)
   }
-  const facetDataSet = facetTypes.map(type => ({
-    ...getFacetData(type),
-    type
-  }))
-
-  return facetDataSet.map(facetDataToFacet)
-}
 
 const DefaultEmptyApiResponse = { info: { facets: {} } }
 
-export const buildEmptyFacets = facetTypes =>
+export const buildEmptyFacets = <T extends FacetType>(facetTypes: T[]) =>
   searchResponseToFacetsExtractor(facetTypes)(DefaultEmptyApiResponse)
 
 const LabelExtractors = {

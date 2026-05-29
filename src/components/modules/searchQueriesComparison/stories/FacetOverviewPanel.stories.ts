@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FacetOverviewPanel from '../FacetOverviewPanel.vue'
 import Bucket from '@/models/Bucket'
-import { FacetType } from '@/models/Facet'
+import { FacetType } from '@/models'
 
 interface ComponentProps {
   hoverId?: string

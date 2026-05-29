@@ -243,11 +243,9 @@
 <script lang="ts">
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
-import { RangeFacets } from '@/logic/filters'
-import { NumericRangeFacets } from '@/logic/facets'
+import { NumericRangeFacets, RangeFacets } from '@/logic/facets'
 import FilterFactory from '@/models/FilterFactory'
-import type { Entity, Filter, FilterWithItems } from '@/models'
-import type { FacetType } from '@/models/Facet'
+import type { Entity, Filter, FilterWithItems, FacetType } from '@/models'
 import { defineComponent, type PropType } from 'vue'
 import Icon from './base/Icon.vue'
 
@@ -378,7 +376,7 @@ export default defineComponent({
     handleFilterUpdated(index: number, filter: Filter): void {
       // If this filter has no items selected - remove the filter
       if (
-        !RangeFacets.includes(filter.type as FacetType) &&
+        !RangeFacets.includes(filter.type as any) &&
         Array.isArray(filter.q) &&
         filter.q.length === 0
       ) {

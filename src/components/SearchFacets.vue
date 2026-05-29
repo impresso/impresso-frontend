@@ -76,7 +76,7 @@ import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 
-import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
+import type { Entity, FacetType, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import {
@@ -88,7 +88,6 @@ import {
   TimelineDisplayFacetTypes
 } from '@/logic/facets'
 import { computed } from 'vue'
-import { FacetType } from '@/models/Facet'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
 

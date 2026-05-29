@@ -82,10 +82,9 @@ import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
 import { ComparableTypes } from '@/logic/queryComparison'
 import { mapStores } from 'pinia'
 import { ActivateParameters, useMonitorStore } from '@/stores/monitor'
-import { Bucket } from '@/models'
+import { Bucket, FacetType } from '@/models'
 import { PropType } from 'vue'
 import { Comparable } from '@/logic/queryComparison'
-import { FacetType } from '@/models/Facet'
 
 type HandleFacetItemClickedParams = Partial<Pick<ActivateParameters, 'item' | 'type'>>
 

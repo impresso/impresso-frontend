@@ -1,38 +1,20 @@
-import { protobuf } from 'impresso-jscommons'
+import { FacetType, Filter, FilterType } from '@/models'
+import { protobuf, constants } from 'impresso-jscommons'
+import { RangeFacets } from './facets'
+import { includes } from '@/util/fn'
 
-/**
- * @typedef {import('../models').Filter} Filter
- * @typedef {import('../models').Entity} Entity
- */
-
-export function toCanonicalFilter(filter) {
-  const { context, op, type, precision, q, daterange, uids } = filter || {}
-  return { context, op, type, precision, q, daterange, uids }
+export function toCanonicalFilter<T extends FilterType>(filter: Filter<T>): Filter<T> {
+  const { context, op, type, precision, q, uids } = filter ?? {}
+  return { context, op, type, precision, q, uids }
 }
 
-export function toSerializedFilter(filter) {
+export function toSerializedFilter<T extends FilterType>(filter: Filter<T>): string {
   return protobuf.filter.serialize(toCanonicalFilter(filter))
 }
 
-export function toSerializedFilters(filters) {
+export function toSerializedFilters<T extends FilterType>(filters?: Filter<T>[]): string {
   return protobuf.searchQuery.serialize({ filters: filters?.map(toCanonicalFilter) ?? [] })
 }
-
-/**
- * List of facet keys that represent numeric ranges used for filtering.
- *
- * @deprecated This constant is deprecated and should not be used in new code.
- * Use NumericRangeFacets from @/logic/facets module instead.
- *
- * @type {readonly string[]}
- */
-export const NumericRangeFacets = [
-  'textReuseClusterSize',
-  'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta',
-  'contentLength',
-  'ocrQuality'
-]
 
 export const NumericRangeFilters = [
   'textReuseClusterSize',
@@ -40,11 +22,7 @@ export const NumericRangeFilters = [
   'textReuseClusterDayDelta',
   'contentLength',
   'ocrQuality'
-]
-
-export const TimeRangeFacets = ['daterange']
-
-export const RangeFacets = NumericRangeFacets.concat(TimeRangeFacets)
+] satisfies FilterType[]
 
 /**
  * @param {Filter} p
@@ -59,20 +37,18 @@ const getFilterMergeKey = ({ type, op = 'OR', context = 'inclusive', precision =
  * @param {function} fn
  * @returns {object}
  */
-const omitBy = (object, fn) =>
+const omitBy = <T>(object: T, fn: (value: any) => boolean): T =>
   Object.keys(object).reduce((acc, key) => {
     const value = object[key]
     if (!fn(value)) acc[key] = value
     return acc
-  }, {})
+  }, {}) as T
 
 /**
  * Optimize filters by merging filters of the same type with the same
  * context/precision where possible.
- * @param {Filter[]} filters
- * @returns {Filter[]}
  */
-export function optimizeFilters(filters) {
+export function optimizeFilters(filters: Filter[]): Filter[] {
   if (!Array.isArray(filters)) {
     console.error('optimizeFilters: filters is not an array', filters)
     return []
@@ -81,17 +57,17 @@ export function optimizeFilters(filters) {
   const groupingMap = filters.reduce((map, filter, i) => {
     let key = getFilterMergeKey(filter)
     // DO NOT GROUP range filters together
-    if (RangeFacets.includes(filter.type)) {
+    if (includes(RangeFacets, filter.type)) {
       key += `-${i}`
     }
     if (filter.type === 'string') {
       key += `-${i}`
     }
 
-    const items = map.get(key) || []
+    const items = map.get(key) ?? []
     map.set(key, items.concat([filter]))
     return map
-  }, new Map())
+  }, new Map<string, Filter[]>())
 
   return [...groupingMap.entries()].map(([, filters]) => {
     const { type, context, precision, op } = filters[0]

@@ -76,7 +76,7 @@ export interface TimelineInteractionPayload {
   datum: TimelineDatum
 }
 
-interface TimelineBrushedPayload {
+export interface TimelineBrushedPayload {
   brush: {
     min: number
     max: number

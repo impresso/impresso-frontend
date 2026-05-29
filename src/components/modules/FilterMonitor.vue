@@ -264,11 +264,11 @@ import CollectionItem from '@/components/modules/lists/CollectionItem.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import { toCanonicalFilter, toSerializedFilter, RangeFacets } from '@/logic/filters'
-import { NumericRangeFacets } from '@/logic/facets'
+import { toCanonicalFilter, toSerializedFilter } from '@/logic/filters'
+import { NumericRangeFacets, RangeFacets } from '@/logic/facets'
 import { defineComponent, PropType } from 'vue'
-import type { Entity, FilterWithItems } from '@/models'
-import { FacetType } from '@/models/Facet'
+import type { Entity, FilterWithItems, FacetType } from '@/models'
+import { includes } from '@/util/fn'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
@@ -370,7 +370,7 @@ export default defineComponent({
       editedFilter: getInitialEditedFilter(this.filter),
       excludedItemsIds: [],
       stringsToAdd: [],
-      RangeFacets: RangeFacets as string[],
+      RangeFacets: RangeFacets,
       NumericRangeFacets: NumericRangeFacets as string[],
       StringTypes,
       EntityTypes
@@ -535,7 +535,7 @@ export default defineComponent({
     applyChanges(): void {
       const { type } = this.editedFilter
 
-      if (!isStringType(type) && !RangeFacets.includes(type)) {
+      if (!isStringType(type) && !includes(RangeFacets, type)) {
         const combinedItems = this.filterItems.concat(this.itemsToAdd)
         const allItemsDictionary = combinedItems.reduce<Record<string, FilterMonitorItem>>(
           (acc, item) => {
@@ -624,7 +624,7 @@ export default defineComponent({
         // items: [item],
         q
       }
-      if (!NumericRangeFacets.includes(this.editedFilter.type as FacetType))
+      if (!includes(NumericRangeFacets, this.editedFilter.type))
         this.$emit('daterange-changed', this.editedFilter)
     },
     handleFilterChanged(newFilter: FilterMonitorFilter): void {

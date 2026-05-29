@@ -20,9 +20,13 @@
                 <span
                   v-if="contentItemsResponse.status === 'success'"
                   v-html="
-                    $t('numbers.contentItems', {
-                      n: contentItemsResponse.total
-                    }, contentItemsResponse.total)
+                    $t(
+                      'numbers.contentItems',
+                      {
+                        n: contentItemsResponse.total
+                      },
+                      contentItemsResponse.total
+                    )
                   "
                 />
                 <span v-else v-html="$t('actions.loading')" />
@@ -100,9 +104,13 @@
             {{ $d(tooltipScope.tooltip.item.t ?? 0, 'year') }} &middot;
             <b
               v-html="
-                $t('numbers.contentItems', {
-                  n: tooltipScope.tooltip.item.w ?? 0
-                }, tooltipScope.tooltip.item.w ?? 0)
+                $t(
+                  'numbers.contentItems',
+                  {
+                    n: tooltipScope.tooltip.item.w ?? 0
+                  },
+                  tooltipScope.tooltip.item.w ?? 0
+                )
               "
             />
           </div>
@@ -146,29 +154,19 @@ import {
 } from '@/services'
 import { useUserStore } from '@/stores/user'
 import { watch } from 'vue'
-import Facet from '@/models/Facet'
+import FacetModel from '@/models/Facet'
+import type { Filter } from '@/models'
 import List from './modules/lists/List.vue'
 import SearchResultsListItem from './modules/SearchResultsListItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import { Filter } from 'impresso-jscommons'
+import { CollectionFacetTypes } from '@/logic/facets.js'
 
 const userStore = useUserStore()
 
 const route = useRoute()
 const TabOverview = 'overview'
 const TabContentItems = 'ci'
-
-const FacetTypes = [
-  'newspaper',
-  'country',
-  'type',
-  'language',
-  'person',
-  'location',
-  'topic',
-  'partner'
-]
 
 const orderByOptions: FindQuery['order_by'][] = ['-date', 'date']
 const orderBy = ref(orderByOptions[0])
@@ -310,13 +308,13 @@ const fetchContentItems = async (query = {}) => {
 const searchFacetsResponse = ref<{
   data: any[]
 }>({
-  data: FacetTypes.map(type => new Facet({ type }))
+  data: [...CollectionFacetTypes].map(type => new FacetModel({ type }))
 })
 
 const fetchSearchFacets = async () => {
   const response = await searchFacetsService.find({
     query: {
-      facets: FacetTypes,
+      facets: [...CollectionFacetTypes],
       filters: [collectionFilter.value]
     }
   })
@@ -324,7 +322,7 @@ const fetchSearchFacets = async () => {
     console.error('[CollectionExplorerPage] fetchSearchFacets failed')
     return
   }
-  searchFacetsResponse.value.data = response.data.map(f => new Facet(f as any))
+  searchFacetsResponse.value.data = response.data.map(f => new FacetModel(f as any))
 }
 
 const fetchTimeline = async () => {

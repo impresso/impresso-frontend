@@ -24,7 +24,7 @@ import {
   BaristaRequest
 } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { ExtraContentSeparator } from '@/logic/barista'

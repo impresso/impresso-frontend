@@ -29,7 +29,7 @@
 import { computed } from 'vue'
 import ItemLabel from '../modules/lists/ItemLabel.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
-import { FacetType } from '@/models/Facet'
+import { FacetType } from '@/models'
 /**
  * Define the TypeScript interface for the component's props.
  */

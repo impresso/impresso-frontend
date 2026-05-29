@@ -113,14 +113,13 @@ import { getBucketLabel } from '../logic/facets'
 import { ComparableTypes, comparableToQuery, Comparable } from '../logic/queryComparison'
 import { getLatestFilters } from '../logic/storage'
 import { Navigation } from '@/plugins/Navigation'
-import { Filter } from '@/models'
+import { Filter, FacetType } from '@/models'
 import {
   SearchFacet,
   SearchFacetBucket,
   SearchFacetRangeBucket
 } from '@/models/generated/deprecated/models'
 import { isBucket } from '@/models/typeGuards'
-import { FacetType } from '@/models/Facet'
 
 type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 

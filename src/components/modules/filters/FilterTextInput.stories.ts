@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterTextInput from './FilterTextInput.vue'
-import { Filter } from 'impresso-jscommons'
+import { Filter } from '@/models'
 import { fn } from 'storybook/test'
 import { toSerializedFilters } from '@/logic/filters'
 

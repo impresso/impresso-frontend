@@ -46,10 +46,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { FeathersError } from '@feathersjs/errors'
-import type { Filter } from '@/models'
+import type { Filter, FacetType, SearchFacet } from '@/models'
 import FacetModel from '@/models/Facet'
-import type { FacetType } from '@/models/Facet'
-import type { SearchFacet } from '@/models/generated/deprecated/models'
 import type { FindQuery } from '@/services/types/searchFacets'
 import LoadingBlock from '@/components/LoadingBlock.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'

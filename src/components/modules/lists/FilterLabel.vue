@@ -74,7 +74,8 @@ import ItemSelector from '../ItemSelector.vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
-import { NumericRangeFilters } from '@/logic/filters'
+import { NumericRangeFacets } from '@/logic/facets'
+import { includes } from '@/util/fn.js'
 
 type FilterLabelItem = Entity & {
   name?: string
@@ -104,7 +105,7 @@ const contextTranslationKey = computed(() => {
 
 const contextTranslationOptions = computed(() => {
   const options: { [key: string]: any } = {}
-  if (NumericRangeFilters.includes(props.filter.type)) {
+  if (includes(NumericRangeFacets, props.filter.type)) {
     options.min = props.filter.q[0]
     options.max = props.filter.q[1]
   }

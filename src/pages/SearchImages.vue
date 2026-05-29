@@ -166,14 +166,14 @@ import Ellipsis from '@/components/modules/Ellipsis.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
 import FilterFactory from '@/models/FilterFactory'
 import SearchQuery from '@/models/SearchQuery'
-import FacetModel, { FacetType } from '@/models/Facet'
+import FacetModel from '@/models/Facet'
 import { useUserStore } from '@/stores/user'
 import { mapStores } from 'pinia'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent, PropType } from 'vue'
-import { IImage, Filter } from '@/models'
+import { IImage, Filter, FilterType, FacetType } from '@/models'
 
-const AllowedFilterTypes = [
+const AllowedFilterTypes: FilterType[] = [
   'newspaper',
   'isFront',
   'daterange',
@@ -184,7 +184,7 @@ const AllowedFilterTypes = [
   'imageContentType'
 ]
 
-const AllowedFacetTypes = [
+const AllowedFacetTypes: FacetType[] = [
   'newspaper',
   'year',
   'imageVisualContent',
