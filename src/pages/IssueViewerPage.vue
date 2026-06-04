@@ -86,7 +86,7 @@
           :contentItem="contentItemOriginal"
         />
         <ListOfSimilarContentItems
-          class="w-100 p-3"
+          class="w-100 p-3 row"
           v-if="contentItemOriginal && viewMode === SimilarArticlesMode"
           :contentItem="contentItemOriginal"
         >
