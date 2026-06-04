@@ -43,6 +43,7 @@
         </template>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
+      <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
       <span
         v-else-if="['daterange'].includes(filter.type)"
         v-html="
@@ -83,13 +84,14 @@ type FilterLabelItem = Entity & {
   start?: string | number | Date
   end?: string | number | Date
   precision?: string
+  y?: number
 }
 
 const isFilterItem = (value: unknown): value is FilterLabelItem => {
   return value != null && typeof value === 'object'
 }
 
-interface FilterAsLabelProps {
+export interface FilterAsLabelProps {
   filter: FilterWithItems<FilterLabelItem>
   showType?: boolean
   limitNumberOfFilterItems?: number
@@ -188,6 +190,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "language": "written in",
       "country": "printed in",
       "type": "- tagged as",
+      "page": "on page <span class='number'>{page}</span>",
       "textReuseCluster": "showing up in clusters",
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
@@ -224,6 +227,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "language": "not written in",
       "country": "not printed in",
       "type": "- not tagged as",
+      "page": "not on page <span class='number'>{page}</span>",
       "textReuseCluster": "not in clusters",
       "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",

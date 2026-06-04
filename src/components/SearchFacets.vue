@@ -90,6 +90,7 @@ import { computed, watch } from 'vue'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import { includes } from '@/util/fn.js'
+import { NumericContentItemsFacets } from '@/logic/filters.js'
 
 const selectionMonitorStore = useSelectionMonitorStore()
 
@@ -136,7 +137,9 @@ const emit = defineEmits<{
 
 const standardFacets = computed(() => {
   // year is never rendered by itself but it is used to render daterange.
-  return props.facets.filter(({ type }) => !includes(['year', 'daterange'], type))
+  return props.facets.filter(
+    ({ type }) => !includes([...TimelineDisplayFacetTypes, ...NumericContentItemsFacets], type)
+  )
 })
 
 const rangeFacets = computed(() => {

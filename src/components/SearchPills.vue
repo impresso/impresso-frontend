@@ -13,6 +13,7 @@
         <Icon name="cross" />
       </button>
     </div>
+
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
       <b-dropdown
         size="sm"
@@ -20,10 +21,7 @@
         class="mr-1 mb-1 search-pill"
         :data-testid="`search-pill-${filter.type}`"
       >
-        <!-- {{ filter.type }} -->
-        <!--  button content -->
-        <template v-slot:button-content>
-          <!-- badge: initial type instead of icons -->
+        <template #button-content>
           <span class="position-relative mx-1" style="padding-left: 20px">
             <Icon
               class="m-0 position-absolute left-0"
@@ -32,154 +30,74 @@
               :width="20"
               :stroke-width="1.5"
               :name="filter.type"
-            ></Icon>
+            />
           </span>
 
-          <!--  type:string, type:title -->
-          <span
-            class="label sp-string sp-title"
-            v-if="['string', 'title'].includes(filter.type)"
-            v-html="labelByItems({ items: filter.items, max: 2, prop: 'id', op: filter.op })"
-            :class="[filter.context, filter.precision]"
-          >
-          </span>
-          <!--  type:topic -->
-          <span
-            class="label sp-topic"
-            v-if="filter.type === 'topic'"
-            v-html="
-              labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op })
-            "
-            :class="filter.context"
-          >
-          </span>
-          <!--  type:person, type:location, type:newspaper -->
-          <span
-            class="label sp-labelled"
-            v-if="
-              ['person', 'location', 'newspaper', 'entity', 'nag', 'organisation'].indexOf(
-                filter.type
-              ) !== -1
-            "
-            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
-            :class="filter.context"
-          >
-          </span>
-          <!--  type:mention -->
-          <span
-            class="label sp-labelled"
-            v-if="['mention'].indexOf(filter.type) !== -1"
-            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
-            :class="filter.context"
-          >
-          </span>
-          <!--  type:language and other items -->
-          <span
-            class="label sp-generic-item"
-            v-if="
-              [
-                'language',
-                'country',
-                'type',
-                'accessRight',
-                'copyright',
-                'dataDomain',
-                'partner',
-                'sourceType',
-                'sourceMedium'
-              ].indexOf(filter.type) !== -1
-            "
-            v-html="
-              labelByItems({
-                items: filter.items,
-                max: 2,
-                prop: 'id',
-                translate: true,
-                type: filter.type,
-                op: filter.op
-              })
-            "
-            :class="filter.context"
-          >
-          </span>
-          <!--  type:image types -->
-          <span
-            class="label sp-generic-item"
-            v-if="
-              [
-                'imageVisualContent',
-                'imageTechnique',
-                'imageCommunicationGoal',
-                'imageContentType'
-              ].indexOf(filter.type) !== -1
-            "
-            v-html="
-              labelByItems({
-                items: filter.items,
-                max: 2,
-                prop: 'label',
-                translate: true,
-                type: filter.type,
-                op: filter.op
-              })
-            "
-            :class="filter.context"
-          >
-          </span>
-          <!--  type:generic -->
-          <span
-            class="label sp-generic-item"
-            v-if="['year'].includes(filter.type)"
-            :class="filter.context"
-            >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
-          </span>
-          <!--  type:text reuse id -->
-          <span
-            class="label sp-generic-item"
-            v-if="['textReuseCluster'].includes(filter.type)"
-            :class="filter.context"
-            >{{ Array.isArray(filter.q) ? filter.q.join(', ') : filter.q }}
-          </span>
-          <!--  type:collections -->
-          <span
-            class="label sp-collection"
-            v-if="filter.type === 'collection'"
-            v-html="labelByItems({ items: filter.items, max: 2, op: filter.op })"
-            :class="filter.context"
-          >
-          </span>
-          <!-- type:embedding -->
-          <span
-            class="label sp-embedding"
-            v-if="filter.type === 'embedding'"
-            v-html="
-              labelByItems({
-                items: filter.items,
-                max: 2,
-                prop: 'id',
-                op: filter.op,
-                maxLength: 20
-              })
-            "
-            :class="filter.context"
-          >
-          </span>
-          <!--  type: (with slider) -->
+          <template v-for="itemLabel in [getItemLabel(filter)]" :key="`item-label-${filterIndex}`">
+            <SearchPillsItemLabel
+              v-if="itemLabel"
+              :label="itemLabel"
+              :context-class="filter.context"
+              :precision="filter.precision"
+            />
+          </template>
+
+          <template v-for="qLabel in [getQLabel(filter)]" :key="`q-label-${filterIndex}`">
+            <span v-if="qLabel" class="label" :class="[...qLabel.classNames, filter.context]">
+              <template v-if="qLabel.translationKey">
+                {{ $t(qLabel.translationKey, qLabel.params, qLabel.plural) }}
+              </template>
+              <template v-else>{{ qLabel.values }}</template>
+
+              <span v-if="qLabel.hiddenCount > 0"
+                >&nbsp;{{ $t('items.hidden', { count: qLabel.hiddenCount }) }}</span
+              >
+            </span>
+          </template>
+
           <span
             class="label sp-collection"
             v-if="numericTypes.includes(filter.type)"
-            v-html="labelForNumeric({ items: filter.items, type: filter.type })"
             :class="filter.context"
           >
+            <template
+              v-for="numeric in [labelForNumeric({ items: filter.items, type: filter.type })]"
+              :key="`numeric-${filterIndex}`"
+            >
+              {{
+                $t(numeric.translationKey, {
+                  label: $t(numeric.labelTranslationKey),
+                  start: $n(numeric.params.start),
+                  end: $n(numeric.params.end)
+                })
+              }}
+            </template>
           </span>
 
-          <!--  type:daterange -->
           <span
             class="label sp-daterange"
             v-if="filter.type === 'daterange'"
             :class="filter.context"
-            v-html="labelByDaterangeItems({ items: filter.items, max: 2 })"
           >
+            <template
+              v-for="dateLabel in [labelByDaterangeItems({ items: filter.items, max: 2 })]"
+              :key="`daterange-${filterIndex}`"
+            >
+              <template v-for="(item, index) in dateLabel.items" :key="`daterange-item-${index}`">
+                {{
+                  $t(dateLabel.itemTranslationKey, {
+                    start: $d(item.startDate, 'compactUtc'),
+                    end: $d(item.endDate, 'compactUtc')
+                  })
+                }}
+                <span v-if="index < dateLabel.items.length - 1" class="op or px-1">{{
+                  $t(dateLabel.operatorKey)
+                }}</span>
+              </template>
+              <span v-if="dateLabel.hiddenCount > 0">{{
+                $t('items.hidden', { count: dateLabel.hiddenCount })
+              }}</span>
+            </template>
           </span>
         </template>
 
@@ -187,69 +105,75 @@
           <div class="description">
             {{ $t(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
           </div>
-          <filter-monitor
+          <FilterMonitor
             checkbox
             :filter="filter"
-            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
             :operators="['AND', 'OR']"
+            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
           />
         </div>
 
-        <!-- type is not string, add Remove button -->
         <div class="px-2 mt-1 mb-2">
           <b-button
             block
             size="sm"
             variant="outline-primary"
             @click="handleFilterRemoved(filterIndex)"
-            >{{ $t('actions.remove') }}</b-button
           >
+            {{ $t('actions.remove') }}
+          </b-button>
         </div>
       </b-dropdown>
     </div>
+
     <b-button
       v-if="enableAddFilter"
       class="mb-1"
       variant="outline-primary"
       size="sm"
-      v-on:click="showFilterExplorer"
       data-testid="add-filter-button"
+      @click="showFilterExplorer"
     >
       {{ $t('actions.addContextualFilter') }}
     </b-button>
 
     <b-button
+      v-if="isResettable"
       class="mb-1 px-2 ml-auto border-radius"
       variant="outline-danger"
-      v-if="isResettable"
       :title="$t('actions.resetFilters')"
-      @click="handleReset"
       data-testid="reset-filters-button"
+      @click="handleReset"
     >
       <div class="d-flex dripicons-cross"></div>
     </b-button>
 
-    <explorer
+    <Explorer
       v-model="explorerFilters"
       :is-visible="explorerVisible"
-      @onHide="handleExplorerHide"
       :searching-enabled="false"
       :included-types="explorerIncludedTypes"
       :index="index"
+      @onHide="handleExplorerHide"
     />
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
+import SearchPillsItemLabel from '@/components/SearchPillsItemLabel.vue'
 import { NumericRangeFacets, RangeFacets } from '@/logic/facets'
+import { labelByItems, labelByQs } from '@/components/SearchPills.logic'
+import type { LabelByItemsResult, LabelByQsResult } from '@/components/SearchPills.logic'
 import FilterFactory from '@/models/FilterFactory'
-import type { Entity, Filter, FilterWithItems, FacetType } from '@/models'
-import { defineComponent, type PropType } from 'vue'
+import type { Entity, FilterWithItems, FacetType } from '@/models'
+import { computed, ref, toRefs } from 'vue'
 import Icon from './base/Icon.vue'
+import type { SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
+import { includes } from '@/util/fn.js'
 
-type PillItem = Entity & {
+export type PillItem = Entity & {
   name?: string
   htmlExcerpt?: string
   start?: string | number | Date
@@ -259,18 +183,6 @@ type PillItem = Entity & {
 type Pill = {
   filter: FilterWithItems<PillItem>
   filterIndex: number
-}
-
-type FilterLabelItem = NonNullable<FilterWithItems<PillItem>['items']>[number]
-
-type LabelByItemsOptions = {
-  items?: FilterLabelItem[]
-  prop?: string
-  max?: number
-  op?: string
-  translate?: boolean
-  type?: string
-  maxLength?: number
 }
 
 type LabelByDaterangeItemsOptions = {
@@ -283,214 +195,295 @@ type LabelForNumericOptions = {
   type: string
 }
 
+type ItemLabelResult = LabelByItemsResult & SearchPillsItemLabelData
+
+type LabelByDaterangeItemsResult = {
+  itemTranslationKey: string
+  operatorKey: string
+  hiddenCount: number
+  items: Array<{ startDate: Date; endDate: Date }>
+}
+
+type QFilterLabelResult = LabelByQsResult & {
+  classNames: string[]
+}
+
+type LabelForNumericResult = {
+  translationKey: string
+  labelTranslationKey: string
+  params: {
+    start: number
+    end: number
+  }
+}
+
 export interface SearchPillsProps {
   excludedTypes?: string[]
   includedFilterTypes?: string[]
   enableAddFilter?: boolean
-  filters?: Filter[]
+  filters?: FilterWithItems<PillItem>[]
   index?: string
   disableReset?: boolean
 }
 
-export default defineComponent({
-  name: 'SearchPills',
-  emits: {
-    changed: (filters: Filter[]) => Array.isArray(filters)
-  },
-  data: () => ({
-    explorerVisible: false
-  }),
-  props: {
-    excludedTypes: {
-      type: Array as PropType<string[]>,
-      default: () => ['hasTextContents', 'isFront']
-    },
-    includedFilterTypes: {
-      /* included filter types override excluded types */
-      type: Array as PropType<string[] | undefined>,
-      default: undefined
-    },
-    enableAddFilter: {
-      type: Boolean,
-      default: false
-    },
-    filters: {
-      type: Array as PropType<Filter[]>,
-      default: (): Filter[] => []
-    },
-    index: {
-      type: String,
-      default: 'search'
-    },
-    disableReset: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    pills(): Pill[] {
-      /* included filter types override excluded types */
-      const filterFn =
-        this.includedFilterTypes != null
-          ? ({ filter }: Pill) => (this.includedFilterTypes || []).includes(filter.type)
-          : ({ filter }: Pill) => !this.excludedTypes.includes(filter.type)
+const props = withDefaults(defineProps<SearchPillsProps>(), {
+  excludedTypes: () => ['hasTextContents', 'isFront'],
+  includedFilterTypes: undefined,
+  enableAddFilter: false,
+  filters: (): FilterWithItems<PillItem>[] => [],
+  index: 'search',
+  disableReset: false
+})
 
-      return this.filters
-        .map(
-          (filter, filterIndex): Pill => ({
-            filter: FilterFactory.create(filter) as FilterWithItems<PillItem>,
-            filterIndex
-          })
-        )
-        .filter(filterFn)
-    },
-    isFrontFilterEnabled(): boolean {
-      return this.filters.some(({ type }) => type === 'isFront')
-    },
-    isEmpty(): boolean {
-      return !this.isFrontFilterEnabled && this.pills.length === 0
-    },
-    explorerFilters: {
-      get(): Filter[] {
-        return this.filters
-      },
-      set(filters: Filter[]) {
-        this.$emit('changed', filters)
-      }
-    },
-    explorerIncludedTypes(): FacetType[] | undefined {
-      return this.includedFilterTypes as FacetType[] | undefined
-    },
-    numericTypes(): string[] {
-      return NumericRangeFacets
-    },
-    isResettable(): boolean {
-      if (this.disableReset) return false
-      return !!this.filters.filter(d => d.type !== 'hasTextContents').length
-    }
-  },
-  methods: {
-    isValidItem(item: unknown): item is FilterLabelItem {
-      return item != null && typeof item === 'object'
-    },
-    handleFilterUpdated(index: number, filter: Filter): void {
-      // If this filter has no items selected - remove the filter
-      if (
-        !RangeFacets.includes(filter.type as any) &&
-        Array.isArray(filter.q) &&
-        filter.q.length === 0
-      ) {
-        return this.handleFilterRemoved(index)
-      }
+const emit = defineEmits<{
+  (e: 'changed', filters: FilterWithItems<PillItem>[]): void
+}>()
 
-      const newFilters = [...this.filters]
-      newFilters[index] = filter
-      this.$emit('changed', newFilters)
-    },
-    handleFilterRemoved(index: number): void {
-      const newFilters = this.filters.filter((f, idx) => idx !== index)
-      this.$emit('changed', newFilters)
-    },
-    handleFrontpageFilterRemoved(): void {
-      const newFilters = this.filters.filter(d => d.type !== 'isFront')
-      this.$emit('changed', newFilters)
-    },
-    handleReset(): void {
-      const newFilters: Filter[] = []
-      this.$emit('changed', newFilters)
-    },
-    labelByItems({
-      items = [],
-      prop = 'name',
-      max = 1,
-      op = 'OR',
-      translate = false,
-      type = 'label',
-      maxLength = -1
-    }: LabelByItemsOptions = {}): string {
-      const validItems = items.filter(this.isValidItem)
-      let labels = validItems
-        .slice(0, max)
-        .map(d => {
-          const rawValue = (d as unknown as Record<string, unknown>)[prop]
+const { excludedTypes, includedFilterTypes, enableAddFilter, filters, index, disableReset } =
+  toRefs(props)
 
-          if (translate) {
-            const translation = String(this.$t(`buckets.${type}.${String(rawValue ?? '')}`))
-            if (translation.startsWith('buckets.')) {
-              return String(rawValue ?? '')
-            }
-            return translation
-          }
-          if (rawValue == null || rawValue === '') {
-            return '...'
-          }
+const explorerVisible = ref(false)
 
-          const value = String(rawValue)
-          if (maxLength < 0) {
-            return value
-          }
-          return value.length > maxLength ? `${value.slice(0, maxLength)}…` : value
-        })
-        .join(`<span class="op or px-1">${this.$t(`op.${op.toLowerCase()}`)}</span>`)
+const pills = computed<Pill[]>(() => {
+  const filterFn =
+    includedFilterTypes.value != null
+      ? ({ filter }: Pill) => (includedFilterTypes.value || []).includes(filter.type)
+      : ({ filter }: Pill) => !excludedTypes.value.includes(filter.type)
 
-      if (validItems.slice(max).length) {
-        labels += this.$t('items.hidden', {
-          count: validItems.slice(max).length
-        })
-      }
-
-      return labels
-    },
-    labelByDaterangeItems({ items = [], max = 1 }: LabelByDaterangeItemsOptions = {}): string {
-      let labels = items
-        .slice(0, max)
-        .map(d =>
-          this.$t('label.daterange.item', {
-            start: this.$d(new Date(d.start ?? 0), 'compactUtc'),
-            end: this.$d(new Date(d.end ?? 0), 'compactUtc')
-          })
-        )
-        .join(`<span class="op or px-1">${this.$t('op.or')}</span>`)
-      if (items.slice(max).length) {
-        labels += this.$t('items.hidden', {
-          count: items.slice(max).length
-        })
-      }
-      return labels
-    },
-    labelForNumeric({ items = [], type }: LabelForNumericOptions): string {
-      const { start, end } = items[0] || {}
-
-      const label = this.$t(`label.${type}.item`)
-      const toNumber = (value: number | Date | string | undefined): number => {
-        if (typeof value === 'number') return value
-        if (value instanceof Date) return value.getTime()
-        if (typeof value === 'string') {
-          const parsed = Number(value)
-          return Number.isFinite(parsed) ? parsed : 0
-        }
-        return 0
-      }
-
-      return this.$t('label.range.item', {
-        label,
-        start: this.$n(toNumber(start)),
-        end: this.$n(toNumber(end))
+  return filters.value
+    .map(
+      (filter, filterIndex): Pill => ({
+        filter: FilterFactory.create(filter) as FilterWithItems<PillItem>,
+        filterIndex
       })
-    },
-    showFilterExplorer(): void {
-      this.explorerVisible = true
-    },
-    handleExplorerHide(): void {
-      this.explorerVisible = false
-    }
+    )
+    .filter(filterFn)
+})
+
+const isFrontFilterEnabled = computed<boolean>(() => {
+  return filters.value.some(({ type }) => type === 'isFront')
+})
+
+const isEmpty = computed<boolean>(() => {
+  return !isFrontFilterEnabled.value && pills.value.length === 0
+})
+
+const explorerFilters = computed<FilterWithItems<PillItem>[]>({
+  get() {
+    return filters.value
   },
-  components: {
-    FilterMonitor,
-    Explorer,
-    Icon
+  set(nextFilters: FilterWithItems<PillItem>[]) {
+    emit('changed', nextFilters)
   }
 })
+
+const explorerIncludedTypes = computed<FacetType[] | undefined>(() => {
+  return includedFilterTypes.value as FacetType[] | undefined
+})
+
+const numericTypes = computed<string[]>(() => {
+  return NumericRangeFacets
+})
+
+const isResettable = computed<boolean>(() => {
+  if (disableReset.value) return false
+  return !!filters.value.filter(d => d.type !== 'hasTextContents').length
+})
+
+const handleFilterUpdated = (index: number, filter: FilterWithItems<PillItem>): void => {
+  if (!includes(RangeFacets, filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
+    return handleFilterRemoved(index)
+  }
+
+  const newFilters = [...filters.value]
+  newFilters[index] = filter
+  emit('changed', newFilters)
+}
+
+const handleFilterRemoved = (index: number): void => {
+  const newFilters = filters.value.filter((f, idx) => idx !== index)
+  emit('changed', newFilters)
+}
+
+const handleFrontpageFilterRemoved = (): void => {
+  const newFilters = filters.value.filter(d => d.type !== 'isFront')
+  emit('changed', newFilters)
+}
+
+const handleReset = (): void => {
+  emit('changed', [])
+}
+
+const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null => {
+  if (['string', 'title'].includes(filter.type)) {
+    return {
+      ...labelByItems({ items: filter.items, max: 2, prop: 'id', op: filter.op }),
+      classNames: ['sp-string', 'sp-title'],
+      includePrecision: true
+    }
+  }
+
+  if (filter.type === 'topic') {
+    return {
+      ...labelByItems({ items: filter.items, max: 2, prop: 'htmlExcerpt', op: filter.op }),
+      classNames: ['sp-topic']
+    }
+  }
+
+  if (
+    ['person', 'location', 'newspaper', 'entity', 'nag', 'organisation', 'mention'].includes(
+      filter.type
+    )
+  ) {
+    return {
+      ...labelByItems({ items: filter.items, max: 2, op: filter.op }),
+      classNames: ['sp-labelled']
+    }
+  }
+
+  if (
+    [
+      'language',
+      'country',
+      'type',
+      'accessRight',
+      'copyright',
+      'dataDomain',
+      'partner',
+      'sourceType',
+      'sourceMedium'
+    ].includes(filter.type)
+  ) {
+    return {
+      ...labelByItems({
+        items: filter.items,
+        max: 2,
+        prop: 'id',
+        translate: true,
+        type: filter.type,
+        op: filter.op
+      }),
+      classNames: []
+    }
+  }
+
+  if (
+    ['imageVisualContent', 'imageTechnique', 'imageCommunicationGoal', 'imageContentType'].includes(
+      filter.type
+    )
+  ) {
+    return {
+      ...labelByItems({
+        items: filter.items,
+        max: 2,
+        prop: 'label',
+        translate: true,
+        type: filter.type,
+        op: filter.op
+      }),
+      classNames: []
+    }
+  }
+
+  if (filter.type === 'collection') {
+    return {
+      ...labelByItems({ items: filter.items, max: 2, op: filter.op }),
+      classNames: ['sp-collection']
+    }
+  }
+
+  if (filter.type === 'embedding') {
+    return {
+      ...labelByItems({
+        items: filter.items,
+        max: 2,
+        prop: 'id',
+        op: filter.op,
+        maxLength: 20
+      }),
+      classNames: ['sp-embedding']
+    }
+  }
+
+  return null
+}
+
+const labelByDaterangeItems = ({
+  items = [],
+  max = 1
+}: LabelByDaterangeItemsOptions = {}): LabelByDaterangeItemsResult => {
+  return {
+    itemTranslationKey: 'label.daterange.item',
+    operatorKey: 'op.or',
+    hiddenCount: items.slice(max).length,
+    items: items.slice(0, max).map(item => ({
+      startDate: new Date(item.start ?? 0),
+      endDate: new Date(item.end ?? 0)
+    }))
+  }
+}
+
+const getQLabel = (filter: FilterWithItems<PillItem>): QFilterLabelResult | null => {
+  if (filter.type === 'page') {
+    return {
+      ...labelByQs({
+        q: filter.q,
+        max: 3,
+        translationKey: 'pps',
+        valuesParamKey: 'pages',
+        keepTailOnTruncate: true
+      }),
+      classNames: []
+    }
+  }
+
+  if (filter.type === 'year') {
+    return {
+      ...labelByQs({ q: filter.q, max: 3, keepTailOnTruncate: true }),
+      classNames: []
+    }
+  }
+
+  if (filter.type === 'textReuseCluster') {
+    return {
+      ...labelByQs({ q: filter.q, max: 3, keepTailOnTruncate: true }),
+      classNames: []
+    }
+  }
+
+  return null
+}
+
+const labelForNumeric = ({ items = [], type }: LabelForNumericOptions): LabelForNumericResult => {
+  const { start, end } = items[0] || {}
+
+  const toNumber = (value: number | Date | string | undefined): number => {
+    if (typeof value === 'number') return value
+    if (value instanceof Date) return value.getTime()
+    if (typeof value === 'string') {
+      const parsed = Number(value)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+    return 0
+  }
+
+  return {
+    translationKey: 'label.range.item',
+    labelTranslationKey: `label.${type}.item`,
+    params: {
+      start: toNumber(start),
+      end: toNumber(end)
+    }
+  }
+}
+
+const showFilterExplorer = (): void => {
+  explorerVisible.value = true
+}
+
+const handleExplorerHide = (): void => {
+  explorerVisible.value = false
+}
 </script>
 
 <style lang="scss">

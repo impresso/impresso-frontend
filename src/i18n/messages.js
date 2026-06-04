@@ -284,6 +284,7 @@ export default {
     pageNumber: 'p. {n}',
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     ppOf: 'p.{num} of {pages}',
+    pps: 'no pages | p.{pages} | pp.{pages}',
     providedBy: 'provided by',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
@@ -356,6 +357,19 @@ export default {
         context: {
           include: 'content available as',
           exclude: 'content <b>NOT</b> available as'
+        }
+      },
+      page: {
+        title: 'Page | Page | Pages',
+        filterTitle: 'page number',
+        filtered: 'results are filtered when:',
+        selected: 'Filter results if they appear on <b>one of {count} selected</b> pages',
+        description: 'filter results based on page number',
+        empty: '(no results)',
+        item: 'Page',
+        context: {
+          include: 'content available on selected pages',
+          exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
       ocrQuality: {
@@ -613,7 +627,11 @@ export default {
       year: {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
-        optionsDescription: 'Number of Content Items per year'
+        optionsDescription: 'Number of Content Items per year',
+        context: {
+          include: 'published in year',
+          exclude: '<b>NOT</b> published in year'
+        }
       },
       imageVisualContent: {
         title: 'Visual Content | Visual Content | Visual Contents',
