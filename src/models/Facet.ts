@@ -31,6 +31,7 @@ export type FacetType = Extract<
   | 'nag'
   | 'organisation'
   | 'month'
+  | 'page'
   | 'textReuseClusterSize'
   | 'textReuseClusterLexicalOverlap'
   | 'textReuseClusterDayDelta'
