@@ -165,12 +165,14 @@ import Explorer from '@/components/Explorer.vue'
 import SearchPillsItemLabel from '@/components/SearchPillsItemLabel.vue'
 import { RangeFacets } from '@/logic/filters'
 import { NumericRangeFacets } from '@/logic/facets'
+import { labelByItems, labelByQs } from '@/components/SearchPills.logic'
+import type { LabelByItemsResult, LabelByQsResult } from '@/components/SearchPills.logic'
 import FilterFactory from '@/models/FilterFactory'
 import type { Entity, Filter, FilterWithItems } from '@/models'
 import type { FacetType } from '@/models/Facet'
 import { computed, ref, toRefs } from 'vue'
 import Icon from './base/Icon.vue'
-import type { LabelToken, SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
+import type { SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
 
 export type PillItem = Entity & {
   name?: string
@@ -184,40 +186,14 @@ type Pill = {
   filterIndex: number
 }
 
-type FilterLabelItem = NonNullable<FilterWithItems<PillItem>['items']>[number]
-
-type LabelByItemsOptions = {
-  items?: FilterLabelItem[]
-  prop?: string
-  max?: number
-  op?: string
-  translate?: boolean
-  type?: string
-  maxLength?: number
-}
-
 type LabelByDaterangeItemsOptions = {
   items?: Array<{ start?: string | number | Date; end?: string | number | Date }>
   max?: number
 }
 
-type LabelByQsOptions = {
-  q?: string | number | Array<string | number>
-  max?: number
-  translationKey?: string
-  valuesParamKey?: string
-  keepTailOnTruncate?: boolean
-}
-
 type LabelForNumericOptions = {
   items?: Array<{ start?: number | Date | string; end?: number | Date | string }>
   type: string
-}
-
-type LabelByItemsResult = {
-  tokens: LabelToken[]
-  operatorKey: string
-  hiddenCount: number
 }
 
 type ItemLabelResult = LabelByItemsResult & SearchPillsItemLabelData
@@ -227,18 +203,6 @@ type LabelByDaterangeItemsResult = {
   operatorKey: string
   hiddenCount: number
   items: Array<{ startDate: Date; endDate: Date }>
-}
-
-type LabelByQsResult = {
-  translationKey?: string
-  params: {
-    n: number
-    values: string
-    pages?: string
-  }
-  plural: number
-  hiddenCount: number
-  values: string
 }
 
 type QFilterLabelResult = LabelByQsResult & {
@@ -327,10 +291,6 @@ const isResettable = computed<boolean>(() => {
   return !!filters.value.filter(d => d.type !== 'hasTextContents').length
 })
 
-const isValidItem = (item: unknown): item is FilterLabelItem => {
-  return item != null && typeof item === 'object'
-}
-
 const handleFilterUpdated = (index: number, filter: FilterWithItems<PillItem>): void => {
   if (
     !RangeFacets.includes(filter.type as FacetType) &&
@@ -357,53 +317,6 @@ const handleFrontpageFilterRemoved = (): void => {
 
 const handleReset = (): void => {
   emit('changed', [])
-}
-
-const labelByItems = ({
-  items = [],
-  prop = 'name',
-  max = 1,
-  op = 'OR',
-  translate = false,
-  type = 'label',
-  maxLength = -1
-}: LabelByItemsOptions = {}): LabelByItemsResult => {
-  const validItems = items.filter(isValidItem)
-  const tokens: LabelToken[] = validItems.slice(0, max).map(item => {
-    const rawValue = (item as unknown as Record<string, unknown>)[prop]
-
-    if (translate) {
-      const fallback = rawValue == null || rawValue === '' ? '...' : String(rawValue)
-      return {
-        type: 'translation',
-        translationKey: `buckets.${type}.${String(rawValue ?? '')}`,
-        fallback
-      }
-    }
-
-    if (rawValue == null || rawValue === '') {
-      return {
-        type: 'text',
-        value: '...'
-      }
-    }
-
-    const value = String(rawValue)
-    const labelValue =
-      maxLength < 0 ? value : value.length > maxLength ? `${value.slice(0, maxLength)}…` : value
-
-    return {
-      type: 'text',
-      value: labelValue,
-      html: prop === 'htmlExcerpt'
-    }
-  })
-
-  return {
-    tokens,
-    operatorKey: `op.${op.toLowerCase()}`,
-    hiddenCount: validItems.slice(max).length
-  }
 }
 
 const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null => {
@@ -512,46 +425,6 @@ const labelByDaterangeItems = ({
       startDate: new Date(item.start ?? 0),
       endDate: new Date(item.end ?? 0)
     }))
-  }
-}
-
-const labelByQs = ({
-  q,
-  max = 3,
-  translationKey,
-  valuesParamKey = 'values',
-  keepTailOnTruncate = true
-}: LabelByQsOptions = {}): LabelByQsResult => {
-  const qValues = Array.isArray(q) ? q : q != null ? [q] : []
-  const normalizedMax = Math.max(1, max)
-  const shouldCompressWithTail =
-    keepTailOnTruncate && qValues.length > normalizedMax && normalizedMax >= 2
-  const shownValues = shouldCompressWithTail
-    ? [...qValues.slice(0, normalizedMax - 1), qValues[qValues.length - 1]]
-    : qValues.slice(0, normalizedMax)
-  const values = shouldCompressWithTail
-    ? `${shownValues
-        .slice(0, shownValues.length - 1)
-        .map(value => String(value))
-        .join(', ')} ... ${String(shownValues[shownValues.length - 1])}`
-    : shownValues.map(value => String(value)).join(', ')
-  const plural = qValues.length || 1
-  const hiddenCount = Math.max(qValues.length - shownValues.length, 0)
-  const params: LabelByQsResult['params'] = {
-    n: plural,
-    values
-  }
-
-  if (valuesParamKey === 'pages') {
-    params.pages = values
-  }
-
-  return {
-    translationKey,
-    params,
-    plural,
-    hiddenCount,
-    values
   }
 }
 
