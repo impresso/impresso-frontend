@@ -26,15 +26,9 @@
         <span
           class="small-caps"
           v-else-if="
-            [
-              'year',
-              'type',
-              'language',
-              'country',
-              'copyright',
-              'sourceType',
-              'sourceMedium'
-            ].includes(filter.type)
+            ['type', 'language', 'country', 'copyright', 'sourceType', 'sourceMedium'].includes(
+              filter.type
+            )
           "
           >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
