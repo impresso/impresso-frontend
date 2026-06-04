@@ -159,6 +159,7 @@ export const NumericContentItemsFacets = [
 
 const TextSearchFacets = [
   'daterange',
+  'year',
   ...NumericContentItemsFacets,
   ...TextContentItemFacets,
   'collection'

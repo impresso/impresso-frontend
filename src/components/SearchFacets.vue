@@ -86,7 +86,7 @@ import {
   RangeFacetTypes,
   TimelineDisplayFacetTypes
 } from '@/logic/facets'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import { includes } from '@/util/fn.js'
@@ -117,12 +117,26 @@ const props = withDefaults(defineProps<SearchFacetsProps>(), {
   searchIndex: 'search'
 })
 
+watch(
+  () => props.facets,
+  facets => {
+    const types = facets.map(f => f.type)
+    if (types.includes('daterange') && !types.includes('year')) {
+      throw new Error(
+        '[SearchFacets] "daterange" facet requires a "year" facet to also be present in props.facets'
+      )
+    }
+  },
+  { immediate: true }
+)
+
 const emit = defineEmits<{
   (e: 'changed', filters: Filter[]): void
 }>()
 
 const standardFacets = computed(() => {
-  return props.facets
+  // year is never rendered by itself but it is used to render daterange.
+  return props.facets.filter(({ type }) => !includes(['year', 'daterange'], type))
 })
 
 const rangeFacets = computed(() => {
