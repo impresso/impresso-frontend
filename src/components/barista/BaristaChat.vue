@@ -2,7 +2,7 @@
   <div class="barista-chat">
     <BaristaChatPanel
       :filters="simplifiedFilters"
-      :messages="messages.filter(m => m != null)"
+      :messages="displayedMessages"
       :isLoading="isWorking"
       @submit="handleMessageSubmit"
       @updateHeight="handleUpdateHeight"
@@ -146,6 +146,19 @@ const convertBaristaMessageToChat = (
 
 // State for messages
 const messages = ref<ChatMessage[]>([])
+
+const defaultWelcomeMessage: ChatMessage = {
+  content: 'Hello! How can I help you today?',
+  timestamp: new Date(),
+  type: 'system'
+}
+
+const displayedMessages = computed<ChatMessage[]>(() => {
+  if (messages.value.length > 0) {
+    return messages.value
+  }
+  return [defaultWelcomeMessage]
+})
 
 // Handler for sending messages
 const handleMessageSubmit = async (request: BaristaRequest) => {

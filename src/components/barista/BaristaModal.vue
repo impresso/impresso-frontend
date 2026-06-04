@@ -20,38 +20,6 @@
           {{ $t('new chat') }}
           <Icon name="dots" class="ms-1" :scale="0.25" :stroke-width="5" />
         </button>
-        <div class="dropdown" ref="conversationsDropdownRef">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-            @click="toggleConversationsDropdown"
-          >
-            {{ $t('conversations') }}
-            <Icon name="chevron-down" :scale="0.6" />
-          </button>
-          <ul
-            v-if="conversationsDropdownOpen"
-            class="dropdown-menu show shadow-sm"
-            style="max-height: 300px; overflow-y: auto; min-width: 220px"
-          >
-            <li v-if="conversationsLoading" class="dropdown-item text-muted small">
-              {{ $t('loading') }}…
-            </li>
-            <li v-else-if="!conversations.length" class="dropdown-item text-muted small">
-              {{ $t('no conversations') }}
-            </li>
-            <li v-for="conv in conversations" :key="conv.baristaSessionId">
-              <button
-                type="button"
-                class="dropdown-item small d-flex flex-column align-items-start"
-                @click="selectConversation(conv.baristaSessionId)"
-              >
-                <span class="text-truncate" style="max-width: 240px">{{ conv.label }}</span>
-                <span class="text-muted" style="font-size: 0.75em">{{ relativeTime(conv.dateLastModified) }}</span>
-              </button>
-            </li>
-          </ul>
-        </div>
         <template v-if="baristaStore.currentConversation">
           <span
             v-if="!editingTitle"
@@ -108,24 +76,58 @@
           >
           </BaristaChat>
         </div>
-        <div class="col-lg-4 py-2 order-md-1 order-lg-2">
-          <p class="pt-3 border-bottom pb-2 small">
-            Barista [ba’rista] is the person behind the counter in a coffee shop: they listen
-            carefully to your order, your hesitations, and sometimes even your worries. Of course
-            they don’t have the answer you need, but they help you figure it out, and then prepare a
-            proper coffee in the meanwhile, to clear your mind. Don’t worry, they’re the ultimate
-            local expert: they suggest the connections that matter for your problem, and help you
-            understand the neighbourhood, without ever leaving the counter.
-          </p>
-          <div class="position-sticky top-0 bg-white py-2" v-if="suggestedFilters.length">
-            <p v-if="baristaStore.sendCurrentFilters">
-              These filters are shared between you and Barista :)
-            </p>
-            <p v-else>These filters are suggested by Barista for your current search:</p>
-            <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
-            <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
-              Apply Filters to current search
-            </button>
+        <div class="col-lg-4 pb-2 order-md-1 order-lg-2">
+          <div class="position-sticky top-0 bg-white z-index-1 pt-2">
+            <b-tabs pills>
+              <template v-slot:tabs-end>
+                <b-nav-item
+                  v-for="(tabItem, i) in ['overview', 'conversations']"
+                  :key="i"
+                  class="w-50 cursor-pointer"
+                  :class="{ active: tabItem === activeRightTab }"
+                  active-class="none"
+                  @click="activeRightTab = tabItem"
+                >
+                  <span class="small-caps nav-link" v-html="$t(tabItem)"></span>
+                </b-nav-item>
+              </template>
+            </b-tabs>
+          </div>
+          <div v-if="activeRightTab === 'overview'" class="my-3">
+            <section class="pt-1 border-bottom pb-2 small">
+              <Ellipsis :initialHeight="70">
+                <p>
+                  Barista [ba’rista] is the person behind the counter in a coffee shop: they listen
+                  carefully to your order, your hesitations, and sometimes even your worries. Of
+                  course they don’t have the answer you need, but they help you figure it out, and
+                  then prepare a proper coffee in the meanwhile, to clear your mind. Don’t worry,
+                  they’re the ultimate local expert: they suggest the connections that matter for
+                  your problem, and help you understand the neighbourhood, without ever leaving the
+                  counter.
+                </p>
+              </Ellipsis>
+            </section>
+          </div>
+          <div v-if="activeRightTab === 'overview'" class="position-sticky py-2" style="top: 50px">
+            <div>
+              <BFormCheckbox switch v-model="baristaStore.sendCurrentFilters" class="mb-2 ml-1">
+                Share current search filters with Barista
+              </BFormCheckbox>
+              <section v-if="baristaStore.sendCurrentFilters">
+                <p class="text-muted small mb-2">
+                  These filters are shared between you and Barista :)
+                </p>
+
+                <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
+                <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
+                  Apply Filters to current search
+                </button>
+              </section>
+            </div>
+          </div>
+
+          <div v-else>
+            <BaristaConversations :fetch-items-when-visible="activeRightTab === 'conversations'" />
           </div>
         </div>
       </div>
@@ -143,13 +145,13 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
 import type { Filter } from 'impresso-jscommons'
 import BaristaChat from './BaristaChat.vue'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'
-import { joinFiltersWithItems, serializeFilters, toCanonicalFilter } from '@/logic/filters'
-import type { BaristaConversation } from '@/services/types/baristaConversations'
-import { relativeTime } from '@/util/time'
+import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import Icon from '../base/Icon.vue'
 import { useBaristaStore } from '@/stores/barista'
+import BaristaConversations from '@/components/barista/BaristaConversations.vue'
+import Ellipsis from '../modules/Ellipsis.vue'
 
 export type BaristaModalProps = {
   dialogClass?: string
@@ -161,42 +163,7 @@ const props = withDefaults(defineProps<BaristaModalProps>(), {
   dialogClass: ' modal-dialog-centered  modal-dialog-scrollable modal-xl vh-90'
 })
 const baristaStore = useBaristaStore()
-
-
-const conversations = ref<BaristaConversation[]>([])
-const conversationsLoading = ref(false)
-const conversationsDropdownOpen = ref(false)
-const conversationsDropdownRef = ref<HTMLElement | null>(null)
-
-async function toggleConversationsDropdown() {
-  conversationsDropdownOpen.value = !conversationsDropdownOpen.value
-  if (conversationsDropdownOpen.value) {
-    conversationsLoading.value = true
-    try {
-      const result = await baristaStore.getConversations()
-      conversations.value = result.data
-    } finally {
-      conversationsLoading.value = false
-    }
-  }
-}
-
-async function selectConversation(sessionId: string) {
-  conversationsDropdownOpen.value = false
-  await baristaStore.loadConversation(sessionId)
-}
-
-function handleClickOutside(event: MouseEvent) {
-  if (
-    conversationsDropdownRef.value &&
-    !conversationsDropdownRef.value.contains(event.target as Node)
-  ) {
-    conversationsDropdownOpen.value = false
-  }
-}
-
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
+const activeRightTab = ref<'overview' | 'conversations'>('overview')
 
 const editingTitle = ref(false)
 const titleDraft = ref('')
@@ -303,9 +270,8 @@ function dismiss() {
   "en": {
     "baristaTitle": "Ask Barista",
     "BaristaModalTitle": "Ask Barista",
+    "overview": "Overview",
     "conversations": "Conversations",
-    "no conversations": "No conversations yet",
-    "loading": "Loading",
     "click to rename": "Click to rename",
     "save": "Save",
     "cancel": "Cancel"
@@ -326,5 +292,13 @@ function dismiss() {
   border-top: none;
   padding-right: var(--spacing-2);
   padding-bottom: var(--spacing-2);
+}
+
+.BaristaModalTabs .nav-link {
+  color: var(--bs-secondary-color);
+}
+
+.BaristaModalTabs .nav-link.active {
+  color: var(--bs-light);
 }
 </style>

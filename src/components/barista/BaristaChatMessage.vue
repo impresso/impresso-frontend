@@ -30,10 +30,12 @@
         class="message-search-query-summary small mt-2 mb-0 text-muted"
       ></div>
 
-      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
-        <li v-for="(step, i) in message.searchQuerySteps" :key="i">
-          <p v-html="renderMarkdown(step)"></p>
-        </li>
+      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps mt-2 mb-0">
+        <li
+          v-for="(step, i) in message.searchQuerySteps"
+          :key="i"
+          v-html="renderMarkdown(step)"
+        ></li>
       </ol>
 
       <TimeAgo
@@ -279,5 +281,14 @@ const formatActionType = (type: string): string => {
   cursor: pointer;
   opacity: 0.55;
   font-size: inherit;
+}
+
+.BaristaChatMessage ol.message-search-steps {
+  counter-reset: step;
+  list-style: none;
+  padding-left: 0;
+}
+.BaristaChatMessage li {
+  margin-bottom: var(--spacing-3);
 }
 </style>
