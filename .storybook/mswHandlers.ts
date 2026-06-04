@@ -13,6 +13,7 @@ import {
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
 import { MockTopic } from './mockData/topics'
+import { MockBaristaConversations } from './mockData/baristaConversations'
 
 export const findSearchFacetsHandler = http.get(
   '/api/search-facets/search',
@@ -331,6 +332,23 @@ export const findUserSpecialMembershipRequestsHandler = http.get(
   }
 )
 
+export const findBaristaConversationsHandler = http.get(
+  '/api/barista-conversations',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '5')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 300))
+    const items = MockBaristaConversations.slice(offset, offset + limit)
+    return HttpResponse.json({
+      data: items,
+      total: MockBaristaConversations.length,
+      limit,
+      skip: offset
+    })
+  }
+)
+
 export const createUserSpecialMembershipRequestHandler = http.post(
   '/api/user-special-membership-requests',
   async ({ request }) => {
@@ -394,5 +412,6 @@ export const handlers = {
   createCollectionHandler,
   patchCollectionItemsHandler,
   getCollectionHandler,
-  getFiltersItems
+  getFiltersItems,
+  findBaristaConversationsHandler
 }
