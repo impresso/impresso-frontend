@@ -613,7 +613,11 @@ export default {
       year: {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
-        optionsDescription: 'Number of Content Items per year'
+        optionsDescription: 'Number of Content Items per year',
+        context: {
+          include: 'published in year',
+          exclude: '<b>NOT</b> published in year'
+        }
       },
       imageVisualContent: {
         title: 'Visual Content | Visual Content | Visual Contents',

@@ -43,6 +43,7 @@
         </template>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
+      <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
       <span
         v-else-if="['daterange'].includes(filter.type)"
         v-html="
@@ -82,6 +83,7 @@ type FilterLabelItem = Entity & {
   start?: string | number | Date
   end?: string | number | Date
   precision?: string
+  y?: number
 }
 
 const isFilterItem = (value: unknown): value is FilterLabelItem => {

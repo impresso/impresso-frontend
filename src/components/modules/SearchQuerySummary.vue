@@ -47,7 +47,6 @@ const AvailableFilterTypes = [
   'location',
   'language',
   'country',
-  'year',
   'accessRight',
   'copyright',
   'nag',
@@ -134,7 +133,7 @@ watch(
 <i18n lang="json">
 {
   "en": {
-    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength} {ocrQuality}",
+    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength} {ocrQuality}",
     "isFront": "appearing on the <em>front page</em>",
     "include": {
       "accessRight": "available as",

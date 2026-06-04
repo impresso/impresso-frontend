@@ -31,7 +31,11 @@
         </li>
         <BDropdown class="px-2 text-white">
           <template v-slot:button-content>
-            <span class="text-white">{{ $t('label_search') }}</span>
+            <span
+              class="text-white"
+              @click="$router.push(getRouteWithSearchQuery({ name: 'search' }))"
+              >{{ $t('label_search') }}</span
+            >
           </template>
           <li
             class="px-2"
