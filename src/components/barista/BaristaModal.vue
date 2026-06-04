@@ -126,7 +126,7 @@
             </div>
           </div>
 
-          <div v-else>
+          <div v-else class="position-sticky py-2" style="top: 50px">
             <BaristaConversations :fetch-items-when-visible="activeRightTab === 'conversations'" />
           </div>
         </div>

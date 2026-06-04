@@ -194,7 +194,8 @@ const formatActionType = (type: string): string => {
         "find_newspapers_ids": "Find Newspapers",
         "find_topics_ids": "Find Topics",
         "get_impresso_feature_explanation": "Explain Feature",
-        "get_search_facets": "Sum up search filters results"
+        "get_search_facets": "Sum up search filters results",
+        "filter_builder": "Help with search filters"
       }
     }
   }
