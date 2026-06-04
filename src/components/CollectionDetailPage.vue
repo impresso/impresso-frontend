@@ -309,7 +309,9 @@
 
 <script lang="ts">
 import { mapStores } from 'pinia'
-import { Filter, protobuf } from 'impresso-jscommons'
+import { Filter, Facet, FacetType } from '@/models'
+import FacetModel from '@/models/Facet'
+
 import Collection from '@/models/Collection'
 import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
 import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
@@ -317,7 +319,6 @@ import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.
 // import Article from '@/models/Article'
 import Pagination from '@/components/modules/Pagination.vue'
 import SearchQuery from '@/models/SearchQuery'
-import Facet, { FacetType } from '@/models/Facet'
 import Timeline from '@/components/modules/Timeline.vue'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
 import { mapFilters } from '@/logic/queryParams'
@@ -705,7 +706,7 @@ export default defineComponent({
           // group_by: 'articles',
         }
       })
-      this.facets = response.data.map(f => new Facet(f as any))
+      this.facets = response.data.map(f => new FacetModel(f as any))
     }
   }
 })

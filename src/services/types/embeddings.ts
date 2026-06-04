@@ -1,5 +1,5 @@
 import { ClientService } from '@feathersjs/feathers'
-import { FindResponse } from '../../models/index.d'
+import { FindResponse } from '../../models'
 
 /**
  * Represents a word match result from word embeddings similarity search

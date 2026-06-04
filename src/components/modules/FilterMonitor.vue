@@ -72,7 +72,7 @@
     </div>
     <div class="items" :class="{ reduced: tooManyItems }">
       <div v-for="(item, idx) in filterItems" :key="idx" class="mt-2">
-        <div v-if="RangeFacets.includes(type)">
+        <div v-if="includes(RangeFacets, type)">
           <FilterNumericRange
             v-if="isNumericRangeFacet(type)"
             :start="asNumber(item.start)"
@@ -266,8 +266,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { Entity, FilterWithItems } from '@/models'
-import { FacetType } from '@/models/Facet'
+import type { Entity, FilterWithItems, FacetType } from '@/models'
 // import FilterDaterange from '@/components/modules/FilterDateRange'
 import FilterDateRangeCalendar from '@/components/modules/FilterDateRangeCalendar.vue'
 import FilterNumericRange from '@/components/modules/FilterNumericRange.vue'
@@ -278,8 +277,9 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import EntitySuggester from '@/components/modals/EntitySuggesterModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Icon from '@/components/base/Icon.vue'
-import { toCanonicalFilter, toSerializedFilter, RangeFacets } from '@/logic/filters'
-import { NumericRangeFacets } from '@/logic/facets'
+import { toCanonicalFilter, toSerializedFilter } from '@/logic/filters'
+import { NumericRangeFacets, RangeFacets } from '@/logic/facets'
+import { includes } from '@/util/fn'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
@@ -577,7 +577,7 @@ function applyChanges(): void {
     }
     emit('changed', newFilter)
     stringsToAdd.value = []
-  } else if (!RangeFacets.includes(normalizedType)) {
+  } else if (!includes(RangeFacets, normalizedType)) {
     const combinedItems = filterItems.value.concat(itemsToAdd.value)
     const allItemsDictionary = combinedItems.reduce<Record<string, FilterMonitorItem>>(
       (acc, item) => {
@@ -670,7 +670,7 @@ function handleRangeChanged({ item, q }: IRangeChangedPayload): void {
     ...editedFilter.value,
     q
   }
-  if (!NumericRangeFacets.includes(editedFilter.value.type as FacetType)) {
+  if (!includes(NumericRangeFacets, editedFilter.value.type)) {
     emit('daterange-changed', editedFilter.value)
   }
 }

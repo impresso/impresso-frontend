@@ -44,8 +44,7 @@ import { ref, computed, watch, onMounted } from 'vue'
 import ItemLabel from './lists/ItemLabel.vue'
 import ItemSelector from './ItemSelector.vue'
 import type { Bucket, Entity, FilterWithItems } from '@/models'
-import type { FacetType } from '@/models/Facet'
-import { FilterType } from 'impresso-jscommons'
+import type { FacetType, FilterType } from '@/models'
 
 // Helper function
 function getEntitiesForIds(

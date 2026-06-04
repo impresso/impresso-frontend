@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { FacetType } from '@/models/Facet'
+import { FacetType } from '@/models'
 import { Topic } from '@/models/generated/canonical'
 import { defineComponent, PropType } from 'vue'
 

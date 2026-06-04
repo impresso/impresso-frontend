@@ -58,10 +58,8 @@ import SearchPills from '@/components/SearchPills.vue'
 import SearchTabs from '@/components/modules/SearchTabs.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
-import type { Facet, Filter } from '@/models'
+import type { Facet, Filter, FacetType, FilterType } from '@/models'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
-import { FacetType } from '@/models/Facet'
-import { FilterType } from 'impresso-jscommons'
 
 export interface SearchSidebarProps {
   /** Used for helper button */

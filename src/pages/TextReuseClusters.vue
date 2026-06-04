@@ -11,9 +11,13 @@
             <b-nav-item class="pl-2 active" active-class="none">
               <span
                 v-html="
-                  $t('searchClustersLabel', {
-                    n: $n(paginationList.totalRows)
-                  }, paginationList.totalRows)
+                  $t(
+                    'searchClustersLabel',
+                    {
+                      n: $n(paginationList.totalRows)
+                    },
+                    paginationList.totalRows
+                  )
                 "
               />
               <span v-if="isLoading" class=""> &mdash; {{ $t('actions.loading') }}</span>
@@ -84,7 +88,7 @@ const isLastItem = (index, total) => total - 1 === index
 const serializeFilters = filters =>
   protobuf.searchQuery.serialize({ filters: filters.map(toCanonicalFilter) })
 
-const SupportedFilterTypes = SupportedFiltersByContext.textReuse
+const SupportedFilterTypes = SupportedFiltersByContext.textReusePassages
 const supportedFiltersFilter = filter => SupportedFilterTypes.includes(filter.type)
 
 const QueryParameters = Object.freeze({

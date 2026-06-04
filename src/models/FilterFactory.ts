@@ -8,7 +8,7 @@ import FilterTopic from '@/models/FilterTopic'
 import FilterItem from '@/models/FilterItem'
 import FilterDaterange from '@/models/FilterDaterange'
 import FilterCollection from '@/models/FilterCollection'
-import { Filter } from 'impresso-jscommons'
+import { Filter } from '@/models'
 
 type FilterData = Omit<Partial<Filter>, 'type' | 'q'> & {
   type: string

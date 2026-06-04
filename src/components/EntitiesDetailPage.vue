@@ -145,9 +145,13 @@
                 {{ $d(tooltipScope.tooltip.item?.t ?? 0, 'year') }} &middot;
                 <span
                   v-html="
-                    $t('numbers.contentItems', {
-                      n: $n(tooltipScope.tooltip.item?.w ?? 0)
-                    }, tooltipScope.tooltip.item?.w ?? 0)
+                    $t(
+                      'numbers.contentItems',
+                      {
+                        n: $n(tooltipScope.tooltip.item?.w ?? 0)
+                      },
+                      tooltipScope.tooltip.item?.w ?? 0
+                    )
                   "
                 ></span>
               </div>
@@ -208,7 +212,7 @@ import Timeline from '@/components/modules/Timeline.vue'
 import ArticleItem from '@/components/modules/lists/ArticleItem.vue'
 import MentionItem from '@/components/modules/lists/MentionItem.vue'
 import StackedBarsPanel from '@/components/modules/vis/StackedBarsPanel.vue'
-import Facet, { FacetType } from '@/models/Facet'
+import Facet from '@/models/Facet'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import SearchQuery from '@/models/SearchQuery'
 import { searchFacets as searchFacetsService } from '@/services'
@@ -221,6 +225,7 @@ import { useUserStore } from '@/stores/user'
 import { getWikimediaRedirectFileUrl } from '@/util/wikimedia'
 import { mapStores } from 'pinia'
 import { PropType } from 'vue'
+import { FacetType } from '@/models'
 
 import Article from '@/models/Article'
 import Bucket from '@/models/Bucket'
@@ -393,15 +398,23 @@ export default {
           name: 'overview'
         },
         {
-          label: this.$t('tabs.contentItems', {
-            count: this.$n(this.entity.countItems)
-          }, this.entity.countItems),
+          label: this.$t(
+            'tabs.contentItems',
+            {
+              count: this.$n(this.entity.countItems)
+            },
+            this.entity.countItems
+          ),
           name: 'content-items'
         },
         {
-          label: this.$t('tabs.mentions', {
-            count: this.$n(this.entity.countMentions)
-          }, this.entity.countMentions),
+          label: this.$t(
+            'tabs.mentions',
+            {
+              count: this.$n(this.entity.countMentions)
+            },
+            this.entity.countMentions
+          ),
           name: 'mentions'
         }
       ]

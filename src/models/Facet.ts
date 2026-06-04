@@ -1,81 +1,6 @@
-import { FilterOperator, FilterType } from 'impresso-jscommons'
+import { FilterOperator } from 'impresso-jscommons'
 import Bucket from './Bucket'
-import { SearchFacet } from './generated/deprecated/models'
-import type { Facet as IFacet, Entity } from './index'
-
-/**
- * All supported facet types.
- * TODO: load from impresso-jscommons.
- */
-export type FacetType = Extract<
-  FilterType,
-  | 'topic'
-  | 'textReuseCluster'
-  | 'textReusePassage'
-  | 'collection'
-  | 'year'
-  | 'type'
-  | 'country'
-  | 'language'
-  | 'newspaper'
-  | 'person'
-  | 'location'
-  | 'sourceType'
-  | 'sourceMedium'
-  | 'mediaSource'
-  | 'dataDomain'
-  | 'copyright'
-  | 'partner'
-  | 'contentLength'
-  | 'ocrQuality'
-  | 'nag'
-  | 'organisation'
-  | 'month'
-  | 'page'
-  | 'textReuseClusterSize'
-  | 'textReuseClusterLexicalOverlap'
-  | 'textReuseClusterDayDelta'
-  | 'daterange'
-  | 'imageVisualContent'
-  | 'imageTechnique'
-  | 'imageCommunicationGoal'
-  | 'imageContentType'
->
-
-/**
- * Read-only array of all supported facet types.
- * TODO: load from impresso-jscommons.
- */
-export const FacetTypes: ReadonlyArray<FacetType> = Object.freeze([
-  ...new Set<FacetType>([
-    'topic',
-    'textReuseCluster',
-    'collection',
-    'year',
-    'type',
-    'country',
-    'language',
-    'newspaper',
-    'person',
-    'location',
-    'sourceType',
-    'sourceMedium',
-    'dataDomain',
-    'copyright',
-    'partner',
-    'contentLength'
-  ])
-] as const)
-
-// Type assertion to ensure all FacetType values are included exactly once
-type EnsureExhaustive<T extends readonly FacetType[]> = {
-  [K in FacetType]: T extends readonly [...infer Pre, K, ...infer Post]
-    ? Pre | Post extends readonly K[]
-      ? 'Duplicate type detected'
-      : unknown
-    : 'Missing type detected'
-}
-type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
+import { type Facet as IFacet, type Entity, FacetType, SearchFacet } from './index'
 
 /**
  * @class todo: is an objctet represnting different occurences of a dimension based on the query
@@ -83,7 +8,7 @@ type _TypeCheck = EnsureExhaustive<typeof FacetTypes>
  * for instance: year/language/newspaper
  * @param {Array} buckets Array with Buckets objects
  */
-export default class Facet<T extends string = FacetType> implements IFacet<T, Entity> {
+export default class Facet<T extends FacetType = FacetType> implements IFacet<T, Entity> {
   type: T
   buckets: Bucket[]
   operators: FilterOperator[]
@@ -126,7 +51,7 @@ export default class Facet<T extends string = FacetType> implements IFacet<T, En
     })
   }
 
-  static fromSearchFacet<T extends string = FacetType>(facet: SearchFacet) {
+  static fromSearchFacet<T extends FacetType = FacetType>(facet: SearchFacet) {
     return new Facet<T>({
       type: facet.type as T,
       buckets: (facet.buckets || []).map(

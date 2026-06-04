@@ -23,7 +23,7 @@
 import { ref, watch } from 'vue'
 import BaristaModal from './BaristaModal.vue'
 import Icon from '../base/Icon.vue'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 
 defineOptions({
   inheritAttrs: false

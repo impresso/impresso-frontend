@@ -22,7 +22,7 @@
         </div>
       </template>
       <b-form-group class="mx-3">
-        <b-form-checkbox v-model="isFront" switch :modelValue="true">
+        <b-form-checkbox v-model="isFront" switch>
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
@@ -67,12 +67,7 @@
               :disabled="isLoading"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
               class="mb-2"
-              @input="
-                items => {
-                  console.debug('[SearchNgrams] input', e)
-                  unigrams = items
-                }
-              "
+              @input="items => (unigrams = items)"
             />
             <b-dropdown
               ref="embeddings"
@@ -123,9 +118,8 @@
                 ></div>
                 <b>{{ item.label }}</b>
                 &middot;
-                {{ roundValueForDisplay(item.item.value, false) }} {{ $t('tooltipValueUnit') }} ({{
-                  valuePerTotalTokens(item, index)
-                }})
+                {{ roundValueForDisplay(Number(item.item.value), false) }}
+                {{ $t('tooltipValueUnit') }} ({{ valuePerTotalTokens(item, index) }})
               </div>
             </div>
           </template>
@@ -157,10 +151,19 @@
   </i-layout>
 </template>
 
-<script>
-import { serializeFilters, optimizeFilters, toCanonicalFilter } from '@/logic/filters'
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
+import type { ComponentCustomProperties } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import {
+  serializeFilters,
+  optimizeFilters,
+  toCanonicalFilter,
+  FacetsByContext,
+  SupportedFiltersByContext
+} from '@/logic/filters'
 import { useUserStore } from '@/stores/user'
-import { mapStores } from 'pinia'
+import type { Filter, Facet } from '@/models'
 
 import FacetModel from '@/models/Facet'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
@@ -174,54 +177,72 @@ import TagsInput from '@/components/base/TagsInput.vue'
 import PageHeading from '@/components/base/PageHeading.vue'
 
 import { ngramTrends as ngramTrendsService, searchFacets as searchFacetsService } from '@/services'
-import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
+import { buildEmptyFacets } from '@/logic/facets'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
+import type { RouteLocationRaw } from 'vue-router'
+import { includes } from '@/util/fn'
 
-/**
- * @typedef {import('../models').Filter} Filter
- * @typedef {import('../models').Facet} Facet
- * @typedef {import('../models').Bucket} Bucket
- */
+interface NgramTrend {
+  ngram: string
+  values: number[]
+  total: number
+}
 
-/**
- * @param {Filter} filter
- * @returns {boolean}
- */
-const isFrontFilter = ({ type }) => type === 'isFront'
+interface NgramResult {
+  trends: NgramTrend[]
+  domainValues: string[]
+  totals: number[]
+  timeInterval: string
+}
+
+interface PlotItem {
+  value: number
+  time: Date
+}
+
+interface ItemsSet {
+  label: string
+  items: PlotItem[]
+}
+
+interface TooltipItem {
+  label: string
+  item: PlotItem
+}
+
+interface TooltipItemsGroup {
+  items: TooltipItem[]
+  colors: string[]
+}
+
+interface TooltipScope {
+  tooltip?: {
+    item?: TooltipItemsGroup
+  }
+}
+
+interface NgramTrendsQuery {
+  ngrams: string[]
+  filters: Filter[]
+}
+
+type NgramTrendsService = {
+  create(query: NgramTrendsQuery): Promise<NgramResult>
+}
+
+const proxy = getCurrentInstance()!.proxy as ComponentCustomProperties
+
+const isFrontFilter = ({ type }: { type: string }): boolean => type === 'isFront'
 
 const QueryParameters = Object.freeze({
   SearchFilters: CommonQueryParameters.SearchFilters,
   Unigrams: 'unigrams'
 })
 
-const AllowedFilterTypes = [
-  'accessRight',
-  'collection',
-  'country',
-  'isFront',
-  // 'issue',
-  'language',
-  'location',
-  'newspaper',
-  'partner',
-  'person',
-  'nag',
-  'organisation',
-  // 'string',
-  // 'title',
-  'topic',
-  'type',
-  'year',
-  'daterange',
-  'hasTextContents'
-]
+const AllowedFilterTypes = SupportedFiltersByContext.search
 
-/**
- * @param {Facet[]} facets
- * @returns {number}
- */
-function getTotalNumberOfResults(facets) {
+function getTotalNumberOfResults(facets: Facet[]): number {
   const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
   if (facetsWithBuckets.length === 0) return 0
 
@@ -229,352 +250,298 @@ function getTotalNumberOfResults(facets) {
   return buckets.reduce((total, { count }) => total + count, 0)
 }
 
-/**
- * @param {Facet[]} facets
- * @param {number} fullYear
- * @returns {number}
- */
-function getArticlesCountForYear(facets, fullYear) {
+function getArticlesCountForYear(facets: Facet[], fullYear: number): number {
   const yearFacetsWithBuckets = facets.filter(
     ({ buckets, type }) => buckets != null && buckets.length > 0 && type === 'year'
   )
   if (yearFacetsWithBuckets.length === 0) return 0
   const { buckets } = yearFacetsWithBuckets[0]
-  const bucket = buckets.filter(({ val }) => val === `${fullYear}`)[0]
+  const bucket = buckets.find(({ item }) => item && 'id' in item && item.id === `${fullYear}`)
   if (bucket == null) return 0
   return bucket.count
 }
 
-const EmptyNgramResult = Object.freeze({
+const EmptyNgramResult: NgramResult = Object.freeze({
   trends: [],
   domainValues: [],
+  totals: [],
   timeInterval: 'year'
 })
 
-const SupportedFacetTypes = DefaultFacetTypesForIndex.search
+const SupportedFacetTypes = FacetsByContext.search
+const typedNgramTrendsService = ngramTrendsService as NgramTrendsService
 
-export default {
-  name: 'SearchNgramsPage',
-  components: {
-    MultiLinePlot,
-    SearchQuerySummary,
-    Ellipsis,
-    BaseTitleBar,
-    SearchSidebar,
-    InfoButton,
-    EmbeddingsSearch,
-    TagsInput,
-    PageHeading
+interface Props {
+  filters?: Filter[]
+  filtersWithItems?: Filter[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  filters: () => [],
+  filtersWithItems: () => []
+})
+
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+
+const facets = ref<Facet[]>([])
+const ngramResult = ref<NgramResult>({ ...EmptyNgramResult })
+const isLoading = ref(false)
+const isEmbeddingSearchDisplayed = ref(false)
+
+onMounted(() => {
+  facets.value = buildEmptyFacets(SupportedFacetTypes) as Facet[]
+})
+
+const unigrams = computed<string[]>({
+  get() {
+    const value = route.query[QueryParameters.Unigrams]
+    let serializedUnigrams = ''
+    if (typeof value === 'string') serializedUnigrams = value
+    if (Array.isArray(value)) serializedUnigrams = value.join(',')
+    return serializedUnigrams
+      .split(',')
+      .filter(v => v !== '')
+      .map(v => v.trim().replace(' ', ''))
   },
-  data: () => ({
-    /** @type {Facet[]} */
-    facets: [],
-    /** @type {Filter[]} */
-    // filtersWithItems: [],
-    /** @type {any} */
-    ngramResult: EmptyNgramResult,
-    isLoading: false,
-    isEmbeddingSearchDisplayed: false
-  }),
-  mounted() {
-    this.facets = buildEmptyFacets(SupportedFacetTypes)
-  },
-  props: {
-    filters: {
-      type: Array,
-      default: () => []
-    },
-    filtersWithItems: {
-      type: Array,
-      default: () => []
-    }
-  },
-  watch: {
-    fullFilters: {
-      /** @param {Filter[]} filters */
-      async handler(filters) {
-        const query = {
-          filters: filters.map(toCanonicalFilter),
-          limit: 25,
-          facets: SupportedFacetTypes.filter(t => t !== 'collection')
-          // group_by: 'articles'
-        }
-        const facets = await searchFacetsService.find({ query }).then(result => {
-          return result.data || []
-        })
-
-        this.facets = facets.map(f => new FacetModel(f))
-        if (this.isLoggedIn) {
-          const collectionsFacet = await searchFacetsService.get('collection', {
-            query: {
-              filters
-              // group_by: 'articles',
-            }
-          })
-          this.facets = facets.concat(collectionsFacet).map(f => new FacetModel(f))
-        }
-      },
-      immediate: true,
-      deep: true
-    },
-    unigramsQueryParameters: {
-      /** @param {{ ngrams: string[], filters: Filter[] }} query */
-      async handler(query) {
-        if (query.ngrams.length === 0) {
-          this.ngramResult = EmptyNgramResult
-        } else {
-          try {
-            this.isLoading = true
-            this.ngramResult = await ngramTrendsService.create(query)
-          } finally {
-            this.isLoading = false
-          }
-        }
-      },
-      immediate: true,
-      deep: true
-    }
-  },
-  computed: {
-    ...mapStores(useUserStore),
-    $navigation() {
-      return new Navigation(this)
-    },
-    /** @type {import('vue').ComputedOptions<string[]>} */
-    unigrams: {
-      /** @returns {string[]} */
-      get() {
-        const value = this.$route.query[QueryParameters.Unigrams]
-        let serializedUnigrams = ''
-        if (typeof value === 'string') serializedUnigrams = value
-        if (Array.isArray(value)) serializedUnigrams = value.join(',')
-        return serializedUnigrams
-          .split(',')
-          .filter(v => v !== '')
-          .map(v => v.trim().replace(' ', ''))
-      },
-      /** @param {string[]} unigrams */
-      set(unigrams) {
-        const sanitisedUnigrams = unigrams.map(v => v.trim().replace(' ', ''))
-        this.$navigation.updateQueryParameters({
-          [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
-        })
-      }
-    },
-    /** @returns {string} */
-    unigramsSummary() {
-      if (this.trends.length === 0) {
-        return this.$t('label.noUnigram').toString()
-      }
-      const trends = this.trends
-        .map(trend =>
-          this.$t(
-            'numbers.unigramMentions',
-            {
-              unigram: trend.ngram,
-              n: this.$n(trend.total)
-            },
-            trend.total || 0
-          )
-        )
-        .join('; ')
-      return this.$t('label.withTrends', { trends }).toString()
-    },
-    /** @returns {Filter[]} */
-    enrichedFilters() {
-      return this.filtersWithItems != null
-        ? this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
-        : this.allowedFilters
-    },
-    /** @returns {Filter[]} */
-    ignoredFilters() {
-      return this.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
-    },
-    /** @returns {Filter[]} */
-    allowedFilters() {
-      return (
-        this.filters
-
-          .filter(({ type }) => type !== 'hasTextContents' && AllowedFilterTypes.includes(type))
-          // add implicit filters
-          .concat([{ type: 'hasTextContents' }])
-      )
-    },
-    /**
-     * Full filters is what we use to filter the side panel facet filters.
-     * They include filters + a string filter containing all entered unigrams.
-     * @returns {Filter[]}
-     */
-    fullFilters() {
-      const stringFilter = {
-        type: 'string',
-        op: 'OR',
-        q: this.unigrams
-      }
-      return this.allowedFilters.concat(this.unigrams.length > 0 ? [stringFilter] : [])
-    },
-    isFront: {
-      /** @returns {boolean} */
-      get() {
-        return this.filters.filter(isFrontFilter).length > 0
-      },
-      /** @param {boolean} isFront */
-      set(isFront) {
-        const newFilters = isFront
-          ? this.filters.filter(f => !isFrontFilter(f)).concat([{ type: 'isFront' }])
-          : this.filters.filter(f => !isFrontFilter(f))
-        this.handleFiltersChanged(newFilters)
-      }
-    },
-    isLoggedIn() {
-      return this.userStore.userData
-    },
-    /** @returns {{ ngram: string, values: number[], total: number }[]} */
-    trends() {
-      return this.ngramResult.trends
-    },
-    /** @returns {number} */
-    totalArticlesCount() {
-      return getTotalNumberOfResults(this.facets)
-    },
-    /** @returns {{ name: string, query: any }} */
-    searchPageLink() {
-      const stringFilter = {
-        type: 'string',
-        precision: 'exact',
-        op: 'OR',
-        q: this.trends.map(({ ngram }) => ngram)
-      }
-      const filters = this.filters.concat([stringFilter])
-      // const query = { f: JSON.stringify(filters) }
-      console.info('sending filters', filters)
-      return { name: 'search', query: { sq: serializeFilters(filters) } }
-    },
-    /** @returns {{ ngrams: string[], filters: Filter[] }} */
-    unigramsQueryParameters() {
-      return {
-        ngrams: this.unigrams,
-        filters: optimizeFilters(this.allowedFilters)
-      }
-    },
-    /**
-     * @typedef {{ value: number, time: Date }} Item
-     * @typedef {{ items: Item[], label: string }} ItemsSet
-     * @returns {ItemsSet[]}
-     */
-    plotItems() {
-      const { domainValues, totals } = this.ngramResult
-      const dates = domainValues.map(v => new Date(v))
-
-      return this.ngramResult.trends.map(({ ngram, values }) => {
-        return {
-          label: ngram,
-          items: values.map((value, index) => ({
-            value: (value / totals[index]) * 1000000,
-            time: dates[index]
-          }))
-        }
-      })
-    },
-    /** @returns {string} */
-    plotItemsData() {
-      const { domainValues, totals } = this.ngramResult
-      const data = this.ngramResult.trends.map(({ ngram, values }) => ({
-        label: ngram,
-        items: values.map((value, index) => ({
-          value,
-          total: totals[index],
-          ppm: (value / totals[index]) * 1000000,
-          date: domainValues[index]
-        }))
-      }))
-      const jsonStr = JSON.stringify({
-        // @ts-ignore
-        url: window.location.href,
-        filters: this.filters,
-        exportDate: new Date(),
-        data
-      })
-      return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`
-    },
-    /** @returns {string} */
-    timelineResolution() {
-      // the time-interval needs to be one i18n datetimeFormats, e.g `year`,
-      return this.ngramResult.timeInterval
-    },
-    /** @returns {string[]} */
-    isoDates() {
-      const { domainValues } = this.ngramResult
-      return domainValues.map(v => new Date(v).toISOString())
-    },
-    /** @returns {import('@/models').Filter | undefined} */
-    embeddingsFilter() {
-      const lastUnigram = this.unigrams[this.unigrams.length - 1]
-      if (lastUnigram == null) return undefined
-      return {
-        q: [lastUnigram]
-      }
-    }
-  },
-  methods: {
-    /** @param {Filter[]} filters */
-    handleFiltersChanged(filters) {
-      const sq = serializeFilters(optimizeFilters(filters).concat(this.ignoredFilters))
-      const query = {
-        sq
-      }
-      if (this.unigrams.length > 0) query[QueryParameters.Unigrams] = this.unigrams.join(',')
-      this.$router.push({
-        name: 'searchNgrams',
-        query
-      })
-    },
-    /** @returns {Date} */
-    getTooltipScopeTime(scope) {
-      const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
-
-      if (times.length > 1)
-        console.warn(`More than one time found in tooltip data. Using first time`, times)
-
-      return times[0]
-    },
-    /**
-     * @param {Date} timestamp
-     * @returns {number}
-     */
-    getTotalArticlesAtTimestamp(timestamp) {
-      const fullYear = timestamp.getFullYear()
-      return getArticlesCountForYear(this.facets, fullYear)
-    },
-    /**
-     * @param {number} value
-     * @param {boolean} withSuffix display ppm suffix
-     */
-    roundValueForDisplay(value, withSuffix = true) {
-      // max 2 decimals
-      const v = this.$n(value, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
-      return withSuffix ? `${v} ppm` : v
-    },
-    /**
-     * @param {any} item
-     * @param {number} itemIndex
-     * @param {any} scope
-     */
-    valuePerTotalTokens(item, itemIndex) {
-      const { totals, trends } = this.ngramResult
-      if (typeof trends[itemIndex] === 'undefined') return ''
-      const dateIndex = this.isoDates.indexOf(item.item.time.toISOString())
-      const absoluteValue = trends[itemIndex].values[dateIndex]
-      const total = totals[dateIndex]
-
-      return this.$t('tooltipAbsoluteValue', { count: absoluteValue, total }, absoluteValue)
-    },
-    /** @param {string} term */
-    handleSuggestedTermSelected(term) {
-      this['unigrams'] = this.unigrams.concat([term])
-      this.$refs.embeddings.hide(true)
-    }
+  set(newUnigrams: string[]) {
+    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', ''))
+    const navigation = new Navigation(proxy)
+    navigation.updateQueryParameters({
+      [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
+    })
   }
+})
+
+const isLoggedIn = computed(() => userStore.userData)
+
+const trends = computed<NgramTrend[]>(() => ngramResult.value.trends)
+
+const totalArticlesCount = computed<number>(() => getTotalNumberOfResults(facets.value))
+
+const unigramsSummary = computed<string>(() => {
+  if (trends.value.length === 0) {
+    return proxy.$t('label.noUnigram').toString()
+  }
+  const trendsText = trends.value
+    .map(trend =>
+      proxy.$t(
+        'numbers.unigramMentions',
+        {
+          unigram: trend.ngram,
+          n: proxy.$n(trend.total)
+        },
+        trend.total || 0
+      )
+    )
+    .join('; ')
+  return proxy.$t('label.withTrends', { trends: trendsText }).toString()
+})
+
+const enrichedFilters = computed<Filter[]>(() => {
+  return props.filtersWithItems != null
+    ? props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
+    : allowedFilters.value
+})
+
+const ignoredFilters = computed<Filter[]>(() => {
+  return props.filters.filter(({ type }) => !includes(AllowedFilterTypes, type))
+})
+
+const allowedFilters = computed<Filter[]>(() => {
+  return (
+    props.filters
+      .filter(({ type }) => includes(AllowedFilterTypes, type) && type !== 'hasTextContents')
+      // add implicit filters
+      .concat([{ type: 'hasTextContents' } as Filter])
+  )
+})
+
+const isFront = computed<boolean>({
+  get() {
+    return props.filters.filter(isFrontFilter).length > 0
+  },
+  set(isFrontValue: boolean) {
+    const newFilters = isFrontValue
+      ? props.filters.filter(f => !isFrontFilter(f)).concat([{ type: 'isFront' } as Filter])
+      : props.filters.filter(f => !isFrontFilter(f))
+    handleFiltersChanged(newFilters)
+  }
+})
+
+const searchPageLink = computed<RouteLocationRaw>(() => {
+  const stringFilter: Filter = {
+    type: 'string',
+    precision: 'exact',
+    op: 'OR',
+    q: trends.value.map(({ ngram }) => ngram)
+  }
+  const filters = props.filters.concat([stringFilter])
+  console.info('sending filters', filters)
+  return { name: 'search', query: { sq: serializeFilters(filters) } }
+})
+
+const plotItems = computed<ItemsSet[]>(() => {
+  const { domainValues, totals } = ngramResult.value
+  const dates = domainValues.map(v => new Date(v))
+
+  return ngramResult.value.trends.map(({ ngram, values }) => {
+    return {
+      label: ngram,
+      items: values.map((value, index) => ({
+        value: (value / totals[index]) * 1000000,
+        time: dates[index]
+      }))
+    }
+  })
+})
+
+const plotItemsData = computed<string>(() => {
+  const { domainValues, totals } = ngramResult.value
+  const data = ngramResult.value.trends.map(({ ngram, values }) => ({
+    label: ngram,
+    items: values.map((value, index) => ({
+      value,
+      total: totals[index],
+      ppm: (value / totals[index]) * 1000000,
+      date: domainValues[index]
+    }))
+  }))
+  const jsonStr = JSON.stringify({
+    url: window.location.href,
+    filters: props.filters,
+    exportDate: new Date(),
+    data
+  })
+  return `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`
+})
+
+const timelineResolution = computed<string>(() => {
+  return ngramResult.value.timeInterval
+})
+
+const isoDates = computed<string[]>(() => {
+  const { domainValues } = ngramResult.value
+  return domainValues.map(v => new Date(v).toISOString())
+})
+
+const embeddingsFilter = computed<Filter | undefined>(() => {
+  const lastUnigram = unigrams.value[unigrams.value.length - 1]
+  if (lastUnigram == null) return undefined
+  return {
+    q: [lastUnigram]
+  } as Filter
+})
+
+const fullFilters = computed<Filter[]>(() => {
+  const stringFilter: Filter = {
+    type: 'string',
+    op: 'OR',
+    q: unigrams.value
+  }
+  return allowedFilters.value.concat(unigrams.value.length > 0 ? [stringFilter] : [])
+})
+
+watch(
+  fullFilters,
+  async (filters: Filter[]) => {
+    const query = {
+      filters: filters.map(toCanonicalFilter),
+      limit: 25,
+      facets: SupportedFacetTypes.filter(t => t !== 'collection')
+      // group_by: 'articles'
+    }
+    const result = await searchFacetsService.find({ query })
+    const fetchedFacets = result.data || []
+
+    facets.value = fetchedFacets.map(f => FacetModel.fromSearchFacet(f)) as Facet[]
+    if (isLoggedIn.value) {
+      const collectionsFacet = await searchFacetsService.get('collection', {
+        query: {
+          filters
+          // group_by: 'articles',
+        }
+      })
+      facets.value = fetchedFacets
+        .concat(collectionsFacet)
+        .map(f => FacetModel.fromSearchFacet(f)) as Facet[]
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+const unigramsQueryParameters = computed(() => ({
+  ngrams: unigrams.value,
+  filters: optimizeFilters(allowedFilters.value)
+}))
+
+watch(
+  unigramsQueryParameters,
+  async (query: { ngrams: string[]; filters: Filter[] }) => {
+    if (query.ngrams.length === 0) {
+      ngramResult.value = { ...EmptyNgramResult }
+    } else {
+      try {
+        isLoading.value = true
+        ngramResult.value = await typedNgramTrendsService.create(query)
+      } finally {
+        isLoading.value = false
+      }
+    }
+  },
+  { immediate: true, deep: true }
+)
+
+function handleFiltersChanged(filters: Filter[]) {
+  const sq = serializeFilters(optimizeFilters(filters).concat(ignoredFilters.value))
+  const query: Record<string, string> = {
+    sq
+  }
+  if (unigrams.value.length > 0) query[QueryParameters.Unigrams] = unigrams.value.join(',')
+  router.push({
+    name: 'searchNgrams',
+    query
+  })
+}
+
+function getTooltipScopeTime(scope: TooltipScope | undefined): Date | undefined {
+  const times = [...new Set(scope?.tooltip?.item?.items.map(({ item: { time } }) => time))]
+
+  if (times.length > 1)
+    console.warn(`More than one time found in tooltip data. Using first time`, times)
+
+  return times[0]
+}
+
+function getTotalArticlesAtTimestamp(timestamp: Date): number {
+  const fullYear = timestamp.getFullYear()
+  return getArticlesCountForYear(facets.value, fullYear)
+}
+
+function roundValueForDisplay(value: string | number, withSuffix = true): string {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value
+  const v = proxy.$n(numValue, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  return withSuffix ? `${v} ppm` : v
+}
+
+function valuePerTotalTokens(item: TooltipItem, itemIndex: number | string): string {
+  const { totals, trends: resultTrends } = ngramResult.value
+  const trendIndex = Number(itemIndex)
+  if (Number.isNaN(trendIndex) || typeof resultTrends[trendIndex] === 'undefined') return ''
+
+  const dateIndex = isoDates.value.indexOf(item.item.time.toISOString())
+  if (dateIndex < 0) return ''
+
+  const absoluteValue = resultTrends[trendIndex].values[dateIndex]
+  const total = totals[dateIndex]
+  if (typeof absoluteValue !== 'number' || typeof total !== 'number') return ''
+
+  return proxy.$t('tooltipAbsoluteValue', { count: absoluteValue, total }, absoluteValue)
+}
+
+function handleSuggestedTermSelected(term: string) {
+  unigrams.value = [...unigrams.value, term]
 }
 </script>
 

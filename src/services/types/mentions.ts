@@ -1,6 +1,6 @@
 import { ClientService } from '@feathersjs/feathers'
 import { EntityMention } from '../../models/generated/deprecated/models'
-import { FindResponse, Filter } from '../../models/index.d'
+import { FindResponse, Filter } from '../../models'
 
 export interface FindQuery {
   offset?: number

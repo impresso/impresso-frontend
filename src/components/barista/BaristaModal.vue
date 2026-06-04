@@ -47,7 +47,9 @@
                 @click="selectConversation(conv.baristaSessionId)"
               >
                 <span class="text-truncate" style="max-width: 240px">{{ conv.label }}</span>
-                <span class="text-muted" style="font-size: 0.75em">{{ relativeTime(conv.dateLastModified) }}</span>
+                <span class="text-muted" style="font-size: 0.75em">{{
+                  relativeTime(conv.dateLastModified)
+                }}</span>
               </button>
             </li>
           </ul>
@@ -141,7 +143,7 @@
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 import BaristaChat from './BaristaChat.vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'
@@ -161,7 +163,6 @@ const props = withDefaults(defineProps<BaristaModalProps>(), {
   dialogClass: ' modal-dialog-centered  modal-dialog-scrollable modal-xl vh-90'
 })
 const baristaStore = useBaristaStore()
-
 
 const conversations = ref<BaristaConversation[]>([])
 const conversationsLoading = ref(false)

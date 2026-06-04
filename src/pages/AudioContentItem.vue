@@ -174,7 +174,10 @@ const audioItemData = computed<IAudioItem | undefined>(() => {
     id: route.params.content_item_id as string,
     title: contentItem.value.text?.title,
     radioChannel: contentItem.value.meta?.mediaId,
-    mediaSource: mediaSource.value!,
+    mediaSource: {
+      ...mediaSource.value!,
+      type: mediaSource.value!.type as IAudioItem['mediaSource']['type']
+    },
     type: 'audio',
     duration: contentItem.value.audio?.duration ? Number(contentItem.value.audio.duration) : 0,
     publicationDate: contentItem.value.meta?.date,

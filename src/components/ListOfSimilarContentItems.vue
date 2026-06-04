@@ -80,12 +80,12 @@
  * @see {@link ContentItemType} for the content item type definition
  * @see {@link ContentItemsService} for the API service used to fetch data
  */
+import { Filter } from '@/models'
 import { contentItems as ContentItemsService } from '@/services'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
-import { Filter } from 'impresso-jscommons'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 export interface ListOfSimilarContentItemsProps {
   contentItem: ContentItemType

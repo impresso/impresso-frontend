@@ -117,8 +117,8 @@ import SearchQuerySummary from './modules/SearchQuerySummary.vue'
 import SearchQuery from '../models/SearchQuery'
 import { containsFilter } from '@/logic/filters'
 import type { Entity, Filter, FilterWithItems } from '@/models'
-import { FacetType, FacetTypes } from '@/models/Facet'
 import { FilterContext } from 'impresso-jscommons'
+import { FacetType, FacetTypes } from '@/models'
 
 interface IData {
   isDragging: boolean
@@ -222,7 +222,7 @@ export default defineComponent({
       filterModificationsEnabled: state => !state.disableFilterModification
     }),
     labelFacetType(): FacetType {
-      if (!FacetTypes.includes(this.type as FacetType)) {
+      if (!FacetTypes.has(this.type as FacetType)) {
         console.error(`Unknown type: ${this.type}`)
       }
       return this.type as FacetType

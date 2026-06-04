@@ -1,9 +1,8 @@
-import type { Filter } from '@/models'
+import type { Filter, FilterType } from '@/models'
 import Entity from '@/models/Entity'
 import Topic from '@/models/Topic'
 import Helpers from '@/plugins/Helpers'
 import { entities as entitiesService, searchFacets as searchFacetsService } from '@/services'
-import { FilterType } from 'impresso-jscommons'
 import { defineStore } from 'pinia'
 
 export interface ActivateParameters {

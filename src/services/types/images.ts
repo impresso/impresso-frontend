@@ -1,5 +1,5 @@
 import { ClientService } from '@feathersjs/feathers'
-import { Filter, FindResponse, IImage as Image } from '../../models/index.d'
+import { Filter, FindResponse, IImage as Image } from '../../models'
 
 type OrderByParam = 'date' | '-date'
 const OrderByParams = ['date', '-date'] satisfies OrderByParam[]
