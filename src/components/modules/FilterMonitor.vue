@@ -283,7 +283,7 @@ import { NumericRangeFacets } from '@/logic/facets'
 
 const StringTypes = ['string', 'title'] as const
 const EntityTypes = ['person', 'location', 'entity'] as const
-const IntegerTypes = ['year'] as const
+const IntegerTypes = ['year', 'page'] as const
 
 type StringType = (typeof StringTypes)[number]
 type IntegerType = (typeof IntegerTypes)[number]
@@ -292,7 +292,7 @@ type FilterContext = NonNullable<FilterMonitorFilter['context']>
 type FilterOperator = NonNullable<FilterMonitorFilter['op']>
 type FilterPrecision = NonNullable<FilterMonitorFilter['precision']>
 
-const ExclusiveOperatorTypes: FacetType[] = ['year', 'daterange']
+const ExclusiveOperatorTypes: FacetType[] = ['year', 'page', 'daterange']
 
 interface OptionKey<T extends string> {
   value: T
