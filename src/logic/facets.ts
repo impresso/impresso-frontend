@@ -172,13 +172,15 @@ export function getBucketLabel(
     {
       location: LabelExtractors.name,
       person: LabelExtractors.name,
+      nag: LabelExtractors.name,
+      organisation: LabelExtractors.name,
       newspaper: LabelExtractors.name,
       topic: LabelExtractors.topic,
       collection: LabelExtractors.name,
       year: LabelExtractors.year
     }[type] ?? LabelExtractors.translated
 
-  const label = extractor(bucket, type, vueInstance) ?? bucket?.value
+  const label = extractor(bucket, type, vueInstance) ?? bucket?.label ?? bucket?.value
 
   return label != null ? String(label) : undefined
 }
