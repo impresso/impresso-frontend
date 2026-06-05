@@ -143,7 +143,7 @@
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import SearchPills from '../SearchPills.vue'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 import BaristaChat from './BaristaChat.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { filtersItems as filterItemsService } from '@/services'

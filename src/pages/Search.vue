@@ -235,21 +235,14 @@ import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
-import FacetModel, { FacetType } from '@/models/Facet'
+import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
-import {
-  SearchStandardFacetTypes,
-  SearchRangeFacetTypes,
-  SearchDynamicFacetTypes,
-  SearchTimelineFacetTypes,
-  SearchUserFacetTypes,
-  SearchDecimalFacetTypes
-} from '@/logic/facets'
-import { SupportedFiltersByContext } from '@/logic/filters'
+import { SearchDynamicFacetTypes, SearchDecimalFacetTypes } from '@/logic/facets'
+import { SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
   contentItems as contentItemsService,
@@ -264,19 +257,26 @@ import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import type { Facet, Filter } from '@/models'
+import type { FacetType, Filter, Facet } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
+import { includes } from '@/util/fn'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
-export const FacetTypes = SearchStandardFacetTypes
-export const RangeFacetTypes = SearchRangeFacetTypes
-export const DynamicFacetTypes = SearchDynamicFacetTypes
-export const TimelineFacetTypes = SearchTimelineFacetTypes
-const UserFacetTypes = SearchUserFacetTypes
+const FacetTypes = TextContentItemFacets
+/** Range facets (currently none for search). */
+const RangeFacetTypes = [] satisfies FacetType[]
+
+const DynamicFacetTypes = SearchDynamicFacetTypes
+
+// Facet that has to be fetched to render the timeline slider.
+const TimelineFacetTypes = ['year'] satisfies FacetType[]
+
+/** User-specific facets that require authentication. */
+const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 export interface IData {
   _activeSearchRequestId: number
@@ -470,7 +470,7 @@ export default defineComponent({
       }
     },
     allowedFiltersWithItems() {
-      return this.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+      return this.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
     },
     enrichedFilters() {
       return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters

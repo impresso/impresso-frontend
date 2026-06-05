@@ -76,7 +76,7 @@ import FilterRange from '@/components/modules/FilterRange.vue'
 import FilterDynamicRange from '@/components/modules/FilterDynamicRange.vue'
 import FilterTimeline from '@/components/modules/FilterTimeline.vue'
 
-import type { Entity, Facet, Filter, FilterWithItems } from '@/models'
+import type { Entity, FacetType, Facet, Filter, FilterWithItems } from '@/models'
 import FilterFactory from '@/models/FilterFactory'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 import {
@@ -84,13 +84,13 @@ import {
   DynamicRangeDisplayFacetTypes,
   facetToTimelineValues,
   RangeFacetTypes,
-  StandardDisplayFacetTypes,
   TimelineDisplayFacetTypes
 } from '@/logic/facets'
-import { computed } from 'vue'
-import { FacetType } from '@/models/Facet'
+import { computed, watch } from 'vue'
 import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import { includes } from '@/util/fn.js'
+import { NumericContentItemsFacets } from '@/logic/filters.js'
 
 const selectionMonitorStore = useSelectionMonitorStore()
 
@@ -118,33 +118,43 @@ const props = withDefaults(defineProps<SearchFacetsProps>(), {
   searchIndex: 'search'
 })
 
+watch(
+  () => props.facets,
+  facets => {
+    const types = facets.map(f => f.type)
+    if (types.includes('daterange') && !types.includes('year')) {
+      throw new Error(
+        '[SearchFacets] "daterange" facet requires a "year" facet to also be present in props.facets'
+      )
+    }
+  },
+  { immediate: true }
+)
+
 const emit = defineEmits<{
   (e: 'changed', filters: Filter[]): void
 }>()
 
 const standardFacets = computed(() => {
+  // year is never rendered by itself but it is used to render daterange.
   return props.facets.filter(
-    ({ type }) => StandardDisplayFacetTypes.includes(type as FacetType) || type === 'collection'
+    ({ type }) => !includes([...TimelineDisplayFacetTypes, ...NumericContentItemsFacets], type)
   )
 })
 
 const rangeFacets = computed(() => {
-  return props.facets.filter(({ type }) => RangeFacetTypes.includes(type as FacetType))
+  return props.facets.filter(({ type }) => includes(RangeFacetTypes, type))
 })
 
 const decimalRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) =>
-    DecimalRangeDisplayFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.filter(({ type }) => includes(DecimalRangeDisplayFacetTypes, type))
 })
 const dynamicRangeFacets = computed(() => {
-  return props.facets.filter(({ type }) =>
-    DynamicRangeDisplayFacetTypes.includes(type as FacetType)
-  )
+  return props.facets.filter(({ type }) => includes(DynamicRangeDisplayFacetTypes, type))
 })
 
 const containsTimelineFacets = computed(() => {
-  return props.facets.some(({ type }) => TimelineDisplayFacetTypes.includes(type as FacetType))
+  return props.facets.some(({ type }) => includes(TimelineDisplayFacetTypes, type))
 })
 
 const daterangeFilters = computed(() => {

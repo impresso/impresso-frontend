@@ -23,8 +23,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { jsonSchemas, Filter } from 'impresso-jscommons'
+import { jsonSchemas } from 'impresso-jscommons'
 import Ajv, { ErrorObject } from 'ajv'
+import type { Filter } from '@/models'
 
 const ajv = new Ajv({ allErrors: true })
 const validateFiltersSchema = ajv.compile({

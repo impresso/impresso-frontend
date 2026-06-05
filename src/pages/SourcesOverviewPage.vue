@@ -5,13 +5,8 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import {
-  buildEmptyFacets,
-  SearchDecimalFacetTypes,
-  SearchDynamicFacetTypes,
-  SearchStandardFacetTypes
-} from '@/logic/facets'
-import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
+import { buildEmptyFacets, SearchDecimalFacetTypes, SearchDynamicFacetTypes } from '@/logic/facets'
+import { serializeFilters, SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
 import FacetModel from '@/models/Facet'
 import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
 import { watch } from 'vue'
@@ -29,25 +24,6 @@ interface Props {
   filters?: Array<any>
   onFiltersChanged?: (newFilters: Array<any>) => void
 }
-
-//  [
-//   'language',
-//   'newspaper',
-//   'type',
-//   'country',
-//   'partner',
-//   // 'year',
-//   'contentLength',
-//   'copyright',
-//   'sourceType',
-//   'sourceMedium',
-//   // DPFS facets
-//   'person',
-//   'location',
-//   'nag',
-//   'organisation',
-//   'topic'
-// ] satisfies FacetType[]
 
 const props = withDefaults(defineProps<Props>(), {
   filters: () => [],
@@ -129,7 +105,7 @@ watch(
     const facetsItems = await searchFacetsService
       .find({
         query: {
-          facets: SearchStandardFacetTypes,
+          facets: TextContentItemFacets,
           filters: newVal
         }
       })

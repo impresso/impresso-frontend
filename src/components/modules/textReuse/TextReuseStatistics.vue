@@ -112,10 +112,10 @@ import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import PowerVisBase from '@/components/modules/vis/PowerVisBase.vue'
 import Tooltip from '@/components/modules/tooltips/Tooltip.vue'
 import { serializeFilters, SupportedFiltersByIndex } from '@/logic/filters'
-import { DefaultFacetTypesForIndex } from '@/logic/facets'
 import { stats } from '@/services'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
+import { FilterType } from '@/models'
 
 interface DomainValueItem {
   domain: { label: string; value: string }
@@ -163,7 +163,7 @@ const getSorter = (domain: string, facetType: string): DataSorter => {
 }
 
 interface FilterLike {
-  type: string
+  type: FilterType
 }
 
 const NoFacetFilters = {

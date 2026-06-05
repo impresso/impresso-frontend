@@ -163,16 +163,15 @@
 import FilterMonitor from '@/components/modules/FilterMonitor.vue'
 import Explorer from '@/components/Explorer.vue'
 import SearchPillsItemLabel from '@/components/SearchPillsItemLabel.vue'
-import { RangeFacets } from '@/logic/filters'
-import { NumericRangeFacets } from '@/logic/facets'
+import { NumericRangeFacets, RangeFacets } from '@/logic/facets'
 import { labelByItems, labelByQs } from '@/components/SearchPills.logic'
 import type { LabelByItemsResult, LabelByQsResult } from '@/components/SearchPills.logic'
 import FilterFactory from '@/models/FilterFactory'
-import type { Entity, FilterWithItems } from '@/models'
-import type { FacetType } from '@/models/Facet'
+import type { Entity, FilterWithItems, FacetType } from '@/models'
 import { computed, ref, toRefs } from 'vue'
 import Icon from './base/Icon.vue'
 import type { SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
+import { includes } from '@/util/fn.js'
 
 export type PillItem = Entity & {
   name?: string
@@ -292,11 +291,7 @@ const isResettable = computed<boolean>(() => {
 })
 
 const handleFilterUpdated = (index: number, filter: FilterWithItems<PillItem>): void => {
-  if (
-    !RangeFacets.includes(filter.type as FacetType) &&
-    Array.isArray(filter.q) &&
-    filter.q.length === 0
-  ) {
+  if (!includes(RangeFacets, filter.type) && Array.isArray(filter.q) && filter.q.length === 0) {
     return handleFilterRemoved(index)
   }
 

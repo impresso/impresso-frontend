@@ -145,6 +145,7 @@ import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vu
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import ContentItemCard from '@/components/contentItem/ContentItemCard.vue'
 import { useUserStore } from '@/stores/user'
+import { includes } from '@/util/fn'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -230,10 +231,10 @@ const isViewerReady = computed(() => {
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 const ignoredFilters = computed<Filter[]>(() => {
-  return props.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
+  return props.filtersWithItems.filter(({ type }) => !includes(AllowedFilterTypes, type))
 })
 const allowedFilters = computed<Filter[]>(() => {
-  return props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+  return props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
 })
 
 const contentItemAsCollectableItems = computed(() => {

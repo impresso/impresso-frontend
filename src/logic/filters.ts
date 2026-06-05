@@ -1,38 +1,20 @@
-import { protobuf } from 'impresso-jscommons'
+import { FacetType, Filter, FilterType } from '@/models'
+import { protobuf, constants } from 'impresso-jscommons'
+import { RangeFacets } from './facets'
+import { includes } from '@/util/fn'
 
-/**
- * @typedef {import('../models').Filter} Filter
- * @typedef {import('../models').Entity} Entity
- */
-
-export function toCanonicalFilter(filter) {
-  const { context, op, type, precision, q, daterange, uids } = filter || {}
-  return { context, op, type, precision, q, daterange, uids }
+export function toCanonicalFilter<T extends FilterType>(filter: Filter<T>): Filter<T> {
+  const { context, op, type, precision, q, uids } = filter ?? {}
+  return { context, op, type, precision, q, uids }
 }
 
-export function toSerializedFilter(filter) {
+export function toSerializedFilter<T extends FilterType>(filter: Filter<T>): string {
   return protobuf.filter.serialize(toCanonicalFilter(filter))
 }
 
-export function toSerializedFilters(filters) {
+export function toSerializedFilters<T extends FilterType>(filters?: Filter<T>[]): string {
   return protobuf.searchQuery.serialize({ filters: filters?.map(toCanonicalFilter) ?? [] })
 }
-
-/**
- * List of facet keys that represent numeric ranges used for filtering.
- *
- * @deprecated This constant is deprecated and should not be used in new code.
- * Use NumericRangeFacets from @/logic/facets module instead.
- *
- * @type {readonly string[]}
- */
-export const NumericRangeFacets = [
-  'textReuseClusterSize',
-  'textReuseClusterLexicalOverlap',
-  'textReuseClusterDayDelta',
-  'contentLength',
-  'ocrQuality'
-]
 
 export const NumericRangeFilters = [
   'textReuseClusterSize',
@@ -40,11 +22,7 @@ export const NumericRangeFilters = [
   'textReuseClusterDayDelta',
   'contentLength',
   'ocrQuality'
-]
-
-export const TimeRangeFacets = ['daterange']
-
-export const RangeFacets = NumericRangeFacets.concat(TimeRangeFacets)
+] satisfies FilterType[]
 
 /**
  * @param {Filter} p
@@ -59,20 +37,18 @@ const getFilterMergeKey = ({ type, op = 'OR', context = 'inclusive', precision =
  * @param {function} fn
  * @returns {object}
  */
-const omitBy = (object, fn) =>
+const omitBy = <T>(object: T, fn: (value: any) => boolean): T =>
   Object.keys(object).reduce((acc, key) => {
     const value = object[key]
     if (!fn(value)) acc[key] = value
     return acc
-  }, {})
+  }, {}) as T
 
 /**
  * Optimize filters by merging filters of the same type with the same
  * context/precision where possible.
- * @param {Filter[]} filters
- * @returns {Filter[]}
  */
-export function optimizeFilters(filters) {
+export function optimizeFilters(filters: Filter[]): Filter[] {
   if (!Array.isArray(filters)) {
     console.error('optimizeFilters: filters is not an array', filters)
     return []
@@ -81,17 +57,17 @@ export function optimizeFilters(filters) {
   const groupingMap = filters.reduce((map, filter, i) => {
     let key = getFilterMergeKey(filter)
     // DO NOT GROUP range filters together
-    if (RangeFacets.includes(filter.type)) {
+    if (includes(RangeFacets, filter.type)) {
       key += `-${i}`
     }
     if (filter.type === 'string') {
       key += `-${i}`
     }
 
-    const items = map.get(key) || []
+    const items = map.get(key) ?? []
     map.set(key, items.concat([filter]))
     return map
-  }, new Map())
+  }, new Map<string, Filter[]>())
 
   return [...groupingMap.entries()].map(([, filters]) => {
     const { type, context, precision, op } = filters[0]
@@ -155,112 +131,130 @@ export const containsFilter = expectedFilter => filter => {
 }
 
 /**
+ * Facets and filters by context.
+ * Usually there are more facets than filters (some filters are hidden)
+ * Top to bottom as they are rendered in the UI.
+ */
+
+export const TextContentItemFacets = [
+  'language',
+  'newspaper', // should be mediaSource eventually
+  'type',
+  'country',
+  'partner',
+  'copyright',
+  'sourceType',
+  'sourceMedium',
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] as const satisfies FilterType[]
+
+export const NumericContentItemsFacets = [
+  'ocrQuality',
+  'contentLength'
+] as const satisfies FilterType[]
+
+const TextSearchFacets = [
+  'daterange',
+  'year',
+  ...NumericContentItemsFacets,
+  ...TextContentItemFacets,
+  'collection'
+] as const satisfies FilterType[]
+
+const TextSearchFilters = [
+  ...TextSearchFacets,
+  'string',
+  'isFront',
+  'hasTextContents', // invisible filter - always applied
+  'title', // do we use it?
+  'page', // should become a facet
+  'year',
+  'mention',
+  'entity',
+  'textReuseCluster', // ??
+  'embedding',
+  'mediaSource' // to replace 'newspaper' eventually
+] as const satisfies FilterType[]
+
+export const TextReuseContentItemFacets = [
+  'language',
+  'newspaper', // should be mediaSource eventually
+  // 'type',
+  'country',
+  // 'partner',
+  // 'copyright',
+  // 'sourceType',
+  // 'sourceMedium',
+  'person',
+  'location',
+  'nag',
+  'organisation',
+  'topic'
+] as const satisfies FilterType[]
+
+export const TextReuseNumericFacets = [
+  'textReuseClusterSize',
+  'textReuseClusterLexicalOverlap',
+  'textReuseClusterDayDelta'
+] as const satisfies FilterType[]
+
+export const TextReuseFacets = [
+  ...TextReuseContentItemFacets,
+  ...TextReuseNumericFacets
+] as const satisfies FilterType[]
+
+const TextReuseFilters = [...TextReuseFacets, 'textReuseCluster', 'daterange']
+
+const TextReuseClusterFilters = [
+  'textReuseCluster',
+  ...TextReuseNumericFacets,
+  'newspaper'
+] as const satisfies FilterType[]
+
+const EntitiesFilters = ['string', 'type'] as const satisfies FilterType[]
+
+const ImagesFacets = [
+  'newspaper',
+  'year',
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+] as const satisfies FilterType[]
+
+const ImagesFilters = [
+  ...ImagesFacets,
+  'isFront',
+  'daterange',
+  'title'
+] as const satisfies FilterType[]
+
+export const FacetsByContext = Object.freeze({
+  search: TextSearchFacets,
+  textReusePassages: TextReuseFacets,
+  images: ImagesFacets
+})
+
+/**
  * Impresso has several indexes each supporting a different set of filters.
  * This lookup table below should be used to pick only those filters that are
  * supported by the particular search service. Using filters that are not supported
  * by a service will cause the API to return an error.
- *
- * NOTE: please keep up-to-date with the API when filters are added or changed.
  */
 export const SupportedFiltersByContext = Object.freeze({
-  search: [
-    'hasTextContents',
-    'ocrQuality',
-    'contentLength',
-    'isFront',
-    'string',
-    'title',
-    'daterange',
-    'uid',
-    'partner',
-    'language',
-    'page',
-    'collection',
-    'issue',
-    'newspaper',
-    'topic',
-    'year',
-    'type',
-    'country',
-    'mention',
-    'entity',
-    'person',
-    'location',
-    'topicmodel',
-    'topic-string',
-    'entity-string',
-    'entity-type',
-    'regex',
-    'textReuseCluster',
-    'organisation',
-    'nag',
-    'sourceType',
-    'sourceMedium',
-    'embedding'
-  ].concat(
-    // unsupported fields in new SOLR
-    import.meta.env.VITE_ENABLE_PLAN_BASED_ACCESS_RIGHTS
-      ? ['dataDomain', 'copyright']
-      : ['accessRight']
-  ),
-  textReuse: [
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'textReuseCluster',
-    'daterange',
-    'newspaper',
-    'collection',
-    'isFront',
-    'string',
-    'language',
-    'topic',
-    // 'type', // temporarily disabled in Text Reuse
-    'country',
-    'location',
-    'person',
-    'entity'
-  ],
-  textReusePassages: [
-    'textReuseCluster',
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'daterange',
-    'newspaper',
-    'collection',
-    'language',
-    'string',
-    'isFront',
-    'title',
-    'topic',
-    // 'type',
-    'country',
-    'location',
-    'person',
-    'entity',
-    'organisation',
-    'nag'
-  ],
-  textReuseClusters: [
-    'textReuseCluster',
-    'textReuseClusterSize',
-    'textReuseClusterLexicalOverlap',
-    'textReuseClusterDayDelta',
-    'newspaper'
-  ],
-  entities: ['string', 'type', 'uid']
+  search: TextSearchFilters,
+  textReusePassages: TextReuseFilters,
+  textReuseClusters: TextReuseClusterFilters,
+  entities: EntitiesFilters,
+  images: ImagesFilters
 })
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
   tr_passages: SupportedFiltersByContext.textReusePassages,
   tr_clusters: SupportedFiltersByContext.textReuseClusters
-})
-
-export const SupportedIndexByContext = Object.freeze({
-  search: 'search',
-  textReuse: 'tr_passages',
-  textReusePassages: 'tr_passages',
-  textReuseClusters: 'tr_clusters'
 })
