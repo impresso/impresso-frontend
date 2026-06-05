@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <ul ref="ulRef" :class="tabsClass" v-bind="$attrs">
+    <ul :class="tabsClass" v-bind="$attrs">
       <slot name="tabs-start"></slot>
       <slot name="tabs-end"></slot>
     </ul>

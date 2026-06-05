@@ -289,7 +289,7 @@ const formatActionType = (type: string): string => {
   list-style: none;
   padding-left: 0;
 }
-.BaristaChatMessage li {
+.BaristaChatMessage ol.message-search-steps > li {
   margin-bottom: var(--spacing-3);
 }
 </style>

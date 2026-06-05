@@ -4,6 +4,7 @@
     :title="$t('BaristaModalTitle')"
     modalClass="BaristaModal"
     :dialogClass="props.dialogClass"
+    content-class="h-100"
     bodyClass="p-0 mt-2 mx-3 border-top"
     @close="dismiss"
     hide-footer
@@ -80,15 +81,15 @@
           <div class="position-sticky top-0 bg-white z-index-1 pt-2">
             <b-tabs pills>
               <template v-slot:tabs-end>
-                <b-nav-item
-                  v-for="(tabItem, i) in AvailableTabs"
-                  :key="i"
-                  class="w-50 cursor-pointer"
-                  :class="{ active: tabItem === activeRightTab }"
-                  active-class="none"
-                  @click="activeRightTab = tabItem"
-                >
-                  <span class="small-caps nav-link" v-html="$t(tabItem)"></span>
+                <b-nav-item v-for="(tabItem, i) in AvailableTabs" :key="i" class="w-50">
+                  <button
+                    type="button"
+                    class="border-0 small-caps nav-link w-100 cursor-pointer text-center"
+                    :class="{ active: tabItem === activeRightTab }"
+                    @click="activeRightTab = tabItem"
+                  >
+                    {{ $t(tabItem) }}
+                  </button>
                 </b-nav-item>
               </template>
             </b-tabs>
@@ -118,7 +119,11 @@
                   These filters are shared between you and Barista :)
                 </p>
 
-                <SearchPills :filters="suggestedFiltersWithItems" @changed="handleFiltersChanged" />
+                <SearchPills
+                  :right-aligned="true"
+                  :filters="suggestedFiltersWithItems"
+                  @changed="handleFiltersChanged"
+                />
                 <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
                   Apply Filters to current search
                 </button>

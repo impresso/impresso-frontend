@@ -19,7 +19,7 @@
           v-for="conv in items"
           :key="conv.baristaSessionId"
           type="button"
-          class="list-group-item list-group-item-action d-flex flex-column align-items-start border-0 border-bottom"
+          class="border-0 list-group-item list-group-item-action d-flex flex-column align-items-start border-0 border-bottom"
           @click="selectConversation(conv.baristaSessionId)"
         >
           <span class="text-truncate w-100">{{ conv.label }}</span>
@@ -37,7 +37,6 @@ import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import { useBaristaStore } from '@/stores/barista'
 import { baristaConversations as baristaConversationsService } from '@/services'
 import type { ServiceFindParams } from '@/services/types'
-import { relativeTime } from '@/util/time'
 import TimeAgo from '../TimeAgo.vue'
 
 export type BaristaConversationsProps = {
