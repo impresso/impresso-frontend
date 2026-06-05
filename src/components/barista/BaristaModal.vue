@@ -81,7 +81,7 @@
             <b-tabs pills>
               <template v-slot:tabs-end>
                 <b-nav-item
-                  v-for="(tabItem, i) in ['overview', 'conversations']"
+                  v-for="(tabItem, i) in AvailableTabs"
                   :key="i"
                   class="w-50 cursor-pointer"
                   :class="{ active: tabItem === activeRightTab }"
@@ -158,12 +158,16 @@ export type BaristaModalProps = {
   isVisible?: boolean
   filters?: Filter[]
 }
+
+const AvailableTabs = ['overview', 'conversations'] as const
+type AvailableTab = (typeof AvailableTabs)[number]
+
 const containerRef = ref<HTMLElement | null>(null)
 const props = withDefaults(defineProps<BaristaModalProps>(), {
   dialogClass: ' modal-dialog-centered  modal-dialog-scrollable modal-xl vh-90'
 })
 const baristaStore = useBaristaStore()
-const activeRightTab = ref<'overview' | 'conversations'>('overview')
+const activeRightTab = ref<AvailableTab>('overview')
 
 const editingTitle = ref(false)
 const titleDraft = ref('')

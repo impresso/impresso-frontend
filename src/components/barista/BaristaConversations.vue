@@ -1,7 +1,7 @@
 <template>
   <div class="BaristaConversations">
     <ListOfFindResponseItems
-      :service="conversationsService"
+      :service="baristaConversationsService"
       :params="listParams"
       :fetch-items-when-visible="props.fetchItemsWhenVisible"
       :list-is-empty-message="$t('no conversations')"
@@ -19,7 +19,7 @@
           v-for="conv in items"
           :key="conv.baristaSessionId"
           type="button"
-          class="list-group-item list-group-item-action small d-flex flex-column align-items-start border-0 border-bottom"
+          class="list-group-item list-group-item-action d-flex flex-column align-items-start border-0 border-bottom"
           @click="selectConversation(conv.baristaSessionId)"
         >
           <span class="text-truncate w-100">{{ conv.label }}</span>
@@ -36,21 +36,9 @@
 import { computed } from 'vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import { useBaristaStore } from '@/stores/barista'
-import type {
-  BaristaConversation,
-  BaristaConversationsFindResult
-} from '@/services/types/baristaConversations'
+import { baristaConversations as baristaConversationsService } from '@/services'
 import type { ServiceFindParams } from '@/services/types'
 import { relativeTime } from '@/util/time'
-
-interface PaginatedFindResult<T> {
-  data: T[]
-  pagination: {
-    total: number
-    offset: number
-    limit: number
-  }
-}
 
 export type BaristaConversationsProps = {
   fetchItemsWhenVisible?: boolean
@@ -64,26 +52,10 @@ const baristaStore = useBaristaStore()
 
 const listParams = computed<ServiceFindParams>(() => ({
   query: {
-    limit: 5,
+    limit: 20,
     offset: 0
   }
 }))
-
-const conversationsService: any = {
-  path: 'barista-conversations',
-  async find(params?: ServiceFindParams): Promise<PaginatedFindResult<BaristaConversation>> {
-    const result = (await baristaStore.getConversations(params)) as BaristaConversationsFindResult
-
-    return {
-      data: result.data,
-      pagination: {
-        total: result.total,
-        offset: result.skip ?? params?.query?.offset ?? 0,
-        limit: result.limit ?? params?.query?.limit ?? 5
-      }
-    }
-  }
-}
 
 async function selectConversation(sessionId: string) {
   await baristaStore.loadConversation(sessionId)
@@ -100,11 +72,13 @@ async function selectConversation(sessionId: string) {
 }
 </i18n>
 
-<style scoped>
+<style>
 .BaristaConversations {
   max-height: 420px;
   min-height: 200px;
   overflow: auto;
+  font-variation-settings: 'wght' 450;
+  text-rendering: optimizeLegibility;
 }
 
 .BaristaConversationsDate {
