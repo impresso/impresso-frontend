@@ -488,17 +488,31 @@ export default {
         const intersectionFacet = intersectionFacets.find(({ type }) => type === id)
         const queriesFacets = facetsSets.map(facetSet => facetSet.find(({ type }) => type === id))
 
+        // facetsSets buckets lack item objects; queriesResults buckets are enriched by search-facets
+        const enrichedFacets = [
+          this.queriesResults[QueryIndex.Left]?.facets?.find(({ type }: any) => type === id),
+          this.queriesResults[QueryIndex.Right]?.facets?.find(({ type }: any) => type === id)
+        ]
+
         const items =
           intersectionFacet?.buckets
-            ?.map((bucket: IBucket) => {
+            ?.map((bucket: any) => {
+              // comparison endpoint returns raw Solr buckets using `val`, not `value`
+              const bucketId = bucket.val ?? bucket.value
+
               const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }: any) => {
-                return buckets.find(({ val }: any) => bucket.value === val)
+                return buckets.find(({ val, value }: any) => bucketId === (val ?? value))
               })
 
+              const enrichedBucket =
+                enrichedFacets
+                  .map(f => f?.buckets?.find(({ value }: any) => String(value) === String(bucketId)))
+                  .find(b => b != null)
+
               const label =
-                leftBucket != null
-                  ? getBucketLabel(leftBucket, id, this)
-                  : getBucketLabel(rightBucket, id, this)
+                enrichedBucket != null
+                  ? getBucketLabel(enrichedBucket as any, id, this)
+                  : getBucketLabel(leftBucket, id, this) ?? getBucketLabel(rightBucket, id, this)
 
               return {
                 intersection: bucket.count,
