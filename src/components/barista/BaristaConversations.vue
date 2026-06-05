@@ -23,9 +23,8 @@
           @click="selectConversation(conv.baristaSessionId)"
         >
           <span class="text-truncate w-100">{{ conv.label }}</span>
-          <span class="text-muted BaristaConversationsDate">{{
-            relativeTime(conv.dateLastModified)
-          }}</span>
+
+          <TimeAgo :date="conv.dateLastModified" class="text-muted BaristaConversationsDate" />
         </button>
       </template>
     </ListOfFindResponseItems>
@@ -39,6 +38,7 @@ import { useBaristaStore } from '@/stores/barista'
 import { baristaConversations as baristaConversationsService } from '@/services'
 import type { ServiceFindParams } from '@/services/types'
 import { relativeTime } from '@/util/time'
+import TimeAgo from '../TimeAgo.vue'
 
 export type BaristaConversationsProps = {
   fetchItemsWhenVisible?: boolean
