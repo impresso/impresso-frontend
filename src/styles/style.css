@@ -571,6 +571,9 @@ label {
 .pointer-events-auto {
   pointer-events: auto;
 }
+.cursor-pointer {
+  cursor: pointer;
+}
 /* vh */
 .vh-75 {
   height: 75vh !important;

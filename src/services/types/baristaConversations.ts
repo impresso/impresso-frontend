@@ -24,17 +24,20 @@ export interface BaristaConversationsPatchData {
 
 export interface BaristaConversationsFindResult {
   data: BaristaConversation[]
-  total: number
-  limit: number
-  skip: number
+  pagination: {
+    total: number
+    limit: number
+    offset: number
+  }
 }
 
 export type BaristaConversationsService = Pick<
   ClientService<
     BaristaConversationWithHistory,
-    undefined,
+    unknown,
     BaristaConversationsPatchData,
-    BaristaConversationsFindQuery
+    BaristaConversationsFindResult,
+    { query?: BaristaConversationsFindQuery }
   >,
-  'find' | 'get' | 'patch' | 'remove'
+  'find' | 'get' | 'patch' | 'remove' | 'create' | 'update'
 >

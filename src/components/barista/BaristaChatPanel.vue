@@ -57,14 +57,7 @@
             />
           </div>
         </details>
-        <BFormCheckbox
-          :disabled="!filters.length"
-          switch
-          v-model="baristaStore.sendCurrentFilters"
-          class="mb-2 ml-1"
-        >
-          Share current search filters with Barista
-        </BFormCheckbox>
+
         <div class="d-flex align-items-end">
           <BTextarea
             v-model="inputMessage"
