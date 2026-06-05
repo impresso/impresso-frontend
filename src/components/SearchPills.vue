@@ -16,6 +16,7 @@
 
     <div v-for="{ filter, filterIndex } in pills" :key="filterIndex">
       <b-dropdown
+        :right="rightAligned"
         size="sm"
         variant="outline-primary"
         class="mr-1 mb-1 search-pill"
@@ -224,6 +225,7 @@ export interface SearchPillsProps {
   filters?: FilterWithItems<PillItem>[]
   index?: string
   disableReset?: boolean
+  rightAligned?: boolean
 }
 
 const props = withDefaults(defineProps<SearchPillsProps>(), {
@@ -232,15 +234,23 @@ const props = withDefaults(defineProps<SearchPillsProps>(), {
   enableAddFilter: false,
   filters: (): FilterWithItems<PillItem>[] => [],
   index: 'search',
-  disableReset: false
+  disableReset: false,
+  rightAligned: false
 })
 
 const emit = defineEmits<{
   (e: 'changed', filters: FilterWithItems<PillItem>[]): void
 }>()
 
-const { excludedTypes, includedFilterTypes, enableAddFilter, filters, index, disableReset } =
-  toRefs(props)
+const {
+  excludedTypes,
+  includedFilterTypes,
+  enableAddFilter,
+  filters,
+  index,
+  disableReset,
+  rightAligned
+} = toRefs(props)
 
 const explorerVisible = ref(false)
 
