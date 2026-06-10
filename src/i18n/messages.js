@@ -35,7 +35,8 @@ export default {
       },
       sourceType: {
         newspaper: 'newspapers',
-        radio: 'radio'
+        radio: 'radio',
+        radio_broadcast: 'radio broadcast'
       },
       sourceMedium: {
         print: 'print',
