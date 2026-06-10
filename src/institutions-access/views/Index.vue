@@ -2,26 +2,41 @@
   <div class="container Index">
     <div class="row">
       <div class="col-lg-8 col-xl-9 order-2 order-lg-1">
-        <Card class="mb-4" v-for="card in cardViewsWithServiceParams" :key="card.name">
+        <Card class="mb-4">
           <template #header>
-            <h4 class="p-2 m-0 font-weight-bold">{{ $t(`card.title.${card.name}`) }}</h4>
+            <h4 class="p-2 m-0 font-weight-bold">{{ $t(`card.title.${selectedStatus}`) }}</h4>
           </template>
           <ListOfFindResponseItems
-            :ref="instance => setListRef(card.name, instance)"
-            :error-loading-items-message="$t(`card.errorLoadingItems.${card.name}`)"
-            :list-is-empty-message="$t(`card.listisEmpty.${card.name}`)"
+            ref="listRef"
+            :error-loading-items-message="$t(`card.errorLoadingItems.${selectedStatus}`)"
+            :list-is-empty-message="$t(`card.listisEmpty.${selectedStatus}`)"
             :service="userSpecialMembershipRequestsReviewsService"
-            :title="$t(`card.title.${card.name}`)"
+            :title="$t(`card.title.${selectedStatus}`)"
             items-class=""
-            :params="card.serviceParams"
+            :params="serviceParams"
             class="border rounded-sm"
           >
             <template #header="{ total }">
               <div
                 class="px-3 py-2 d-flex gap-2 justify-content-between align-items-center border-bottom mb-2"
               >
-                <h5 class="m-0 font-size-inherit" v-html="$t(`card.listTitle.${card.name}`)"></h5>
+                <div>
+                  <BSearchInputForm
+                    :key="searchInputKey"
+                    @submit="performSearch"
+                    :required="false"
+                    :placeholder="$t('searchPlaceholder')"
+                  />
+                </div>
                 <span v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
+                <!-- reset -->
+                <button
+                  v-if="q"
+                  class="btn btn-sm btn-outline-secondary"
+                  @click="resetSearch"
+                >
+                  {{ $t('reset') }}
+                </button>
               </div>
               <div class="container-fluid">
                 <div class="row pb-2 small align-items-center font-weight-bold">
@@ -75,13 +90,7 @@
           <div>
             <p class="m-2">Manage special membership access for institutions.</p>
           </div>
-          <div>
-            <BSearchInputForm
-              @submit="performSearch"
-              :required="false"
-              :placeholder="$t('searchPlaceholder')"
-            />
-          </div>
+
           <div class="mt-3 pt-2 border-top">
             <label class="m-2">{{ $t('sortBy') }}</label>
             <i-dropdown
@@ -120,47 +129,65 @@ import SpecialMembershipRequestReviewItem from '@/components/modules/lists/Speci
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
 import ToggleSpecialMembershipRequestStatusModal from '../components/reviews/ToggleSpecialMembershipRequestStatusModal.vue'
 import { ref, computed, watch } from 'vue'
-import type { ComponentPublicInstance } from 'vue'
-import { ServiceFindParams, UserSpecialMembershipRequestReview } from '@/services/types'
+import { UserSpecialMembershipRequestReview } from '@/services/types'
 import BSearchInputForm from '@/components/legacy/bootstrap/BSearchInputForm.vue'
 import ReviewerSettings from '../components/ReviewerSettings.vue'
 import { useRouter } from 'vue-router'
+import { SpecialMembershipRequestStatuses } from '@/constants.js'
 
 const router = useRouter()
+const availableStatuses: ((typeof SpecialMembershipRequestStatuses)[number] | 'all')[] = [
+  'all',
+  ...SpecialMembershipRequestStatuses
+]
+
+type RequestStatus = (typeof availableStatuses)[number]
 
 export interface IndexProps {
+  status?: string
   prefetchedItem?: UserSpecialMembershipRequestReview | null
 }
 
 const props = withDefaults(defineProps<IndexProps>(), {
+  status: 'all',
   prefetchedItem: null
 })
 
-const itemToUpdate = ref<UserSpecialMembershipRequestReview>(null)
+const itemToUpdate = ref<UserSpecialMembershipRequestReview | null>(null)
 const isToggleStatusModalVisible = ref(false)
-const listRefs = ref<Record<string, ListOfFindResponseItemsExposed | null>>({})
+
+const selectedStatus = computed<RequestStatus>(() => {
+  if (availableStatuses.includes(props.status as RequestStatus)) {
+    return props.status as RequestStatus
+  }
+  return 'all'
+})
+
+const statusRouteByStatus: Record<RequestStatus, string> = {
+  all: 'Index',
+  pending: 'PendingRequests',
+  approved: 'ApprovedRequests',
+  rejected: 'RejectedRequests',
+  revoked: 'Index',
+  temporary: 'Index',
+  'pending-t': 'PendingRequests'
+}
+
+const listRef = ref<ListOfFindResponseItemsExposed | null>(null)
+const searchInputKey = ref(0)
 
 const hideToggleStatusModal = () => {
   isToggleStatusModalVisible.value = false
-  router.push({ name: 'Index' })
-  performSearch('')
-}
-
-const setListRef = (name: string, instance: Element | ComponentPublicInstance | null) => {
-  if (instance && 'refresh' in instance && 'refreshFromFirstPage' in instance) {
-    listRefs.value[name] = instance as ListOfFindResponseItemsExposed
-    return
-  }
-
-  listRefs.value[name] = null
+  router.push({
+    name: statusRouteByStatus[selectedStatus.value]
+  })
+  resetSearch()
 }
 
 const refreshLists = async () => {
-  await Promise.all(
-    Object.values(listRefs.value)
-      .filter((instance): instance is ListOfFindResponseItemsExposed => instance !== null)
-      .map(instance => instance.refreshFromFirstPage())
-  )
+  if (listRef.value) {
+    await listRef.value.refreshFromFirstPage()
+  }
 }
 
 const showToggleStatusModal = (item: UserSpecialMembershipRequestReview) => {
@@ -183,26 +210,42 @@ const orderByOptions = ['-dateLastModified', 'dateLastModified']
 const orderBy = ref('-dateLastModified')
 const q = ref('')
 
-const cardViewsWithServiceParams = computed(() => {
-  const query = {
+const serviceParams = computed(() => {
+  const query: {
+    limit: number
+    order_by: string
+    term: string
+    status?: RequestStatus[]
+  } = {
     limit: 50,
     order_by: orderBy.value,
     term: q.value
   }
-  return ['pending', 'approved', 'rejected'].map(status => ({
-    name: status,
-    serviceParams: {
-      query: {
-        ...query,
-        status: [status]
-      }
-    }
-  }))
+
+  if (selectedStatus.value !== 'all') {
+    query.status = [selectedStatus.value]
+  }
+
+  return {
+    query
+  }
 })
 
 const performSearch = (searchTerm: string) => {
-  console.info('performSearch', searchTerm)
-  q.value = searchTerm
+  const normalizedSearchTerm = searchTerm.trim()
+
+  if (!normalizedSearchTerm) {
+    q.value = ''
+    searchInputKey.value += 1
+    return
+  }
+
+  console.info('performSearch', normalizedSearchTerm)
+  q.value = normalizedSearchTerm
+}
+
+const resetSearch = () => {
+  performSearch('')
 }
 
 const routeToModal = (item: UserSpecialMembershipRequestReview) => {
@@ -237,24 +280,36 @@ const routeToModal = (item: UserSpecialMembershipRequestReview) => {
     },
     "card": {
       "title": {
+        "all": "All Requests",
         "pending": "Pending Requests",
         "approved": "Approved Requests",
-        "rejected": "Rejected Requests"
+        "rejected": "Rejected Requests",
+        "revoked": "Revoked Requests",
+        "temporary": "Temporary Requests"
       },
       "errorLoadingItems": {
+        "all": "Error loading requests.",
         "pending": "Error loading pending requests.",
         "approved": "Error loading approved requests.",
-        "rejected": "Error loading rejected requests."
+        "rejected": "Error loading rejected requests.",
+        "revoked": "Error loading revoked requests.",
+        "temporary": "Error loading temporary requests."
       },
       "listTitle": {
+        "all": "All Special Membership Requests",
         "pending": "Pending Special Membership Requests",
         "approved": "Approved Special Membership Requests",
-        "rejected": "Rejected Special Membership Requests"
+        "rejected": "Rejected Special Membership Requests",
+        "revoked": "Revoked Special Membership Requests",
+        "temporary": "Temporary Special Membership Requests"
       },
       "listisEmpty": {
+        "all": "There are no special membership requests.",
         "pending": "There are no pending special membership requests.",
         "approved": "There are no approved special membership requests.",
-        "rejected": "There are no rejected special membership requests."
+        "rejected": "There are no rejected special membership requests.",
+        "revoked": "There are no revoked special membership requests.",
+        "temporary": "There are no temporary special membership requests."
       }
     }
   }

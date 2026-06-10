@@ -20,10 +20,15 @@
       <p class="pb-2 mb-2 very-small border-bottom">
         Created: <TimeAgo :date="new Date(item.dateCreated)" />
       </p>
-      <p class="m-0 small">{{ $d(new Date(item.dateCreated), 'short') }}</p>
       <p class="m-0 very-small">
         Last modified: <TimeAgo :date="new Date(item.dateLastModified)" />
       </p>
+      <template v-if="item.temporaryExpiresAt">
+        <p class="m-0 small">{{ $d(new Date(item.temporaryExpiresAt), 'short') }}</p>
+        <p class="m-0 very-small">
+          Last modified: <TimeAgo :date="new Date(item.dateLastModified)" />
+        </p>
+      </template>
     </div>
     <div class="col-4">
       {{ item.specialMembershipAccess.title }}

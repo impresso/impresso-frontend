@@ -22,8 +22,17 @@
             </a>
           </div>
         </div> -->
-        <div class="ms-auto align-items-center mr-3 navbar-nav">
+        <div class="ms-auto align-items-center mr-3 navbar-nav gap-2">
           <template v-if="isAuthenticated">
+            <div class="nav-item" v-for="item in reviewRouteLinks" :key="item.name">
+              <RouterLink
+                :to="{ name: item.name }"
+                class="text-decoration-none text-reset nav-link px-2 py-1"
+                :class="{ active: route.name === item.name }"
+              >
+                {{ $t(item.labelKey) }}
+              </RouterLink>
+            </div>
             <UserDropdown :user="user" :userPlan="userPlan" @logout="logout">
               <template #role>
                 <div class="user-role small-caps text-left">
@@ -44,13 +53,20 @@ import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
 import { InstitutionsAccessBaseUrl } from '@/constants'
 import UserDropdown from '@/components/UserDropdown.vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { RoutesByRequestStatus } from '../router/routes'
 
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
 const userPlan = computed(() => userStore.userPlan)
 const user = computed(() => (isAuthenticated.value ? (userStore.user as any as User) : null))
+const route = useRoute()
 const router = useRouter()
+
+const reviewRouteLinks = RoutesByRequestStatus.map(([status, _path, name]) => ({
+  name,
+  labelKey: `${status}Requests`
+}))
 
 const logout = () => {
   console.info('logging out..')
@@ -82,11 +98,22 @@ const logout = () => {
   background-color: var(--impresso-color-yellow);
   content: '';
 }
+
+.Header .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid var(--impresso-color-yellow);
+}
 </style>
 <i18n lang="json">
 {
   "en": {
-    "institutionContactpoint": "Reviewer"
+    "institutionContactpoint": "Reviewer",
+    "allRequests": "All",
+    "pendingRequests": "Pending",
+    "approvedRequests": "Approved",
+    "rejectedRequests": "Rejected",
+    "revokedRequests": "Revoked",
+    "temporaryRequests": "Temporary"
   }
 }
 </i18n>

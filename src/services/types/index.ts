@@ -140,6 +140,7 @@ export interface UserSpecialMembershipRequestReview {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
+  temporaryExpiresAt?: string | null
   status: (typeof SpecialMembershipRequestStatuses)[number]
   notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
