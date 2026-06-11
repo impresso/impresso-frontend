@@ -36,6 +36,8 @@ export const useBaristaStore = defineStore('barista', () => {
   const lastFiltersDestination = ref<string | undefined>(undefined)
   /** The conversation record currently loaded in the panel, if any. Carries the label shown in the UI. */
   const currentConversation = ref<BaristaConversation | undefined>(undefined)
+  /** Number of remaining Barista conversations for the current user, as reported by the last 'done' event. */
+  const remainingConversations = ref<number | undefined>(undefined)
 
   /** The most recently appended message, used to drive reactive UI updates. */
   const latestMessage = computed<BaristaStoreMessage | undefined>(() =>
@@ -124,8 +126,11 @@ export const useBaristaStore = defineStore('barista', () => {
    * Appends each message to the log and extracts any suggested filters.
    * Marks `isWorking` as false when the stream signals completion (`type === 'done'`).
    */
-  function parseBaristaStream(payload: { type: string; data: BaristaMessageItem[] }) {
+  function parseBaristaStream(payload: { type: string; data: BaristaMessageItem[]; remainingConversations?: number }) {
     const isLast = payload?.type === 'done'
+    if (isLast && payload.remainingConversations !== undefined) {
+      remainingConversations.value = payload.remainingConversations
+    }
     const incoming = (payload?.data ?? []).filter((msg: BaristaMessageItem) => {
       if (msg.sessionId !== sessionId.value) {
         console.warn(
@@ -176,6 +181,7 @@ export const useBaristaStore = defineStore('barista', () => {
     sendCurrentFilters,
     lastFiltersReceived,
     lastFiltersDestination,
+    remainingConversations,
     latestMessage,
     lastFilters,
     sendMessage,
