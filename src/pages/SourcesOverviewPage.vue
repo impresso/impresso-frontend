@@ -18,11 +18,14 @@ import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewMo
 import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import Autocomplete from '@/components/Autocomplete.vue'
+import { Filter } from '@/models'
+import { useSettingsStore } from '@/stores/settings'
 
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
-  onFiltersChanged?: (newFilters: Array<any>) => void
+  onFiltersChanged?: (newFilters: Array<Filter>) => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,6 +33,16 @@ const props = withDefaults(defineProps<Props>(), {
   filtersWithItems: () => [],
   onFiltersChanged: () => {}
 })
+
+const emit = defineEmits<{
+  (e: 'filtersChanged', newFilters: Array<Filter>): void
+}>()
+
+const onSuggestion = (suggestion: Filter) => {
+  console.log('Suggestion submitted:', suggestion)
+  emit('filtersChanged', [...props.filters, suggestion])
+}
+
 const allowedFilters = computed(() => {
   return props.filters.filter(({ type }) => SupportedFiltersByContext.search.includes(type))
 })
@@ -57,7 +70,8 @@ const facets = ref([])
 const dataValues = ref<DataValue[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
-const isHelperModalVisible = ref(true)
+const settingsStore = useSettingsStore()
+const isHelperModalVisible = ref(settingsStore.showGettingStartedInSourcesOverview)
 
 const normalize = ref(false)
 const fitToContainerWidth = ref(false)
@@ -94,6 +108,7 @@ const handleScrollUpdate = (updated: TooltipPosition) => {
 const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
+
 watch(
   allowedFilters,
   async newVal => {
@@ -203,7 +218,7 @@ onMounted(() => {
       :filters="allowedFiltersWithItems"
       :facets="facets"
       contextTag="search"
-      @changed="props.onFiltersChanged"
+      @changed="emit('filtersChanged', $event)"
     >
       <template #tabs>
         <b-tabs pills class="mx-2 pt-2">
@@ -213,6 +228,14 @@ onMounted(() => {
             </b-nav-item>
           </template>
         </b-tabs>
+      </template>
+      <template v-slot:header="{ focusHandler }">
+        <Autocomplete
+          @submit="onSuggestion"
+          @filters-changed="emit('filtersChanged', $event)"
+          @input-focus="focusHandler"
+          :filters="filters"
+        />
       </template>
     </SearchSidebar>
     <i-layout-section main>
