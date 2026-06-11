@@ -45,8 +45,8 @@
       </p>
     </section>
 
-    <template #modal-footer="{ close }">
-      <BButton variant="outline-secondary" size="sm" @click="close()">
+    <template #modal-footer="{ dismiss }">
+      <BButton variant="outline-secondary" size="sm" @click="dismiss">
         {{ $t('close') }}
       </BButton>
     </template>
