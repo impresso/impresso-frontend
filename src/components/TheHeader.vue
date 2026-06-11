@@ -60,7 +60,16 @@
           <template v-slot:button-content>
             <span class="text-white">{{ $t('label_explore') }}</span>
           </template>
-          <li class="px-2"></li>
+          <li class="px-2">
+            <RouterLink
+              :to="getRouteWithSearchQuery({ name: 'sources' })"
+              active-class="active"
+              title="Sources"
+              class="nav-link"
+            >
+              <span>{{ $t('label_media_sources') }}</span>
+            </RouterLink>
+          </li>
           <li class="px-2">
             <RouterLink
               :to="{ name: 'compare', query: { left: searchQueryHash } }"
