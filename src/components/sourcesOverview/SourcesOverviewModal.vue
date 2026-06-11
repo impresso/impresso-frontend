@@ -9,6 +9,9 @@
     hide-footer
   >
     <h5 class="mt-3">{{ title }}</h5>
+    <BFormCheckbox v-model="settingsStore.showGettingStartedInSourcesOverview" switch class="mb-3">
+      {{ $t('showGettingStartedInSourcesOverview') }}
+    </BFormCheckbox>
     <LoadingBlock v-if="isLoading" :height="300" />
     <template #modal-header-extra>
       <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
@@ -69,6 +72,7 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
 import LoadingBlock from '../LoadingBlock.vue'
 import InfoModal from '../InfoModal.vue'
 import Icon from '../base/Icon.vue'
@@ -90,6 +94,7 @@ withDefaults(defineProps<SourcesOverviewModalProps>(), {
   filters: () => []
 })
 const emit = defineEmits(['dismiss', 'confirm'])
+const settingsStore = useSettingsStore()
 const isLoading = ref(false)
 const tabs = ref([
   { name: 'metadata', label: 'byMetadata', icon: '' },
@@ -118,6 +123,7 @@ ul.SourceOverviewModal__tabs.nav.nav-pills .nav-item .nav-link.active {
     "byMetadata": "By Metadata",
     "bySearchQueries": "By Search Queries",
     "bySearchQueriesDescription": "Explore one of your recent search queries:",
+    "showGettingStartedInSourcesOverview": "Show this getting started guide again",
     "withBarista": "With Barista",
     "withBaristaDescription": "(Not there yet!) Explore the sources overview using Barista to refine or start your search query.",
     "useCurrentFiltersToExploreSourcesOverview": "You can use the current filters to explore the Sources Overview. The following <strong>content items</strong> are considered:",
