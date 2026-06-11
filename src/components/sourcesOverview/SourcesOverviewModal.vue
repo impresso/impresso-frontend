@@ -8,13 +8,13 @@
     @confirm="emit('confirm')"
   >
     <h5 class="mt-3">{{ title }}</h5>
-    <template #modal-footer="{ dismiss }">
+    <template #modal-footer>
       <div class="px-3 w-100">
         <div class="border-top py-3 align-items-center d-flex justify-content-between gap-3">
           <BFormCheckbox v-model="settingsStore.showGettingStartedInSourcesOverview" switch>
             {{ $t('showGettingStartedInSourcesOverview') }}
           </BFormCheckbox>
-          <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">
+          <button type="button" class="btn btn-sm btn-outline-secondary" @click="emit('dismiss')">
             {{ $t('actions.dismiss') }}
           </button>
         </div>
