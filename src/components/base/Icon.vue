@@ -224,19 +224,6 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
-  sourceType: {
-    paths: [
-      {
-        d: 'M9 12H15'
-      },
-      {
-        d: 'M12 9V15'
-      },
-      {
-        d: 'M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z'
-      }
-    ]
-  },
   sourceMedium: {
     paths: [
       {
@@ -833,7 +820,7 @@ const IconAliases: Record<string, string> = {
   nag: 'newsagency',
   newsagency: 'newsagency',
   organisation: 'organisation',
-  sourceType: 'sourceType',
+  sourceType: 'label',
   sourceMedium: 'sourceMedium',
   collection: 'boxIso',
   embedding: 'codeBracketSquare',

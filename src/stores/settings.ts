@@ -10,6 +10,10 @@ export interface State {
    * 'try in datalab' modal.
    */
   showExtendedDatalabCode: boolean
+  /**
+   *
+   */
+  showGettingStartedInSourcesOverview: boolean
 }
 
 export const useSettingsStore = defineStore('settings', {
@@ -18,7 +22,8 @@ export const useSettingsStore = defineStore('settings', {
     language_code: 'en',
     cookiesAccepted: false,
     searchDisplayStyle: 'list',
-    showExtendedDatalabCode: true
+    showExtendedDatalabCode: true,
+    showGettingStartedInSourcesOverview: true
   }),
   getters: {
     lastNotificationDateAsDate(state) {
@@ -40,6 +45,9 @@ export const useSettingsStore = defineStore('settings', {
     },
     setShowExtendedDatalabCode(show: boolean) {
       this.showExtendedDatalabCode = show
+    },
+    setShowGettingStartedInSourcesOverview(show: boolean) {
+      this.showGettingStartedInSourcesOverview = show
     }
   },
   persist: {
@@ -49,7 +57,8 @@ export const useSettingsStore = defineStore('settings', {
       'lastNotificationDate',
       'language_code',
       'searchDisplayStyle',
-      'showExtendedDatalabCode'
+      'showExtendedDatalabCode',
+      'showGettingStartedInSourcesOverview'
     ]
   }
 })

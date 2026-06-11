@@ -19,16 +19,6 @@
       </a>
 
       <b-navbar-nav class="align-items-center text-center">
-        <li class="nav-item">
-          <RouterLink
-            :to="getRouteWithSearchQuery({ name: 'sources' })"
-            active-class="active"
-            title="Sources"
-            class="nav-link"
-          >
-            <span>{{ $t('label_media_sources') }}</span>
-          </RouterLink>
-        </li>
         <BDropdown class="px-2 text-white">
           <template v-slot:button-content>
             <span
@@ -58,9 +48,18 @@
         </BDropdown>
         <BDropdown class="px-2 text-white">
           <template v-slot:button-content>
-            <span class="text-white">{{ $t('label_explore') }}</span>
+            <span>{{ $t('label_explore') }}</span>
           </template>
-          <li class="px-2"></li>
+          <li class="px-2">
+            <RouterLink
+              :to="getRouteWithSearchQuery({ name: 'sources' })"
+              active-class="active"
+              title="Sources"
+              class="nav-link"
+            >
+              <span>{{ $t('label_media_sources') }}</span>
+            </RouterLink>
+          </li>
           <li class="px-2">
             <RouterLink
               :to="{ name: 'compare', query: { left: searchQueryHash } }"
@@ -84,16 +83,13 @@
             </RouterLink>
           </li>
         </BDropdown>
-        <BDropdown class="px-2">
-          <template v-slot:button-content>
-            <span class="text-white">{{ $t('label_faq') }}</span>
-          </template>
-          <li class="px-2">
-            <RouterLink :to="{ name: 'faq' }" active-class="active" class="nav-link px-2">
-              <span class="text-white">{{ $t('label_documentation') }}</span>
-            </RouterLink>
-          </li>
-        </BDropdown>
+        <b-nav-item
+          v-if="user"
+          :to="getRouteWithSearchQuery({ name: 'collections' })"
+          :active="$route.path.indexOf('/collections') === 0"
+        >
+          <span>{{ $t('collections') }}</span>
+        </b-nav-item>
 
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{ $t('label_topics') }}</span>
@@ -112,13 +108,21 @@
             $t('connectivityStatus.online')
           }}</span>
         </b-nav-item>
-        <b-nav-item
-          v-if="user"
-          :to="getRouteWithSearchQuery({ name: 'collections' })"
-          :active="$route.path.indexOf('/collections') === 0"
-        >
-          <span>{{ $t('collections') }}</span>
-        </b-nav-item>
+        <BDropdown class="px-2">
+          <template v-slot:button-content>
+            <span class="text-white">{{ $t('label_faq') }}</span>
+          </template>
+          <li>
+            <LinkToModal class="nav-link px-3" :view="ViewCorpusOverview">
+              <span>{{ $t('label_corpus_catalogue') }}</span>
+            </LinkToModal>
+          </li>
+          <li>
+            <RouterLink :to="{ name: 'faq' }" active-class="active" class="nav-link px-3">
+              <span>{{ $t('label_documentation') }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
         <b-dropdown
           v-if="user && jobs.length"
           right
@@ -168,6 +172,17 @@
             </div>
           </div>
         </b-dropdown>
+        <BDropdown class="px-2">
+          <template v-slot:button-content>
+            <span>{{ $t('label_data_access') }}</span>
+          </template>
+
+          <li v-for="viewName in [ViewPlans, ViewTermsOfUse]" :key="viewName">
+            <LinkToModal class="nav-link px-3" :view="viewName">
+              <span>{{ $t(`label_${viewName.toLowerCase()}`) }}</span>
+            </LinkToModal>
+          </li>
+        </BDropdown>
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
@@ -237,6 +252,7 @@ import JobItem from '@/components/modules/lists/JobItem.vue'
 import Pagination from '@/components/modules/Pagination.vue'
 import Logo from '@/components/Logo.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import LinkToModal from './LinkToModal.vue'
 import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
 import { useSettingsStore } from '@/stores/settings'
@@ -244,7 +260,7 @@ import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import type { ErrorMessage } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
-import { PlanLabels } from '@/constants'
+import { PlanLabels, ViewCorpusOverview, ViewPlans, ViewTermsOfUse } from '@/constants'
 import { RouterLink } from 'vue-router'
 import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/SwitchBetweenAppDatalab.vue'
 import { Routes } from '@/router/routes'
@@ -702,21 +718,23 @@ watch(jobs, value => {
     "collections": "Collections",
     "profile": "Profile",
     "label_home": "Home",
-    "label_plans": "Plans",
+    "label_data_access": "Data Access",
+    "label_plans": "User Plans",
     "label_search": "Search",
     "label_media_sources": "Sources",
     "label_explore": "Explore",
     "label_topics": "Topics",
     "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
+    "label_corpus_catalogue": "Corpus Catalogue",
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
     "label_search_text": "Search text",
     "label_searchImages": "Search images",
     "label_searchNgrams": "Search ngrams",
     "label_faq": "Documentation",
-    "label_documentation": "Impresso Web App Documentation",
-    "label_terms": "Terms of Use",
+    "label_documentation": "Web App Documentation",
+    "label_terms-of-use": "Terms of Use",
     "label_jobs": "Tasks"
   }
 }

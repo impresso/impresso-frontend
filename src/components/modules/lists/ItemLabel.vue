@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!detailed" class="ItemLabel d-inline">
+  <div v-if="!detailed" class="ItemLabel d-inline" :class="itemType">
     <template v-if="itemType === 'collection'">
       <b>{{ item.name }}</b
       >{{ ' ' }}
@@ -8,7 +8,11 @@
     <template v-else-if="itemType === 'topic'">
       <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.label }}
     </template>
-    <span v-else-if="['type', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)">
+    <span
+      v-else-if="
+        ['type', 'sourceType', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)
+      "
+    >
       {{ $t(`buckets.${itemType}.${item.id}`) }}
     </span>
     <span v-else v-html="computedLabel"></span>
