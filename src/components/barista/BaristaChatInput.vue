@@ -76,12 +76,24 @@
           </button>
         </div>
       </div>
+
+      <div v-if="showRemainingConversations" class="mt-2 px-1">
+        <p v-if="baristaStore.remainingConversations === 0" class="small text-danger mb-0">
+          You have used all your available requests. Please try again in a minute.
+        </p>
+        <p v-else class="very-small text-muted mb-0">
+          {{ baristaStore.remainingConversations }} conversation{{
+            baristaStore.remainingConversations === 1 ? '' : 's'
+          }}
+          remaining
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import type { Filter } from '@/models'
@@ -118,6 +130,18 @@ const selectedAgentType = ref<'react' | 'router' | 'skills'>('router')
 const additionalInstructions = ref('')
 const allowTopicsFilters = ref(false)
 const humanPrompt = ref<HTMLTextAreaElement | null>(null)
+const showRemainingConversations = ref(false)
+let hideTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(
+  () => baristaStore.remainingConversations,
+  value => {
+    if (value === undefined) return
+    showRemainingConversations.value = true
+    clearTimeout(hideTimer)
+    hideTimer = setTimeout(() => (showRemainingConversations.value = false), 60_000)
+  }
+)
 
 const agentTypeOptions: Option[] = [
   { value: 'skills', text: 'Skills (experimental)' },
