@@ -81,7 +81,7 @@ export const MockContentItemPublicDomain: ContentItem = {
   audio: {}
 }
 
-export const MockContentItemAudio: ContentItem = {
+export const MockAudioContentItem: ContentItem = {
   id: 'trib_prem-1986-12-14-a-i0001',
   issueId: 'trib_prem-1986-12-14-a',
   relevanceScore: 1,

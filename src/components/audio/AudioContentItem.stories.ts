@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { vueRouter } from 'storybook-vue3-router'
 
-import ContentItemAudio from './AudioContentItem.vue/index.js'
-import type { ContentItemAudioProps } from './AudioContentItem.vue/index.js'
-import { MockContentItemAudio } from '.storybook/mockData/contentItems.js'
+import AudioContentItem from './AudioContentItem.vue'
+import type { AudioContentItemProps } from './AudioContentItem.vue'
+import { MockAudioContentItem } from '.storybook/mockData/contentItems'
 
 const meta = {
-  title: 'Components/audio/ContentItemAudio',
-  component: ContentItemAudio,
+  title: 'Components/audio/AudioContentItem',
+  component: AudioContentItem,
   parameters: {
     layout: 'fullscreen',
     docs: {
@@ -20,8 +20,8 @@ const meta = {
   decorators: [
     vueRouter([
       {
-        name: 'ContentItemAudio',
-        path: '/audio-content-item/:id',
+        name: 'audioContentItem',
+        path: '/audio-content-item/:content_item_id',
         redirect: '/audio-content-item/mock',
         beforeEnter: () => true
       }
@@ -30,17 +30,17 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {},
   render: args => ({
-    components: { ContentItemAudio },
+    components: { AudioContentItem },
     setup() {
       return { args }
     },
     template: `
-          <ContentItemAudio v-bind="args">
+          <AudioContentItem v-bind="args">
             
-          </ContentItemAudio>
+          </AudioContentItem>
       `
   })
-} satisfies Meta<typeof ContentItemAudio>
+} satisfies Meta<typeof AudioContentItem>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -48,6 +48,6 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     enablePlayer: true,
-    item: MockContentItemAudio
-  } as ContentItemAudioProps
+    contentItem: MockAudioContentItem
+  } as AudioContentItemProps
 }

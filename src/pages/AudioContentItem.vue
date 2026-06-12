@@ -100,13 +100,13 @@
       </template>
       <div class="container">
         <div v-for="(record, idx) in contentItem?.audio?.records ?? []" :key="idx">
-          <AudioItem
+          <AudioContentItem
             v-if="audioItemData"
             :item="audioItemData"
             :is-playing="false"
             :enable-player="true"
             @toggleplay="currentTime = 0"
-          ></AudioItem>
+          ></AudioContentItem>
 
           <TranscriptViewer
             class="mt-3"
@@ -137,7 +137,7 @@
 import { MediaSource } from '@/models'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { contentItems as contentItemsService } from '@/services'
-import AudioItem from 'impresso-ui-components/components/AudioItem.vue'
+import AudioContentItem from '@/components/audio/AudioContentItem.vue'
 import TranscriptViewer, {
   Rrreb,
   Utterance

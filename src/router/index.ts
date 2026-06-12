@@ -390,10 +390,20 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_id',
-      component: () => import('@/pages/AudioContentItem.vue'),
+      component: () => import('@/pages/ContentItemWrapperPage.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
+      },
+      beforeEnter: async to => {
+        const contentItemId = to.params.content_item_id as string
+        try {
+          const ci = await services.contentItems.get(contentItemId)
+          to.meta.contentItem = ci // Store it in meta
+        } catch (error) {
+          console.error('Failed to fetch content item', error)
+          to.meta.contentItem = null
+        }
       }
     },
     {

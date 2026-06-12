@@ -197,20 +197,3 @@ const itemType = computed(() => {
   return 'N/A'
 })
 </script>
-<style>
-.ContentItem ul.ContentItem__textMatches {
-  list-style-type: none;
-}
-
-.ContentItem ul.ContentItem__textMatches li {
-  border-left-width: 0 !important;
-  background: var(--impresso-color-yellow-alpha-30);
-  margin: 0.1rem 0.5rem 0.25rem 0rem !important;
-}
-.ContentItem ul.ContentItem__textMatches li em {
-  font-style: normal;
-  font-weight: bold;
-  background: var(--impresso-color-yellow);
-  padding: 0 0.1rem;
-}
-</style>

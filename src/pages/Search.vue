@@ -184,11 +184,25 @@
               v-for="(searchResult, index) in searchResults"
               v-bind:key="searchResult.id"
             >
-              <!-- <AudioContentItem
+              <AudioContentItem
+                class="p-3 border rounded my-2 shadow-sm mr-5"
                 v-if="searchResult.meta?.sourceMedium === 'audio'"
-                :item="searchResult as IAudioContentItem"
-              ></AudioContentItem> -->
-              <search-results-list-item v-bind:checkbox="false" v-model="searchResults[index]" />
+                :contentItem="searchResult"
+                :enable-player="true"
+                :is-playing="isAudioItemPlaying(searchResult.id)"
+                :current-time="getAudioItemReadingTime(searchResult.id)"
+                @update:is-playing="
+                  isPlaying => onAudioItemPlayingChanged(searchResult.id, isPlaying)
+                "
+                @update:current-time="
+                  currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
+                "
+              ></AudioContentItem>
+              <search-results-list-item
+                v-else
+                v-bind:checkbox="false"
+                v-model="searchResults[index]"
+              />
             </b-col>
           </b-row>
           <b-row class="pb-5" v-if="displayStyle === 'tiles'">
@@ -254,6 +268,7 @@ import {
   exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
+import { useAudioStore } from '@/stores/audio'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 import { useUserStore } from '@/stores/user'
@@ -261,7 +276,7 @@ import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import type { FacetType, Filter, Facet, AudioContentItem as IAudioContentItem } from '@/models'
+import type { FacetType, Filter, Facet } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
@@ -349,7 +364,13 @@ export default defineComponent({
     return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
-    ...mapStores(useCollectionsStore, useNotificationsStore, useSearchQueriesStore, useUserStore),
+    ...mapStores(
+      useCollectionsStore,
+      useAudioStore,
+      useNotificationsStore,
+      useSearchQueriesStore,
+      useUserStore
+    ),
     $navigation() {
       return new Navigation(this)
     },
@@ -538,6 +559,7 @@ export default defineComponent({
   },
   mounted() {
     console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
+    this.audioStore.pruneReadingProgress()
     this.facets = buildEmptyFacets(FacetTypes)
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
@@ -546,8 +568,30 @@ export default defineComponent({
   },
   beforeUnmount() {
     this._isUnmounted = true
+    this.audioStore.setIsPlaying(false)
+    this.audioStore.setContentItemId(null)
   },
   methods: {
+    isAudioItemPlaying(contentItemId: string) {
+      return this.audioStore.contentItemId === contentItemId && this.audioStore.isPlaying
+    },
+    getAudioItemReadingTime(contentItemId: string) {
+      return this.audioStore.getReadingTimeByContentItemId(contentItemId)
+    },
+    onAudioItemCurrentTimeChanged(contentItemId: string, currentTime: number) {
+      this.audioStore.setReadingTime(contentItemId, currentTime)
+    },
+    onAudioItemPlayingChanged(contentItemId: string, isPlaying: boolean) {
+      if (isPlaying) {
+        this.audioStore.setContentItemId(contentItemId)
+        this.audioStore.setIsPlaying(true)
+        return
+      }
+
+      if (this.audioStore.contentItemId === contentItemId) {
+        this.audioStore.setIsPlaying(false)
+      }
+    },
     toggleLoadCollections() {
       this.loadCollectionsFlag = !this.loadCollectionsFlag
     },
@@ -666,6 +710,15 @@ export default defineComponent({
     }
   },
   watch: {
+    searchResults(searchResults: ContentItem[]) {
+      if (
+        this.audioStore.contentItemId != null &&
+        !searchResults.some(item => item.id === this.audioStore.contentItemId)
+      ) {
+        this.audioStore.setIsPlaying(false)
+        this.audioStore.setContentItemId(null)
+      }
+    },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy }) {
         const requestId = ++this._activeSearchRequestId

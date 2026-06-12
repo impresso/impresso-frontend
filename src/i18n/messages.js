@@ -31,6 +31,8 @@ export default {
         rb: 'radio broadcast',
         rbe: 'radio broadcast episode',
         chapter: 'chapter',
+        dsc: 'radio documentary',
+        ent: 'radio interview',
         'no-type': 'No type provided'
       },
       sourceType: {
