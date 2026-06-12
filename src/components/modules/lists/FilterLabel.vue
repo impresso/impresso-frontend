@@ -160,7 +160,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
   "en": {
     "include": {
       "sourceType": "in",
-      "sourceMedium": "only",
+      "sourceMedium": "medium is",
       "accessRight": "available as",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "ocrQuality": "with OCR quality between <span class='number'>{min}</span> and <span class='number'>{max}</span>",

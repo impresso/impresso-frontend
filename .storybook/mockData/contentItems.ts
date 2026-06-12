@@ -80,3 +80,84 @@ export const MockContentItemPublicDomain: ContentItem = {
   },
   audio: {}
 }
+
+export const MockContentItemAudio: ContentItem = {
+  id: 'trib_prem-1986-12-14-a-i0001',
+  issueId: 'trib_prem-1986-12-14-a',
+  relevanceScore: 1,
+  meta: {
+    sourceType: 'radio_broadcast',
+    date: '1986-12-14T00:00:00Z',
+    mediaId: 'trib_prem',
+    sourceMedium: 'audio',
+    countryCode: 'CH',
+    provinceCode: 'na',
+    partnerId: 'RTS',
+    partnerTitle: 'Swiss Broadcasting Corporation (French)'
+  },
+  access: {
+    copyright: 'in_cpy',
+    dataDomain: 'prt',
+    accessBitmaps: {
+      explore: 'AAAAAAAAAAI=',
+      getTranscript: 'AAAAAAACAAA=',
+      getImages: 'AAAAAAACAAA='
+    },
+    dataDomainLabel: 'Private',
+    copyrightLabel: 'Protected domain: in copyright'
+  },
+  text: {
+    title: 'Interview de Roselyne Crausaz, première femme de Suisse romande à fair[...]',
+    contentLength: 3245,
+    documentType: 'ci',
+    itemType: 'dsc',
+    langCode: 'fr',
+    originalLangCode: 'fr',
+    snippet:
+      'Pierre Berset Daniel Favre pour cette nouvelle édition de tribune de première. Et face à nous, Roselyne Crausaz, jeune célibataire économiste député d',
+    matches: []
+  },
+  facsimile: { lineBreaks: [], paragraphBreaks: [], regionBreaks: [] },
+  semanticEnrichments: {
+    ocrQuality: 0.99,
+    topics: [
+      {
+        id: 'tm-fr-all-v2.0_tp44_fr',
+        relevance: 0.227,
+        label: 'temps · argent · gens · foi · chose',
+        languageCode: 'fr'
+      },
+      {
+        id: 'tm-fr-all-v2.0_tp87_fr',
+        relevance: 0.184,
+        label: 'problème · fait · question · exemple · monde',
+        languageCode: 'fr'
+      },
+      {
+        id: 'tm-fr-all-v2.0_tp92_fr',
+        relevance: 0.143,
+        label: 'canton · projet · développement · recherche · région',
+        languageCode: 'fr'
+      },
+      {
+        id: 'tm-fr-all-v2.0_tp54_fr',
+        relevance: 0.126,
+        label: 'parti · conseil · voix · élection · liste',
+        languageCode: 'fr'
+      },
+      {
+        id: 'tm-fr-all-v2.0_tp98_fr',
+        relevance: 0.059,
+        label: 'gouvernement · parti · ministre · président · politique',
+        languageCode: 'fr'
+      },
+      {
+        id: 'tm-fr-all-v2.0_tp88_fr',
+        relevance: 0.056,
+        label: 'conseil · initiative · loi · peuple · projet',
+        languageCode: 'fr'
+      }
+    ]
+  },
+  audio: { duration: '00:17:43', startTime: '00:00:00', recordsCount: 1 }
+}

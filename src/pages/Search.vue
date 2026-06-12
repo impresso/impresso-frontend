@@ -184,6 +184,10 @@
               v-for="(searchResult, index) in searchResults"
               v-bind:key="searchResult.id"
             >
+              <!-- <AudioContentItem
+                v-if="searchResult.meta?.sourceMedium === 'audio'"
+                :item="searchResult as IAudioContentItem"
+              ></AudioContentItem> -->
               <search-results-list-item v-bind:checkbox="false" v-model="searchResults[index]" />
             </b-col>
           </b-row>
@@ -257,12 +261,13 @@ import { Navigation } from '@/plugins/Navigation'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 
 import { ContentItem } from '@/models/generated/canonical/contentItem'
-import type { FacetType, Filter, Facet } from '@/models'
+import type { FacetType, Filter, Facet, AudioContentItem as IAudioContentItem } from '@/models'
 import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
 import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
+import AudioContentItem from '@/components/audio/AudioContentItem.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -792,7 +797,8 @@ export default defineComponent({
     Modal,
     CopyToDatalabButton,
     PageNavbarHeading,
-    InfoModal
+    InfoModal,
+    AudioContentItem
   }
 })
 </script>

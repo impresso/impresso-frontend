@@ -231,35 +231,3 @@ export interface FindResponse<T> {
     offset: number
   }
 }
-
-export interface Utterance {
-  startTime: number
-  endTime: number
-  indices: number[] // indices of TranscriptPartialText contained in this utterance
-}
-
-export interface ContentItem {
-  id: string
-  type: 'audio' | 'ar' | 'radio_broadcast_episode'
-  publicationDate: string
-  title?: string
-  excerpt?: string
-  transcript?: string
-  transcriptLength: number
-
-  href?: string
-  link?: string
-  mediaSource: MediaSource
-  dataProvider?: string
-  copyright?: string
-}
-
-export interface AudioContentItem extends ContentItem {
-  duration: number
-  startTime: number
-  audioSrc?: string
-  audioSrcType?: 'mp3' | 'ogg' | 'wav'
-  radioChannel?: string
-  // rrrebs: Rrreb[]
-  utterances: Utterance[]
-}
