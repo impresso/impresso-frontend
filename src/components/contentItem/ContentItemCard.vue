@@ -7,7 +7,7 @@
         <div class="col-12 col-lg-6 col-xl-4 mb-3">
           <p class="text-muted small">{{ $t('contentItemCard.citationFormatHtml') }}</p>
           <ContentItemCitation
-            :item="item"
+            :contentItem="contentItem"
             show-copy-button
             class="p-2 bg-white border rounded small shadow-sm d-inline-block"
           />
@@ -15,7 +15,7 @@
         <div class="col-12 col-lg-6 col-xl-4 mb-3">
           <p class="text-muted small">{{ $t('contentItemCard.citationFormatBibtext') }}</p>
           <ContentItemCitation
-            :item="item"
+            :contentItem="contentItem"
             show-copy-button
             format="bibtex"
             class="p-2 bg-bg-white border rounded small shadow-sm d-inline-block"
@@ -82,7 +82,7 @@ import { decodeBase64Bitmap, DecodedBitmap, getPlansFromDecodedBitmap } from '@/
 
 /** Content Item to display metadata for */
 export type ContentItemCardProps = {
-  item: ContentItemType
+  contentItem: ContentItemType
   showMetadata?: boolean
 }
 
@@ -124,18 +124,21 @@ const getNestedValue = (obj: any, path: string): any => {
 }
 
 const fields = computed(() => {
-  return AvailableFields.map(field => getNestedValue(props.item, field) ?? '-')
+  if (!props.contentItem) return []
+  return AvailableFields.map(field => getNestedValue(props.contentItem, field) ?? '-')
 })
 const bitmapFields = computed<DecodedBitmap[]>(() => {
+  if (!props.contentItem) return []
   return AccessBitmapFields.map(field => {
-    const value = getNestedValue(props.item, field)
+    const value = getNestedValue(props.contentItem, field)
     return decodeBase64Bitmap(value)
   })
 })
 
-const bitmapPlans = computed(() =>
-  bitmapFields.value.map(decodedBitmap => getPlansFromDecodedBitmap(decodedBitmap))
-)
+const bitmapPlans = computed(() => {
+  if (!props.contentItem) return []
+  return bitmapFields.value.map(decodedBitmap => getPlansFromDecodedBitmap(decodedBitmap))
+})
 </script>
 <i18n lang="json">
 {

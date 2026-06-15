@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import AudioContentItem from '@/pages/AudioContentItem.vue'
+import AudioContentItem from '@/pages/AudioContentItemPage.vue'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { contentItems as contentItemsService } from '@/services'
 import { MockContentItemPublicDomain } from '.storybook/mockData/contentItems'

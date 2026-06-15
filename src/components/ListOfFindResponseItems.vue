@@ -165,6 +165,13 @@ const serviceResponse = ref<{
 })
 
 const paginationForList = computed(() => {
+  if (!serviceResponse.value.pagination) {
+    return {
+      perPage: props.params?.query?.limit ?? 5,
+      currentPage: 0,
+      totalRows: serviceResponse.value?.data.length ?? 0
+    }
+  }
   return {
     perPage: serviceResponse.value.pagination.limit,
     currentPage:

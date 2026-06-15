@@ -77,15 +77,19 @@
         v-show="match.fragment.trim().length > 0"
       />
     </ul>
-
+  </div>
+  <section
+    v-if="props.enablePlayer && audioSrc"
+    class="position-sticky top-0 bg-light border-bottom"
+    style="z-index: 1000"
+  >
     <AudioPlayer
       class="py-2"
-      v-if="props.enablePlayer && audioSrc"
       :src="audioSrc"
       v-model:is-playing="isPlayingModel"
       v-model:current-time="currentTimeModel"
     />
-  </div>
+  </section>
 </template>
 <script setup lang="ts">
 import { ContentItem } from '@/models/generated/canonical/contentItem'

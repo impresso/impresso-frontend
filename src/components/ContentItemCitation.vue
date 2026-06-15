@@ -28,7 +28,7 @@ import {
 import { getContentItemPermalink } from '@/logic/ids'
 
 export interface ContentItemCitationProps {
-  item: ContentItemType
+  contentItem?: ContentItemType
   showCopyButton?: boolean
   format?: 'html' | 'bibtex'
 }
@@ -62,30 +62,34 @@ const copyToClipboard = async () => {
 }
 
 const generateCitation = async () => {
+  if (!props.contentItem) {
+    citationHtml.value = ''
+    return
+  }
   // Prepare CSL data
-  const date = new Date(props.item.meta.date)
+  const date = new Date(props.contentItem?.meta.date)
   const dateParts = date.getTime()
     ? [[date.getFullYear(), date.getMonth() + 1, date.getDate()]]
     : [0]
 
   const archive: string =
-    dataProvidersService.getDataProviderNameById(props.item.meta.partnerId) ??
-    props.item.meta.partnerId
+    dataProvidersService.getDataProviderNameById(props.contentItem?.meta.partnerId) ??
+    props.contentItem?.meta.partnerId
 
   const mediaName: string = await mediaSourceService
-    .get(props.item.meta.mediaId)
-    .then(media => media?.name ?? props.item.meta.mediaId)
+    .get(props.contentItem?.meta.mediaId)
+    .then(media => media?.name ?? props.contentItem?.meta.mediaId)
 
   try {
     const cslData: CSLJSON & { id: string } = {
-      id: props.item.id,
+      id: props.contentItem?.id,
       type: 'article-newspaper',
-      title: props.item.text.title,
+      title: props.contentItem?.text?.title,
       'container-title': mediaName,
       publisher: archive,
       archive: archive,
-      page: props.item.facsimile?.pages?.map(page => page.number).join(', ') ?? '',
-      URL: getContentItemPermalink(props.item.id),
+      page: props.contentItem?.facsimile?.pages?.map(page => page.number).join(', ') ?? '',
+      URL: getContentItemPermalink(props.contentItem?.id),
       issued: {
         'date-parts': dateParts
       }
@@ -111,7 +115,7 @@ const generateCitation = async () => {
 }
 
 // Only re-run the logic when the ID changes, or text.title changes.
-watch(() => [props.item.id, props.item.text?.title], generateCitation)
+watch(() => [props.contentItem?.id, props.contentItem?.text?.title], generateCitation)
 
 onMounted(generateCitation)
 </script>

@@ -106,7 +106,7 @@
         <ContentItemCard
           class="px-3 bg-light w-100"
           v-if="contentItemOriginal && viewMode === ContentItemCardMode"
-          :item="contentItemOriginal"
+          :contentItem="contentItemOriginal"
           :show-metadata="isStaff"
         />
       </div>

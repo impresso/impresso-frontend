@@ -1,4 +1,27 @@
 export const Routes = {
+  audioContentItem: {
+    path: '/audio-content-item/:content_item_id',
+    name: 'audioContentItem',
+    children: {
+      transcript: {
+        path: '',
+        name: 'audioContentItemTranscript'
+      },
+      similarItems: {
+        path: 'similar-items',
+        name: 'audioContentItemSimilarItems'
+      },
+      citeAs: {
+        path: 'cite-as',
+        name: 'audioContentItemCiteAs'
+      },
+      debug: {
+        path: 'debug',
+        name: 'audioContentItemDebug'
+      }
+    }
+  },
+
   mediaSource: {
     path: '/media-source/:media_source_id',
     name: 'mediaSource'

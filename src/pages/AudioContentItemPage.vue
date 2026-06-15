@@ -1,138 +1,155 @@
 <template>
   <i-layout class="AudioContentItemPage">
+    <i-layout-section width="350px">
+      <template #header> ciao </template>
+
+      <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+
+      <ListOfFindResponseItems
+        :service="contentItemService"
+        :params="listParams"
+        :list-is-empty-message="$t('no conversations')"
+        :error-loading-items-message="$t('error loading conversations')"
+        items-class="p-0"
+      >
+        <template #header="{ total }">
+          <div
+            class="px-2 py-1 small text-muted"
+            v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"
+          />
+        </template>
+        <template #default="{ items }">
+          <ContentItem
+            v-for="item in items"
+            :key="item.id"
+            :item="item"
+            class="m-3 p-2 rounded-md border shadow-sm mb-4"
+            showLink
+            showMeta
+            showSnippet
+            showSemanticEnrichments
+        /></template>
+      </ListOfFindResponseItems>
+    </i-layout-section>
     <i-layout-section main>
       <template v-slot:header>
-        <b-navbar class="pt-3 pb-1 d-block">
+        <b-navbar class="py-3 d-block container ml-0">
           <section class="py-1">
-            <div class="label small-caps">
-              <slot name="label"></slot>
-            </div>
-            <h3 class="mb-1"></h3>
+            <div class="label small-caps">Audio Content Item</div>
+            <h3 class="mb-1">
+              {{ title }}
+            </h3>
             <AudioContentItem
-              :content-item="props.contentItem"
+              v-if="contentItem"
+              :content-item="contentItem"
               :enable-player="false"
-              :is-playing="isAudioItemPlaying"
-              :current-time="currentAudioItemReadingTime"
               :showTopics="false"
-              showTitle
+              :showTitle="false"
               showProvider
             >
             </AudioContentItem>
-            <ContentItemAccess :item="props.contentItem" class="mt-2 mb-0" />
+            <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+            <ContentItemAccess v-if="contentItem" :item="contentItem" class="mt-2 mb-0" />
           </section>
         </b-navbar>
-        <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
-          <b-tabs pills>
+        <b-navbar-nav class="container ml-0 pb-2">
+          <b-tabs pills class="border-0">
             <template v-slot:tabs-end>
-              <b-nav-item
-                class="pl-2"
-                v-for="mode in AvailableViewModes"
-                :key="mode"
-                @click="changeViewMode(mode)"
-                :class="{ active: mode === viewMode }"
+              <li
+                class="nav-item px-3"
+                v-for="nestedRoute in AvailableNestedRoutes"
+                :key="nestedRoute.name"
               >
-                <button size="sm" class="btn btn-transparent small-caps">
-                  {{ $t('viewModes.' + mode) }}
-                </button>
-              </b-nav-item>
+                <router-link
+                  :to="{
+                    name: nestedRoute.name
+                  }"
+                  exact-active-class="active"
+                  active-class=""
+                  :active="route.name === nestedRoute.name"
+                  class="nav-link"
+                >
+                  <span> {{ $t('routes.' + nestedRoute.name) }}</span>
+                </router-link>
+              </li>
             </template>
           </b-tabs>
         </b-navbar-nav>
       </template>
-      <div class="m-3">
-        <AudioContentItem
-          :content-item="props.contentItem"
-          :enable-player="true"
-          :is-playing="isAudioItemPlaying"
-          :current-time="currentAudioItemReadingTime"
-          showTopics
-          :showTitle="false"
-          showSnippet
-          showMeta
-          @update:is-playing="onAudioItemPlayingChanged"
-          @update:current-time="onAudioItemCurrentTimeChanged"
-        >
-        </AudioContentItem>
-
-        <pre>{{ JSON.stringify(props.contentItem, null, 2) }}</pre>
-        <!-- <TranscriptViewer
-          class="mt-3"
-          v-if="contentItem?.text && transcriptData.rrrebs.length > 0"
-          :utterances="transcriptData.utterances"
-          :rrrebs="transcriptData.rrrebs"
-          :current-time="currentTime"
-          :disabled="false"
-          :debug="false"
-          @click="onTranscriptViewerClick"
-        ></TranscriptViewer> -->
+      <div class="container ml-0 py-4">
+        <router-view :content-item="contentItem"></router-view>
       </div>
     </i-layout-section>
   </i-layout>
 </template>
 <script setup lang="ts">
-import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import AudioContentItem from '@/components/audio/AudioContentItem.vue'
 import { useAudioStore } from '@/stores/audio'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import ContentItemAccess from '@/components/ContentItemAccess.vue'
+import { useContentItem } from '@/composables/useContentItem'
+import { useRoute } from 'vue-router'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
+import { Routes } from '@/router/routes'
+import { contentItems as contentItemService } from '@/services'
+import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import FilterFactory from '@/models/FilterFactory'
+import ContentItem from '@/components/modules/lists/ContentItem.vue'
 
-const AvailableViewModes = ['overview', 'similarItems']
+const route = useRoute()
 
-const viewMode = ref(AvailableViewModes[0])
-const changeViewMode = (mode: (typeof AvailableViewModes)[number]) => {
-  viewMode.value = mode
-}
-const props = defineProps<{
-  contentItem: ContentItem
-}>()
+const AvailableNestedRoutes = [
+  Routes.audioContentItem.children.transcript,
+  Routes.audioContentItem.children.citeAs,
+  Routes.audioContentItem.children.similarItems
+] as const
 
+const { contentItem, fetchContentItem } = useContentItem()
 const audioStore = useAudioStore()
-const currentAudioItemId = computed(() => {
-  return props.contentItem.id
+
+const title = computed(() => {
+  if (!contentItem.value) {
+    return ''
+  }
+  return contentItem.value.text.title || contentItem.value.id
 })
 
-const isAudioItemPlaying = computed(() => {
-  return (
-    currentAudioItemId.value != null &&
-    audioStore.contentItemId === currentAudioItemId.value &&
-    audioStore.isPlaying
-  )
+const listParams = computed(() => {
+  return {
+    query: {
+      limit: 5,
+      offset: 0,
+      filters: [
+        FilterFactory.create({
+          type: 'daterange',
+          q: '1972-10-10T23:59:59Z TO 1972-10-21T23:59:59Z'
+        })
+      ]
+    }
+  }
 })
 
-const currentAudioItemReadingTime = computed(() => {
-  if (currentAudioItemId.value == null) {
-    return 0
-  }
-
-  return audioStore.getReadingTimeByContentItemId(currentAudioItemId.value)
-})
-
-const onAudioItemCurrentTimeChanged = (currentTime: number) => {
-  if (currentAudioItemId.value == null) {
-    return
-  }
-
-  audioStore.setReadingTime(currentAudioItemId.value, currentTime)
-}
-
-const onAudioItemPlayingChanged = (isPlaying: boolean) => {
-  if (currentAudioItemId.value == null) {
-    return
-  }
-
-  if (isPlaying) {
-    audioStore.setContentItemId(currentAudioItemId.value)
-    audioStore.setIsPlaying(true)
-    return
-  }
-
-  if (audioStore.contentItemId === currentAudioItemId.value) {
-    audioStore.setIsPlaying(false)
-  }
-}
+watch(
+  () => route.params.content_item_id as string,
+  async newId => {
+    if (newId) await fetchContentItem(newId)
+  },
+  { immediate: true }
+)
 
 onBeforeUnmount(() => {
   audioStore.setIsPlaying(false)
   audioStore.setContentItemId(null)
 })
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "routes": {
+      "audioContentItemTranscript": "Transcript",
+      "audioContentItemCiteAs": "Cite As",
+      "audioContentItemSimilarItems": "Similar Items"
+    }
+  }
+}
+</i18n>

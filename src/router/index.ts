@@ -390,21 +390,33 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_id',
-      component: () => import('@/pages/ContentItemWrapperPage.vue'),
+      component: () => import('@/pages/AudioContentItemPage.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
       },
-      beforeEnter: async to => {
-        const contentItemId = to.params.content_item_id as string
-        try {
-          const ci = await services.contentItems.get(contentItemId)
-          to.meta.contentItem = ci // Store it in meta
-        } catch (error) {
-          console.error('Failed to fetch content item', error)
-          to.meta.contentItem = null
+      children: [
+        {
+          name: Routes.audioContentItem.children.transcript.name,
+          component: () => import('@/components/audio/AudioContentItemTranscript.vue'),
+          path: Routes.audioContentItem.children.transcript.path
+        },
+        {
+          name: Routes.audioContentItem.children.similarItems.name,
+          component: () => import('@/components/ListOfSimilarContentItems.vue'),
+          path: Routes.audioContentItem.children.similarItems.path
+        },
+        {
+          name: Routes.audioContentItem.children.citeAs.name,
+          component: () => import('@/components/contentItem/ContentItemCard.vue'),
+          path: Routes.audioContentItem.children.citeAs.path
+        },
+        {
+          name: Routes.audioContentItem.children.debug.name,
+          component: () => import('@/components/contentItem/ContentItemDebug.vue'),
+          path: Routes.audioContentItem.children.debug.path
         }
-      }
+      ]
     },
     {
       path: '/compare',
