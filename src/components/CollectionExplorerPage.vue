@@ -300,7 +300,7 @@ const fetchContentItems = async (query = {}) => {
   contentItemsResponse.value = {
     status: 'success',
     data: response.data,
-    total: response.total
+    total: response.pagination.total
   }
   console.debug('[CollectionExplorerPage] fetchContentItems success', response.data)
 }

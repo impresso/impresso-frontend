@@ -272,8 +272,8 @@ async function fetchMatchingContentItems({
         offset
       }
     })
-    .then(({ data, total }) => {
-      paginationTotalRows.value = total
+    .then(({ data, pagination }) => {
+      paginationTotalRows.value = pagination.total
       return data as ContentItemType[]
     })
     .catch(err => {

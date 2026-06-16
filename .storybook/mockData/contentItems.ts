@@ -110,7 +110,7 @@ export const MockAudioContentItem: ContentItem = {
     title: 'Interview de Roselyne Crausaz, première femme de Suisse romande à fair[...]',
     contentLength: 3245,
     documentType: 'ci',
-    itemType: 'dsc',
+    itemType: 'radio_broadcast_episode',
     langCode: 'fr',
     originalLangCode: 'fr',
     snippet:

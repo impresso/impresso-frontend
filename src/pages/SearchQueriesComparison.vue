@@ -504,15 +504,14 @@ export default {
                 return buckets.find(({ val, value }: any) => bucketId === (val ?? value))
               })
 
-              const enrichedBucket =
-                enrichedFacets
-                  .map(f => f?.buckets?.find(({ value }: any) => String(value) === String(bucketId)))
-                  .find(b => b != null)
+              const enrichedBucket = enrichedFacets
+                .map(f => f?.buckets?.find(({ value }: any) => String(value) === String(bucketId)))
+                .find(b => b != null)
 
               const label =
                 enrichedBucket != null
                   ? getBucketLabel(enrichedBucket as any, id, this)
-                  : getBucketLabel(leftBucket, id, this) ?? getBucketLabel(rightBucket, id, this)
+                  : (getBucketLabel(leftBucket, id, this) ?? getBucketLabel(rightBucket, id, this))
 
               return {
                 intersection: bucket.count,
@@ -656,7 +655,7 @@ export default {
             limit: 0
           }
         })
-        .then(result => result.total)
+        .then(result => result.pagination.total)
 
       const collectionTitlePromise =
         type === ComparableTypes.Collection
