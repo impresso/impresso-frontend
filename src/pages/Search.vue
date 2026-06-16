@@ -198,19 +198,41 @@
                     currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
                   "
                   showProvider
+                  showSpecs
                   showMeta
                   showIcon
+                  showLink
+                  showTitle
+                  showMediaSource
+                  showDate
+                  showType
+                  showSnippet
+                  showMatches
+                  showContentItemAccess
                 >
-                  <template #beforePlayer>
-                    <ContentItemAccess :item="searchResult" class="mr-3 mb-2" />
-                  </template>
                 </AudioContentItem>
 
-                <search-results-list-item
+                <ContentItemComponent
                   v-else
+                  :item="searchResult"
+                  showProvider
+                  showSpecs
+                  showMeta
+                  showIcon
+                  showLink
+                  showTitle
+                  showMediaSource
+                  showDate
+                  showType
+                  showSnippet
+                  showMatches
+                  showContentItemAccess
+                />
+                <!-- <search-results-list-item
+                  v-else-if
                   v-bind:checkbox="false"
                   v-model="searchResults[index]"
-                />
+                /> -->
               </div>
             </b-col>
           </b-row>
@@ -292,7 +314,7 @@ import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
 import AudioContentItem from '@/components/audio/AudioContentItem.vue'
-import ContentItemAccess from '@/components/ContentItemAccess.vue'
+import ContentItemComponent from '@/components/modules/lists/ContentItem.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -863,7 +885,7 @@ export default defineComponent({
     PageNavbarHeading,
     InfoModal,
     AudioContentItem,
-    ContentItemAccess
+    ContentItemComponent
   }
 })
 </script>

@@ -1,9 +1,31 @@
 <template>
   <div class="ContentItem" @click="emit('click', item)">
-    <h2 v-if="showTitle" class="font-size-inherit font-weight-bold line-height-inherit">
-      <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
-      <span v-else v-html="item.text.title"></span>
-    </h2>
+    <ContentItemCommon
+      :contentItem="item"
+      iconName="journalPage"
+      :showDate="props.showDate"
+      :showIcon="props.showIcon"
+      :showLink="props.showLink"
+      :showTitle="props.showTitle"
+      :showMeta="props.showMeta"
+      :showSnippet="props.showSnippet"
+      :showMatches="props.showMatches"
+      :showMediaSource="props.showMediaSource"
+      :showProvider="props.showProvider"
+      :showType="props.showType"
+      :showTopics="props.showTopics"
+      :showSpecs="props.showSpecs"
+      :showContentItemAccess="props.showContentItemAccess"
+    ></ContentItemCommon>
+    <div class="d-flex align-items-start gap-2">
+      <section v-if="props.showIcon">
+        <Icon name="journalPage" />
+      </section>
+      <h2 v-if="showTitle" class="font-size-inherit font-weight-bold line-height-inherit">
+        <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
+        <span v-else v-html="item.text.title"></span>
+      </h2>
+    </div>
     <div v-if="showMeta">
       <p class="m-0">
         <MediaSourceLabel
@@ -119,22 +141,17 @@ import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { computed } from 'vue'
 import MediaSourceLabel from './MediaSourceLabel.vue'
 import DataProviderLabel from './DataProviderLabel.vue'
+import ContentItemCommon, {
+  ContentItemCommonProps
+} from '@/components/contentItem/ContentItemCommon.vue'
 import { getShortArticleId } from '@/logic/ids'
 import ItemSelector from '../ItemSelector.vue'
 import Ellipsis from '../Ellipsis.vue'
 import ContentItemTopicItem from './ContentItemTopicItem.vue'
+import Icon from '@/components/base/Icon.vue'
 
-export interface Props {
+export interface Props extends ContentItemCommonProps {
   item: ContentItem
-  showLink?: boolean
-  showTitle?: boolean
-  showMeta?: boolean
-  showSnippet?: boolean
-  showMatches?: boolean
-  showType?: boolean
-  showTopics?: boolean
-  showTranscriptLength?: boolean
-  showSemanticEnrichments?: boolean
 }
 
 const ItemSelectorEntityTypes = {
