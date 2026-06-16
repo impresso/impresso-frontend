@@ -1,9 +1,9 @@
 <template>
   <i-layout class="AudioContentItemPage">
     <i-layout-section width="350px">
-      <template #header> ciao </template>
-
-      <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+      <template #header>
+        <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+      </template>
 
       <ListOfFindResponseItems
         :service="contentItemService"
@@ -114,17 +114,32 @@ const title = computed(() => {
   return contentItem.value.text.title || contentItem.value.id
 })
 
+const sameDateFilters = computed(() => {
+  if (!contentItem.value || !contentItem.value.meta?.date) {
+    return []
+  }
+
+  const publicationDate = new Date(contentItem.value.meta.date)
+  const startOfDay = new Date(publicationDate)
+  startOfDay.setUTCHours(0, 0, 0, 0)
+
+  const endOfDay = new Date(publicationDate)
+  endOfDay.setUTCHours(23, 59, 59, 999)
+
+  return [
+    FilterFactory.create({
+      type: 'daterange',
+      q: `${startOfDay.toISOString()} TO ${endOfDay.toISOString()}`
+    })
+  ]
+})
+
 const listParams = computed(() => {
   return {
     query: {
       limit: 5,
       offset: 0,
-      filters: [
-        FilterFactory.create({
-          type: 'daterange',
-          q: '1972-10-10T23:59:59Z TO 1972-10-21T23:59:59Z'
-        })
-      ]
+      filters: [...sameDateFilters.value]
     }
   }
 })

@@ -1,16 +1,24 @@
 <template>
-  <div class="AudioContentItem">
-    <section v-if="props.showTitle">
-      <slot name="title">
-        <h2 v-if="contentItem.text?.title" class="mb-0 font-weight-bold font-size-bigger">
-          <RouterLink
-            class="text-decoration-underline"
-            :to="routerLinkUrl"
-            v-html="contentItem.text?.title || ''"
-          ></RouterLink>
-        </h2>
-      </slot>
-    </section>
+  <div class="AudioContentItem" v-bind="attrs">
+    <div class="d-flex align-items-start gap-2">
+      <section v-if="props.showIcon">
+        <Icon name="antennaSignalTag" />
+      </section>
+      <section v-if="props.showTitle">
+        <slot name="title">
+          <h2
+            v-if="contentItem.text?.title"
+            class="mb-0 font-weight-bold font-size-inherit line-height-inherit"
+          >
+            <RouterLink
+              class="text-decoration-underline"
+              :to="routerLinkUrl"
+              v-html="contentItem.text?.title || ''"
+            ></RouterLink>
+          </h2>
+        </slot>
+      </section>
+    </div>
     <section v-if="props.showProvider">
       <MediaSourceLabel v-if="mediaSource" :item="mediaSource" show-link class="d-inline-block" />
       <span v-else>{{ contentItem.meta?.mediaTitle || contentItem.meta?.mediaId || '' }}</span>
@@ -67,7 +75,7 @@
 
     <ul
       v-if="props.showMatches && contentItem.text?.matches?.length"
-      class="AudioContentItem__textMatches d-flex flex-wrap pb-2 p-0"
+      class="AudioContentItem__textMatches d-flex flex-wrap p-0"
     >
       <li
         class="p-1 mb-2 mr-2 me-2 rounded"
@@ -78,6 +86,7 @@
       />
     </ul>
   </div>
+  <slot name="beforePlayer"></slot>
   <section
     v-if="props.enablePlayer && audioSrc"
     class="position-sticky top-0 bg-light border-bottom"
@@ -95,11 +104,16 @@
 import { ContentItem } from '@/models/generated/canonical/contentItem'
 import type { MediaSource } from '@/models'
 import MediaSourceLabel from '../modules/lists/MediaSourceLabel.vue'
-import { computed } from 'vue'
+import { computed, useAttrs } from 'vue'
 
 import { formatTime, getSeekTimeInSeconds, timeToSeconds } from './utils'
 import AudioPlayer from './AudioPlayer.vue'
 import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
+import Icon from '../base/Icon.vue'
+import { Routes } from '@/router/routes.js'
+import { RouteLocationRaw } from 'vue-router'
+
+defineOptions({ inheritAttrs: false })
 
 export interface AudioContentItemProps {
   contentItem: ContentItem
@@ -112,6 +126,7 @@ export interface AudioContentItemProps {
   showSnippet?: boolean
   showMeta?: boolean
   showProvider?: boolean
+  showIcon?: boolean
 }
 const props = withDefaults(defineProps<AudioContentItemProps>(), {
   isPlaying: false,
@@ -122,8 +137,11 @@ const props = withDefaults(defineProps<AudioContentItemProps>(), {
   enablePlayer: false,
   showSnippet: false,
   showMeta: false,
-  showProvider: false
+  showProvider: false,
+  showIcon: false
 })
+
+const attrs = useAttrs()
 
 const emit = defineEmits<{
   'update:isPlaying': [value: boolean]
@@ -141,7 +159,10 @@ const currentTimeModel = computed({
 })
 
 const routerLinkUrl = computed(() => {
-  return { name: 'audioContentItem', params: { content_item_id: props.contentItem.id } }
+  return {
+    name: Routes.audioContentItem.children.transcript.name,
+    params: { content_item_id: props.contentItem.id }
+  } as RouteLocationRaw
 })
 
 const mediaSource = computed<MediaSource | null>(() => {
