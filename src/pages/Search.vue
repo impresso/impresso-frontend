@@ -184,25 +184,34 @@
               v-for="(searchResult, index) in searchResults"
               v-bind:key="searchResult.id"
             >
-              <AudioContentItem
-                class="p-3 border rounded my-2 shadow-sm mr-5"
-                v-if="searchResult.meta?.sourceMedium === 'audio'"
-                :contentItem="searchResult"
-                :enable-player="true"
-                :is-playing="isAudioItemPlaying(searchResult.id)"
-                :current-time="getAudioItemReadingTime(searchResult.id)"
-                @update:is-playing="
-                  isPlaying => onAudioItemPlayingChanged(searchResult.id, isPlaying)
-                "
-                @update:current-time="
-                  currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
-                "
-              ></AudioContentItem>
-              <search-results-list-item
-                v-else
-                v-bind:checkbox="false"
-                v-model="searchResults[index]"
-              />
+              <div class="p-3 border rounded my-2 shadow-sm mr-5">
+                <AudioContentItem
+                  v-if="searchResult.meta?.sourceMedium === 'audio'"
+                  :contentItem="searchResult"
+                  :enable-player="true"
+                  :is-playing="isAudioItemPlaying(searchResult.id)"
+                  :current-time="getAudioItemReadingTime(searchResult.id)"
+                  @update:is-playing="
+                    isPlaying => onAudioItemPlayingChanged(searchResult.id, isPlaying)
+                  "
+                  @update:current-time="
+                    currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
+                  "
+                  showProvider
+                  showMeta
+                  showIcon
+                >
+                  <template #beforePlayer>
+                    <ContentItemAccess :item="searchResult" class="mr-3 mb-2" />
+                  </template>
+                </AudioContentItem>
+
+                <search-results-list-item
+                  v-else
+                  v-bind:checkbox="false"
+                  v-model="searchResults[index]"
+                />
+              </div>
             </b-col>
           </b-row>
           <b-row class="pb-5" v-if="displayStyle === 'tiles'">
@@ -283,6 +292,7 @@ import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
 import AudioContentItem from '@/components/audio/AudioContentItem.vue'
+import ContentItemAccess from '@/components/ContentItemAccess.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -737,9 +747,10 @@ export default defineComponent({
                 // group_by: groupBy
               }
             })
-            .then(response => {
-              return response
-            })
+            .then(response => ({
+              data: response.data,
+              total: response.pagination.total
+            }))
           if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
 
           this.paginationTotalRows = total
@@ -851,7 +862,8 @@ export default defineComponent({
     CopyToDatalabButton,
     PageNavbarHeading,
     InfoModal,
-    AudioContentItem
+    AudioContentItem,
+    ContentItemAccess
   }
 })
 </script>
