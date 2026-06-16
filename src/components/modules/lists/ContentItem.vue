@@ -1,6 +1,6 @@
 <template>
   <div class="ContentItem" @click="emit('click', item)">
-    <h2 v-if="showTitle">
+    <h2 v-if="showTitle" class="font-size-inherit font-weight-bold line-height-inherit">
       <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
       <span v-else v-html="item.text.title"></span>
     </h2>

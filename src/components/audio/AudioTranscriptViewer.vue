@@ -1,7 +1,7 @@
 <template>
   <div class="TranscriptViewer">
-    <slot name="header"><h3>Transcript</h3></slot>
-    <p v-for="(utterance, i) in computedUtterances" :key="i">
+    <slot name="header"></slot>
+    <p class="m-0" v-for="(utterance, i) in computedUtterances" :key="i">
       <template v-for="(idx, j) in utterance.indices" :key="j">
         <span
           v-if="resolvedWords[idx]"

@@ -28,7 +28,7 @@
       </section>
     </template>
     <section v-if="mode === 'card'">
-      <ContentItemCard :item="item" />
+      <ContentItemCard :contentItem="item" />
     </section>
 
     <section v-else-if="mode === 'transcript'">
