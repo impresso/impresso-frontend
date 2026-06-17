@@ -1,216 +1,90 @@
 <template>
-  <div class="ContentItem" @click="emit('click', item)">
-    <ContentItemCommon
-      :contentItem="item"
-      iconName="journalPage"
-      :showDate="props.showDate"
-      :showIcon="props.showIcon"
-      :showLink="props.showLink"
-      :showTitle="props.showTitle"
-      :showMeta="props.showMeta"
-      :showSnippet="props.showSnippet"
-      :showMatches="props.showMatches"
-      :showMediaSource="props.showMediaSource"
-      :showProvider="props.showProvider"
-      :showType="props.showType"
-      :showTopics="props.showTopics"
-      :showSpecs="props.showSpecs"
-      :showContentItemAccess="props.showContentItemAccess"
-    ></ContentItemCommon>
-    <div class="d-flex align-items-start gap-2">
-      <section v-if="props.showIcon">
-        <Icon name="journalPage" />
-      </section>
-      <h2 v-if="showTitle" class="font-size-inherit font-weight-bold line-height-inherit">
-        <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
-        <span v-else v-html="item.text.title"></span>
-      </h2>
+  <div class="ContentItem d-flex gap-3" @click="emit('click', contentItem)">
+    <div v-if="isThumbnailAvailable" class="thumbnail">
+      <IIIFFragment
+        :iiif="thumbnailIiif"
+        size="250,"
+        :scale="1"
+        fit-to-regions
+        :regions="regions"
+      />
     </div>
-    <div v-if="showMeta">
-      <p class="m-0">
-        <MediaSourceLabel
-          :item="{
-            id: item.meta.mediaId,
-            name: item.meta.mediaId,
-            type: item.meta.sourceType
-          }"
-          class="d-inline-block"
-        />{{ '' }}
-        <span>{{ item.meta.date ? $d(new Date(item.meta.date), 'short') : '' }}</span>
-        <span
-          v-if="item.facsimile?.pagesCount"
-          v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
-        >
-        </span>
-      </p>
-      <p>
-        {{ $t(`buckets.copyright.${item.access.copyright}`) }}
-        <DataProviderLabel
-          v-if="item.meta.partnerId"
-          :item="{ id: item.meta.partnerId, name: item.meta.partnerId }"
-          show-link
-          class="d-inline-block"
-        ></DataProviderLabel>
-      </p>
-    </div>
-    <div v-if="!showMeta && showType" class="ContentItem__typePages">
-      <span class="small-caps">{{ $t(`buckets.type.${itemType}`) }}</span>
-      <span
-        v-if="item.facsimile?.pagesCount"
-        v-html="` – ${$t('pp', { pages }, item.facsimile?.pagesCount)}`"
-      >
-      </span>
-    </div>
-    <div
-      v-if="showSnippet && (!showMatches || item.text?.snippet?.length > 0)"
-      class="ContentItem__excerpt mt-1"
-    >
-      <blockquote class="text-muted">{{ item.text.snippet }}</blockquote>
-      <b-badge
-        v-if="showTranscriptLength && item.text.contentLength"
-        variant="light"
-        class="mr-1 pt-1"
-      >
-        <span v-if="item.text.contentLength > 1200">{{
-          $t('readingTime', { min: item.text.contentLength / 1200 })
-        }}</span>
-        <span v-else>{{ $t('reducedReadingTime') }}</span>
-      </b-badge>
-    </div>
-    <div v-if="showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2">
-      <div v-for="entityType in contentItemSemanticEnrichmentTypes" :key="entityType">
-        <div v-if="item.semanticEnrichments?.namedEntities[entityType]?.length">
-          <Ellipsis :maxHeight="200">
-            <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
-            <div
-              v-for="(entity, idx) in item.semanticEnrichments.namedEntities[entityType]"
-              v-bind:key="idx"
-              class="d-inline small"
-            >
-              <ItemSelector
-                :id="entity.id"
-                :label="entity.label"
-                :item="{
-                  id: entity.id,
-                  ...entity,
-                  name: entity.label
-                }"
-                :type="ItemSelectorEntityTypes[entityType]"
-                hideIcon
-              />
-              <span v-if="idx !== item.semanticEnrichments.namedEntities[entityType].length - 1"
-                >,
-              </span>
-            </div>
-          </Ellipsis>
-        </div>
-      </div>
-    </div>
-    <div v-if="showTopics && item.semanticEnrichments.topics?.length" class="mt-2">
-      <b-badge variant="light" class="mr-1 very-small-caps d-inline-block">{{
-        $t('topics')
-      }}</b-badge>
-      <div class="d-flex flex-wrap gap-2">
-        <ContentItemTopicItem
-          :item="topic"
-          v-for="topic in item.semanticEnrichments.topics"
-          v-bind:key="topic.id"
-          :style="{ minWidth: '400px', maxWidth: '30%' }"
-        />
-      </div>
-    </div>
-    <div v-if="showMatches && item.text?.matches?.length">
-      <ul class="ContentItem__textMatches d-flex flex-wrap mt-1 p-0">
-        <li
-          class="p-1 mb-2 mr-2 me-2 rounded"
-          v-for="(match, i) in item.text.matches"
-          v-bind:key="i"
-          v-html="match.fragment"
-          v-show="match.fragment.trim().length > 0"
-        />
-      </ul>
-    </div>
+    <div>
+      <ContentItemCommon
+        v-if="props.contentItem"
+        :contentItem="props.contentItem"
+        iconName="journalPage"
+        :showDate="props.showDate"
+        :showIcon="props.showIcon"
+        :showLink="props.showLink"
+        :showTitle="props.showTitle"
+        :showMeta="props.showMeta"
+        :showSnippet="props.showSnippet"
+        :showMatches="props.showMatches"
+        :showMediaSource="props.showMediaSource"
+        :showProvider="props.showProvider"
+        :showType="props.showType"
+        :showTopics="props.showTopics"
+        :showSpecs="props.showSpecs"
+        :showContentItemAccess="props.showContentItemAccess"
+      ></ContentItemCommon>
 
-    <slot name="actions"></slot>
+      <slot name="actions"></slot>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { RouterLink, useRoute } from 'vue-router'
+import IIIFFragment from '@/components/IIIFFragment.vue'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { computed } from 'vue'
-import MediaSourceLabel from './MediaSourceLabel.vue'
-import DataProviderLabel from './DataProviderLabel.vue'
 import ContentItemCommon, {
   ContentItemCommonProps
 } from '@/components/contentItem/ContentItemCommon.vue'
-import { getShortArticleId } from '@/logic/ids'
-import ItemSelector from '../ItemSelector.vue'
-import Ellipsis from '../Ellipsis.vue'
-import ContentItemTopicItem from './ContentItemTopicItem.vue'
-import Icon from '@/components/base/Icon.vue'
 
-export interface Props extends ContentItemCommonProps {
-  item: ContentItem
-}
-
-const ItemSelectorEntityTypes = {
-  persons: 'person',
-  locations: 'location',
-  organisations: 'organisation',
-  newsagencies: 'newsagency'
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   showTitle: true,
   showType: true
 })
-const route = useRoute()
 const emit = defineEmits<{
   click: [item: ContentItem]
 }>()
 
-const contentItemSemanticEnrichmentTypes = computed(() => {
-  if (!props.item?.semanticEnrichments?.namedEntities) {
-    return []
-  }
-  return Object.keys(props.item.semanticEnrichments.namedEntities)
+const isThumbnailAvailable = computed(() => {
+  return (
+    props.contentItem?.facsimile?.pages?.length > 0 &&
+    props.contentItem?.facsimile?.pages?.[0]?.iiif
+  )
 })
+const thumbnailIiif = computed(() => {
+  return props.contentItem?.facsimile?.pages?.[0]?.iiif.manifestUrl
+})
+const regions = computed(() => {
+  const firstPage = props.contentItem.facsimile?.pages?.[0]
+  const regionCoordinates = firstPage?.regionCoordinates ?? []
 
-const contentItemTitle = computed(() => {
-  if (props.item.text.title?.length > 0) {
-    return props.item.text.title
-  }
-  return '[Untitled]'
-})
-const routerLinkUrl = computed(() => {
-  return {
-    name: 'contentItem',
-    params: {
-      article_id: props.item.id
+  return regionCoordinates.map((coords, index) => ({
+    id: `${firstPage?.id ?? 'page-0'}-${index}`,
+    coords: {
+      x: coords[0],
+      y: coords[1],
+      w: coords[2],
+      h: coords[3]
     }
-  }
-})
-
-const pages = computed(() => {
-  if (props.item.facsimile?.pages?.length) {
-    const imagepages = props.item.facsimile.pages.map(d => String(d.number))
-    if (imagepages.length > 5) {
-      return imagepages
-        .slice(0, 5)
-        .concat('&hellip;', imagepages[imagepages.length - 1])
-        .join(',')
-    }
-    return imagepages.join(',')
-  }
-  return 'no page info'
-})
-
-const itemType = computed(() => {
-  if (props.item.meta.sourceType === 'newspaper') {
-    return props.item.text.itemType
-  }
-  // TODO: handle other sourceTypes
-  return 'N/A'
+  }))
 })
 </script>
+<style>
+.ContentItem .thumbnail {
+  width: 250px;
+  min-width: 250px;
+  flex: 0 0 250px;
+  max-height: 300px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ContentItem .thumbnail .IIIFFragment__region {
+  background-color: transparent;
+}
+</style>

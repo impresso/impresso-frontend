@@ -5,7 +5,7 @@
       <div v-if="props.showIcon">
         <Icon :name="props.iconName" />
       </div>
-      <h2 v-if="showTitle" class="font-size-inherit font-weight-bold line-height-inherit">
+      <h2 v-if="showTitle" class="m-0 font-size-inherit font-weight-bold line-height-inherit">
         <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
         <span v-else v-html="contentItemTitle"></span>
       </h2>
@@ -45,7 +45,11 @@
           {{ $t('listeningTime', formattedAudioDurationParams) }}
           {{ ' ' }}
         </template>
-        <span v-else v-html="$t(formattedReadingTimeParams.key, formattedReadingTimeParams)"></span>
+        <div v-else class="d-inline-flex align-items-center gap-1">
+          {{ shouldShowType ? '&mdash;' : '' }}
+          <span v-html="$t(formattedReadingTimeParams.key, formattedReadingTimeParams)"></span>
+          <InfoButton name="what-is-reading-time"></InfoButton>
+        </div>
       </span>
 
       <!-- copyright and provider -->
@@ -72,7 +76,7 @@
     <!-- other matches -->
     <ul
       v-if="props.showMatches && contentItem.text?.matches?.length"
-      class="AudioContentItem__textMatches d-flex flex-wrap p-0 mb-1"
+      class="ContentItemCommon__textMatches d-flex flex-wrap p-0 mb-1"
     >
       <li
         class="p-1 mb-1 mr-2 me-2 rounded"
@@ -82,6 +86,21 @@
         v-show="match.fragment.trim().length > 0"
       />
     </ul>
+    <!-- separator -->
+
+    <div v-if="shouldShowTopics" class="mb-3">
+      <b-badge variant="light" class="mr-1 very-small-caps d-inline-block">{{
+        $t('topics')
+      }}</b-badge>
+      <div class="d-flex flex-wrap gap-2">
+        <ContentItemTopicItem
+          :item="topic"
+          v-for="topic in contentItem.semanticEnrichments.topics"
+          v-bind:key="topic.id"
+          :style="{ minWidth: '400px', maxWidth: '30%' }"
+        />
+      </div>
+    </div>
 
     <!-- content item access -->
     <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
@@ -97,6 +116,8 @@ import Icon from '@/components/base/Icon.vue'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import { getSeekTimeInSeconds, timeToSeconds } from '../audio/utils'
 import ContentItemAccess from '../ContentItemAccess.vue'
+import InfoButton from '../base/InfoButton.vue'
+import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
 
 export interface ContentItemCommonProps {
   dateFormatter?: string
@@ -124,16 +145,12 @@ const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   iconName: 'journalPage'
 })
 
-const routerLinkUrl = computed(() => {
-  return {
-    name: Routes.audioContentItem.children.transcript.name,
-    params: { content_item_id: props.contentItem.id }
-  } as RouteLocationRaw
-})
-
 const contentItemTitle = computed(() => {
   if (props.contentItem.text.title?.length > 0) {
     return props.contentItem.text.title
+  }
+  if (props.contentItem.text?.snippet?.length > 0) {
+    return props.contentItem.text.snippet.split(/\s/).slice(0, 4).join(' ')
   }
   return '[Untitled]'
 })
@@ -142,6 +159,15 @@ const isAudioContentItem = computed(() => {
   return props.contentItem.meta?.sourceMedium === 'audio'
 })
 
+const routerLinkUrl = computed(() => {
+  const name = isAudioContentItem.value
+    ? Routes.audioContentItem.children.transcript.name
+    : Routes.contentItem.name
+  return {
+    name,
+    params: { content_item_id: props.contentItem.id }
+  } as RouteLocationRaw
+})
 const shouldShowSnippet = computed(() => {
   if (props.showMatches && props.contentItem.text?.matches?.length > 0) {
     return false
@@ -159,6 +185,10 @@ const shouldShowDate = computed(() => {
     !!props.contentItem.meta.date &&
     !isNaN(new Date(props.contentItem.meta.date).getTime())
   )
+})
+
+const shouldShowTopics = computed(() => {
+  return props.showTopics && !!props.contentItem.semanticEnrichments?.topics?.length
 })
 
 const shouldShowType = computed(() => {
@@ -181,6 +211,20 @@ const audioDuration = computed<number>(() => {
   } catch {
     return 0
   }
+})
+
+const pages = computed(() => {
+  if (props.contentItem.facsimile?.pages?.length) {
+    const imagepages = props.contentItem.facsimile.pages.map(d => String(d.number))
+    if (imagepages.length > 5) {
+      return imagepages
+        .slice(0, 5)
+        .concat('&hellip;', imagepages[imagepages.length - 1])
+        .join(',')
+    }
+    return imagepages.join(',')
+  }
+  return 'no page info'
 })
 
 const formattedAudioDurationParams = computed<{ minutes: number; seconds: number }>(() => {
@@ -212,9 +256,26 @@ const formattedReadingTimeParams = computed<{
 {
   "en": {
     "listeningTime": "Listening time: {minutes}m {seconds}s",
-    "readingTime": "Reading time: {minutes}m",
-    "longReadingTime": "Reading time: {hours}h",
+    "readingTime": "Reading time: {minutes}m ({tokens} tokens)",
+    "longReadingTime": "Reading time: {hours}h ({tokens} tokens)",
     "reducedReadingTime": "Reading time: < 1 min"
   }
 }
 </i18n>
+<style>
+.ContentItemCommon ul.ContentItemCommon__textMatches {
+  list-style-type: none;
+}
+
+.ContentItemCommon ul.ContentItemCommon__textMatches li {
+  border-left-width: 0 !important;
+  background: var(--impresso-color-yellow-alpha-30);
+  margin: 0.1rem 0.5rem 0.25rem 0rem !important;
+}
+.ContentItemCommon ul.ContentItemCommon__textMatches li em {
+  font-style: normal;
+  font-weight: bold;
+  background: var(--impresso-color-yellow);
+  padding: 0 0.1rem;
+}
+</style>

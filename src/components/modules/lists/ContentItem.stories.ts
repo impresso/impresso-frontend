@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/vue3'
 import ContentItem from './ContentItem.vue'
 import { vueRouter } from 'storybook-vue3-router'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
-import { fn } from 'storybook/test'
+import { Routes } from '@/router/routes'
 
 export const MockContentItem: ContentItemType = {
   id: 'DTT-1968-09-04-a-i0190',
@@ -236,17 +236,37 @@ export const MockContentItem: ContentItemType = {
 const meta: Meta<typeof ContentItem> = {
   title: 'Components/Modules/lists/ContentItem',
   component: ContentItem,
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'A component that displays a content item, including its title, snippet, metadata, and other relevant information. It is designed to be used within lists of content items.'
+      }
+    }
+  },
   decorators: [
     vueRouter([
       {
-        name: 'issue-viewer',
-        path: '/nothing/:issue_id',
-        redirect: '/nothing',
-        beforeEnter: fn(() => false)
+        name: Routes.contentItem.name,
+        path: Routes.contentItem.path,
+        redirect: '/content-item/mock',
+        beforeEnter: () => true
       }
     ])
   ],
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  render: args => ({
+    components: { ContentItem },
+    setup() {
+      return { args }
+    },
+    template: `
+          <ContentItem v-bind="args">
+            
+          </ContentItem>
+      `
+  })
 }
 
 export default meta
@@ -254,30 +274,36 @@ type Story = StoryObj<typeof ContentItem>
 
 export const Default: Story = {
   args: {
-    item: MockContentItem,
+    contentItem: MockContentItem,
+    showDate: true,
+    showIcon: true,
     showLink: true,
-    showMatches: false,
-    showSnippet: true,
+    showTitle: true,
     showMeta: true,
-    showTranscriptLength: true
+    showSnippet: true,
+    showMatches: true,
+    showMediaSource: true,
+    showProvider: true,
+    showType: true,
+    showTopics: true,
+    showSpecs: true,
+    showContentItemAccess: true
   }
 }
 
 export const NewspaperIssueTableOfContents: Story = {
   args: {
-    item: MockContentItem,
+    contentItem: MockContentItem,
     showLink: true,
     showMatches: true,
     showSnippet: false,
-    showMeta: false,
-    showTranscriptLength: true,
-    showSemanticEnrichments: true
+    showMeta: false
   }
 }
 
 export const ShowMeta: Story = {
   args: {
-    item: MockContentItem,
+    contentItem: MockContentItem,
     showLink: true,
     showMeta: true
   }
@@ -285,7 +311,7 @@ export const ShowMeta: Story = {
 
 export const WithManyPages: Story = {
   args: {
-    item: {
+    contentItem: {
       ...MockContentItem,
       facsimile: {
         ...MockContentItem.facsimile,

@@ -178,7 +178,7 @@
       <div class="p-1">
         <b-container fluid>
           <div ref="searchResultsFirstElementRef" />
-          <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
+          <b-row>
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
@@ -205,6 +205,7 @@
                   showTitle
                   showMediaSource
                   showDate
+                  showTopics
                   showType
                   showSnippet
                   showMatches
@@ -214,7 +215,7 @@
 
                 <ContentItemComponent
                   v-else
-                  :item="searchResult"
+                  :contentItem="searchResult"
                   showProvider
                   showSpecs
                   showMeta
@@ -223,6 +224,7 @@
                   showTitle
                   showMediaSource
                   showDate
+                  showTopics
                   showType
                   showSnippet
                   showMatches
@@ -234,22 +236,6 @@
                   v-model="searchResults[index]"
                 /> -->
               </div>
-            </b-col>
-          </b-row>
-          <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-            <b-col
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.id"
-            >
-              <search-results-tiles-item
-                checkbox="true"
-                v-on:click="onClickResult(searchResult)"
-                v-model="searchResults[index]"
-              />
             </b-col>
           </b-row>
         </b-container>
@@ -692,17 +678,7 @@ export default defineComponent({
     isChecked(item: ContentItem) {
       return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
-    onClickResult(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_id: searchResult.issue.id,
-          page_number: searchResult.pages[0]?.num,
-          page_id: searchResult.pages[0]?.id,
-          article_id: searchResult.id
-        }
-      })
-    },
+
     exportQueryCsv() {
       exporterService.create(
         {

@@ -22,7 +22,7 @@
           <ContentItem
             v-for="item in items"
             :key="item.id"
-            :item="item"
+            :contentItem="item"
             class="m-3 p-2 rounded-md border shadow-sm mb-4"
             showLink
             showMeta

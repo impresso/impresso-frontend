@@ -153,7 +153,7 @@
           showSemanticEnrichments
           v-for="item in matchingContentItems"
           :key="item.id"
-          :item="item"
+          :contentItem="item"
         />
       </div>
       <IssueViewerTableOfContents

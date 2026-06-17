@@ -288,6 +288,7 @@
               "<p>This means the number of articles per year grows much faster over time compared to linear or quartic trends.</p> "
             ]
           },
+
           {
             "id": "filter-range",
             "title": "How can I filter results by transcript length?",
@@ -309,6 +310,19 @@
             "title": "Why does the image search have limited filters?",
             "summary": "Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.",
             "description": []
+          }
+        ]
+      },
+      {
+        "title": "Glossary",
+        "faq": [
+          {
+            "id": "what-is-reading-time",
+            "title": "What is Reading Time?",
+            "summary": "Reading time is an estimate of how long it would take to read the transcript of a content item. It is calculated based on the number of tokens in the transcript and an average reading speed of 200 words per minute.",
+            "description": [
+              "<p>Reading time is calculated by dividing the total number of tokens in the transcript by 200 (the average reading speed in words per minute). For example, if a transcript contains 400 tokens, the estimated reading time would be 2 minutes (400 ÷ 200 = 2).</p><p>This feature provides users with a quick understanding of the length of an article or content item, helping them decide whether to read it in full or skim through it based on their available time and interest.</p>"
+            ]
           }
         ]
       },

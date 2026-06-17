@@ -9,7 +9,7 @@
   >
     <template v-slot:modal-header-extra>
       <section class="px-2">
-        <ContentItem :item="item" showMeta class="p-1" />
+        <ContentItem :contentItem="item" showMeta class="p-1" />
         <!-- choice of mode view -->
         <b-tabs pills class="mx-0 px-2 mt-0">
           <template v-slot:tabs-end>

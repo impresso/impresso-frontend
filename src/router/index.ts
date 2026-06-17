@@ -367,12 +367,12 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:article_id',
+      path: '/content-item/:content_item_id',
       alias: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_id as string
-        const ci = await services.contentItems.get(contentItemId)
+        const contentItemId = to.params.article_id || to.params.content_item_id
+        const ci = await services.contentItems.get(contentItemId as string)
         return {
           name: 'issue-viewer',
           params: {

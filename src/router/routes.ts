@@ -21,7 +21,10 @@ export const Routes = {
       }
     }
   },
-
+  contentItem: {
+    path: '/content-item/:content_item_id',
+    name: 'contentItem'
+  },
   mediaSource: {
     path: '/media-source/:media_source_id',
     name: 'mediaSource'
