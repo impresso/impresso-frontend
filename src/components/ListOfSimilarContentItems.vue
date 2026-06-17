@@ -110,7 +110,7 @@ const contentItemEmbedding = ref<string>('')
  */
 const timeframeFilter = computed<Filter | null>(() => {
   if (!addTimeframeFilter.value) return null
-  const contentItemDate = new Date(props.contentItem?.meta.date)
+  const contentItemDate = new Date(props.contentItem?.meta?.date)
   const oneYearBefore = new Date(contentItemDate)
   oneYearBefore.setFullYear(contentItemDate.getFullYear() - 1)
   const oneYearAfter = new Date(contentItemDate)

@@ -66,30 +66,33 @@ const generateCitation = async () => {
     citationHtml.value = ''
     return
   }
+
+  const contentItem = props.contentItem
+  const partnerId = contentItem.meta.partnerId ?? ''
+  const mediaId = contentItem.meta.mediaId ?? ''
+
   // Prepare CSL data
-  const date = new Date(props.contentItem?.meta.date)
+  const date = new Date(contentItem.meta.date)
   const dateParts = date.getTime()
     ? [[date.getFullYear(), date.getMonth() + 1, date.getDate()]]
     : [0]
 
-  const archive: string =
-    dataProvidersService.getDataProviderNameById(props.contentItem?.meta.partnerId) ??
-    props.contentItem?.meta.partnerId
+  const archive: string = dataProvidersService.getDataProviderNameById(partnerId) ?? partnerId
 
-  const mediaName: string = await mediaSourceService
-    .get(props.contentItem?.meta.mediaId)
-    .then(media => media?.name ?? props.contentItem?.meta.mediaId)
+  const mediaName: string = mediaId
+    ? await mediaSourceService.get(mediaId).then(media => media?.name ?? mediaId)
+    : ''
 
   try {
     const cslData: CSLJSON & { id: string } = {
-      id: props.contentItem?.id,
+      id: contentItem.id,
       type: 'article-newspaper',
-      title: props.contentItem?.text?.title,
+      title: contentItem.text?.title,
       'container-title': mediaName,
       publisher: archive,
       archive: archive,
-      page: props.contentItem?.facsimile?.pages?.map(page => page.number).join(', ') ?? '',
-      URL: getContentItemPermalink(props.contentItem?.id),
+      page: contentItem.facsimile?.pages?.map(page => page.number).join(', ') ?? '',
+      URL: getContentItemPermalink(contentItem.id),
       issued: {
         'date-parts': dateParts
       }
