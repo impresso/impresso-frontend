@@ -1,6 +1,6 @@
 <template>
   <div class="ContentItem d-flex gap-3" @click="emit('click', contentItem)">
-    <div v-if="isThumbnailAvailable" class="thumbnail">
+    <div v-if="shouldShowIIIFThumbnail" class="thumbnail">
       <IIIFFragment
         :iiif="thumbnailIiif"
         size="250,"
@@ -42,7 +42,11 @@ import ContentItemCommon, {
   ContentItemCommonProps
 } from '@/components/contentItem/ContentItemCommon.vue'
 
-const props = withDefaults(defineProps<ContentItemCommonProps>(), {
+export interface ContentItemProps extends ContentItemCommonProps {
+  showIIIFThumbnail: boolean
+}
+
+const props = withDefaults(defineProps<ContentItemProps>(), {
   showTitle: true,
   showType: true
 })
@@ -55,6 +59,10 @@ const isThumbnailAvailable = computed(() => {
     props.contentItem?.facsimile?.pages?.length > 0 &&
     props.contentItem?.facsimile?.pages?.[0]?.iiif
   )
+})
+
+const shouldShowIIIFThumbnail = computed(() => {
+  return props.showIIIFThumbnail && isThumbnailAvailable.value
 })
 const thumbnailIiif = computed(() => {
   return props.contentItem?.facsimile?.pages?.[0]?.iiif.manifestUrl
