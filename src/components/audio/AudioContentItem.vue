@@ -17,22 +17,7 @@
       :showSpecs="props.showSpecs"
       :showContentItemAccess="props.showContentItemAccess"
     ></ContentItemCommon>
-
-    <div v-if="props.showTopics && contentItem.semanticEnrichments.topics?.length" class="pb-2">
-      <b-badge variant="light" class="mr-1 very-small-caps d-inline-block">{{
-        $t('topics')
-      }}</b-badge>
-      <div class="d-flex flex-wrap gap-2">
-        <ContentItemTopicItem
-          :item="topic"
-          v-for="topic in contentItem.semanticEnrichments.topics"
-          v-bind:key="topic.id"
-          :style="{ minWidth: '400px', maxWidth: '30%' }"
-        />
-      </div>
-    </div>
   </div>
-  <slot name="beforePlayer"></slot>
   <section
     v-if="props.enablePlayer && audioSrc"
     class="position-sticky top-0 bg-light border-bottom"
