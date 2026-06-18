@@ -84,30 +84,64 @@
         v-bind:key="i"
         v-html="match.fragment"
         v-show="match.fragment.trim().length > 0"
-      />
+      ></li>
     </ul>
     <!-- separator -->
+    <!-- named entities -->
+    <div v-if="props.showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2 mb-2">
+      <div v-for="entityType in semanticEnrichmentTypes" :key="entityType">
+        <div v-if="contentItem.semanticEnrichments?.namedEntities[entityType]?.length">
+          <Ellipsis :maxHeight="200">
+            <b-badge variant="light" class="mr-1 very-small-caps">{{ $t(entityType) }}</b-badge>
+            <div
+              v-for="(entity, idx) in contentItem.semanticEnrichments.namedEntities[entityType]"
+              v-bind:key="idx"
+              class="d-inline small"
+            >
+              <ItemSelector
+                :id="entity.id"
+                :label="entity.label"
+                :item="{
+                  id: entity.id,
+                  ...entity,
+                  name: entity.label
+                }"
+                :type="entityType"
+                hideIcon
+              />
+              <span v-if="idx !== contentItem.semanticEnrichments.namedEntities[entityType].length - 1"
+                >,
+              </span>
+            </div>
+          </Ellipsis>
+        </div>
+      </div>
+    </div>
 
     <div v-if="shouldShowTopics" class="mb-3">
       <b-badge variant="light" class="mr-1 very-small-caps d-inline-block">{{
         $t('topics')
       }}</b-badge>
-      <div class="d-flex flex-wrap gap-2">
-        <ContentItemTopicItem
-          :item="topic"
-          v-for="topic in contentItem.semanticEnrichments.topics"
-          v-bind:key="topic.id"
-          :style="{ minWidth: '400px', maxWidth: '30%' }"
-        />
+      <div class="fluid-container">
+        <div class="row">
+          <div
+            class="col-12 col-xl-6 col-xxl-3"
+            v-for="topic in contentItem.semanticEnrichments.topics"
+            :key="topic.id"
+          >
+            <ContentItemTopicItem :item="topic" />
+          </div>
+        </div>
       </div>
     </div>
 
+    
     <!-- content item access -->
     <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
   </div>
 </template>
 <script setup lang="ts">
-import type { ContentItem } from '@/models/generated/canonical/contentItem'
+import type { ContentItem, ContentItemSemanticEnrichments } from '@/models/generated/canonical/contentItem'
 import { Routes } from '@/router/routes'
 import { computed } from 'vue'
 import { RouteLocationRaw } from 'vue-router'
@@ -118,10 +152,14 @@ import { getSeekTimeInSeconds, timeToSeconds } from '../audio/utils'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import InfoButton from '../base/InfoButton.vue'
 import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
-
+import Ellipsis from '../modules/Ellipsis.vue'
+import ItemSelector from '../modules/ItemSelector.vue'
+    
 export interface ContentItemCommonProps {
+  contentItem: ContentItem
   dateFormatter?: string
   iconName?: string
+  showCollections?:boolean
   showContentItemAccess?: boolean
   showDate?: boolean
   showIcon?: boolean
@@ -129,20 +167,20 @@ export interface ContentItemCommonProps {
   showLink?: boolean
   showMatches?: boolean
   showMediaSource?: boolean
-
   showMeta?: boolean
   showProvider?: boolean
-
+  showSemanticEnrichments?: boolean
   showSnippet?: boolean
-
   showSpecs?: boolean
   showType?: boolean
   showTopics?: boolean
-  contentItem: ContentItem
+
+  entityTypes?: Array<keyof ContentItemSemanticEnrichments['namedEntities']>
 }
 const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   dateFormatter: 'long',
-  iconName: 'journalPage'
+  iconName: 'journalPage',
+  entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies']
 })
 
 const contentItemTitle = computed(() => {
@@ -193,6 +231,15 @@ const shouldShowTopics = computed(() => {
 
 const shouldShowType = computed(() => {
   return props.showType && !!props.contentItem.text?.itemType
+})
+
+const semanticEnrichmentTypes = computed(() => {
+  if (!props.contentItem?.semanticEnrichments?.namedEntities) {
+    return []
+  }
+  return Object.keys(props.contentItem.semanticEnrichments.namedEntities).filter(type =>
+    props.entityTypes.includes(type as keyof ContentItemSemanticEnrichments['namedEntities'])
+  ) as Array<keyof ContentItemSemanticEnrichments['namedEntities']>
 })
 
 const audioDuration = computed<number>(() => {

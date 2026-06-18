@@ -210,6 +210,7 @@
                   showSnippet
                   showMatches
                   showContentItemAccess
+                  showSemanticEnrichments
                 >
                 </AudioContentItem>
 
@@ -229,6 +230,8 @@
                   showSnippet
                   showMatches
                   showContentItemAccess
+                  showIIIFThumbnail
+                  showSemanticEnrichments
                 />
                 <!-- <search-results-list-item
                   v-else-if

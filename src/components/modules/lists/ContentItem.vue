@@ -27,6 +27,7 @@
         :showTopics="props.showTopics"
         :showSpecs="props.showSpecs"
         :showContentItemAccess="props.showContentItemAccess"
+        :showSemanticEnrichments="props.showSemanticEnrichments"
       ></ContentItemCommon>
 
       <slot name="actions"></slot>

@@ -16,6 +16,7 @@
       :showTopics="props.showTopics"
       :showSpecs="props.showSpecs"
       :showContentItemAccess="props.showContentItemAccess"
+      :showSemanticEnrichments="props.showSemanticEnrichments"
     ></ContentItemCommon>
   </div>
   <section
