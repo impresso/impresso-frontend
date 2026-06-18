@@ -43,7 +43,7 @@ import ContentItemCommon, {
 } from '@/components/contentItem/ContentItemCommon.vue'
 
 export interface ContentItemProps extends ContentItemCommonProps {
-  showIIIFThumbnail: boolean
+  showIIIFThumbnail?: boolean
 }
 
 const props = withDefaults(defineProps<ContentItemProps>(), {
