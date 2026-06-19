@@ -212,6 +212,7 @@
                   showMatches
                   showContentItemAccess
                   showSemanticEnrichments
+                  enableAddToCollection
                 >
                 </AudioContentItem>
 
@@ -234,6 +235,7 @@
                   showContentItemAccess
                   showIIIFThumbnail
                   showSemanticEnrichments
+                  enableAddToCollection
                 />
                 <!-- <search-results-list-item
                   v-else-if

@@ -160,9 +160,19 @@
         </div>
       </div>
     </div>
-
-    <!-- content item access -->
-    <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
+    <!-- add to collection! -->
+    <div class="d-flex justify-content-between flex-wrap align-items-center gap-2">
+      <!-- content item access -->
+      <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
+      <div v-if="props.enableAddToCollection">
+        <CollectionAddTo
+          :contentItem="props.contentItem"
+          right
+          :items="itemWithCollections"
+          :text="$t('actions.addToCollection')"
+        />
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -182,6 +192,8 @@ import InfoButton from '../base/InfoButton.vue'
 import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
 import Ellipsis from '../modules/Ellipsis.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
+import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import { ItemWithCollections } from '../modules/CollectionAddToList.vue'
 
 export interface ContentItemCommonProps {
   contentItem: ContentItem
@@ -202,7 +214,7 @@ export interface ContentItemCommonProps {
   showSpecs?: boolean
   showType?: boolean
   showTopics?: boolean
-
+  enableAddToCollection?: boolean
   entityTypes?: Array<keyof ContentItemSemanticEnrichments['namedEntities']>
 }
 const props = withDefaults(defineProps<ContentItemCommonProps>(), {
@@ -298,6 +310,15 @@ const audioDuration = computed<number>(() => {
   } catch {
     return 0
   }
+})
+
+const itemWithCollections = computed(() => {
+  return [
+    {
+      itemId: props.contentItem.id,
+      collectionIds: props.contentItem.semanticEnrichments?.collections?.map(c => c.id)
+    }
+  ] as ItemWithCollections[]
 })
 
 const pages = computed(() => {

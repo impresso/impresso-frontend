@@ -126,6 +126,7 @@ export default {
       and: 'AND'
     },
     actions: {
+      addToCollection: 'Save to Collection ...',
       search: 'Search',
       downloadMetadataAsCSV: 'Download metadata as CSV',
       confirm: 'confirm',
