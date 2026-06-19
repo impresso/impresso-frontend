@@ -210,6 +210,7 @@
                   showType
                   showSnippet
                   showMatches
+                  showOcrQuality
                   showContentItemAccess
                   showSemanticEnrichments
                   enableAddToCollection
@@ -233,6 +234,7 @@
                   showSnippet
                   showMatches
                   showContentItemAccess
+                  showOcrQuality
                   showIIIFThumbnail
                   showSemanticEnrichments
                   enableAddToCollection

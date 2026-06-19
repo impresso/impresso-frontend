@@ -3,12 +3,15 @@
     <!-- icon and title -->
     <div class="d-flex align-items-start gap-2">
       <div v-if="props.showIcon">
-        <Icon :name="props.iconName" />
+        <Icon :name="contentItemIconName" />
       </div>
       <h2 v-if="showTitle" class="m-0 font-size-inherit font-weight-bold line-height-inherit">
         <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
         <span v-else v-html="contentItemTitle"></span>
       </h2>
+      <div v-if="props.showOcrQuality" class="ml-auto">
+        <ContentItemOcrQuality :contentItem="props.contentItem" />
+      </div>
     </div>
 
     <!-- mediaSource -->
@@ -194,6 +197,7 @@ import Ellipsis from '../modules/Ellipsis.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import { ItemWithCollections } from '../modules/CollectionAddToList.vue'
+import ContentItemOcrQuality from './ContentItemOcrQuality.vue'
 
 export interface ContentItemCommonProps {
   contentItem: ContentItem
@@ -208,6 +212,7 @@ export interface ContentItemCommonProps {
   showMatches?: boolean
   showMediaSource?: boolean
   showMeta?: boolean
+  showOcrQuality?: boolean
   showProvider?: boolean
   showSemanticEnrichments?: boolean
   showSnippet?: boolean
@@ -219,7 +224,7 @@ export interface ContentItemCommonProps {
 }
 const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   dateFormatter: 'long',
-  iconName: 'journalPage',
+  ocrQualityThreshold: 0.5,
   entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies']
 })
 
@@ -228,17 +233,28 @@ const emit = defineEmits<{
 }>()
 
 const contentItemTitle = computed(() => {
-  if (props.contentItem.text.title?.length > 0) {
+  if (props.contentItem.text?.title?.length > 0) {
     return props.contentItem.text.title
   }
+
   if (props.contentItem.text?.snippet?.length > 0) {
-    return props.contentItem.text.snippet.split(/\s/).slice(0, 4).join(' ')
+    return props.contentItem.text.snippet.split(/\s/).slice(0, 5).concat(['...']).join(' ')
   }
   return '[Untitled]'
 })
 
 const isAudioContentItem = computed(() => {
   return props.contentItem.meta?.sourceMedium === 'audio'
+})
+
+const contentItemIconName = computed(() => {
+  if (props.iconName) {
+    return props.iconName
+  }
+  if (isAudioContentItem.value) {
+    return 'antennaSignalTag'
+  }
+  return 'journalPage'
 })
 
 const routerLinkUrl = computed(() => {
