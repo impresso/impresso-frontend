@@ -3,6 +3,7 @@
     <ContentItemCommon
       :contentItem="props.contentItem"
       iconName="antennaSignalTag"
+      :showCollections="props.showCollections"
       :showDate="props.showDate"
       :showIcon="props.showIcon"
       :showLink="props.showLink"

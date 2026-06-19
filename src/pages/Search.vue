@@ -197,6 +197,7 @@
                   @update:current-time="
                     currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
                   "
+                  showCollections
                   showProvider
                   showSpecs
                   showMeta
@@ -217,6 +218,7 @@
                 <ContentItemComponent
                   v-else
                   :contentItem="searchResult"
+                  showCollections
                   showProvider
                   showSpecs
                   showMeta

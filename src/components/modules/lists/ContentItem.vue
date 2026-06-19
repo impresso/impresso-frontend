@@ -14,6 +14,7 @@
         v-if="props.contentItem"
         :contentItem="props.contentItem"
         iconName="journalPage"
+        :showCollections="props.showCollections"
         :showDate="props.showDate"
         :showIcon="props.showIcon"
         :showLink="props.showLink"

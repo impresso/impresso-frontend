@@ -21,6 +21,20 @@ export const Routes = {
       }
     }
   },
+  collections: {
+    path: '/collections',
+    name: 'collectionsRoot',
+    children: {
+      overview: {
+        name: 'collections',
+        path: ''
+      },
+      collection: {
+        name: 'collection',
+        path: ':collection_id'
+      }
+    }
+  },
   contentItem: {
     path: '/content-item/:content_item_id',
     name: 'contentItem'

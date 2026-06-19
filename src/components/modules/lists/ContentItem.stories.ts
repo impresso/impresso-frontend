@@ -228,6 +228,12 @@ export const MockContentItem: ContentItemType = {
         relevance: 0.057,
         label: 'könig · kaiser · königin · prinz · prinzessin'
       }
+    ],
+    collections: [
+      {
+        id: 'my-collection-1',
+        title: 'Collection 1'
+      }
     ]
   },
   audio: {}
@@ -251,6 +257,12 @@ const meta: Meta<typeof ContentItem> = {
         name: Routes.contentItem.name,
         path: Routes.contentItem.path,
         redirect: '/content-item/mock',
+        beforeEnter: () => true
+      },
+      {
+        name: Routes.collections.children.collection.name,
+        path: Routes.collections.children.collection.path,
+        redirect: '/collections/mock',
         beforeEnter: () => true
       }
     ])
@@ -309,7 +321,7 @@ export const ShowMeta: Story = {
   }
 }
 
-export const WithManyPages: Story = {
+export const WithManyPagesAndCompleteWithCollections: Story = {
   args: {
     contentItem: {
       ...MockContentItem,
@@ -352,6 +364,7 @@ export const WithManyPages: Story = {
         ]
       }
     },
+    showCollections: true,
     showLink: true,
     showMeta: true,
     showTitle: true,

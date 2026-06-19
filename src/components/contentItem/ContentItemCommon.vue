@@ -91,7 +91,27 @@
         v-show="match.fragment.trim().length > 0"
       ></li>
     </ul>
-    <!-- separator -->
+    <!-- collections -->
+    <div v-if="shouldShowCollections" class="d-flex flex-wrap align-items-center">
+      <div class="badge badge-light my-1 mr-1 very-small-caps">{{ $t('collections') }}</div>
+
+      <div
+        v-for="(collection, i) in contentItem.semanticEnrichments.collections"
+        v-bind:key="i"
+        class="m-1 font-size-inherit d-flex align-items-center bg-info pl-2 rounded"
+      >
+        <router-link
+          v-bind:to="{ name: 'collection', params: { collection_id: collection.id } }"
+          title="View collection"
+          class="text-decoration-underline"
+        >
+          {{ collection.title }}
+        </router-link>
+        <button class="btn btn-transparent p-1" @click="emit('remove-collection', collection.id)">
+          <Icon name="cross" :scale="0.75" class="ml-1" />
+        </button>
+      </div>
+    </div>
     <!-- named entities -->
     <div v-if="props.showSemanticEnrichments" class="mt-1 d-flex flex-wrap gap-2 mb-2">
       <div v-for="entityType in semanticEnrichmentTypes" :key="entityType">
@@ -191,6 +211,10 @@ const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies']
 })
 
+const emit = defineEmits<{
+  (e: 'remove-collection', id: ContentItemSemanticEnrichments['collections'][0]['id']): void
+}>()
+
 const contentItemTitle = computed(() => {
   if (props.contentItem.text.title?.length > 0) {
     return props.contentItem.text.title
@@ -223,6 +247,10 @@ const shouldShowSnippet = computed(() => {
 
 const shouldShowMediaSource = computed(() => {
   return props.showMediaSource && !!props.contentItem.meta.mediaId
+})
+
+const shouldShowCollections = computed(() => {
+  return props.showCollections && !!props.contentItem.semanticEnrichments?.collections?.length
 })
 
 const shouldShowDate = computed(() => {
@@ -317,7 +345,8 @@ const formattedReadingTimeParams = computed<{
     "listeningTime": "Listening time: {minutes}m {seconds}s",
     "readingTime": "Reading time: {minutes}m ({tokens} tokens)",
     "longReadingTime": "Reading time: {hours}h ({tokens} tokens)",
-    "reducedReadingTime": "Reading time: < 1 min"
+    "reducedReadingTime": "Reading time: < 1 min",
+    "collections": "Collections"
   }
 }
 </i18n>
