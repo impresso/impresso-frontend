@@ -1,6 +1,6 @@
 <template>
   <i-layout class="AudioContentItemPage">
-    <i-layout-section width="350px">
+    <i-layout-section width="300px">
       <template #header>
         <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
       </template>
@@ -25,9 +25,12 @@
             :contentItem="item"
             class="m-3 p-2 rounded-md border shadow-sm mb-4"
             showLink
+            showIcon
             showMeta
             showSnippet
             showSemanticEnrichments
+            showProvider
+            showType
         /></template>
       </ListOfFindResponseItems>
     </i-layout-section>
