@@ -367,12 +367,12 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:article_id',
+      path: '/content-item/:content_item_id',
       alias: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_id as string
-        const ci = await services.contentItems.get(contentItemId)
+        const contentItemId = to.params.article_id || to.params.content_item_id
+        const ci = await services.contentItems.get(contentItemId as string)
         return {
           name: 'issue-viewer',
           params: {
@@ -390,11 +390,33 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_id',
-      component: () => import('@/pages/AudioContentItem.vue'),
+      component: () => import('@/pages/AudioContentItemPage.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
-      }
+      },
+      children: [
+        {
+          name: Routes.audioContentItem.children.transcript.name,
+          component: () => import('@/components/audio/AudioContentItemTranscript.vue'),
+          path: Routes.audioContentItem.children.transcript.path
+        },
+        {
+          name: Routes.audioContentItem.children.similarItems.name,
+          component: () => import('@/components/ListOfSimilarContentItems.vue'),
+          path: Routes.audioContentItem.children.similarItems.path
+        },
+        {
+          name: Routes.audioContentItem.children.citeAs.name,
+          component: () => import('@/components/contentItem/ContentItemCard.vue'),
+          path: Routes.audioContentItem.children.citeAs.path
+        },
+        {
+          name: Routes.audioContentItem.children.debug.name,
+          component: () => import('@/components/contentItem/ContentItemDebug.vue'),
+          path: Routes.audioContentItem.children.debug.path
+        }
+      ]
     },
     {
       path: '/compare',

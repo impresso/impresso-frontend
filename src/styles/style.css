@@ -431,6 +431,10 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght);
 }
 
+.line-height-inherit {
+  line-height: inherit;
+}
+
 .text-color-inherit {
   color: inherit;
 }
@@ -837,15 +841,41 @@ svg path.domain {
   pointer-events: auto;
 }
 
+/** cols container for very big screens */
+
 /** container for very big screens */
 @media (min-width: 1200px) {
   .container-xxl {
     max-width: 1200px;
+  }
+  .col-xxl {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .col-xxl-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-xxl-3 {
+    flex: 0 0 auto;
+    width: 25%;
   }
 }
 
 @media (min-width: 1400px) {
   .container-xxl {
     max-width: 1400px;
+  }
+  .col-xxl {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .col-xxl-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-xxl-3 {
+    flex: 0 0 auto;
+    width: 25%;
   }
 }

@@ -490,7 +490,7 @@ export default {
           this.paginationList = {
             perPage: this.paginationList.perPage,
             currentPage: page,
-            totalRows: res.total
+            totalRows: res.pagination.total
           }
           this.items = res.data
         })

@@ -178,29 +178,71 @@
       <div class="p-1">
         <b-container fluid>
           <div ref="searchResultsFirstElementRef" />
-          <b-row v-if="displayStyle === 'list'" data-testid="search-results-list-items">
+          <b-row>
             <b-col
               cols="12"
               v-for="(searchResult, index) in searchResults"
               v-bind:key="searchResult.id"
             >
-              <search-results-list-item v-bind:checkbox="false" v-model="searchResults[index]" />
-            </b-col>
-          </b-row>
-          <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-            <b-col
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.id"
-            >
-              <search-results-tiles-item
-                checkbox="true"
-                v-on:click="onClickResult(searchResult)"
-                v-model="searchResults[index]"
-              />
+              <div class="p-3 border rounded my-2 shadow-sm mr-5">
+                <AudioContentItem
+                  v-if="searchResult.meta?.sourceMedium === 'audio'"
+                  :contentItem="searchResult"
+                  :enable-player="true"
+                  :is-playing="isAudioItemPlaying(searchResult.id)"
+                  :current-time="getAudioItemReadingTime(searchResult.id)"
+                  @update:is-playing="
+                    isPlaying => onAudioItemPlayingChanged(searchResult.id, isPlaying)
+                  "
+                  @update:current-time="
+                    currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
+                  "
+                  showCollections
+                  showProvider
+                  showSpecs
+                  showMeta
+                  showIcon
+                  showLink
+                  showTitle
+                  showMediaSource
+                  showDate
+                  showTopics
+                  showType
+                  showSnippet
+                  showMatches
+                  showContentItemAccess
+                  showSemanticEnrichments
+                  enableAddToCollection
+                >
+                </AudioContentItem>
+
+                <ContentItemComponent
+                  v-else
+                  :contentItem="searchResult"
+                  showCollections
+                  showProvider
+                  showSpecs
+                  showMeta
+                  showIcon
+                  showLink
+                  showTitle
+                  showMediaSource
+                  showDate
+                  showTopics
+                  showType
+                  showSnippet
+                  showMatches
+                  showContentItemAccess
+                  showIIIFThumbnail
+                  showSemanticEnrichments
+                  enableAddToCollection
+                />
+                <!-- <search-results-list-item
+                  v-else-if
+                  v-bind:checkbox="false"
+                  v-model="searchResults[index]"
+                /> -->
+              </div>
             </b-col>
           </b-row>
         </b-container>
@@ -250,6 +292,7 @@ import {
   exporter as exporterService
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
+import { useAudioStore } from '@/stores/audio'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 import { useUserStore } from '@/stores/user'
@@ -263,6 +306,8 @@ import { Features } from '@/init'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
+import AudioContentItem from '@/components/audio/AudioContentItem.vue'
+import ContentItemComponent from '@/components/modules/lists/ContentItem.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 
@@ -344,7 +389,13 @@ export default defineComponent({
     return { inputNameRef, searchResultsFirstElementRef }
   },
   computed: {
-    ...mapStores(useCollectionsStore, useNotificationsStore, useSearchQueriesStore, useUserStore),
+    ...mapStores(
+      useCollectionsStore,
+      useAudioStore,
+      useNotificationsStore,
+      useSearchQueriesStore,
+      useUserStore
+    ),
     $navigation() {
       return new Navigation(this)
     },
@@ -533,6 +584,7 @@ export default defineComponent({
   },
   mounted() {
     console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
+    this.audioStore.pruneReadingProgress()
     this.facets = buildEmptyFacets(FacetTypes)
     this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
     this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
@@ -541,8 +593,30 @@ export default defineComponent({
   },
   beforeUnmount() {
     this._isUnmounted = true
+    this.audioStore.setIsPlaying(false)
+    this.audioStore.setContentItemId(null)
   },
   methods: {
+    isAudioItemPlaying(contentItemId: string) {
+      return this.audioStore.contentItemId === contentItemId && this.audioStore.isPlaying
+    },
+    getAudioItemReadingTime(contentItemId: string) {
+      return this.audioStore.getReadingTimeByContentItemId(contentItemId)
+    },
+    onAudioItemCurrentTimeChanged(contentItemId: string, currentTime: number) {
+      this.audioStore.setReadingTime(contentItemId, currentTime)
+    },
+    onAudioItemPlayingChanged(contentItemId: string, isPlaying: boolean) {
+      if (isPlaying) {
+        this.audioStore.setContentItemId(contentItemId)
+        this.audioStore.setIsPlaying(true)
+        return
+      }
+
+      if (this.audioStore.contentItemId === contentItemId) {
+        this.audioStore.setIsPlaying(false)
+      }
+    },
     toggleLoadCollections() {
       this.loadCollectionsFlag = !this.loadCollectionsFlag
     },
@@ -611,17 +685,7 @@ export default defineComponent({
     isChecked(item: ContentItem) {
       return this.selectedItems.findIndex(c => c.id === item.id) !== -1
     },
-    onClickResult(searchResult) {
-      this.$router.push({
-        name: 'article',
-        params: {
-          issue_id: searchResult.issue.id,
-          page_number: searchResult.pages[0]?.num,
-          page_id: searchResult.pages[0]?.id,
-          article_id: searchResult.id
-        }
-      })
-    },
+
     exportQueryCsv() {
       exporterService.create(
         {
@@ -661,6 +725,15 @@ export default defineComponent({
     }
   },
   watch: {
+    searchResults(searchResults: ContentItem[]) {
+      if (
+        this.audioStore.contentItemId != null &&
+        !searchResults.some(item => item.id === this.audioStore.contentItemId)
+      ) {
+        this.audioStore.setIsPlaying(false)
+        this.audioStore.setContentItemId(null)
+      }
+    },
     searchServiceQuery: {
       async handler({ page, limit, filters, orderBy }) {
         const requestId = ++this._activeSearchRequestId
@@ -679,9 +752,10 @@ export default defineComponent({
                 // group_by: groupBy
               }
             })
-            .then(response => {
-              return response
-            })
+            .then(response => ({
+              data: response.data,
+              total: response.pagination.total
+            }))
           if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
 
           this.paginationTotalRows = total
@@ -792,7 +866,9 @@ export default defineComponent({
     Modal,
     CopyToDatalabButton,
     PageNavbarHeading,
-    InfoModal
+    InfoModal,
+    AudioContentItem,
+    ContentItemComponent
   }
 })
 </script>

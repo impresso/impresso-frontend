@@ -92,7 +92,7 @@ const sortedEntries = computed(() => {
 {
   "en": {
     "exploreInSearch": "explore in search",
-    "noSavedSearchQueries": "No saved search queries yet.",
+    "noSavedSearchQueries": "Your previous queries will appear here.",
     "saved": "saved",
     "sortBy": "Sort by"
   }

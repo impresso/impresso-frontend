@@ -597,7 +597,7 @@ export default defineComponent({
           }
         })
 
-        this.paginationTotalRows = response.total
+        this.paginationTotalRows = response.pagination.total
         this.contentItems = response.data
       } finally {
         this.fetching = false

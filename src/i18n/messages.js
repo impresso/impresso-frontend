@@ -31,6 +31,8 @@ export default {
         rb: 'radio broadcast',
         rbe: 'radio broadcast episode',
         chapter: 'chapter',
+        dsc: 'radio documentary',
+        ent: 'radio interview',
         'no-type': 'No type provided'
       },
       sourceType: {
@@ -40,7 +42,8 @@ export default {
       },
       sourceMedium: {
         print: 'print',
-        digital: 'digital'
+        digital: 'digital',
+        audio: 'audio'
       },
       language: {
         de: 'German',
@@ -123,6 +126,7 @@ export default {
       and: 'AND'
     },
     actions: {
+      addToCollection: 'Save to Collection ...',
       search: 'Search',
       downloadMetadataAsCSV: 'Download metadata as CSV',
       confirm: 'confirm',

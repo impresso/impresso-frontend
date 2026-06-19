@@ -44,11 +44,12 @@ const title = computed(() => {
   return cachedItem.value?.name || props.item.id
 })
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "newspaper_label": "Newspaper",
     "radio_label": "Radio",
+    "radio_broadcast_label": "Radio Broadcast"
   }
 }
 </i18n>

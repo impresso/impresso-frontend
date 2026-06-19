@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="VizBar">
     <div class="d-flex align-items-center">
       <div
         class="mr-2 small-caps"
@@ -20,7 +20,7 @@
       <div v-if="props.count">{{ $n(props.count) }}</div>
     </div>
     <div class="bg-white w-100" :class="{ 'border-bottom border-dark': props.showBorder }">
-      <div class="bg-dark VizBar" :style="barStyle" />
+      <div class="bg-dark VizBar__line" :style="barStyle" />
     </div>
   </div>
 </template>
@@ -76,7 +76,7 @@ const handleClick = (param: any) => {
 </script>
 
 <style>
-.VizBar {
+.VizBar__line {
   /* Add any necessary styles for the bar here */
   height: 3px; /* Example height */
 }

@@ -93,7 +93,7 @@
           <template #default="{ items }">
             <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
               <ContentItem
-                :item="item"
+                :contentItem="item"
                 class="p-3 rounded-md border shadow mb-4"
                 showLink
                 showMeta
@@ -106,7 +106,7 @@
         <ContentItemCard
           class="px-3 bg-light w-100"
           v-if="contentItemOriginal && viewMode === ContentItemCardMode"
-          :item="contentItemOriginal"
+          :contentItem="contentItemOriginal"
           :show-metadata="isStaff"
         />
       </div>

@@ -65,7 +65,7 @@ import { ServiceFindParams } from '@/services/types'
  * Extended Feathers service interface that includes a name property
  * for debugging and logging purposes.
  */
-interface FeathersServiceWithPath<T> extends FeathersService<T> {
+interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
   name?: string
   path?: string
 }
@@ -123,7 +123,7 @@ export interface ListOfFindResponseItemsProps<T> {
    * Must include a 'name' property for logging.
    * @required
    */
-  service: FeathersServiceWithPath<T>
+  service: FindServiceWithPath<T>
   /** class to wrap the items container */
   itemsClass?: string
 }
@@ -165,6 +165,13 @@ const serviceResponse = ref<{
 })
 
 const paginationForList = computed(() => {
+  if (!serviceResponse.value.pagination) {
+    return {
+      perPage: props.params?.query?.limit ?? 5,
+      currentPage: 0,
+      totalRows: serviceResponse.value?.data.length ?? 0
+    }
+  }
   return {
     perPage: serviceResponse.value.pagination.limit,
     currentPage:
