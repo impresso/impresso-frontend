@@ -12,7 +12,7 @@
     </div>
 
     <!-- mediaSource -->
-    <div v-if="shouldShowMediaSource || shouldShowDate">
+    <div v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages">
       <MediaSourceLabel
         v-if="shouldShowMediaSource"
         :item="{
@@ -29,6 +29,11 @@
         {{ $d(new Date(contentItem.meta.date), props.dateFormatter) }}
         {{ '  ' }}
       </span>
+      <!-- pages only if print material -->
+      <template v-if="shouldShowPages">
+        {{ shouldShowMediaSource || shouldShowDate ? '&mdash;' : '' }}
+        <span v-html="$t('pp', { pages }, contentItem.facsimile.pagesCount)"> </span>
+      </template>
     </div>
 
     <!-- date and type -->
@@ -109,7 +114,8 @@
                 :type="entityType"
                 hideIcon
               />
-              <span v-if="idx !== contentItem.semanticEnrichments.namedEntities[entityType].length - 1"
+              <span
+                v-if="idx !== contentItem.semanticEnrichments.namedEntities[entityType].length - 1"
                 >,
               </span>
             </div>
@@ -135,13 +141,15 @@
       </div>
     </div>
 
-    
     <!-- content item access -->
     <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
   </div>
 </template>
 <script setup lang="ts">
-import type { ContentItem, ContentItemSemanticEnrichments } from '@/models/generated/canonical/contentItem'
+import type {
+  ContentItem,
+  ContentItemSemanticEnrichments
+} from '@/models/generated/canonical/contentItem'
 import { Routes } from '@/router/routes'
 import { computed } from 'vue'
 import { RouteLocationRaw } from 'vue-router'
@@ -154,12 +162,12 @@ import InfoButton from '../base/InfoButton.vue'
 import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
 import Ellipsis from '../modules/Ellipsis.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
-    
+
 export interface ContentItemCommonProps {
   contentItem: ContentItem
   dateFormatter?: string
   iconName?: string
-  showCollections?:boolean
+  showCollections?: boolean
   showContentItemAccess?: boolean
   showDate?: boolean
   showIcon?: boolean
@@ -231,6 +239,10 @@ const shouldShowTopics = computed(() => {
 
 const shouldShowType = computed(() => {
   return props.showType && !!props.contentItem.text?.itemType
+})
+
+const shouldShowPages = computed(() => {
+  return props.showSpecs && !isAudioContentItem.value && !!props.contentItem.facsimile?.pagesCount
 })
 
 const semanticEnrichmentTypes = computed(() => {

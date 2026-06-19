@@ -353,6 +353,17 @@ export const WithManyPages: Story = {
       }
     },
     showLink: true,
-    showMeta: true
+    showMeta: true,
+    showTitle: true,
+    showSnippet: true,
+    showSpecs: true,
+    showProvider: true,
+    showContentItemAccess: true,
+    showMediaSource: true,
+    showDate: true,
+    showIcon: true,
+    showType: true,
+    showTopics: true,
+    showSemanticEnrichments: true
   }
 }
