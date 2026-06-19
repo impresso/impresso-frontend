@@ -13,7 +13,6 @@
       <ContentItemCommon
         v-if="props.contentItem"
         :contentItem="props.contentItem"
-        iconName="journalPage"
         :enableAddToCollection="props.enableAddToCollection"
         :showCollections="props.showCollections"
         :showDate="props.showDate"
@@ -24,6 +23,7 @@
         :showSnippet="props.showSnippet"
         :showMatches="props.showMatches"
         :showMediaSource="props.showMediaSource"
+        :showOcrQuality="props.showOcrQuality"
         :showProvider="props.showProvider"
         :showType="props.showType"
         :showTopics="props.showTopics"
@@ -70,6 +70,7 @@ const shouldShowIIIFThumbnail = computed(() => {
 const thumbnailIiif = computed(() => {
   return props.contentItem?.facsimile?.pages?.[0]?.iiif.manifestUrl
 })
+
 const regions = computed(() => {
   const firstPage = props.contentItem.facsimile?.pages?.[0]
   const regionCoordinates = firstPage?.regionCoordinates ?? []

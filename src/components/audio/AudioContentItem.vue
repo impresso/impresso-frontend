@@ -2,7 +2,6 @@
   <div class="AudioContentItem" v-bind="attrs">
     <ContentItemCommon
       :contentItem="props.contentItem"
-      iconName="antennaSignalTag"
       :enableAddToCollection="props.enableAddToCollection"
       :showCollections="props.showCollections"
       :showDate="props.showDate"
