@@ -63,7 +63,7 @@
     "pinia-plugin-persistedstate": "3.2.1",
     "socket.io-client": "4.7.5",
     "svg-overlay": "github:openseadragon/svg-overlay",
-    "uuid": "9.0.1",
+    "uuid": "14.0.0",
     "vue": "3.5.16",
     "vue-3-slider-component": "1.0.0",
     "vue-flatpickr-component": "11.0.5",
