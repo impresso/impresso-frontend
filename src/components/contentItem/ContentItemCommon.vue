@@ -154,7 +154,7 @@
       <div class="fluid-container">
         <div class="row">
           <div
-            class="col-12 col-xl-6 col-xxl-3"
+            class="col-12 col-xl-6 col-xxl-6"
             v-for="topic in contentItem.semanticEnrichments.topics"
             :key="topic.id"
           >
