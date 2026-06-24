@@ -49,6 +49,13 @@
   --impresso-color-pastel-blue-alpha-50: rgba(86, 204, 242, 0.5);
   --impresso-color-pastel-blue-alpha-80: rgba(86, 204, 242, 0.8);
 
+  --impresso-color-vintage-purple-rgb: 99, 69, 143;
+  --impresso-color-vintage-purple-alpha-20: rgba(var(--impresso-color-vintage-purple-rgb), 0.2);
+  --impresso-color-vintage-purple-alpha-30: rgba(var(--impresso-color-vintage-purple-rgb), 0.3);
+  --impresso-color-vintage-purple-alpha-50: rgba(var(--impresso-color-vintage-purple-rgb), 0.5);
+  --impresso-color-vintage-purple-alpha-80: rgba(var(--impresso-color-vintage-purple-rgb), 0.8);
+--impresso-color-vintage-purple: rgb(var(--impresso-color-vintage-purple-rgb));
+
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
   --impresso-border-radius-md: 15px;
