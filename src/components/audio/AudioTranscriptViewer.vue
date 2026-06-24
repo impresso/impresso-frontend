@@ -213,28 +213,41 @@ const onTranscriptWordClick = (word: TranscriptWord) => {
 <style>
 .TranscriptViewer .transcript-word {
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
-  border-radius: 4px;
-  padding: 0 2px;
-  margin: 0 -2px;
 }
-.TranscriptViewer .transcript-word.active {
-  background-color: #d1e7dd;
+.TranscriptViewer .transcript-word.active, .TranscriptViewer .transcript-word.in-frame.active{
+  background-color: var(--impresso-color-vintage-purple);
   font-variation-settings: var(--impresso-wght-bold, 600);
 }
 .TranscriptViewer .transcript-word.in-frame {
-  background-color: rgba(209, 231, 221, 0.45);
+  background-color: rgba(var(--impresso-color-vintage-purple-rgb), .85);
+  color: var(--impresso-color-white);
+
 }
+/* First in group: not immediately preceded by another .in-frame */
+.TranscriptViewer .transcript-word.in-frame:not(.in-frame + .in-frame) {
+  border-radius: 2px 0 0 2px;
+}
+
+/* Last in group: not immediately followed by another .in-frame */
+.TranscriptViewer .transcript-word.in-frame:not(:has(+ .in-frame)) {
+  border-radius: 0 2px 2px 0;
+}
+
+/* Single item (both first and last) */
+.TranscriptViewer .transcript-word.in-frame:not(.in-frame + .in-frame):not(:has(+ .in-frame)) {
+  border-radius: 2px;
+}
+
 .TranscriptViewer .transcript-word:hover {
-  background-color: #ddd;
+  background-color: var(--impresso-color-vintage-purple)  ;
+  color: var(--impresso-color-white);
 }
 .TranscriptViewer .transcript-word.active:hover {
-  background-color: #d1e7dd;
+  background-color: var(--impresso-color-vintage-purple-alpha-50);
+  
 }
 .TranscriptViewer .transcript-word.in-frame:hover {
-  background-color: rgba(209, 231, 221, 0.6);
+  background-color: rgba(var(--impresso-color-vintage-purple-rgb), 0.8);
 }
 .transcript-paragraph {
   margin-bottom: 1rem;
