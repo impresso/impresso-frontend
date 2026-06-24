@@ -40,7 +40,7 @@
     </div>
 
     <!-- date and type -->
-    <div v-if="shouldShowType || showProvider || props.showSpecs">
+    <div v-if="shouldShowType || showProvider || props.showSpecs || props.showId">
       <span v-if="shouldShowType" class="small-caps">
         {{ $t(`buckets.type.${contentItem.text.itemType}`) }}
 
@@ -71,6 +71,12 @@
           show-link
           class="d-inline-block"
         ></DataProviderLabel>
+      </template>
+
+      <!-- ID -->
+      <template v-if="props.showId">
+        &mdash;
+        <ContentItemIdLabel :item="contentItem" />
       </template>
     </div>
 
@@ -198,6 +204,7 @@ import ItemSelector from '../modules/ItemSelector.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import { ItemWithCollections } from '../modules/CollectionAddToList.vue'
 import ContentItemOcrQuality from './ContentItemOcrQuality.vue'
+import ContentItemIdLabel from '../ContentItemIdLabel.vue'
 
 export interface ContentItemCommonProps {
   contentItem: ContentItem
@@ -207,6 +214,7 @@ export interface ContentItemCommonProps {
   showContentItemAccess?: boolean
   showDate?: boolean
   showIcon?: boolean
+  showId?:boolean
   showTitle?: boolean
   showLink?: boolean
   showMatches?: boolean
