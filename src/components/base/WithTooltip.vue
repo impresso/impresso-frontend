@@ -25,18 +25,35 @@ import {
   arrow,
   useFloating,
   autoUpdate,
-  Placement,
-  Strategy,
   shift,
+  offset
+} from '@floating-ui/vue'
+import type {
   ShiftOptions,
-  offset,
   OffsetOptions
 } from '@floating-ui/vue'
 import { computed, ref } from 'vue'
+
+export type TooltipPlacement =
+  | 'top'
+  | 'top-start'
+  | 'top-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end'
+  | 'bottom'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'left'
+  | 'left-start'
+  | 'left-end'
+
+export type TooltipStrategy = 'absolute' | 'fixed'
+
 export interface WithTooltipProps {
   content: string
-  placement?: Placement
-  strategy?: Strategy
+  placement?: TooltipPlacement
+  strategy?: TooltipStrategy
   delay?: boolean
   isHtml?: boolean
   offsetOptions?: OffsetOptions

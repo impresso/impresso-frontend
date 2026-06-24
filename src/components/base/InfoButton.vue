@@ -57,7 +57,7 @@ export interface InfoButtonProps {
   name: string
   triggerClass?: string
   defaultContent?: string
-  placement?: Side
+  placement?: 'top' | 'right' | 'bottom' | 'left'
   offsetOptions?: Parameters<typeof offset>[0]
 }
 
