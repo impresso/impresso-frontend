@@ -2,10 +2,10 @@
   <i-layout class="AudioContentItemPage">
     <i-layout-section width="300px">
       <template #header>
-        <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+        <ContentItemIdLabel v-if="contentItem && showSidebar" :item="contentItem" class="mt-1" />
       </template>
 
-      <ListOfFindResponseItems
+      <ListOfFindResponseItems  v-if="showSidebar"
         :service="contentItemService"
         :params="listParams"
         :list-is-empty-message="$t('no conversations')"
@@ -48,11 +48,17 @@
               :enable-player="false"
               :showTopics="false"
               :showTitle="false"
+              show-content-item-access
+              showDate
+              showId
+              showMediaSource
+              showOcrQuality
               showProvider
+              showSpecs
+              showType
             >
             </AudioContentItem>
-            <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
-            <ContentItemAccess v-if="contentItem" :item="contentItem" class="mt-2 mb-0" />
+            
           </section>
         </b-navbar>
         <b-navbar-nav class="container ml-0 pb-2">
@@ -79,9 +85,9 @@
           </b-tabs>
         </b-navbar-nav>
       </template>
-      <div class="container ml-0 py-4">
+      <div class="container ml-0 py-4 pr-5">
         <router-view :content-item="contentItem"></router-view>
-      </div>
+      </div>  
     </i-layout-section>
   </i-layout>
 </template>
@@ -89,7 +95,6 @@
 import AudioContentItem from '@/components/audio/AudioContentItem.vue'
 import { useAudioStore } from '@/stores/audio'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import ContentItemAccess from '@/components/ContentItemAccess.vue'
 import { useContentItem } from '@/composables/useContentItem'
 import { useRoute } from 'vue-router'
 import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
@@ -100,6 +105,12 @@ import FilterFactory from '@/models/FilterFactory'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 
 const route = useRoute()
+
+export interface AudioContentItemPageProps {
+  showSidebar?: boolean
+}
+
+const props = defineProps<AudioContentItemPageProps>()
 
 const AvailableNestedRoutes = [
   Routes.audioContentItem.children.transcript,

@@ -43,7 +43,8 @@ export default {
       sourceMedium: {
         print: 'print',
         digital: 'digital',
-        audio: 'audio'
+        audio: 'audio',
+        typescript: 'typescript'
       },
       language: {
         de: 'German',

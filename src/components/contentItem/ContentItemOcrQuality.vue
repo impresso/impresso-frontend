@@ -2,7 +2,7 @@
   <WithTooltip
     :is-html="true"
     :content="$t(ocrQualityInfo.text, { rating: $n(ocrQualityInfo.rating) })"
-    placement="top"
+    :placement="placement"
     :shiftOptions="{ padding: -5 }"
     strategy="fixed"
   >
@@ -14,16 +14,19 @@
 import { computed } from 'vue'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import WithTooltip from '@/components/base/WithTooltip.vue'
+import type { TooltipPlacement } from '@/components/base/WithTooltip.vue'
 
 export interface ContentItemOcrQualityProps {
   contentItem: ContentItem
   goodThreshold?: number // Point where color becomes fully green (default 0.8)
   mediumThreshold?: number // Midpoint color (default 0.4)
+  placement?: TooltipPlacement
 }
 
 const props = withDefaults(defineProps<ContentItemOcrQualityProps>(), {
   goodThreshold: 0.8,
-  mediumThreshold: 0.4
+  mediumThreshold: 0.4,
+  placement: 'top'
 })
 
 const ocrQualityText = {

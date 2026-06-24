@@ -16,6 +16,7 @@
         :enableAddToCollection="props.enableAddToCollection"
         :showCollections="props.showCollections"
         :showDate="props.showDate"
+        :showId="props.showId"
         :showIcon="props.showIcon"
         :showLink="props.showLink"
         :showTitle="props.showTitle"
