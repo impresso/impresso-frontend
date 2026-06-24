@@ -126,7 +126,7 @@
         <b-dropdown
           v-if="user && jobs.length"
           right
-          no-caret
+          
           ref="ddownJobs"
           v-on:hidden="updateLastNotificationDate"
         >
