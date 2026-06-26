@@ -214,6 +214,11 @@ export default {
       options: '&nbsp; | (1 option) | ({n} options)',
       moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
+      additionalAudioContentItems:
+        '0 other audio content item |<span class="number">1</span> other audio content item | <span class="number">{n}</span> other audio content items',
+
+      audioContentItems:
+        '0|<span class="number">1</span> audio content item | <span class="number">{n}</span> audio content items',
       itemsGeneric:
         'no items | <span class="number">1</span> item | <span class="number">{n}</span> items',
       clusterSize: '&nbsp; | single cluster | <span class="number">{n}</span> passages',
@@ -265,6 +270,10 @@ export default {
         "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
+    },
+    loading: {
+      audioContentItems: 'loading audio content items ...',
+      additionalAudioContentItems: 'loading additional audio content items ...'
     },
     dates: {
       lastModifiedDate: 'last modified',

@@ -8,7 +8,7 @@
   >
     <template #header>
       <slot name="beforeHeader"></slot>
-      <slot name="header" :total="serviceResponse.data.length">
+      <slot name="header" :total="paginationForList.totalRows" :isLoading="isLoading">
         <div class="p-3 d-flex gap-2 justify-content-between align-items-center">
           <h5 class="m-0 font-size-inherit" v-html="props.title"></h5>
         </div>
@@ -20,7 +20,7 @@
       <div :class="$props.itemsClass" style="min-height: 120px">
         <LoadingBlock v-if="serviceResponse.status === 'loading'" :height="100" />
         <div
-          v-if="serviceResponse.status == 'success' && serviceResponse.data.length === 0"
+          v-if="serviceResponse.status === 'success' && serviceResponse.data.length === 0"
           class="p-3"
         >
           <Alert
@@ -35,25 +35,25 @@
             <span v-html="props.errorLoadingItemsMessage"></span>
           </Alert>
         </div>
-        <slot :items="serviceResponse.data">
+        <slot :items="serviceResponse.data" :isSuccess="serviceResponse.status === 'success'">
           <p
-            v-if="serviceResponse.status == 'success'"
+            v-if="serviceResponse.status === 'success'"
             v-html="
               $t(
                 'numbers.itemsGeneric',
-                {
-                  n: $n(serviceResponse.data.length)
-                },
+                { n: $n(serviceResponse.data.length) },
                 serviceResponse.data.length
               )
             "
-        /></slot>
+          />
+        </slot>
       </div>
     </template>
   </List>
 </template>
+
 <script setup lang="ts">
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, nextTick, ref, toRaw, watch } from 'vue'
 import type { FeathersError } from '@feathersjs/errors'
 import List from './modules/lists/List.vue'
 import LoadingBlock from './LoadingBlock.vue'
@@ -61,14 +61,19 @@ import Alert from 'impresso-ui-components/components/Alert.vue'
 import { FeathersService } from '@feathersjs/feathers'
 import { ServiceFindParams } from '@/services/types'
 
-/**
- * Extended Feathers service interface that includes a name property
- * for debugging and logging purposes.
- */
 interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
   name?: string
   path?: string
 }
+
+/**
+ * Emits 'items-rendered' after the DOM has been updated with the new items,
+ * rather than the moment the fetch resolves. This makes it safe for consumers
+ * to query the DOM immediately in the handler.
+ */
+const emit = defineEmits<{
+  'items-rendered': [items: any[]]
+}>()
 
 export interface ListOfFindResponseItemsExposed {
   refresh: () => Promise<void>
@@ -76,78 +81,26 @@ export interface ListOfFindResponseItemsExposed {
 }
 
 export interface ListOfFindResponseItemsProps<T> {
-  /**
-   * Whether to automatically fetch items when the component becomes visible.
-   * Useful for lazy-loading content in tabs or accordions.
-   * @default true
-   */
   fetchItemsWhenVisible?: boolean
-
-  /**
-   * Optional title displayed in the list header.
-   * Supports HTML content via v-html.
-   * @default ''
-   */
   title?: string
-  /**
-   * Feathers service query parameters for filtering, pagination. Sorting can be added here,
-   * but it's recommended to use the 'orderBy' prop for that, you'll get extra dropdown options.
-   *
-   * @default { query: { limit: 5, offset: 0 } }
-   * @example
-   * {
-   *   query: {
-   *     status: 'active',
-   *     limit: 20,
-   *     offset: 0,
-   *   }
-   * }
-   */
   params?: ServiceFindParams
-  /**
-   * Default order by field for the list. Make sure this field is supported by the service.
-   */
   orderBy?: string
-  /**
-   * Function returning available sort options for the list.
-   * Each option should have 'label' and 'value' properties.
-   */
   orderByOptions?: { label: string; value: string }[]
-  /**
-   * Custom messages for common cases
-   */
   errorLoadingItemsMessage?: string
   listIsEmptyMessage?: string
-  /**
-   * The Feathers service to fetch data from.
-   * Must include a 'name' property for logging.
-   * @required
-   */
   service: FindServiceWithPath<T>
-  /** class to wrap the items container */
   itemsClass?: string
 }
 
 const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
   fetchItemsWhenVisible: true,
-  // orderBy: 'dateCreated',
-  // orderByOptions: () => [
-  //   { label: 'Date Created', value: 'dateCreated' },
-  //   { label: 'Date Last Modified', value: 'dateLastModified' }
-  // ],
   title: '',
   errorLoadingItemsMessage: 'errorLoadingItems',
   listIsEmptyMessage: 'listIsEmpty',
-  params: () => ({
-    query: {
-      limit: 5,
-      offset: 0
-    }
-  }),
+  params: () => ({ query: { limit: 5, offset: 0 } }),
   itemsClass: 'p2'
 })
-/** Current sort order selection */
-// const orderByModel = ref<string | undefined>(props.orderBy!)
+
 const error = ref<FeathersError | null>(null)
 
 const serviceResponse = ref<{
@@ -163,6 +116,10 @@ const serviceResponse = ref<{
   },
   data: []
 })
+
+const isLoading = computed(
+  () => serviceResponse.value.status === 'loading' || serviceResponse.value.status === 'idle'
+)
 
 const paginationForList = computed(() => {
   if (!serviceResponse.value.pagination) {
@@ -199,8 +156,9 @@ const fetchFindMethod = async () => {
     status: 'loading',
     pagination: serviceResponse.value.pagination
   }
+
   const service = toRaw(props.service)
-  // fetch user requests
+
   try {
     const { data, pagination } = await service.find({
       ...props.params,
@@ -208,11 +166,16 @@ const fetchFindMethod = async () => {
         ...props.params?.query,
         offset: serviceResponse.value.pagination.offset,
         limit: serviceResponse.value.pagination.limit
-        // $sort: orderByModel.value ? { [orderByModel.value]: -1 } : undefined
       }
     })
+
     console.info('[ListOfFindResponseItems] @success', props.service.path)
     serviceResponse.value = { data, status: 'success', pagination }
+
+    // Wait for Vue to flush DOM updates before notifying the parent.
+    // This ensures consumers can safely query the DOM in the handler.
+    await nextTick()
+    emit('items-rendered', data)
   } catch (err) {
     const feathersError = err as FeathersError
     console.error(
@@ -242,16 +205,8 @@ const refreshFromFirstPage = async () => {
   await fetchFindMethod()
 }
 
-defineExpose<ListOfFindResponseItemsExposed>({
-  refresh,
-  refreshFromFirstPage
-})
+defineExpose<ListOfFindResponseItemsExposed>({ refresh, refreshFromFirstPage })
 
-/**
- * Watch for visibility changes to trigger lazy loading.
- * When fetchItemsWhenVisible becomes true and status is idle,
- * automatically fetch the data.
- */
 watch(
   () => props.fetchItemsWhenVisible,
   v => {
@@ -276,7 +231,7 @@ watch(
   () => props.service.path || props.service.name,
   () => {
     console.debug(
-      '[ListOfFindResponseItems] Service ID changed, refetching:',
+      '[ListOfFindResponseItems] Service changed, refetching:',
       props.service.path || props.service.name
     )
     fetchFindMethod()
