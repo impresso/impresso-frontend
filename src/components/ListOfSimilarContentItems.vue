@@ -24,7 +24,25 @@
         </form>
       </div>
     </div>
-    <slot v-bind:items="similarItems"></slot>
+    <slot v-bind:items="similarItems">
+      <div class="row">
+        <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in similarItems" :key="item.id">
+          <ContentItem
+            :contentItem="item"
+            class="p-3 rounded-md border shadow mb-4"
+            showDate
+            showMediaSource
+            showProvider
+            showLink
+            showIcon
+            showMeta
+            showSpecs
+            showSnippet
+            showSemanticEnrichments
+          />
+        </div>
+      </div>
+    </slot>
     <LoadingBlock
       :class="contentClass"
       v-if="!error && isLoading"
@@ -87,6 +105,7 @@ import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
+import ContentItem from './modules/lists/ContentItem.vue'
 export interface ListOfSimilarContentItemsProps {
   contentItem?: ContentItemType
   minHeight?: number
@@ -186,6 +205,12 @@ const fetchSimilarItems = async (): Promise<void> => {
     }
   })
     .then(res => {
+      console.info(
+        '[ListOfSimilarContentItems] Fetched similar items for content item:',
+        props.contentItem.id,
+        'Result count:',
+        res.data.length
+      )
       return res.data
     })
     .catch(err => {
