@@ -1,23 +1,18 @@
 <template>
   <i-layout class="AudioContentItemPage">
-    <i-layout-section width="300px">
+    <i-layout-section width="380px">
       <template #header>
         <ContentItemIdLabel v-if="contentItem && showSidebar" :item="contentItem" class="mt-1" />
       </template>
 
-      <ListOfFindResponseItems  v-if="showSidebar"
+      <ListOfFindResponseItems
+        v-if="showSidebar"
         :service="contentItemService"
         :params="listParams"
         :list-is-empty-message="$t('no conversations')"
         :error-loading-items-message="$t('error loading conversations')"
         items-class="p-0"
       >
-        <template #header="{ total }">
-          <div
-            class="px-2 py-1 small text-muted"
-            v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"
-          />
-        </template>
         <template #default="{ items }">
           <ContentItem
             v-for="item in items"
@@ -58,7 +53,6 @@
               showType
             >
             </AudioContentItem>
-            
           </section>
         </b-navbar>
         <b-navbar-nav class="container ml-0 pb-2">
@@ -87,7 +81,7 @@
       </template>
       <div class="container ml-0 py-4 pr-5">
         <router-view :content-item="contentItem"></router-view>
-      </div>  
+      </div>
     </i-layout-section>
   </i-layout>
 </template>

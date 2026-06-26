@@ -1,7 +1,7 @@
 <template>
   <i-layout id="SearchPage">
     <search-sidebar
-      width="400px"
+      width="380px"
       :filters="enrichedFilters"
       :facets="facets"
       contextTag="search"
@@ -238,6 +238,7 @@
                   showIIIFThumbnail
                   showSemanticEnrichments
                   enableAddToCollection
+                  contentItemTopicClasses="col-12 col-xxl-6"
                 />
                 <!-- <search-results-list-item
                   v-else-if

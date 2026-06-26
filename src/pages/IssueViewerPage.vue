@@ -91,12 +91,17 @@
           :contentItem="contentItemOriginal"
         >
           <template #default="{ items }">
-            <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
+            <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in items" :key="item.id">
               <ContentItem
                 :contentItem="item"
                 class="p-3 rounded-md border shadow mb-4"
+                showDate
+                showMediaSource
+                showProvider
                 showLink
+                showIcon
                 showMeta
+                showSpecs
                 showSnippet
                 showSemanticEnrichments
               />

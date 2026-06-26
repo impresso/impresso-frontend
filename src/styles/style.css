@@ -54,7 +54,7 @@
   --impresso-color-vintage-purple-alpha-30: rgba(var(--impresso-color-vintage-purple-rgb), 0.3);
   --impresso-color-vintage-purple-alpha-50: rgba(var(--impresso-color-vintage-purple-rgb), 0.5);
   --impresso-color-vintage-purple-alpha-80: rgba(var(--impresso-color-vintage-purple-rgb), 0.8);
---impresso-color-vintage-purple: rgb(var(--impresso-color-vintage-purple-rgb));
+  --impresso-color-vintage-purple: rgb(var(--impresso-color-vintage-purple-rgb));
 
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
@@ -858,6 +858,10 @@ svg path.domain {
   .col-xxl {
     flex: 0 0 auto;
     width: 100%;
+  }
+  .col-xxl-6 {
+    flex: 0 0 auto;
+    width: 50%;
   }
   .col-xxl-4 {
     flex: 0 0 auto;

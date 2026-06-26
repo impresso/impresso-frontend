@@ -31,6 +31,7 @@
         :showSpecs="props.showSpecs"
         :showContentItemAccess="props.showContentItemAccess"
         :showSemanticEnrichments="props.showSemanticEnrichments"
+        :contentItemTopicClasses="props.contentItemTopicClasses"
       ></ContentItemCommon>
 
       <slot name="actions"></slot>
@@ -48,6 +49,7 @@ import ContentItemCommon, {
 
 export interface ContentItemProps extends ContentItemCommonProps {
   showIIIFThumbnail?: boolean
+  contentItemTopicClasses?: string
 }
 
 const props = withDefaults(defineProps<ContentItemProps>(), {

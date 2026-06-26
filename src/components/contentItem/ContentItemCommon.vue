@@ -160,7 +160,7 @@
       <div class="fluid-container">
         <div class="row">
           <div
-            class="col-12 col-xl-6 col-xxl-6"
+            :class="contentItemTopicClasses"
             v-for="topic in contentItem.semanticEnrichments.topics"
             :key="topic.id"
           >
@@ -214,7 +214,7 @@ export interface ContentItemCommonProps {
   showContentItemAccess?: boolean
   showDate?: boolean
   showIcon?: boolean
-  showId?:boolean
+  showId?: boolean
   showTitle?: boolean
   showLink?: boolean
   showMatches?: boolean
@@ -229,11 +229,13 @@ export interface ContentItemCommonProps {
   showTopics?: boolean
   enableAddToCollection?: boolean
   entityTypes?: Array<keyof ContentItemSemanticEnrichments['namedEntities']>
+  contentItemTopicClasses?: string
 }
 const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   dateFormatter: 'long',
   ocrQualityThreshold: 0.5,
-  entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies']
+  entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies'],
+  contentItemTopicClasses: 'col-12 col-lg-6 col-xl-4'
 })
 
 const emit = defineEmits<{
