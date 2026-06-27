@@ -11,7 +11,7 @@
     />
     <span v-else :class="titleClass">{{ title }}</span>
     {{ ' ' }}
-    <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
+    <span class="small-caps" v-if="showType">{{ $t(item.type.toLowerCase() + '_label') }}</span>
   </div>
 </template>
 <script lang="ts" setup>
@@ -49,7 +49,8 @@ const title = computed(() => {
   "en": {
     "newspaper_label": "Newspaper",
     "radio_label": "Radio",
-    "radio_broadcast_label": "Radio Broadcast"
+    "radio_broadcast_label": "Radio Broadcast",
+    "radio broadcast_label": "Radio Broadcast"
   }
 }
 </i18n>
