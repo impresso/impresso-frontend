@@ -87,73 +87,21 @@
           </div>
         </div>
 
-        <div
-          class="row d-flex align-items-stretch"
-          v-for="dataset in sortedDatasets"
-          :key="dataset.id"
-        >
-          <div class="col-sm-2 col-xl-1 py-2 border-right d-flex align-items-center">
-            <span class="small">{{ dataset.timePeriod }}</span>
-          </div>
-
-          <div class="col-sm-2 col-xl-1 py-2 border-right d-flex align-items-center">
-            <span class="small-caps">{{ dataset.medium }}</span>
-          </div>
-
-          <div class="col-sm-8 py-3">
-            <div class="very-small-caps-bold">
-              {{ $t('label_media_source') }}
-            </div>
-            <div class="d-flex flex-wrap align-items-center gap-1">
-              <MediaSourceLabel
-                :item="{
-                  id: dataset.mediaId,
-                  acronym: dataset.mediaId,
-                  name: dataset.mediaTitle,
-                  type: dataset.media as any
-                }"
-                :showLink="showLink"
-              />
-              <DataProviderLabel
-                :item="{ id: dataset.associatedPartner.toString() }"
-                :showLink="showLink"
-                titleClass="p-0"
-              />
-            </div>
-            <div class="row w-100 pt-2">
-              <div class="col-3 very-small-caps-bold">
-                {{ $t('label_copyright') }}
+        <template v-for="dataset in sortedDatasets" :key="dataset.id">
+          <CorpusOverviewModalItem
+            class="row d-flex align-items-stretch"
+            :dataset="dataset"
+            :userPlan="props.userPlan"
+            :plansLabels="props.plansLabels"
+            @link-clicked="dismiss"
+          >
+            <template #extra>
+              <div class="col-12">
+                <div class="border-bottom border-dark"></div>
               </div>
-              <div class="col-9 very-small-caps-bold">
-                {{ $t('label_minimul_user_plan') }}
-              </div>
-              <div class="col-3 small">
-                {{ dataset.copyright }}
-              </div>
-              <div class="col-3 small">
-                {{ $t('label_minimum_user_plan_explore') }}
-                <div class="small-caps">
-                  {{ plansLabels[dataset.minimumUserPlanRequiredToExploreInWebapp] }}
-                </div>
-              </div>
-              <div class="col-3 small">
-                {{ $t('label_minimum_user_plan_transcripts') }}
-                <div class="small-caps">
-                  {{ plansLabels[dataset.minimumUserPlanRequiredToExportTranscripts] }}
-                </div>
-              </div>
-              <div class="col-3 small">
-                {{ $t('label_minimum_user_plan_illustrations') }}
-                <div class="small-caps">
-                  {{ plansLabels[dataset.minimumUserPlanRequiredToExportIllustration] }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="border-bottom border-dark"></div>
-          </div>
-        </div>
+            </template>
+          </CorpusOverviewModalItem>
+        </template>
       </div>
     </section>
   </Modal>
@@ -165,8 +113,7 @@
     "label_media_medium": "Medium",
     "label_media_outlet": "Media title, media outlet and data partner",
     "label_sort_order": "Order by",
-    "label_copyright": "Copyright",
-    "label_media_source": "Media source",
+
     "label_show_all": "Show all",
     "label_show": "filter by",
     "label_public_domain_only": "Available as Public Domain",
@@ -175,11 +122,9 @@
     "label_facsimile_available_to_me": "Facsimile available to me",
     "label_transcript_not_available_to_me": "Transcript not available to me",
     "label_facsimile_not_available_to_me": "Facsimile not available to me",
-    "label_minimul_user_plan": "Minimum User Plan",
-    "label_minimum_user_plan_explore": "Web App access",
-    "label_minimum_user_plan_transcripts": "Transcript access",
-    "label_minimum_user_plan_illustrations": "Facsimile access",
+
     "selected_label_show_all": "Show all ({total})",
+
     "label_webapp_available_plan-basic": "Available to Basic User in Web App",
     "label_webapp_available_plan-educational": "Available to Student User in Web App",
     "label_webapp_available_plan-researcher": "Available to Academic User in Web App",
@@ -203,12 +148,10 @@
 }
 </i18n>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import LoadingBlock from './LoadingBlock.vue'
 import Dropdown from './layout/Dropdown.vue'
-import MediaSourceLabel from './modules/lists/MediaSourceLabel.vue'
-import DataProviderLabel from './modules/lists/DataProviderLabel.vue'
 import {
   AvailablePlans,
   PlanEducational,
@@ -216,6 +159,7 @@ import {
   PlanImpressoUser,
   PlanResearcher
 } from '@/constants'
+import CorpusOverviewModalItem from './CorpusOverviewModalItem.vue'
 
 export type Dataset = {
   id: string
@@ -340,10 +284,11 @@ const filteredDatasets = computed<Dataset[]>(() => {
   )
 })
 
-const sortedDatasets = computed(() => {
-  if (!props.datasets) return []
-  // console.log('sorting datasets', sortOrder.value)
-  return [...filteredDatasets.value].sort((a, b) => {
+const sortedDatasets = ref<Dataset[]>([])
+
+watchEffect(() => {
+  if (!props.datasets) return
+  sortedDatasets.value = [...filteredDatasets.value].sort((a, b) => {
     if (sortOrder.value === 'timePeriod') {
       return a.startYear - b.startYear
     } else if (sortOrder.value === 'mediaId') {
