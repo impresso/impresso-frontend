@@ -18,7 +18,9 @@
 
     <template #default>
       <div :class="$props.itemsClass" style="min-height: 120px">
-        <LoadingBlock v-if="serviceResponse.status === 'loading'" :height="100" />
+        <slot name="loading" :isLoading="isLoading">
+          <LoadingBlock v-if="isLoading" :height="100" />
+        </slot>
         <div
           v-if="serviceResponse.status === 'success' && serviceResponse.data.length === 0"
           class="p-3"
@@ -238,8 +240,9 @@ watch(
   }
 )
 
+const paramsSignature = computed(() => JSON.stringify(props.params))
 watch(
-  () => props.params,
+  () => paramsSignature.value,
   () => {
     console.debug('[ListOfFindResponseItems] Params changed, refetching:', props.params)
     fetchFindMethod()
