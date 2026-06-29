@@ -3,10 +3,22 @@
     :is-html="true"
     :content="$t(ocrQualityInfo.text, { rating: $n(ocrQualityInfo.rating) })"
     :placement="placement"
-    :shiftOptions="{ padding: -5 }"
+    :offsetOptions="{ mainAxis: 0, crossAxis: 20 }"
+    :shift-options="{ padding: 20 }"
     strategy="fixed"
   >
-    <div class="ContentItemOcrQuality" :style="{ backgroundColor: ocrQualityInfo.color }"></div>
+    <div class="ContentItemOcrQuality very-small cursor-pointer">
+      <span
+        class="px-2 py-1 rounded-md"
+        :style="{ backgroundColor: ocrQualityInfo.color, color: ocrQualityInfo.textColor }"
+      >
+        {{
+          ocrQualityInfo.rating !== 0
+            ? $n(ocrQualityInfo.rating * 100, { maximumFractionDigits: 0 }) + '%'
+            : 'N/A'
+        }}</span
+      >
+    </div>
   </WithTooltip>
 </template>
 
@@ -26,7 +38,7 @@ export interface ContentItemOcrQualityProps {
 const props = withDefaults(defineProps<ContentItemOcrQualityProps>(), {
   goodThreshold: 0.8,
   mediumThreshold: 0.4,
-  placement: 'top'
+  placement: 'left'
 })
 
 const ocrQualityText = {
@@ -56,6 +68,7 @@ const ocrQualityInfo = computed(() => {
       rating: 0,
       key: 'unknown',
       color: 'hsl(0, 0%, 50%)', // Gray
+      textColor: 'hsl(0, 0%, 100%)', // White text for contrast
       text: ocrQualityText.unknown
     }
   }
@@ -80,7 +93,8 @@ const ocrQualityInfo = computed(() => {
   return {
     rating,
     key,
-    color: `hsl(${hue}, 85%, 40%)`, // Using fixed saturation & lightness for accessible contrast
+    color: `hsla(${hue}, 85%, 40%, 0.6)`, // Using fixed saturation & lightness for accessible contrast
+    textColor: 'inherit',
     text: ocrQualityText[key]
   }
 })
@@ -96,17 +110,3 @@ const ocrQualityInfo = computed(() => {
   }
 }
 </i18n>
-<style>
-.ContentItemOcrQuality {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  position: relative;
-}
-.ContentItemOcrQuality > span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-</style>
