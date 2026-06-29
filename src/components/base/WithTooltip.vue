@@ -21,17 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import {
-  arrow,
-  useFloating,
-  autoUpdate,
-  shift,
-  offset
-} from '@floating-ui/vue'
-import type {
-  ShiftOptions,
-  OffsetOptions
-} from '@floating-ui/vue'
+import { arrow, useFloating, autoUpdate, shift, offset } from '@floating-ui/vue'
+import type { ShiftOptions, OffsetOptions } from '@floating-ui/vue'
 import { computed, ref } from 'vue'
 
 export type TooltipPlacement =
@@ -60,6 +51,7 @@ export interface WithTooltipProps {
   shiftOptions?: ShiftOptions
   hideArrow?: boolean
 }
+
 const props = withDefaults(defineProps<WithTooltipProps>(), {
   content: '',
   placement: 'bottom',
@@ -76,15 +68,20 @@ const tooltipRef = ref<HTMLElement | null>(null)
 const anchorRef = ref<HTMLElement | null>(null)
 const floatingArrow = ref<HTMLElement | null>(null)
 
+// Middleware must be a computed ref so it reacts to prop changes.
+// Order matters: offset first (adjusts base position), then shift
+// (clamps to viewport using the already-offset position), then arrow.
+const middleware = computed(() => [
+  offset(props.offsetOptions),
+  shift(props.shiftOptions),
+  arrow({ element: floatingArrow })
+])
+
 const { floatingStyles, middlewareData } = useFloating(anchorRef, tooltipRef, {
   open: isOpen,
   placement: props.placement,
   strategy: props.strategy,
-  middleware: [
-    shift(props.shiftOptions),
-    offset(props.offsetOptions),
-    arrow({ element: floatingArrow })
-  ],
+  middleware,
   whileElementsMounted: autoUpdate
 })
 

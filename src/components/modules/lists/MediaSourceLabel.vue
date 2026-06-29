@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
 })
 
 const cachedItem = computed(() => {
-  if (typeof glob.impressoNewspapers === 'object') {
+  if (typeof glob.impressoNewspapers === 'object' && glob.impressoNewspapers[props.item.id]) {
     return glob.impressoNewspapers[props.item.id]
   }
   return { id: props.item.id, name: props.item.name || props.item.id, type: 'newspaper' }

@@ -9,7 +9,7 @@
         :regions="regions"
       />
     </div>
-    <div>
+    <div class="flex-grow-1">
       <ContentItemCommon
         v-if="props.contentItem"
         :contentItem="props.contentItem"
