@@ -44,7 +44,7 @@
         </div>
       </template>
       <!-- Timeline -->
-      <div class="container-xxl my-3" v-if="mediaSource">
+      <div class="container-xxl my-3" v-if="shouldDisplayTimeline">
         <div class="row">
           <div class="col-12">
             <SearchFacetTimeline
@@ -76,7 +76,10 @@
           </div>
         </div>
       </div>
-      <router-view :mediaSource="mediaSource" />
+      <router-view
+        :mediaSource="mediaSource"
+        :listFilters="[{ type: 'newspaper', q: route.params.media_source_id }]"
+      />
     </i-layout-section>
   </i-layout>
 </template>
@@ -123,6 +126,10 @@ const searchPageLink = computed(() => {
   }
 })
 
+const shouldDisplayTimeline = computed(() => {
+  return mediaSource.value && route.name === Routes.mediaSource.children.overview.name
+})
+
 const isThisMediaSourceInCurrentFilter = computed(() => {
   return props.filters.some(
     filter => filter.type === 'newspaper' && filter.q === mediaSource.value?.id
@@ -143,7 +150,7 @@ const addMediaSourceFilterToSearchPage = computed(() => {
   }
 })
 
-const nestedRoutes = [Routes.mediaSourceMetadata, Routes.mediaSourceOverview]
+const nestedRoutes = Routes.mediaSource.children
 
 const otherTitles = computed(() => {
   if (!Array.isArray(mediaSource.value?.properties)) return ''
@@ -199,7 +206,8 @@ watch(() => route.params.media_source_id, fetchMediaSource, { immediate: true })
     },
     "route": {
       "mediaSourceMetadata": "List of Metadata",
-      "mediaSourceOverview": "Overview"
+      "mediaSourceOverview": "Overview",
+      "mediaSourceContentItems": "List of Content Items"
     },
     "types": {
       "newspaper": "Newspaper",
