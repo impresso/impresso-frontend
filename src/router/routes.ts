@@ -41,16 +41,23 @@ export const Routes = {
   },
   mediaSource: {
     path: '/media-source/:media_source_id',
-    name: 'mediaSource'
+    name: 'mediaSource',
+    children: {
+      contentItems: {
+        path: 'content-items',
+        name: 'mediaSourceContentItems'
+      },
+      metadata: {
+        path: '',
+        name: 'mediaSourceMetadata'
+      },
+      overview: {
+        path: 'overview',
+        name: 'mediaSourceOverview'
+      }
+    }
   },
-  mediaSourceMetadata: {
-    path: '',
-    name: 'mediaSourceMetadata'
-  },
-  mediaSourceOverview: {
-    path: 'overview',
-    name: 'mediaSourceOverview'
-  },
+
   topic: {
     path: '/topics/:topic_id',
     name: 'topic'
