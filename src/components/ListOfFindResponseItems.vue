@@ -74,6 +74,7 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
  * to query the DOM immediately in the handler.
  */
 const emit = defineEmits<{
+  'page-changed': [newPage: number]
   'items-rendered': [items: any[]]
 }>()
 
@@ -147,6 +148,7 @@ const paginationChangePageHandler = (newPage: number) => {
     ...serviceResponse.value.pagination,
     offset: newOffset
   }
+  emit('page-changed', newPage)
   fetchFindMethod()
 }
 

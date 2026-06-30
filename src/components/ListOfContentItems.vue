@@ -8,7 +8,7 @@
     :error-loading-items-message="props.errorLoadingItemsMessage"
     :list-is-empty-message="props.listIsEmptyMessage"
     :items-class="props.itemsClass"
-    @items-rendered="handleItemsRendered"
+    @page-changed="handlePageChanged"
   >
     <template v-slot:header="{ total }">
       <div class="container-xxl d-flex align-items-center justify-content-between gap-3 py-2">
@@ -32,7 +32,8 @@
     </template>
     <template #loading="{ isLoading }">
       <div class="container-xxl" v-if="isLoading">
-        <div ref="itemsContainerRef" class="row my-4">
+        <div ref="topOfListRef" class="pt-4" />
+        <div class="row mb-4">
           <div :class="props.eachItemClass" v-for="n in 12" :key="n" class="mb-4">
             <LoadingBlock :height="200" :animation-delay="n * 0.1" />
           </div>
@@ -42,7 +43,8 @@
     <template #default="{ items, isSuccess }">
       <slot v-bind="{ items, isSuccess }">
         <div class="container-xxl">
-          <div ref="itemsContainerRef" class="row my-4">
+          <div ref="topOfListRef" class="pt-4" />
+          <div class="row mb-4">
             <div class="col-12" v-if="items.length === 0 && isSuccess">
               <Alert type="info" class="border border-info" :closable="false">
                 <span v-html="props.listIsEmptyMessage"></span>
@@ -77,6 +79,7 @@ import type { Filter } from '@/models'
 import { contentItems as contentItemService } from '@/services'
 import type { ServiceFindParams } from '@/services/types'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
 import type { ListOfFindResponseItemsExposed } from '@/components/ListOfFindResponseItems.vue'
 import ContentItem from './modules/lists/ContentItem.vue'
 import Alert from './Alert.vue'
@@ -108,9 +111,9 @@ const emit = defineEmits<{
 
 const orderBy = ref('-date')
 const orderByOptions = ['date', '-date', 'ocrQuality', '-ocrQuality']
+const topOfListRef = ref<HTMLElement | null>(null)
 
 const listOfFindResponseItemsRef = ref<ListOfFindResponseItemsExposed | null>(null)
-
 const listParams = computed<ServiceFindParams>(() => ({
   query: {
     limit: 12,
@@ -119,8 +122,11 @@ const listParams = computed<ServiceFindParams>(() => ({
   }
 }))
 
-const handleItemsRendered = (items: any[]) => {
-  emit('items-rendered', items)
+const { triggerScroll } = useScrollToTop(topOfListRef)
+
+const handlePageChanged = (newPage: number) => {
+  // Handle page change event
+  triggerScroll()
 }
 
 const refresh = async () => {
