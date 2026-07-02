@@ -9,10 +9,12 @@
     :list-is-empty-message="props.listIsEmptyMessage"
     :items-class="props.itemsClass"
     @page-changed="handlePageChanged"
+    @items-rendered="handeItemsRendered"
   >
     <template v-slot:header="{ total }">
       <div class="container-xxl d-flex align-items-center justify-content-between gap-3 py-2">
-        <div v-html="$t('numbers.contentItems', { n: $n(total) }, total)"></div>
+        <div v-if="isSuccess" v-html="$t('numbers.contentItems', { n: $n(total) }, total)" />
+        <div v-else class="text-muted">{{ $t('actions.loading') }}</div>
         <div class="d-flex align-items-center gap-2">
           <div class="small-caps">{{ $t('sortBy') }}</div>
           <i-dropdown
@@ -111,6 +113,8 @@ const emit = defineEmits<{
 
 const orderBy = ref('-date')
 const orderByOptions = ['date', '-date', 'ocrQuality', '-ocrQuality']
+
+const isSuccess = ref(false)
 const topOfListRef = ref<HTMLElement | null>(null)
 
 const listOfFindResponseItemsRef = ref<ListOfFindResponseItemsExposed | null>(null)
@@ -129,6 +133,11 @@ const handlePageChanged = (newPage: number) => {
   triggerScroll()
 }
 
+const handeItemsRendered = (items: any[]) => {
+  isSuccess.value = true
+  emit('items-rendered', items)
+}
+
 const refresh = async () => {
   await listOfFindResponseItemsRef.value?.refresh()
 }
@@ -142,3 +151,14 @@ defineExpose({
   refreshFromFirstPage
 })
 </script>
+<i18n lang="json">
+{
+  "en": {
+    "sortBy": "Sort by",
+    "label_sort_date": "Date (ascending)",
+    "label_sort_-date": "Date (descending)",
+    "label_sort_ocrQuality": "OCR Quality (low first)",
+    "label_sort_-ocrQuality": "OCR Quality (top first)"
+  }
+}
+</i18n>
