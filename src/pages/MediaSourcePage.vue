@@ -1,6 +1,18 @@
 <template>
   <i-layout>
-    <i-layout-section main>
+    <i-layout-section collapsible width="auto">
+      <template #header>
+        <ul class="nav nav-pills mx-2 mt-1">
+          <li class="nav-item active">
+            <span class="nav-link">
+              {{ $t('mediaSource') }}
+            </span>
+          </li>
+        </ul>
+      </template>
+      {{ mediaSource }}
+    </i-layout-section>
+    <i-layout-section main width="auto">
       <template v-slot:header>
         <div class="container-xxl">
           <div class="row">
@@ -8,23 +20,17 @@
               :label="$t('types.' + (mediaSource?.type || ''))"
               :title="title"
               class="w-100"
+              hideBorder
             >
-              <template #actions>
-                <router-link class="btn btn-outline-primary btn-sm" :to="searchPageLink">
-                  {{ $t('actions.searchMore') }}
-                </router-link>
-                <router-link
-                  v-if="!isThisMediaSourceInCurrentFilter"
-                  class="btn btn-outline-primary btn-sm"
-                  :to="addMediaSourceFilterToSearchPage"
-                >
-                  {{ $t('actions.addToCurrentFilters') }}
-                </router-link>
-              </template>
               {{ otherTitles }}
+              <template #actions>
+                <div v-if="mediaSource?.id" class="d-flex gap-2">
+                  <OpenInSearchButton :filters="[{ type: 'newspaper', q: mediaSource.id }]" />
+                </div>
+              </template>
             </PageNavbarHeading>
           </div>
-          <div class="row">
+          <div class="row mt-2">
             <b-tabs pills v-if="mediaSource">
               <template v-slot:tabs-end>
                 <li class="nav-item pl-2" v-for="tab in nestedRoutes" :key="tab.name">
@@ -90,11 +96,10 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { mediaSources as mediaSourcesService } from '@/services'
 import { Filter } from '@/models'
-import { serializeFilters } from '@/logic/filters'
-import { CommonQueryParameters } from '@/router/util'
 
-import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
+import OpenInSearchButton from '@/components/OpenInSearchButton.vue'
 
 const route = useRoute()
 const mediaSource = ref<MediaSource>()
@@ -106,6 +111,13 @@ const props = withDefaults(defineProps<{ filtersWithItems: Filter[]; filters: Fi
   filters: () => []
 })
 
+const nestedRoutes = [
+  Routes.mediaSource.children.overview,
+  Routes.mediaSource.children.metadata,
+  Routes.mediaSource.children.contentItems,
+  Routes.mediaSource.children.firstPages
+]
+
 const timelineFilters = computed<Filter[]>(() => [
   {
     type: 'newspaper',
@@ -113,44 +125,13 @@ const timelineFilters = computed<Filter[]>(() => [
   }
 ])
 
-const serializedFilters = computed(() => {
-  return serializeFilters([{ type: 'newspaper', q: mediaSource.value?.id || '' }])
-})
-
-const searchPageLink = computed(() => {
-  return {
-    name: 'search',
-    query: {
-      [CommonQueryParameters.SearchFilters]: serializedFilters.value
-    }
-  }
-})
-
 const shouldDisplayTimeline = computed(() => {
-  return mediaSource.value && route.name === Routes.mediaSource.children.overview.name
-})
-
-const isThisMediaSourceInCurrentFilter = computed(() => {
-  return props.filters.some(
-    filter => filter.type === 'newspaper' && filter.q === mediaSource.value?.id
+  if (!mediaSource.value) return false
+  return (
+    route.name === Routes.mediaSource.children.overview.name ||
+    route.name === Routes.mediaSource.children.metadata.name
   )
 })
-
-const addMediaSourceFilterToSearchPage = computed(() => {
-  if (isThisMediaSourceInCurrentFilter.value) {
-    return searchPageLink.value
-  }
-  return {
-    name: 'search',
-    query: {
-      [CommonQueryParameters.SearchFilters]: serializeFilters(
-        props.filters.concat([{ type: 'newspaper', q: mediaSource.value?.id || '' }])
-      )
-    }
-  }
-})
-
-const nestedRoutes = Routes.mediaSource.children
 
 const otherTitles = computed(() => {
   if (!Array.isArray(mediaSource.value?.properties)) return ''
