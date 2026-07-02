@@ -135,6 +135,8 @@ const tooltip = ref<{
 })
 const timeline = ref<TimelineInstance | null>(null)
 let timelineTimer: ReturnType<typeof setTimeout> | null = null
+let resizeObserver: ResizeObserver | null = null
+let resizeRaf: number | null = null
 
 const heightVal = computed(() => {
   if (typeof props.height === 'string') return props.height
@@ -148,10 +150,6 @@ function moveTooltip(data: TimelineInteractionPayload): void {
     y: data.pointer.y - 50,
     item: data.datum
   }
-}
-
-function onResize(): void {
-  timeline.value?.resize()
 }
 
 function forceTimelineUpdate(): void {
@@ -254,11 +252,34 @@ onMounted(() => {
     emit('clear-selection')
   })
 
-  window.addEventListener('resize', onResize)
+  // Watch the container itself rather than the window, so the chart
+  // stays responsive to layout/container changes (sidebar toggles,
+  // flex/grid reflow, parent resizing), not just viewport resizes.
+  if (timelineEl.value) {
+    resizeObserver = new ResizeObserver(() => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf)
+      resizeRaf = requestAnimationFrame(() => {
+        timeline.value?.resize()
+        forceTimelineUpdate() // re-applies dimensions and calls draw()
+      })
+    })
+    resizeObserver.observe(timelineEl.value)
+  }
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', onResize)
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
+  if (resizeRaf) {
+    cancelAnimationFrame(resizeRaf)
+    resizeRaf = null
+  }
+  if (timelineTimer) {
+    clearTimeout(timelineTimer)
+    timelineTimer = null
+  }
 })
 
 watch(
