@@ -25,6 +25,9 @@ export const useSearchQueriesStore = defineStore('searchQueries', {
       return (hash: string): SearchQueryHashEntry | undefined => {
         return state.entries.find(entry => entry.hash === hash)
       }
+    },
+    latest(state): SearchQueryHashEntry | undefined {
+      return state.entries[0]
     }
   },
   actions: {
