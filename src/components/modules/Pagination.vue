@@ -2,15 +2,12 @@
   <div class="Pagination" :class="{ 'dark-mode': props.darkMode }">
     <ul
       class="pagination b-pagination m-0"
-      :class="{
-        [`pagination-${props.size}`]: props.size != null
-      }"
+      :class="{ [`pagination-${props.size}`]: props.size }"
       role="menubar"
       aria-disabled="false"
       aria-label="Pagination"
       data-testid="pagination-container"
     >
-      <!-- Go to first page -->
       <li
         role="presentation"
         :aria-hidden="isFirstPage"
@@ -25,12 +22,9 @@
           aria-label="Go to first page"
           >«</span
         >
-        <button v-else role="menuitem" type="button" class="page-link" @click="goToFirst()">
-          «
-        </button>
+        <button v-else role="menuitem" type="button" class="page-link" @click="goToFirst">«</button>
       </li>
 
-      <!-- Go to previous page -->
       <li
         role="presentation"
         :aria-hidden="isFirstPage"
@@ -45,17 +39,13 @@
           aria-label="Go to previous page"
           >‹</span
         >
-        <button v-else role="menuitem" type="button" class="page-link" @click="incrementPage(1)">
-          ‹
-        </button>
+        <button v-else role="menuitem" type="button" class="page-link" @click="prevPage">‹</button>
       </li>
 
-      <!-- Ellipsis before -->
       <li v-if="showEllipsisBefore" role="separator" class="page-item disabled">
         <span class="page-link">…</span>
       </li>
 
-      <!-- visible pages -->
       <li
         v-for="page in visiblePages"
         :key="page.number"
@@ -70,21 +60,19 @@
           :aria-label="`Go to page ${page.number}`"
           :aria-checked="page.isCurrent"
           :aria-posinset="page.number"
-          aria-setsize="254"
-          :tabindex="page.isCurrent ? 1 : -1"
+          :aria-setsize="totalPages"
+          :tabindex="page.isCurrent ? 0 : -1"
           class="page-link"
           @click="goToPage(page.number)"
         >
-          {{ page.number }}
+          {{ $n(page.number) }}
         </button>
       </li>
 
-      <!-- Ellipsis after -->
       <li v-if="showEllipsisAfter" role="separator" class="page-item disabled">
         <span class="page-link">…</span>
       </li>
 
-      <!-- Go to next page -->
       <li
         role="presentation"
         :aria-hidden="isLastPage"
@@ -99,12 +87,9 @@
           aria-label="Go to next page"
           >›</span
         >
-        <button v-else role="menuitem" type="button" class="page-link" @click="incrementPage(-1)">
-          ›
-        </button>
+        <button v-else role="menuitem" type="button" class="page-link" @click="nextPage">›</button>
       </li>
 
-      <!-- Go to last page -->
       <li
         role="presentation"
         :aria-hidden="isLastPage"
@@ -116,12 +101,10 @@
           role="menuitem"
           aria-disabled="true"
           class="page-link"
-          aria-label="Go to first page"
+          aria-label="Go to last page"
           >»</span
         >
-        <button v-else role="menuitem" type="button" class="page-link" @click="goToLast()">
-          »
-        </button>
+        <button v-else role="menuitem" type="button" class="page-link" @click="goToLast">»</button>
       </li>
     </ul>
   </div>
@@ -130,87 +113,93 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps({
-  darkMode: Boolean,
-  size: {
-    type: String,
-    default: 'md'
-  },
-  perPage: {
-    // number of pages visible at a time
-    type: Number,
-    default: 1
-  },
-  currentPage: {
-    type: Number,
-    default: 1
-  },
-  totalRows: {
-    type: Number,
-    default: 1
-  },
-  visiblePagesCount: {
-    type: Number,
-    default: 4
+// 1. Clean TypeScript Interfaces for Props
+interface Props {
+  darkMode?: boolean
+  size?: 'sm' | 'md' | 'lg'
+  perPage?: number
+  currentPage?: number
+  totalRows?: number
+  visiblePagesCount?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  darkMode: false,
+  size: 'md',
+  perPage: 1,
+  currentPage: 1,
+  totalRows: 1,
+  visiblePagesCount: 4
+})
+
+// 2. Strict Type Emits
+const emit = defineEmits<{
+  (e: 'change', page: number): void
+}>()
+
+// 3. Simple Intermediary Write Handler
+const updatePage = (value: number) => {
+  if (value >= 1 && value <= totalPages.value) {
+    emit('change', value)
   }
-})
+}
 
-const emit = defineEmits(['change'])
+const totalPages = computed(() => Math.max(1, Math.ceil(props.totalRows / props.perPage)))
 
-const currentPage = computed({
-  get: () => props.currentPage,
-  set: value => emit('change', value)
-})
+const isFirstPage = computed(() => props.currentPage <= 1)
+const isLastPage = computed(() => props.currentPage >= totalPages.value)
 
-const totalPages = computed(() => Math.ceil(props.totalRows / props.perPage))
-
-const isFirstPage = computed(() => currentPage.value === 1)
-const isLastPage = computed(() => currentPage.value === totalPages.value)
-
+// 4. Fixed Slider Window Logic
 const visiblePages = computed(() => {
-  const halfVisiblePages = Math.floor(props.visiblePagesCount / 2)
+  let start = Math.max(1, props.currentPage - Math.floor(props.visiblePagesCount / 2))
+  let end = start + props.visiblePagesCount - 1
 
-  const firstVisiblePage = Math.max(currentPage.value - halfVisiblePages, 1)
-  const lastVisiblePage = Math.min(firstVisiblePage + props.visiblePagesCount - 1, totalPages.value)
+  if (end > totalPages.value) {
+    end = totalPages.value
+    start = Math.max(1, end - props.visiblePagesCount + 1)
+  }
 
-  return Array.from({ length: lastVisiblePage - firstVisiblePage + 1 }, (_, i) => {
-    const number = firstVisiblePage + i
+  return Array.from({ length: end - start + 1 }, (_, i) => {
+    const number = start + i
     return {
       number,
-      isCurrent: number === currentPage.value
+      isCurrent: number === props.currentPage
     }
   })
 })
 
 const showEllipsisBefore = computed(() => {
-  if (visiblePages.value.length === 0) return false
-  return visiblePages.value[0].number > 1
+  return visiblePages.value.length > 0 && visiblePages.value[0].number > 1
 })
+
 const showEllipsisAfter = computed(() => {
-  if (visiblePages.value.length === 0) return false
-  return visiblePages.value[visiblePages.value.length - 1].number < totalPages.value
+  return (
+    visiblePages.value.length > 0 &&
+    visiblePages.value[visiblePages.value.length - 1].number < totalPages.value
+  )
 })
 
-const goToPage = (page: number) => {
-  currentPage.value = page
-}
-
-const incrementPage = (inc: number) => {
-  if (currentPage.value - inc < 1 || currentPage.value - inc > totalPages.value) return
-  currentPage.value -= inc
-}
-
-const goToFirst = () => {
-  currentPage.value = 1
-}
-
-const goToLast = () => {
-  currentPage.value = totalPages.value
-}
+// 5. Clean Action Methods
+const goToPage = (page: number) => updatePage(page)
+const nextPage = () => updatePage(props.currentPage + 1)
+const prevPage = () => updatePage(props.currentPage - 1)
+const goToFirst = () => updatePage(1)
+const goToLast = () => updatePage(totalPages.value)
 </script>
 
 <style>
-.dark-mode {
+/* Ensure layout container naturally renders as a flex row item */
+.Pagination {
+  display: inline-block;
+}
+
+.Pagination .pagination {
+  display: flex;
+  list-style: none;
+  padding-left: 0;
+}
+
+.Pagination.dark-mode {
   background: transparent;
 }
 
@@ -220,20 +209,32 @@ const goToLast = () => {
     rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 }
-.Pagination .pagination li.page-item > a,
+
 .Pagination .pagination li.page-item > .page-link {
-  padding: var(--spacing-1) var(--spacing-2);
-  background-color: var(--clr-white);
+  display: block;
+  text-decoration: none;
+  border: 1px solid var(--clr-grey-200, #dee2e6);
+  cursor: pointer;
+  padding: var(--spacing-1, 0.375rem) var(--spacing-2, 0.75rem);
+  background-color: var(--clr-white, #fff);
 }
+
+.Pagination .pagination li.page-item.disabled > .page-link {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .Pagination .pagination li.page-item.active > .page-link {
-  background-color: var(--impresso-color-black);
+  background-color: var(--impresso-color-black, #000);
+  color: #fff;
 }
+
+/* Background contexts variations mapping */
 .bg-dark .Pagination .pagination {
   border: 1px solid var(--clr-grey-200);
   border-radius: var(--impresso-border-radius-xs);
   overflow: hidden;
 }
-.bg-dark .Pagination .pagination li.page-item > a,
 .bg-dark .Pagination .pagination li.page-item > .page-link {
   background-color: var(--impresso-color-black);
   color: var(--clr-grey-400);
