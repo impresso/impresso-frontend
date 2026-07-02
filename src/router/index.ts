@@ -551,6 +551,14 @@ const router = createRouter({
           meta: {
             requiresAuth: false
           }
+        },
+        {
+          path: Routes.mediaSource.children.firstPages.path,
+          name: Routes.mediaSource.children.firstPages.name,
+          component: () => import('@/components/mediaSource/MediaSourceFirstPages.vue'),
+          meta: {
+            requiresAuth: false
+          }
         }
       ]
     },

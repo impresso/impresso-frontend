@@ -54,6 +54,10 @@ export const Routes = {
       overview: {
         path: 'overview',
         name: 'mediaSourceOverview'
+      },
+      firstPages: {
+        path: 'first-pages',
+        name: 'mediaSourceFirstPages'
       }
     }
   },
