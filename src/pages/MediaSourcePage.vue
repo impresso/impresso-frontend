@@ -5,19 +5,89 @@
         <ul class="nav nav-pills mx-2 mt-1">
           <li class="nav-item active">
             <span class="nav-link">
-              {{ $t('mediaSource') }}
+              {{ $t('mediaSources') }}
             </span>
           </li>
         </ul>
       </template>
-      {{ mediaSource }}
+
+      <ListOfFindResponseItems
+        :service="mediaSourcesService"
+        :params="listParams"
+        :list-is-empty-message="$t('no_media_sources')"
+      >
+        <template #header="{ total, isLoading }">
+          <div class="p-3">
+            <form @submit.prevent="handleSubmitSuggestionQuery">
+              <div class="input-group">
+                <b-form-input
+                  class="border border-dark"
+                  :style="{
+                    'border-top-left-radius': 'var(--border-radius-sm)',
+                    'border-bottom-left-radius': 'var(--border-radius-sm)',
+                    'background-color': 'transparent',
+                    'box-shadow': 'var(--bs-box-shadow-sm)',
+                    color: 'var(--impresso-color-black)'
+                  }"
+                  v-model.trim="suggestionQuery"
+                  :placeholder="$t('label_filter_media_sources')"
+                />
+                <div class="input-group-append">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    :title="$t('placeholder.search')"
+                    @click="handleSubmitSuggestionQuery"
+                    :disabled="isLoading"
+                  >
+                    search
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="d-flex justify-content-between align-items-center px-3 pb-3">
+            <h5
+              class="m-0 font-size-inherit"
+              v-html="$t('numbers.mediaSources', { n: $n(total || 0) }, total || 0)"
+            ></h5>
+            <div class="d-flex align-items-center gap-2">
+              <b-dropdown size="sm" variant="outline-primary" right>
+                <template #button-content>
+                  {{ $t(`sort_${orderBy}`) }}
+                </template>
+                <b-dropdown-item
+                  v-for="value in OrderByOptions"
+                  :key="value"
+                  @click="orderBy = value"
+                >
+                  {{ $t(`sort_${value}`) }}
+                </b-dropdown-item>
+              </b-dropdown>
+            </div>
+          </div>
+        </template>
+        <template #default="{ items = [], isSuccess }">
+          <div ref="sidebarItemsContainerRef">
+            <MediaSourceItem
+              v-for="item in items"
+              show-type
+              show-medium
+              :mediaSourceItem="item"
+              :key="item.id"
+              class="m-3 p-2 rounded-md border shadow-sm mb-4"
+              :class="{ 'border-dark': item.id === mediaSource.id }"
+            />
+          </div>
+        </template>
+      </ListOfFindResponseItems>
     </i-layout-section>
     <i-layout-section main width="auto">
       <template v-slot:header>
         <div class="container-xxl">
           <div class="row">
             <PageNavbarHeading
-              :label="$t('types.' + (mediaSource?.type || ''))"
+              :label="$t('buckets.sourceType.' + (mediaSource?.type || ''))"
               :title="title"
               class="w-100"
               hideBorder
@@ -100,23 +170,35 @@ import { Filter } from '@/models'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import OpenInSearchButton from '@/components/OpenInSearchButton.vue'
+import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import MediaSourceItem from '@/components/modules/lists/MediaSourceItem.vue'
 
 const route = useRoute()
+
 const mediaSource = ref<MediaSource>()
 const loading = ref(true)
 const error = ref(false)
+const OrderByOptions = ['name', '-name', 'firstIssue', '-firstIssue', 'lastIssue', '-lastIssue']
+const OrderByDefault = 'name'
+const orderBy = ref(OrderByDefault)
 
 const props = withDefaults(defineProps<{ filtersWithItems: Filter[]; filters: Filter[] }>(), {
   filtersWithItems: () => [],
   filters: () => []
 })
 
-const nestedRoutes = [
-  Routes.mediaSource.children.overview,
-  Routes.mediaSource.children.metadata,
-  Routes.mediaSource.children.contentItems,
-  Routes.mediaSource.children.firstPages
-]
+const nestedRoutes = computed(() => {
+  const baseRoutes: (typeof Routes.mediaSource.children)[keyof typeof Routes.mediaSource.children][] =
+    [
+      Routes.mediaSource.children.overview,
+      Routes.mediaSource.children.metadata,
+      Routes.mediaSource.children.contentItems
+    ]
+  if (mediaSource.value?.type === 'newspaper') {
+    baseRoutes.push(Routes.mediaSource.children.firstPages)
+  }
+  return baseRoutes
+})
 
 const timelineFilters = computed<Filter[]>(() => [
   {
@@ -162,6 +244,21 @@ const title = computed(() => {
   )
 })
 
+const listParams = computed(() => ({
+  query: {
+    limit: 50,
+    offset: 0,
+    order_by: orderBy.value,
+    term: searchQuery.value ? searchQuery.value : undefined
+  }
+}))
+
+const suggestionQuery = ref('')
+const searchQuery = ref('')
+const handleSubmitSuggestionQuery = async () => {
+  searchQuery.value = suggestionQuery.value
+}
+
 async function fetchMediaSource(): Promise<MediaSource | void> {
   loading.value = true
   error.value = false
@@ -180,7 +277,15 @@ watch(() => route.params.media_source_id, fetchMediaSource, { immediate: true })
 <i18n lang="json">
 {
   "en": {
-    "mediaSource": "Media Source",
+    "label_filter_media_sources": "Search media sources",
+    "no_media_sources": "No media sources found",
+    "mediaSources": "Media Sources",
+    "sort_name": "order by name, A-Z",
+    "sort_-name": "order by name, Z-A",
+    "sort_firstIssue": "order by first pub., asc",
+    "sort_-firstIssue": "order by first pub., desc",
+    "sort_lastIssue": "order by last pub., asc",
+    "sort_-lastIssue": "order by last pub., desc",
     "contentItemOverTime": {
       "title": "Content items over time",
       "description": "Number of content items associated with this media source over time"
@@ -188,18 +293,8 @@ watch(() => route.params.media_source_id, fetchMediaSource, { immediate: true })
     "route": {
       "mediaSourceMetadata": "List of Metadata",
       "mediaSourceOverview": "Overview",
-      "mediaSourceContentItems": "List of Content Items"
-    },
-    "types": {
-      "newspaper": "Newspaper",
-      "periodical": "Periodical",
-      "book": "Book",
-      "manuscript": "Manuscript",
-      "map": "Map",
-      "photograph": "Photograph",
-      "audioRecording": "Audio Recording",
-      "videoRecording": "Video Recording",
-      "other": "Other"
+      "mediaSourceContentItems": "List of Content Items",
+      "mediaSourceFirstPages": "List of First Pages"
     }
   }
 }
