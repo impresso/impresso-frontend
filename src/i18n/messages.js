@@ -36,7 +36,7 @@ export default {
         'no-type': 'No type provided'
       },
       sourceType: {
-        newspaper: 'newspapers',
+        newspaper: 'newspaper',
         radio: 'radio',
         radio_broadcast: 'radio broadcast'
       },
@@ -231,7 +231,8 @@ export default {
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
-
+      mediaSources:
+        'no media sources | <span class="number">1</span> media source | <span class="number">{n}</span> media sources',
       articles:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articlesInCommon:
@@ -239,9 +240,9 @@ export default {
       images:
         'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
       pages:
-        'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+        'no pages | <span class="number">1</span> page | <span class="number">{n}</span> pages',
       issues:
-        'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
+        'no issues | <span class="number">1</span> issue | <span class="number">{n}</span> issues',
       results:
         'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       resultsPercent: '<span class="number">{n}</span>%',

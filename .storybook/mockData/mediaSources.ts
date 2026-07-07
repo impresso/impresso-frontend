@@ -4,6 +4,7 @@ export const MockMediaSources: MediaSource[] = [
   {
     id: 'waeschfra',
     type: 'newspaper',
+    medium: 'print',
     name: "D'Wäschfra",
     languageCodes: ['fr', 'de', 'lb'],
     availableDatesRange: ['1868-05-16T00:00:00.000Z', '1884-07-05T00:00:00.000Z'],
@@ -31,6 +32,7 @@ export const MockMediaSources: MediaSource[] = [
 export const GDL: MediaSource = {
   id: 'tageblatt',
   type: 'newspaper',
+  medium: 'print',
   name: 'Escher Tageblatt',
   languageCodes: ['fr', 'de', 'lb'],
   availableDatesRange: ['1913-06-30T00:00:00.000Z', '1950-12-30T00:00:00.000Z'],
@@ -150,6 +152,7 @@ export const GDL: MediaSource = {
 export const JDG: MediaSource = {
   id: 'JDG',
   type: 'newspaper',
+  medium: 'print',
   name: 'Journal de Geneve',
   publishedPeriodYears: [1826, 1828],
   availableDatesRange: ['1826-01-02', '1828-11-30'],
@@ -165,6 +168,7 @@ export const JDG: MediaSource = {
 export const Fronde: MediaSource = {
   id: 'Fronde',
   type: 'newspaper',
+  medium: 'print',
   name: 'La Fronde',
   publishedPeriodYears: [1872, 1872],
   availableDatesRange: ['1872-03-17T00:00:00.000Z', '1872-12-25T00:00:00.000Z'],
@@ -181,4 +185,19 @@ export const Fronde: MediaSource = {
       id: 'countryCode'
     }
   ]
+}
+
+export const BQGA: MediaSource = {
+  id: 'BQGA',
+  type: 'newspaper',
+  medium: 'print',
+  name: 'Bridlington and Quay Gazette',
+  languageCodes: ['en'],
+  availableDatesRange: ['1877-01-06T00:00:00.000Z', '1899-12-29T00:00:00.000Z'],
+  publishedPeriodYears: [1877, 1914],
+  totals: {
+    articles: 78618,
+    issues: 992,
+    pages: 4688
+  }
 }

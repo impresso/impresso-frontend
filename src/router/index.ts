@@ -524,7 +524,7 @@ const router = createRouter({
     },
     {
       path: Routes.mediaSource.path,
-      component: () => import('@/pages/MediaSource.vue'),
+      component: () => import('@/pages/MediaSourcePage.vue'),
       name: Routes.mediaSource.name,
       meta: {
         requiresAuth: false
@@ -532,14 +532,30 @@ const router = createRouter({
 
       children: [
         {
-          path: Routes.mediaSourceMetadata.path,
+          path: Routes.mediaSource.children.metadata.path,
           component: () => import('@/components/mediaSource/MediaSourceMetadata.vue'),
-          name: Routes.mediaSourceMetadata.name
+          name: Routes.mediaSource.children.metadata.name
         },
         {
-          path: Routes.mediaSourceOverview.path,
-          name: Routes.mediaSourceOverview.name,
+          path: Routes.mediaSource.children.overview.path,
+          name: Routes.mediaSource.children.overview.name,
           component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.contentItems.path,
+          name: Routes.mediaSource.children.contentItems.name,
+          component: () => import('@/components/ListOfContentItems.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.firstPages.path,
+          name: Routes.mediaSource.children.firstPages.name,
+          component: () => import('@/components/mediaSource/MediaSourceFirstPages.vue'),
           meta: {
             requiresAuth: false
           }

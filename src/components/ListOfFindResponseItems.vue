@@ -18,7 +18,9 @@
 
     <template #default>
       <div :class="$props.itemsClass" style="min-height: 120px">
-        <LoadingBlock v-if="serviceResponse.status === 'loading'" :height="100" />
+        <slot name="loading" :isLoading="isLoading">
+          <LoadingBlock v-if="isLoading" :height="100" />
+        </slot>
         <div
           v-if="serviceResponse.status === 'success' && serviceResponse.data.length === 0"
           class="p-3"
@@ -72,6 +74,7 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
  * to query the DOM immediately in the handler.
  */
 const emit = defineEmits<{
+  'page-changed': [newPage: number]
   'items-rendered': [items: any[]]
 }>()
 
@@ -145,6 +148,7 @@ const paginationChangePageHandler = (newPage: number) => {
     ...serviceResponse.value.pagination,
     offset: newOffset
   }
+  emit('page-changed', newPage)
   fetchFindMethod()
 }
 
@@ -238,8 +242,9 @@ watch(
   }
 )
 
+const paramsSignature = computed(() => JSON.stringify(props.params))
 watch(
-  () => props.params,
+  () => paramsSignature.value,
   () => {
     console.debug('[ListOfFindResponseItems] Params changed, refetching:', props.params)
     fetchFindMethod()

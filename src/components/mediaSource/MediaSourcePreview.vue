@@ -13,7 +13,7 @@
       >{{ ' ' }}
       <router-link
         :to="{
-          name: Routes.mediaSourceMetadata.name,
+          name: Routes.mediaSource.children.metadata.name,
           params: { media_source_id: item.id }
         }"
         @click="emit('more')"

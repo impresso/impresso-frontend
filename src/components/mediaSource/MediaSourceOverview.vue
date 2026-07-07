@@ -1,5 +1,5 @@
 <template>
-  <div class="MediaSourceOverview" v-if="props.mediaSource">
+  <div class="MediaSourceOverview container-xxl" v-if="props.mediaSource">
     <ListOfSearchFacetsStackedBars
       :facet-types="['type', 'language', 'person', 'location', 'topic', 'organisation', 'nag']"
       :filters="filters"
