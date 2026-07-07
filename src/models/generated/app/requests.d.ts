@@ -66,6 +66,40 @@ export interface AuthenticationCreateRequest {
 
 
 /**
+ * Request payload for POST /tools/filters/serialize
+ */
+export interface FilterSerializationRequest {
+  /**
+   * A list of Impresso search filters.
+   */
+  filters: Filter[];
+}
+/**
+ * A single search filter criteria
+ */
+export interface Filter {
+  context?: "include" | "exclude";
+  op?: "AND" | "OR";
+  /**
+   * Possible values are in 'impresso-jscomons Filter.type'
+   */
+  type: string;
+  precision?: "fuzzy" | "soft" | "exact" | "partial";
+  q?: string | string[];
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  daterange?: string;
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  uids?: string;
+}
+
+
+/**
  * Body of a request to the Impresso Image Embedding endpoint
  */
 export interface ImpressoImageEmbeddingRequest {
