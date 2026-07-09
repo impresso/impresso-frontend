@@ -560,6 +560,18 @@ export default {
         description: 'check one or more media sources to filter results',
         empty: '(no results)'
       },
+      mediaSource: {
+        title: 'Media Source | Media Source | Media Sources',
+        filterTitle: 'media source',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> media sources',
+        description: 'check one or more media sources to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'published in selected media sources',
+          exclude: 'published in <b>NOT</b> selected media sources'
+        }
+      },
       partner: {
         title: 'Data Provider | Data Provider | Data Providers',
         filterTitle: 'provider',

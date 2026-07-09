@@ -138,7 +138,7 @@ export const containsFilter = expectedFilter => filter => {
 
 export const TextContentItemFacets = [
   'language',
-  'newspaper', // should be mediaSource eventually
+  'mediaSource',
   'type',
   'country',
   'partner',

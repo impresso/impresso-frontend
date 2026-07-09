@@ -861,6 +861,7 @@ const IconAliases: Record<string, string> = {
   year: 'timer',
   month: 'timer',
   newspaper: 'journal',
+  mediaSource: 'journal',
   type: 'label',
   country: 'position',
   person: 'cubeDots',

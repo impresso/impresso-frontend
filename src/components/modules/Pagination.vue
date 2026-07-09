@@ -114,7 +114,7 @@
 import { computed } from 'vue'
 
 // 1. Clean TypeScript Interfaces for Props
-interface Props {
+export interface Props {
   darkMode?: boolean
   size?: 'sm' | 'md' | 'lg'
   perPage?: number
