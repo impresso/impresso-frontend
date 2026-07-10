@@ -80,8 +80,8 @@
             </ellipsis>
             <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-2" v-if="!similarToImage">
-            <label class="mr-1">{{ $t('label_order') }}</label>
+          <b-navbar-nav class="ml-auto pl-2 align-items-center" v-if="!similarToImage">
+            <label class="mr-1 mb-0 text-nowrap">{{ $t('label_order') }}</label>
             <i-dropdown
               v-model="orderBy"
               :options="translatedOrderByOptions"
@@ -90,8 +90,8 @@
               class="pl-1"
             />
           </b-navbar-nav>
-          <b-navbar-nav class="ml-auto pl-2" v-else>
-            <label class="mr-1">{{ $t('label_order') }}</label>
+          <b-navbar-nav class="ml-auto pl-2 align-items-center" v-else>
+            <label class="mr-1 mb-0 text-nowrap">{{ $t('label_order') }}</label>
             <b class="small-caps font-weight-bold">{{ $t('sort_by_similarity') }}</b>
           </b-navbar-nav>
         </b-navbar>
