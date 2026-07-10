@@ -8,10 +8,15 @@ import SourcesOverviewTimeline, {
 import { buildEmptyFacets, SearchDecimalFacetTypes, SearchDynamicFacetTypes } from '@/logic/facets'
 import { serializeFilters, SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
 import FacetModel from '@/models/Facet'
-import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
+import {
+  searchFacets as searchFacetsService,
+  stats as statsService,
+  filtersItems as filterItemsService
+} from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
+import type { MediaSource } from '@/models/generated/canonical'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
@@ -52,7 +57,7 @@ const allowedFiltersWithItems = computed(() => {
   )
 })
 const dateRangeBounds = computed<{ min: Date; max: Date }>(() => {
-  const allDates: Date[] = dataValues.value.flatMap((dv: DataValue) => dv.dateRange)
+  const allDates: Date[] = dataValues.value.flatMap((dv: DataValue<MediaSource>) => dv.dateRange)
   return allDates.reduce(
     (bounds: { min: Date; max: Date }, date: Date) => ({
       min: date < bounds.min ? date : bounds.min,
@@ -67,7 +72,7 @@ const maxEndDate = computed(() => dateRangeBounds.value.max)
 
 const totalContentItems = computed(() => dataValues.value.reduce((sum, dv) => sum + dv.value, 0))
 const facets = ref([])
-const dataValues = ref<DataValue[]>([])
+const dataValues = ref<DataValue<MediaSource>[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
 const settingsStore = useSettingsStore()
@@ -138,16 +143,36 @@ watch(
     facets.value = [...timelineFacets, ...dynamicFacets, ...decimalRangeFacets, ...facetsItems]
     const statsItems = await statsService.find({
       query: {
-        facet: 'newspaper',
+        facet: 'mediaSource',
         domain: 'time',
         index: 'search',
         filters: serializeFilters(newVal)
       }
     })
+    // for each Media Source, get the item fom filter itm service to be used in the timeline
+    const mediaSourceIds = Object.keys(statsItems.itemsDictionary)
+    const mediaSources = await filterItemsService
+      .find({
+        query: { filters: serializeFilters([{ type: 'mediaSource', q: mediaSourceIds }]) }
+      })
+      .then(({ filtersWithItems }) => {
+        if (Array.isArray(filtersWithItems) && filtersWithItems.length > 0) {
+          return filtersWithItems[0].items || []
+        }
+        return []
+      })
 
-    const dataValuesByMediaSourceId: Record<string, DataValue[]> = statsItems.items.reduce(
+    const mediaSourcesById = mediaSources.reduce(
+      (acc: Record<string, MediaSource>, item: MediaSource) => {
+        acc[item.id] = item
+        return acc
+      },
+      {} as Record<string, MediaSource>
+    )
+
+    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> = statsItems.items.reduce(
       (
-        acc: Record<string, DataValue[]>,
+        acc: Record<string, DataValue<MediaSource>[]>,
         d: {
           domain: string
           value: {
@@ -174,15 +199,16 @@ watch(
             endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
           }
           acc[item.term].push({
+            id: `${item.term}-${d.domain}`,
             date: startDate,
             dateRange: [startDate, endDate],
             value: item.count,
             label: item.term
-          } as DataValue)
+          } as DataValue<MediaSource>)
         })
         return acc
       },
-      {} as Record<string, DataValue[]>
+      {} as Record<string, DataValue<MediaSource>[]>
     )
 
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
@@ -197,11 +223,14 @@ watch(
         dateRange: [minDate, maxDate],
         value: totalValue,
         label,
+        item: mediaSourcesById[mediaSourceId],
         dataValues: values
-      } as DataValue
+      } as DataValue<MediaSource>
     })
     totalResults.value = dataValues.value.length
     isLoading.value = false
+
+    // Lading
   },
   { immediate: true }
 )
@@ -331,6 +360,14 @@ onMounted(() => {
                 group-by="articles"
                 :search-query="{ filters: allowedFiltersWithItems }"
                 :totalRows="totalContentItems"
+                v-memo="[
+                  isLoading,
+                  totalContentItems,
+                  totalResults,
+                  minStartDate?.getTime?.(),
+                  maxEndDate?.getTime?.(),
+                  allowedFiltersWithItems
+                ]"
               >
                 <template #beforeSummary>
                   <div v-if="isLoading">Loading...</div>

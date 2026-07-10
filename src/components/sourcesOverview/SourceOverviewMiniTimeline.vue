@@ -40,7 +40,7 @@ import type { DataValue } from './SourcesOverviewDateValueItem.vue'
 export interface Props {
   startDate: Date
   endDate: Date
-  dataValues: DataValue[]
+  dataValues: DataValue<MediaSource>[]
   containerWidth: number
   height?: number
   scaleExponent?: number
