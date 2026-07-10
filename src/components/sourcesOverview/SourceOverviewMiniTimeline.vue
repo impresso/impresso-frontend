@@ -36,7 +36,7 @@
 import { computed } from 'vue'
 import * as d3 from 'd3'
 import type { DataValue } from './SourcesOverviewDateValueItem.vue'
-
+import type { MediaSource } from '@/models/generated/canonical'
 export interface Props {
   startDate: Date
   endDate: Date
