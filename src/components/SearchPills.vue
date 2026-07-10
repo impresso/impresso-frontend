@@ -363,7 +363,7 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
       'language',
       'country',
       'type',
-      'accessRight',
+      'copyright',
       'copyright',
       'dataDomain',
       'partner',

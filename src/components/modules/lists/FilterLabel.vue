@@ -161,7 +161,6 @@ const filterItems = computed<FilterLabelItem[]>(() => {
     "include": {
       "sourceType": "in",
       "sourceMedium": "medium is",
-      "accessRight": "available as",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "ocrQuality": "with OCR quality between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "copyright": "©",
@@ -200,7 +199,6 @@ const filterItems = computed<FilterLabelItem[]>(() => {
     "exclude": {
       "sourceMedium": "not",
       "sourceType": "not in",
-      "accessRight": "not available as",
       "contentLength": "textual content not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
       "ocrQuality": "with OCR quality not between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "isFront": "not appearing on the <em>front page</em>",

@@ -92,10 +92,13 @@ const audioSrc = computed(() => {
     },
     "providedBy": "Provided by",
     "buckets": {
-      "accessRight": {
-        "public": "Public",
+      "copyright": {
+        "pbl": "Public",
         "in_cpy": "Restricted",
-        "private": "Private"
+        "euo": "Private",
+        "unk": "Unknown",
+        "und": "Undetermined",
+        "nkn": "Not known"
       }
     }
   }

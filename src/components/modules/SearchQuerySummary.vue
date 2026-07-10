@@ -47,7 +47,6 @@ const AvailableFilterTypes = [
   'location',
   'language',
   'country',
-  'accessRight',
   'copyright',
   'nag',
   'organisation',
@@ -81,7 +80,7 @@ const props = withDefaults(defineProps<SearchQuerySummaryProps>(), {
     'language',
     'country',
     'year',
-    'accessRight',
+    'copyright',
     'nag'
   ]
 })
