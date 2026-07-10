@@ -78,7 +78,8 @@ export default {
         cy: 'Welsh',
         'n/a': 'Undefined language',
         nl: 'Dutch',
-        undefined: 'Undefined language'
+        undefined: 'Undefined language',
+        no_lg: 'Undefined language'
       },
       copyright: {
         in_cpy: 'in copyright',
@@ -121,6 +122,7 @@ export default {
     actions: {
       addToCollection: 'Save to Collection ...',
       search: 'Search',
+      exploreInMediaSource: 'Explore this Media Source ...',
       downloadMetadataAsCSV: 'Download metadata as CSV',
       confirm: 'confirm',
       register: 'Create account',
