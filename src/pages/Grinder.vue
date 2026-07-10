@@ -4,6 +4,9 @@
       <div class="col-12">
         <h1 class="mb-3">{{ $t('grinder.title') }}</h1>
         <p class="text-muted">{{ $t('grinder.subtitle') }}</p>
+        <button class="btn btn-sm btn-outline-danger mb-3" type="button" @click="triggerTestError">
+          {{ $t('grinder.triggerTestError') }}
+        </button>
       </div>
       <div class="col-12">
         <LoadingBlock v-if="isLoading" :height="120" />
@@ -329,6 +332,13 @@ function rebuildWellKnown(): void {
   void runAdminAction('rebuild-well-known-cache')
 }
 
+function triggerTestError(): void {
+  void notificationsStore.displayError({
+    error: new Error('This is a test error generated from the Grinder page (please ignore).'),
+    origin: 'grinder-test-error'
+  })
+}
+
 onMounted(() => {
   fetchAdminData()
 })
@@ -348,7 +358,8 @@ onMounted(() => {
       "clear": "Clear",
       "noEntries": "No entries found for this scope.",
       "rawPayload": "Show raw payload",
-      "noAccess": "You do not have access to this page."
+      "noAccess": "You do not have access to this page.",
+      "triggerTestError": "Trigger test error"
     }
   }
 }
