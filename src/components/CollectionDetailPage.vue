@@ -395,7 +395,7 @@ export default defineComponent({
         'location',
         'topic',
         'partner',
-        'accessRight'
+        'copyright'
       ],
       isConfirmDeleteModalVisible: false
     }) as IData,

@@ -59,7 +59,7 @@ const buildFilter = (filterData: any | Filter): Filter => {
       'language',
       'issue',
       'year',
-      'accessRight',
+      'copyright',
       'partner',
       'textReuseClusterId'
     ].includes(filterData.type)

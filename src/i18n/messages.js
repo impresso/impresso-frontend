@@ -80,14 +80,6 @@ export default {
         nl: 'Dutch',
         undefined: 'Undefined language'
       },
-      accessRight: {
-        na: 'not specified (no export)',
-        OpenPrivate: 'Personal use',
-        Closed: 'Personal use (no export)',
-        OpenPublic: 'Public domain',
-        prt: 'in copyright',
-        pbl: 'public domain'
-      },
       copyright: {
         in_cpy: 'in copyright',
         pbl: 'public domain'
@@ -363,18 +355,6 @@ export default {
       }
     },
     label: {
-      accessRight: {
-        title: 'Access right | Access right | Access Rights',
-        filterTitle: 'access right',
-        filtered: 'results are filtered when:',
-        selected: 'Filter results if their access right is <b>one of {count} selected</b>',
-        description: 'filter results based on access right',
-        empty: '(no results)',
-        context: {
-          include: 'content available as',
-          exclude: 'content <b>NOT</b> available as'
-        }
-      },
       page: {
         title: 'Page | Page | Pages',
         filterTitle: 'page number',
