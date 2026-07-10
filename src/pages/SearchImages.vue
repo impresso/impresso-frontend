@@ -568,21 +568,3 @@ export default defineComponent({
 }
 </style>
 
-<i18n lang="json">
-{
-  "en": {
-    "label_order": "Order By",
-    "label_isFront": "Frontpage",
-    "label_applyRandomPage": "start with random results page",
-    "sort_asc": "Ascending",
-    "sort_desc": "Descending",
-    "sort_date": "Date",
-    "sort_by_similarity": "similarity",
-    "sort_relevance": "Relevance",
-    "items_selected": "One item selected | {count} items selected",
-    "clear_selection": "Clear Selection",
-    "add_n_to_collection": "Add item to collection | Add {count} items to collection",
-    "select_all": "Select all items on this page"
-  }
-}
-</i18n>

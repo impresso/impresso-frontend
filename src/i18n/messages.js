@@ -509,7 +509,7 @@ export default {
       entity: {
         title: 'filter by entity mentioned (experimental)'
       },
-      isFront: 'frontpage',
+      isFront: 'Frontpage',
       language: {
         title: 'Language | Language | Languages',
         filterTitle: 'language',
