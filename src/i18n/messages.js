@@ -551,7 +551,7 @@ export default {
         empty: '(no results)',
         context: {
           include: 'published in selected media sources',
-          exclude: 'published in <b>NOT</b> selected media sources'
+          exclude: '<b>NOT</b> in selected media sources'
         }
       },
       partner: {
