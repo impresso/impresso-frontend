@@ -12,38 +12,39 @@
       <template v-slot:header>
         <div
           v-if="similarToImage"
-          class="image-item-similar p-2 mb-3 bg-white drop-shadow border border-tertiary d-flex"
+          class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
         >
-          <div class="flex-shrink-1 mr-2" style="width: 100px">
-            <auth-img
-              v-if="similarToImage.previewUrl"
-              style="max-height: 100px"
-              :src="similarToImage.previewUrl"
-            />
+          <div class="flex-shrink-1">
+            <auth-img v-if="similarToImage.previewUrl" :src="similarToImage.previewUrl" />
           </div>
           <div class="align-self-center">
-            <router-link
-              v-if="similarToImage?.mediaSourceRef"
-              :to="{
-                name: 'newspaper',
-                params: { newspaper_id: similarToImage?.mediaSourceRef?.id }
+            <media-source-label
+              :item="{
+                id: similarToImage.mediaSourceRef?.id || '',
+                name: similarToImage.mediaSourceRef?.name || '',
+                type: 'newspaper'
               }"
-              class="article-newspaper"
-            >
-              {{ similarToImage.mediaSourceRef.name }}
-            </router-link>
-            <p v-if="similarToImage.date" class="date m-0">
+            ></media-source-label>
+
+            <p v-if="similarToImage.date" class="small m-0">
               {{ $d(similarToImage.date, 'long') }}
+              <span class="text-nowrap">
+                &mdash;
+                {{
+                  similarToImage.pageNumbers
+                    ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
+                    : ''
+                }}
+              </span>
             </p>
           </div>
           <div class="flex-shrink-1 ml-auto">
-            <b-button
-              pill
-              class="ml-2 dripicons-cross"
-              variant="outline-danger"
-              size="sm"
+            <button
+              class="ImageItemSimilar__remove btn btn-transparent"
               @click.prevent="onRemoveSimilarTo"
-            />
+            >
+              <icon name="cross" />
+            </button>
           </div>
         </div>
         <filter-image-upload v-if="enableUpload" />
@@ -169,6 +170,8 @@ import { useUserStore } from '@/stores/user'
 import { Navigation } from '@/plugins/Navigation'
 import type { IImage, Filter, FilterType, FacetType } from '@/models'
 import { includes } from '@/util/fn'
+import Icon from '@/components/base/Icon.vue'
+import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.images
 const AllowedFacetTypes = FacetsByContext.images
@@ -423,22 +426,21 @@ watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
 watch(serviceQuery, fetchSearchResults, { immediate: true })
 </script>
 
-<style lang="scss" scoped>
-.image-item-similar {
-  font-size: 14px;
-  .article-newspaper {
-    font-weight: bold;
-  }
-  .date {
-    text-transform: lowercase;
-    font-variant: small-caps;
-  }
-}
-.btn.rounded-pill {
-  height: 1.5rem;
-  width: 1.5rem;
-  text-align: center;
+<style>
+button.ImageItemSimilar__remove {
+  height: 2rem;
+  width: 2rem;
   padding: 0;
-  line-height: 1.7rem;
+  line-height: 2rem;
+}
+.ImageItemSimilar img {
+  height: 100px;
+  width: 100px;
+  overflow: hidden;
+  object-fit: cover;
+  border-top-left-radius: 0.35rem;
+  border-bottom-left-radius: 0.35rem;
+  border-top-right-radius: 0.15rem;
+  border-bottom-right-radius: 0.15rem;
 }
 </style>
