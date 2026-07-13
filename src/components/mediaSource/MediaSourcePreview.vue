@@ -1,26 +1,31 @@
 <template>
-  <div class="ItemPreview">
+  <div class="MediaSourcePreview">
     <DataProviderLabel
       v-if="dataProviderId"
       :item="{ id: dataProviderId }"
       class="small"
       :withDash="false"
     />
-    <blockquote class="border px-2 py-1 mt-2 rounded bg-light">
-      <span v-html="title" class="small"></span>{{ ' ' }}
+    <blockquote
+      class="MediaSourcePreview__metadata text-dark p-2 my-2 rounded d-flex align-items-center flex-wrap"
+    >
+      <div v-html="title" class="small font-weight-medium"></div>
+      {{ ' ' }}
       <span v-for="{ label, value } in labelsAndValues" :key="label" class="small">
         &middot; <strong>{{ $t(`metadata.${label}`) }}:</strong> {{ value }} </span
       >{{ ' ' }}
-      <router-link
-        :to="{
-          name: Routes.mediaSource.children.metadata.name,
-          params: { media_source_id: item.id }
-        }"
-        @click="emit('more')"
-      >
-        {{ $t('actions.more') }}
-      </router-link>
     </blockquote>
+
+    <router-link
+      class="btn btn-sm btn-outline-secondary d-block w-100"
+      :to="{
+        name: Routes.mediaSource.children.metadata.name,
+        params: { media_source_id: item.id }
+      }"
+      @click="emit('more')"
+    >
+      {{ $t('actions.exploreInMediaSource') }}
+    </router-link>
   </div>
 </template>
 <script setup lang="ts">
@@ -60,12 +65,24 @@ const title = computed(() => {
   if (!Array.isArray(loadedMediaSource.value?.properties)) {
     return loadedMediaSource.value.name
   }
-  const startYear = loadedMediaSource.value.properties
-    .find(prop => prop.id === 'firstPubYear')
-    ?.value?.trim()
-  const endYear = loadedMediaSource.value.properties
-    .find(prop => prop.id === 'lastPubYear')
-    ?.value?.trim()
+  let startYear: number | string | undefined
+  let endYear: number | string | undefined
+
+  if (loadedMediaSource.value.publishedPeriodYears) {
+    const [start, end] = loadedMediaSource.value.publishedPeriodYears
+    startYear = start
+    endYear = end
+  }
+  if (!startYear) {
+    startYear = loadedMediaSource.value.properties
+      .find(prop => prop.id === 'firstPubYear')
+      ?.value?.trim()
+  }
+  if (!endYear) {
+    endYear = loadedMediaSource.value.properties
+      .find(prop => prop.id === 'lastPubYear')
+      ?.value?.trim()
+  }
 
   return (
     loadedMediaSource.value.name +
@@ -146,10 +163,15 @@ watch(() => props.item.id, fetchMediaSource, { immediate: true })
         "founder": "Founder",
         "publisher": "Publisher"
       }
-    },
-    "actions": {
-      "more": "more..."
     }
   }
 }
 </i18n>
+<style>
+.MediaSourcePreview__metadata {
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: var(--impresso-color-light-grey);
+  border-color: var(--impresso-color-dark-grey);
+}
+</style>
