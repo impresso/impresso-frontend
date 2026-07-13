@@ -41,6 +41,8 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
       <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
@@ -61,6 +63,7 @@
       >
         {{ item.name }}
       </RouterLink>
+
       <template v-if="index < filterItems.length - 1">
         <span class="separator small-caps m-1"
           >{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span
@@ -80,6 +83,7 @@ import { includes } from '@/util/fn.js'
 
 type FilterLabelItem = Entity & {
   name?: string
+  title?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date
@@ -194,7 +198,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseCluster": "showing up in clusters",
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionGetTranscript": "with transcript access:",
+      "permissionExplore": "with explore access:"
     },
     "exclude": {
       "sourceMedium": "not",

@@ -55,7 +55,9 @@ const AvailableFilterTypes = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)

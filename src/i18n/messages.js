@@ -370,6 +370,19 @@ export default {
           exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
+      permissionGetTranscript: {
+        title: 'Transcript available | Transcript available | Transcripts available',
+        filterTitle: 'transcript availability',
+        filtered: 'Results are filtered when:',
+        selected:
+          'Filter results if <b>one of {count} selected</b> transcript availability applies',
+        description: 'Check one or more transcript availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'transcript is available',
+          exclude: 'transcript is <b>NOT</b> available'
+        }
+      },
       ocrQuality: {
         title: 'OCR quality | OCR quality | OCR qualities',
         filterTitle: 'OCR quality',

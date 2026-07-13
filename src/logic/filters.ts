@@ -149,7 +149,9 @@ export const TextContentItemFacets = [
   'location',
   'nag',
   'organisation',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript'
 ] as const satisfies FilterType[]
 
 export const NumericContentItemsFacets = [
