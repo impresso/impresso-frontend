@@ -218,7 +218,7 @@ const TextReuseClusterFilters = [
 const EntitiesFilters = ['string', 'type'] as const satisfies FilterType[]
 
 const ImagesFacets = [
-  'newspaper',
+  'mediaSource',
   'year',
   'imageVisualContent',
   'imageTechnique',

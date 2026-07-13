@@ -2,11 +2,10 @@
   <i-layout class="search-images">
     <search-sidebar
       width="400px"
-      :filters="filters"
+      :filters="availableFiltersWithItems"
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
-      :ignored-facet-types="excludedTypes"
-      contextTag="search-images"
+      contextTag="images"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>
@@ -15,9 +14,14 @@
           class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
         >
           <div class="flex-shrink-1">
-            <auth-img v-if="similarToImage.previewUrl" :src="similarToImage.previewUrl" />
+            <auth-img
+              class="h-100"
+              v-if="similarToImage.previewUrl"
+              :src="similarToImage.previewUrl"
+            />
           </div>
-          <div class="align-self-center">
+          <div class="align-self-between">
+            <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
             <media-source-label
               :item="{
                 id: similarToImage.mediaSourceRef?.id || '',
@@ -75,7 +79,7 @@
             <ellipsis v-if="!isLoading" :initialHeight="60">
               <search-results-summary
                 group-by="images"
-                :searchQuery="{ filters }"
+                :searchQuery="{ filters: availableFiltersWithItems }"
                 :totalRows="paginationTotalRows"
               />
             </ellipsis>
@@ -133,6 +137,7 @@
 <i18n lang="json">
 {
   "en": {
+    "similar_to_image": "Similar to this image",
     "label_order": "Order By",
     "sort_by_similarity": "Similarity",
     "sort_date": "Date",
@@ -196,7 +201,9 @@ const props = withDefaults(defineProps<SearchImagesProps>(), {
 const proxy = getCurrentInstance()!.proxy as ComponentCustomProperties
 const route = useRoute()
 const userStore = useUserStore()
-
+const emit = defineEmits<{
+  (e: 'filters-changed', newFilters: Filter[]): void
+}>()
 /**
  * `searchQueryGetter` / `searchQuerySetter` in `@/logic/queryParams` are
  * legacy Options-API helpers that expect `this.$route`, `this.$navigation`
@@ -235,18 +242,16 @@ const searchQuery = computed<SearchQuery>({
 const seed = computed(() => route.query.seed ?? 0)
 
 const ignoredFilters = computed<Filter[]>(() =>
-  searchQuery.value.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+  props.filtersWithItems.filter(({ type }) => !includes(AllowedFilterTypes, type))
 )
 
 const ignoredFilterTypes = computed<FilterType[]>(() =>
   ignoredFilters.value.map(({ type }) => type)
 )
 
-const filters = computed<Filter[]>(() =>
+const availableFiltersWithItems = computed<Filter[]>(() =>
   props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
 )
-
-const excludedTypes = computed<FacetType[]>(() => filters.value.map(d => d.type) as FacetType[])
 
 function firstQueryValue(value: unknown, fallback: string): string {
   if (Array.isArray(value)) return (value[0] as string | undefined) ?? fallback
@@ -267,11 +272,11 @@ const similarToImageId = computed<string>({
 
 const isFront = computed<boolean>({
   get() {
-    return filters.value.some(({ type }) => type === 'isFront')
+    return availableFiltersWithItems.value.some(({ type }) => type === 'isFront')
   },
   set(value) {
     handleFiltersChanged(
-      filters.value
+      availableFiltersWithItems.value
         .filter(d => d.type !== 'isFront')
         .concat(value ? [FilterFactory.create({ type: 'isFront' })] : [])
     )
@@ -340,16 +345,17 @@ const paginationPerPage = computed<number>({
 const serviceQuery = computed(() => ({
   seed: seed.value,
   similarTo: similarToImageId.value,
-  filters: filters.value,
+  filters: availableFiltersWithItems.value,
   orderBy: orderBy.value,
   limit: paginationPerPage.value,
   page: paginationCurrentPage.value
 }))
 
 function handleFiltersChanged(newFilters: Filter[]) {
-  searchQuery.value = new SearchQuery({
-    filters: newFilters.concat(ignoredFilters.value)
-  })
+  emit('filters-changed', newFilters)
+  // searchQuery.value = new SearchQuery({
+  //   filters: newFilters.concat(ignoredFilters.value)
+  // })
 }
 
 function toggleSelected(item: IImage) {
@@ -372,7 +378,9 @@ function onRemoveSimilarTo() {
 
 function onSearchQuery({ q = '' }: { q?: string }) {
   handleFiltersChanged(
-    filters.value.concat(q.trim().length ? [FilterFactory.create({ type: 'title', q })] : [])
+    availableFiltersWithItems.value.concat(
+      q.trim().length ? [FilterFactory.create({ type: 'title', q })] : []
+    )
   )
 }
 
@@ -434,7 +442,9 @@ button.ImageItemSimilar__remove {
   line-height: 2rem;
 }
 .ImageItemSimilar img {
-  height: 100px;
+  height: 100%;
+  min-height: 100px;
+  max-height: 200px;
   width: 100px;
   overflow: hidden;
   object-fit: cover;
