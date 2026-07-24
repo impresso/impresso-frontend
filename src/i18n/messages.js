@@ -370,6 +370,18 @@ export default {
           exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
+      permissionExplore: {
+        title: 'available in Web App | available in Web App | available in Web App',
+        filterTitle: 'explore availability',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> explore availability applies',
+        description: 'Check one or more explore availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'explore is available',
+          exclude: 'explore is <b>NOT</b> available'
+        }
+      },
       permissionGetTranscript: {
         title: 'Transcript available | Transcript available | Transcripts available',
         filterTitle: 'transcript availability',

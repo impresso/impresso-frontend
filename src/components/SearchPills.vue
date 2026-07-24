@@ -383,7 +383,21 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
       classNames: []
     }
   }
-
+  if (
+    ['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(filter.type)
+  ) {
+    return {
+      ...labelByItems({
+        items: filter.items,
+        max: 2,
+        prop: 'title',
+        translate: true,
+        type: filter.type,
+        op: filter.op
+      }),
+      classNames: []
+    }
+  }
   if (
     ['imageVisualContent', 'imageTechnique', 'imageCommunicationGoal', 'imageContentType'].includes(
       filter.type

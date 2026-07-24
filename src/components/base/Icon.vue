@@ -874,7 +874,10 @@ const IconAliases: Record<string, string> = {
   embedding: 'codeBracketSquare',
   mention: 'mention',
   ocrQuality: 'flower',
-  contentLength: 'rulerArrow'
+  contentLength: 'rulerArrow',
+  permissionExplore: 'key',
+  permissionGetTranscript: 'key',
+  permissionGetImage: 'key'
 }
 
 const computedPaths = computed(() => {
