@@ -136,7 +136,7 @@ const daterangeTranslationOptions = computed(() => {
 })
 
 const operatorTranslationKey = computed(() => {
-  const op = props.filter.op || 'AND'
+  const op = props.filter.op ?? 'AND'
   return `op.${op.toLowerCase()}`
 })
 
