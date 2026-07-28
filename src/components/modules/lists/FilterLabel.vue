@@ -4,7 +4,7 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector && item.id?.length"
+        v-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
         :id="item.id"
         :item="item"
@@ -43,6 +43,7 @@
         </template>
         <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
       <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
@@ -199,8 +200,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
       "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "with explore access:",
       "permissionGetTranscript": "with transcript access:",
-      "permissionExplore": "with explore access:"
+      "permissionGetImage": "with facsimile access:"
     },
     "exclude": {
       "sourceMedium": "not",
