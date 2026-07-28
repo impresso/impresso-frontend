@@ -239,7 +239,10 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseCluster": "not in clusters",
       "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "without WebApp access:",
+      "permissionGetTranscript": "without transcript access:",
+      "permissionGetImage": "without facsimile access:"
     }
   }
 }

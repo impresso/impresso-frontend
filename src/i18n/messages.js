@@ -383,7 +383,7 @@ export default {
         }
       },
       permissionGetTranscript: {
-        title: 'Transcript available | Transcript available | Transcripts available',
+        title: 'Transcript permission',
         filterTitle: 'transcript availability',
         filtered: 'Results are filtered when:',
         selected:

@@ -106,7 +106,19 @@
           <div class="description">
             {{ $t(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
           </div>
+          <FilterMonitorPermission
+            v-if="
+              filter.type == 'permissionExplore' ||
+              filter.type == 'permissionGetTranscript' ||
+              filter.type == 'permissionGetImage'
+            "
+            checkbox
+            :filter="filter"
+            :operators="['AND', 'OR']"
+            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
+          />
           <FilterMonitor
+            v-else
             checkbox
             :filter="filter"
             :operators="['AND', 'OR']"
@@ -173,6 +185,7 @@ import { computed, ref, toRefs } from 'vue'
 import Icon from './base/Icon.vue'
 import type { SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
 import { includes } from '@/util/fn.js'
+import FilterMonitorPermission from './modules/FilterMonitorPermission.vue'
 
 export type PillItem = Entity & {
   name?: string
