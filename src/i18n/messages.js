@@ -370,6 +370,41 @@ export default {
           exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
+      permissionExplore: {
+        title: 'available in Web App | available in Web App | available in Web App',
+        filterTitle: 'availability in Web App',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> explore availability applies',
+        description: 'Check one or more explore availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'explore is available',
+          exclude: 'explore is <b>NOT</b> available'
+        }
+      },
+      permissionGetTranscript: {
+        title: 'Transcript permission',
+        filterTitle: 'transcript availability',
+        filtered: 'Results are filtered when:',
+        selected:
+          'Filter results if <b>one of {count} selected</b> transcript availability applies',
+        description: 'Check one or more transcript availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'transcript is available',
+          exclude: 'transcript is <b>NOT</b> available'
+        }
+      },
+      permissionGetImage: {
+        title: 'Facsimile permission',
+        filterTitle: 'facsimile availability',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies',
+        context: {
+          include: 'facsimile is available',
+          exclude: 'facsimile is <b>NOT</b> available'
+        }
+      },
       ocrQuality: {
         title: 'OCR quality | OCR quality | OCR qualities',
         filterTitle: 'OCR quality',
