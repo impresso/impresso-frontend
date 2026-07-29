@@ -399,7 +399,11 @@ export default {
         title: 'Facsimile permission',
         filterTitle: 'facsimile availability',
         filtered: 'Results are filtered when:',
-        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies'
+        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies',
+        context: {
+          include: 'facsimile is available',
+          exclude: 'facsimile is <b>NOT</b> available'
+        }
       },
       ocrQuality: {
         title: 'OCR quality | OCR quality | OCR qualities',
