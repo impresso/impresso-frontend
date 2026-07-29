@@ -44,7 +44,7 @@ const selectionMonitorStore = useSelectionMonitorStore()
 function selectItem(): void {
   // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db
   const itemToSelect = { ...props.item, id: props.id }
-  if (props.type === 'permissionExplore' || props.type === 'permissionGetTranscript') {
+  if (['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(props.type)) {
     itemToSelect.id = props.item.bitmapPosition
   }
   const params = {

@@ -372,7 +372,7 @@ export default {
       },
       permissionExplore: {
         title: 'available in Web App | available in Web App | available in Web App',
-        filterTitle: 'explore availability',
+        filterTitle: 'availability in Web App',
         filtered: 'Results are filtered when:',
         selected: 'Filter results if <b>one of {count} selected</b> explore availability applies',
         description: 'Check one or more explore availability to filter results',
@@ -394,6 +394,12 @@ export default {
           include: 'transcript is available',
           exclude: 'transcript is <b>NOT</b> available'
         }
+      },
+      permissionGetImage: {
+        title: 'Facsimile permission',
+        filterTitle: 'facsimile availability',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies'
       },
       ocrQuality: {
         title: 'OCR quality | OCR quality | OCR qualities',

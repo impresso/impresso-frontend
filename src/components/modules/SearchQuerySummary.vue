@@ -57,7 +57,8 @@ const AvailableFilterTypes = [
   'textReuseClusterDayDelta',
   'topic',
   'permissionExplore',
-  'permissionGetTranscript'
+  'permissionGetTranscript',
+  'permissionGetImage'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)

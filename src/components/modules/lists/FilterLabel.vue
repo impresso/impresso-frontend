@@ -6,7 +6,9 @@
       <ItemSelector
         v-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
-        :id="item.id"
+        :id="
+          String(item.id) // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db, ID change is implemented in ItemSelector
+        "
         :item="item"
         :type="filter.type"
         class="position-relative"
@@ -136,7 +138,7 @@ const daterangeTranslationOptions = computed(() => {
 })
 
 const operatorTranslationKey = computed(() => {
-  const op = props.filter.op ?? 'AND'
+  const op = props.filter.op ?? 'OR'
   return `op.${op.toLowerCase()}`
 })
 

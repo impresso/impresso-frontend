@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { ref } from 'vue'
 import { action } from 'storybook/actions'
-import FilterMonitor from './FilterMonitorPermission.vue/index.js'
+import FilterMonitor from './FilterMonitorPermission.vue'
 import type {
   FilterMonitorFilter,
   FilterMonitorItem,
   FilterMonitorProps
-} from './FilterMonitorPermission.vue/index.js'
+} from './FilterMonitorPermission.vue'
 
 const cloneFilter = (filter: FilterMonitorFilter): FilterMonitorFilter => ({
   ...filter,

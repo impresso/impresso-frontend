@@ -12,7 +12,6 @@
       :filter="editedFilter"
       @update:filter="editedFilter = $event"
     />
-    {{ editedFilter }}
     <button
       className="btn btn-sm w-100 btn-outline-primary"
       :disabled="!hasChanges"

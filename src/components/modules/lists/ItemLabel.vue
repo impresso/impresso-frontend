@@ -72,8 +72,10 @@ export default defineComponent({
         t = this.getTextReuseClusterSummary(this.item)
       } else if (this.type === 'textReusePassage') {
         t = this.getTextReusePassageSummary(this.item)
-      } else if (['permissionExplore', 'permissionGetTranscript'].includes(this.type)) {
-        t = this.item.title + '[' + this.item.bitmapPosition + ']'
+      } else if (
+        ['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(this.type)
+      ) {
+        t = this.item.title
       } else if (this.type === 'year') {
         t = this.item ? this.item.y : this.item.val
       } else if (
