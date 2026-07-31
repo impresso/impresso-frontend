@@ -23,7 +23,11 @@
       <p class="m-0" v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
 
-    <SpecialMembershipModal :isVisible="view === ViewSpecialMembership" @dismiss="resetView" />
+    <SpecialMembershipModal
+      :isVisible="view === ViewSpecialMembership"
+      @dismiss="resetView"
+      :filters="filters"
+    />
     <SpecialMembershipRequestModal
       :isVisible="view === ViewCreateSpecialMembershipRequest"
       :item="store.specialMembershipAccessItem"
@@ -104,25 +108,7 @@
         fetchCorpusOverviewResponse.status === 'idle'
       "
     />
-    <FeedbackModal
-      :title="$t('label_feedback_modal')"
-      :isVisible="view === ViewFeedback"
-      @dismiss="resetView"
-      @submit="createFeedback"
-      :errorMessages="errorMessages"
-      :is-loading="feedbackCollectorResponse.status === 'loading'"
-    ></FeedbackModal>
-    <div class="position-fixed" style="right: 0; top: 50%">
-      <button
-        type="button"
-        class="btn btn-primary rounded-md Modals__feedback-button"
-        @click="() => (store.view = ViewFeedback)"
-        style=""
-      >
-        <Icon name="sendMail" />
-        <span class="ml-2">{{ $t('label_trigger_feedback_modal') }}</span>
-      </button>
-    </div>
+    <FeedbackButton />
   </div>
 </template>
 
@@ -137,7 +123,6 @@ import {
   ViewConfirmChangePlanRequest,
   ViewInfoModal,
   ViewCorpusOverview,
-  ViewFeedback,
   ViewDataRundown,
   ViewChangePassword,
   ViewChangePasswordSuccess,
@@ -158,29 +143,25 @@ import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
 import PlansModal from './PlansModal.vue'
 import axios from 'axios'
-import FeedbackModal from './FeedbackModal.vue'
-import { FeedbackFormPayload } from './FeedbackForm.vue'
-import { ErrorMessage, useNotificationsStore } from '@/stores/notifications'
-import Icon from './base/Icon.vue'
+import { useNotificationsStore } from '@/stores/notifications'
 import DataRundownModal from './dataRundown/DataRundownModal.vue'
 import LinkToModal from './LinkToModal.vue'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
 import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.vue'
 import UserSettingsModal from './modals/UserSettingsModal.vue'
+import FeedbackButton from './feedback/FeedbackButton.vue'
+import { Filter } from '@/models'
 
 const store = useViewsStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 const userPlan = computed(() => userStore.userPlan)
 
+const props = defineProps<{
+  filters: Filter[]
+}>()
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoggedIn = computed(() => !!userStore.userData)
-const errorMessages = computed<ErrorMessage[] | null>(() => {
-  if (feedbackCollectorResponse.value.status === 'error') {
-    return [new BadRequest('Error', feedbackCollectorResponse.value.data) as any as ErrorMessage]
-  }
-  return notificationsStore.errorMessages
-})
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
@@ -195,14 +176,6 @@ const showChangePlanToLegacyUsers = computed(() => {
     userPlan.value === PlanNone &&
     !userStore.hasPendingChangePlanRequest
   )
-})
-
-const feedbackCollectorResponse = ref<{
-  data: any
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: null
 })
 
 const fetchCorpusOverviewResponse = ref<{
@@ -248,24 +221,6 @@ const fetchCorpusOverview = async (): Promise<void> => {
   fetchCorpusOverviewResponse.value = { data: response.data, status: 'success' }
 }
 
-const createFeedback = async (payload: FeedbackFormPayload) => {
-  console.debug('[FeedbackModal] @createFeedback', payload)
-  feedbackCollectorResponse.value = { data: null, status: 'loading' }
-  await feedbackService
-    .create(payload, {
-      ignoreErrors: true
-    })
-    .then(data => {
-      console.info('[FeedbackModal] Feedback sent successfully. data:', data)
-      store.view = null
-      feedbackCollectorResponse.value = { data, status: 'success' }
-    })
-    .catch((err: FeathersError) => {
-      console.error('[FeedbackModal] create', err.message, err.data)
-      feedbackCollectorResponse.value = { data: err.data, status: 'error' }
-    })
-}
-
 watch(
   showChangePlanToLegacyUsers,
   () => {
@@ -289,8 +244,6 @@ watch(
     "verbose_info_label": "[staff only] Verbose Info",
     "not_accepted_local_label": "Not accepted on this device",
     "not_accepted_on_db_label": "Not accepted on the server",
-    "label_feedback_modal": "Help us improve Impresso",
-    "label_trigger_feedback_modal": "Send feedback",
     "view_change-password-success_modalTitle": "Password changed",
     "view_change-password-success_title": "Password changed successfully",
     "view_change-password-success_content": "Your password has been changed successfully. Logout then Login with your new password.",
@@ -301,23 +254,3 @@ watch(
   }
 }
 </i18n>
-<style lang="css">
-.Modals__feedback-button {
-  position: absolute;
-  right: 0;
-  transform: rotate(90deg);
-  top: 100px;
-  margin-right: 5px;
-  transform-origin: right top;
-  display: flex;
-}
-.Modals__feedback-button:hover span {
-  text-decoration: underline;
-}
-.Modals__feedback-button svg {
-  stroke: currentColor;
-}
-.Modals__feedback-button span {
-  white-space: nowrap;
-}
-</style>
