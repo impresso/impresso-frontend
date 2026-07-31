@@ -31,7 +31,11 @@
       @success="changeView(ViewCreateSpecialMembershipRequestSuccess)"
     />
 
-    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
+    <TermsOfUseModal
+      :isVisible="view === ViewTermsOfUse"
+      :acceptTermsDate="acceptTermsDate || acceptTermsDateOnLocalStorage"
+      @dismiss="resetView"
+    >
       <template v-slot:terms-of-use-status>
         <Alert
           :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
@@ -46,8 +50,8 @@
           :is-loading="
             termsOfUseResponse.status === 'idle' || termsOfUseResponse.status === 'loading'
           "
-          :checked="!!acceptTermsDate"
-          :disabled="!!acceptTermsDate"
+          :checked="!!(acceptTermsDate || acceptTermsDateOnLocalStorage)"
+          :disabled="!!(acceptTermsDate || acceptTermsDateOnLocalStorage)"
           @change="
             (event: Event) => {
               const isChecked = (event.target as HTMLInputElement).checked
