@@ -69,11 +69,11 @@
 </template>
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import LoadingBlock from './LoadingBlock.vue'
-import FeedbackForm from './FeedbackForm.vue'
-import type { FeedbackFormPayload } from './FeedbackForm.vue'
+import LoadingBlock from '@/components/LoadingBlock.vue'
+import FeedbackForm from '@/components/FeedbackForm.vue'
+import type { FeedbackFormPayload } from '@/components/FeedbackForm.vue'
 import { computed, ref, watch } from 'vue'
-import { BadRequestWithData } from './FeathersErrorManager.vue'
+import { BadRequestWithData } from '@/components/FeathersErrorManager.vue'
 import { useRoute } from 'vue-router'
 import { ErrorMessage } from '@/stores/notifications'
 import {
