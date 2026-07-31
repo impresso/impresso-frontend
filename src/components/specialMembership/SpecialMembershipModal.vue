@@ -7,7 +7,29 @@
     bodyClass="p-0"
     @close="emit('dismiss')"
   >
+    <template #modal-header-extra>
+      <b-tabs pills class="mb-0 mt-0 SpecialMembershipModal__tabs mx-2 border-bottom">
+        <template v-slot:tabs-end>
+          <li class="nav-item" v-for="modeOption in AvailableModes" :key="modeOption">
+            <button
+              size="sm"
+              class="w-100 btn btn-transparent nav-link"
+              :class="{ active: mode === modeOption }"
+              @click="mode = modeOption"
+            >
+              {{ $t(modeOption) }}
+            </button>
+          </li>
+        </template>
+      </b-tabs>
+    </template>
+    <ListOfSpecialMembershipBySearchQuery
+      :userBitmapAsBitmapPositions="userBitmapAsBitmapPositions"
+      v-if="mode == ModeSearchQuery"
+      :filters="filters"
+    />
     <ListOfFindResponseItems
+      v-else
       :error-loading-items-message="$t('errorLoadingSpecialMembershipRequests')"
       :list-is-empty-message="$t('listIsEmpty')"
       :service="serviceByMode"
@@ -30,22 +52,7 @@
           </div>
         </div>
       </template>
-      <template #beforeHeader>
-        <b-tabs pills class="mb-0 mt-0 SpecialMembershipModal__tabs mx-2 border-bottom">
-          <template v-slot:tabs-end>
-            <li class="nav-item" v-for="modeOption in AvailableModes" :key="modeOption">
-              <button
-                size="sm"
-                class="w-100 btn btn-transparent nav-link"
-                :class="{ active: mode === modeOption }"
-                @click="mode = modeOption"
-              >
-                {{ $t(modeOption) }}
-              </button>
-            </li>
-          </template>
-        </b-tabs>
-      </template>
+
       <template #default="{ items }">
         <div
           class="border-bottom p-2 px-3 my-1 position-relative"
@@ -62,12 +69,6 @@
             v-if="mode === ModeUserSpecialMembershipRequests"
             :item="item"
           />
-          <SpecialMembershipAccessItem
-            withActions
-            v-else-if="mode === ModeSpecialMembershipAccess"
-            :item="item"
-            @request-access="viewStore.openSpecialMembershipModal($event)"
-          />
         </div>
       </template>
     </ListOfFindResponseItems>
@@ -80,23 +81,6 @@
   </Modal>
 </template>
 
-<i18n lang="json">
-{
-  "en": {
-    "requestSpecialMembershipAccess": "Request Special Membership Access",
-    "your special membership access requests": "Your Special Membership Access Requests",
-    "errorLoadingSpecialMembershipRequests": "Error loading special membership requests.",
-    "listIsEmpty": "No special membership access requests found.",
-    "listTitle": "Your Special Membership Access Requests",
-    "ModeUserSpecialMembershipRequests": "Your requests",
-    "ModeSpecialMembershipAccess": "All Special Membership Access",
-    "specialMembershipAccessTitle": "Available options ({ count })",
-    "userSpecialMembershipRequestsStatus": "Status",
-    "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>",
-    "specialMembershipAccessPlaceholder": "Please provide a reason for your request."
-  }
-}
-</i18n>
 <script setup lang="ts">
 // This component show all user requests and allow to add a new one
 import { computed, ref } from 'vue'
@@ -109,8 +93,33 @@ import SpecialMembershipRequestItem from '../modules/lists/SpecialMembershipRequ
 import SpecialMembershipAccessItem from '../modules/lists/SpecialMembershipAccessItem.vue'
 import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
 import { useViewsStore } from '@/stores/views'
+import { Filter } from '@/models/index.js'
+import ListOfSpecialMembershipBySearchQuery from './ListOfSpecialMembershipBySearchQuery.vue'
+import { useUserStore } from '@/stores/user.js'
+import { base64BytesToBigInt } from '@/util/bigint.js'
 
 const viewStore = useViewsStore()
+
+const userStore = useUserStore()
+const userBitmapAsBigInt = computed(() => {
+  if (!userStore.userData) {
+    return 1n // Default to basic access
+  }
+  return base64BytesToBigInt(userStore.bitmap)
+})
+const userBitmapAsBitmapPositions = computed<number[]>(() => {
+  let bitmap = BigInt(userBitmapAsBigInt.value)
+  const positions: number[] = []
+  let position = 0
+  while (bitmap > 0n) {
+    if (bitmap & 1n) {
+      positions.push(position)
+    }
+    position++
+    bitmap >>= 1n
+  }
+  return positions
+})
 
 export type SpecialMembershipModalProps = {
   dialogClass?: string
@@ -118,6 +127,7 @@ export type SpecialMembershipModalProps = {
   titleModal?: string
   isVisible?: boolean
   isLoading?: boolean
+  filters?: Filter[]
 }
 
 const props = withDefaults(defineProps<SpecialMembershipModalProps>(), {
@@ -127,8 +137,10 @@ const props = withDefaults(defineProps<SpecialMembershipModalProps>(), {
 
 const ModeUserSpecialMembershipRequests = 'ModeUserSpecialMembershipRequests'
 const ModeSpecialMembershipAccess = 'ModeSpecialMembershipAccess'
-const AvailableModes = [ModeSpecialMembershipAccess, ModeUserSpecialMembershipRequests]
-const mode = ref<(typeof AvailableModes)[number]>(ModeSpecialMembershipAccess)
+const ModeSearchQuery = 'ModeSearchQuery'
+const AvailableModes = [ModeSearchQuery, ModeUserSpecialMembershipRequests] as const
+const mode = ref<(typeof AvailableModes)[number]>(ModeSearchQuery)
+
 const serviceByMode = computed(() => {
   return mode.value === ModeUserSpecialMembershipRequests
     ? userSpecialMembershipRequestsService
@@ -155,3 +167,22 @@ const emit = defineEmits<{
   display: block;
 }
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "requestSpecialMembershipAccess": "Request Special Membership Access",
+    "your special membership access requests": "Your Special Membership Access Requests",
+    "errorLoadingSpecialMembershipRequests": "Error loading special membership requests.",
+    "listIsEmpty": "No special membership access requests found.",
+    "listTitle": "Your Special Membership Access Requests",
+    "ModeUserSpecialMembershipRequests": "Your requests",
+    "ModeSpecialMembershipAccess": "All Special Membership Access",
+    "ModeSearchQuery": "All available Special Membership Access",
+    "specialMembershipAccessTitle": "Available options ({ count })",
+    "userSpecialMembershipRequestsStatus": "Status",
+    "userRequestSpecialMembershipAccess": "Request special membership access for <b>{ title }</b>",
+    "specialMembershipAccessPlaceholder": "Please provide a reason for your request."
+  }
+}
+</i18n>
