@@ -2,7 +2,7 @@
   <Modal
     :show="isVisible"
     :title="titleModal ?? title"
-    modalClass="SpecialMembershipRequestModal"
+    modalClass="SpecialMembershipModal"
     :dialogClass="props.dialogClass"
     bodyClass="p-0"
     @close="emit('dismiss')"
@@ -121,7 +121,7 @@ export type SpecialMembershipModalProps = {
 }
 
 const props = withDefaults(defineProps<SpecialMembershipModalProps>(), {
-  dialogClass: ' modal-lg p-0 modal-dialog-centered',
+  dialogClass: ' modal-lg p-0 modal-dialog modal-dialog-scrollable',
   title: 'Request Special Membership Access'
 })
 
