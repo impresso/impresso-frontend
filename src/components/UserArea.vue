@@ -103,8 +103,11 @@ import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
 import SpecialMembershipButton from './specialMembership/SpecialMembershipButton.vue'
 import { triggerClickOutside } from '@/composables/useClickOutside'
+import { useRouter } from 'vue-router'
+import { useNotificationsStore } from '@/stores/notifications.js'
 
 const userStore = useUserStore()
+const router = useRouter()
 
 export interface UserAreaProps {
   user: User
@@ -131,9 +134,17 @@ const isSpecialMembershipsEnabled = computed(() => {
 })
 
 const logout = () => {
-  console.info('logging out..')
+  console.info('[UserArea] logging out..')
   userStore.logout()
+  console.info('[UserArea] logout, redirecting to home page...')
+  router.push({ name: 'home' })
+  useNotificationsStore().addNotification({
+    type: 'success',
+    title: 'Logged out',
+    message: 'You have been logged out.'
+  })
 }
+
 const userFullName = computed(() => {
   const name = `${props.user.firstname} ${props.user.lastname}`.trim()
   if (name === '') {

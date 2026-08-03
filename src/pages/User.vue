@@ -104,7 +104,7 @@ function fetchUser(): void {
   userService
     .find()
     .then(data => {
-      console.debug('[ProfileModal] fetchUser success:', data)
+      // console.debug('[ProfileModal] fetchUser success:', data)
       updateStoredUserData(data)
     })
     .catch((err: FeathersError) => {
