@@ -18,6 +18,7 @@
           </span>
 
           <h3>{{ collection.name }}</h3>
+          <ContentItemIdLabel v-if="collection.id" :id="collection.id" class="mt-1" />
           <blockquote class="m-2 pl-2 border-left border-dark">
             {{ collection.description }}
           </blockquote>
@@ -325,6 +326,7 @@ import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
 import { getQueryParameter } from '../router/util'
 import {
   exporter as exporterService,
@@ -408,6 +410,7 @@ export default defineComponent({
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    ContentItemIdLabel,
     RadioGroup,
     Modal
   },
