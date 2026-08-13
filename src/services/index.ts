@@ -202,7 +202,7 @@ export const userSpecialMembershipRequestsReviews = app.service(
 )
 export const magicLink = app.service('magic-link')
 
-export const specialMembershipAccess = app.service('special-membership-access')
+export const specialMembershipAccess = app.service('special-membership-plans')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
 export const barista = app.service('barista-proxy')
