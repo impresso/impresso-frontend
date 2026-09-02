@@ -168,6 +168,15 @@ const router = createRouter({
       }
     },
     {
+      path: Routes.userEmailVerification.path,
+      name: Routes.userEmailVerification.name,
+      component: () => import('@/pages/UserEmailVerification.vue'),
+      meta: {
+        realm: 'user',
+        requiresAuth: false
+      }
+    },
+    {
       path: '/password-reset',
       name: 'passwordReset',
       component: () => import('@/pages/PasswordReset.vue'),

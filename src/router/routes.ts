@@ -77,5 +77,9 @@ export const Routes = {
   searchNgrams: {
     path: '/search/ngrams',
     name: 'searchNgrams'
+  },
+  userEmailVerification: {
+    path: '/user/email-verification',
+    name: 'userEmailVerification'
   }
 } as const

@@ -21,8 +21,10 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export interface ErrorsCollectorService
-  extends Pick<ServiceMethods<{}, ErrorsCollectorPayload>, 'create'> {}
+export interface ErrorsCollectorService extends Pick<
+  ServiceMethods<{}, ErrorsCollectorPayload>,
+  'create'
+> {}
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
@@ -46,6 +48,7 @@ interface UntypedServices {
 export interface Services extends UntypedServices {
   ['errors-collector']: ErrorsCollectorService
   ['datalab-support']: DatalabSupportService
+  ['user-email-verification-resend']: UntypedService
   admin: AdminService
   images: ImageService
   embeddings: EmbeddingsService
