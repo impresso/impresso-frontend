@@ -18,6 +18,7 @@
           </span>
 
           <h3>{{ collection.name }}</h3>
+          <ContentItemIdLabel v-if="collection.id" :id="collection.id" class="mt-1" />
           <blockquote class="m-2 pl-2 border-left border-dark">
             {{ collection.description }}
           </blockquote>
@@ -28,6 +29,14 @@
         </section>
 
         <section class="ml-auto py-3 text-right">
+          <CopyToDatalabButton
+            v-if="collection.id"
+            class="m-1 d-inline-block text-left"
+            :base64Filters="base64Filters"
+            resource="search"
+            functionName="find"
+            :public-api-url="publicApiUrl"
+          />
           <router-link
             :to="
               updateCurrentRoute({
@@ -325,6 +334,9 @@ import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 import { getQueryParameter } from '../router/util'
 import {
   exporter as exporterService,
@@ -336,6 +348,8 @@ import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
+import { useNotificationsStore } from '@/stores/notifications'
+import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
@@ -408,11 +422,13 @@ export default defineComponent({
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    ContentItemIdLabel,
+    CopyToDatalabButton,
     RadioGroup,
     Modal
   },
   computed: {
-    ...mapStores(useCollectionsStore, useSettingsStore),
+    ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -421,6 +437,15 @@ export default defineComponent({
         { value: 'list', text: this.$t('display_button_list') },
         { value: 'tiles', text: this.$t('display_button_tiles') }
       ]
+    },
+    publicApiUrl() {
+      return DatalabPublicApiUrl
+    },
+    base64Filters() {
+      if (!this.collection?.id) return ''
+      return new SearchQuery({
+        filters: [{ type: 'collection', q: this.collection.id }]
+      }).getSerialized({ serializer: 'protobuf' }) as string
     },
     collectionId() {
       return this.$route.params.collection_id as string
@@ -548,23 +573,30 @@ export default defineComponent({
       this.isConfirmDeleteModalVisible = false
     },
     handleExportCollection() {
-      exporterService.create(
-        {
-          description: this.collectionId
-        },
-        {
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'collection',
-                q: [this.collectionId]
-              }
-            ],
-            format: 'csv'
-          }
+      const collectionName =
+        (this.collection && (this.collection.name as string)) || this.collectionId
+      const description = `Export of collection "${collectionName}" (${this.collectionId})`
+      const payload = { description: description.slice(0, 1000) }
+      const params = {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'collection',
+              q: [this.collectionId]
+            }
+          ],
+          format: 'csv'
         }
-      )
+      }
+      if (isDuplicateExport(buildExportSignature(payload, params))) return
+
+      exporterService.create(payload, params)
+      this.notificationsStore.addNotification({
+        type: 'success',
+        title: 'Export is being prepared',
+        message: 'You can track its progress in Tasks.'
+      })
     },
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
