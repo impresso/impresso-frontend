@@ -38,6 +38,7 @@
           class="p-0"
           submit-area-classes="position-sticky bottom-0 bg-light py-3 border-top"
           @changeAcceptTerms="handleChangeAcceptTerms"
+          :terms-accepted="termsAccepted"
           :disabled="!selectedPlan"
         >
           <template #accept-terms-of-use-label>
@@ -112,7 +113,7 @@ import type {
   ChangePlanFormPayload,
   AvailablePlan as AvailablePlanType
 } from 'impresso-ui-components/components/ChangePlanForm.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import {
   AvailablePlansWithLabels,
@@ -125,6 +126,7 @@ import {
 import LinkToModal from '@/components/LinkToModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import { users as usersService } from '@/services'
+import { useUserStore } from '@/stores/user'
 
 defineOptions({
   inheritAttrs: false
@@ -137,6 +139,13 @@ const error = ref<FeathersError | null>(null)
 const showConfirmModal = ref(false)
 const selectedPlan = ref<AvailablePlanType | null>(null)
 const acceptedTerms = ref<boolean>(false)
+const userStore = useUserStore()
+/**
+ * True only for an explicit acceptance: the checkbox ticked in this session, or
+ * a legally-binding acceptance already recorded in the DB. The temporary local
+ * (non-binding) acceptance must NOT satisfy registration.
+ */
+const termsAccepted = computed(() => acceptedTerms.value || !!userStore.acceptTermsDate)
 
 const profileFormData = ref<ProfileFormPayload>({
   email: '',
@@ -204,7 +213,7 @@ const onSubmit = async (formData: ProfileFormPayload) => {
     isLoading.value = false
     return
   }
-  if (!acceptedTerms.value) {
+  if (!termsAccepted.value) {
     error.value = {
       message: 'You must accept the Terms of Use to register.'
     } as FeathersError
