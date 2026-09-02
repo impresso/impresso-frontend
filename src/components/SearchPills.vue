@@ -106,7 +106,19 @@
           <div class="description">
             {{ $t(`label.${filter.type}.title`, filter.items ? filter.items.length : 0) }}
           </div>
+          <FilterMonitorPermission
+            v-if="
+              filter.type == 'permissionExplore' ||
+              filter.type == 'permissionGetTranscript' ||
+              filter.type == 'permissionGetImage'
+            "
+            checkbox
+            :filter="filter"
+            :operators="['AND', 'OR']"
+            @changed="updatedFilter => handleFilterUpdated(filterIndex, updatedFilter)"
+          />
           <FilterMonitor
+            v-else
             checkbox
             :filter="filter"
             :operators="['AND', 'OR']"
@@ -173,6 +185,7 @@ import { computed, ref, toRefs } from 'vue'
 import Icon from './base/Icon.vue'
 import type { SearchPillsItemLabelData } from '@/components/SearchPillsItemLabel.vue'
 import { includes } from '@/util/fn.js'
+import FilterMonitorPermission from './modules/FilterMonitorPermission.vue'
 
 export type PillItem = Entity & {
   name?: string
@@ -383,7 +396,21 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
       classNames: []
     }
   }
-
+  if (
+    ['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(filter.type)
+  ) {
+    return {
+      ...labelByItems({
+        items: filter.items,
+        max: 2,
+        prop: 'title',
+        translate: true,
+        type: filter.type,
+        op: filter.op
+      }),
+      classNames: []
+    }
+  }
   if (
     ['imageVisualContent', 'imageTechnique', 'imageCommunicationGoal', 'imageContentType'].includes(
       filter.type
