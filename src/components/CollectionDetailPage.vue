@@ -348,6 +348,8 @@ import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
+import { useNotificationsStore } from '@/stores/notifications'
+import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
@@ -426,7 +428,7 @@ export default defineComponent({
     Modal
   },
   computed: {
-    ...mapStores(useCollectionsStore, useSettingsStore),
+    ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -571,23 +573,30 @@ export default defineComponent({
       this.isConfirmDeleteModalVisible = false
     },
     handleExportCollection() {
-      exporterService.create(
-        {
-          description: this.collectionId
-        },
-        {
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'collection',
-                q: [this.collectionId]
-              }
-            ],
-            format: 'csv'
-          }
+      const collectionName =
+        (this.collection && (this.collection.name as string)) || this.collectionId
+      const description = `Export of collection "${collectionName}" (${this.collectionId})`
+      const payload = { description: description.slice(0, 1000) }
+      const params = {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'collection',
+              q: [this.collectionId]
+            }
+          ],
+          format: 'csv'
         }
-      )
+      }
+      if (isDuplicateExport(buildExportSignature(payload, params))) return
+
+      exporterService.create(payload, params)
+      this.notificationsStore.addNotification({
+        type: 'success',
+        title: 'Export is being prepared',
+        message: 'You can track its progress in Tasks.'
+      })
     },
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
