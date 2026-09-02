@@ -5,18 +5,14 @@
         <span
           class="small-caps status-pill"
           :class="[`status-${item.status}`, { 'text-white': item.status !== 'RUN' }]"
-          :title="$t(`jobs_status_${item.status}_title`, $t(`jobs_status_${item.status}`) as string)"
+          :title="
+            $t(`jobs_status_${item.status}_title`, $t(`jobs_status_${item.status}`) as string)
+          "
         >
           {{ displayStatusLabel }}
         </span>
       </span>
-      <time
-        class="JobCard__time small-caps"
-        :datetime="item.creationDate.toISOString()"
-        :title="$d(item.creationDate, 'precise')"
-      >
-        {{ elapsedTime }}
-      </time>
+      <TimeAgo :date="item.creationDate" class="JobCard__time small-caps" />
     </div>
 
     <h2 class="sans font-weight-medium font-size-inherit text-white JobCard__title">
@@ -66,7 +62,10 @@
       </div>
     </div>
 
-    <div v-if="actionState || hasSearchQuery" class="mt-2 d-flex align-items-center JobCard__actions">
+    <div
+      v-if="actionState || hasSearchQuery"
+      class="mt-2 d-flex align-items-center JobCard__actions"
+    >
       <b-button
         v-if="actionState"
         :variant="actionState.variant"
@@ -103,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { PropType } from 'vue'
 import Job from '@/models/Job'
 import Icon from '@/components/base/Icon.vue'
@@ -111,6 +110,7 @@ import { useJobsStore } from '@/stores/jobs'
 import { getAuthHeaders } from '@/util/auth'
 import { getAuthenticationToken } from '@/services'
 import router from '@/router'
+import TimeAgo from '@/components/TimeAgo.vue'
 
 const BasePath = import.meta.env.VITE_USE_PROXY_MIDDLEWARE
   ? ''
@@ -126,27 +126,6 @@ const props = defineProps({
 const jobsStore = useJobsStore()
 const isDownloading = ref(false)
 const downloadError = ref(false)
-const now = ref(Date.now())
-let elapsedTimer: ReturnType<typeof setInterval> | null = null
-
-onMounted(() => {
-  elapsedTimer = setInterval(() => {
-    now.value = Date.now()
-  }, 30000)
-})
-
-onUnmounted(() => {
-  if (elapsedTimer) clearInterval(elapsedTimer)
-})
-
-const elapsedTime = computed(() => {
-  const diffSec = Math.max(0, Math.floor((now.value - props.item.creationDate.getTime()) / 1000))
-  if (diffSec < 60) return 'just now'
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} min ago`
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} h ago`
-  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)} d ago`
-  return `${Math.floor(diffSec / 604800)} w ago`
-})
 
 const percentage = computed(() => Math.round((props.item.progress || 0) * 100))
 const isStoppingLocal = computed(() => jobsStore.isStopping(props.item.id))
@@ -298,7 +277,6 @@ async function onExport() {
   color: var(--impresso-color-white);
   transition: background-color 0.12s ease-out;
 }
-
 
 .JobCard[data-status='RUN'],
 .JobCard[data-status='STOPPING'] {
