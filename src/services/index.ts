@@ -5,6 +5,7 @@ import { feathers } from '@feathersjs/feathers'
 import { useBaristaStore } from '@/stores/barista'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
+import { buildExportSignature, claimExport } from '@/logic/exportGuard'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'
 import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
@@ -115,14 +116,19 @@ app.service('logs').on('created', payload => {
     })
   }
   if (payload.job) {
-    const extra: { collection?: any } = {}
-    if (payload.collection) {
-      extra.collection = payload.collection
+    const extra: Record<string, any> = {
+      ...(payload.job.extra ?? {})
     }
+    if (payload.collection) extra.collection = payload.collection
+    if (payload.progress != null) extra.progress = payload.progress
+    if (payload.taskname != null) extra.taskname = payload.taskname
+    if (payload.taskstate != null) extra.taskstate = payload.taskstate
+    if (payload.message != null) extra.message = payload.message
+
     const jobsStore = useJobsStore()
     jobsStore.updateJob({
       ...payload.job,
-      progress: payload.progress,
+      progress: payload.progress ?? payload.job.progress,
       extra
     })
   }
@@ -151,7 +157,23 @@ export const collectionsItems = app.service('/collections/:collection_id/items')
 export const topics = app.service('topics')
 export const topicsGraph = app.service('topics-graph')
 export const jobs = app.service('jobs')
-export const exporter = app.service('search-exporter')
+export const exporter = app.service('search-exporter').hooks({
+  before: {
+    create: [
+      context => {
+        const signature = buildExportSignature(context.data, context.params)
+        if (!claimExport(signature)) {
+          // Skip the real backend call. Setting result in a before hook
+          // short-circuits the service method (Feathers).
+          context.result = { skipped: true, reason: 'duplicate-export' }
+        } else {
+          console.info('[search-exporter.create]', signature.slice(0, 160))
+        }
+        return context
+      }
+    ]
+  }
+})
 export const articlesSuggestions = app
   .service('articles-suggestions')
   .hooks(articlesSuggestionsHooks)
@@ -202,7 +224,7 @@ export const userSpecialMembershipRequestsReviews = app.service(
 )
 export const magicLink = app.service('magic-link')
 
-export const specialMembershipAccess = app.service('special-membership-access')
+export const specialMembershipAccess = app.service('special-membership-plans')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
 export const barista = app.service('barista-proxy')

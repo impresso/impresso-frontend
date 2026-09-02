@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 
 export interface State {
   lastNotificationDate: string
+  /** Highest job id the user has already seen in the tasks dropdown. */
+  lastSeenJobId: number
   language_code: string
   cookiesAccepted: boolean
   searchDisplayStyle: string
@@ -19,6 +21,7 @@ export interface State {
 export const useSettingsStore = defineStore('settings', {
   state: (): State => ({
     lastNotificationDate: new Date(0).toISOString(),
+    lastSeenJobId: 0,
     language_code: 'en',
     cookiesAccepted: false,
     searchDisplayStyle: 'list',
@@ -33,6 +36,9 @@ export const useSettingsStore = defineStore('settings', {
   actions: {
     updateLastNotificationDate(date?: Date) {
       this.lastNotificationDate = date != null ? date.toISOString() : new Date().toISOString()
+    },
+    updateLastSeenJobId(id: number) {
+      if (id > this.lastSeenJobId) this.lastSeenJobId = id
     },
     setLanguageCode(code: string) {
       this.language_code = code
@@ -55,6 +61,7 @@ export const useSettingsStore = defineStore('settings', {
       'termsAgreed',
       'cookiesAccepted',
       'lastNotificationDate',
+      'lastSeenJobId',
       'language_code',
       'searchDisplayStyle',
       'showExtendedDatalabCode',

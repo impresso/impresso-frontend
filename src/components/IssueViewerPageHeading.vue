@@ -53,7 +53,7 @@
               {{ $t('buckets.copyright.' + article.copyright) }}{{ ' ' }}
             </div>
             <DataProviderLabel v-if="dataProvider" :item="dataProvider" class="mb-1" />
-            <ContentItemIdLabel v-if="contentItem" :item="contentItem" class="mt-1" />
+            <ContentItemIdLabel v-if="contentItem" :id="contentItem.id" class="mt-1" />
             <ContentItemAccess v-if="contentItem" :item="contentItem" class="mt-1" />
           </div>
           <div class="ml-auto" style="min-width: 200px">
