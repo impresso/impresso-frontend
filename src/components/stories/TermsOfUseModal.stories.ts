@@ -15,9 +15,7 @@ const meta: Meta<typeof TermsOfUseModal> = {
    */
   render: args => ({
     setup() {
-      const acceptedAt = ref<string | null>(
-        args.acceptTermsDate != null ? String(args.acceptTermsDate) : null
-      )
+      const acceptedAt = ref<string | null>(args.canDismiss ? new Date().toISOString() : null)
       const onAcceptChange = (event: Event) => {
         const checked = (event.target as HTMLInputElement).checked
         acceptedAt.value = checked ? new Date().toISOString() : null
@@ -29,7 +27,7 @@ const meta: Meta<typeof TermsOfUseModal> = {
       <div style="min-height: 100vh">
         <TermsOfUseModal
           v-bind="args"
-          :accept-terms-date="acceptedAt"
+          :can-dismiss="!!acceptedAt"
           :is-visible="true"
         >
           <template #terms-of-use-status>
@@ -58,7 +56,7 @@ export const RequiresAcceptance: Story = {
   args: {
     dialogClass: 'modal-dialog-scrollable modal-lg',
     isVisible: true,
-    acceptTermsDate: null
+    canDismiss: false
   }
 }
 
@@ -66,6 +64,6 @@ export const AlreadyAccepted: Story = {
   args: {
     dialogClass: 'modal-dialog-scrollable modal-lg',
     isVisible: true,
-    acceptTermsDate: new Date().toISOString()
+    canDismiss: true
   }
 }

@@ -140,13 +140,12 @@ const showConfirmModal = ref(false)
 const selectedPlan = ref<AvailablePlanType | null>(null)
 const acceptedTerms = ref<boolean>(false)
 const userStore = useUserStore()
-/** True if checked on the form or accepted in the Terms of Use modal. */
-const termsAccepted = computed(
-  () =>
-    acceptedTerms.value ||
-    !!userStore.acceptTermsDateOnLocalStorage ||
-    !!userStore.acceptTermsDate
-)
+/**
+ * True only for an explicit acceptance: the checkbox ticked in this session, or
+ * a legally-binding acceptance already recorded in the DB. The temporary local
+ * (non-binding) acceptance must NOT satisfy registration.
+ */
+const termsAccepted = computed(() => acceptedTerms.value || !!userStore.acceptTermsDate)
 
 const profileFormData = ref<ProfileFormPayload>({
   email: '',

@@ -33,12 +33,12 @@
 
     <TermsOfUseModal
       :isVisible="view === ViewTermsOfUse"
-      :acceptTermsDate="acceptTermsDate || acceptTermsDateOnLocalStorage"
+      :canDismiss="hasAcceptedTerms"
       @dismiss="resetView"
     >
       <template v-slot:terms-of-use-status>
         <Alert
-          :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
+          :type="hasAcceptedTerms ? 'info' : 'warning'"
           class="bg-info mb-3"
           style="position: sticky; top: 0"
         >
@@ -50,8 +50,8 @@
           :is-loading="
             termsOfUseResponse.status === 'idle' || termsOfUseResponse.status === 'loading'
           "
-          :checked="!!(acceptTermsDate || acceptTermsDateOnLocalStorage)"
-          :disabled="!!(acceptTermsDate || acceptTermsDateOnLocalStorage)"
+          :checked="hasAcceptedTerms"
+          :disabled="hasAcceptedTerms"
           @change="
             (event: Event) => {
               const isChecked = (event.target as HTMLInputElement).checked
@@ -223,6 +223,14 @@ const errorMessages = computed<ErrorMessage[] | null>(() => {
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
 // date of accepting the ToU on current store (sort of cached value)
 const acceptTermsDate = computed(() => userStore.acceptTermsDate)
+// Effective acceptance used only for UX (dismiss button + checkbox state).
+// For logged-in users only the legally-binding DB date counts; for guests the
+// temporary local acceptance is enough to let them dismiss.
+const hasAcceptedTerms = computed(() =>
+  isLoggedIn.value
+    ? !!acceptTermsDate.value
+    : !!(acceptTermsDate.value || acceptTermsDateOnLocalStorage.value)
+)
 
 const showChangePlanToLegacyUsers = computed(() => {
   // if the user is logged in and has a plan, show the change plan modal

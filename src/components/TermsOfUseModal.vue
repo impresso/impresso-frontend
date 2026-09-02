@@ -21,7 +21,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import MarkdownContent from './MarkdownContent.vue'
 
@@ -35,24 +34,21 @@ const props = withDefaults(
     dialogClass?: string
     title?: string
     url?: string
-    /** When set, the user has already accepted and may dismiss the modal. */
-    acceptTermsDate?: Date | string | null
+    canDismiss?: boolean
     isVisible?: boolean
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable modal-lg',
     title: 'Terms Of Use',
     url: import.meta.env.VITE_TERMS_OF_USE_MD_URL,
-    acceptTermsDate: null
+    canDismiss: false
   }
 )
 
 const emit = defineEmits(['dismiss'])
 
-const canDismiss = computed(() => !!props.acceptTermsDate)
-
 const dismiss = () => {
-  if (!canDismiss.value) return
+  if (!props.canDismiss) return
   console.debug('[TermsOfUseModal] dismiss')
   emit('dismiss')
 }
