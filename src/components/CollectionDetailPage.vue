@@ -18,6 +18,7 @@
           </span>
 
           <h3>{{ collection.name }}</h3>
+          <ContentItemIdLabel v-if="collection.id" :id="collection.id" class="mt-1" />
           <blockquote class="m-2 pl-2 border-left border-dark">
             {{ collection.description }}
           </blockquote>
@@ -28,6 +29,14 @@
         </section>
 
         <section class="ml-auto py-3 text-right">
+          <CopyToDatalabButton
+            v-if="collection.id"
+            class="m-1 d-inline-block text-left"
+            :base64Filters="base64Filters"
+            resource="search"
+            functionName="find"
+            :public-api-url="publicApiUrl"
+          />
           <router-link
             :to="
               updateCurrentRoute({
@@ -325,6 +334,9 @@ import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 import { getQueryParameter } from '../router/util'
 import {
   exporter as exporterService,
@@ -408,6 +420,8 @@ export default defineComponent({
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    ContentItemIdLabel,
+    CopyToDatalabButton,
     RadioGroup,
     Modal
   },
@@ -421,6 +435,15 @@ export default defineComponent({
         { value: 'list', text: this.$t('display_button_list') },
         { value: 'tiles', text: this.$t('display_button_tiles') }
       ]
+    },
+    publicApiUrl() {
+      return DatalabPublicApiUrl
+    },
+    base64Filters() {
+      if (!this.collection?.id) return ''
+      return new SearchQuery({
+        filters: [{ type: 'collection', q: this.collection.id }]
+      }).getSerialized({ serializer: 'protobuf' }) as string
     },
     collectionId() {
       return this.$route.params.collection_id as string
