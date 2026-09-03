@@ -367,12 +367,12 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:article_id',
+      path: '/content-item/:content_item_id',
       alias: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_id as string
-        const ci = await services.contentItems.get(contentItemId)
+        const contentItemId = to.params.article_id || to.params.content_item_id
+        const ci = await services.contentItems.get(contentItemId as string)
         return {
           name: 'issue-viewer',
           params: {
@@ -390,11 +390,33 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_id',
-      component: () => import('@/pages/AudioContentItem.vue'),
+      component: () => import('@/pages/AudioContentItemPage.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
-      }
+      },
+      children: [
+        {
+          name: Routes.audioContentItem.children.transcript.name,
+          component: () => import('@/components/audio/AudioContentItemTranscript.vue'),
+          path: Routes.audioContentItem.children.transcript.path
+        },
+        {
+          name: Routes.audioContentItem.children.similarItems.name,
+          component: () => import('@/components/ListOfSimilarContentItems.vue'),
+          path: Routes.audioContentItem.children.similarItems.path
+        },
+        {
+          name: Routes.audioContentItem.children.citeAs.name,
+          component: () => import('@/components/contentItem/ContentItemCard.vue'),
+          path: Routes.audioContentItem.children.citeAs.path
+        },
+        {
+          name: Routes.audioContentItem.children.debug.name,
+          component: () => import('@/components/contentItem/ContentItemDebug.vue'),
+          path: Routes.audioContentItem.children.debug.path
+        }
+      ]
     },
     {
       path: '/compare',
@@ -502,7 +524,7 @@ const router = createRouter({
     },
     {
       path: Routes.mediaSource.path,
-      component: () => import('@/pages/MediaSource.vue'),
+      component: () => import('@/pages/MediaSourcePage.vue'),
       name: Routes.mediaSource.name,
       meta: {
         requiresAuth: false
@@ -510,14 +532,30 @@ const router = createRouter({
 
       children: [
         {
-          path: Routes.mediaSourceMetadata.path,
+          path: Routes.mediaSource.children.metadata.path,
           component: () => import('@/components/mediaSource/MediaSourceMetadata.vue'),
-          name: Routes.mediaSourceMetadata.name
+          name: Routes.mediaSource.children.metadata.name
         },
         {
-          path: Routes.mediaSourceOverview.path,
-          name: Routes.mediaSourceOverview.name,
+          path: Routes.mediaSource.children.overview.path,
+          name: Routes.mediaSource.children.overview.name,
           component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.contentItems.path,
+          name: Routes.mediaSource.children.contentItems.name,
+          component: () => import('@/components/ListOfContentItems.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.firstPages.path,
+          name: Routes.mediaSource.children.firstPages.name,
+          component: () => import('@/components/mediaSource/MediaSourceFirstPages.vue'),
           meta: {
             requiresAuth: false
           }

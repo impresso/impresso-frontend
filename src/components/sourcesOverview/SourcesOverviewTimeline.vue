@@ -6,7 +6,10 @@
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ props.dataValues[tooltip.idx]?.label }}
           </h4>
-          <div class="small-caps my-1">press</div>
+          <div class="small-caps my-1" v-if="props.dataValues[tooltip.idx]">
+            {{ props.dataValues[tooltip.idx].item?.medium }} &middot;
+            {{ props.dataValues[tooltip.idx].item?.type }}
+          </div>
           <div class="mb-0">
             {{ $d(tooltip.currentDate, 'year') }} &mdash;
             <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
@@ -16,7 +19,9 @@
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
           </h4>
-          <div class="small-caps my-1">press</div>
+          <div class="small-caps my-1" v-if="tooltip.dataValue.item">
+            {{ tooltip.dataValue.item.medium }} &middot; {{ tooltip.dataValue.item.type }}
+          </div>
           <div v-if="tooltip.currentDate">
             <div class="mb-2">
               {{ $d(tooltip.currentDate, 'year') }} &mdash;
@@ -228,7 +233,7 @@ const fiveYearStrokeWidth = 0.5
 export interface Props {
   startDate: Date
   endDate: Date
-  dataValues?: DataValue[]
+  dataValues?: DataValue<any>[]
   minimumGap?: number
   minimumVerticalGap?: number
   minimumVerticalHeight?: number
@@ -259,8 +264,8 @@ export interface TooltipPosition {
   y: number
   /* idx corresponds to vertical position */
   idx: number
-  value?: DataValue
-  otherValuesOnDate: DataValue[]
+  value?: DataValue<any>
+  otherValuesOnDate: DataValue<any>[]
   scrollTop: number
   scrollWidth: number
   scrollHeight: number
@@ -348,8 +353,8 @@ const tooltip = ref<{
   y: number
   idx: number
   isActive: boolean
-  dataValue?: DataValue
-  exactDataValue?: DataValue
+  dataValue?: DataValue<any>
+  exactDataValue?: DataValue<any>
   currentDate?: Date
 }>({
   x: 0,
@@ -536,15 +541,15 @@ const getDataValuesAtPosition = (
   x: number,
   y: number
 ): {
-  dataValue: DataValue | undefined
-  otherValuesOnDate: DataValue[]
+  dataValue: DataValue<any> | undefined
+  otherValuesOnDate: DataValue<any>[]
   idx: number
 } => {
   // Find the closest data value to the given date
   const date = xScale.value.invert(x)
   const dataValuesIndex = yScale.value.invertIndex(y - svgHeight.value)
-  let dataValue: DataValue | undefined = undefined
-  let otherValuesOnDate: DataValue[] = []
+  let dataValue: DataValue<any> | undefined = undefined
+  let otherValuesOnDate: DataValue<any>[] = []
 
   // check if the props.datavalues at index has a date range that includes the date
   const currentDataValue = props.dataValues[dataValuesIndex]
@@ -598,7 +603,7 @@ const containerOnClick = ({ clientX, clientY }: MouseEvent) => {
   emit('tooltipOut')
 }
 
-const onDataValueItemClick = ({ event }: { event: MouseEvent; dataValue: DataValue }) => {
+const onDataValueItemClick = ({ event }: { event: MouseEvent; dataValue: DataValue<any> }) => {
   const x = event.clientX - containerRef.value!.getBoundingClientRect().left
   const y = event.clientY - containerRef.value!.getBoundingClientRect().top
   containerClientX.value = x

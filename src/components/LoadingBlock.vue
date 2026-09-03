@@ -1,6 +1,9 @@
 <template>
   <div class="LoadingBlock" :style="{ height: `${height}px` }">
-    <div class="pulsating-block" :style="{ height: `${height}px` }"></div>
+    <div
+      class="pulsating-block"
+      :style="{ height: `${height}px`, animationDelay: `${animationDelay}s` }"
+    ></div>
     <p>{{ label }}</p>
   </div>
 </template>
@@ -9,10 +12,12 @@
 interface LoadingBlockProps {
   label?: string
   height?: number
+  animationDelay?: number
 }
 withDefaults(defineProps<LoadingBlockProps>(), {
   height: 100,
-  label: 'loading...'
+  label: 'loading...',
+  animationDelay: 0
 })
 </script>
 

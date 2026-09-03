@@ -161,6 +161,17 @@ export interface Error {
 
 
 /**
+ * Response for POST /tools/filters/serialize
+ */
+export interface FilterSerializationResponse {
+  /**
+   * The protobuf base64 serialized filters string.
+   */
+  filters: string;
+}
+
+
+/**
  * ID of the text reuse passage
  */
 export type PassageID = string;

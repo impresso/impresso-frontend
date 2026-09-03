@@ -80,6 +80,31 @@ const props = defineProps({
 })
 
 const Icons: Record<string, IconData> = {
+  antennaSignalTag: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
+    // <path d="M2 15V9C2 5.68629 4.68629 3 8 3H16C19.3137 3 22 5.68629 22 9V15C22 18.3137 19.3137 21 16 21H8C4.68629 21 2 18.3137 2 15Z" stroke="#000000" stroke-width="1.5"></path>
+    // <path d="M15 9C15 9 16 10.125 16 12C16 13.875 15 15 15 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 12.01L12.01 11.9989" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17 7C17 7 19 8.78571 19 12C19 15.2143 17 17 17 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 9C9 9 8 10.125 8 12C8 13.875 9 15 9 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 7C7 7 5 8.78571 5 12C5 15.2143 7 17 7 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        d: 'M2 15V9C2 5.68629 4.68629 3 8 3H16C19.3137 3 22 5.68629 22 9V15C22 18.3137 19.3137 21 16 21H8C4.68629 21 2 18.3137 2 15Z'
+      },
+      {
+        d: 'M15 9C15 9 16 10.125 16 12C16 13.875 15 15 15 15'
+      },
+      {
+        d: 'M12 12.01L12.01 11.9989'
+      },
+      {
+        d: 'M17 7C17 7 19 8.78571 19 12C19 15.2143 17 17 17 17'
+      },
+      {
+        d: 'M9 9C9 9 8 10.125 8 12C8 13.875 9 15 9 15'
+      },
+      {
+        d: 'M7 7C7 7 5 8.78571 5 12C5 15.2143 7 17 7 17'
+      }
+    ]
+  },
   arrowEnlargeTag: {
     paths: [
       {
@@ -221,19 +246,6 @@ const Icons: Record<string, IconData> = {
       },
       {
         d: 'M9 12H15'
-      }
-    ]
-  },
-  sourceType: {
-    paths: [
-      {
-        d: 'M9 12H15'
-      },
-      {
-        d: 'M12 9V15'
-      },
-      {
-        d: 'M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z'
       }
     ]
   },
@@ -699,6 +711,28 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  journalPage: {
+    paths: [
+      {
+        d: 'M6 6L14 6'
+      },
+      {
+        d: 'M6 10H18'
+      },
+      {
+        d: 'M13 14L18 14'
+      },
+      {
+        d: 'M13 18L18 18'
+      },
+      {
+        d: 'M2 21.4V2.6C2 2.26863 2.26863 2 2.6 2H21.4C21.7314 2 22 2.26863 22 2.6V21.4C22 21.7314 21.7314 22 21.4 22H2.6C2.26863 22 2 21.7314 2 21.4Z'
+      },
+      {
+        d: 'M6 18V14H9V18H6Z'
+      }
+    ]
+  },
   journal: {
     paths: [
       {
@@ -827,19 +861,23 @@ const IconAliases: Record<string, string> = {
   year: 'timer',
   month: 'timer',
   newspaper: 'journal',
+  mediaSource: 'journal',
   type: 'label',
   country: 'position',
   person: 'cubeDots',
   nag: 'newsagency',
   newsagency: 'newsagency',
   organisation: 'organisation',
-  sourceType: 'sourceType',
+  sourceType: 'label',
   sourceMedium: 'sourceMedium',
   collection: 'boxIso',
   embedding: 'codeBracketSquare',
   mention: 'mention',
   ocrQuality: 'flower',
-  contentLength: 'rulerArrow'
+  contentLength: 'rulerArrow',
+  permissionExplore: 'key',
+  permissionGetTranscript: 'key',
+  permissionGetImage: 'key'
 }
 
 const computedPaths = computed(() => {

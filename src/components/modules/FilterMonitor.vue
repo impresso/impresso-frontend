@@ -108,7 +108,7 @@
             size="sm"
             placeholder=""
             class="accepted"
-            :value="item.id"
+            :value="String(item.id)"
             :type="isIntegerType(type) ? 'number' : 'text'"
             @click.prevent.stop
             @update:modelValue="changeFilterItemAtIndex($event, idx)"
@@ -117,11 +117,11 @@
         </b-form-checkbox>
         <div v-else class="d-flex text-small">
           <b-form-checkbox
-            v-model="checkedItems[item.id]"
-            @update:modelValue="toggleFilterItem($event, item.id)"
+            v-model="checkedItems[String(item.id)]"
+            @update:modelValue="toggleFilterItem($event, String(item.id))"
           >
           </b-form-checkbox>
-          <item-selector hide-icon :id="item.id || item.id" :item="item" :type="type">
+          <item-selector hide-icon :id="String(item.id)" :item="item" :type="type">
             <item-label :item="item" :type="type" />
             <span v-if="!item.id">...</span>
             <span v-if="item.count"
@@ -155,7 +155,7 @@
           <span v-if="item.count"
             >(<span v-html="$t('numbers.results', { n: $n(item.count) }, item.count)" />)</span
           >
-          <item-selector :id="item.id" :item="item" :type="type" />
+          <item-selector :id="String(item.id)" :item="item" :type="type" />
           <b-button
             class="dripicons-cross ml-auto"
             variant="transparent"

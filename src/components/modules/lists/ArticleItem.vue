@@ -21,7 +21,7 @@
         data-testid="article-access-rights"
         v-if="item.dataProvider != null && item.dataProvider.length"
       >
-        {{ $t(`buckets.accessRight.${item.accessRight}`) }}
+        {{ $t(`buckets.copyright.${item.accessRight}`) }}
         <DataProviderLabel
           v-if="item.dataProvider"
           :item="{ id: item.dataProvider, name: item.dataProvider }"
@@ -189,9 +189,13 @@ export default defineComponent({
   emits: ['click:title'],
   computed: {
     pages() {
-      return this.$t('pp', {
-        pages: this.item.pages?.map(d => d.num)?.join(',')
-      }, this.item.nbPages)
+      return this.$t(
+        'pp',
+        {
+          pages: this.item.pages?.map(d => d.num)?.join(',')
+        },
+        this.item.nbPages
+      )
     },
     computedRelevantTopics() {
       if (isNaN(this.minTopicRelevance)) return this.item.topics || []

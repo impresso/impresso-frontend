@@ -27,7 +27,7 @@
         <div class="list-item-details me-3 mr-3">
           <!-- if article -->
           <ContentItem
-            :item="contentItem"
+            :contentItem="contentItem"
             show-meta
             showSnippet
             show-semantic-enrichments

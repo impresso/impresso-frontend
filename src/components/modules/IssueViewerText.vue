@@ -3,7 +3,7 @@
     <div ref="contentItemHeader">
       <ContentItem
         v-if="contentItem"
-        :item="contentItem"
+        :contentItem="contentItem"
         :show-title="false"
         :show-type="false"
         showSemanticEnrichments

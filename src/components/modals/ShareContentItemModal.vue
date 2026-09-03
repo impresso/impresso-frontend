@@ -58,7 +58,7 @@
             </div>
             <div class="ShareContentItemModal__iframe-caption d-none">
               <ContentItemCitation
-                :item="contentItemCustomized"
+                :contentItem="contentItemCustomized"
                 :style="{
                   padding: form.captionPadding + 'px'
                 }"

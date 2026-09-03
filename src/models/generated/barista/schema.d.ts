@@ -170,6 +170,11 @@ export type components = {
              * @description The intent of the human message, if it can be determined.
              */
             intent?: string | null;
+            /**
+             * Prohibitedfiltertypes
+             * @description Filter types the agent should not use when building search queries.
+             */
+            prohibitedFilterTypes?: string[] | null;
             /** @description The search query context included with the human message, if any. */
             searchQuery?: components["schemas"]["Filters"] | null;
             /**
@@ -214,6 +219,11 @@ export type components = {
              * @description The ID of the model to use.
              */
             modelId?: ("llama-3.3-70b-versatile" | "llama-3.1-8b-instant" | "qwen/qwen3-32b" | "openai/gpt-oss-20b" | "openai/gpt-oss-120b") | null;
+            /**
+             * Prohibitedfiltertypes
+             * @description A list of filter types that the agent should not be using in the search query it builds. These types are still understood.
+             */
+            prohibitedFilterTypes?: string[] | null;
             /** @description Current query filters for the context, if different from the last set in the conversation. */
             searchQuery?: components["schemas"]["Filters"] | null;
             /**

@@ -13,92 +13,21 @@
       <div v-if="isLoading">working...</div>
     </div>
 
-    <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
-      <div class="border shadow-sm rounded p-2">
-        <details class="mb-2">
-          <summary
-            class="small text-muted d-flex align-items-center gap-2"
-            style="cursor: pointer; list-style: none"
-          >
-            <Icon name="chevron" :scale="0.7" :strokeWidth="2" class="details-chevron" />
-            <span class="mr-auto">Settings</span>
-            <BFormSelect
-              v-model="selectedAgentType"
-              :options="agentTypeOptions"
-              size="sm"
-              style="width: auto"
-              @click.stop
-            />
-            <WithTooltip
-              v-if="baristaStore.sessionId"
-              placement="top-end"
-              strategy="fixed"
-              :content="sessionIdTooltipContent"
-              :is-html="true"
-              class="session-id-tooltip-hint very-small text-muted"
-              style="cursor: pointer"
-              @click.stop="copySessionId"
-            >
-              <Icon name="info" :scale="0.6" :strokeWidth="2" />
-            </WithTooltip>
-          </summary>
-          <div class="mt-2 px-1">
-            <label class="small d-block mb-1">Model</label>
-            <BFormSelect v-model="selectedModelId" :options="modelOptions" size="sm" class="mb-2" />
-            <label class="small d-block mb-1">Additional instructions</label>
-            <BTextarea
-              v-model="additionalInstructions"
-              :debounce="0"
-              placeholder="Extra instructions for Barista..."
-              class="border rounded-sm form-control form-control-sm"
-              :rows="2"
-              autosize
-              :maxRows="6"
-            />
-          </div>
-        </details>
-
-        <div class="d-flex align-items-end">
-          <BTextarea
-            v-model="inputMessage"
-            :debounce="0"
-            @keyup.enter="handleSubmit"
-            placeholder="Type your message..."
-            :disabled="isLoading"
-            ref="humanPrompt"
-            class="border rounded-sm form-control border-dark"
-            :rows="3"
-            autosize
-            :maxRows="10"
-          />
-
-          <div class="ml-2">
-            <button
-              @click="handleSubmit"
-              :disabled="!inputMessage.trim() || isLoading"
-              class="btn btn-outline-primary"
-            >
-              <span v-if="isLoading">Sending...</span>
-              <span v-else>Send</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <BaristaChatInput
+      ref="chatInputRef"
+      :isLoading="isLoading"
+      :filters="filters"
+      @submit="emit('submit', $event)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
-import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import type { Filter } from '@/models'
 import { BaristaRequest, ChatMessage } from '@/services/types/barista'
-import { useBaristaStore } from '@/stores/barista'
 import BaristaChatMessage from './BaristaChatMessage.vue'
-import Icon from '../base/Icon.vue'
-import WithTooltip from '../base/WithTooltip.vue'
-import { toSerializedFilters } from '@/logic/filters'
+import BaristaChatInput from './BaristaChatInput.vue'
 
 export interface BaristaChatPanelProps {
   messages: ChatMessage[]
@@ -106,7 +35,6 @@ export interface BaristaChatPanelProps {
   filters?: Filter[]
 }
 
-const baristaStore = useBaristaStore()
 const props = withDefaults(defineProps<BaristaChatPanelProps>(), {
   messages: () => [],
   isLoading: false,
@@ -117,31 +45,8 @@ const emit = defineEmits<{
   (e: 'updateHeight', height: number): void
 }>()
 
-const sessionIdTooltipContent = computed(
-  () =>
-    `<b>Chat Session ID</b><br><code style="white-space:nowrap;border:none;background:transparent;color:inherit;padding:0">${baristaStore.sessionId}</code>`
-)
-
-const inputMessage = ref('')
-const selectedModelId = ref('')
-const selectedAgentType = ref<'react' | 'router' | 'skills'>('router')
-const additionalInstructions = ref('')
 const chatHistoryRef = ref<HTMLElement | null>(null)
-
-const agentTypeOptions: Option[] = [
-  { value: 'skills', text: 'Skills (experimental)' },
-  { value: 'react', text: 'ReAct (deprecated)' },
-  { value: 'router', text: 'Router (default)' }
-]
-
-const modelOptions: Option[] = [
-  { value: '', text: 'Default' },
-  { value: 'llama-3.3-70b-versatile', text: 'llama-3.3-70b-versatile' },
-  { value: 'llama-3.1-8b-instant', text: 'llama-3.1-8b-instant' },
-  { value: 'qwen/qwen3-32b', text: 'qwen/qwen3-32b' },
-  { value: 'openai/gpt-oss-20b', text: 'openai/gpt-oss-20b' },
-  { value: 'openai/gpt-oss-120b', text: 'openai/gpt-oss-120b' }
-]
+const chatInputRef = ref<InstanceType<typeof BaristaChatInput> | null>(null)
 
 const resolvedToolCallIds = computed(() => {
   const ids = new Set<string>()
@@ -158,32 +63,6 @@ function shouldHideToolCalls(message: ChatMessage): boolean {
   return message.toolCallIds.some(id => resolvedToolCallIds.value.has(id))
 }
 
-function handleSubmit() {
-  if (!inputMessage.value.trim() || props.isLoading) return
-
-  const shouldSendFilters =
-    baristaStore.sendCurrentFilters &&
-    props.filters.length > 0 &&
-    baristaStore.lastFiltersReceived != toSerializedFilters(props.filters || [])
-
-  // model ID must be from the list or undefined.
-  const modelId = (selectedModelId.value?.trim() ?? '') == '' ? null : selectedModelId.value.trim()
-
-  emit('submit', {
-    message: inputMessage.value.trim(),
-    searchQuery: shouldSendFilters ? { filters: props.filters as any } : undefined,
-    sessionId: baristaStore.sessionId,
-    additionalInstructions: additionalInstructions.value.trim() || undefined,
-    modelId: modelId as any,
-    agentType: selectedAgentType.value
-  })
-  inputMessage.value = ''
-}
-
-function copySessionId() {
-  navigator.clipboard.writeText(baristaStore.sessionId)
-}
-
 function updateHeight() {
   nextTick(() => {
     console.debug(
@@ -191,42 +70,25 @@ function updateHeight() {
       chatHistoryRef.value?.scrollHeight || 0
     )
 
-    humanPrompt.value?.focus()
+    chatInputRef.value?.focus()
     emit('updateHeight', chatHistoryRef.value?.scrollHeight || 0)
   })
 }
 
-// Scroll to bottom when new messages are added
 watch(
   () => props.messages.length,
   () => {
     updateHeight()
   }
 )
-const humanPrompt = ref<HTMLTextAreaElement | null>(null)
+
 onMounted(() => {
-  humanPrompt.value?.focus()
+  chatInputRef.value?.focus()
   updateHeight()
 })
 </script>
 
-<style>
-.session-id-tooltip-hint .tooltip-inner {
-  max-width: none;
-}
-</style>
-
 <style scoped>
-details summary::-webkit-details-marker {
-  display: none;
-}
-details[open] .details-chevron {
-  transform: rotate(180deg);
-}
-.details-chevron {
-  transition: transform 0.15s ease;
-  flex-shrink: 0;
-}
 .chat-history {
   flex: 1;
   overflow-y: auto;

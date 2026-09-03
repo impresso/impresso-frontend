@@ -11,7 +11,7 @@
         :class="{ 'reduced-label': reducedLabel }"
         :title="dataValue.label"
       >
-        {{ dataValue.label }}
+        {{ label }}
       </div>
       <div v-if="dataValue.dateRange" class="date-range text-no-wrap very-small">
         {{ $d(dataValue.dateRange[0], 'month') }}
@@ -66,7 +66,7 @@
 import { interpolateYlGn, max, min, scalePow, scaleSequential, scaleTime } from 'd3'
 import { computed } from 'vue'
 
-export interface DataValue {
+export interface DataValue<T = any> {
   id: string
   date: Date
   startDate?: Date
@@ -74,12 +74,13 @@ export interface DataValue {
   dateRange: [Date, Date]
   value: number
   label?: string
-  // nested datavalkues for drilldown
-  dataValues?: DataValue[]
+  item?: T
+  // nested data values for drilldown
+  dataValues?: DataValue<T>[]
 }
 
 export interface SourcesOverviewDateValueItemProps {
-  dataValue: DataValue
+  dataValue: DataValue<any>
   reducedLabel?: boolean
   width?: number
   height?: number
@@ -104,7 +105,7 @@ const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
 })
 
 const emit = defineEmits<{
-  (e: 'itemClick', payload: { event: MouseEvent; dataValue: DataValue }): void
+  (e: 'itemClick', payload: { event: MouseEvent; dataValue: DataValue<any> }): void
 }>()
 
 const nestedDataValues = computed(() => {
@@ -143,6 +144,10 @@ const yScale = computed(() => {
     .domain([minValue.value, maxValue.value])
     .range([props.minBarHeight, props.height])
     .clamp(true)
+})
+
+const label = computed(() => {
+  return props.dataValue.item?.name || props.dataValue.label || props.dataValue.id
 })
 const onClick = (event: MouseEvent) => {
   event.stopPropagation()

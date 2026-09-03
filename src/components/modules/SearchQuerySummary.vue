@@ -47,7 +47,6 @@ const AvailableFilterTypes = [
   'location',
   'language',
   'country',
-  'accessRight',
   'copyright',
   'nag',
   'organisation',
@@ -56,7 +55,10 @@ const AvailableFilterTypes = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)
@@ -81,7 +83,7 @@ const props = withDefaults(defineProps<SearchQuerySummaryProps>(), {
     'language',
     'country',
     'year',
-    'accessRight',
+    'copyright',
     'nag'
   ]
 })

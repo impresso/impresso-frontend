@@ -24,7 +24,25 @@
         </form>
       </div>
     </div>
-    <slot v-bind:items="similarItems"></slot>
+    <slot v-bind:items="similarItems">
+      <div class="row">
+        <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in similarItems" :key="item.id">
+          <ContentItem
+            :contentItem="item"
+            class="p-3 rounded-md border shadow mb-4"
+            showDate
+            showMediaSource
+            showProvider
+            showLink
+            showIcon
+            showMeta
+            showSpecs
+            showSnippet
+            showSemanticEnrichments
+          />
+        </div>
+      </div>
+    </slot>
     <LoadingBlock
       :class="contentClass"
       v-if="!error && isLoading"
@@ -87,8 +105,9 @@ import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
+import ContentItem from './modules/lists/ContentItem.vue'
 export interface ListOfSimilarContentItemsProps {
-  contentItem: ContentItemType
+  contentItem?: ContentItemType
   minHeight?: number
   contentClass?: string
 }
@@ -110,7 +129,7 @@ const contentItemEmbedding = ref<string>('')
  */
 const timeframeFilter = computed<Filter | null>(() => {
   if (!addTimeframeFilter.value) return null
-  const contentItemDate = new Date(props.contentItem.meta.date)
+  const contentItemDate = new Date(props.contentItem?.meta?.date)
   const oneYearBefore = new Date(contentItemDate)
   oneYearBefore.setFullYear(contentItemDate.getFullYear() - 1)
   const oneYearAfter = new Date(contentItemDate)
@@ -136,6 +155,9 @@ const timeframeFilter = computed<Filter | null>(() => {
  * @throws {Error} May throw an error if the API call fails or if there are issues processing the response
  */
 const fetchSimilarItems = async (): Promise<void> => {
+  if (!props.contentItem) {
+    return
+  }
   if (isLoading.value) return
   isLoading.value = true
   similarItems.value = []
@@ -183,6 +205,12 @@ const fetchSimilarItems = async (): Promise<void> => {
     }
   })
     .then(res => {
+      console.info(
+        '[ListOfSimilarContentItems] Fetched similar items for content item:',
+        props.contentItem.id,
+        'Result count:',
+        res.data.length
+      )
       return res.data
     })
     .catch(err => {
@@ -195,7 +223,7 @@ const fetchSimilarItems = async (): Promise<void> => {
 }
 
 watch(
-  () => props.contentItem.id,
+  () => props.contentItem?.id,
   () => {
     similarItems.value = []
     isLoading.value = false

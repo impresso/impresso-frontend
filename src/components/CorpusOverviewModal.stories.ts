@@ -7,14 +7,16 @@ const meta: Meta<typeof CorpusOverviewModal> = {
   title: 'Components/CorpusOverviewModal',
   component: CorpusOverviewModal,
   tags: ['autodocs'],
+  parameters: {
+    layout: 'fullscreen'
+  },
   render: args => {
     return {
       setup() {
         return { args }
       },
       components: { CorpusOverviewModal },
-      template:
-        '<div style="height: 1000px; width: 100%"><CorpusOverviewModal v-bind="args"></CorpusOverviewModal></div>'
+      template: '<CorpusOverviewModal v-bind="args"></CorpusOverviewModal>'
     }
   }
 }
@@ -31,10 +33,13 @@ export const Default: Story = {
     plansLabels: PlanLabels,
     datasets: [
       {
+        id: 'SNL-BLB-1845-1847',
         associatedPartner: 'SNL',
         mediaId: 'BLB',
         mediaTitle: 'Bündner Landbote',
-        timePeriod: '1846-1847',
+        timePeriod: '1845-1847',
+        startYear: 1845,
+        endYear: 1847,
         media: 'Newspaper',
         medium: 'print',
         copyright: 'Public Domain',
@@ -45,10 +50,13 @@ export const Default: Story = {
         partnerBitmapIndex: 5
       },
       {
+        id: 'SNL-BNN-1885-1892',
         associatedPartner: 'SNL',
         mediaId: 'BNN',
         mediaTitle: 'Bündner Nachrichten',
         timePeriod: '1885-1892',
+        startYear: 1885,
+        endYear: 1892,
         media: 'Newspaper',
         medium: 'print',
         copyright: 'Public Domain',
@@ -59,10 +67,13 @@ export const Default: Story = {
         partnerBitmapIndex: 5
       },
       {
-        associatedPartner: 'BCUL',
-        mediaId: 'ACI',
-        mediaTitle: 'Almanach pour le commerce',
-        timePeriod: '1832-1832',
+        id: 'BL-BRLB-1833-1833',
+        associatedPartner: 'BL',
+        mediaId: 'BRLB',
+        mediaTitle: 'The British Liberator',
+        timePeriod: '1833-1833',
+        startYear: 1833,
+        endYear: 1833,
         media: 'Newspaper',
         medium: 'print',
         copyright: 'Public Domain',
@@ -70,41 +81,16 @@ export const Default: Story = {
         minimumUserPlanRequiredToExploreInWebapp: 'guest',
         minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
         minimumUserPlanRequiredToExportIllustration: 'plan-basic',
-        partnerBitmapIndex: 22
+        partnerBitmapIndex: 10
       },
       {
-        associatedPartner: 'BCUL',
-        mediaId: 'RN',
-        mediaTitle: 'Bulletins du Grand Conseil',
-        timePeriod: '1829-2020',
-        media: 'Newspaper',
-        medium: 'print',
-        copyright: 'Protected Domain: In copyright',
-        permittedUse: 'Research',
-        minimumUserPlanRequiredToExploreInWebapp: 'plan-researcher',
-        minimumUserPlanRequiredToExportTranscripts: 'plan-researcher',
-        minimumUserPlanRequiredToExportIllustration: 'plan-researcher',
-        partnerBitmapIndex: 22
-      },
-      {
-        associatedPartner: 'BNL',
-        mediaId: 'waeschfra',
-        mediaTitle: "D'Wäschfra",
-        timePeriod: '1882-1884',
-        media: 'Newspaper',
-        medium: 'print',
-        copyright: 'Protected Domain: In copyright',
-        permittedUse: 'Academic users at least OR Archive members',
-        minimumUserPlanRequiredToExploreInWebapp: 'plan-basic',
-        minimumUserPlanRequiredToExportTranscripts: 'plan-researcher',
-        minimumUserPlanRequiredToExportIllustration: 'plan-researcher',
-        partnerBitmapIndex: 6
-      },
-      {
-        associatedPartner: 'BNL',
-        mediaId: 'waechtersauer',
-        mediaTitle: 'Der Wächter an der Sauer',
-        timePeriod: '1849-1869',
+        id: 'BL-BRLU-1818-1823',
+        associatedPartner: 'BL',
+        mediaId: 'BRLU',
+        mediaTitle: 'The British Luminary',
+        timePeriod: '1818-1823',
+        startYear: 1818,
+        endYear: 1823,
         media: 'Newspaper',
         medium: 'print',
         copyright: 'Public Domain',
@@ -112,7 +98,7 @@ export const Default: Story = {
         minimumUserPlanRequiredToExploreInWebapp: 'guest',
         minimumUserPlanRequiredToExportTranscripts: 'plan-basic',
         minimumUserPlanRequiredToExportIllustration: 'plan-basic',
-        partnerBitmapIndex: 6
+        partnerBitmapIndex: 10
       }
     ] as Dataset[]
   }

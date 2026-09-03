@@ -625,7 +625,11 @@ export interface MediaSource {
   /**
    * The type of the media source.
    */
-  type: "newspaper";
+  type: "newspaper" | "radio_broadcast" | "radio_magazine" | "radio_schedule" | "monograph" | "encyclopedia";
+  /**
+   * The medium of the media source.
+   */
+  medium: "print" | "typescript" | "audio";
   /**
    * A display name of the media source.
    */
@@ -727,7 +731,11 @@ export interface MediaSource {
   /**
    * The type of the media source.
    */
-  type: "newspaper";
+  type: "newspaper" | "radio_broadcast" | "radio_magazine" | "radio_schedule" | "monograph" | "encyclopedia";
+  /**
+   * The medium of the media source.
+   */
+  medium: "print" | "typescript" | "audio";
   /**
    * A display name of the media source.
    */

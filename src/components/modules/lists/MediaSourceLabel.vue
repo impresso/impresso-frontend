@@ -11,7 +11,7 @@
     />
     <span v-else :class="titleClass">{{ title }}</span>
     {{ ' ' }}
-    <span class="small-caps" v-if="showType">{{ $t(item.type + '_label') }}</span>
+    <span class="small-caps" v-if="showType">{{ $t(item.type.toLowerCase() + '_label') }}</span>
   </div>
 </template>
 <script lang="ts" setup>
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
 })
 
 const cachedItem = computed(() => {
-  if (typeof glob.impressoNewspapers === 'object') {
+  if (typeof glob.impressoNewspapers === 'object' && glob.impressoNewspapers[props.item.id]) {
     return glob.impressoNewspapers[props.item.id]
   }
   return { id: props.item.id, name: props.item.name || props.item.id, type: 'newspaper' }
@@ -44,11 +44,13 @@ const title = computed(() => {
   return cachedItem.value?.name || props.item.id
 })
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
     "newspaper_label": "Newspaper",
     "radio_label": "Radio",
+    "radio_broadcast_label": "Radio Broadcast",
+    "radio broadcast_label": "Radio Broadcast"
   }
 }
 </i18n>

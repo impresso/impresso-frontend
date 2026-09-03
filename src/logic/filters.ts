@@ -138,7 +138,7 @@ export const containsFilter = expectedFilter => filter => {
 
 export const TextContentItemFacets = [
   'language',
-  'newspaper', // should be mediaSource eventually
+  'mediaSource',
   'type',
   'country',
   'partner',
@@ -149,7 +149,10 @@ export const TextContentItemFacets = [
   'location',
   'nag',
   'organisation',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage'
 ] as const satisfies FilterType[]
 
 export const NumericContentItemsFacets = [
@@ -218,7 +221,7 @@ const TextReuseClusterFilters = [
 const EntitiesFilters = ['string', 'type'] as const satisfies FilterType[]
 
 const ImagesFacets = [
-  'newspaper',
+  'mediaSource',
   'year',
   'imageVisualContent',
   'imageTechnique',

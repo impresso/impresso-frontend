@@ -66,6 +66,11 @@ export default class Bucket implements IBucket<ItemTypes> {
       case 'mediaSource':
         this.item = item
         break
+      case 'permissionExplore':
+      case 'permissionGetTranscript':
+      case 'permissionGetImage':
+        this.item = item
+        break
       case 'collection':
         this.item = new Collection({
           ...item,
