@@ -7,7 +7,7 @@
       :target="props.target"
       :aria-disabled="disabled ? true : undefined"
       v-bind="nonListenerAttrs"
-      @click.stop.prevent="handleClick"
+      @click.stop="handleClick"
     >
       <slot></slot>
     </a>
@@ -86,6 +86,11 @@ function invokeParentClick(event: MouseEvent) {
 function handleClick(event: MouseEvent) {
   if (props.disabled) return
   invokeParentClick(event)
+  // Native href navigation is fine for plain links; router entries need SPA navigation instead.
+  if (props.to && router != null) {
+    event.preventDefault()
+    router.push(props.to)
+  }
   const hideable = parent as unknown as WithHide | undefined
   if (hideable?.hide) hideable.hide(true)
 }

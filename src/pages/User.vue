@@ -29,6 +29,12 @@
             <Alert class="mb-3" type="error">{{ error.message }}</Alert>
           </template>
         </ProfileForm>
+
+        <div class="mt-3">
+          <router-link :to="{ name: 'passwordReset' }" class="btn btn-sm btn-outline-primary">
+            {{ $t('actions.resetMyPassword') }}
+          </router-link>
+        </div>
       </div>
     </div>
   </div>
