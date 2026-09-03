@@ -224,6 +224,9 @@ export const userSpecialMembershipRequestsReviews = app.service(
 )
 export const magicLink = app.service('magic-link')
 
+export const emailVerification = app.service('user-email-verification')
+export const emailVerificationResend = app.service('user-email-verification-resend')
+
 export const specialMembershipAccess = app.service('special-membership-plans')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')

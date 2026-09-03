@@ -195,6 +195,14 @@ const router = createRouter({
       }
     },
     {
+      path: Routes.emailVerification.path,
+      name: Routes.emailVerification.name,
+      component: () => import('@/pages/EmailVerification.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/collections',
       component: () => import('@/pages/Collections.vue'),
       children: [
