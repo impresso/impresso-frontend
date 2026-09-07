@@ -38,6 +38,7 @@
 
       <button
         type="button"
+        :disabled="props.isLoading || v$.email!.$error"
         @click="onSendEmailVerificationRequest"
         class="btn btn-link btn-transparent"
       >
@@ -73,7 +74,7 @@ const props = withDefaults(defineProps<EmailVerificationFormProps>(), {
 
 const emit = defineEmits<{
   (e: 'submit', payload: EmailVerificationFormPayload): void
-  (e: 'sendEmailVerificationRequest', payload: EmailVerificationFormPayload): void
+  (e: 'sendEmailVerificationRequest', email: string): void
 }>()
 
 const formData = reactive({
@@ -111,11 +112,9 @@ const onSendEmailVerificationRequest = async (event: Event) => {
   if (!isValid) {
     return
   }
-  emit('sendEmailVerificationRequest', {
-    email: formData.email,
-    token: props.token
-  })
+  emit('sendEmailVerificationRequest', formData.email)
   // clean email field after sending the request and clean errors too
+  formData.email = ''
   v$.value.$reset()
 }
 </script>
