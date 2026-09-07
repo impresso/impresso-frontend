@@ -931,3 +931,25 @@ svg path.domain {
 .static-page a:hover {
   text-decoration-color: var(--impresso-text-decoration-color-hover);
 }
+
+.static-page input[type='text'],
+.static-page input[type='email'],
+.static-page input[type='password'],
+.static-page input[type='number'],
+.static-page input[type='search'],
+.static-page input[type='tel'],
+.static-page input[type='url'] {
+  /** dark mode */
+  background-color: var(--impresso-color-black-deeper);
+}
+.static-page button {
+  background-color: var(--impresso-color-white);
+  color: var(--impresso-color-black-deeper);
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+.static-page button.btn-transparent {
+  background-color: transparent;
+  color: var(--impresso-color-white);
+  border: 0px solid transparent;
+}

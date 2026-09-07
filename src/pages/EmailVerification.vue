@@ -4,18 +4,17 @@
 
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-6 bg-light p-4 rounded shadow-sm text-dark">
-          <MagicLinkForm :token="tokenFromUrl" :is-loading="isLoading" @submit="onSubmit">
+        <div class="col-md-6 p-4 rounded shadow-sm">
+          <EmailVerificationForm
+            :token="tokenFromUrl"
+            :isLoading="isLoading"
+            @submit="onSubmit"
+            @sendEmailVerificationRequest="sendEmailVerificationRequest"
+          >
             <FeathersErrorManager v-if="error" :error="error">
               {{ $t('errorInvalidEmailVerificationLink') }}
             </FeathersErrorManager>
-            <template #actions v-if="!isLoading">
-              or
-              <!-- <RouterLink :to="{ name: 'Login' }" class="text-decoration-underline">
-            {{ $t('requestLoginLink') }}
-          </RouterLink> -->
-            </template>
-          </MagicLinkForm>
+          </EmailVerificationForm>
         </div>
       </div>
     </div>
@@ -23,8 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import MagicLinkForm from '@/institutions-access/components/forms/MagicLinkForm.vue'
-import { emailVerification as emailVerificationService } from '@/services'
+import {
+  emailVerification as emailVerificationService,
+  emailVerificationResend as emailVerificationResendService
+} from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -32,6 +33,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
+import EmailVerificationForm from '@/components/EmailVerificationForm.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,7 +45,33 @@ const tokenFromUrl = computed(() => {
 })
 const notificationStore = useNotificationsStore()
 
-const authenticate = async (token: string) => {
+const sendEmailVerificationRequest = async (email: string) => {
+  error.value = null
+  isLoading.value = true
+  try {
+    await Promise.all([
+      reducedTimeoutPromise({
+        ms: 2450,
+        service: 'version',
+        silent: true
+      }),
+      emailVerificationResendService.create({
+        email: email
+      })
+    ])
+    notificationStore.addNotification({
+      type: 'success',
+      title: 'Email Verification Sent',
+      message: 'A verification email has been sent to your address.'
+    })
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err : new Error(String(err))
+    console.error('Email verification error:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+const verifyEmail = async (token: string, email: string) => {
   error.value = null
   isLoading.value = true
   try {
@@ -54,6 +82,7 @@ const authenticate = async (token: string) => {
         silent: true
       }),
       emailVerificationService.create({
+        email: email,
         token: token
       })
     ])
@@ -70,16 +99,16 @@ const authenticate = async (token: string) => {
   }
 }
 
-const onSubmit = async ({ token }: { token: string }) => {
+const onSubmit = async ({ token, email }: { token: string; email: string }) => {
   if (!token) return
-  await authenticate(token)
+  await verifyEmail(token, email)
 }
 </script>
 
 <i18n lang="json">
 {
   "en": {
-    "emailVerificationTitle": "Email Verification",
+    "emailVerificationTitle": "Verify Email Address",
     "verifyingTokenTitle": "Verifying ...",
     "requestEmailVerificationLink": "Request email verification link",
     "errorInvalidEmailVerificationLink": "The link is invalid or has expired. Please request a new login link."
