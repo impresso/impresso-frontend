@@ -44,7 +44,7 @@ const tokenFromUrl = computed(() => {
 })
 const notificationStore = useNotificationsStore()
 
-const sendEmailVerificationRequest = async (token: string, email: string) => {
+const sendEmailVerificationRequest = async (email: string) => {
   error.value = null
   isLoading.value = true
   try {
@@ -55,8 +55,7 @@ const sendEmailVerificationRequest = async (token: string, email: string) => {
         silent: true
       }),
       emailVerificationResendService.create({
-        email: email,
-        token: token
+        email: email
       })
     ])
     notificationStore.addNotification({
@@ -107,7 +106,7 @@ const verifyEmail = async (token: string, email: string) => {
     "emailVerificationTitle": "Verify Email Address",
     "verifyingTokenTitle": "Verifying ...",
     "requestEmailVerificationLink": "Request email verification link",
-    "errorInvalidEmailVerificationLink": "The link is invalid or has expired. Please request a new login link."
+    "errorInvalidEmailVerificationLink": "The link is invalid or has expired. Please request a new verification link."
   }
 }
 </i18n>
