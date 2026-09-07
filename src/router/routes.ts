@@ -43,6 +43,10 @@ export const Routes = {
     path: '/email-verification',
     name: 'emailVerification'
   },
+  emailVerificationSuccess: {
+    path: '/email-verification-success',
+    name: 'emailVerificationSuccess'
+  },
   mediaSource: {
     path: '/media-source/:media_source_id',
     name: 'mediaSource',

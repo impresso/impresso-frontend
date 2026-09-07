@@ -4,7 +4,7 @@
 
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-md-6 p-4 rounded shadow-sm">
+        <div class="col-md-8 col-xl-6 p-4 rounded shadow-sm">
           <EmailVerificationForm
             :token="tokenFromUrl"
             :isLoading="isLoading"
@@ -28,9 +28,8 @@ import {
 } from '@/services'
 import type { FeathersError } from '@feathersjs/errors'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
 import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
 import EmailVerificationForm from '@/components/EmailVerificationForm.vue'
@@ -92,6 +91,7 @@ const verifyEmail = async (token: string, email: string) => {
       title: 'Email Verified',
       message: 'Your email has been successfully verified.'
     })
+    await router.push({ name: 'emailVerificationSuccess' })
   } catch (err: unknown) {
     error.value = err instanceof Error ? err : new Error(String(err))
     console.error('Magic link error:', err)
