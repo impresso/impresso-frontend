@@ -1,11 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { fn } from 'storybook/test'
 import EmailVerificationForm from './EmailVerificationForm.vue'
-import type { EmailVerificationFormProps } from './EmailVerificationForm.vue'
+import type {
+  EmailVerificationFormPayload,
+  EmailVerificationFormProps
+} from './EmailVerificationForm.vue'
 
 type StoryArgs = EmailVerificationFormProps & {
-  onSubmit: (payload: { email: string; token: string }) => void
-  onSendEmailVerificationRequest: (email: string) => void
+  onSubmit: (payload: EmailVerificationFormPayload) => void
+  onSendEmailVerificationRequest: (payload: EmailVerificationFormPayload) => void
 }
 
 const meta: Meta<typeof EmailVerificationForm> = {

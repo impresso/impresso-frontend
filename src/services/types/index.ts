@@ -12,6 +12,20 @@ import { AdminService } from './admin'
 import { MediaSourcesService } from './mediaSources'
 import { SpecialMembershipRequestStatuses } from '@/constants'
 
+export interface EmailVerificationPayload {
+  email: string
+  token: string
+}
+
+export interface EmailVerificationService extends Pick<
+  ServiceMethods<unknown, EmailVerificationPayload>,
+  'create'
+> {}
+export interface EmailVerificationResendService extends Pick<
+  ServiceMethods<unknown, EmailVerificationPayload>,
+  'create'
+> {}
+
 interface ErrorsCollectorPayload {
   id: string
   url: string
@@ -21,8 +35,10 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export interface ErrorsCollectorService
-  extends Pick<ServiceMethods<{}, ErrorsCollectorPayload>, 'create'> {}
+export interface ErrorsCollectorService extends Pick<
+  ServiceMethods<{}, ErrorsCollectorPayload>,
+  'create'
+> {}
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
@@ -56,6 +72,8 @@ export interface Services extends UntypedServices {
   mentions: MentionsService
   ['/collections/:collection_id/items']: ICollectableItemsService
   ['media-sources']: MediaSourcesService
+  ['user-email-verification']: EmailVerificationService
+  ['user-email-verification-resend']: EmailVerificationResendService
 }
 
 export interface Group {

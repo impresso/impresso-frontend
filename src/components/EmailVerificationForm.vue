@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<EmailVerificationFormProps>(), {
 
 const emit = defineEmits<{
   (e: 'submit', payload: EmailVerificationFormPayload): void
-  (e: 'sendEmailVerificationRequest', email: string): void
+  (e: 'sendEmailVerificationRequest', payload: EmailVerificationFormPayload): void
 }>()
 
 const formData = reactive({
@@ -111,7 +111,10 @@ const onSendEmailVerificationRequest = async (event: Event) => {
   if (!isValid) {
     return
   }
-  emit('sendEmailVerificationRequest', formData.email)
+  emit('sendEmailVerificationRequest', {
+    email: formData.email,
+    token: props.token
+  })
   // clean email field after sending the request and clean errors too
   v$.value.$reset()
 }

@@ -11,7 +11,7 @@ import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
 import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
-import type { Services } from './types'
+import type { EmailVerificationService, EmailVerificationResendService, Services } from './types'
 import { DataProvidersService } from './local/dataProviders'
 
 export const app = feathers<Services>()

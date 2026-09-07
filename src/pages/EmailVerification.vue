@@ -8,8 +8,8 @@
           <EmailVerificationForm
             :token="tokenFromUrl"
             :isLoading="isLoading"
-            @submit="onSubmit"
-            @sendEmailVerificationRequest="sendEmailVerificationRequest"
+            @submit="verifyEmail($event.token, $event.email)"
+            @sendEmailVerificationRequest="sendEmailVerificationRequest($event.token, $event.email)"
           >
             <FeathersErrorManager v-if="error" :error="error">
               {{ $t('errorInvalidEmailVerificationLink') }}
@@ -45,7 +45,7 @@ const tokenFromUrl = computed(() => {
 })
 const notificationStore = useNotificationsStore()
 
-const sendEmailVerificationRequest = async (email: string) => {
+const sendEmailVerificationRequest = async (token: string, email: string) => {
   error.value = null
   isLoading.value = true
   try {
@@ -56,7 +56,8 @@ const sendEmailVerificationRequest = async (email: string) => {
         silent: true
       }),
       emailVerificationResendService.create({
-        email: email
+        email: email,
+        token: token
       })
     ])
     notificationStore.addNotification({
@@ -97,11 +98,6 @@ const verifyEmail = async (token: string, email: string) => {
   } finally {
     isLoading.value = false
   }
-}
-
-const onSubmit = async ({ token, email }: { token: string; email: string }) => {
-  if (!token) return
-  await verifyEmail(token, email)
 }
 </script>
 
