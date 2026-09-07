@@ -17,12 +17,16 @@ export interface EmailVerificationPayload {
   token: string
 }
 
+export interface EmailVerificationResendPayload {
+  email: string
+}
+
 export interface EmailVerificationService extends Pick<
   ServiceMethods<unknown, EmailVerificationPayload>,
   'create'
 > {}
 export interface EmailVerificationResendService extends Pick<
-  ServiceMethods<unknown, EmailVerificationPayload>,
+  ServiceMethods<unknown, EmailVerificationResendPayload>,
   'create'
 > {}
 
