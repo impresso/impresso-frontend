@@ -933,20 +933,33 @@ svg path.domain {
 }
 
 .static-page input[type='text'],
-.static-page input[type='email'],
-.static-page input[type='password'],
-.static-page input[type='number'],
-.static-page input[type='search'],
-.static-page input[type='tel'],
-.static-page input[type='url'] {
+.static-page input[type='email'] {
   /** dark mode */
   background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white-alpha-50);
+}
+.static-page input[type='email']::selection,
+.static-page input[type='text']::selection {
+  background-color: var(--impresso-color-yellow);
+  color: var(--impresso-color-black-deeper);
+}
+.static-page input[type='email']:focus,
+.static-page input[type='text']:focus {
+  background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white) !important;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
 }
 .static-page button {
   background-color: var(--impresso-color-white);
   color: var(--impresso-color-black-deeper);
   border-radius: var(--impresso-border-radius-sm);
   box-shadow: var(--bs-box-shadow-sm);
+}
+.static-page button:focus {
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
 }
 .static-page button.btn-transparent {
   background-color: transparent;

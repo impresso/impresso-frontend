@@ -76,32 +76,7 @@
       </button>
     </form>
   </InfoModal>
-  <InfoModal
-    :is-visible="isCreated"
-    :modalTitle="$t('userRegister.title')"
-    :ok-label="'OK'"
-    dialogClass="modal-dialog-centered modal-md"
-    @close="handleCloseSignupSuccess"
-    hideFooter
-  >
-    <h3>Thanks for signing up for Impresso!</h3>
-    <p>
-      One of our team members is now reviewing your information to ensure everything is set up
-      correctly.
-    </p>
-    <Alert type="info" class="my-3">
-      You'll receive a separate email notification as soon as your account is activated and ready to
-      go.
-    </Alert>
-    <p>
-      If you have registered with a <b>Student User</b> or <b>Academic User</b> plan, please be
-      aware that your account will be reviewed by our team before activation. We appreciate your
-      patience during this process.
-    </p>
-    <RouterLink to="/" class="btn btn-md btn-outline-secondary border border-dark btn-block">
-      Back to homepage
-    </RouterLink>
-  </InfoModal>
+  <UserRegistrationSuccessModal :is-visible="isCreated" @close="handleCloseSignupSuccess" />
 </template>
 <script setup lang="ts">
 import ProfileForm from 'impresso-ui-components/components/ProfileForm.vue'
@@ -124,6 +99,7 @@ import {
 } from '@/constants'
 import LinkToModal from '@/components/LinkToModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
+import UserRegistrationSuccessModal from '@/components/modals/UserRegistrationSuccessModal.vue'
 import { users as usersService } from '@/services'
 
 defineOptions({
@@ -249,7 +225,7 @@ const handleConfirmModalOk = () => {
       "step2Title": "Complete the registration form",
 
       "confirmRegistrationTitle": "Confirm Registration",
-      "confirmRegistrationMessage": "You are about to register with a Student or Academic User plan. Please make sure you have provided your institutional email address and have the required documentation ready for verification.",
+      "confirmRegistrationMessage": "You  are about to register with a Student or Academic User plan. Please make sure you have provided your institutional email address and have the required documentation ready for verification.",
       "confirmRegistrationReminder": "After submission, your account will be reviewed by our team before activation.",
       "confirmAndRegister": "Confirm and Register"
     }

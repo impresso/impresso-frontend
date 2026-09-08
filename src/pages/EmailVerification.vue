@@ -1,21 +1,29 @@
 <template>
-  <div class="EmailVerificationPage static-page">
-    <h1>{{ $t(isLoading ? 'verifyingTokenTitle' : 'emailVerificationTitle') }}</h1>
+  <div class="EmailVerificationPage container my-5">
+    <div class="row">
+      <div class="col-12 col-lg-8 offset-lg-2">
+        <h1 class="mb-5 sans font-weight-bold">
+          {{ $t(isLoading ? 'verifyingTokenTitle' : 'emailVerificationTitle') }}
+        </h1>
+        <p
+          v-if="tokenFromUrl.length > 0"
+          v-html="$t('requestEmailVerificationLinkWithTokenDescription')"
+        />
 
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-8 col-xl-6 p-4 rounded shadow-sm">
-          <EmailVerificationForm
-            :token="tokenFromUrl"
-            :isLoading="isLoading"
-            @submit="verifyEmail($event.token, $event.email)"
-            @sendEmailVerificationRequest="sendEmailVerificationRequest($event)"
-          >
-            <FeathersErrorManager v-if="error" :error="error">
-              {{ $t('errorInvalidEmailVerificationLink') }}
-            </FeathersErrorManager>
-          </EmailVerificationForm>
-        </div>
+        <p v-else v-html="$t('requestEmailVerificationLinkDescription')" />
+        <EmailVerificationForm
+          :token="tokenFromUrl"
+          :isLoading="isLoading"
+          @submit="verifyEmail($event.token, $event.email)"
+          @sendEmailVerificationRequest="sendEmailVerificationRequest($event)"
+        >
+          <FeathersErrorManager v-if="error" :error="error">
+            {{ $t('errorInvalidEmailVerificationLink') }}
+          </FeathersErrorManager>
+          <Alert type="info" class="border border-info">
+            <div v-html="$t('emailVerificationNotice')" />
+          </Alert>
+        </EmailVerificationForm>
       </div>
     </div>
   </div>
@@ -33,6 +41,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { reducedTimeoutPromise } from '@/services/utils'
 import { useNotificationsStore } from '@/stores/notifications'
 import EmailVerificationForm from '@/components/EmailVerificationForm.vue'
+import Alert from 'impresso-ui-components/components/Alert.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -103,10 +112,13 @@ const verifyEmail = async (token: string, email: string) => {
 <i18n lang="json">
 {
   "en": {
-    "emailVerificationTitle": "Verify Email Address",
+    "emailVerificationTitle": "Verify your email address",
     "verifyingTokenTitle": "Verifying ...",
     "requestEmailVerificationLink": "Request email verification link",
-    "errorInvalidEmailVerificationLink": "The link is invalid or has expired. Please request a new verification link."
+    "errorInvalidEmailVerificationLink": "The link is invalid or has expired. Please request a new verification link.",
+    "requestEmailVerificationLinkDescription": "If you haven't received a verification email, you can request a new one by entering your email address below.",
+    "emailVerificationNotice": "<b>Notice</b>: once your email is verified, our team will review and activate your account. <b>You will receive a notification as soon as your account is ready to use.</b>",
+    "requestEmailVerificationLinkWithTokenDescription": "Please insert the email address using during the signup process and click the link below to verify your email address."
   }
 }
 </i18n>
