@@ -39,6 +39,14 @@ export const Routes = {
     path: '/content-item/:content_item_id',
     name: 'contentItem'
   },
+  emailVerification: {
+    path: '/email-verification',
+    name: 'emailVerification'
+  },
+  emailVerificationSuccess: {
+    path: '/email-verification-success',
+    name: 'emailVerificationSuccess'
+  },
   mediaSource: {
     path: '/media-source/:media_source_id',
     name: 'mediaSource',
