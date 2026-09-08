@@ -1,5 +1,5 @@
 <template>
-  <form class="EmailVerificationForm" @submit.prevent="onSubmit" novalidate>
+  <form :class="['EmailVerificationForm', props.className]" @submit.prevent="onSubmit" novalidate>
     <BFormGroup
       id="email-group"
       :label="$t('emailAddress') + ' *'"

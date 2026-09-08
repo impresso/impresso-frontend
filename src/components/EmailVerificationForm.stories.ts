@@ -8,7 +8,7 @@ import type {
 
 type StoryArgs = EmailVerificationFormProps & {
   onSubmit: (payload: EmailVerificationFormPayload) => void
-  onSendEmailVerificationRequest: (payload: EmailVerificationFormPayload) => void
+  onSendEmailVerificationRequest: (email: string) => void
 }
 
 const meta: Meta<typeof EmailVerificationForm> = {

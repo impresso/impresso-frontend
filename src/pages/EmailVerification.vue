@@ -9,7 +9,7 @@
             :token="tokenFromUrl"
             :isLoading="isLoading"
             @submit="verifyEmail($event.token, $event.email)"
-            @sendEmailVerificationRequest="sendEmailVerificationRequest($event.token, $event.email)"
+            @sendEmailVerificationRequest="sendEmailVerificationRequest($event)"
           >
             <FeathersErrorManager v-if="error" :error="error">
               {{ $t('errorInvalidEmailVerificationLink') }}
