@@ -55,7 +55,7 @@ const emit = defineEmits<{
       "signupSuccessAccountReview": "Step 2: Account review & activation",
       "signupSuccessReviewMessage": "One of our team members will then review your information to ensure everything is set up correctly.",
       "signupSuccessActivationMessage": "You'll receive a separate email notification as soon as your account is activated and ready to go.",
-      "signupSuccessPlanReviewMessage": "If you have registered with a <b>Student User</b> or <b>Academic User</b> plan, please be aware that your account will be reviewed by our team before activation. We appreciate your patience during this process.",
+      "signupSuccessPlanReviewMessage": "If you have registered with a <b>Student User</b> or <b>Academic User</b> plan, please note that our team carefully reviews these applications before activating your account. We appreciate your patience while we process your request.",
       "backToHomepage": "Back to homepage"
     }
   }
