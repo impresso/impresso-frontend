@@ -806,17 +806,27 @@ export interface ContentItemText {
    */
   itemType?:
     | "ar"
+    | "article"
     | "ad"
+    | "advertisement"
     | "page"
     | "tb"
     | "ob"
     | "w"
     | "ch"
     | "chapter"
+    | "death_notice"
     | "chronicle"
     | "unsegmented"
     | "radio_broadcast_episode"
-    | "radio_bulletin";
+    | "radio_bulletin"
+    | "rbe"
+    | "rb"
+    | "dsc"
+    | "discussion"
+    | "ent"
+    | "entertainment"
+    | "no-type";
   /**
    * Human-readable label for the itemType code.
    */

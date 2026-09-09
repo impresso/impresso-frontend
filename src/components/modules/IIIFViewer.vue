@@ -142,7 +142,8 @@ const resetZoom = () => {
   }
   console.debug('[IIIFViewer] resetZoom to 0')
 
-  const tiledImage = viewer.value.world.getItemAt(props.fitBoundsToOverlayIdx[0] || 0)
+  const overlayIdx = props.fitBoundsToOverlayIdx[0]
+  const tiledImage = viewer.value.world.getItemAt(overlayIdx >= 0 ? overlayIdx : 0)
   if (!tiledImage) {
     console.warn('[IIIFViewer] resetZoom: Tiled image not found at index 0')
     return

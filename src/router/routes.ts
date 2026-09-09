@@ -82,6 +82,24 @@ export const Routes = {
     path: '/search/images',
     name: 'searchImages'
   },
+  viewImage: {
+    path: '/search/images/:image_id',
+    name: 'viewImage',
+    children: {
+      facsimile: {
+        path: '',
+        name: 'viewImageFacsimile'
+      },
+      citeAs: {
+        path: 'cite-as',
+        name: 'viewImageCiteAs'
+      },
+      similarItems: {
+        path: 'similar-items',
+        name: 'viewImageSimilarItems'
+      }
+    }
+  },
   searchNgrams: {
     path: '/search/ngrams',
     name: 'searchNgrams'
