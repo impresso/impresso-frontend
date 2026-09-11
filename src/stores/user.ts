@@ -111,6 +111,7 @@ export const useUserStore = defineStore('user', {
           this.userData = false
           this.bitmap = 'AQ=='
           this.acceptTermsDate = null
+          this.acceptTermsDateOnLocalStorage = null
         })
     },
     setUserData(user: User | false) {
