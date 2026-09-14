@@ -616,7 +616,7 @@ export interface WikidataLocation {
    */
   labels?: {
     /**
-     * Description of the location in a specific language
+     * Label of the location in a specific language
      */
     [k: string]: string;
   };
@@ -657,7 +657,7 @@ export interface WikidataLocation1 {
    */
   labels?: {
     /**
-     * Description of the location in a specific language
+     * Label of the location in a specific language
      */
     [k: string]: string;
   };
@@ -816,7 +816,7 @@ export interface ContentItemMeta {
   /**
    * Media title alias. Usually a 3 letter code of the media title (newspaper, radio station, etc.).
    */
-  mediaId?: string;
+  mediaId: string;
   /**
    * Human-readable title of the media source identified by mediaId.
    */
@@ -1163,17 +1163,23 @@ export interface ContentItemAudioRecord {
   audioFileUrl?: string;
 }
 /**
- * Content item audio locator. Links location of a segement in text with location in audio.
+ * Content item audio locator. Links location of a segment in text with location in audio.
  */
 export interface ContentItemAudioLocator {
   /**
    * Represents the start offset and the length of the audio segment in seconds.
+   *
+   * @minItems 2
+   * @maxItems 2
    */
-  timeCode?: number[];
+  timeCode?: [number, number];
   /**
    * Represents the character offset and length of the audio segment in the content item text.
+   *
+   * @minItems 2
+   * @maxItems 2
    */
-  textLocation?: number[];
+  textLocation?: [number, number];
   /**
    * Represents the index of the utterance in the audio file this audio segment belongs to. May not be provided if no utterance information is available.
    */
@@ -1629,7 +1635,7 @@ export interface MediaSource {
    */
   publishedPeriodYears?: [number, number];
   /**
-   * The range of dates this media source has content items for. This represents the earliest and the latest dates of the contet items.  Is not defined if there are no content items for this source.
+   * The range of dates this media source has content items for. This represents the earliest and the latest dates of the content items.  Is not defined if there are no content items for this source.
    *
    * @minItems 2
    * @maxItems 2
@@ -1649,20 +1655,21 @@ export interface MediaSource {
      */
     pages?: number;
   };
-  properties?: {
-    /**
-     * The unique identifier of the property.
-     */
-    id: string;
-    /**
-     * The name of the property.
-     */
-    label: string;
-    /**
-     * The value of the property.
-     */
-    value: string;
-  }[];
+  properties?: MediaSourceProperty[];
+}
+export interface MediaSourceProperty {
+  /**
+   * The unique identifier of the property.
+   */
+  id: string;
+  /**
+   * The name of the property.
+   */
+  label: string;
+  /**
+   * The value of the property.
+   */
+  value: string;
 }
 /**
  * Collection details.
@@ -2165,7 +2172,7 @@ export interface WikidataLocation {
    */
   labels?: {
     /**
-     * Description of the location in a specific language
+     * Label of the location in a specific language
      */
     [k: string]: string;
   };
@@ -2206,7 +2213,7 @@ export interface WikidataLocation1 {
    */
   labels?: {
     /**
-     * Description of the location in a specific language
+     * Label of the location in a specific language
      */
     [k: string]: string;
   };
