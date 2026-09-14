@@ -97,7 +97,9 @@ const shouldShowDate = computed(() => props.showDate && !!props.image.date)
 
 const shouldShowPages = computed(() => props.showPages && !!props.image.pageNumbers?.length)
 
-const shouldShowImageTypes = computed(() => props.showImageTypes && !!props.image.types?.length)
+const shouldShowImageTypes = computed(
+  () => props.showImageTypes && !!props.image.imageTypes?.length
+)
 
 const pagesLabel = computed(() =>
   t('pp', { pages: props.image.pageNumbers?.join(',') ?? '' }, props.image.pageNumbers?.length ?? 0)
