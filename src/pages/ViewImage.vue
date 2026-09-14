@@ -13,17 +13,18 @@
               active-class=""
               class="nav-link"
             >
-              Content items, same page
+              Other images, same page
             </router-link>
           </li>
         </ul>
       </template>
+
       <ListOfFindResponseItems
         v-if="image"
-        :service="contentItemService"
+        :service="imagesService"
         :params="listParams"
-        :list-is-empty-message="$t('no conversations')"
-        :error-loading-items-message="$t('error loading conversations')"
+        :list-is-empty-message="$t('no images')"
+        :error-loading-items-message="$t('error loading images')"
         items-class="p-0"
       >
         <template #header="{ total, isLoading }">
@@ -35,22 +36,14 @@
         </template>
         <template #default="{ items, isSuccess }">
           <div>
-            <ContentItem
+            <div
               v-for="item in items"
               :key="item.id"
-              :data-content-item-id="item.id"
-              :contentItem="item"
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
-              showDate
-              showMediaSource
-              showLink
-              showIcon
-              showMeta
-              showSnippet
-              showSemanticEnrichments
-              showProvider
-              showType
-            />
+              :class="{ 'border-dark': item.id === image.id }"
+            >
+              <ImageContentItem showLink showPreview showIcon :image="item" />
+            </div>
           </div>
         </template>
       </ListOfFindResponseItems>
@@ -160,18 +153,27 @@ const pageIds = computed<string[]>(() => {
 })
 
 const listParams = computed(() => {
-  if (!Array.isArray(pageIds.value) || pageIds.value.length === 0)
+  if (!Array.isArray(image.value?.pageNumbers) || pageIds.value.length === 0)
     return {
       query: {
-        filters: []
+        filters: [
+          {
+            type: 'issue',
+            q: [image.value?.issueId]
+          }
+        ]
       }
     }
   return {
     query: {
       filters: [
         {
-          type: 'page',
-          q: pageIds.value
+          type: 'issue',
+          q: [image.value?.issueId]
+        },
+        {
+          type: 'pageNumber',
+          q: image.value?.pageNumbers.map((pageNum: number) => String(pageNum))
         }
       ]
     }
@@ -180,9 +182,30 @@ const listParams = computed(() => {
 
 watch(imageId, loadImage, { immediate: true })
 
-onMounted(() => {
+onMounted(async () => {
   if (imageId.value) {
-    loadImage(imageId.value)
+    await loadImage(imageId.value)
+    // imagesService
+    //   .find({
+    //     query: {
+    //       filters: [
+    //         {
+    //           type: 'issue',
+    //           q: [image.value?.issueId]
+    //         },
+    //         {
+    //           type: 'pageNumber',
+    //           q: image.value?.pageNumbers.map((pageNum: number) => String(pageNum))
+    //         }
+    //       ]
+    //     }
+    //   })
+    //   .then(response => {
+    //     console.log('Image find response:', response)
+    //   })
+    //   .catch(error => {
+    //     console.error('Error fetching image:', error)
+    //   })
   }
 })
 </script>
