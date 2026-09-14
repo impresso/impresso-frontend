@@ -10,7 +10,10 @@
       </h2>
     </div>
 
-    <div v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages">
+    <div
+      v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages"
+      class="d-flex align-items-center gap-2 flex-wrap"
+    >
       <MediaSourceLabel
         v-if="shouldShowMediaSource"
         :item="{
@@ -22,20 +25,26 @@
         class="d-inline-block"
       />
       {{ ' ' }}
-      <span v-if="shouldShowDate">
+      <div v-if="shouldShowDate">
         {{ shouldShowMediaSource ? '&mdash;' : '' }}
         {{ $d(new Date(image.date as Date), 'long') }}
         {{ '  ' }}
-      </span>
-      <template v-if="shouldShowPages">
+      </div>
+      <div v-if="shouldShowPages">
         {{ shouldShowMediaSource || shouldShowDate ? '&mdash;' : '' }}
         <span v-html="pagesLabel"></span>
-      </template>
-    </div>
-    <ContentItemAccess v-if="props.showContentItemAccess" :item="props.image as ContentItem" />
+      </div>
 
-    <div v-if="showId" class="mt-1">
       <ContentItemIdLabel :id="image.id" />
+    </div>
+    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+      <div v-if="shouldShowImageTypes" class="d-flex align-items-center gap-2 flex-wrap">
+        <span v-for="(imageType, index) in image.imageTypes" :key="index" class="small-caps">
+          {{ imageType }}
+        </span>
+      </div>
+      <ContentItemAccess v-if="props.showContentItemAccess" :item="props.image as ContentItem">
+      </ContentItemAccess>
     </div>
   </div>
 </template>
@@ -87,6 +96,8 @@ const shouldShowMediaSource = computed(
 const shouldShowDate = computed(() => props.showDate && !!props.image.date)
 
 const shouldShowPages = computed(() => props.showPages && !!props.image.pageNumbers?.length)
+
+const shouldShowImageTypes = computed(() => props.showImageTypes && !!props.image.types?.length)
 
 const pagesLabel = computed(() =>
   t('pp', { pages: props.image.pageNumbers?.join(',') ?? '' }, props.image.pageNumbers?.length ?? 0)
