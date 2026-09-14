@@ -97,12 +97,29 @@ const router = createRouter({
       }
     },
     {
-      path: '/search/images/:image_id',
-      name: 'viewImage',
+      path: Routes.viewImage.path,
+      name: Routes.viewImage.name,
       component: () => import('@/pages/ViewImage.vue'),
       meta: {
         requiresAuth: false
-      }
+      },
+      children: [
+        {
+          name: Routes.viewImage.children.facsimile.name,
+          path: Routes.viewImage.children.facsimile.path,
+          component: () => import('@/components/images/ImageContentItemFacsimile.vue')
+        },
+        {
+          name: Routes.viewImage.children.citeAs.name,
+          path: Routes.viewImage.children.citeAs.path,
+          component: () => import('@/components/images/ImageContentItemCiteAs.vue')
+        },
+        {
+          name: Routes.viewImage.children.similarItems.name,
+          path: Routes.viewImage.children.similarItems.path,
+          component: () => import('@/components/images/ImageContentItemSimilarItems.vue')
+        }
+      ]
     },
     {
       path: '/helpers/filters',

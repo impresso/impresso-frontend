@@ -76,8 +76,10 @@ export interface Filter<T extends FilterType = FilterType> extends Omit<BaseFilt
 
 export type Entity = FacetWithLabel
 
-export interface SearchQuery<F extends Filter = Filter>
-  extends Omit<ImpressoSearchQuery, 'filters'> {
+export interface SearchQuery<F extends Filter = Filter> extends Omit<
+  ImpressoSearchQuery,
+  'filters'
+> {
   filters: F[]
 }
 
@@ -181,6 +183,9 @@ export interface IImage {
   pageNumbers: number[]
   mediaSourceRef?: MediaSource
   date?: Date
+  imageTypes?: {
+    [key: string]: string
+  }
 }
 
 export type User = {
