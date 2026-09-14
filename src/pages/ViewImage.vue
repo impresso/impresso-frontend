@@ -1,7 +1,59 @@
 <template>
   <i-layout class="ViewImage">
     <i-layout-section width="380px">
-      <template #header> </template>
+      <template #header>
+        <ul class="nav nav-pills mx-2 mt-2">
+          <li class="nav-item active">
+            <router-link
+              :to="{
+                name: Routes.viewImage.children.facsimile.name,
+                params: { image_id: imageId }
+              }"
+              exact-active-class="active"
+              active-class=""
+              class="nav-link"
+            >
+              Content items, same page
+            </router-link>
+          </li>
+        </ul>
+      </template>
+      <ListOfFindResponseItems
+        v-if="image"
+        :service="contentItemService"
+        :params="listParams"
+        :list-is-empty-message="$t('no conversations')"
+        :error-loading-items-message="$t('error loading conversations')"
+        items-class="p-0"
+      >
+        <template #header="{ total, isLoading }">
+          <div class="my-3 mx-3">
+            <span
+              v-html="isLoading ? $t('loading') : $t('numbers.contentItems', { n: total }, total)"
+            />
+          </div>
+        </template>
+        <template #default="{ items, isSuccess }">
+          <div>
+            <ContentItem
+              v-for="item in items"
+              :key="item.id"
+              :data-content-item-id="item.id"
+              :contentItem="item"
+              class="m-3 p-2 rounded-md border shadow-sm mb-4"
+              showDate
+              showMediaSource
+              showLink
+              showIcon
+              showMeta
+              showSnippet
+              showSemanticEnrichments
+              showProvider
+              showType
+            />
+          </div>
+        </template>
+      </ListOfFindResponseItems>
     </i-layout-section>
 
     <i-layout-section main>
@@ -16,6 +68,7 @@
               :show-title="false"
               :show-icon="false"
               showContentItemAccess
+              showImageTypes
               showId
             />
           </section>
@@ -53,19 +106,21 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { images as imagesService } from '@/services'
+import { images as imagesService, contentItems as contentItemService } from '@/services'
 import ImageContentItem from '@/components/images/ImageContentItem.vue'
 import { useUserStore } from '@/stores/user'
 import { IImage } from '@/models'
 import { Routes } from '@/router/routes'
+import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import ContentItem from '@/components/modules/lists/ContentItem.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
 
 const AvailableNestedRoutes = [
-  Routes.viewImage.children.facsimile,
-  Routes.viewImage.children.citeAs,
-  Routes.viewImage.children.similarItems
+  Routes.viewImage.children.facsimile
+  // Routes.viewImage.children.citeAs,
+  // Routes.viewImage.children.similarItems
 ] as const
 
 const image = ref<IImage | null>(null)
@@ -88,6 +143,40 @@ const loadImage = async (id: string) => {
     }
   }
 }
+
+/**
+ * Get page identifier from image identifier and page number
+ */
+const pageIds = computed<string[]>(() => {
+  if (!image.value) return null
+  const match = image.value.id.match(/^(.*?)-i(\d+)?$/)
+  if (!match) return null
+
+  const [, baseId] = match
+
+  return image.value.pageNumbers.map((pageNum: number) => {
+    return `${baseId}-p${String(pageNum).padStart(4, '0')}`
+  })
+})
+
+const listParams = computed(() => {
+  if (!Array.isArray(pageIds.value) || pageIds.value.length === 0)
+    return {
+      query: {
+        filters: []
+      }
+    }
+  return {
+    query: {
+      filters: [
+        {
+          type: 'page',
+          q: pageIds.value
+        }
+      ]
+    }
+  }
+})
 
 watch(imageId, loadImage, { immediate: true })
 
