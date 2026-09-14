@@ -684,6 +684,55 @@ export interface WikidataLocation1 {
 
 
 /**
+ * Editorial article forming a coherent textual unit.
+ */
+export type Article = "ar";
+/**
+ * Commercial or classified advertising content.
+ */
+export type Advertisement = "ad";
+/**
+ * Standalone visual content such as a photograph, illustration, or graphic.
+ */
+export type Image = "img";
+/**
+ * Tabular content presenting structured data or listings.
+ */
+export type Table = "tb";
+/**
+ * Notice reporting a death, often including biographical information.
+ */
+export type Obituary = "ob";
+/**
+ * Weather report or meteorological information.
+ */
+export type Weather = "w";
+/**
+ * Broadcast chronicle reporting events in a factual or narrative form.
+ */
+export type Chronicle = "ch";
+/**
+ * Content item originating from a radio broadcast.
+ */
+export type RadioBroadcast = "rb";
+/**
+ * An individual episode or segment of a radio broadcast.
+ */
+export type RadioBroadcastEpisode = "rbe";
+/**
+ * Content item with no specific type provided.
+ */
+export type NoTypeProvided = "no-type";
+/**
+ * Radio Broadcast discussion or talk show content item.
+ */
+export type Discussion = "dsc";
+/**
+ * Radio Broadcast interview content item.
+ */
+export type Entretien = "ent";
+
+/**
  * An entity mention in a content item
  */
 export interface EntityMention {
@@ -804,29 +853,21 @@ export interface ContentItemText {
   /**
    * Type of content item, e.g., article, section.
    */
-  itemType?:
-    | "ar"
-    | "article"
-    | "ad"
-    | "advertisement"
-    | "page"
-    | "tb"
-    | "ob"
-    | "w"
-    | "ch"
-    | "chapter"
-    | "death_notice"
-    | "chronicle"
-    | "unsegmented"
-    | "radio_broadcast_episode"
-    | "radio_bulletin"
-    | "rbe"
-    | "rb"
-    | "dsc"
-    | "discussion"
-    | "ent"
-    | "entertainment"
-    | "no-type";
+  itemType?: (
+    | Article
+    | Advertisement
+    | Image
+    | Table
+    | Obituary
+    | Weather
+    | Chronicle
+    | RadioBroadcast
+    | RadioBroadcastEpisode
+    | NoTypeProvided
+    | Discussion
+    | Entretien
+  ) &
+    string;
   /**
    * Human-readable label for the itemType code.
    */

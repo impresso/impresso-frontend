@@ -27,7 +27,7 @@ export interface Filter {
   context?: "include" | "exclude";
   op?: "AND" | "OR";
   /**
-   * Possible values are in 'impresso-jscomons Filter.type'
+   * Possible values are in 'impresso-jscommons Filter.type'
    */
   type: string;
   precision?: "fuzzy" | "soft" | "exact" | "partial";
@@ -81,7 +81,7 @@ export interface Filter {
   context?: "include" | "exclude";
   op?: "AND" | "OR";
   /**
-   * Possible values are in 'impresso-jscomons Filter.type'
+   * Possible values are in 'impresso-jscommons Filter.type'
    */
   type: string;
   precision?: "fuzzy" | "soft" | "exact" | "partial";

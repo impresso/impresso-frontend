@@ -172,7 +172,7 @@ function entryPoints(...paths: string[]) {
   const entries = paths.map(parse).map(entry => {
     const { dir, base, name } = entry
     const key = join(dir, name)
-    const path = resolve(__dirname, dir, base)
+    const path = resolve(import.meta.dirname, dir, base)
     return [key, path]
   })
 
