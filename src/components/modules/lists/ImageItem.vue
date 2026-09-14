@@ -53,6 +53,7 @@ import MediaSourceLabel from './MediaSourceLabel.vue'
 import { IImage } from '@/models'
 import { defineComponent, PropType } from 'vue'
 import { defaultAuthCondition } from '@/util/imageAuth'
+import { Routes } from '@/router/routes'
 
 export default defineComponent({
   props: {
@@ -112,7 +113,7 @@ export default defineComponent({
         })
       } else {
         this.$router.push({
-          name: 'viewImage',
+          name: Routes.viewImage.children.facsimile.name,
           params: {
             image_id: this.item.id
           }
