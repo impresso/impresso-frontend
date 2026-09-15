@@ -1,7 +1,7 @@
 <template>
   <i-layout class="search-images">
     <search-sidebar
-      width="400px"
+      width="380px"
       :filters="availableFiltersWithItems"
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
@@ -59,6 +59,7 @@
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
+      {{ availableFiltersWithItems }}
     </search-sidebar>
 
     <i-layout-section main>
@@ -76,14 +77,14 @@
         </b-navbar>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
           <b-navbar-nav class="border-right flex-grow-1 py-2">
-            <ellipsis v-if="!isLoading" :initialHeight="60">
+            <ellipsis :initialHeight="60">
               <search-results-summary
+                :isLoading="isLoading"
                 group-by="images"
                 :searchQuery="{ filters: availableFiltersWithItems }"
                 :totalRows="paginationTotalRows"
               />
             </ellipsis>
-            <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2 align-items-center" v-if="!similarToImage">
             <label class="mr-1 mb-0 text-nowrap">{{ $t('label_order') }}</label>
@@ -104,8 +105,12 @@
 
       <div class="p-1 my-2">
         <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-          <div class="mb-3" v-for="searchResult in searchResults" :key="searchResult.id">
-            <search-results-image-item
+          <div
+            class="col m-2 border p-2 rounded-sm"
+            v-for="searchResult in searchResults"
+            :key="searchResult.id"
+          >
+            <!-- <search-results-image-item
               class="mx-1"
               :item="searchResult"
               :enable-checkbox="false"
@@ -114,7 +119,9 @@
               :userPlan="userPlan"
               @toggleSelected="toggleSelected"
               @click:search="onClickSearch"
-            />
+            /> -->
+            {{ searchResult }}
+            <ImageContentItem :image="searchResult" showImageTypes showLink showPreview />
           </div>
         </div>
         <div
@@ -177,6 +184,7 @@ import type { IImage, Filter, FilterType, FacetType } from '@/models'
 import { includes } from '@/util/fn'
 import Icon from '@/components/base/Icon.vue'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
+import ImageContentItem from '@/components/images/ImageContentItem.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.images
 const AllowedFacetTypes = FacetsByContext.images
