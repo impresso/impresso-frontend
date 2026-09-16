@@ -179,7 +179,8 @@ export default {
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
-      viewTopic: 'go to topic'
+      viewTopic: 'go to topic',
+      readContentItem: 'read content item ...'
     },
     filters: {
       daterange: {
