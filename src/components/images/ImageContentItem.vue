@@ -13,18 +13,15 @@
       />
     </div>
     <div class="d-flex align-items-start gap-2">
-      <Icon v-if="showIcon" name="journalPage" />
-      <h2
-        v-if="showTitle && hasCaption"
-        class="m-0 font-size-inherit font-weight-bold line-height-inherit"
-      >
-        <RouterLink v-if="showLink" :to="routerLinkUrl">{{ image.caption }}</RouterLink>
-        <span v-else>{{ image.caption }}</span>
+      <Icon v-if="showIcon" name="mediaImage" />
+      <h2 v-if="showTitle" class="m-0 font-size-inherit font-weight-bold line-height-inherit">
+        <RouterLink v-if="showLink" :to="routerLinkUrl">{{ image.caption || image.id }}</RouterLink>
+        <span v-else>{{ image.caption || image.id }}</span>
       </h2>
     </div>
 
     <div
-      v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages"
+      v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages || showId"
       class="d-flex align-items-center gap-2 flex-wrap"
     >
       <MediaSourceLabel
@@ -36,29 +33,49 @@
         }"
         show-link
         class="d-inline-block"
-      />
-      {{ ' ' }}
-      <div v-if="shouldShowDate">
-        {{ shouldShowMediaSource ? '&mdash;' : '' }}
-        {{ $d(new Date(image.date as Date), 'long') }}
-        {{ '  ' }}
-      </div>
-      <div v-if="shouldShowPages">
-        {{ shouldShowMediaSource || shouldShowDate ? '&mdash;' : '' }}
-        <span v-html="pagesLabel"></span>
-      </div>
+      >
+        {{ ' ' }}
+        <span v-if="shouldShowDate">
+          {{ shouldShowMediaSource ? '&mdash;' : '' }}
+          {{ $d(new Date(image.date as Date), 'long') }}
+          {{ '  ' }}
+        </span>
+        <span v-if="shouldShowPages">
+          {{ shouldShowMediaSource || shouldShowDate ? '&mdash;' : '' }}
+          <span v-html="pagesLabel"></span>
+        </span>
+      </MediaSourceLabel>
+      {{ '  ' }}
 
       <ContentItemIdLabel v-if="showId" :id="image.id" />
     </div>
-    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
-      <div v-if="shouldShowImageTypes" class="d-flex align-items-center gap-2 flex-wrap">
-        <span v-for="(imageType, index) in image.imageTypes" :key="index" class="small-caps">
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <template v-if="shouldShowImageTypes">
+        <div
+          v-for="(imageType, index) in image.imageTypes"
+          :key="index"
+          class="small-caps"
+          style="margin-top: 2px"
+        >
           {{ imageType }}
+        </div>
+      </template>
+      {{ '  ' }}
+      <!-- copyright and provider -->
+      <template v-if="image.access.copyright">
+        <span>
+          &mdash;
+          <span>{{ $t(`buckets.copyright.${image.access.copyright}`) }}</span>
         </span>
-      </div>
-      <ContentItemAccess v-if="props.showContentItemAccess" :item="props.image as ContentItem">
+      </template>
+      <ContentItemAccess
+        v-if="props.showContentItemAccess"
+        :item="props.image as unknown as ContentItem"
+      >
       </ContentItemAccess>
     </div>
+    <slot></slot>
   </div>
 </template>
 
@@ -74,6 +91,7 @@ import { ContentItem } from '@/models/generated/canonical/contentItem.js'
 import { Routes } from '@/router/routes'
 import { RouteLocationRaw } from 'vue-router'
 import AuthImg from '@/components/AuthImg.vue'
+import Image from '@/models/Image.js'
 
 defineOptions({ inheritAttrs: false })
 
@@ -126,7 +144,7 @@ const shouldShowDate = computed(() => props.showDate && !!props.image.date)
 const shouldShowPages = computed(() => props.showPages && !!props.image.pageNumbers?.length)
 
 const shouldShowImageTypes = computed(
-  () => props.showImageTypes && !!props.image.imageTypes?.length
+  () => props.showImageTypes && !!Object.keys(props.image.imageTypes || {}).length
 )
 
 const shouldShowPreview = computed(() => props.showPreview && !!props.image.previewUrl)

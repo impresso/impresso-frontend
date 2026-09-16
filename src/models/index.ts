@@ -186,6 +186,9 @@ export interface IImage {
   imageTypes?: {
     [key: string]: string
   }
+  access: {
+    copyright?: string
+  }
 }
 
 export type User = {
