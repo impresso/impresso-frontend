@@ -7,30 +7,20 @@
             :href="InstitutionsAccessBaseUrl"
             class="text-decoration-none text-reset"
             target="_self"
+            :aria-label="$t('home')"
           >
             <LogoImpressoInst :width="90" />
           </a>
         </span>
-        <!-- <div class="mx-2 navbar-nav">
-          <div class="nav-item">
-            <a
-              href="/datalab/about"
-              class="text-decoration-none text-reset nav-link"
-              target="_self"
-            >
-              Guide
-            </a>
-          </div>
-        </div> -->
         <div class="ms-auto align-items-center mr-3 navbar-nav gap-2">
           <template v-if="isAuthenticated">
-            <div class="nav-item" v-for="item in reviewRouteLinks" :key="item.name">
+            <div class="nav-item" v-for="section in sections" :key="section.name">
               <RouterLink
-                :to="{ name: item.name }"
-                class="text-decoration-none text-reset nav-link px-2 py-1"
-                :class="{ active: route.name === item.name }"
+                :to="{ name: section.name }"
+                class="text-decoration-none nav-link px-2 py-1"
+                :class="{ active: activeSection === section.id }"
               >
-                {{ $t(item.labelKey) }}
+                {{ $t(`sections.${section.id}`) }}
               </RouterLink>
             </div>
             <UserDropdown :user="user" :userPlan="userPlan" @logout="logout">
@@ -38,6 +28,14 @@
                 <div class="user-role small-caps text-left">
                   {{ $t('institutionContactpoint') }}
                 </div>
+              </template>
+              <template #default>
+                <li class="mx-3 mb-2">
+                  <ReviewerSettings />
+                </li>
+                <li class="mx-3">
+                  <hr class="dropdown-divider" />
+                </li>
               </template>
             </UserDropdown>
           </template>
@@ -53,8 +51,9 @@ import { computed } from 'vue'
 import LogoImpressoInst from '@/components/LogoImpressoInst.vue'
 import { InstitutionsAccessBaseUrl } from '@/constants'
 import UserDropdown from '@/components/UserDropdown.vue'
+import ReviewerSettings from './ReviewerSettings.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { RoutesByRequestStatus } from '../router/routes'
+import { Routes, RoutesByRequestStatus } from '../router/routes'
 
 const userStore = useUserStore()
 const isAuthenticated = computed(() => userStore.userData !== false)
@@ -63,10 +62,27 @@ const user = computed(() => (isAuthenticated.value ? (userStore.user as any as U
 const route = useRoute()
 const router = useRouter()
 
-const reviewRouteLinks = RoutesByRequestStatus.map(([status, _path, name]) => ({
-  name,
-  labelKey: `${status}Requests`
-}))
+/**
+ * App level sections. Status filtering is not navigation, it lives inside the
+ * requests view, so the header only carries the workspace sections.
+ */
+const sections = [
+  { id: 'requests', name: Routes.index.name },
+  { id: 'emailTemplates', name: Routes.emailTemplates.name }
+] as const
+
+/** Every route name that belongs to the requests section. */
+const requestsRouteNames: string[] = [
+  ...RoutesByRequestStatus.map(([, , name]) => name as string),
+  'SpecialMembershipRequest'
+]
+
+const activeSection = computed<'requests' | 'emailTemplates' | null>(() => {
+  const name = route.name as string | undefined
+  if (name === Routes.emailTemplates.name) return 'emailTemplates'
+  if (name && requestsRouteNames.includes(name)) return 'requests'
+  return null
+})
 
 const logout = () => {
   console.info('logging out..')
@@ -76,9 +92,10 @@ const logout = () => {
 </script>
 <style>
 .Header {
-  background-color: #f5f4f3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--impresso-color-paper);
+  border-bottom: 1px solid var(--clr-grey-600);
   z-index: 1003;
+  height: var(--institutions-header-height);
 }
 .Header > nav.navbar {
   --bs-gutter-x: 1.5rem;
@@ -88,6 +105,11 @@ const logout = () => {
   padding-left: calc(var(--bs-gutter-x) * 0.5);
 }
 
+/**
+ * This header sits on a light background, unlike the main app's dark navbar,
+ * so its accents use the site greys rather than the brand yellow, which has
+ * too little contrast here.
+ */
 .Header::before {
   position: absolute;
   top: 0;
@@ -95,25 +117,43 @@ const logout = () => {
   right: 0;
   z-index: 1;
   height: 1.5px;
-  background-color: var(--impresso-color-yellow);
+  background-color: var(--clr-grey-200);
   content: '';
+}
+
+.Header .nav-link {
+  color: var(--clr-grey-200);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.Header .nav-link:hover {
+  color: var(--clr-grey-100);
+  border-bottom-color: var(--clr-grey-500);
 }
 
 .Header .nav-link.active {
   font-weight: 600;
-  border-bottom: 2px solid var(--impresso-color-yellow);
+  font-variation-settings: 'wght' 600;
+  color: var(--clr-grey-100);
+  border-bottom-color: var(--clr-grey-100);
+}
+
+.Header .nav-link:focus-visible {
+  outline-offset: 4px;
 }
 </style>
 <i18n lang="json">
 {
   "en": {
+    "home": "Institutional access home",
     "institutionContactpoint": "Reviewer",
-    "allRequests": "All",
-    "pendingRequests": "Pending",
-    "approvedRequests": "Approved",
-    "rejectedRequests": "Rejected",
-    "revokedRequests": "Revoked",
-    "temporaryRequests": "Temporary"
+    "sections": {
+      "requests": "Requests",
+      "emailTemplates": "Auto-reply"
+    }
   }
 }
 </i18n>

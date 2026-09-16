@@ -9,11 +9,14 @@ import {
 import {
   MockSpecialMembershipAccess,
   MockSpecialMembershipAccessWithRequests,
+  MockUserSpecialMembershipRequestReviews,
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
 import { MockTopic } from './mockData/topics'
 import { MockBaristaConversations } from './mockData/baristaConversations'
+import { MockEmailTemplates } from './mockData/emailTemplates'
+import type { EmailTemplate } from '@/institutions-access/services/emailTemplates'
 
 export const findSearchFacetsHandler = http.get(
   '/api/search-facets/search',
@@ -332,6 +335,56 @@ export const findUserSpecialMembershipRequestsHandler = http.get(
   }
 )
 
+export const findUserSpecialMembershipRequestsReviewsHandler = http.get(
+  '/api/user-special-membership-requests-reviews',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '25')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    const term = (url.searchParams.get('term') || '').toLowerCase()
+    // The feathers rest client serialises arrays with indices (`status[0]=x`),
+    // while other clients use `status[]=x` or a bare `status=x`. Accept all.
+    const statuses = [...url.searchParams.entries()]
+      .filter(([key]) => /^status(\[\d*\])?$/.test(key))
+      .map(([, value]) => value)
+    await new Promise(resolve => setTimeout(resolve, 400)) // Simulate network delay
+
+    let items = MockUserSpecialMembershipRequestReviews
+    if (statuses.length > 0) {
+      items = items.filter(item => statuses.includes(item.status))
+    }
+    if (term !== '') {
+      items = items.filter(item =>
+        `${item.requester.firstname} ${item.requester.lastname}`.toLowerCase().includes(term)
+      )
+    }
+
+    return HttpResponse.json({
+      data: items.slice(offset, offset + limit),
+      pagination: {
+        total: items.length,
+        offset,
+        limit
+      }
+    } satisfies BaseFindResponse)
+  }
+)
+
+export const patchUserSpecialMembershipRequestsReviewHandler = http.patch(
+  '/api/user-special-membership-requests-reviews/:id',
+  async ({ params }) => {
+    const { id } = params
+    await new Promise(resolve => setTimeout(resolve, 400)) // Simulate network delay
+    const item = MockUserSpecialMembershipRequestReviews.find(
+      review => String(review.id) === String(id)
+    )
+    if (!item) {
+      return HttpResponse.json({ error: 'Unknown request' }, { status: 404 })
+    }
+    return HttpResponse.json(item)
+  }
+)
+
 export const findBaristaConversationsHandler = http.get(
   '/api/barista-conversations',
   async ({ request }) => {
@@ -376,6 +429,65 @@ export const createUserSpecialMembershipRequestHandler = http.post(
     return HttpResponse.json(newRequest)
   }
 )
+
+/**
+ * Email templates are not served by the backend yet. These handlers describe
+ * the contract the `email-templates` service is expected to expose, so the HTTP
+ * client implementation can be exercised in Storybook.
+ */
+const emailTemplatesStore = new Map<string, EmailTemplate>(
+  MockEmailTemplates.map(template => [template.id, { ...template }])
+)
+
+export const findEmailTemplatesHandler = http.get('/api/email-templates', async () => {
+  await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
+  const data = [...emailTemplatesStore.values()]
+  return HttpResponse.json({
+    data,
+    pagination: {
+      total: data.length,
+      limit: data.length,
+      offset: 0
+    }
+  } satisfies BaseFindResponse)
+})
+
+export const getEmailTemplateHandler = http.get('/api/email-templates/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
+  const template = emailTemplatesStore.get(String(id))
+  if (!template) {
+    return HttpResponse.json({ error: 'Unknown email template' }, { status: 404 })
+  }
+  return HttpResponse.json(template)
+})
+
+export const patchEmailTemplateHandler = http.patch(
+  '/api/email-templates/:id',
+  async ({ params, request }) => {
+    const { id } = params
+    const existing = emailTemplatesStore.get(String(id))
+    if (!existing) {
+      return HttpResponse.json({ error: 'Unknown email template' }, { status: 404 })
+    }
+    const body = (await request.json()) as Partial<EmailTemplate>
+    await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
+    const updated: EmailTemplate = {
+      ...existing,
+      ...body,
+      id: existing.id,
+      dateLastModified: new Date().toISOString()
+    }
+    emailTemplatesStore.set(existing.id, updated)
+    return HttpResponse.json(updated)
+  }
+)
+
+export const emailTemplatesHandlers = [
+  findEmailTemplatesHandler,
+  getEmailTemplateHandler,
+  patchEmailTemplateHandler
+]
 
 export const findEmpty = (mswHandler: HttpHandler) => {
   const path = mswHandler.info.path

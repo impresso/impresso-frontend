@@ -2,7 +2,7 @@ import { InstitutionsAccessBaseUrl } from '@/constants'
 import * as services from '@/services'
 import { decodeJwt } from '@/util/auth'
 import { createRouter, createWebHistory } from 'vue-router'
-import { RoutesByRequestStatus } from './routes.js'
+import { Routes, RoutesByRequestStatus } from './routes.js'
 
 /**
  * Router configuration for the institutions-access sibling app.
@@ -15,7 +15,7 @@ const router = createRouter({
     ...RoutesByRequestStatus.map(([status, path, name]) => ({
       path,
       name,
-      component: () => import(`../views/Index.vue`),
+      component: () => import('../views/RequestsView.vue'),
       props: {
         status
       },
@@ -23,6 +23,14 @@ const router = createRouter({
         requiresAuth: true
       }
     })),
+    {
+      path: Routes.emailTemplates.path,
+      name: Routes.emailTemplates.name,
+      component: () => import('../views/EmailTemplatesView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
     {
       path: '/login',
       name: 'Login',
@@ -42,7 +50,7 @@ const router = createRouter({
     {
       path: '/special-membership-request/:id',
       name: 'SpecialMembershipRequest',
-      component: () => import('../views/Index.vue'),
+      component: () => import('../views/RequestsView.vue'),
       props: route => ({
         prefetchedItem: route.meta.prefetchedItem,
         status: route.meta.prefetchedStatus

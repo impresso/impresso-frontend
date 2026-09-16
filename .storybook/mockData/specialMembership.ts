@@ -5,8 +5,14 @@ import {
 import {
   SpecialMembershipAccess,
   UserSpecialMembershipRequest,
-  UserSpecialMembershipRequestChangelogEntry
+  UserSpecialMembershipRequestChangelogEntry,
+  UserSpecialMembershipRequestReview
 } from '@/services/types'
+import {
+  SpecialMembershipRequestStatuses,
+  SpecialMembershipRequestStatusRejected,
+  SpecialMembershipRequestStatusTemporary
+} from '@/constants'
 
 export const MockProviders = [
   'National Library of Scotland',
@@ -90,3 +96,83 @@ export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] =
     }
   }
 )
+
+const MockRequesters = [
+  { firstname: 'Ada', lastname: 'Lovelace', affiliation: 'University of Luxembourg' },
+  { firstname: 'Alan', lastname: 'Turing', affiliation: 'University of Cambridge' },
+  { firstname: 'Grace', lastname: 'Hopper', affiliation: 'Yale University' },
+  { firstname: 'Katherine', lastname: 'Johnson', affiliation: '' },
+  { firstname: 'Hedy', lastname: 'Lamarr', affiliation: 'Austrian National Library' },
+  { firstname: 'Rosalind', lastname: 'Franklin', affiliation: "King's College London" }
+]
+
+/**
+ * Requests as returned by the `user-special-membership-requests-reviews`
+ * service, which embeds the requester so a reviewer can judge a request from
+ * the list alone. One fixture per status so every badge is covered.
+ */
+export const MockUserSpecialMembershipRequestReviews: UserSpecialMembershipRequestReview[] =
+  SpecialMembershipRequestStatuses.map((status, index) => {
+    const requester = MockRequesters[index % MockRequesters.length]
+    const access = MockSpecialMembershipAccess[index % MockSpecialMembershipAccess.length]
+    const dateCreated = new Date(Date.UTC(2026, 0, 4 + index, 9, 30)).toISOString()
+    const dateLastModified = new Date(Date.UTC(2026, 1, 2 + index, 14, 5)).toISOString()
+
+    return {
+      id: index + 1,
+      reviewerId: index % 2 === 0 ? 1 : null,
+      specialMembershipAccessId: access.id,
+      userId: 40 + index,
+      specialMembershipAccess: access,
+      dateCreated,
+      dateLastModified,
+      temporaryExpiresAt:
+        status === SpecialMembershipRequestStatusTemporary
+          ? new Date(Date.UTC(2026, 5, 30)).toISOString()
+          : null,
+      status,
+      notes:
+        status === SpecialMembershipRequestStatusRejected
+          ? 'The affiliation could not be verified with the institution.'
+          : 'Requested for a research project on interwar press coverage.',
+      changelog: [
+        {
+          subscription: access.title,
+          date: dateCreated,
+          reviewer: '',
+          status: 'pending',
+          notes: 'This is a message for the reviewer'
+        },
+        {
+          subscription: access.title,
+          date: dateLastModified,
+          reviewer: 'reviewer@impresso-project.ch',
+          status,
+          notes: `Status set to ${status}.`
+        }
+      ],
+      requester: {
+        id: 40 + index,
+        email: `${requester.firstname.toLowerCase()}.${requester.lastname.toLowerCase()}@example.ac.uk`,
+        firstname: requester.firstname,
+        lastname: requester.lastname,
+        groups: [{ id: 3, name: 'plan-educational' }],
+        profile: {
+          id: index + 2,
+          uid: `local-${requester.lastname.toLowerCase()}`,
+          provider: 'local',
+          displayName: `${requester.firstname} ${requester.lastname}`,
+          pattern: '#588c7e,#f2e394,#96ceb4,#677e96,#677e96',
+          picture: null,
+          user_id: 40 + index,
+          emailAccepted: true,
+          maxLoopsAllowed: 200,
+          maxParallelJobs: 2,
+          institutionalUrl: '',
+          affiliation: requester.affiliation,
+          profileId: index + 1
+        },
+        bitmap: 'AAAAAAAAAAs'
+      }
+    } satisfies UserSpecialMembershipRequestReview
+  })

@@ -1,28 +1,24 @@
 <template>
-  <div class="row">
-    <div
-      class="col-10 offset-1 col-md-8 offset-md-2 col-lg-6 offset-lg-3 vh-75 d-flex align-items-center"
-    >
-      <Card class="w-100">
-        <template #header>
-          <h2 class="mb-0 font-weight-bold">
-            {{ $t(isLoading ? 'verifyingTokenTitle' : 'loginTitle') }}
-          </h2>
+  <section class="InstitutionsAccessAuth">
+    <Card>
+      <template #header>
+        <h2>
+          {{ $t(isLoading ? 'verifyingTokenTitle' : 'loginTitle') }}
+        </h2>
+      </template>
+      <MagicLinkForm :token="tokenFromUrl" :is-loading="isLoading" @submit="onSubmit">
+        <FeathersErrorManager v-if="error" :error="error">
+          {{ $t('errorInvalidMagicLink') }}
+        </FeathersErrorManager>
+        <template #actions v-if="!isLoading">
+          {{ $t('or') }}
+          <RouterLink :to="{ name: 'Login' }" class="text-decoration-underline">
+            {{ $t('requestLoginLink') }}
+          </RouterLink>
         </template>
-        <MagicLinkForm :token="tokenFromUrl" :is-loading="isLoading" @submit="onSubmit">
-          <FeathersErrorManager v-if="error" :error="error">
-            {{ $t('errorInvalidMagicLink') }}
-          </FeathersErrorManager>
-          <template #actions v-if="!isLoading">
-            or
-            <RouterLink :to="{ name: 'Login' }" class="text-decoration-underline">
-              {{ $t('requestLoginLink') }}
-            </RouterLink>
-          </template>
-        </MagicLinkForm>
-      </Card>
-    </div>
-  </div>
+      </MagicLinkForm>
+    </Card>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -87,10 +83,11 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "loginTitle": "Login via Magic Link",
-    "verifyingTokenTitle": "Login via Magic Link ...",
-    "requestLoginLink": "Request Login Link",
-    "errorInvalidMagicLink": "The magic link is invalid or has expired. Please request a new login link."
+    "loginTitle": "Sign in with a link",
+    "verifyingTokenTitle": "Checking your sign-in link",
+    "requestLoginLink": "Request a new link",
+    "or": "or",
+    "errorInvalidMagicLink": "This sign-in link is invalid or has expired. Request a new one."
   }
 }
 </i18n>

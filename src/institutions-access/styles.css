@@ -1,0 +1,85 @@
+/**
+ * Institutions-access shell. Keeps Impresso tokens (Satoshi, paper, greys)
+ * and only adds the extra hierarchy this sibling app needs.
+ */
+#InstitutionsAccess {
+  --institutions-focus: 2px solid var(--impresso-color-black);
+  color: var(--impresso-color-black);
+}
+
+.InstitutionsAccessSkipLink {
+  position: fixed;
+  left: 0.75rem;
+  top: -4rem;
+  z-index: 1100;
+  padding: 0.45rem 0.8rem;
+  background-color: var(--impresso-color-paper);
+  color: var(--impresso-color-black);
+  border: 1px solid var(--impresso-color-black);
+  border-radius: var(--impresso-border-radius-xs);
+  text-decoration: none;
+}
+
+.InstitutionsAccessSkipLink:focus {
+  top: 0.75rem;
+  outline: none;
+}
+
+.InstitutionsAccessPageHeader {
+  margin-bottom: 1.75rem;
+  max-width: 42rem;
+}
+
+.InstitutionsAccessPageHeader h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.85rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.InstitutionsAccessPageHeader p {
+  margin: 0;
+  max-width: 65ch;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--clr-grey-200);
+  text-wrap: pretty;
+}
+
+.InstitutionsAccessPageHeader__note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--clr-grey-300);
+}
+
+.InstitutionsAccessAuth {
+  display: flex;
+  align-items: flex-start;
+  min-height: calc(100dvh - var(--institutions-header-height) - 4rem);
+  padding: 8vh 0 4rem;
+}
+
+.InstitutionsAccessAuth .Card {
+  width: 100%;
+  max-width: 32.5rem;
+}
+
+#InstitutionsAccess :focus-visible {
+  outline: var(--institutions-focus);
+  outline-offset: 2px;
+}
+
+#InstitutionsAccess .HtmlCodeEditor :focus-visible {
+  outline: none;
+}
+
+#InstitutionsAccess .btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #InstitutionsAccess .btn:active:not(:disabled) {
+    transform: none;
+  }
+}
