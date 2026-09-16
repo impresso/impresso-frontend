@@ -42,7 +42,7 @@
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
               :class="{ 'border-dark': item.id === image.id }"
             >
-              <ImageContentItem showLink showPreview showIcon :image="item" />
+              <ImageContentItem showLink showPreview showImageTypes showIcon :image="item" />
             </div>
           </div>
         </template>
