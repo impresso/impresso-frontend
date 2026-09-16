@@ -1,16 +1,34 @@
 <template>
   <div class="ImageContentItemFacsimile">
-    <div ref="viewerWrapper" class="facsimile-viewer mb-3 position-relative border rounded-sm">
-      <IIIFViewer
-        v-if="manifestUrl && viewerHeight"
-        ref="viewerRef"
-        class="bg-dark"
-        :style="{ height: viewerHeight + 'px' }"
-        :manifest-urls="[manifestUrl]"
-        :overlays="overlays"
-        @ready="onViewerReady"
-        @clickOnOverlayRegion="centerOnOverlayRegion"
-      />
+    <div class="row">
+      <div :class="regionTexts.length ? 'col-sm-6 col-xl-7' : 'col-12'">
+        <div
+          ref="viewerWrapper"
+          class="facsimile-viewer mb-3 position-sticky top-0 border rounded-sm"
+        >
+          <IIIFViewer
+            v-if="manifestUrl && viewerHeight"
+            ref="viewerRef"
+            class="bg-dark"
+            :style="{ height: viewerHeight + 'px' }"
+            :manifest-urls="[manifestUrl]"
+            :overlays="overlays"
+            @ready="onViewerReady"
+            @clickOnOverlayRegion="centerOnOverlayRegion"
+          />
+        </div>
+      </div>
+      <div v-if="regionTexts?.length" class="col-sm-6 col-xl-5">
+        <div
+          v-for="(text, i) in regionTexts"
+          :key="i"
+          class="mb-3 p-2 rounded border"
+          :class="{ 'transcript-region': true }"
+          @click="centerOnContentRegion(i)"
+        >
+          <p class="mb-0 text-serif">{{ text }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -20,10 +38,13 @@ import { computed, onBeforeUnmount, onMounted, nextTick, ref, watch } from 'vue'
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
 import IIIFViewer, { type Overlay } from '@/components/modules/IIIFViewer.vue'
 import { IImage } from '@/models'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 
 const props = defineProps<{
   image?: IImage | null
   userPlan?: string
+  contentItem?: ContentItemType | null
+  contentItemRegions?: { id: string; coords: { x: number; y: number; w: number; h: number } }[]
 }>()
 
 /**
@@ -55,10 +76,36 @@ const regionCoords = computed(() => {
   return { x: Number(x), y: Number(y), w: Number(w), h: Number(h) }
 })
 
-// Kept only to draw the highlight box; centering is now done via recenterToCoords below.
 const overlays = computed<Overlay[]>(() => {
-  if (!regionCoords.value) return []
-  return [{ id: 'region', regions: [{ id: 'region', coords: regionCoords.value }] }]
+  const regions: Overlay['regions'] = []
+
+  if (regionCoords.value) {
+    regions.push({ id: 'image-region', coords: regionCoords.value })
+  }
+
+  if (props.contentItemRegions) {
+    for (const region of props.contentItemRegions) {
+      regions.push(region)
+    }
+  }
+
+  if (regions.length === 0) return []
+  return [{ id: 'all-regions', regions }]
+})
+
+const regionTexts = computed(() => {
+  const content = props.contentItem?.text?.content
+  const regionBreaks = props.contentItem?.facsimile?.regionBreaks
+  if (!content) return []
+  if (!regionBreaks?.length) return [content]
+
+  const texts: string[] = []
+  texts.push(content.substring(0, regionBreaks[0]).trim())
+  for (let i = 1; i < regionBreaks.length; i++) {
+    texts.push(content.substring(regionBreaks[i - 1], regionBreaks[i]).trim())
+  }
+  texts.push(content.substring(regionBreaks[regionBreaks.length - 1]).trim())
+  return texts.filter(t => t.length > 0)
 })
 
 const viewerRef = ref<InstanceType<typeof IIIFViewer> | null>(null)
@@ -73,6 +120,14 @@ const onViewerReady = () => {
 const centerOnOverlayRegion = () => {
   if (regionCoords.value) {
     viewerRef.value?.recenterToCoords(regionCoords.value)
+  }
+}
+
+// Re-center on the content item region when its transcript paragraph is clicked.
+const centerOnContentRegion = (idx: number) => {
+  const region = props.contentItemRegions?.[idx]
+  if (region) {
+    viewerRef.value?.recenterToCoords(region.coords)
   }
 }
 
@@ -111,5 +166,14 @@ watch(manifestUrl, () => {
 <style lang="scss" scoped>
 .facsimile-viewer {
   overflow: hidden;
+}
+
+.transcript-region {
+  cursor: pointer;
+  transition: border-color 0.2s var(--impresso-transition-ease);
+}
+
+.transcript-region:hover {
+  border-color: var(--clr-grey-400);
 }
 </style>

@@ -14,9 +14,15 @@
     </div>
     <div class="d-flex align-items-start gap-2">
       <Icon v-if="showIcon" name="mediaImage" />
-      <h2 v-if="showTitle" class="m-0 font-size-inherit font-weight-bold line-height-inherit">
+      <h2
+        v-if="showTitle || contentItem?.text?.title"
+        class="m-0 font-size-inherit font-weight-bold line-height-inherit"
+      >
         <RouterLink v-if="showLink" :to="routerLinkUrl">{{ image.caption || image.id }}</RouterLink>
         <span v-else>{{ image.caption || image.id }}</span>
+        <span v-if="contentItem?.text?.title" class="font-weight-normal">
+          &mdash; {{ contentItem.text.title }}
+        </span>
       </h2>
     </div>
 
@@ -83,11 +89,11 @@
 import { computed, useAttrs } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { IImage } from '@/models'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import Icon from '@/components/base/Icon.vue'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
 import ContentItemAccess from '../ContentItemAccess.vue'
-import { ContentItem } from '@/models/generated/canonical/contentItem.js'
 import { Routes } from '@/router/routes'
 import { RouteLocationRaw } from 'vue-router'
 import AuthImg from '@/components/AuthImg.vue'
@@ -97,6 +103,7 @@ defineOptions({ inheritAttrs: false })
 
 export interface ImageContentItemProps {
   image: IImage
+  contentItem?: ContentItem | null
   showIcon?: boolean
   showTitle?: boolean
   showMediaSource?: boolean

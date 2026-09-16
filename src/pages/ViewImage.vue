@@ -55,9 +55,19 @@
           <section class="py-1">
             <div class="label small-caps">Image</div>
             <h3 class="mb-1">{{ title }}</h3>
+            <h4 v-if="contentItem" class="font-size-inherit">
+              {{ $t('attached to content item') }}
+              <router-link
+                :to="{ name: Routes.contentItem.name, params: { content_item_id: contentItem.id } }"
+                class="text-decoration-underline"
+              >
+                {{ attachedContentItemTitle }}
+              </router-link>
+            </h4>
             <ImageContentItem
               v-if="image"
               :image="image"
+              :content-item="contentItem"
               :show-title="false"
               :show-icon="false"
               showContentItemAccess
@@ -90,14 +100,14 @@
       </template>
 
       <div class="container ml-0 py-4 pr-5">
-        <router-view :image="image" :user-plan="userPlan"></router-view>
+        <router-view :image="image" :user-plan="userPlan" :content-item="contentItem" :content-item-regions="contentItemRegions"></router-view>
       </div>
     </i-layout-section>
   </i-layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { images as imagesService, contentItems as contentItemService } from '@/services'
 import ImageContentItem from '@/components/images/ImageContentItem.vue'
@@ -105,7 +115,7 @@ import { useUserStore } from '@/stores/user'
 import { IImage } from '@/models'
 import { Routes } from '@/router/routes'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
-import ContentItem from '@/components/modules/lists/ContentItem.vue'
+import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -117,6 +127,7 @@ const AvailableNestedRoutes = [
 ] as const
 
 const image = ref<IImage | null>(null)
+const contentItem = ref<ContentItemType | null>(null)
 
 const userPlan = computed(() => userStore.userPlan)
 const imageId = computed(() => route.params.image_id as string)
@@ -126,14 +137,44 @@ const title = computed(() => {
   return image.value.caption || image.value.id
 })
 
+const attachedContentItemTitle = computed(() => {
+  if (!contentItem.value) return ''
+  const t = contentItem.value.text.title || contentItem.value.text.snippet || contentItem.value.id
+  // limit the title to 100 characters and add ellipsis if it's longer
+  return t.length > 100 ? t.substring(0, 100) + '...' : t
+})
+
+const contentItemRegions = computed(() => {
+  const pages = contentItem.value?.facsimile?.pages
+  if (!pages) return []
+
+  const matchingPages = pages.filter(
+    page => image.value?.pageNumbers?.includes(page.number ?? -1) ?? false
+  )
+
+  return matchingPages
+    .flatMap(page => page.regionCoordinates ?? [])
+    .map((coords, idx) => ({
+      id: `ci-${idx}`,
+      coords: { x: coords[0], y: coords[1], w: coords[2], h: coords[3] }
+    }))
+})
+
 const loadImage = async (id: string) => {
-  if (id) {
-    try {
-      image.value = (await imagesService.get(id)) as IImage
-      console.log('Loaded image:', image.value)
-    } catch (error) {
-      console.error('Failed to load image:', error)
+  image.value = null
+  contentItem.value = null
+
+  if (!id) return
+
+  try {
+    const loadedImage = (await imagesService.get(id)) as IImage
+    image.value = loadedImage
+
+    if (loadedImage.contentItemId) {
+      contentItem.value = await contentItemService.get(loadedImage.contentItemId)
     }
+  } catch (error) {
+    console.error('Failed to load image or content item:', error)
   }
 }
 
@@ -181,33 +222,6 @@ const listParams = computed(() => {
 })
 
 watch(imageId, loadImage, { immediate: true })
-
-onMounted(async () => {
-  if (imageId.value) {
-    await loadImage(imageId.value)
-    // imagesService
-    //   .find({
-    //     query: {
-    //       filters: [
-    //         {
-    //           type: 'issue',
-    //           q: [image.value?.issueId]
-    //         },
-    //         {
-    //           type: 'pageNumber',
-    //           q: image.value?.pageNumbers.map((pageNum: number) => String(pageNum))
-    //         }
-    //       ]
-    //     }
-    //   })
-    //   .then(response => {
-    //     console.log('Image find response:', response)
-    //   })
-    //   .catch(error => {
-    //     console.error('Error fetching image:', error)
-    //   })
-  }
-})
 </script>
 
 <i18n lang="json">
