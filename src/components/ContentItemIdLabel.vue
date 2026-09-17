@@ -1,6 +1,6 @@
 <template>
   <div
-    class="ContentItemIdLabel border px-2 small text-muted d-inline-block position-relative"
+    class="ContentItemIdLabel border pl-2 pr-1 small text-muted d-inline-block position-relative"
     :class="{ 'is-copied': copied }"
     role="button"
     tabindex="0"
@@ -14,6 +14,7 @@
     <Transition name="copied-badge">
       <span v-if="copied" class="copied-badge">{{ $t('copied') }}</span>
     </Transition>
+    {{ ' ' }}
     <InfoButton
       style="margin-top: -2px"
       :default-content="$t('id_description')"
