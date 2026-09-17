@@ -68,6 +68,11 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
   path?: string
 }
 
+export interface GenericListPagination {
+  total: number
+  offset: number
+  limit: number
+}
 /**
  * Emits 'items-rendered' after the DOM has been updated with the new items,
  * rather than the moment the fetch resolves. This makes it safe for consumers
@@ -75,7 +80,7 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
  */
 const emit = defineEmits<{
   'page-changed': [newPage: number]
-  'items-rendered': [items: any[]]
+  'items-rendered': [items: any[], pagination: GenericListPagination]
 }>()
 
 export interface ListOfFindResponseItemsExposed {
@@ -179,7 +184,7 @@ const fetchFindMethod = async () => {
     // Wait for Vue to flush DOM updates before notifying the parent.
     // This ensures consumers can safely query the DOM in the handler.
     await nextTick()
-    emit('items-rendered', data)
+    emit('items-rendered', data, serviceResponse.value.pagination)
   } catch (err) {
     const feathersError = err as FeathersError
     console.error(

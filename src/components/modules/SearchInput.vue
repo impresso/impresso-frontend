@@ -7,6 +7,7 @@
       @keyup.enter="submit"
       @input="change"
       @keyup="change"
+      :disabled="disabled"
     />
     <div class="input-group-append">
       <button type="button" class="btn btn-outline-primary px-2 pt-1" @click="submit">
@@ -21,16 +22,17 @@ import { ref, watch } from 'vue'
 import Icon from '@/components/base/Icon.vue'
 import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue'
 
-const props = withDefaults(
-  defineProps<{
-    placeholder?: string
-    initial?: string
-  }>(),
-  {
-    placeholder: 'search in image captions ...',
-    initial: ''
-  }
-)
+export interface SearchInputProps {
+  placeholder?: string
+  initial?: string
+  disabled?: boolean
+}
+
+const props = withDefaults(defineProps<SearchInputProps>(), {
+  placeholder: 'search  ...',
+  initial: '',
+  disabled: false
+})
 
 const emit = defineEmits<{
   (e: 'change', payload: { q: string }): void

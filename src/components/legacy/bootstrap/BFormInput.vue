@@ -8,6 +8,7 @@
     @input="handleChanged"
     v-bind="$attrs"
     :data-testid="dataTestid"
+    :placeholder="placeholder"
   />
 </template>
 
@@ -15,6 +16,7 @@
 import { computed, useAttrs, onMounted, nextTick, ref, onBeforeUnmount } from 'vue'
 
 const props = defineProps<{
+  placeholder?: string
   modelValue?: string | number
   autofocus?: boolean
   type?: string
