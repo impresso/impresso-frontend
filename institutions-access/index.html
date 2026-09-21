@@ -5,6 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta name="theme-color" content="#fddb92" />
+    <meta
+      name="description"
+      content="Review institutional access requests and the auto-reply sent when someone asks for membership."
+    />
     <title>Impresso - Institutional Access</title>
     <style>
       body,
@@ -17,6 +21,8 @@
           rgb(248, 230, 213) 0%,
           rgb(245, 245, 245) 100%
         );
+        /* Height of the fixed app header, used to offset the main content. */
+        --institutions-header-height: 76px;
       }
       body {
         background-color: #fddb92;
@@ -56,13 +62,9 @@
         left: 0;
         right: 0;
         z-index: 1000;
-        height: 2px;
-        background-color: #ffeb78;
+        height: 1.5px;
+        background-color: #343a40;
         content: '';
-      }
-      #app-container-loading.dismissed {
-        opacity: 0;
-        pointer-events: none;
       }
       #app-container-loading .loader {
         display: flex;
@@ -73,7 +75,7 @@
         height: 35px;
         width: 60px;
         border-radius: 35px;
-        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.15);
+        box-shadow: 0 1rem 2rem rgba(52, 58, 64, 0.12);
       }
 
       #app-container-loading .loader::before,
