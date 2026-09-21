@@ -1,5 +1,7 @@
 <template>
-  <div class="RequestsToolbar px-3 py-3 d-flex gap-3 justify-content-between align-items-center flex-wrap">
+  <div
+    class="RequestsToolbar px-3 py-3 d-flex gap-3 justify-content-between align-items-center flex-wrap"
+  >
     <div class="d-flex gap-2 align-items-center flex-wrap">
       <BSearchInputForm
         :key="searchInputKey"
@@ -20,15 +22,16 @@
     </div>
 
     <div class="d-flex gap-3 align-items-center flex-wrap">
-      <span class="small RequestsToolbar__total" v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"></span>
+      <span
+        class="small RequestsToolbar__total"
+        v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"
+      ></span>
 
       <div class="d-flex gap-2 align-items-center">
         <span class="small text-muted">{{ $t('sortBy') }}</span>
         <i-dropdown
           :model-value="orderBy"
-          :options="
-            RequestsOrderByOptions.map(value => ({ value, text: $t(`orderBy.${value}`) }))
-          "
+          :options="RequestsOrderByOptions.map(value => ({ value, text: $t(`orderBy.${value}`) }))"
           size="sm"
           variant="outline-primary"
           @update:model-value="value => emit('update:orderBy', value as RequestsOrderBy)"
@@ -127,7 +130,7 @@ watch(
       "inProgress": "Exporting...",
       "csv": "Download as CSV",
       "json": "Download as JSON",
-      "hint": "Exports every request matching the current filters, with its full history."
+      "hint": "Note: this export includes every request for the current data provider, including those not shown in the current list."
     }
   }
 }
