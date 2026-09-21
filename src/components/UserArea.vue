@@ -16,9 +16,9 @@
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
 
-    <LinkToModal v-if="user" class="dropdown-item" :view="ViewChangePassword">
-      {{ $t('label_change_password') }}
-    </LinkToModal>
+    <b-dropdown-item :to="{ name: 'passwordReset' }">
+      {{ $t('actions.resetMyPassword') }}
+    </b-dropdown-item>
 
     <LinkToModal
       v-if="user && isViewPlansFeatureEnabled"
@@ -93,7 +93,6 @@ import {
   // ViewPlans
   ViewCorpusOverview,
   ViewFeedback,
-  ViewChangePassword,
   ViewPlans
 } from '@/constants'
 import Icon from './base/Icon.vue'
@@ -168,8 +167,7 @@ const send_update_bitmap = async () => {
     "join_discussion_channel": "Join our Discord channel",
     "current_version": "Current version: {version}",
     "send_test_job": "[staff only] Send test job",
-    "send_update_bitmap": "[staff only] Test update bitmap",
-    "label_change_password": "Change Password"
+    "send_update_bitmap": "[staff only] Test update bitmap"
   }
 }
 </i18n>

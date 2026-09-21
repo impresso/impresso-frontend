@@ -181,7 +181,7 @@
         >
           <mention-item :item="item" class="ml-2" />
           <article-item
-            :item="asArticle(item.contentItem)"
+            :item="asArticle(item.contentItem as ContentItem)"
             show-meta
             show-excerpt
             show-link

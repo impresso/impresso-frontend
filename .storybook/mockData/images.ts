@@ -24,6 +24,9 @@ function buildImage(index: number): IImage {
   const year = 1900 + (index % 40)
   return {
     id: `img-${String(index).padStart(4, '0')}`,
+    access: {
+      copyright: 'unk'
+    },
     caption: `Sample caption for image #${index}`,
     issueId: `issue-${year}-${index}`,
     contentItemId: `ci-${index}`,

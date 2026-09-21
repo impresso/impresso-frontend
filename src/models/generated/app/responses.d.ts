@@ -182,7 +182,18 @@ export type PassageID = string;
 export interface FindTextReuseClustersResponse {
   clusters: TextReuseClusterCompound[];
   info: {
-    [k: string]: unknown;
+    /**
+     * The number of items returned in this response
+     */
+    limit: number;
+    /**
+     * Starting index of the items subset returned in this response
+     */
+    offset: number;
+    /**
+     * The total number of items matching the query
+     */
+    total: number;
   };
 }
 /**

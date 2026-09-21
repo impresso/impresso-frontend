@@ -11,7 +11,7 @@ import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
 import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
-import type { Services } from './types'
+import type { EmailVerificationService, EmailVerificationResendService, Services } from './types'
 import { DataProvidersService } from './local/dataProviders'
 
 export const app = feathers<Services>()
@@ -223,6 +223,9 @@ export const userSpecialMembershipRequestsReviews = app.service(
   'user-special-membership-requests-reviews'
 )
 export const magicLink = app.service('magic-link')
+
+export const emailVerification = app.service('user-email-verification')
+export const emailVerificationResend = app.service('user-email-verification-resend')
 
 export const specialMembershipAccess = app.service('special-membership-plans')
 export const feedback = app.service('feedback-collector')
