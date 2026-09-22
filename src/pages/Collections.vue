@@ -38,6 +38,25 @@
                   )
                 "
               />
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div
+                  class="text-muted"
+                  v-html="$t('numbers.collections', { n: $n(total) }, total)"
+                ></div>
+
+                <i-dropdown
+                  right
+                  v-model="orderBy"
+                  :options="
+                    orderByOptions.map(value => ({
+                      value,
+                      text: $t(`label_sort_${value}`)
+                    }))
+                  "
+                  size="sm"
+                  variant="outline-tertiary"
+                ></i-dropdown>
+              </div>
             </div>
           </template>
           <template #default="{ items, isSuccess }">
@@ -69,23 +88,34 @@ import ListOfFindResponseItems from '../components/ListOfFindResponseItems.vue'
 import type { GenericListPagination } from '../components/ListOfFindResponseItems.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
 
+const orderBy = ref('-date')
+const orderByOptions = ['date', '-date', 'creationDate', '-creationDate']
 const searchTerm = ref('')
+
 const listParams = computed(() => {
-  console.log('Computed listParams with searchTerm:', searchTerm.value)
+  console.debug(
+    'Computed listParams with searchTerm:',
+    searchTerm.value,
+    'and orderBy:',
+    orderBy.value
+  )
   if (searchTerm.value.trim() !== '') {
     return {
       query: {
         limit: 10,
-        term: searchTerm.value.trim()
+        term: searchTerm.value.trim(),
+        order_by: orderBy.value
       }
     }
   }
   return {
     query: {
-      limit: 10
+      limit: 10,
+      order_by: orderBy.value
     }
   }
 })
+
 const listPagination = ref<GenericListPagination>({
   limit: 10,
   offset: 0,
@@ -109,7 +139,11 @@ const onSearchQuery = ({ q: query }) => {
   "en": {
     "collections": "collections",
     "searchPlaceholder": "search in {total} collections ...",
-    "searchPlaceholderLoading": "searching ..."
+    "searchPlaceholderLoading": "searching ...",
+    "label_sort_date": "sort by date ↑",
+    "label_sort_creationDate": "sort by creation date ↑ ",
+    "label_sort_-date": "sort by date ↓",
+    "label_sort_-creationDate": "sort by creation date ↓"
   }
 }
 </i18n>
