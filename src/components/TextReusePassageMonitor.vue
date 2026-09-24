@@ -11,11 +11,15 @@
             <p
               class="m-0"
               v-html="
-                $t('passages_in_same_cluster', {
-                  offset: endPassageOffset + 1,
-                  n: totalPassages,
-                  diffn: $n(diff.length - 1)
-                }, totalPassages)
+                $t(
+                  'passages_in_same_cluster',
+                  {
+                    offset: endPassageOffset + 1,
+                    n: totalPassages,
+                    diffn: $n(diff.length - 1)
+                  },
+                  totalPassages
+                )
               "
             />
             <div class="d-flex flex-row flex-wrap align-items-center gap-2">
@@ -83,6 +87,7 @@
 import { ref, computed, watch } from 'vue'
 import { diffChars } from 'diff'
 import type { Change } from 'diff'
+import type { Filter } from '@/models'
 import TextReusePassage from '@/models/TextReusePassage'
 import TextReusePassageItemLabel from './modules/lists/TextReusePassageItemLabel.vue'
 import Pagination from './modules/Pagination.vue'
@@ -97,12 +102,6 @@ interface TextReuseItem {
   id: string
   content: string
   textReuseCluster: TextReuseCluster
-}
-
-export interface Filter {
-  type: string
-  q: string
-  context?: string
 }
 
 interface DropdownOption {

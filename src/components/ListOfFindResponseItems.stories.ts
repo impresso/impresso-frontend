@@ -5,6 +5,10 @@ import type { UserSpecialMembershipRequest } from '@/services/types'
 import { userSpecialMembershipRequests as userSpecialMembershipRequestsService } from '@/services'
 import { http, HttpResponse } from 'msw'
 import { ref, watch } from 'vue'
+import {
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusPending
+} from '@/constants'
 
 const mockRequests: UserSpecialMembershipRequest[] = [
   {
@@ -21,13 +25,14 @@ const mockRequests: UserSpecialMembershipRequest[] = [
     },
     dateCreated: new Date().toISOString(),
     dateLastModified: new Date().toISOString(),
-    status: 'pending',
+    notes: '',
+    status: SpecialMembershipRequestStatusPending,
     changelog: [
       {
         subscription: 'Data domain Access 10',
         date: new Date().toISOString(),
         reviewer: null,
-        status: 'pending'
+        status: SpecialMembershipRequestStatusPending
       }
     ]
   },
@@ -45,19 +50,20 @@ const mockRequests: UserSpecialMembershipRequest[] = [
     },
     dateCreated: new Date().toISOString(),
     dateLastModified: new Date().toISOString(),
-    status: 'approved',
+    status: SpecialMembershipRequestStatusApproved,
+    notes: '',
     changelog: [
       {
         subscription: 'Data domain Access 13',
         date: new Date().toISOString(),
         reviewer: 'Admin User',
-        status: 'pending'
+        status: SpecialMembershipRequestStatusPending
       },
       {
         subscription: 'Data domain Access 13',
         date: new Date().toISOString(),
         reviewer: 'Admin User',
-        status: 'approved'
+        status: SpecialMembershipRequestStatusApproved
       }
     ]
   }

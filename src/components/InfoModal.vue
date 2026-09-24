@@ -11,14 +11,16 @@
     <h5 v-if="title" class="mb-4">{{ title }}</h5>
     <slot></slot>
     <template v-slot:modal-footer>
-      <button
-        v-if="!hideFooter"
-        type="button"
-        class="btn btn-sm btn-outline-secondary"
-        @click="dismiss"
-      >
-        {{ $t('actions.dismiss') }}
-      </button>
+      <slot name="modal-footer" :dismiss="dismiss">
+        <button
+          v-if="!hideFooter"
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          @click="dismiss"
+        >
+          {{ $t('actions.dismiss') }}
+        </button>
+      </slot>
     </template>
   </Modal>
 </template>

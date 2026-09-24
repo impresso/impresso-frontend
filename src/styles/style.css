@@ -49,6 +49,13 @@
   --impresso-color-pastel-blue-alpha-50: rgba(86, 204, 242, 0.5);
   --impresso-color-pastel-blue-alpha-80: rgba(86, 204, 242, 0.8);
 
+  --impresso-color-vintage-purple-rgb: 99, 69, 143;
+  --impresso-color-vintage-purple-alpha-20: rgba(var(--impresso-color-vintage-purple-rgb), 0.2);
+  --impresso-color-vintage-purple-alpha-30: rgba(var(--impresso-color-vintage-purple-rgb), 0.3);
+  --impresso-color-vintage-purple-alpha-50: rgba(var(--impresso-color-vintage-purple-rgb), 0.5);
+  --impresso-color-vintage-purple-alpha-80: rgba(var(--impresso-color-vintage-purple-rgb), 0.8);
+  --impresso-color-vintage-purple: rgb(var(--impresso-color-vintage-purple-rgb));
+
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
   --impresso-border-radius-md: 15px;
@@ -69,8 +76,13 @@
   --impresso-wght-verysmallcaps: 550;
   --impresso-wght-verysmallcaps-medium: 700;
 
-  --impresso-color-light-grey: #f8f9fa;
-  --impresso-color-light-grey-alpha-50: rgba(248, 249, 250, 0.5);
+  --impresso-color-light-grey: #e8eaec;
+  --impresso-color-light-grey-rgb: 232, 234, 236;
+  --impresso-color-light-grey-alpha-50: rgba(var(--impresso-color-light-grey-rgb), 0.5);
+
+  --impresso-color-dark-grey: #3d4146;
+  --impresso-color-dark-grey-rgb: 61, 65, 70;
+  --impresso-color-dark-grey-alpha-50: rgba(var(--impresso-color-dark-grey-rgb), 0.5);
 
   --info: #c3fcf1;
   --info-rgb: 195, 252, 241;
@@ -418,6 +430,10 @@ label {
   font-weight: var(--impresso-wght);
   font-variation-settings: 'wght' var(--impresso-wght);
 }
+.font-weight-inherit {
+  font-weight: inherit;
+  font-variation-settings: 'wght' var(--impresso-wght);
+}
 .font-size-inherit {
   font-size: inherit;
 }
@@ -425,6 +441,10 @@ label {
   font-size: 1.2em;
   font-weight: var(--impresso-wght);
   font-variation-settings: 'wght' var(--impresso-wght);
+}
+
+.line-height-inherit {
+  line-height: inherit;
 }
 
 .text-color-inherit {
@@ -560,6 +580,16 @@ label {
   font-variation-settings: 'wght' var(--impresso-wght-smallcaps);
 }
 
+/** pointer events */
+.pointer-events-none {
+  pointer-events: none;
+}
+.pointer-events-auto {
+  pointer-events: auto;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
 /* vh */
 .vh-75 {
   height: 75vh !important;
@@ -821,4 +851,118 @@ svg path.domain {
 }
 .pe-auto {
   pointer-events: auto;
+}
+
+/** cols container for very big screens */
+
+/** container for very big screens */
+@media (min-width: 1200px) {
+  .container-xxl {
+    max-width: 1200px;
+  }
+  .col-xxl {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .col-xxl-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+  .col-xxl-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-xxl-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container-xxl {
+    max-width: 1400px;
+  }
+  .col-xxl {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .col-xxl-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+  .col-xxl-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+}
+
+.static-page {
+  --impresso-text-decoration-color: var(--clr-grey-300);
+  --impresso-text-decoration-color-hover: var(--impresso-color-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--impresso-color-white);
+  text-align: center;
+
+  background: -webkit-linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  );
+}
+.static-page h1 {
+  color: var(--impresso-color-white);
+}
+
+.static-page a {
+  color: var(--impresso-color-white);
+  text-decoration: underline;
+  text-decoration-color: var(--impresso-text-decoration-color);
+  text-underline-offset: var(--impresso-text-underline-offset);
+}
+.static-page a:hover {
+  text-decoration-color: var(--impresso-text-decoration-color-hover);
+}
+
+.static-page input[type='text'],
+.static-page input[type='email'] {
+  /** dark mode */
+  background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white-alpha-50);
+}
+.static-page input[type='email']::selection,
+.static-page input[type='text']::selection {
+  background-color: var(--impresso-color-yellow);
+  color: var(--impresso-color-black-deeper);
+}
+.static-page input[type='email']:focus,
+.static-page input[type='text']:focus {
+  background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white) !important;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
+}
+.static-page button {
+  background-color: var(--impresso-color-white);
+  color: var(--impresso-color-black-deeper);
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+.static-page button:focus {
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
+}
+.static-page button.btn-transparent {
+  background-color: transparent;
+  color: var(--impresso-color-white);
+  border: 0px solid transparent;
 }

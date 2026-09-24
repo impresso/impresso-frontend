@@ -163,7 +163,7 @@ export default {
       'location',
       'topic',
       'partner',
-      'accessRight',
+      'copyright',
       'collection'
     ]
   }),

@@ -1,4 +1,4 @@
-import { toSerializedFilters } from '@/logic/filters'
+import { Filter } from '@/models'
 import {
   Action,
   BaristaFormattedResponse,
@@ -17,9 +17,9 @@ const SearchQueryDestinationToService: Record<
 
 export const getFiltersAndSearchDestination = (
   message: BaristaMessageItem
-): [BaristaFormattedResponse['searchQuery']['filters'], Action['type']] | undefined => {
+): [Filter[], Action['type']] | undefined => {
   if (supportsStructuredResponse(message)) {
-    const filters = message.structuredResponse?.searchQuery?.filters
+    const filters = message.structuredResponse?.searchQuery?.filters as Filter[]
     const searchDestination =
       SearchQueryDestinationToService[
         message.structuredResponse?.searchQueryDestination ?? 'content_items'

@@ -71,12 +71,8 @@
     <div class="bg-light">
       <LoadingBlock v-if="isLoading" :label="$t('actions.loading')" :height="50" class="m-3" />
       <FacetExplorer
-        v-if="!RangeFacets.includes(currentType)"
-        :filterType="
-          currentType === 'mediaSource'
-            ? 'newspaper' /* TODO add mediaSource in API to make this work */
-            : (currentType as FilterType)
-        "
+        v-if="!includes(RangeFacets, currentType)"
+        :filterType="currentType"
         :itemType="currentType"
         :buckets="buckets"
         v-model="filter"
@@ -93,14 +89,14 @@
       </FacetExplorer>
       <range-facet-explorer
         class="p-3"
-        v-if="NumericRangeFacets.includes(currentType)"
+        v-if="includes(NumericRangeFacets, currentType)"
         :filter-type="currentType"
         :buckets="buckets"
         :range="range"
         v-model="filter"
       />
       <time-facet-explorer
-        v-if="TimeRangeFacets.includes(currentType)"
+        v-if="includes(TimeRangeFacets, currentType)"
         v-model="filter"
         :filter-type="currentType"
         :buckets="buckets"
@@ -125,12 +121,12 @@ import TimeFacetExplorer from './modules/TimeFacetExplorer.vue'
 import RangeFacetExplorer from './modules/RangeFacetExplorer.vue'
 import Pagination from './modules/Pagination.vue'
 import Bucket from '@/models/Bucket'
-import { NumericRangeFacets, RangeFacets, TimeRangeFacets } from '@/logic/filters'
-import type { Filter } from '@/models'
+import { RangeFacets, TimeRangeFacets } from '@/logic/facets'
+import { NumericRangeFacets } from '@/logic/facets'
+import type { FacetType, Filter, FilterType } from '@/models'
 import { useUserStore } from '@/stores/user'
 import LoadingBlock from './LoadingBlock.vue'
-import { FacetType } from '@/models/Facet'
-import { FilterType } from 'impresso-jscommons'
+import { includes } from '@/util/fn.js'
 
 const userStore = useUserStore()
 // --- Constants ---

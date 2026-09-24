@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FilterParserPage from './FilterParserPage.vue'
-import { Filter } from 'impresso-jscommons'
+import { Filter } from '@/models'
 import { toSerializedFilters } from '@/logic/filters'
 import { userEvent, within } from 'storybook/test'
 

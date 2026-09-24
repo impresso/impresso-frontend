@@ -80,6 +80,31 @@ const props = defineProps({
 })
 
 const Icons: Record<string, IconData> = {
+  antennaSignalTag: {
+    // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
+    // <path d="M2 15V9C2 5.68629 4.68629 3 8 3H16C19.3137 3 22 5.68629 22 9V15C22 18.3137 19.3137 21 16 21H8C4.68629 21 2 18.3137 2 15Z" stroke="#000000" stroke-width="1.5"></path>
+    // <path d="M15 9C15 9 16 10.125 16 12C16 13.875 15 15 15 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 12.01L12.01 11.9989" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M17 7C17 7 19 8.78571 19 12C19 15.2143 17 17 17 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 9C9 9 8 10.125 8 12C8 13.875 9 15 9 15" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M7 7C7 7 5 8.78571 5 12C5 15.2143 7 17 7 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        d: 'M2 15V9C2 5.68629 4.68629 3 8 3H16C19.3137 3 22 5.68629 22 9V15C22 18.3137 19.3137 21 16 21H8C4.68629 21 2 18.3137 2 15Z'
+      },
+      {
+        d: 'M15 9C15 9 16 10.125 16 12C16 13.875 15 15 15 15'
+      },
+      {
+        d: 'M12 12.01L12.01 11.9989'
+      },
+      {
+        d: 'M17 7C17 7 19 8.78571 19 12C19 15.2143 17 17 17 17'
+      },
+      {
+        d: 'M9 9C9 9 8 10.125 8 12C8 13.875 9 15 9 15'
+      },
+      {
+        d: 'M7 7C7 7 5 8.78571 5 12C5 15.2143 7 17 7 17'
+      }
+    ]
+  },
   arrowEnlargeTag: {
     paths: [
       {
@@ -101,6 +126,49 @@ const Icons: Record<string, IconData> = {
       },
       {
         d: 'M2 6.5C5.13376 6.5 6.5 5.18153 6.5 2C6.5 5.18153 7.85669 6.5 11 6.5C7.85669 6.5 6.5 7.85669 6.5 11C6.5 7.85669 5.13376 6.5 2 6.5Z'
+      }
+    ]
+  },
+  curveArray: {
+    // <?xml version="1.0" encoding="UTF-8"?>
+    // <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000">
+    // <path d="M5.16405 17C5.45344 15.9512 5.83338 14.9485 6.29589 14M11.5 7.79447C12.2822 7.22779 13.1177 6.72612 14 6.29589"
+    //  stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    // <path d="M4.5 22C3.11929 22 2 20.8807 2 19.5C2 18.1193 3.11929 17 4.5 17C5.88071 17 7 18.1193 7 19.5C7 20.8807 5.88071 22 4.5 22Z"
+    //  stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9.5 12C8.11929 12 7 10.8807 7 9.5C7 8.11929 8.11929 7 9.5 7C10.8807 7 12 8.11929 12 9.5C12 10.8807 10.8807 12 9.5 12Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M19.5 7C18.1193 7 17 5.88071 17 4.5C17 3.11929 18.1193 2 19.5 2C20.8807 2 22 3.11929 22 4.5C22 5.88071 20.8807 7 19.5 7Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+
+    paths: [
+      {
+        d: 'M5.16405 17C5.45344 15.9512 5.83338 14.9485 6.29589 14M11.5 7.79447C12.2822 7.22779 13.1177 6.72612 14 6.29589'
+      },
+      {
+        d: 'M4.5 22C3.11929 22 2 20.8807 2 19.5C2 18.1193 3.11929 17 4.5 17C5.88071 17 7 18.1193 7 19.5C7 20.8807 5.88071 22 4.5 22Z'
+      },
+      {
+        d: 'M9.5 12C8.11929 12 7 10.8807 7 9.5C7 8.11929 8.11929 7 9.5 7C10.8807 7 12 8.11929 12 9.5C12 10.8807 10.8807 12 9.5 12Z'
+      },
+      {
+        d: 'M19.5 7C18.1193 7 17 5.88071 17 4.5C17 3.11929 18.1193 2 19.5 2C20.8807 2 22 3.11929 22 4.5C22 5.88071 20.8807 7 19.5 7Z'
+      }
+    ]
+  },
+  page: {
+    //d="M4 21.4V2.6C4 2.26863 4.26863 2 4.6 2H16.2515C16.4106 2 16.5632 2.06321 16.6757 2.17574L19.8243 5.32426C19.9368 5.43679 20 5.5894 20 5.74853V21.4C20 21.7314 19.7314 22 19.4 22H4.6C4.26863 22 4 21.7314 4 21.4Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 10L16 10" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 18L16 18" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 14L12 14" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M16 2V5.4C16 5.73137 16.2686 6 16.6 6H20" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    paths: [
+      {
+        d: 'M4 21.4V2.6C4 2.26863 4.26863 2 4.6 2H16.2515C16.4106 2 16.5632 2.06321 16.6757 2.17574L19.8243 5.32426C19.9368 5.43679 20 5.5894 20 5.74853V21.4C20 21.7314 19.7314 22 19.4 22H4.6C4.26863 22 4 21.7314 4 21.4Z'
+      },
+      {
+        d: 'M8 10L16 10'
+      },
+      {
+        d: 'M8 18L16 18'
+      },
+      {
+        d: 'M8 14L12 14'
+      },
+      {
+        d: 'M16 2V5.4C16 5.73137 16.2686 6 16.6 6H20'
       }
     ]
   },
@@ -201,19 +269,6 @@ const Icons: Record<string, IconData> = {
       },
       {
         d: 'M9 12H15'
-      }
-    ]
-  },
-  sourceType: {
-    paths: [
-      {
-        d: 'M9 12H15'
-      },
-      {
-        d: 'M12 9V15'
-      },
-      {
-        d: 'M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z'
       }
     ]
   },
@@ -679,6 +734,28 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  journalPage: {
+    paths: [
+      {
+        d: 'M6 6L14 6'
+      },
+      {
+        d: 'M6 10H18'
+      },
+      {
+        d: 'M13 14L18 14'
+      },
+      {
+        d: 'M13 18L18 18'
+      },
+      {
+        d: 'M2 21.4V2.6C2 2.26863 2.26863 2 2.6 2H21.4C21.7314 2 22 2.26863 22 2.6V21.4C22 21.7314 21.7314 22 21.4 22H2.6C2.26863 22 2 21.7314 2 21.4Z'
+      },
+      {
+        d: 'M6 18V14H9V18H6Z'
+      }
+    ]
+  },
   journal: {
     paths: [
       {
@@ -747,6 +824,70 @@ const Icons: Record<string, IconData> = {
         d: 'M17 7V13C17 14.1046 17.8954 15 19 15C20.1046 15 21 14.1046 21 13V12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21H16'
       }
     ]
+  },
+  rulerArrow: {
+    paths: [
+      {
+        d: 'M15.4 22H8.6C8.26863 22 8 21.7314 8 21.4V2.6C8 2.26863 8.26863 2 8.6 2H15.4C15.7314 2 16 2.26863 16 2.6V21.4C16 21.7314 15.7314 22 15.4 22Z'
+      },
+      {
+        d: 'M16 17H13'
+      },
+      {
+        d: 'M16 7H13'
+      },
+      {
+        d: 'M13 12H23M23 12L21 14M23 12L21 10'
+      },
+      {
+        d: 'M1 12L3 10M1 12L3 14M1 12H8'
+      }
+    ]
+  },
+  flower: {
+    paths: [
+      {
+        d: 'M11.9996 14.9995C13.6565 14.9995 14.9996 13.6564 14.9996 11.9995C14.9996 10.3427 13.6565 8.99951 11.9996 8.99951C10.3428 8.99951 8.99963 10.3427 8.99963 11.9995C8.99963 13.6564 10.3428 14.9995 11.9996 14.9995Z'
+      },
+      {
+        d: 'M13 9C13 9 14 7 14 5C14 3 12 1 12 1C12 1 10 3 10 5C10 7 11 9 11 9'
+      },
+      {
+        d: 'M9 11C9 11 7 10 5 10C3 10 1 12 1 12C1 12 3 14 5 14C7 14 9 13 9 13'
+      },
+      {
+        d: 'M13 15C13 15 14 17 14 19C14 21 12 23 12 23C12 23 10 21 10 19C10 17 11 15 11 15'
+      },
+      {
+        d: 'M15 11C15 11 17 10 19 10C21 10 23 12 23 12C23 12 21 14 19 14C17 14 15 13 15 13'
+      },
+      {
+        d: 'M10.5858 9.17176C10.5858 9.17176 9.87868 7.05044 8.46447 5.63623C7.05026 4.22202 4.22183 4.22202 4.22183 4.22202C4.22183 4.22202 4.22183 7.05044 5.63604 8.46466C7.05026 9.87887 9.17158 10.586 9.17158 10.586'
+      },
+      {
+        d: 'M9.17152 13.4142C9.17152 13.4142 7.0502 14.1213 5.63599 15.5355C4.22177 16.9497 4.22177 19.7782 4.22177 19.7782C4.22177 19.7782 7.0502 19.7782 8.46441 18.364C9.87863 16.9497 10.5857 14.8284 10.5857 14.8284'
+      },
+      {
+        d: 'M14.8285 13.4142C14.8285 13.4142 16.9498 14.1213 18.364 15.5355C19.7782 16.9497 19.7782 19.7782 19.7782 19.7782C19.7782 19.7782 16.9498 19.7782 15.5356 18.364C14.1214 16.9497 13.4143 14.8284 13.4143 14.8284'
+      },
+      {
+        d: 'M13.4142 9.17176C13.4142 9.17176 14.1213 7.05044 15.5355 5.63623C16.9497 4.22202 19.7782 4.22202 19.7782 4.22202C19.7782 4.22202 19.7782 7.05044 18.364 8.46466C16.9497 9.87887 14.8284 10.586 14.8284 10.586'
+      }
+    ]
+  },
+
+  mediaImage: {
+    paths: [
+      {
+        d: 'M21 3.6V20.4C21 20.7314 20.7314 21 20.4 21H3.6C3.26863 21 3 20.7314 3 20.4V3.6C3 3.26863 3.26863 3 3.6 3H20.4C20.7314 3 21 3.26863 21 3.6Z'
+      },
+      {
+        d: 'M3 16L10 13L21 18'
+      },
+      {
+        d: 'M16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8C18 9.10457 17.1046 10 16 10Z'
+      }
+    ]
   }
 }
 
@@ -757,17 +898,23 @@ const IconAliases: Record<string, string> = {
   year: 'timer',
   month: 'timer',
   newspaper: 'journal',
+  mediaSource: 'journal',
   type: 'label',
   country: 'position',
   person: 'cubeDots',
   nag: 'newsagency',
   newsagency: 'newsagency',
   organisation: 'organisation',
-  sourceType: 'sourceType',
+  sourceType: 'label',
   sourceMedium: 'sourceMedium',
   collection: 'boxIso',
   embedding: 'codeBracketSquare',
-  mention: 'mention'
+  mention: 'mention',
+  ocrQuality: 'flower',
+  contentLength: 'rulerArrow',
+  permissionExplore: 'key',
+  permissionGetTranscript: 'key',
+  permissionGetImage: 'key'
 }
 
 const computedPaths = computed(() => {

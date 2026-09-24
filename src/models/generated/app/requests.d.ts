@@ -27,7 +27,7 @@ export interface Filter {
   context?: "include" | "exclude";
   op?: "AND" | "OR";
   /**
-   * Possible values are in 'impresso-jscomons Filter.type'
+   * Possible values are in 'impresso-jscommons Filter.type'
    */
   type: string;
   precision?: "fuzzy" | "soft" | "exact" | "partial";
@@ -62,6 +62,40 @@ export interface AuthenticationCreateRequest {
   password?: string;
   accessToken?: string;
   [k: string]: unknown;
+}
+
+
+/**
+ * Request payload for POST /tools/filters/serialize
+ */
+export interface FilterSerializationRequest {
+  /**
+   * A list of Impresso search filters.
+   */
+  filters: Filter[];
+}
+/**
+ * A single search filter criteria
+ */
+export interface Filter {
+  context?: "include" | "exclude";
+  op?: "AND" | "OR";
+  /**
+   * Possible values are in 'impresso-jscommons Filter.type'
+   */
+  type: string;
+  precision?: "fuzzy" | "soft" | "exact" | "partial";
+  q?: string | string[];
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  daterange?: string;
+  /**
+   * @deprecated
+   * DEPRECATED: Use `q`.
+   */
+  uids?: string;
 }
 
 

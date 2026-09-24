@@ -153,7 +153,7 @@
           showSemanticEnrichments
           v-for="item in matchingContentItems"
           :key="item.id"
-          :item="item"
+          :contentItem="item"
         />
       </div>
       <IssueViewerTableOfContents
@@ -272,8 +272,8 @@ async function fetchMatchingContentItems({
         offset
       }
     })
-    .then(({ data, total }) => {
-      paginationTotalRows.value = total
+    .then(({ data, pagination }) => {
+      paginationTotalRows.value = pagination.total
       return data as ContentItemType[]
     })
     .catch(err => {

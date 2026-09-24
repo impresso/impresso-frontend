@@ -1,7 +1,14 @@
 // import Vue from 'vue'
 // import VueRouter, { Route } from 'vue-router'
 
-import { Component } from "vue";
+import { Component } from 'vue'
+import type { MediaSource } from '@/models/generated/canonical'
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    mediaSource?: MediaSource
+  }
+}
 
 // declare module "*.vue" {
 //   export default Component;
@@ -20,7 +27,6 @@ import { Component } from "vue";
 //   }
 // }
 
-
 // declare module '@/models/*';
 // declare module '@/components/*';
 // declare module '@/components/modules/*';
@@ -30,7 +36,7 @@ import { Component } from "vue";
 // declare module '@/pages/*';
 
 // declare module 'vue-slider-component' {
-  // export default any
+// export default any
 // }
 //  {
 //   export default Component

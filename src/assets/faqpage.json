@@ -55,7 +55,7 @@
             "title": "What about copyrights?",
             "summary": "Newspapers accessible through the Impresso interface are governed by varying copyright conditions, which are determined at the issue level for each newspaper.",
             "description": [
-              "<p>These conditions specify how users may access and utilize the content, and they are essential to understand for responsible usage of the platform.</p><p>Most newspapers in the Impresso collection are available for free personal and academic use, as outlined in the ‘Personal and Academic Use’ section of the <a href='https://impresso-project.ch/app/terms-of-use'>Terms of Use</a>. Additionally, some newspapers are in the public domain, meaning they are not subject to any restrictions. Specifically, newspapers from the National Library of Luxembourg can be used without restriction up to 1877, but from 1878 onwards, they are available only for personal and academic use.</p><p>The specific copyright information for each newspaper can be found in two places on the Impresso platform:</p><ul><li><b>On the individual newspaper page</b>: This page provides details about the copyright status and conditions of use for the entire newspaper.</li><li><b>In exported collections:</b> The CSV file includes the copyright information for each article.</li><li><b>In the search results snippets.</b></li></ul><p>To filter articles based on their copyright status, you can use the 'filter by access rights' option within the platform. This allows you to select articles that fall under specific categories of licenses.</p><p><img src='/assets/images/faqs/access-rights-screen.png'></img></p>"
+              "<p>These conditions specify how users may access and utilize the content, and they are essential to understand for responsible usage of the platform.</p><p>Most newspapers in the Impresso collection are available for free personal and academic use, as outlined in the ‘Personal and Academic Use’ section of the <a href='https://impresso-project.ch/app/terms-of-use'>Terms of Use</a>. Additionally, some newspapers are in the public domain, meaning they are not subject to any restrictions. Specifically, newspapers from the National Library of Luxembourg can be used without restriction up to 1877, but from 1878 onwards, they are available only for personal and academic use.</p><p>The specific copyright information for each newspaper can be found in three places on the Impresso platform:</p><ul><li><b>On the individual newspaper page</b>: This page provides details about the copyright status and conditions of use for the entire newspaper.</li><li><b>In exported collections:</b> The CSV file includes the copyright information for each article.</li><li><b>In the search results snippets.</b></li></ul><p>To filter articles based on their copyright status, you can use the 'filter by access rights' option within the platform. This allows you to select articles that fall under specific categories of licenses.</p><p><img src='/assets/images/faqs/access-rights-screen.png'></img></p>"
             ]
           },
           {
@@ -120,11 +120,19 @@
         "title": "Data Processing and Text Analysis",
         "faq": [
           {
-            "id": "What-OCR",
+            "id": "What-OCR-AST",
             "title": "What are OCR, OLR, METS/ALTO and ASR?",
             "summary": "OCR and OLR describe the automated recognition of text and article layouts. METS and ALTO are xml standards used to store this information together with other metadata. ASR is the process and related technology for converting spoken language into text.",
             "description": [
               "<ol><li><b>OCR (Optical Character Recognition):</b> OCR is the automated process of identifying and converting printed text from scanned images into machine-readable text. In addition to recognizing letters and characters, OCR tools can detect elements like images, tables, and preserve the coordinates of each character within the scanned image. These coordinates allow features such as keyword highlighting in facsimile views of articles (highlighted in yellow in the Impresso app), making it easier to locate text within the original layout.</li><li><b>OLR (Optical Layout Recognition):</b> OLR identifies the structure of a scanned newspaper page by recognizing article boundaries. This is displayed in blue within the Impresso app and helps distinguish between different types of content, such as news articles, advertisements, or obituaries. OLR enhances the search and classification experience by allowing for more structured and accurate text searches.</li><li><b>METS/ALTO:</b> METS and ALTO are XML standards used to store the output of OCR and OLR processes. These standards, developed by the Library of Congress, ensure that the data from scanned images is well-organized and accessible.<ul><li><b>METS (Metadata Encoding and Transmission Schema):</b> Stores metadata such as article titles, publication dates, and structural information about the newspaper issue.</li><li><b>ALTO (Analyzed Layout and Text Object):</b> Stores the layout data, including the position of text, images, and article boundaries on the page.</li></ul><li><b>ASR (Automated Speech Recognition):</b> ASR is the technology used to convert spoken language into machine-readable text. It processes audio content by recognizing speech patterns and transcribing them into written form. ASR is commonly employed in applications such as voice assistants, transcription services, and multimedia processing. In the context of historical research, ASR can be used to transcribe digitized broadcasts, interviews, and oral histories, making audio-based sources accessible for textual analysis, similar to the way OCR enables the processing of printed materials.</li></ol><p><b>Impact on Impresso:</b> The quality of Impresso's text processing (including features like topic modeling and named entity recognition) depends heavily on the quality of OCR, OLR and ASR outputs. For printed materials, the effectiveness of OCR and OLR can vary significantly based on the resolution of the source material. For example, high-resolution paper scans generally yield better results than lower-resolution microfilm scans. Similarly, the clarity of ASR outputs for audio sources depends on the quality of the original recordings, with factors like background noise and speaker clarity affecting accuracy. However, tools for OCR, OLR, and ASR are continuously evolving. Many libraries regularly update their collections with improved OCR/OLR technologies, and the quality of ASR models continues to improve, particularly with advancements in machine learning. For lower-quality scans, the Impresso team from Zurich <a href='https://www.zora.uzh.ch/id/eprint/177164/'>demonstrated</a> that techniques used for Handwritten Text Recognition (HTR) can outperform standard OCR tools.</p><p><b>Further reading</b><ul><li><a href='https://en.wikipedia.org/w/index.php?title=Optical_character_recognition&oldid=920815843'>Wikipedia “Optical Character Recognition.”</a></li><li><a href='http://www.loc.gov/standards/mets'>Library of Congress. “METS Specifications.”</a></li><li><a href='https://www.sciencedirect.com/topics/engineering/automatic-speech-recognition'>ScienceDirect “Automatic Speech Recognition - an overview.</a></li><li><a href='https://ranke2.uni.lu/u/archival-digital-turn/'>Ranke.2 lesson “The digitisation of newspapers: how to turn a page”: Bunout, Estelle, and Marten Düring. “The Digitisation of Newspapers: How to Turn a Page.” In <i>From the Archival to the Digital Turn · Ranke.2.</i></a></li><li><a href='https://www.zora.uzh.ch/id/eprint/177164/'>Ströbel, Phillip Benjamin, and Simon Clematide. “Improving OCR of Black Letter in Historical Newspapers: The Unreasonable Effectiveness of HTR Models on Low-Resolution Images.”</a></li></ul>"
+            ]
+          },
+          {
+            "id": "What-does-OCR-filter-mean",
+            "title": "What is the OCR quality filter and why use it?",
+            "summary": "The OCR quality filter works by checking the quality score assigned to each content item. This score (from 0, very poor quality to 1, excellent quality) reflects how well the words in the text were recognized.",
+            "description": [
+              "The OCR quality filter allows you to limit your search results to documents with high OCR quality scores. By doing this, you only retrieve texts where most words were accurately recognized by the OCR system, making the results more useful and reliable for reading, searching, or analysis. Read more about how we estimate OCR quality in the next FAQ item."
             ]
           },
           {
@@ -162,7 +170,7 @@
           {
             "id": "what-is-topic-modeling",
             "title": "What is topic modeling ?",
-            "summary": "Topic modeling is a purely data-driven technique that helps identify underlying themes within a collection of texts. It operates under the assumption that each document cover multiple themes, and those themes can be detected through patterns of word usage. In other words, topic modeling uncovers the 'word distributions' that define a particular topic within a collection.",
+            "summary": "Topic modeling is a purely data-driven technique that helps identify underlying themes within a collection of texts. It operates under the assumption that each document covers multiple themes, and those themes can be detected through patterns of word usage. In other words, topic modeling uncovers the 'word distributions' that define a particular topic within a collection.",
             "description": [
               "<p>Each document in the Impresso corpus may elaborate on multiple topics, and topic modeling helps in identifying and assigning proportions of these topics to individual articles. This results in a soft clustering of the collection, meaning a single article can belong to several topics with varying degrees of relevance. As a data-driven, unsupervised technique, topic modeling provides a way to navigate the vast number of Impresso articles, offering insights into the themes represented in the newspaper corpus. Each article is described by several relevant topics.</p><p>To recommend related articles, we choose articles with the most similar topic distribution.The topics are computed monolingually for German, French and Luxembourgish over the whole Impresso period. The suggested articles may come from different time periods, linked by the shared topics. This is a means to expand your readings and make you aware of related articles that may not have appeared in the results of your initial keyword search. The topic distribution may not be the identical for the suggested similar articles than from article currently displayed, nonetheless main topics must have similar relevance.</p><p><b>Further reading</b> The following resources provide more in-depth explanations of topic modeling.<ul><li><a href='https://tedunderwood.com/2012/04/07/topic-modeling-made-just-simple-enough/'>Underwood, Ted. Topic Modeling Made Just Simple Enough. The Stone and the Shell (blog), April 7, 2012.</a></li><li><a href='https://doi.org/10.1037/0033-295X.114.2.211'>Griffiths, Thomas L., Mark Steyvers, and Joshua B. Tenenbaum. Topics in Semantic Representation. Psychological Review, 2007.</a></li><li><a href='https://doi.org/10.1145/2133806.2133826'>Blei, D. M. Probabilistic Topic Models. Communications of the ACM, 2012.</a></li><li><a href='https://www.c2dh.uni.lu/thinkering/nibbling-text-identifying-discourses-europe-large-collection-historical-newspapers-using'>Nibbling at Text: Identifying Discourses on Europe in Historical Newspapers Using Topic Modeling.</a></li></ul> "
             ]
@@ -249,7 +257,19 @@
             "title": "Why are search filters limited on ngram trends?",
             "summary": "Currently, the ngram trends page on the Impresso platform has limited search filtering options.",
             "description": [
-              "<p>You can use any of the filter facets e.g. for newspapers, collections, or topics. But you cannot directly narrow down results by applying additional keyword queries to filter ngram frequencies.</p> "
+              "<p>You can use any of the filter facets e.g. for newspapers, collections, or topics. But you cannot directly narrow down results by applying additional keyword queries to filter ngram frequencies.</p> ",
+              "<p>Ngram trends are calculated on aggregated word frequencies, which means that some advanced search filters available in other parts of the Impresso Web App are not supported on this page.</p>"
+            ]
+          },
+          {
+            "id": "how-search-work-with-search-filters",
+            "title": "Why are search filters limited on search results?",
+            "summary": "Some search filters are only available for specific types of searches, such as image search or text reuse.",
+            "description": [
+              "<p>If you applied filters related to Search Image or Text Reuse, they may not work in the general search results page because these filters are specific to those tools.</p>",
+              "<p>To use image-specific filters, go to the <strong>Search Images</strong> page in the Impresso Web App. These filters are only supported there.</p>",
+              "<p>To use text reuse filters, open the <strong>Text Reuse</strong> page in the Impresso Web App. Filters related to text reuse analysis are limited to this section.</p>",
+              "<p>General search results currently support only the standard search facets and filters available for content item transcript searches.</p>"
             ]
           },
           {
@@ -268,6 +288,7 @@
               "<p>This means the number of articles per year grows much faster over time compared to linear or quartic trends.</p> "
             ]
           },
+
           {
             "id": "filter-range",
             "title": "How can I filter results by transcript length?",
@@ -289,6 +310,19 @@
             "title": "Why does the image search have limited filters?",
             "summary": "Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.",
             "description": []
+          }
+        ]
+      },
+      {
+        "title": "Glossary",
+        "faq": [
+          {
+            "id": "what-is-reading-time",
+            "title": "What is Reading Time?",
+            "summary": "Reading time is an estimate of how long it would take to read the transcript of a content item. It is calculated based on the number of tokens in the transcript and an average reading speed of 200 words per minute.",
+            "description": [
+              "<p>Reading time is calculated by dividing the total number of tokens in the transcript by 200 (the average reading speed in words per minute). For example, if a transcript contains 400 tokens, the estimated reading time would be 2 minutes (400 ÷ 200 = 2).</p><p>This feature provides users with a quick understanding of the length of an article or content item, helping them decide whether to read it in full or skim through it based on their available time and interest.</p>"
+            ]
           }
         ]
       },

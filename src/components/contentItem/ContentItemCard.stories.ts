@@ -35,13 +35,13 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    item: MockContentItemPublicDomain
+    contentItem: MockContentItemPublicDomain
   } as ContentItemCardProps
 }
 
 export const showingMetadata: Story = {
   args: {
-    item: MockContentItemPublicDomain,
+    contentItem: MockContentItemPublicDomain,
     showMetadata: true
   } as ContentItemCardProps
 }

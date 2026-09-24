@@ -31,15 +31,20 @@ export default {
         rb: 'radio broadcast',
         rbe: 'radio broadcast episode',
         chapter: 'chapter',
+        dsc: 'radio documentary',
+        ent: 'radio interview',
         'no-type': 'No type provided'
       },
       sourceType: {
-        newspaper: 'newspapers',
-        radio: 'radio'
+        newspaper: 'newspaper',
+        radio: 'radio',
+        radio_broadcast: 'radio broadcast'
       },
       sourceMedium: {
         print: 'print',
-        digital: 'digital'
+        digital: 'digital',
+        audio: 'audio',
+        typescript: 'typescript'
       },
       language: {
         de: 'German',
@@ -73,15 +78,8 @@ export default {
         cy: 'Welsh',
         'n/a': 'Undefined language',
         nl: 'Dutch',
-        undefined: 'Undefined language'
-      },
-      accessRight: {
-        na: 'not specified (no export)',
-        OpenPrivate: 'Personal use',
-        Closed: 'Personal use (no export)',
-        OpenPublic: 'Public domain',
-        prt: 'in copyright',
-        pbl: 'public domain'
+        undefined: 'Undefined language',
+        no_lg: 'Undefined language'
       },
       copyright: {
         in_cpy: 'in copyright',
@@ -122,7 +120,10 @@ export default {
       and: 'AND'
     },
     actions: {
+      addToCollection: 'Save to Collection ...',
       search: 'Search',
+      exploreInMediaSource: 'Explore this Media Source ...',
+      downloadMetadataAsCSV: 'Download metadata as CSV',
       confirm: 'confirm',
       register: 'Create account',
       addFilter: 'Refine your search with additional filters ...',
@@ -154,7 +155,7 @@ export default {
       applyChanges: 'Apply changes',
       applyChangesDetailed: 'apply changes (added: {added}, removed: {removed})',
       applyChangesDetailedAddedOnly: 'apply changes (added: {added})',
-      addToCurrentFilters: 'Add as search filter',
+      addToCurrentFilters: 'Add to search',
       removeFromCurrentFilters: 'Remove filter from current search',
       resetPassword: 'Reset my password',
       addToCurrentFiltersDetailed:
@@ -178,7 +179,8 @@ export default {
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
-      viewTopic: 'go to topic'
+      viewTopic: 'go to topic',
+      readContentItem: 'read content item ...'
     },
     filters: {
       daterange: {
@@ -207,6 +209,11 @@ export default {
       options: '&nbsp; | (1 option) | ({n} options)',
       moreOptions: '&nbsp; | (1 more option) | ({n} more options)',
       items: '0|<span class="number">1</span> term | <span class="number">{n}</span> terms',
+      additionalAudioContentItems:
+        '0 other audio content item |<span class="number">1</span> other audio content item | <span class="number">{n}</span> other audio content items',
+
+      audioContentItems:
+        '0|<span class="number">1</span> audio content item | <span class="number">{n}</span> audio content items',
       itemsGeneric:
         'no items | <span class="number">1</span> item | <span class="number">{n}</span> items',
       clusterSize: '&nbsp; | single cluster | <span class="number">{n}</span> passages',
@@ -219,7 +226,10 @@ export default {
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
-
+      collections:
+        'no collections | <span class="number">1</span> collection | <span class="number">{n}</span> collections',
+      mediaSources:
+        'no media sources | <span class="number">1</span> media source | <span class="number">{n}</span> media sources',
       articles:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
       articlesInCommon:
@@ -227,9 +237,9 @@ export default {
       images:
         'no images | <span class="number">1</span> image | <span class="number">{n}</span> images',
       pages:
-        'no pages | <span class="number">1</span> article | <span class="number">{n}</span> pages',
+        'no pages | <span class="number">1</span> page | <span class="number">{n}</span> pages',
       issues:
-        'no issues | <span class="number">1</span> article | <span class="number">{n}</span> issues',
+        'no issues | <span class="number">1</span> issue | <span class="number">{n}</span> issues',
       results:
         'no results | <span class="number">1</span> result | <span class="number">{n}</span> results',
       resultsPercent: '<span class="number">{n}</span>%',
@@ -259,6 +269,10 @@ export default {
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
     },
+    loading: {
+      audioContentItems: 'loading audio content items ...',
+      additionalAudioContentItems: 'loading additional audio content items ...'
+    },
     dates: {
       lastModifiedDate: 'last modified',
       publicationDate: 'published in {date}',
@@ -283,6 +297,7 @@ export default {
     pageNumber: 'p. {n}',
     pp: 'no pages | p.{pages} | pp.{pages} ({n} pages)',
     ppOf: 'p.{num} of {pages}',
+    pps: 'no pages | p.{pages} | pp.{pages}',
     providedBy: 'provided by',
     readingTime: '{min} min read',
     reducedReadingTime: 'short text',
@@ -345,24 +360,74 @@ export default {
       }
     },
     label: {
-      accessRight: {
-        title: 'Access right | Access right | Access Rights',
-        filterTitle: 'access right',
+      page: {
+        title: 'Page | Page | Pages',
+        filterTitle: 'page number',
         filtered: 'results are filtered when:',
-        selected: 'filter results if their access right is <b>one of {count} selected</b>',
-        description: 'filter results based on access right',
+        selected: 'Filter results if they appear on <b>one of {count} selected</b> pages',
+        description: 'filter results based on page number',
         empty: '(no results)',
+        item: 'Page',
         context: {
-          include: 'content available as',
-          exclude: 'content <b>NOT</b> available as'
+          include: 'content available on selected pages',
+          exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
+      permissionExplore: {
+        title: 'available in Web App | available in Web App | available in Web App',
+        filterTitle: 'availability in Web App',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> explore availability applies',
+        description: 'Check one or more explore availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'explore is available',
+          exclude: 'explore is <b>NOT</b> available'
+        }
+      },
+      permissionGetTranscript: {
+        title: 'Transcript permission',
+        filterTitle: 'transcript availability',
+        filtered: 'Results are filtered when:',
+        selected:
+          'Filter results if <b>one of {count} selected</b> transcript availability applies',
+        description: 'Check one or more transcript availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'transcript is available',
+          exclude: 'transcript is <b>NOT</b> available'
+        }
+      },
+      permissionGetImage: {
+        title: 'Facsimile permission',
+        filterTitle: 'facsimile availability',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies',
+        context: {
+          include: 'facsimile is available',
+          exclude: 'facsimile is <b>NOT</b> available'
+        }
+      },
+      ocrQuality: {
+        title: 'OCR quality | OCR quality | OCR qualities',
+        filterTitle: 'OCR quality',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their OCR quality is within the range',
+        description: 'Filter results based on OCR quality',
+        empty: '(no results)',
+        context: {
+          include: 'OCR quality is within the range',
+          exclude: 'OCR quality is <b>NOT</b> within the range'
+        },
+        item: 'OCR quality'
+      },
+
       embedding: {
         title: 'Embedding | Embedding | Embeddings',
         filterTitle: 'embedding',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> embeddings applies',
-        description: 'check one or more embeddings to filter results',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> embeddings applies',
+        description: 'Check one or more embeddings to filter results',
         empty: '(no results)',
         context: {
           include: 'similar to selected embeddings',
@@ -372,9 +437,9 @@ export default {
       sourceType: {
         title: 'Media Type | Media Type | Media Types',
         filterTitle: 'media type',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if their media type is <b>one of {count} selected</b>',
-        description: 'filter results based on media type',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their media type is <b>one of {count} selected</b>',
+        description: 'Filter results based on media type',
         empty: '(no results)',
         context: {
           include: 'content available as',
@@ -384,9 +449,9 @@ export default {
       sourceMedium: {
         title: 'Source Medium | Source Medium | Source Mediums',
         filterTitle: 'source medium',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if their source medium is <b>one of {count} selected</b>',
-        description: 'filter results based on source medium',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if their source medium is <b>one of {count} selected</b>',
+        description: 'Filter results based on source medium',
         empty: '(no results)',
         context: {
           include: 'content available as',
@@ -396,9 +461,9 @@ export default {
       collection: {
         title: 'Collection | Collection | Collections',
         filterTitle: 'collection',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if <b>one of {count} selected</b> collection applies',
-        description: 'check one or more collection to filter results',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> collection applies',
+        description: 'Check one or more collection to filter results',
         // eslint-disable-next-line quotes
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
@@ -406,9 +471,9 @@ export default {
       contentLength: {
         title: 'Transcript Length | Transcript Length | Transcript Lengths',
         filterTitle: 'transcript length',
-        filtered: 'results are filtered when:',
-        selected: 'filter results if they are within the range',
-        description: 'Distribution of Content Items by number of tokens',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if they are within the range',
+        description: 'Distribution of content items by number of tokens',
         empty: '(no results)',
         item: 'Transcript length'
       },
@@ -484,7 +549,7 @@ export default {
       entity: {
         title: 'filter by entity mentioned (experimental)'
       },
-      isFront: 'frontpage',
+      isFront: 'Frontpage',
       language: {
         title: 'Language | Language | Languages',
         filterTitle: 'language',
@@ -515,6 +580,18 @@ export default {
         description: 'check one or more media sources to filter results',
         empty: '(no results)'
       },
+      mediaSource: {
+        title: 'Media Source | Media Source | Media Sources',
+        filterTitle: 'media source',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if they appear in <b>one of {count} selected</b> media sources',
+        description: 'check one or more media sources to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'published in selected media sources',
+          exclude: '<b>NOT</b> in selected media sources'
+        }
+      },
       partner: {
         title: 'Data Provider | Data Provider | Data Providers',
         filterTitle: 'provider',
@@ -535,7 +612,7 @@ export default {
       },
       range: {
         title: 'filter by {label}',
-        item: '{label} between {start} and {end}'
+        item: '{label} [{start} TO {end}]'
       },
       string: {
         title: 'article text'
@@ -598,7 +675,11 @@ export default {
       year: {
         title: 'Year | Year | Years',
         optionsTitle: 'Year of publication',
-        optionsDescription: 'Number of Content Items per year'
+        optionsDescription: 'Number of Content Items per year',
+        context: {
+          include: 'published in year',
+          exclude: '<b>NOT</b> published in year'
+        }
       },
       imageVisualContent: {
         title: 'Visual Content | Visual Content | Visual Contents',

@@ -12,6 +12,43 @@ import {
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
+import { MockTopic } from './mockData/topics'
+import { MockBaristaConversations } from './mockData/baristaConversations'
+
+export const findSearchFacetsHandler = http.get(
+  '/api/search-facets/search',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const facets = []
+    for (const [key, value] of url.searchParams.entries()) {
+      const match = key.match(/^facets\[(\d+)\]$/)
+      if (match) {
+        facets[parseInt(match[1], 10)] = value
+      }
+    }
+    console.debug('Received request for search facets with params:', request.url, facets)
+    const numBuckets = 200
+    const buildYearFacet = () => ({
+      type: 'year',
+      numBuckets,
+      buckets: Array.from({ length: numBuckets }, (_, i) => {
+        let c = Math.floor(Math.random() * 10000)
+        // add some zeroes to the count to make the timeline more interesting
+        if (Math.random() < 0.1) {
+          c = 0
+        }
+        return {
+          count: c,
+          value: String(1800 + i),
+          id: String(1800 + i),
+          item: { y: 1800 + i, refs: { c, a: c } }
+        }
+      })
+    })
+    const data = facets.includes('year') ? [buildYearFacet()] : []
+    return HttpResponse.json({ data, total: data.length })
+  }
+)
 
 const getYearFacetHandler = http.get('/api/search-facets/search/year', () => {
   const numBuckets = 200
@@ -239,7 +276,7 @@ export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ r
 })
 
 export const findSpecialMembershipAccessHandler = http.get(
-  '/api/special-membership-access',
+  '/api/special-membership-plans',
   async ({ request }) => {
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '10')
@@ -258,7 +295,7 @@ export const findSpecialMembershipAccessHandler = http.get(
 )
 
 export const findSpecialMembershipAccessHandlerWithoutRequests = http.get(
-  '/api/special-membership-access',
+  '/api/special-membership-plans',
   async ({ request }) => {
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '10')
@@ -291,6 +328,23 @@ export const findUserSpecialMembershipRequestsHandler = http.get(
         offset: offset,
         limit: limit
       }
+    })
+  }
+)
+
+export const findBaristaConversationsHandler = http.get(
+  '/api/barista-conversations',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '5')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    await new Promise(resolve => setTimeout(resolve, 300))
+    const items = MockBaristaConversations.slice(offset, offset + limit)
+    return HttpResponse.json({
+      data: items,
+      total: MockBaristaConversations.length,
+      limit,
+      skip: offset
     })
   }
 )
@@ -340,6 +394,11 @@ export const findEmpty = (mswHandler: HttpHandler) => {
     })
   })
 }
+export const getTopicHandler = http.get('/api/topics/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  return HttpResponse.json(MockTopic.id === id ? MockTopic : null)
+})
 
 export const handlers = {
   getYearFacetHandler,
@@ -353,5 +412,6 @@ export const handlers = {
   createCollectionHandler,
   patchCollectionItemsHandler,
   getCollectionHandler,
-  getFiltersItems
+  getFiltersItems,
+  findBaristaConversationsHandler
 }

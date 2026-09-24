@@ -53,7 +53,7 @@ import FilterTextInput from '@/components/modules/filters/FilterTextInput.vue'
 import FiltersRenderPanel from '@/components/modules/filters/FiltersRenderPanel.vue'
 import FilterUrlPanel from '@/components/modules/filters/FilterUrlPanel.vue'
 import FilterJsonInput from '@/components/modules/filters/FilterJsonInput.vue'
-import { Filter } from 'impresso-jscommons'
+import { Filter } from '@/models'
 
 const inputValue = ref('')
 const currentFilterString = ref('')

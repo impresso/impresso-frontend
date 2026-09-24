@@ -1,7 +1,6 @@
-import { Filter } from '@/models'
+import { Filter, SearchFacet } from '@/models'
 import { ClientService } from '@feathersjs/feathers'
 import { BaseFind } from '../../models/generated/deprecated/internalApi'
-import { SearchFacet } from '../../models/generated/deprecated/models'
 
 interface FindResponse<T> extends Omit<BaseFind, 'data'> {
   data: T[]

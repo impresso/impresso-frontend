@@ -3,7 +3,7 @@
     <IIIFViewer class="h-100" :manifestUrls="manifestUrls" v-if="isViewerReady" />
     <ContentItemCitation
       v-if="!props.hideContentItem && contentItem"
-      :item="contentItem"
+      :contentItem="contentItem"
     ></ContentItemCitation>
   </div>
 </template>

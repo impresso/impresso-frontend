@@ -6,24 +6,37 @@
     bodyClass="pt-0 pe-4 ps-2"
     @close="emit('dismiss')"
     @confirm="emit('confirm')"
-    hide-footer
   >
     <h5 class="mt-3">{{ title }}</h5>
-    <LoadingBlock v-if="isLoading" :height="300" />
-    <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
-      <template v-slot:tabs-end>
-        <b-nav-item class="w-50" v-for="tab in tabs" :key="tab.name">
-          <button
-            size="sm"
-            class="w-100 btn btn-transparent nav-link"
-            :class="{ active: activeTab === tab.name }"
-            @click="activeTab = tab.name"
-          >
-            {{ $t(tab.label) }} <Icon :name="tab.icon" class="ms-1" />
+    <template #modal-footer>
+      <div class="px-3 w-100">
+        <div class="border-top py-3 align-items-center d-flex justify-content-between gap-3">
+          <BFormCheckbox v-model="settingsStore.showGettingStartedInSourcesOverview" switch>
+            {{ $t('showGettingStartedInSourcesOverview') }}
+          </BFormCheckbox>
+          <button type="button" class="btn btn-sm btn-outline-secondary" @click="emit('dismiss')">
+            {{ $t('actions.dismiss') }}
           </button>
-        </b-nav-item>
-      </template>
-    </b-tabs>
+        </div>
+      </div>
+    </template>
+    <LoadingBlock v-if="isLoading" :height="300" />
+    <template #modal-header-extra>
+      <b-tabs pills class="mx-2 pt-2 SourceOverviewModal__tabs">
+        <template v-slot:tabs-end>
+          <b-nav-item v-for="tab in tabs" :key="tab.name">
+            <button
+              size="sm"
+              class="w-100 btn btn-transparent nav-link"
+              :class="{ active: activeTab === tab.name }"
+              @click="activeTab = tab.name"
+            >
+              {{ $t(tab.label) }} <Icon :name="tab.icon" class="ms-1" />
+            </button>
+          </b-nav-item>
+        </template>
+      </b-tabs>
+    </template>
     <div>
       <section v-if="activeTab === 'metadata'" class="p-2 pt-3">
         <div v-if="filters.length">
@@ -42,6 +55,23 @@
           </button>
         </div>
       </section>
+      <section v-else-if="activeTab === 'searchQueries'" class="p-3">
+        <SourcesOverviewSearchQueriesList>
+          <p class="mb-3">{{ $t('bySearchQueriesDescription') }}</p>
+          <template #action="{ entry }">
+            <RouterLink
+              class="small text-decoration-underline"
+              :to="{
+                name: 'sources',
+                query: { sq: entry.hash }
+              }"
+              @click="$emit('dismiss')"
+            >
+              {{ $t('explore') }}
+            </RouterLink>
+          </template>
+        </SourcesOverviewSearchQueriesList>
+      </section>
       <section v-else-if="activeTab === 'barista'" class="p-3">
         {{ $t('withBaristaDescription') }}
       </section>
@@ -50,11 +80,13 @@
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { useSettingsStore } from '@/stores/settings'
 import LoadingBlock from '../LoadingBlock.vue'
 import InfoModal from '../InfoModal.vue'
 import Icon from '../base/Icon.vue'
 import type { Filter } from '@/models'
 import SearchQuerySummary from '../modules/SearchQuerySummary.vue'
+import SourcesOverviewSearchQueriesList from './SourcesOverviewSearchQueriesList.vue'
 
 export type SourcesOverviewModalProps = {
   title?: string
@@ -65,15 +97,17 @@ export type SourcesOverviewModalProps = {
 }
 withDefaults(defineProps<SourcesOverviewModalProps>(), {
   title: 'Sources Overview: welcome!',
-  modalTitle: 'Sources Overview',
+  modalTitle: 'Getting started guide',
   requestDelay: 10,
   filters: () => []
 })
 const emit = defineEmits(['dismiss', 'confirm'])
+const settingsStore = useSettingsStore()
 const isLoading = ref(false)
 const tabs = ref([
   { name: 'metadata', label: 'byMetadata', icon: '' },
-  { name: 'barista', label: 'withBarista', icon: 'sparks' }
+  { name: 'searchQueries', label: 'bySearchQueries', icon: 'funnel' }
+  // { name: 'barista', label: 'withBarista', icon: 'sparks' }
 ])
 const activeTab = ref('metadata')
 </script>
@@ -95,6 +129,9 @@ ul.SourceOverviewModal__tabs.nav.nav-pills .nav-item .nav-link.active {
 {
   "en": {
     "byMetadata": "By Metadata",
+    "bySearchQueries": "By Search Queries",
+    "bySearchQueriesDescription": "Explore one of your recent search queries:",
+    "showGettingStartedInSourcesOverview": "Open this guide automatically on startup",
     "withBarista": "With Barista",
     "withBaristaDescription": "(Not there yet!) Explore the sources overview using Barista to refine or start your search query.",
     "useCurrentFiltersToExploreSourcesOverview": "You can use the current filters to explore the Sources Overview. The following <strong>content items</strong> are considered:",

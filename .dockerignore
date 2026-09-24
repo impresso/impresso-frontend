@@ -2,6 +2,7 @@ config
 !config/index.js
 !config/prod.env.js
 !config/default.env.js
+public/mockServiceWorker.js
 .git
 node_modules
 docker

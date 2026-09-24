@@ -19,55 +19,87 @@
       </a>
 
       <b-navbar-nav class="align-items-center text-center">
+        <BDropdown class="px-2 text-white">
+          <template v-slot:button-content>
+            <span
+              class="text-white"
+              @click="$router.push(getRouteWithSearchQuery({ name: 'search' }))"
+              >{{ $t('label_search') }}</span
+            >
+          </template>
+          <li
+            class="px-2"
+            v-for="routeName in [
+              Routes.search.name,
+              Routes.searchImages.name,
+              Routes.searchNgrams.name
+            ]"
+            :key="routeName"
+          >
+            <RouterLink
+              :to="getRouteWithSearchQuery({ name: routeName })"
+              active-class="active"
+              :title="$t(`label_${routeName}`)"
+              class="nav-link"
+            >
+              <span>{{ $t(`label_${routeName}`) }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
+        <BDropdown class="px-2 text-white">
+          <template v-slot:button-content>
+            <span>{{ $t('label_explore') }}</span>
+          </template>
+          <li class="px-2">
+            <RouterLink
+              :to="getRouteWithSearchQuery({ name: 'sources' })"
+              active-class="active"
+              title="Sources"
+              class="nav-link"
+            >
+              <span>{{ $t('label_media_sources') }}</span>
+            </RouterLink>
+          </li>
+          <li class="px-2">
+            <RouterLink
+              :to="{ name: 'compare', query: { left: searchQueryHash } }"
+              active-class="active"
+              title="Inspect & Compare"
+              class="nav-link"
+            >
+              <span>{{ $t('label_compare') }}</span></RouterLink
+            >
+          </li>
+
+          <li class="px-2">
+            <RouterLink
+              v-if="textReuseEnabled"
+              :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
+              active-class="active"
+              title="Text reuse"
+              class="nav-link"
+            >
+              <span>{{ $t('label_text_reuse') }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
         <b-nav-item
-          :to="getRouteWithSearchQuery({ name: 'search' })"
-          active-class="active"
-          class="position-relative"
-          title="Search"
+          v-if="user"
+          :to="getRouteWithSearchQuery({ name: 'collections' })"
+          :active="$route.path.indexOf('/collections') === 0"
         >
-          <span>{{ $t('label_search', 0) }}</span>
-          <!-- <transition name="bounce">
-            <b-badge v-if="countActiveFilters" pill variant="tiny" class="position-absolute">
-            </b-badge>
-          </transition> -->
+          <span>{{ $t('collections') }}</span>
         </b-nav-item>
 
-        <b-nav-item
-          :to="getRouteWithSearchQuery({ name: 'newspapers' })"
-          active-class="active"
-          title="Newspapers"
-        >
-          <span>{{ $t('label_newspapers') }}</span>
-        </b-nav-item>
         <!-- <b-nav-item :to="getRouteWithSearchQuery({ name: 'topics' })" active-class="active">
           <span>{{ $t('label_topics') }}</span>
         </b-nav-item> -->
         <!-- b-nav-item :to="getRouteWithSearchQuery({ name: 'entities' })" active-class="active">
           <span>{{$t("label_entities")}}</span>
         </b-nav-item -->
-        <b-nav-item
-          :to="{ name: 'compare', query: { left: searchQueryHash } }"
-          active-class="active"
-          title="Inspect & Compare"
-        >
-          <span>{{ $t('label_compare') }}</span>
-        </b-nav-item>
+      </b-navbar-nav>
 
-        <b-nav-item
-          v-if="textReuseEnabled"
-          :to="getRouteWithSearchQuery({ name: 'textReuseOverview' }, { p: 1 })"
-          active-class="active"
-          title="Text reuse"
-        >
-          <span>{{ $t('label_text_reuse') }}</span>
-        </b-nav-item>
-        <li class="nav-item">
-          <RouterLink class="nav-link" to="/plans">
-            <span>
-              {{ $t('label_plans') }}
-            </span>
-          </RouterLink>
-        </li>
+      <b-navbar-nav class="ml-auto">
         <b-nav-item v-if="!connectivityStatus">
           <span class="badge badge-warning">{{ $t('connectivityStatus.offline') }}</span>
         </b-nav-item>
@@ -76,68 +108,33 @@
             $t('connectivityStatus.online')
           }}</span>
         </b-nav-item>
-      </b-navbar-nav>
-
-      <b-navbar-nav class="ml-auto">
-        <b-nav-item :to="{ name: 'faq' }" active-class="active">
-          <span>{{ $t('label_faq') }}</span>
-        </b-nav-item>
-        <b-nav-item
-          v-if="user"
-          :to="getRouteWithSearchQuery({ name: 'collections' })"
-          :active="$route.path.indexOf('/collections') === 0"
-        >
-          <span>{{ $t('collections') }}</span>
-        </b-nav-item>
-        <b-dropdown
-          v-if="user && jobs.length"
-          right
-          no-caret
-          ref="ddownJobs"
-          v-on:hidden="updateLastNotificationDate"
-        >
+        <BDropdown class="px-2">
           <template v-slot:button-content>
-            <div
-              class="d-inline-block dripicons-cloud-download position-relative"
-              style="top: 0.25em"
-            />
-            <span class="ml-1">{{ $t('label_jobs') }}</span>
-            <transition name="bounce">
-              <b-badge v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                {{ runningJobs.length }}
-              </b-badge>
-            </transition>
+            <span class="text-white">{{ $t('label_faq') }}</span>
           </template>
-          <template v-slot:button-icon>
-            <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
+          <li>
+            <LinkToModal class="nav-link px-3" :view="ViewCorpusOverview">
+              <span>{{ $t('label_corpus_catalogue') }}</span>
+            </LinkToModal>
+          </li>
+          <li>
+            <RouterLink :to="{ name: 'faq' }" active-class="active" class="nav-link px-3">
+              <span>{{ $t('label_documentation') }}</span>
+            </RouterLink>
+          </li>
+        </BDropdown>
+        <TasksDropdownPreview v-if="user" :max-items="4" />
+        <BDropdown class="px-2">
+          <template v-slot:button-content>
+            <span>{{ $t('label_data_access') }}</span>
           </template>
-          <div v-if="!jobs.length" class="bg-dark text-center text-white p-4">
-            {{ $t('no-jobs-yet') }}
-          </div>
-          <div v-else class="jobs-list">
-            <div class="list">
-              <job-item
-                :item="job"
-                class="job px-3 py-2 border-bottom"
-                v-for="(job, i) in jobs"
-                :key="i"
-                style="border-color: var(--clr-grey-200) !important"
-              />
-            </div>
-            <div class="pt-2 pb-1 d-flex justify-content-center">
-              <pagination
-                @click.prevent.stop
-                :current-page="jobsPaginationCurrentPage"
-                @change="$event => (jobsPaginationCurrentPage = $event)"
-                :total-rows="jobsPaginationTotalRows"
-                :per-page="jobsPaginationPerPage"
-                aria-controls="my-table"
-                class="small-caps d-inline-block"
-                :showDescription="false"
-              />
-            </div>
-          </div>
-        </b-dropdown>
+
+          <li v-for="viewName in [ViewPlans, ViewTermsOfUse]" :key="viewName">
+            <LinkToModal class="nav-link px-3" :view="viewName">
+              <span>{{ $t(`label_${viewName.toLowerCase()}`) }}</span>
+            </LinkToModal>
+          </li>
+        </BDropdown>
       </b-navbar-nav>
       <!-- user area -->
       <b-navbar-nav v-if="user" class="TheHeader__userArea mx-2">
@@ -200,221 +197,97 @@
   </div>
 </template>
 
-<script lang="js">
-import { defineComponent } from 'vue'
-import Icon from '@/components/base/Icon.vue'
-import JobItem from '@/components/modules/lists/JobItem.vue'
-import Pagination from '@/components/modules/Pagination.vue'
+<script setup lang="ts">
+import { computed, watch } from 'vue'
 import Logo from '@/components/Logo.vue'
-import InfoButton from '@/components/base/InfoButton.vue'
-import { searchQueryGetter, searchQueryHashGetter } from '@/logic/queryParams'
-import { mapStores } from 'pinia'
+import LinkToModal from './LinkToModal.vue'
+import TasksDropdownPreview from '@/components/TasksDropdownPreview.vue'
+import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
-import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
+import type { ErrorMessage } from '@/stores/notifications'
 import UserArea from './UserArea.vue'
-import { ViewPlans, PlanLabels, PlanGuest } from '@/constants'
+import { PlanLabels, ViewCorpusOverview, ViewPlans, ViewTermsOfUse } from '@/constants'
 import { RouterLink } from 'vue-router'
 import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/SwitchBetweenAppDatalab.vue'
+import { Routes } from '@/router/routes'
+import type { RouteLocationRaw } from 'vue-router'
+import { useRoute } from 'vue-router'
 
-export default defineComponent({
-  // props: {
-  //   searchQuery: Object,
-  // },
-  data: () => ({
-    ViewPlans,
-    languages: {
-      de: {
-        code: 'de',
-        name: 'Deutsch',
-        disabled: true
-      },
-      en: {
-        code: 'en',
-        name: 'English'
-      },
-      fr: {
-        code: 'fr',
-        name: 'Français',
-        disabled: true
-      },
-      it: {
-        code: 'it',
-        name: 'Italiano',
-        disabled: true
-      },
-      nl: {
-        code: 'nl',
-        name: 'Nederlands',
-        disabled: true
-      }
-    },
-    jobsPaginationPerPage: 4,
-    jobsCurrentPage: 1,
-    jobsPaginationCurrentPage: 1
-  }),
-  // mounted() {
-  //   if (this.user) {
-  //     this.jobsStore.loadJobs().then(() => {
-  //       console.info('Jobs loaded.');
-  //     });
-  //   }
-  // },
-  computed: {
-    ...mapStores(useJobsStore, useSettingsStore, useUserStore, useNotificationsStore),
-    searchQueryHash: searchQueryHashGetter(),
-    searchQuery: searchQueryGetter(),
-    loginRouteParams() {
-      return {
-        name: 'login',
-        query: {
-          redirect: this.$route.fullPath
-        }
-      }
-    },
-    registerRouteParams() {
-      return {
-        name: 'register',
-        query: {
-          redirect: this.$route.fullPath
-        }
-      }
-    },
-    countActiveFilters() {
-      return this.searchQuery.countActiveFilters()
-    },
-    countActiveItems() {
-      return this.searchQuery.countActiveItems()
-    },
-    jobs() {
-      return this.jobsStore.items
-    },
-    jobsPaginationTotalRows() {
-      return this.jobsStore.totalItems
-    },
-    runningJobs() {
-      return this.jobs.filter(d => d.status === 'RUN')
-    },
-    activeLanguageCode() {
-      return this.settingsStore.language_code
-    },
-    showAlert() {
-      return this.errorMessages.length > 0
-    },
-    errorMessages() {
-      return this.notificationsStore.errorMessages.filter(m => {
-        if (m.name === 'NotAuthenticated' && !this.user) {
-          return false
-        }
-        return true
-      })
-    },
-    processingStatus() {
-      return this.notificationsStore.processingStatus
-    },
-    user() {
-      return this.userStore.user
-    },
-    userPlan() {
-      return this.userStore.userPlan
-    },
-    userPlanLabel() {
-      return PlanLabels[this.userPlan] || '...'
-    },
+const route = useRoute()
+const jobsStore = useJobsStore()
+const userStore = useUserStore()
+const notificationsStore = useNotificationsStore()
 
-    connectivityStatus() {
-      return this.notificationsStore.connectivityStatus
-    },
-    version() {
-      return window.impressoFrontendVersion
-    },
-    viewPlansEnabled() {
-      return !!window.impressoFeatures?.viewPlans?.enabled
-    },
-    textReuseEnabled() {
-      // @ts-ignore
-      return !!window.impressoFeatures?.textReuse?.enabled
-    }
-  },
-  methods: {
-    updateLastNotificationDate() {
-      this.settingsStore.updateLastNotificationDate()
-    },
-    test() {
-      return this.jobsStore.createTestJob()
-    },
-    selectLanguage(languageCode) {
-      window.app.$i18n.locale = languageCode
-      this.settingsStore.setLanguageCode(languageCode)
-    },
-    getRouteWithSearchQuery(route, additionalQueryParameters = {}) {
-      return {
-        ...route,
-        query: {
-          ...route.query,
-          ...additionalQueryParameters,
-          sq: this.searchQueryHash
-        }
-      }
-    }
-  },
-  watch: {
-    jobsPaginationCurrentPage: {
-      handler(page) {
-        if (this.user) {
-          this.jobsStore.loadJobs({
-            page,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      },
-      immediate: true
-    },
-    user: {
-      handler(user) {
-        if (user) {
-          this.jobsStore.loadJobs({
-            page: 1,
-            limit: this.jobsPaginationPerPage
-          })
-        }
-      }
-    },
-    jobs: {
-      handler(jobs) {
-        if (jobs.length && this.$refs.ddownJobs) {
-          const lastModifiedDate = jobs
-            .map(d => d.lastModifiedDate.getTime())
-            .sort()
-            .pop()
-          const lastNotificationDate = this.settingsStore.lastNotificationDateAsDate
+const jobsPaginationPerPage = 4
 
-          if (lastNotificationDate - lastModifiedDate < 0) {
-            console.info(
-              'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
-            )
-            this.$refs.ddownJobs.show()
-          } else {
-            console.info(
-              'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
-            )
-          }
-        }
-      }
-    }
-  },
-  components: {
-    Icon,
-    Logo,
-    // Toast,
-    JobItem,
-    Pagination,
-    InfoButton,
-    UserArea,
-    SwitchBetweenAppDatalab
-  }
+const searchQueryHash = computed(() => {
+  const sq = route.query.sq
+  if (Array.isArray(sq) && sq[0] != null) return sq[0]
+  if (!Array.isArray(sq) && sq != null) return String(sq)
+  return getLatestSerializedSearchQuery() ?? ''
 })
+
+const loginRouteParams = computed(() => ({
+  name: 'login',
+  query: {
+    redirect: route.fullPath
+  }
+}))
+
+const registerRouteParams = computed(() => ({
+  name: 'register',
+  query: {
+    redirect: route.fullPath
+  }
+}))
+
+const user = computed(() => userStore.user)
+const userPlan = computed(() => userStore.userPlan)
+const userPlanLabel = computed(() => PlanLabels[userPlan.value] || '...')
+
+const errorMessages = computed<ErrorMessage[]>(() => {
+  return notificationsStore.errorMessages.filter(m => {
+    if (m.name === 'NotAuthenticated' && !user.value) {
+      return false
+    }
+    return true
+  })
+})
+const showAlert = computed(() => errorMessages.value.length > 0)
+const connectivityStatus = computed(() => notificationsStore.connectivityStatus)
+const textReuseEnabled = computed(
+  () =>
+    !!(window as typeof window & { impressoFeatures?: any }).impressoFeatures?.textReuse?.enabled
+)
+
+function getRouteWithSearchQuery(
+  routeParams: RouteLocationRaw,
+  additionalQueryParameters: Record<string, unknown> = {}
+) {
+  const normalizedRoute = routeParams as { query?: Record<string, unknown> }
+
+  return {
+    ...normalizedRoute,
+    query: {
+      ...normalizedRoute.query,
+      ...additionalQueryParameters,
+      sq: searchQueryHash.value
+    }
+  }
+}
+
+watch(
+  user,
+  value => {
+    if (value) {
+      void jobsStore.loadJobs({ page: 1, limit: jobsPaginationPerPage })
+    }
+  },
+  { immediate: true }
+)
+
 </script>
 
 <style lang="css">
@@ -485,10 +358,6 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   z-index: 100;
-}
-
-#app-header .jobs {
-  min-width: 400px;
 }
 
 #app-header nav {
@@ -592,7 +461,7 @@ export default defineComponent({
 }
 
 #app-header .navbar-dark .b-nav-dropdown.show {
-  background: var(--clr-grey-100) !important;
+  background: var(--clr-grey-200) !important;
 }
 
 #app-header .navbar-dark .b-nav-dropdown.show > a {
@@ -643,20 +512,6 @@ export default defineComponent({
   right: 0.75rem;
   line-height: 2.25rem;
   margin-top: -1rem;
-}
-
-.jobs-list > .list {
-  width: 350px;
-  height: 300px;
-  overflow: auto;
-  border-bottom: 1px solid #3d434a;
-}
-
-@media (min-height: 600px) {
-  .jobs-list > .list {
-    max-height: 550px;
-    height: auto;
-  }
 }
 
 @media (min-width: 992px) {
@@ -750,20 +605,23 @@ export default defineComponent({
     "collections": "Collections",
     "profile": "Profile",
     "label_home": "Home",
-    "label_plans": "Plans",
-    "label_search": "Search | Search* ({n} filter) | Search* ({n} filters)",
-    "label_search_with_items": "Search | Search* ({n} filter, {items}) | Search* ({n} filters, {items})",
-    "label_newspapers": "Newspapers",
-    "label_explore": "explore...",
+    "label_data_access": "Data Access",
+    "label_plans": "User Plans",
+    "label_search": "Search",
+    "label_media_sources": "Sources",
+    "label_explore": "Explore",
     "label_topics": "Topics",
     "label_entities": "Entities",
     "label_compare": "Inspect & Compare",
+    "label_corpus_catalogue": "Corpus Catalogue",
     "label_text_reuse": "Text reuse",
     "label_text_reuse_star": "Text reuse (experimental)",
-    "label_current_search": "browse results ...",
-    "label_faq": "Help",
-    "label_terms": "Terms of Use",
-    "label_jobs": "Tasks"
+    "label_search_text": "Search text",
+    "label_searchImages": "Search images",
+    "label_searchNgrams": "Search ngrams",
+    "label_faq": "Documentation",
+    "label_documentation": "Web App Documentation",
+    "label_terms-of-use": "Terms of Use"
   }
 }
 </i18n>

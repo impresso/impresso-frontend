@@ -1,12 +1,27 @@
 <template>
   <div class="SourcesOverviewTimeline position-relative">
     <slot name="tooltip">
-      <Tooltip :tooltip="tooltip">
+      <Tooltip :tooltip="tooltip" :style="{ zIndex: 10 }">
+        <div v-if="!tooltip.dataValue && tooltip.currentDate">
+          <h4 class="text-white font-weight-bold font-size-inherit mb-0">
+            {{ props.dataValues[tooltip.idx]?.label }}
+          </h4>
+          <div class="small-caps my-1" v-if="props.dataValues[tooltip.idx]">
+            {{ props.dataValues[tooltip.idx].item?.medium }} &middot;
+            {{ props.dataValues[tooltip.idx].item?.type }}
+          </div>
+          <div class="mb-0">
+            {{ $d(tooltip.currentDate, 'year') }} &mdash;
+            <span v-html="$t('numbers.contentItems', { n: 0 }, 0)"> </span>
+          </div>
+        </div>
         <div v-if="tooltip.dataValue">
           <h4 class="text-white font-weight-bold font-size-inherit mb-0">
             {{ tooltip.dataValue.label }}
           </h4>
-          <div className="small-caps mb-1">press</div>
+          <div class="small-caps my-1" v-if="tooltip.dataValue.item">
+            {{ tooltip.dataValue.item.medium }} &middot; {{ tooltip.dataValue.item.type }}
+          </div>
           <div v-if="tooltip.currentDate">
             <div class="mb-2">
               {{ $d(tooltip.currentDate, 'year') }} &mdash;
@@ -14,9 +29,13 @@
               <span
                 v-if="tooltip.exactDataValue?.value > 0"
                 v-html="
-                  $t('numbers.contentItems', {
-                    n: $n(tooltip.exactDataValue?.value || 0)
-                  }, tooltip.exactDataValue?.value || 0)
+                  $t(
+                    'numbers.contentItems',
+                    {
+                      n: $n(tooltip.exactDataValue?.value || 0)
+                    },
+                    tooltip.exactDataValue?.value || 0
+                  )
                 "
               />
               <span v-else class="SourcesOverviewTimeline__empty">
@@ -36,9 +55,13 @@
             <div class="small" v-if="tooltip.dataValue.dateRange">
               <span
                 v-html="
-                  $t('numbers.contentItems', {
-                    n: $n(tooltip.dataValue?.value || 0)
-                  }, tooltip.dataValue?.value || 0)
+                  $t(
+                    'numbers.contentItems',
+                    {
+                      n: $n(tooltip.dataValue?.value || 0)
+                    },
+                    tooltip.dataValue?.value || 0
+                  )
                 "
               ></span
               >&nbsp;<span
@@ -68,6 +91,7 @@
     <div
       class="timeline-container position-relative"
       @mousemove="containerOnMousemove"
+      @click="containerOnClick"
       @mouseout="containerOnMouseout"
       ref="containerRef"
       :style="{ height: '100%', overflow: 'auto' }"
@@ -188,6 +212,7 @@
             :reducedLabel="xScale(dataValue.dateRange[0]) < 200"
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
             :exponent="props.scaleExponent"
+            @item-click="onDataValueItemClick"
           />
         </div>
       </div>
@@ -208,7 +233,7 @@ const fiveYearStrokeWidth = 0.5
 export interface Props {
   startDate: Date
   endDate: Date
-  dataValues?: DataValue[]
+  dataValues?: DataValue<any>[]
   minimumGap?: number
   minimumVerticalGap?: number
   minimumVerticalHeight?: number
@@ -237,8 +262,10 @@ export interface TooltipPosition {
   date: Date
   x: number
   y: number
-  value?: DataValue
-  otherValuesOnDate: DataValue[]
+  /* idx corresponds to vertical position */
+  idx: number
+  value?: DataValue<any>
+  otherValuesOnDate: DataValue<any>[]
   scrollTop: number
   scrollWidth: number
   scrollHeight: number
@@ -249,6 +276,7 @@ export interface TooltipPosition {
 
 const emit = defineEmits<{
   (e: 'tooltipMove', payload: TooltipPosition): void
+  (e: 'tooltipClick', payload: TooltipPosition): void
   (e: 'tooltipOut'): void
 }>()
 
@@ -301,7 +329,6 @@ const years = computed(() => {
 
 const svgWidth = computed(() => {
   if (props.fitToContainerWidth) {
-    console.log('fitToContainerWidth', containerWidth.value)
     return containerWidth.value
   }
   // check if gap should increase based on width minum margindivided by years length
@@ -324,13 +351,15 @@ const xScale = computed(() => {
 const tooltip = ref<{
   x: number
   y: number
+  idx: number
   isActive: boolean
-  dataValue?: DataValue
-  exactDataValue?: DataValue
+  dataValue?: DataValue<any>
+  exactDataValue?: DataValue<any>
   currentDate?: Date
 }>({
   x: 0,
   y: 0,
+  idx: -1,
   isActive: false,
   dataValue: undefined,
   exactDataValue: undefined,
@@ -379,7 +408,6 @@ const shouldShowLabel = (year: number): boolean => {
   // Always show decades (bold)
   // get available width in pixel per year
   const yearWidth = (svgWidth.value - margin.left - margin.right) / years.value.length
-  console.debug('yearWidth', yearWidth)
   if (yearWidth < 5) {
     return year % 20 === 0
   }
@@ -430,17 +458,19 @@ const emitTooltipEvent = () => {
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
+      idx: -1,
       isActive: false
     }
     return
   }
 
-  const { dataValue, otherValuesOnDate } = getDataValuesAtPosition(visX, visY)
+  const { dataValue, otherValuesOnDate, idx } = getDataValuesAtPosition(visX, visY)
   if (dataValue) {
-    console.log('dataValue', dataValue.label)
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
+      idx: idx,
+
       isActive: true,
       dataValue,
       exactDataValue: otherValuesOnDate[0],
@@ -450,19 +480,49 @@ const emitTooltipEvent = () => {
     tooltip.value = {
       x: containerClientX.value,
       y: tooltipY,
-      isActive: false
+      idx: idx,
+      isActive: true,
+      currentDate: date
     }
   }
   emit('tooltipMove', {
     date,
     x: visX,
     y: visY,
+    idx: idx,
     value: dataValue,
     otherValuesOnDate,
     scrollTop: containerRef.value!.scrollTop,
     scrollWidth: containerRef.value!.scrollWidth,
     scrollHeight: containerRef.value!.scrollHeight,
     scrollLeft: containerRef.value!.scrollLeft,
+    clientWidth: containerWidth.value,
+    clientHeight: containerHeight.value
+  })
+}
+
+const emitClickEvent = () => {
+  // Reuse the same interaction payload shape as tooltipMove.
+  const visX = containerClientX.value + containerScrollLeft.value
+  const visY = containerClientY.value + containerScrollTop.value
+  const isOutOfContainer = visX < margin.left || visX > svgWidth.value - margin.right
+  if (isOutOfContainer || !containerRef.value) {
+    return
+  }
+
+  const date = xScale.value.invert(visX)
+  const { dataValue, otherValuesOnDate, idx } = getDataValuesAtPosition(visX, visY)
+  emit('tooltipClick', {
+    date,
+    x: visX,
+    y: visY,
+    idx,
+    value: dataValue,
+    otherValuesOnDate,
+    scrollTop: containerRef.value.scrollTop,
+    scrollWidth: containerRef.value.scrollWidth,
+    scrollHeight: containerRef.value.scrollHeight,
+    scrollLeft: containerRef.value.scrollLeft,
     clientWidth: containerWidth.value,
     clientHeight: containerHeight.value
   })
@@ -481,14 +541,15 @@ const getDataValuesAtPosition = (
   x: number,
   y: number
 ): {
-  dataValue: DataValue | undefined
-  otherValuesOnDate: DataValue[]
+  dataValue: DataValue<any> | undefined
+  otherValuesOnDate: DataValue<any>[]
+  idx: number
 } => {
   // Find the closest data value to the given date
   const date = xScale.value.invert(x)
   const dataValuesIndex = yScale.value.invertIndex(y - svgHeight.value)
-  let dataValue: DataValue | undefined = undefined
-  let otherValuesOnDate: DataValue[] = []
+  let dataValue: DataValue<any> | undefined = undefined
+  let otherValuesOnDate: DataValue<any>[] = []
 
   // check if the props.datavalues at index has a date range that includes the date
   const currentDataValue = props.dataValues[dataValuesIndex]
@@ -498,10 +559,10 @@ const getDataValuesAtPosition = (
     }
   }
   if (!dataValue) {
-    return { dataValue: undefined, otherValuesOnDate: [] }
+    return { dataValue: undefined, otherValuesOnDate: [], idx: dataValuesIndex }
   }
   if (dataValue && !Array.isArray(dataValue.dataValues)) {
-    return { dataValue, otherValuesOnDate: [] }
+    return { dataValue, otherValuesOnDate: [], idx: dataValuesIndex }
   }
   // check current overlap
   if (dataValue && Array.isArray(dataValue.dataValues)) {
@@ -513,7 +574,7 @@ const getDataValuesAtPosition = (
     })
   }
 
-  return { dataValue, otherValuesOnDate }
+  return { dataValue, otherValuesOnDate, idx: dataValuesIndex }
 }
 
 const containerOnScrollHandler = (event: Event) => {
@@ -530,6 +591,25 @@ const containerOnMousemove = ({ clientX, clientY }: MouseEvent) => {
   containerClientX.value = x
   containerClientY.value = y
   emitTooltipEvent()
+}
+
+const containerOnClick = ({ clientX, clientY }: MouseEvent) => {
+  const x = clientX - containerRef.value!.getBoundingClientRect().left
+  const y = clientY - containerRef.value!.getBoundingClientRect().top
+  containerClientX.value = x
+  containerClientY.value = y
+  emitTooltipEvent()
+  emitClickEvent()
+  emit('tooltipOut')
+}
+
+const onDataValueItemClick = ({ event }: { event: MouseEvent; dataValue: DataValue<any> }) => {
+  const x = event.clientX - containerRef.value!.getBoundingClientRect().left
+  const y = event.clientY - containerRef.value!.getBoundingClientRect().top
+  containerClientX.value = x
+  containerClientY.value = y
+  emitTooltipEvent()
+  emitClickEvent()
 }
 
 const containerOnMouseout = () => {

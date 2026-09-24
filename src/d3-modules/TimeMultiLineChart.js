@@ -138,7 +138,7 @@ export default class TimeMultiLineChart {
 
     const peak = this.peak
       .data(
-        /** @type {[Date, number][]} */ (
+        /** @type {[Date, number][]} */(
           maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : []
         )
       )
@@ -199,7 +199,7 @@ export default class TimeMultiLineChart {
     let [mouseX, mouseY] = d3.pointer(event)
 
     const { width: linesContainerWidth } = this.lines.node().getBoundingClientRect()
-    console.debug('_renderInteractionLayer', mouseX, mouseY)
+    // console.debug('_renderInteractionLayer', mouseX, mouseY)
     if (mouseX > linesContainerWidth + this.margin.left) {
       mouseX = linesContainerWidth + this.margin.left
     } else if (mouseX < this.margin.left) {

@@ -24,7 +24,25 @@
         </form>
       </div>
     </div>
-    <slot v-bind:items="similarItems"></slot>
+    <slot v-bind:items="similarItems">
+      <div class="row">
+        <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in similarItems" :key="item.id">
+          <ContentItem
+            :contentItem="item"
+            class="p-3 rounded-md border shadow mb-4"
+            showDate
+            showMediaSource
+            showProvider
+            showLink
+            showIcon
+            showMeta
+            showSpecs
+            showSnippet
+            showSemanticEnrichments
+          />
+        </div>
+      </div>
+    </slot>
     <LoadingBlock
       :class="contentClass"
       v-if="!error && isLoading"
@@ -40,6 +58,9 @@
       :error="error"
       :defaultLabel="$t('fetchingSimilarContentItems.errorLabel')"
     />
+    <Alert v-if="notice" type="info" class="mt-3">
+      {{ $t(`fetchingSimilarContentItems.${notice}`) }}
+    </Alert>
   </div>
 </template>
 
@@ -77,15 +98,16 @@
  * @see {@link ContentItemType} for the content item type definition
  * @see {@link ContentItemsService} for the API service used to fetch data
  */
+import { Filter } from '@/models'
 import { contentItems as ContentItemsService } from '@/services'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import { computed, ref, watch } from 'vue'
 import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
-import { Filter } from 'impresso-jscommons'
-
+import Alert from 'impresso-ui-components/components/Alert.vue'
+import ContentItem from './modules/lists/ContentItem.vue'
 export interface ListOfSimilarContentItemsProps {
-  contentItem: ContentItemType
+  contentItem?: ContentItemType
   minHeight?: number
   contentClass?: string
 }
@@ -97,6 +119,7 @@ const similarItems = ref<ContentItemType[]>([])
 
 const isLoading = ref(false)
 const error = ref<Error | null>(null)
+const notice = ref<string | null>(null)
 const addTimeframeFilter = ref<boolean>(true)
 const contentItemEmbedding = ref<string>('')
 /**
@@ -106,7 +129,7 @@ const contentItemEmbedding = ref<string>('')
  */
 const timeframeFilter = computed<Filter | null>(() => {
   if (!addTimeframeFilter.value) return null
-  const contentItemDate = new Date(props.contentItem.meta.date)
+  const contentItemDate = new Date(props.contentItem?.meta?.date)
   const oneYearBefore = new Date(contentItemDate)
   oneYearBefore.setFullYear(contentItemDate.getFullYear() - 1)
   const oneYearAfter = new Date(contentItemDate)
@@ -132,10 +155,14 @@ const timeframeFilter = computed<Filter | null>(() => {
  * @throws {Error} May throw an error if the API call fails or if there are issues processing the response
  */
 const fetchSimilarItems = async (): Promise<void> => {
+  if (!props.contentItem) {
+    return
+  }
   if (isLoading.value) return
   isLoading.value = true
   similarItems.value = []
   error.value = null
+  notice.value = null
   // Add a minimum delay for smooth transitions
   await new Promise(resolve => setTimeout(resolve, 500))
   console.info('[ListOfSimilarContentItems] Fetching embedding for:', props.contentItem.id)
@@ -155,7 +182,7 @@ const fetchSimilarItems = async (): Promise<void> => {
   }
   if (!contentItemEmbedding.value.length) {
     isLoading.value = false
-    error.value = new Error('No embeddings found for the content item.')
+    notice.value = 'noEmbeddingsForThisContentItem'
     console.warn('No embeddings found for content item:', props.contentItem.id)
     return
   }
@@ -178,6 +205,12 @@ const fetchSimilarItems = async (): Promise<void> => {
     }
   })
     .then(res => {
+      console.info(
+        '[ListOfSimilarContentItems] Fetched similar items for content item:',
+        props.contentItem.id,
+        'Result count:',
+        res.data.length
+      )
       return res.data
     })
     .catch(err => {
@@ -190,7 +223,7 @@ const fetchSimilarItems = async (): Promise<void> => {
 }
 
 watch(
-  () => props.contentItem.id,
+  () => props.contentItem?.id,
   () => {
     similarItems.value = []
     isLoading.value = false
@@ -222,7 +255,8 @@ watch(
   "en": {
     "description": "Find and display content items similar to the current one using semantic embeddings. This process may take a few moments.",
     "fetchingSimilarContentItems": {
-      "errorLabel": "Error fetching similar content items. Please try again later. Received: "
+      "errorLabel": "Error fetching similar content items. Please try again later. Received: ",
+      "noEmbeddingsForThisContentItem": "No semantic embeddings available for this content item."
     },
     "actions": {
       "fetchSimilarItems": "load Similar Items",

@@ -2,7 +2,7 @@
   <div class="barista-chat">
     <BaristaChatPanel
       :filters="simplifiedFilters"
-      :messages="messages.filter(m => m != null)"
+      :messages="displayedMessages"
       :isLoading="isWorking"
       @submit="handleMessageSubmit"
       @updateHeight="handleUpdateHeight"
@@ -14,7 +14,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
-import { barista as baristaService } from '@/services'
 import {
   type ChatMessage,
   type BaristaMessageItem,
@@ -25,10 +24,11 @@ import {
   BaristaRequest
 } from '@/services/types/barista'
 import { useBaristaStore } from '@/stores/barista'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 import { computed } from 'vue'
 import { SupportedFiltersByContext } from '@/logic/filters'
 import { ExtraContentSeparator } from '@/logic/barista'
+import { includes } from '@/util/fn.js'
 
 // Barista store for socket messages
 const baristaStore = useBaristaStore()
@@ -44,7 +44,9 @@ const props = withDefaults(
 
 const simplifiedFilters = computed(() => {
   return props.filters
-    ?.filter(f => SupportedFiltersByContext.search.includes(f.type) && f.type !== 'hasTextContents')
+    ?.filter(
+      f => includes(SupportedFiltersByContext.search, f.type) && f.type !== 'hasTextContents'
+    )
     .map(
       f =>
         ({
@@ -122,7 +124,7 @@ const convertBaristaMessageToChat = (
     const structuredContent =
       sr?.assistantClarification ?? sr?.impressoHelp ?? sr?.searchQuerySummary
 
-    const toolCallId = message.source?.['tool_call_id'] as string | undefined
+    const toolCallId = message.toolCallId
 
     return {
       content: structuredContent ?? `[${message.name}] ${message.content}`,
@@ -147,26 +149,29 @@ const convertBaristaMessageToChat = (
 
 // State for messages
 const messages = ref<ChatMessage[]>([])
-const isLoading = ref(false)
+
+const defaultWelcomeMessage: ChatMessage = {
+  content: 'Hello! How can I help you today?',
+  timestamp: new Date(),
+  type: 'system'
+}
+
+const displayedMessages = computed<ChatMessage[]>(() => {
+  if (messages.value.length > 0) {
+    return messages.value
+  }
+  return [defaultWelcomeMessage]
+})
 
 // Handler for sending messages
 const handleMessageSubmit = async (request: BaristaRequest) => {
   if (!request.message.trim()) return
-  // Add user message to panel using baristaStore
-  baristaStore.addMessage(
-    {
-      content: request.message,
-      type: 'human'
-    },
-    true
-  )
-
-  isLoading.value = true
-  baristaStore.setIsWorking(true)
+  if (!request.sessionId) {
+    throw new Error('Session ID is required to send a message to Barista.')
+  }
 
   try {
-    // Send message to barista service
-    await baristaService.create(request)
+    await baristaStore.sendMessage(request)
     emit('submit', request)
   } catch (error) {
     console.error(
@@ -175,17 +180,6 @@ const handleMessageSubmit = async (request: BaristaRequest) => {
       error.type,
       error.message
     )
-    // Add error message
-    baristaStore.addMessage(
-      {
-        content: 'Sorry, there was an error processing your message.',
-        type: 'ai'
-      },
-      true
-    )
-    baristaStore.setIsWorking(false)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -193,6 +187,17 @@ const handleUpdateHeight = (height: number) => {
   console.debug('[BaristaChat] Chat height updated:', height)
   emit('updateHeight', height)
 }
+
+function rebuildMessages() {
+  messages.value = baristaStore.messages
+    .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
+    .filter((msg): msg is ChatMessage => msg != null)
+}
+
+watch(
+  () => baristaStore.sessionId,
+  () => rebuildMessages()
+)
 
 // Watch for new socket messages and add them to the chat
 watch(
@@ -226,25 +231,13 @@ watch(
   }
 )
 
-// Initialize with a welcome message
 onMounted(() => {
-  if (!baristaStore.messages.length) {
-    baristaStore.addMessage(
-      {
-        content:
-          'Hello! I am Barista, I can serve you a query search and listen to your prompts. Tell me what you would like to find! I can also help you understanding better the Impresso ecosystem, just ask.',
-        type: 'ai'
-      },
-      true
-    )
-  } else {
+  if (baristaStore.messages.length) {
     console.debug(
       '[BaristaChat] Initializing chat with existing messages from store.',
       baristaStore.messages.length
     )
-    messages.value = baristaStore.messages
-      .map(msg => convertBaristaMessageToChat(msg.message, msg.timestamp))
-      .filter((msg): msg is ChatMessage => msg != null)
+    rebuildMessages()
   }
 })
 </script>

@@ -26,7 +26,7 @@ import hljs from 'highlight.js'
 import json from 'highlight.js/lib/languages/json'
 import 'highlight.js/styles/github.css'
 import { deserializeFilters } from '@/logic/filters'
-import type { Filter } from 'impresso-jscommons'
+import type { Filter } from '@/models'
 import Icon from '@/components/base/Icon.vue'
 
 const DefaultFilters: Filter[] = []

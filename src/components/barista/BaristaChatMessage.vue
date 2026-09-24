@@ -30,10 +30,12 @@
         class="message-search-query-summary small mt-2 mb-0 text-muted"
       ></div>
 
-      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps small mt-2 mb-0">
-        <li v-for="(step, i) in message.searchQuerySteps" :key="i">
-          <p v-html="renderMarkdown(step)"></p>
-        </li>
+      <ol v-if="message.searchQuerySteps?.length" class="message-search-steps mt-2 mb-0">
+        <li
+          v-for="(step, i) in message.searchQuerySteps"
+          :key="i"
+          v-html="renderMarkdown(step)"
+        ></li>
       </ol>
 
       <TimeAgo
@@ -192,7 +194,8 @@ const formatActionType = (type: string): string => {
         "find_newspapers_ids": "Find Newspapers",
         "find_topics_ids": "Find Topics",
         "get_impresso_feature_explanation": "Explain Feature",
-        "get_search_facets": "Sum up search filters results"
+        "get_search_facets": "Sum up search filters results",
+        "filter_builder": "Help with search filters"
       }
     }
   }
@@ -279,5 +282,14 @@ const formatActionType = (type: string): string => {
   cursor: pointer;
   opacity: 0.55;
   font-size: inherit;
+}
+
+.BaristaChatMessage ol.message-search-steps {
+  counter-reset: step;
+  list-style: none;
+  padding-left: 0;
+}
+.BaristaChatMessage ol.message-search-steps > li {
+  margin-bottom: var(--spacing-3);
 }
 </style>

@@ -113,14 +113,14 @@ import { getBucketLabel } from '../logic/facets'
 import { ComparableTypes, comparableToQuery, Comparable } from '../logic/queryComparison'
 import { getLatestFilters } from '../logic/storage'
 import { Navigation } from '@/plugins/Navigation'
-import { Filter } from '@/models'
+import { Filter, FacetType } from '@/models'
 import {
   SearchFacet,
   SearchFacetBucket,
   SearchFacetRangeBucket
 } from '@/models/generated/deprecated/models'
 import { isBucket } from '@/models/typeGuards'
-import { FacetType } from '@/models/Facet'
+import { includes } from '@/util/fn'
 
 type IBucket = SearchFacetBucket | SearchFacetRangeBucket
 
@@ -133,7 +133,7 @@ export interface QueryResult {
 }
 
 const supportedSearchIndexFilters = (filter: Filter) =>
-  SupportedFiltersByContext.search.includes(filter.type)
+  includes(SupportedFiltersByContext.search, filter.type)
 
 function comparableIsEmpty(comparable: Comparable): boolean {
   const type = comparable?.type
@@ -488,17 +488,30 @@ export default {
         const intersectionFacet = intersectionFacets.find(({ type }) => type === id)
         const queriesFacets = facetsSets.map(facetSet => facetSet.find(({ type }) => type === id))
 
+        // facetsSets buckets lack item objects; queriesResults buckets are enriched by search-facets
+        const enrichedFacets = [
+          this.queriesResults[QueryIndex.Left]?.facets?.find(({ type }: any) => type === id),
+          this.queriesResults[QueryIndex.Right]?.facets?.find(({ type }: any) => type === id)
+        ]
+
         const items =
           intersectionFacet?.buckets
-            ?.map((bucket: IBucket) => {
+            ?.map((bucket: any) => {
+              // comparison endpoint returns raw Solr buckets using `val`, not `value`
+              const bucketId = bucket.val ?? bucket.value
+
               const [leftBucket, rightBucket] = queriesFacets.map(({ buckets }: any) => {
-                return buckets.find(({ val }: any) => bucket.value === val)
+                return buckets.find(({ val, value }: any) => bucketId === (val ?? value))
               })
 
+              const enrichedBucket = enrichedFacets
+                .map(f => f?.buckets?.find(({ value }: any) => String(value) === String(bucketId)))
+                .find(b => b != null)
+
               const label =
-                leftBucket != null
-                  ? getBucketLabel(leftBucket, id, this)
-                  : getBucketLabel(rightBucket, id, this)
+                enrichedBucket != null
+                  ? getBucketLabel(enrichedBucket as any, id, this)
+                  : (getBucketLabel(leftBucket, id, this) ?? getBucketLabel(rightBucket, id, this))
 
               return {
                 intersection: bucket.count,
@@ -642,7 +655,7 @@ export default {
             limit: 0
           }
         })
-        .then(result => result.total)
+        .then(result => result.pagination.total)
 
       const collectionTitlePromise =
         type === ComparableTypes.Collection

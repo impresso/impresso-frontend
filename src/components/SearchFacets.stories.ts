@@ -13,7 +13,7 @@ const meta: Meta<typeof SearchFacets> = {
   argTypes: {
     groupBy: {
       control: 'select',
-      options: ['articles', 'images'],
+      options: ['contentItems', 'images'],
       description: 'Group by articles or images'
     },
     filters: {
@@ -136,7 +136,7 @@ const createContentLengthFacet = (): Facet => {
 // Basic story with default values
 export const Default: Story = {
   args: {
-    groupBy: 'articles',
+    groupBy: 'contentItems',
     filters: [],
     facets: [
       createYearFacet(),

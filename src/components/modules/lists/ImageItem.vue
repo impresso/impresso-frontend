@@ -23,12 +23,14 @@
     <div v-if="showMeta">
       <p v-if="hasCaption" class="item-title p-2 m-0">{{ item.caption }}</p>
       <div class="p-2 articles-meta">
-        <router-link
-          :to="{ name: 'newspaper', params: { newspaper_id: item?.mediaSourceRef?.id ?? 'na' } }"
-          class="article-newspaper"
-        >
-          {{ item?.mediaSourceRef?.name }}
-        </router-link>
+        <MediaSourceLabel
+          :item="{
+            id: item?.mediaSourceRef?.id,
+            name: item?.mediaSourceRef?.name,
+            type: item?.mediaSourceRef?.type
+          }"
+          class="d-inline-block"
+        />
         <item-selector
           :id="item?.mediaSourceRef?.id"
           :item="item?.mediaSourceRef"
@@ -47,9 +49,11 @@
 import ImgAuthentified from '@/components/base/ImgAuthentified.vue'
 import ItemSelector from '@/components/modules/ItemSelector.vue'
 import LoadingIndicator from '@/components/modules/LoadingIndicator.vue'
+import MediaSourceLabel from './MediaSourceLabel.vue'
 import { IImage } from '@/models'
 import { defineComponent, PropType } from 'vue'
 import { defaultAuthCondition } from '@/util/imageAuth'
+import { Routes } from '@/router/routes'
 
 export default defineComponent({
   props: {
@@ -72,9 +76,13 @@ export default defineComponent({
       }
     },
     pageNumbers() {
-      return this.$t('pp', {
-        pages: this.item?.pageNumbers?.join(',') ?? ''
-      }, this.item?.pageNumbers?.length ?? 0)
+      return this.$t(
+        'pp',
+        {
+          pages: this.item?.pageNumbers?.join(',') ?? ''
+        },
+        this.item?.pageNumbers?.length ?? 0
+      )
     },
     hasCaption() {
       return (this.item?.caption?.length ?? 0) > 0
@@ -105,7 +113,7 @@ export default defineComponent({
         })
       } else {
         this.$router.push({
-          name: 'viewImage',
+          name: Routes.viewImage.children.facsimile.name,
           params: {
             image_id: this.item.id
           }
@@ -116,7 +124,8 @@ export default defineComponent({
   components: {
     ItemSelector,
     ImgAuthentified,
-    LoadingIndicator
+    LoadingIndicator,
+    MediaSourceLabel
   }
 })
 </script>

@@ -91,7 +91,7 @@ export const MockDataProviders = [
   {
     id: 'RTS',
     names: [
-      { langCode: 'fr', name: 'Radio télévision suisse' },
+      { langCode: 'fr', name: 'Radio Télévision suisse' },
       { langCode: 'en', name: 'Swiss Broadcasting Corporation (French)' }
     ],
     bitmapIndex: 17

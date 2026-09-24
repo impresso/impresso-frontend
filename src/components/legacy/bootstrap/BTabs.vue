@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <ul ref="ulRef" :class="tabsClass" v-bind="$attrs">
+    <ul :class="tabsClass" v-bind="$attrs">
       <slot name="tabs-start"></slot>
       <slot name="tabs-end"></slot>
     </ul>
@@ -16,7 +16,7 @@ import { computed, useAttrs, onMounted, ref, reactive } from 'vue'
 const props = defineProps({
   pills: {
     type: Boolean,
-    default: false,
+    default: false
   },
   contentClass: String
 })
@@ -33,21 +33,20 @@ const rootClasses = reactive({
 })
 
 const tabsClass = computed(() => ({
-  'nav': true,
+  nav: true,
   'nav-pills': props.pills,
   ...rootClasses.classes
 }))
 
 const rootRef = ref<HTMLElement | null>(null)
-const ulRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
-  const classes = rootRef.value?.getAttribute("class")
-  rootRef?.value?.removeAttribute("class")
-  rootClasses.classes = classes?.split(' ')?.reduce((acc, item) => {
-    acc[item] = true
-    return acc
-  }, {}) ?? {}
+  const classes = rootRef.value?.getAttribute('class')
+  rootRef?.value?.removeAttribute('class')
+  rootClasses.classes =
+    classes?.split(' ')?.reduce((acc, item) => {
+      acc[item] = true
+      return acc
+    }, {}) ?? {}
 })
-
 </script>

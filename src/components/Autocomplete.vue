@@ -115,14 +115,13 @@ import { ref, computed, onMounted } from 'vue'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
-import type { Filter } from '@/models'
+import type { Filter, FacetType } from '@/models'
 import type { Features } from '@/init'
 import Explorer from './Explorer.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from './base/Icon.vue'
 import BaristaButton from './barista/BaristaButton.vue'
 import AuthGate from './AuthGate.vue'
-import { FacetType } from '@/models/Facet'
 import { toCanonicalFilter } from '@/logic/filters'
 
 const AVAILABLE_TYPES = [
@@ -452,19 +451,18 @@ const keyup = (event: KeyboardEvent) => {
 }
 
 // Lifecycle
-onMounted(() => {
-  useClickOutside(
-    autocomplete,
-    (e: MouseEvent) => {
-      if (e.target === input.value?.$el) {
-        showSuggestions.value = true
-      } else {
-        hideSuggestions()
-      }
-    },
-    searchButton
-  )
-})
+
+useClickOutside(
+  autocomplete,
+  (e: MouseEvent) => {
+    if (e.target === input.value?.$el) {
+      showSuggestions.value = true
+    } else {
+      hideSuggestions()
+    }
+  },
+  searchButton
+)
 </script>
 
 <style lang="css">

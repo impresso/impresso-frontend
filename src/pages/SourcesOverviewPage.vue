@@ -5,42 +5,39 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import SourcesOverviewTimeline, {
   TooltipPosition
 } from '@/components/sourcesOverview/SourcesOverviewTimeline.vue'
-import { buildEmptyFacets } from '@/logic/facets'
-import { serializeFilters, SupportedFiltersByContext } from '@/logic/filters'
-import FacetModel, { FacetType } from '@/models/Facet'
-import { searchFacets as searchFacetsService, stats as statsService } from '@/services'
+import { buildEmptyFacets, SearchDecimalFacetTypes, SearchDynamicFacetTypes } from '@/logic/facets'
+import { serializeFilters, SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
+import FacetModel from '@/models/Facet'
+import {
+  searchFacets as searchFacetsService,
+  stats as statsService,
+  filtersItems as filterItemsService
+} from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
+import type { MediaSource } from '@/models/generated/canonical'
 import InfoButton from '@/components/base/InfoButton.vue'
 import SourceOverviewNavigator from '@/components/sourcesOverview/SourceOverviewNavigator.vue'
 import SourcesOverviewModal from '@/components/sourcesOverview/SourcesOverviewModal.vue'
 import SourceOverviewMiniTimeline from '@/components/sourcesOverview/SourceOverviewMiniTimeline.vue'
+import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
+import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
+import Autocomplete from '@/components/Autocomplete.vue'
+import { Filter } from '@/models'
+import type { FacetType } from '@/models'
+import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
+
+/** User-specific facets that require authentication. */
+const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 interface Props {
   filtersWithItems?: Array<any>
   filters?: Array<any>
-  onFiltersChanged?: (newFilters: Array<any>) => void
+  onFiltersChanged?: (newFilters: Array<Filter>) => void
 }
-
-const FacetTypes = [
-  'language',
-  'newspaper',
-  'type',
-  'country',
-  'partner',
-  // 'year',
-  'contentLength',
-  'copyright',
-  'sourceType',
-  'sourceMedium',
-  // DPFS facets
-  'person',
-  'location',
-  'nag',
-  'organisation',
-  'topic'
-] satisfies FacetType[]
 
 const props = withDefaults(defineProps<Props>(), {
   filters: () => [],
@@ -48,13 +45,25 @@ const props = withDefaults(defineProps<Props>(), {
   onFiltersChanged: () => {}
 })
 
+const emit = defineEmits<{
+  (e: 'filtersChanged', newFilters: Array<Filter>): void
+}>()
+
+const onSuggestion = (suggestion: Filter) => {
+  console.log('Suggestion submitted:', suggestion)
+  emit('filtersChanged', [...props.filters, suggestion])
+}
+
+const allowedFilters = computed(() => {
+  return props.filters.filter(({ type }) => SupportedFiltersByContext.search.includes(type))
+})
 const allowedFiltersWithItems = computed(() => {
   return props.filtersWithItems.filter(({ type }) =>
     SupportedFiltersByContext.search.includes(type)
   )
 })
 const dateRangeBounds = computed<{ min: Date; max: Date }>(() => {
-  const allDates: Date[] = dataValues.value.flatMap((dv: DataValue) => dv.dateRange)
+  const allDates: Date[] = dataValues.value.flatMap((dv: DataValue<MediaSource>) => dv.dateRange)
   return allDates.reduce(
     (bounds: { min: Date; max: Date }, date: Date) => ({
       min: date < bounds.min ? date : bounds.min,
@@ -69,10 +78,31 @@ const maxEndDate = computed(() => dateRangeBounds.value.max)
 
 const totalContentItems = computed(() => dataValues.value.reduce((sum, dv) => sum + dv.value, 0))
 const facets = ref([])
-const dataValues = ref<DataValue[]>([])
+const dataValues = ref<DataValue<MediaSource>[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
-const isHelperModalVisible = ref(true)
+const settingsStore = useSettingsStore()
+const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
+const isHelperModalVisible = ref(settingsStore.showGettingStartedInSourcesOverview)
+
+const loadCollectionsFlag = computed({
+  get() {
+    return route.query.c === '1'
+  },
+  set(loadCollections: boolean) {
+    const query = { ...route.query }
+    if (loadCollections) {
+      query.c = '1'
+    } else {
+      delete query.c
+    }
+    router.push({ query }).catch(() => {})
+  }
+})
+
+const shouldLoadCollections = computed(() => userStore.isLoggedIn && loadCollectionsFlag.value)
 
 const normalize = ref(false)
 const fitToContainerWidth = ref(false)
@@ -86,6 +116,20 @@ const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
+const selectionMonitorStore = useSelectionMonitorStore()
+
+const handleTooltipClick = (pos: TooltipPosition) => {
+  const item = dataValues.value[pos.idx]
+  if (item) {
+    selectionMonitorStore.show({
+      item,
+      searchIndex: 'search',
+      type: 'newspaper',
+      applyCurrentSearchFilters: true,
+      displayCurrentSearchFilters: true
+    })
+  }
+}
 
 const handleScrollUpdate = (updated: TooltipPosition) => {
   tooltipPosition.value = updated
@@ -95,42 +139,83 @@ const handleScrollUpdate = (updated: TooltipPosition) => {
 const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
+
 watch(
-  () => props.filters,
-  async newVal => {
+  [allowedFilters, shouldLoadCollections],
+  async ([newVal]) => {
     isLoading.value = true
     totalResults.value = 0
-    const facetsItems = await searchFacetsService
-      .find({
-        query: {
-          facets: FacetTypes,
-          filters: newVal
-        }
-      })
-      .then(response => response.data.map(f => new FacetModel(f as any)))
 
-    const timelineFacets = await searchFacetsService
-      .find({
-        query: {
-          facets: ['year'],
-          filters: newVal,
-          limit: 300 // get all values
-        }
-      })
-      .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = [...timelineFacets, ...facetsItems]
+    const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
+    const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
+    const [facetsItems, timelineFacets, userFacets] = await Promise.all([
+      searchFacetsService
+        .find({
+          query: {
+            facets: TextContentItemFacets,
+            filters: newVal
+          }
+        })
+        .then(response => response.data.map(f => new FacetModel(f as any))),
+      searchFacetsService
+        .find({
+          query: {
+            facets: ['year'],
+            filters: newVal,
+            limit: 300 // get all values
+          }
+        })
+        .then(response => response.data.map(f => new FacetModel(f as any))),
+      shouldLoadCollections.value
+        ? searchFacetsService
+            .find({
+              query: {
+                facets: UserFacetTypes,
+                filters: newVal
+              }
+            })
+            .then(response => response.data.map(f => new FacetModel(f as any)))
+        : Promise.resolve([])
+    ])
+    facets.value = [
+      ...timelineFacets,
+      ...dynamicFacets,
+      ...decimalRangeFacets,
+      ...facetsItems,
+      ...userFacets
+    ]
     const statsItems = await statsService.find({
       query: {
-        facet: 'newspaper',
+        facet: 'mediaSource',
         domain: 'time',
         index: 'search',
         filters: serializeFilters(newVal)
       }
     })
+    // for each Media Source, get the item fom filter itm service to be used in the timeline
+    const mediaSourceIds = Object.keys(statsItems.itemsDictionary)
+    const mediaSources = await filterItemsService
+      .find({
+        query: { filters: serializeFilters([{ type: 'mediaSource', q: mediaSourceIds }]) }
+      })
+      .then(({ filtersWithItems }) => {
+        if (Array.isArray(filtersWithItems) && filtersWithItems.length > 0) {
+          return filtersWithItems[0].items || []
+        }
+        return []
+      })
 
-    const dataValuesByMediaSourceId: Record<string, DataValue[]> = statsItems.items.reduce(
+    const mediaSourcesById = mediaSources.reduce(
+      (acc: Record<string, MediaSource>, item: MediaSource) => {
+        acc[item.id] = item
+        return acc
+      },
+      {} as Record<string, MediaSource>
+    )
+
+    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> = statsItems.items.reduce(
       (
-        acc: Record<string, DataValue[]>,
+        acc: Record<string, DataValue<MediaSource>[]>,
         d: {
           domain: string
           value: {
@@ -157,15 +242,16 @@ watch(
             endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
           }
           acc[item.term].push({
+            id: `${item.term}-${d.domain}`,
             date: startDate,
             dateRange: [startDate, endDate],
             value: item.count,
             label: item.term
-          } as DataValue)
+          } as DataValue<MediaSource>)
         })
         return acc
       },
-      {} as Record<string, DataValue[]>
+      {} as Record<string, DataValue<MediaSource>[]>
     )
 
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
@@ -180,17 +266,20 @@ watch(
         dateRange: [minDate, maxDate],
         value: totalValue,
         label,
+        item: mediaSourcesById[mediaSourceId],
         dataValues: values
-      } as DataValue
+      } as DataValue<MediaSource>
     })
     totalResults.value = dataValues.value.length
     isLoading.value = false
+
+    // Lading
   },
   { immediate: true }
 )
 
 onMounted(() => {
-  facets.value = buildEmptyFacets(FacetTypes)
+  facets.value = []
 })
 </script>
 
@@ -201,7 +290,7 @@ onMounted(() => {
       :filters="allowedFiltersWithItems"
       :facets="facets"
       contextTag="search"
-      @changed="props.onFiltersChanged"
+      @changed="emit('filtersChanged', $event)"
     >
       <template #tabs>
         <b-tabs pills class="mx-2 pt-2">
@@ -212,6 +301,21 @@ onMounted(() => {
           </template>
         </b-tabs>
       </template>
+      <template v-slot:header="{ focusHandler }">
+        <Autocomplete
+          @submit="onSuggestion"
+          @filters-changed="emit('filtersChanged', $event)"
+          @input-focus="focusHandler"
+          :filters="filters"
+        />
+      </template>
+      <template v-slot:after-facets>
+        <div class="p-3">
+          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+            {{ $t('label_loadCollection') }}
+          </b-form-checkbox>
+        </div>
+      </template>
     </SearchSidebar>
     <i-layout-section main>
       <template v-slot:header>
@@ -220,7 +324,14 @@ onMounted(() => {
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
           <template #summaryActions>
-            <b-dropdown size="sm" variant="outline-secondary" right containsForm initialIsOpen>
+            <b-dropdown
+              size="sm"
+              variant="outline-secondary"
+              right
+              containsForm
+              initialIsOpen
+              class="mr-3"
+            >
               <template #button-content> {{ $t('visualisationSettings') }}</template>
               <section class="py-2">
                 <div
@@ -293,24 +404,41 @@ onMounted(() => {
             </b-dropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="60">
-              <div v-if="isLoading">Loading...</div>
-              <div v-else>
-                <span
-                  v-html="
-                    $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
-                  "
-                ></span>
-                {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
-                <span
-                  v-html="
-                    $t('dates.fromTo', {
-                      from: $d(minStartDate, 'short'),
-                      to: $d(maxEndDate, 'short')
-                    })
-                  "
-                ></span>
-              </div>
+            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
+              <SearchResultsSummary
+                :isLoading="isLoading"
+                group-by="articles"
+                :search-query="{ filters: allowedFiltersWithItems }"
+                :totalRows="totalContentItems"
+                v-memo="[
+                  isLoading,
+                  totalContentItems,
+                  totalResults,
+                  minStartDate?.getTime?.(),
+                  maxEndDate?.getTime?.(),
+                  allowedFiltersWithItems
+                ]"
+              >
+                <template #beforeSummary>
+                  <div v-if="isLoading">Loading...</div>
+                  <div v-else>
+                    <span
+                      v-html="
+                        $t('numbers.contentItems', { n: $n(totalContentItems) }, totalContentItems)
+                      "
+                    ></span>
+                    {{ $t('sources_overview_page_summary', { total: totalResults }, totalResults) }}
+                    <span
+                      v-html="
+                        $t('dates.fromTo', {
+                          from: $d(minStartDate, 'short'),
+                          to: $d(maxEndDate, 'short')
+                        })
+                      "
+                    ></span>
+                  </div>
+                </template>
+              </SearchResultsSummary>
             </Ellipsis>
           </template>
         </PageNavbarHeading>
@@ -328,14 +456,13 @@ onMounted(() => {
         :minimumVerticalHeight="minimumVerticalHeight"
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
+        @tooltip-click="handleTooltipClick"
       />
-      <div class="position-absolute top-0 end-0 p-2">
+      <div class="position-absolute top-0 right-0 left-0 bottom-0 pointer-events-none">
         <SourceOverviewNavigator
-          :initialX="20"
-          :initialY="120"
           @update:tooltipPosition="handleScrollUpdate"
           :tooltip-position="tooltipPosition"
-          :z-index="1038"
+          :z-index="1040"
         >
           <footer class="m-2">
             <button
@@ -370,8 +497,8 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "pageLabel": "Sources Overview",
-    "pageTitle": "Explore the sources in the archive",
+    "pageLabel": "Media Titles Overview",
+    "pageTitle": "Explore the media titles in the archive",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
     "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources",
@@ -388,7 +515,8 @@ onMounted(() => {
     "withPowerScale": "With Power Scale",
     "withPowerScaleInfoTitle": "With Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
-    "gettingStarted": "Getting Started Guide"
+    "gettingStarted": "Open Getting Started Guide",
+    "label_loadCollection": "Enable Collections"
   }
 }
 </i18n>

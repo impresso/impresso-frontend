@@ -9,7 +9,7 @@
   >
     <template v-slot:modal-header-extra>
       <section class="px-2">
-        <ContentItem :item="item" showMeta class="p-1" />
+        <ContentItem :contentItem="item" showMeta class="p-1" />
         <!-- choice of mode view -->
         <b-tabs pills class="mx-0 px-2 mt-0">
           <template v-slot:tabs-end>
@@ -28,7 +28,7 @@
       </section>
     </template>
     <section v-if="mode === 'card'">
-      <ContentItemCard :item="item" />
+      <ContentItemCard :contentItem="item" />
     </section>
 
     <section v-else-if="mode === 'transcript'">
@@ -45,8 +45,8 @@
       </p>
     </section>
 
-    <template #modal-footer="{ close }">
-      <BButton variant="outline-secondary" size="sm" @click="close()">
+    <template #modal-footer="{ dismiss }">
+      <BButton variant="outline-secondary" size="sm" @click="dismiss">
         {{ $t('close') }}
       </BButton>
     </template>

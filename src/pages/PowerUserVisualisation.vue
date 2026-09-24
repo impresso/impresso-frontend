@@ -105,11 +105,17 @@ import {
   deserializeFilters,
   toCanonicalFilter,
   optimizeFilters,
-  joinFiltersWithItems
+  joinFiltersWithItems,
+  TextContentItemFacets,
+  TextReuseContentItemFacets,
+  TextReuseNumericFacets,
+  NumericContentItemsFacets
 } from '../logic/filters'
-import { DefaultFacetTypesForIndex, buildEmptyFacets } from '@/logic/facets'
+import { buildEmptyFacets } from '@/logic/facets'
 import { getQueryParameter, CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
+import { FacetType } from '@/models'
+import { includes } from '@/util/fn'
 
 /**
  * @param {number} index
@@ -150,22 +156,20 @@ const QueryParameters = Object.freeze({
   Domain: 'domain'
 })
 
-/** @typedef {{[key: string]: string[]}} StringArrayMap */
-/** @type {{[key: string]: StringArrayMap}} */
 const StatsFacets = {
   search: {
-    term: ['newspaper', 'country', 'type', 'topic', 'language', 'person', 'location'],
-    numeric: ['contentLength', 'pagesCount'],
+    term: TextContentItemFacets,
+    numeric: NumericContentItemsFacets,
     temporal: ['time']
   },
   tr_clusters: {
-    term: ['newspaper'],
-    numeric: ['textReuseClusterSize', 'textReuseClusterLexicalOverlap', 'textReuseClusterDayDelta'],
+    term: TextReuseContentItemFacets,
+    numeric: TextReuseNumericFacets,
     temporal: []
   },
   tr_passages: {
-    term: ['newspaper'],
-    numeric: ['textReuseClusterSize', 'textReuseClusterLexicalOverlap', 'textReuseClusterDayDelta'],
+    term: TextReuseContentItemFacets,
+    numeric: TextReuseNumericFacets,
     temporal: ['time']
   }
 }
@@ -219,10 +223,13 @@ export default {
      * @param {string} type
      * @returns {boolean}
      */
-    isFilterTypeSupporedInIndex(index, type) {
-      // NOTE: daterange is the only filter type that does not have corresponding facet at the moment
-      const filterTypes = DefaultFacetTypesForIndex[index].concat(['daterange'])
-      return filterTypes.includes(type) && !NoFacetFilters[index].includes(type)
+    isFilterTypeSupporedInIndex(index: keyof typeof StatsFacets, type: FacetType) {
+      const facets = StatsFacets[index]
+
+      return (
+        (includes(facets.term, type) || includes(facets.numeric, type)) &&
+        !NoFacetFilters[index].includes(type)
+      )
     },
     handleItemClicked(event) {
       this.itemEvent = event
@@ -271,9 +278,9 @@ export default {
     enrichedFilters() {
       return this.filtersWithItems ?? this.filters
     },
-    /** @returns {string[]} */
     facetTypes() {
-      return DefaultFacetTypesForIndex[this.statsIndex]
+      const facets = StatsFacets[this.statsIndex]
+      return [...facets.term, ...facets.numeric]
     },
     /** @return {object} */
     statsRequest() {
@@ -288,9 +295,9 @@ export default {
     statsFacet() {
       return getQueryParameter(this, QueryParameters.Facet) ?? 'contentLength'
     },
-    /** @returns {string} */
     statsIndex() {
-      return getQueryParameter(this, QueryParameters.Index) ?? 'search'
+      const x = getQueryParameter(this, QueryParameters.Index) ?? 'search'
+      return x as keyof typeof StatsFacets
     },
     statsFacetModel: {
       /** @returns {string} */

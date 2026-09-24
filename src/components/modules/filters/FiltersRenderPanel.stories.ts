@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import FiltersRenderPanel from './FiltersRenderPanel.vue'
-import { Filter, protobuf } from 'impresso-jscommons'
+import { protobuf } from 'impresso-jscommons'
+import { Filter } from '@/models'
 
 // Generate a sample valid filters base64 string for the stories
 const sampleFilters = {

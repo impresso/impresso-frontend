@@ -4,9 +4,11 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector && item.id?.length"
+        v-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
-        :id="item.id"
+        :id="
+          String(item.id) // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db, ID change is implemented in ItemSelector
+        "
         :item="item"
         :type="filter.type"
         class="position-relative"
@@ -41,8 +43,12 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
+      <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
       <span
         v-else-if="['daterange'].includes(filter.type)"
         v-html="
@@ -60,6 +66,7 @@
       >
         {{ item.name }}
       </RouterLink>
+
       <template v-if="index < filterItems.length - 1">
         <span class="separator small-caps m-1"
           >{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span
@@ -74,20 +81,24 @@ import ItemSelector from '../ItemSelector.vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
+import { NumericRangeFacets } from '@/logic/facets'
+import { includes } from '@/util/fn.js'
 
 type FilterLabelItem = Entity & {
   name?: string
+  title?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date
   precision?: string
+  y?: number
 }
 
 const isFilterItem = (value: unknown): value is FilterLabelItem => {
   return value != null && typeof value === 'object'
 }
 
-interface FilterAsLabelProps {
+export interface FilterAsLabelProps {
   filter: FilterWithItems<FilterLabelItem>
   showType?: boolean
   limitNumberOfFilterItems?: number
@@ -103,14 +114,7 @@ const contextTranslationKey = computed(() => {
 
 const contextTranslationOptions = computed(() => {
   const options: { [key: string]: any } = {}
-  if (
-    [
-      'contentLength',
-      'textReuseClusterSize',
-      'textReuseClusterLexicalOverlap',
-      'textReuseClusterDayDelta'
-    ].includes(props.filter.type)
-  ) {
+  if (includes(NumericRangeFacets, props.filter.type)) {
     options.min = props.filter.q[0]
     options.max = props.filter.q[1]
   }
@@ -134,7 +138,7 @@ const daterangeTranslationOptions = computed(() => {
 })
 
 const operatorTranslationKey = computed(() => {
-  const op = props.filter.op || 'AND'
+  const op = props.filter.op ?? 'OR'
   return `op.${op.toLowerCase()}`
 })
 
@@ -163,9 +167,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
   "en": {
     "include": {
       "sourceType": "in",
-      "sourceMedium": "only",
-      "accessRight": "available as",
+      "sourceMedium": "medium is",
       "contentLength": "textual content <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+      "ocrQuality": "with OCR quality between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "copyright": "©",
       "topic": "tagged with topic",
       "isFront": "appearing on the <em>front page</em>",
@@ -179,6 +183,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       },
       "nag": "released by",
       "newspaper": "published in",
+      "mediaSource": "published in",
       "partner": "from",
       "person": "mentioning",
       "location": "mentioning",
@@ -192,16 +197,20 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "language": "written in",
       "country": "printed in",
       "type": "- tagged as",
+      "page": "on page <span class='number'>{page}</span>",
       "textReuseCluster": "showing up in clusters",
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "with explore access:",
+      "permissionGetTranscript": "with transcript access:",
+      "permissionGetImage": "with facsimile access:"
     },
     "exclude": {
       "sourceMedium": "not",
       "sourceType": "not in",
-      "accessRight": "not available as",
       "contentLength": "textual content not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
+      "ocrQuality": "with OCR quality not between <span class='number'>{min}</span> and <span class='number'>{max}</span>",
       "isFront": "not appearing on the <em>front page</em>",
       "copyright": "not available as",
       "topic": "not tagged with topic",
@@ -214,6 +223,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       },
       "nag": "not released by",
       "newspaper": "not published in",
+      "mediaSource": "not published in",
       "partner": "not from",
       "person": "not mentioning",
       "location": "not mentioning",
@@ -227,10 +237,14 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "language": "not written in",
       "country": "not printed in",
       "type": "- not tagged as",
+      "page": "not on page <span class='number'>{page}</span>",
       "textReuseCluster": "not in clusters",
       "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "without WebApp access:",
+      "permissionGetTranscript": "without transcript access:",
+      "permissionGetImage": "without facsimile access:"
     }
   }
 }

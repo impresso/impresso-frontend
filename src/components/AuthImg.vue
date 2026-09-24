@@ -19,7 +19,11 @@ import { getAuthHeaders } from '@/util/auth'
 import { defaultAuthCondition, requiresCredentials } from '@/util/imageAuth'
 import { onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue'
 
-const props = defineProps<{ src: string; authCondition?: (imageUrl: string) => boolean }>()
+const props = defineProps<{
+  src: string
+  authCondition?: (imageUrl: string) => boolean
+  class?: string
+}>()
 const emit = defineEmits(['load', 'error'])
 const attrs = useAttrs()
 const imageSrc = ref('')
@@ -116,7 +120,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div>
+  <div :class="props.class">
     <img
       v-if="!isForbidden"
       ref="imgRef"

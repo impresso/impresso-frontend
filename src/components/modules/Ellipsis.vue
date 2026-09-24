@@ -9,9 +9,11 @@
       :class="moreClass"
       :style="gradientStyle"
     >
-      <button class="btn btn-sm btn-outline-secondary pe-auto" @click.prevent.stop="onClick">
-        {{ $t(isCollapsed ? 'more' : 'less') }}
-      </button>
+      <slot name="more" :class="moreClass" :isCollapsed="isCollapsed" :onClick="onClick">
+        <button class="btn btn-sm btn-outline-secondary pe-auto" @click.prevent.stop="onClick">
+          {{ $t(isCollapsed ? 'more' : 'less') }}
+        </button>
+      </slot>
     </div>
   </div>
 </template>

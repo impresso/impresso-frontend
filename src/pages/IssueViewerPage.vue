@@ -86,17 +86,22 @@
           :contentItem="contentItemOriginal"
         />
         <ListOfSimilarContentItems
-          class="w-100 p-3"
+          class="w-100 p-3 row"
           v-if="contentItemOriginal && viewMode === SimilarArticlesMode"
           :contentItem="contentItemOriginal"
         >
           <template #default="{ items }">
-            <div class="col-md-6 col-lg-6 col-xl-4" v-for="item in items" :key="item.id">
+            <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in items" :key="item.id">
               <ContentItem
-                :item="item"
+                :contentItem="item"
                 class="p-3 rounded-md border shadow mb-4"
+                showDate
+                showMediaSource
+                showProvider
                 showLink
+                showIcon
                 showMeta
+                showSpecs
                 showSnippet
                 showSemanticEnrichments
               />
@@ -106,7 +111,7 @@
         <ContentItemCard
           class="px-3 bg-light w-100"
           v-if="contentItemOriginal && viewMode === ContentItemCardMode"
-          :item="contentItemOriginal"
+          :contentItem="contentItemOriginal"
           :show-metadata="isStaff"
         />
       </div>
@@ -145,6 +150,7 @@ import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vu
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import ContentItemCard from '@/components/contentItem/ContentItemCard.vue'
 import { useUserStore } from '@/stores/user'
+import { includes } from '@/util/fn'
 
 // Viewer modes
 const FacsimileMode = '0'
@@ -230,10 +236,10 @@ const isViewerReady = computed(() => {
 
 const AllowedFilterTypes = SupportedFiltersByContext.search
 const ignoredFilters = computed<Filter[]>(() => {
-  return props.filtersWithItems.filter(({ type }) => !AllowedFilterTypes.includes(type))
+  return props.filtersWithItems.filter(({ type }) => !includes(AllowedFilterTypes, type))
 })
 const allowedFilters = computed<Filter[]>(() => {
-  return props.filtersWithItems.filter(({ type }) => AllowedFilterTypes.includes(type))
+  return props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
 })
 
 const contentItemAsCollectableItems = computed(() => {

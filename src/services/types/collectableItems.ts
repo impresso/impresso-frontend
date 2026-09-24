@@ -1,5 +1,5 @@
 import { Id, NullableId } from '@feathersjs/feathers'
-import { Filter } from 'impresso-jscommons'
+import { Filter } from '@/models'
 
 export interface AddCollectableItemsFromFilters {
   /**

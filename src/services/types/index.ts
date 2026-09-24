@@ -3,11 +3,32 @@ import { ImageService } from './images'
 import { EmbeddingsService } from './embeddings'
 import { DatalabSupportService } from './datalabSupport'
 import { BaristaService } from './barista'
+import type { BaristaConversationsService } from './baristaConversations'
 import { ContentItemsService } from './contentItems'
 import { SearchFacetsService } from './searchFacets'
 import { MentionsService } from './mentions'
 import { ICollectableItemsService } from './collectableItems'
 import { AdminService } from './admin'
+import { MediaSourcesService } from './mediaSources'
+import { SpecialMembershipRequestStatuses } from '@/constants'
+
+export interface EmailVerificationPayload {
+  email: string
+  token: string
+}
+
+export interface EmailVerificationResendPayload {
+  email: string
+}
+
+export interface EmailVerificationService extends Pick<
+  ServiceMethods<unknown, EmailVerificationPayload>,
+  'create'
+> {}
+export interface EmailVerificationResendService extends Pick<
+  ServiceMethods<unknown, EmailVerificationResendPayload>,
+  'create'
+> {}
 
 interface ErrorsCollectorPayload {
   id: string
@@ -18,8 +39,10 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export interface ErrorsCollectorService
-  extends Pick<ServiceMethods<{}, ErrorsCollectorPayload>, 'create'> {}
+export interface ErrorsCollectorService extends Pick<
+  ServiceMethods<{}, ErrorsCollectorPayload>,
+  'create'
+> {}
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
@@ -47,10 +70,14 @@ export interface Services extends UntypedServices {
   images: ImageService
   embeddings: EmbeddingsService
   ['barista-proxy']: BaristaService
+  ['barista-conversations']: BaristaConversationsService
   ['content-items']: ContentItemsService
   ['search-facets/search']: SearchFacetsService
   mentions: MentionsService
   ['/collections/:collection_id/items']: ICollectableItemsService
+  ['media-sources']: MediaSourcesService
+  ['user-email-verification']: EmailVerificationService
+  ['user-email-verification-resend']: EmailVerificationResendService
 }
 
 export interface Group {
@@ -104,6 +131,9 @@ export interface SpecialMembershipAccess {
   metadata?: {
     provider?: string
     note?: string
+    modality?: 'cc_reviewer' | 'notify_reviewer'
+    revokeAfterDays?: number
+    enableTemporaryAutomaticAcceptance?: boolean
   }
   requests?: UserSpecialMembershipRequest[]
 }
@@ -116,7 +146,9 @@ export interface UserSpecialMembershipRequest {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected'
+  temporaryExpiresAt?: string | null
+  status: (typeof SpecialMembershipRequestStatuses)[number]
+  notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
 }
 
@@ -130,7 +162,7 @@ export interface UserSpecialMembershipRequestReview {
   specialMembershipAccess: SpecialMembershipAccess
   dateCreated: string
   dateLastModified: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: (typeof SpecialMembershipRequestStatuses)[number]
   notes: string
   changelog: UserSpecialMembershipRequestChangelogEntry[]
   requester: {

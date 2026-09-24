@@ -1,4 +1,8 @@
 import {
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusPending
+} from '@/constants'
+import {
   SpecialMembershipAccess,
   UserSpecialMembershipRequest,
   UserSpecialMembershipRequestChangelogEntry
@@ -59,7 +63,8 @@ export const MockSpecialMembershipAccessWithRequests = MockSpecialMembershipAcce
 export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] = Array.from(
   { length: Math.floor(MockProviders.length / 2) },
   (_, i) => {
-    const status = i % 3 === 0 ? 'approved' : 'pending'
+    const status =
+      i % 3 === 0 ? SpecialMembershipRequestStatusApproved : SpecialMembershipRequestStatusPending
     const numOfChangelogs = Math.floor(Math.random() * 1) + 1
     return {
       id: i + 1,
@@ -70,6 +75,7 @@ export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] =
       dateCreated: new Date().toISOString(),
       dateLastModified: new Date().toISOString(),
       status,
+      notes: '',
       changelog: Array.from(
         { length: numOfChangelogs },
         (_, j) =>
@@ -77,7 +83,7 @@ export const MockUserSpecialMembershipRequests: UserSpecialMembershipRequest[] =
             subscription: 'Data domain Access ' + i,
             date: new Date().toISOString(),
             reviewer: null,
-            status: j === numOfChangelogs - 1 ? status : 'pending',
+            status: j === numOfChangelogs - 1 ? status : SpecialMembershipRequestStatusPending,
             notes: 'Changelog entry ' + (j + 1)
           }) as UserSpecialMembershipRequestChangelogEntry
       )

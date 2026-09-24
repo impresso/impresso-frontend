@@ -21,6 +21,7 @@ import { useViewsStore } from '@/stores/views'
 import { useNotificationsStore } from '@/stores/notifications'
 import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
+import { Routes } from '@/router/routes'
 
 // eslint-disable-next-line
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
@@ -70,7 +71,8 @@ const router = createRouter({
       }
     },
     {
-      path: '/faq',
+      path: '/docs',
+      alias: '/faq',
       name: 'faq',
       component: FaqPage,
       meta: {
@@ -95,12 +97,29 @@ const router = createRouter({
       }
     },
     {
-      path: '/search/images/:image_id',
-      name: 'viewImage',
+      path: Routes.viewImage.path,
+      name: Routes.viewImage.name,
       component: () => import('@/pages/ViewImage.vue'),
       meta: {
         requiresAuth: false
-      }
+      },
+      children: [
+        {
+          name: Routes.viewImage.children.facsimile.name,
+          path: Routes.viewImage.children.facsimile.path,
+          component: () => import('@/components/images/ImageContentItemFacsimile.vue')
+        },
+        {
+          name: Routes.viewImage.children.citeAs.name,
+          path: Routes.viewImage.children.citeAs.path,
+          component: () => import('@/components/images/ImageContentItemCiteAs.vue')
+        },
+        {
+          name: Routes.viewImage.children.similarItems.name,
+          path: Routes.viewImage.children.similarItems.path,
+          component: () => import('@/components/images/ImageContentItemSimilarItems.vue')
+        }
+      ]
     },
     {
       path: '/helpers/filters',
@@ -193,6 +212,22 @@ const router = createRouter({
       }
     },
     {
+      path: Routes.emailVerification.path,
+      name: Routes.emailVerification.name,
+      component: () => import('@/pages/EmailVerification.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: Routes.emailVerificationSuccess.path,
+      name: Routes.emailVerificationSuccess.name,
+      component: () => import('@/pages/EmailVerificationSuccess.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/collections',
       component: () => import('@/pages/Collections.vue'),
       children: [
@@ -263,6 +298,7 @@ const router = createRouter({
     {
       path: '/sources',
       name: 'sources',
+      alias: '/media-sources',
       component: () => import('@/pages/SourcesOverviewPage.vue'),
       meta: {
         requiresAuth: false
@@ -364,12 +400,12 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:article_id',
+      path: '/content-item/:content_item_id',
       alias: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_id as string
-        const ci = await services.contentItems.get(contentItemId)
+        const contentItemId = to.params.article_id || to.params.content_item_id
+        const ci = await services.contentItems.get(contentItemId as string)
         return {
           name: 'issue-viewer',
           params: {
@@ -387,11 +423,33 @@ const router = createRouter({
     {
       name: 'audioContentItem',
       path: '/audio-content-item/:content_item_id',
-      component: () => import('@/pages/AudioContentItem.vue'),
+      component: () => import('@/pages/AudioContentItemPage.vue'),
       meta: {
         requiresAuth: true,
         realm: 'contentItem'
-      }
+      },
+      children: [
+        {
+          name: Routes.audioContentItem.children.transcript.name,
+          component: () => import('@/components/audio/AudioContentItemTranscript.vue'),
+          path: Routes.audioContentItem.children.transcript.path
+        },
+        {
+          name: Routes.audioContentItem.children.similarItems.name,
+          component: () => import('@/components/ListOfSimilarContentItems.vue'),
+          path: Routes.audioContentItem.children.similarItems.path
+        },
+        {
+          name: Routes.audioContentItem.children.citeAs.name,
+          component: () => import('@/components/contentItem/ContentItemCard.vue'),
+          path: Routes.audioContentItem.children.citeAs.path
+        },
+        {
+          name: Routes.audioContentItem.children.debug.name,
+          component: () => import('@/components/contentItem/ContentItemDebug.vue'),
+          path: Routes.audioContentItem.children.debug.path
+        }
+      ]
     },
     {
       path: '/compare',
@@ -496,6 +554,46 @@ const router = createRouter({
       meta: {
         requiresAuth: true
       }
+    },
+    {
+      path: Routes.mediaSource.path,
+      component: () => import('@/pages/MediaSourcePage.vue'),
+      name: Routes.mediaSource.name,
+      meta: {
+        requiresAuth: false
+      },
+
+      children: [
+        {
+          path: Routes.mediaSource.children.metadata.path,
+          component: () => import('@/components/mediaSource/MediaSourceMetadata.vue'),
+          name: Routes.mediaSource.children.metadata.name
+        },
+        {
+          path: Routes.mediaSource.children.overview.path,
+          name: Routes.mediaSource.children.overview.name,
+          component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.contentItems.path,
+          name: Routes.mediaSource.children.contentItems.name,
+          component: () => import('@/components/ListOfContentItems.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        },
+        {
+          path: Routes.mediaSource.children.firstPages.path,
+          name: Routes.mediaSource.children.firstPages.name,
+          component: () => import('@/components/mediaSource/MediaSourceFirstPages.vue'),
+          meta: {
+            requiresAuth: false
+          }
+        }
+      ]
     },
     {
       path: '/:catchAll(.*)',

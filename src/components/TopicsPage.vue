@@ -129,7 +129,6 @@
 </template>
 
 <script>
-// import { protobuf } from 'impresso-jscommons';
 import List from './modules/lists/List.vue'
 // import InfoButton from './base/InfoButton';
 import TopicItem from './modules/lists/TopicItem.vue'

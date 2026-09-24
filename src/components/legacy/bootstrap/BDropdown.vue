@@ -52,7 +52,7 @@ const attrs = useAttrs()
 
 const isOpen = ref(props.initialIsOpen)
 
-const allowedAttrs = ['onClick', 'title', 'class', 'style']
+const allowedAttrs = ['onClick', 'title', 'class', 'style', 'data-testid']
 const unknownAttrs = Object.keys(attrs).filter(key => !allowedAttrs.includes(key))
 if (unknownAttrs.length) {
   console.warn(`BDropdown: Unknown attributes: ${unknownAttrs.join(', ')}`)

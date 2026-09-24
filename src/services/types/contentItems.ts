@@ -11,15 +11,34 @@ export interface FindResponse<T> extends Omit<BaseFind, 'data'> {
   data: T[]
 }
 
+export interface ContentItemsFindResult {
+  data: ContentItem[]
+  pagination: {
+    total: number
+    limit: number
+    offset: number
+  }
+}
+
 export interface FindQuery {
   order_by?: FullOrderBy
   filters?: Filter[]
   limit?: number
   offset?: number
 }
-
 export interface GetQuery {
   include_embeddings?: boolean
+}
+
+export interface ContentItemsQueryParams {
+  // from FindQuery
+  order_by?: FullOrderBy
+  filters?: Filter[]
+  // from GetQuery
+  include_embeddings?: boolean
+  // shared
+  limit?: number
+  offset?: number
 }
 
 export type ContentItemsService = Pick<
@@ -27,8 +46,8 @@ export type ContentItemsService = Pick<
     ContentItem,
     unknown,
     unknown,
-    FindResponse<ContentItem>,
-    { query: FindQuery } | { query: GetQuery }
+    ContentItemsFindResult,
+    { query?: ContentItemsQueryParams }
   >,
   'find' | 'get'
 >

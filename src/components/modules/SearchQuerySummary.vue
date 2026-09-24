@@ -32,8 +32,8 @@ const AvailableFilterTypes = [
   'string',
   'title',
   'isFront',
-
   'contentLength',
+  'ocrQuality',
   'source',
   'sourceType',
   'sourceMedium',
@@ -47,16 +47,18 @@ const AvailableFilterTypes = [
   'location',
   'language',
   'country',
-  'year',
-  'accessRight',
   'copyright',
   'nag',
   'organisation',
+  'page',
   'textReuseCluster',
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)
@@ -81,7 +83,7 @@ const props = withDefaults(defineProps<SearchQuerySummaryProps>(), {
     'language',
     'country',
     'year',
-    'accessRight',
+    'copyright',
     'nag'
   ]
 })
@@ -130,76 +132,3 @@ watch(
   { deep: false, immediate: true }
 )
 </script>
-
-<i18n lang="json">
-{
-  "en": {
-    "reducedSummary": "{type} {string} {title} {isFront} {newspaper} {daterange} {year} {collection} {enumerable} {textReuseCluster} {textReuseClusterSize} {textReuseClusterLexicalOverlap} {textReuseClusterDayDelta} {contentLength}",
-    "isFront": "appearing on the <em>front page</em>",
-    "include": {
-      "accessRight": "available as",
-      "contentLength": "<span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
-      "copyright": "available as",
-      "topic": "with topic",
-      "pub": {
-        "newspaper": "published in",
-        "textReuseCluster": "appearing in clusters"
-      },
-      "pubof": {
-        "newspaper": "in",
-        "textReuseCluster": "clustered in"
-      },
-      "newspaper": "published in",
-      "mediaSource": "published in",
-      "person": "mentioning",
-      "location": "mentioning",
-      "newsagency": "mentioning",
-      "organisation": "mentioning",
-      "string": "containing",
-      "title": "where title includes",
-      "daterange": "published",
-      "year": "published in",
-      "collection": "saved in",
-      "language": "written in",
-      "country": "printed in",
-      "type": "- tagged as",
-      "textReuseCluster": "showing up in clusters",
-      "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
-    },
-    "exclude": {
-      "accessRight": "not available as",
-      "contentLength": "not <span class='number'>{min}</span> to <span class='number'>{max}</span> tokens long",
-
-      "copyright": "not available as",
-      "topic": "without topic",
-      "pub": {
-        "newspaper": "not published in",
-        "textReuseCluster": "not in clusters"
-      },
-      "pubof": {
-        "newspaper": "not published in"
-      },
-      "newspaper": "not published in",
-      "mediaSource": "not published in",
-      "person": "not mentioning",
-      "location": "not mentioning",
-      "newsagency": "not mentioning",
-      "organisation": "not mentioning",
-      "string": "not containing",
-      "title": "where title does not include",
-      "daterange": "not published",
-      "year": "not published in",
-      "collection": "not saved in",
-      "language": "not written in",
-      "country": "not printed in",
-      "type": "- not tagged as",
-      "textReuseCluster": "not in clusters",
-      "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
-    }
-  }
-}
-</i18n>
