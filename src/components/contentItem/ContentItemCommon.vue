@@ -76,7 +76,7 @@
       <!-- ID -->
       <template v-if="props.showId">
         &mdash;
-        <ContentItemIdLabel :item="contentItem" />
+        <ContentItemIdLabel :id="contentItem.id" />
       </template>
     </div>
 

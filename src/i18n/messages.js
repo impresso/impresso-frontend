@@ -179,7 +179,8 @@ export default {
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
-      viewTopic: 'go to topic'
+      viewTopic: 'go to topic',
+      readContentItem: 'read content item ...'
     },
     filters: {
       daterange: {
@@ -225,6 +226,8 @@ export default {
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
+      collections:
+        'no collections | <span class="number">1</span> collection | <span class="number">{n}</span> collections',
       mediaSources:
         'no media sources | <span class="number">1</span> media source | <span class="number">{n}</span> media sources',
       articles:

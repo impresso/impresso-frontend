@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<IIIFViewerProps>(), {
 })
 
 // define emits
-const emit = defineEmits(['clickOnOverlayRegion'])
+const emit = defineEmits(['clickOnOverlayRegion', 'ready'])
 
 const viewerContainer = ref<HTMLDivElement | null>(null)
 const viewer = ref<Viewer | null>(null)
@@ -118,7 +118,8 @@ const addOverlays = () => {
         overlayElement.classList.add('hidden')
       }
       // add onclick and prevent zoom
-      overlayElement.onclick = e => {
+      overlayElement.addEventListener('pointerdown', e => {
+        e.stopPropagation()
         e.stopPropagation()
         e.preventDefault()
         e.stopImmediatePropagation()
@@ -128,7 +129,7 @@ const addOverlays = () => {
           overlayId: overlay.id,
           regionId: region.id
         })
-      }
+      })
       // Add the overlay element to the viewer.value.
       viewer.value.addOverlay(overlayElement, viewportRect)
     })
@@ -142,7 +143,14 @@ const resetZoom = () => {
   }
   console.debug('[IIIFViewer] resetZoom to 0')
 
-  const tiledImage = viewer.value.world.getItemAt(props.fitBoundsToOverlayIdx[0] || 0)
+  // Clear the active overlay so a subsequent click on it fits bounds again instead of no-op-ing.
+  if (currentOverlayIdx.value[0] > -1) {
+    toggleOverlayActive(currentOverlayIdx.value, false)
+  }
+  currentOverlayIdx.value = [-1, -1]
+
+  const overlayIdx = props.fitBoundsToOverlayIdx[0]
+  const tiledImage = viewer.value.world.getItemAt(overlayIdx >= 0 ? overlayIdx : 0)
   if (!tiledImage) {
     console.warn('[IIIFViewer] resetZoom: Tiled image not found at index 0')
     return
@@ -163,6 +171,30 @@ const resetZoom = () => {
 
   // Listen for the animation finish event
   viewer.value.addHandler('animation-finish', onAnimationFinish)
+}
+
+/**
+ * Recenters the viewport on arbitrary pixel coordinates, independent of the
+ * `overlays`/`fitBoundsToOverlayIdx` props. Useful for callers that just want
+ * to point the viewer at a region without maintaining an overlays array.
+ */
+const recenterToCoords = (coords: OverlayCoords, itemIdx = 0) => {
+  if (!viewer.value) {
+    console.debug('[IIIFViewer] recenterToCoords -> viewer not found')
+    return
+  }
+  const tiledImage = viewer.value.world.getItemAt(itemIdx)
+  if (!tiledImage) {
+    console.debug('[IIIFViewer] recenterToCoords: Tiled image not found at index', itemIdx)
+    return
+  }
+  const viewportRect = tiledImage.imageToViewportRectangle(
+    coords.x - props.margin,
+    coords.y - props.margin,
+    coords.w + props.margin * 2,
+    coords.h + props.margin * 2
+  )
+  viewer.value.viewport.fitBoundsWithConstraints(viewportRect, false)
 }
 
 const toggleOverlayActive = (idx: [number, number], active: boolean) => {
@@ -193,7 +225,9 @@ const fitBoundsToOverlay = (idx: [number, number]) => {
     return
   }
   if (currentOverlayIdx.value[0] === idx[0] && currentOverlayIdx.value[1] === idx[1]) {
-    console.debug('[IIIFViewer] fitBoundsToOverlay: already zoomed to this overlay')
+    // Clicking the already-active overlay again resets the position instead of no-op-ing.
+    console.debug('[IIIFViewer] fitBoundsToOverlay: already zoomed to this overlay, resetting')
+    resetZoom()
     return
   } else if (currentOverlayIdx.value[0] > -1) {
     console.debug('[IIIFViewer] fitBoundsToOverlay: reset current overlay')
@@ -265,6 +299,8 @@ const createViewer = () => {
     nextTick(() => {
       addOverlays()
       fitBoundsToOverlay(props.fitBoundsToOverlayIdx)
+      // Emitted last so a caller's recenterToCoords/resetView call (if any) has the final say.
+      emit('ready')
     })
   })
 
@@ -364,6 +400,13 @@ onBeforeUnmount(() => {
     viewer.value.destroy()
     viewer.value = null
   }
+})
+
+// Imperative API for callers that'd rather hold a template ref than manage the overlays/
+// fitBoundsToOverlayIdx props (e.g. recentering on a region without an overlays array).
+defineExpose({
+  recenterToCoords,
+  resetView: resetZoom
 })
 </script>
 

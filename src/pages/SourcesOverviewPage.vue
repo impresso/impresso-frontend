@@ -15,6 +15,7 @@ import {
 } from '@/services'
 import { watch } from 'vue'
 import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import type { DataValue } from '@/components/sourcesOverview/SourcesOverviewDateValueItem.vue'
 import type { MediaSource } from '@/models/generated/canonical'
 import InfoButton from '@/components/base/InfoButton.vue'
@@ -25,7 +26,12 @@ import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import Autocomplete from '@/components/Autocomplete.vue'
 import { Filter } from '@/models'
+import type { FacetType } from '@/models'
 import { useSettingsStore } from '@/stores/settings'
+import { useUserStore } from '@/stores/user'
+
+/** User-specific facets that require authentication. */
+const UserFacetTypes = ['collection'] satisfies FacetType[]
 
 interface Props {
   filtersWithItems?: Array<any>
@@ -76,7 +82,27 @@ const dataValues = ref<DataValue<MediaSource>[]>([])
 const isLoading = ref(true)
 const totalResults = ref(0)
 const settingsStore = useSettingsStore()
+const userStore = useUserStore()
+const route = useRoute()
+const router = useRouter()
 const isHelperModalVisible = ref(settingsStore.showGettingStartedInSourcesOverview)
+
+const loadCollectionsFlag = computed({
+  get() {
+    return route.query.c === '1'
+  },
+  set(loadCollections: boolean) {
+    const query = { ...route.query }
+    if (loadCollections) {
+      query.c = '1'
+    } else {
+      delete query.c
+    }
+    router.push({ query }).catch(() => {})
+  }
+})
+
+const shouldLoadCollections = computed(() => userStore.isLoggedIn && loadCollectionsFlag.value)
 
 const normalize = ref(false)
 const fitToContainerWidth = ref(false)
@@ -115,32 +141,49 @@ const toggleOpenHelperModal = (isOpen: boolean) => {
 }
 
 watch(
-  allowedFilters,
-  async newVal => {
+  [allowedFilters, shouldLoadCollections],
+  async ([newVal]) => {
     isLoading.value = true
     totalResults.value = 0
 
     const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
     const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
-    const facetsItems = await searchFacetsService
-      .find({
-        query: {
-          facets: TextContentItemFacets,
-          filters: newVal
-        }
-      })
-      .then(response => response.data.map(f => new FacetModel(f as any)))
-
-    const timelineFacets = await searchFacetsService
-      .find({
-        query: {
-          facets: ['year'],
-          filters: newVal,
-          limit: 300 // get all values
-        }
-      })
-      .then(response => response.data.map(f => new FacetModel(f as any)))
-    facets.value = [...timelineFacets, ...dynamicFacets, ...decimalRangeFacets, ...facetsItems]
+    const [facetsItems, timelineFacets, userFacets] = await Promise.all([
+      searchFacetsService
+        .find({
+          query: {
+            facets: TextContentItemFacets,
+            filters: newVal
+          }
+        })
+        .then(response => response.data.map(f => new FacetModel(f as any))),
+      searchFacetsService
+        .find({
+          query: {
+            facets: ['year'],
+            filters: newVal,
+            limit: 300 // get all values
+          }
+        })
+        .then(response => response.data.map(f => new FacetModel(f as any))),
+      shouldLoadCollections.value
+        ? searchFacetsService
+            .find({
+              query: {
+                facets: UserFacetTypes,
+                filters: newVal
+              }
+            })
+            .then(response => response.data.map(f => new FacetModel(f as any)))
+        : Promise.resolve([])
+    ])
+    facets.value = [
+      ...timelineFacets,
+      ...dynamicFacets,
+      ...decimalRangeFacets,
+      ...facetsItems,
+      ...userFacets
+    ]
     const statsItems = await statsService.find({
       query: {
         facet: 'mediaSource',
@@ -265,6 +308,13 @@ onMounted(() => {
           @input-focus="focusHandler"
           :filters="filters"
         />
+      </template>
+      <template v-slot:after-facets>
+        <div class="p-3">
+          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+            {{ $t('label_loadCollection') }}
+          </b-form-checkbox>
+        </div>
       </template>
     </SearchSidebar>
     <i-layout-section main>
@@ -465,7 +515,8 @@ onMounted(() => {
     "withPowerScale": "With Power Scale",
     "withPowerScaleInfoTitle": "With Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
-    "gettingStarted": "Open Getting Started Guide"
+    "gettingStarted": "Open Getting Started Guide",
+    "label_loadCollection": "Enable Collections"
   }
 }
 </i18n>

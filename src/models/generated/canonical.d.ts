@@ -489,6 +489,51 @@ export interface Image {
    * Precomputed embeddings for the image in the format: <model_type>:<base64_embedding_vector>.
    */
   embeddings?: string[];
+  access: ContentItemAccessRights;
+}
+/**
+ * Access rights information
+ */
+export interface ContentItemAccessRights {
+  /**
+   * Rights data domain. (e.g., 'pbl' for public, 'prt' for private)
+   */
+  dataDomain: "pbl" | "prt";
+  /**
+   * Human-readable label for the dataDomain code.
+   */
+  dataDomainLabel?: string;
+  /**
+   * Copyright status.
+   */
+  copyright: "pbl" | "und" | "nkn" | "euo" | "unk" | "in_cpy";
+  /**
+   * Human-readable label for the copyright code.
+   */
+  copyrightLabel?: string;
+  accessBitmaps?: ContentItemAccessBitmaps;
+  [k: string]: unknown;
+}
+/**
+ * Access bitmaps for different functionalities.
+ */
+export interface ContentItemAccessBitmaps {
+  /**
+   * Bitmap for explore access. As bytes.
+   */
+  explore?: string;
+  /**
+   * Bitmap for get transcript access. As bytes.
+   */
+  getTranscript?: string;
+  /**
+   * Bitmap for get images access. As bytes.
+   */
+  getImages?: string;
+  /**
+   * Bitmap for get audio access. As bytes.
+   */
+  getAudio?: string;
 }
 
 

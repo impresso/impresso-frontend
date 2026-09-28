@@ -12,6 +12,7 @@
     <span v-else :class="titleClass">{{ title }}</span>
     {{ ' ' }}
     <span class="small-caps" v-if="showType">{{ $t(item.type.toLowerCase() + '_label') }}</span>
+    <slot />
   </div>
 </template>
 <script lang="ts" setup>

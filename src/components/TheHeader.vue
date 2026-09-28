@@ -123,55 +123,7 @@
             </RouterLink>
           </li>
         </BDropdown>
-        <b-dropdown
-          v-if="user && jobs.length"
-          right
-          
-          ref="ddownJobs"
-          v-on:hidden="updateLastNotificationDate"
-        >
-          <template v-slot:button-content>
-            <div
-              class="d-inline-block dripicons-cloud-download position-relative"
-              style="top: 0.25em"
-            />
-            <span class="ml-1">{{ $t('label_jobs') }}</span>
-            <transition name="bounce">
-              <b-badge v-if="runningJobs.length > 0" pill variant="danger" class="border">
-                {{ runningJobs.length }}
-              </b-badge>
-            </transition>
-          </template>
-          <template v-slot:button-icon>
-            <Icon name="chevron" :scale="0.75" :strokeWidth="2" />
-          </template>
-          <div v-if="!jobs.length" class="bg-dark text-center text-white p-4">
-            {{ $t('no-jobs-yet') }}
-          </div>
-          <div v-else class="jobs-list">
-            <div class="list">
-              <job-item
-                :item="job"
-                class="job px-3 py-2 border-bottom"
-                v-for="(job, i) in jobs"
-                :key="i"
-                style="border-color: var(--clr-grey-200) !important"
-              />
-            </div>
-            <div class="pt-2 pb-1 d-flex justify-content-center">
-              <pagination
-                @click.prevent.stop
-                :current-page="jobsPaginationCurrentPage"
-                @change="$event => (jobsPaginationCurrentPage = $event)"
-                :total-rows="jobsPaginationTotalRows"
-                :per-page="jobsPaginationPerPage"
-                aria-controls="my-table"
-                class="small-caps d-inline-block"
-                :showDescription="false"
-              />
-            </div>
-          </div>
-        </b-dropdown>
+        <TasksDropdownPreview v-if="user" :max-items="4" />
         <BDropdown class="px-2">
           <template v-slot:button-content>
             <span>{{ $t('label_data_access') }}</span>
@@ -246,16 +198,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import Icon from '@/components/base/Icon.vue'
-import JobItem from '@/components/modules/lists/JobItem.vue'
-import Pagination from '@/components/modules/Pagination.vue'
+import { computed, watch } from 'vue'
 import Logo from '@/components/Logo.vue'
-import InfoButton from '@/components/base/InfoButton.vue'
 import LinkToModal from './LinkToModal.vue'
+import TasksDropdownPreview from '@/components/TasksDropdownPreview.vue'
 import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
-import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import type { ErrorMessage } from '@/stores/notifications'
@@ -269,13 +217,10 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const jobsStore = useJobsStore()
-const settingsStore = useSettingsStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 
 const jobsPaginationPerPage = 4
-const jobsPaginationCurrentPage = ref(1)
-const ddownJobs = ref<{ show: () => void } | null>(null)
 
 const searchQueryHash = computed(() => {
   const sq = route.query.sq
@@ -298,10 +243,6 @@ const registerRouteParams = computed(() => ({
   }
 }))
 
-const jobs = computed(() => jobsStore.items)
-const jobsPaginationTotalRows = computed(() => jobsStore.totalItems)
-const runningJobs = computed(() => jobs.value.filter(d => d.status === 'RUN'))
-
 const user = computed(() => userStore.user)
 const userPlan = computed(() => userStore.userPlan)
 const userPlanLabel = computed(() => PlanLabels[userPlan.value] || '...')
@@ -321,10 +262,6 @@ const textReuseEnabled = computed(
     !!(window as typeof window & { impressoFeatures?: any }).impressoFeatures?.textReuse?.enabled
 )
 
-function updateLastNotificationDate() {
-  settingsStore.updateLastNotificationDate()
-}
-
 function getRouteWithSearchQuery(
   routeParams: RouteLocationRaw,
   additionalQueryParameters: Record<string, unknown> = {}
@@ -342,47 +279,15 @@ function getRouteWithSearchQuery(
 }
 
 watch(
-  jobsPaginationCurrentPage,
-  page => {
-    if (user.value) {
-      void jobsStore.loadJobs({
-        page,
-        limit: jobsPaginationPerPage
-      })
+  user,
+  value => {
+    if (value) {
+      void jobsStore.loadJobs({ page: 1, limit: jobsPaginationPerPage })
     }
   },
   { immediate: true }
 )
 
-watch(user, value => {
-  if (value) {
-    void jobsStore.loadJobs({
-      page: 1,
-      limit: jobsPaginationPerPage
-    })
-  }
-})
-
-watch(jobs, value => {
-  if (value.length && ddownJobs.value) {
-    const lastModifiedDate = value
-      .map(d => d.lastModifiedDate.getTime())
-      .sort()
-      .pop()
-    const lastNotificationDate = settingsStore.lastNotificationDateAsDate
-
-    if (lastModifiedDate != null && lastNotificationDate.getTime() - lastModifiedDate < 0) {
-      console.info(
-        'Stored settings.lastNotificationDate is behind a job lastModifiedDate, show job dropdown.'
-      )
-      ddownJobs.value.show()
-    } else {
-      console.info(
-        'Stored settings.lastNotificationDate is synced with job lastModifiedDate, nothing to show.'
-      )
-    }
-  }
-})
 </script>
 
 <style lang="css">
@@ -453,10 +358,6 @@ watch(jobs, value => {
   bottom: 0;
   left: 0;
   z-index: 100;
-}
-
-#app-header .jobs {
-  min-width: 400px;
 }
 
 #app-header nav {
@@ -613,20 +514,6 @@ watch(jobs, value => {
   margin-top: -1rem;
 }
 
-.jobs-list > .list {
-  width: 350px;
-  height: 300px;
-  overflow: auto;
-  border-bottom: 1px solid #3d434a;
-}
-
-@media (min-height: 600px) {
-  .jobs-list > .list {
-    max-height: 550px;
-    height: auto;
-  }
-}
-
 @media (min-width: 992px) {
   #app-header .navbar-nav .nav-link {
     max-width: 120px;
@@ -734,8 +621,7 @@ watch(jobs, value => {
     "label_searchNgrams": "Search ngrams",
     "label_faq": "Documentation",
     "label_documentation": "Web App Documentation",
-    "label_terms-of-use": "Terms of Use",
-    "label_jobs": "Tasks"
+    "label_terms-of-use": "Terms of Use"
   }
 }
 </i18n>

@@ -895,3 +895,74 @@ svg path.domain {
     width: 25%;
   }
 }
+
+.static-page {
+  --impresso-text-decoration-color: var(--clr-grey-300);
+  --impresso-text-decoration-color-hover: var(--impresso-color-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--impresso-color-white);
+  text-align: center;
+
+  background: -webkit-linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    360deg,
+    var(--impresso-color-black-deeper),
+    var(--impresso-color-black)
+  );
+}
+.static-page h1 {
+  color: var(--impresso-color-white);
+}
+
+.static-page a {
+  color: var(--impresso-color-white);
+  text-decoration: underline;
+  text-decoration-color: var(--impresso-text-decoration-color);
+  text-underline-offset: var(--impresso-text-underline-offset);
+}
+.static-page a:hover {
+  text-decoration-color: var(--impresso-text-decoration-color-hover);
+}
+
+.static-page input[type='text'],
+.static-page input[type='email'] {
+  /** dark mode */
+  background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white-alpha-50);
+}
+.static-page input[type='email']::selection,
+.static-page input[type='text']::selection {
+  background-color: var(--impresso-color-yellow);
+  color: var(--impresso-color-black-deeper);
+}
+.static-page input[type='email']:focus,
+.static-page input[type='text']:focus {
+  background-color: var(--impresso-color-black-deeper);
+  color: var(--impresso-color-white);
+  border: 1px solid var(--impresso-color-white) !important;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
+}
+.static-page button {
+  background-color: var(--impresso-color-white);
+  color: var(--impresso-color-black-deeper);
+  border-radius: var(--impresso-border-radius-sm);
+  box-shadow: var(--bs-box-shadow-sm);
+}
+.static-page button:focus {
+  box-shadow: 0 0 0 0.2rem var(--impresso-color-white-alpha-20) !important;
+}
+.static-page button.btn-transparent {
+  background-color: transparent;
+  color: var(--impresso-color-white);
+  border: 0px solid transparent;
+}

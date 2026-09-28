@@ -286,6 +286,8 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import { buildEmptyFacets } from '@/logic/facets'
+import { buildExportDescription } from '@/logic/exportDescription'
+import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { SearchDynamicFacetTypes, SearchDecimalFacetTypes } from '@/logic/facets'
 import { SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
@@ -690,36 +692,57 @@ export default defineComponent({
     },
 
     exportQueryCsv() {
-      exporterService.create(
-        {
-          description: this.inputDescription.slice(0, 1000)
-        },
-        {
-          query: {
-            group_by: 'articles',
-            filters: this.filters.map(getFilterQuery),
-            format: 'csv'
-          }
+      const queryFilters = this.filters.map(getFilterQuery)
+      const description = buildExportDescription({
+        filters: this.filters,
+        totalRows: this.paginationTotalRows,
+        groupBy: 'articles'
+      })
+      const payload = { description: description.slice(0, 1000) }
+      const params = {
+        query: {
+          group_by: 'articles',
+          filters: queryFilters,
+          format: 'csv'
         }
-      )
+      }
+      // Service hook is the authority that blocks the real create; this
+      // only skips a second toast if we already claimed the same export.
+      if (isDuplicateExport(buildExportSignature(payload, params))) return
+
+      exporterService.create(payload, params)
+      this.notifyExportPreparing()
     },
     exportSelectedCsv() {
       const ids = this.selectedItems.map(a => a.id)
-      exporterService.create(
-        {},
-        {
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'uid',
-                q: ids
-              }
-            ],
-            format: 'csv'
-          }
+      const description = buildExportDescription({
+        selectedCount: ids.length,
+        groupBy: 'articles'
+      })
+      const payload = { description: description.slice(0, 1000) }
+      const params = {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'uid',
+              q: ids
+            }
+          ],
+          format: 'csv'
         }
-      )
+      }
+      if (isDuplicateExport(buildExportSignature(payload, params))) return
+
+      exporterService.create(payload, params)
+      this.notifyExportPreparing()
+    },
+    notifyExportPreparing() {
+      this.notificationsStore.addNotification({
+        type: 'success',
+        title: 'Export is being prepared',
+        message: 'You can track its progress in Tasks.'
+      })
     },
     reset() {
       this.searchQuery = new SearchQuery({
