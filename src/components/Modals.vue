@@ -31,35 +31,7 @@
       @success="changeView(ViewCreateSpecialMembershipRequestSuccess)"
     />
 
-    <TermsOfUseModal :isVisible="view === ViewTermsOfUse" @dismiss="resetView">
-      <template v-slot:terms-of-use-status>
-        <Alert
-          :type="acceptTermsDate || acceptTermsDateOnLocalStorage ? 'info' : 'warning'"
-          class="bg-info mb-3"
-          style="position: sticky; top: 0"
-        >
-          <TermsOfUseStatus />
-        </Alert>
-      </template>
-      <template v-slot:accept-terms-of-use>
-        <AcceptTermsOfUse
-          :is-loading="
-            termsOfUseResponse.status === 'idle' || termsOfUseResponse.status === 'loading'
-          "
-          :checked="!!acceptTermsDate"
-          :disabled="!!acceptTermsDate"
-          @change="
-            (event: Event) => {
-              const isChecked = (event.target as HTMLInputElement).checked
-              console.debug('[Modals] AcceptTermsOfUse@onChange', isChecked)
-              if (isChecked) {
-                patchAcceptTermsDate()
-              }
-            }
-          "
-        />
-      </template>
-    </TermsOfUseModal>
+    <TermsOfUseModalHost />
     <PlansModal
       :isVisible="view === ViewPlans"
       @dismiss="resetView"
@@ -156,13 +128,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import TermsOfUseModal from './TermsOfUseModal.vue'
 import ChangePlanModal from './ChangePlanModal.vue'
 import ChangePasswordModal from './modals/ChangePasswordModal.vue'
-import type { TermsOfUse } from '@/services/types'
 import {
   Views,
-  ViewTermsOfUse,
   ViewPlans,
   ViewChangePlanRequest,
   ViewConfirmChangePlanRequest,
@@ -179,13 +148,11 @@ import {
   ViewCreateSpecialMembershipRequestSuccess
 } from '@/constants'
 import { useViewsStore } from '@/stores/views'
-import { termsOfUse as termsOfUseService, feedback as feedbackService } from '@/services'
+import { feedback as feedbackService } from '@/services'
 import { BadRequest, type FeathersError } from '@feathersjs/errors'
 import { useUserStore } from '@/stores/user'
 import { PlanLabels } from '@/constants'
-import TermsOfUseStatus from './TermsOfUseStatus.vue'
-import AcceptTermsOfUse from './AcceptTermsOfUse.vue'
-import Alert from './Alert.vue'
+import TermsOfUseModalHost from './TermsOfUseModalHost.vue'
 import InfoModal from './InfoModal.vue'
 import CorpusOverviewModal from './CorpusOverviewModal.vue'
 import type { Dataset } from './CorpusOverviewModal.vue'
@@ -207,7 +174,6 @@ const notificationsStore = useNotificationsStore()
 const userPlan = computed(() => userStore.userPlan)
 
 const view = ref<(typeof Views)[number] | null>(store.view)
-const isLoading = ref(false)
 const isLoggedIn = computed(() => !!userStore.userData)
 const errorMessages = computed<ErrorMessage[] | null>(() => {
   if (feedbackCollectorResponse.value.status === 'error') {
@@ -231,27 +197,8 @@ const showChangePlanToLegacyUsers = computed(() => {
   )
 })
 
-const showTermsOfUse = computed(() => {
-  // if the user is logged in and has a plan, show the change plan modal
-  return (
-    view.value === null &&
-    notificationsStore.initSequenceDone &&
-    isLoggedIn.value &&
-    acceptTermsDate.value === null &&
-    userPlan.value === PlanGuest
-  )
-})
-
 const feedbackCollectorResponse = ref<{
   data: any
-  status: 'idle' | 'loading' | 'success' | 'error'
-}>({
-  status: 'idle',
-  data: null
-})
-
-const termsOfUseResponse = ref<{
-  data: TermsOfUse
   status: 'idle' | 'loading' | 'success' | 'error'
 }>({
   status: 'idle',
@@ -301,29 +248,6 @@ const fetchCorpusOverview = async (): Promise<void> => {
   fetchCorpusOverviewResponse.value = { data: response.data, status: 'success' }
 }
 
-const patchAcceptTermsDate = async () => {
-  if (!isLoggedIn.value) {
-    console.debug('[Modals] patchAcceptTermsDate not authenticated')
-    userStore.acceptTermsDateOnLocalStorage = new Date().toISOString()
-    return
-  }
-  termsOfUseService
-    .patch(null, {})
-    .then(data => {
-      console.debug(
-        '[Modals] patchAcceptTermsDate call termsOfUseService.patch() success:',
-        data.dateAcceptedTerms
-      )
-      // update with the latest value
-      userStore.setAcceptTermsDate(
-        data.dateAcceptedTerms ? new Date(data.dateAcceptedTerms).toISOString() : null
-      )
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
-}
-
 const createFeedback = async (payload: FeedbackFormPayload) => {
   console.debug('[FeedbackModal] @createFeedback', payload)
   feedbackCollectorResponse.value = { data: null, status: 'loading' }
@@ -348,19 +272,6 @@ watch(
     console.debug('[Modals] @watch showChangePlanToLegacyUsers', showChangePlanToLegacyUsers.value)
     if (showChangePlanToLegacyUsers.value) {
       changeView(ViewChangePlanRequest)
-    }
-  },
-  {
-    immediate: true
-  }
-)
-
-watch(
-  showTermsOfUse,
-  () => {
-    console.debug('[Modals] @watch showTermsOfUse', showTermsOfUse.value)
-    if (showTermsOfUse.value) {
-      changeView(ViewTermsOfUse)
     }
   },
   {

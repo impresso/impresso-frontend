@@ -211,6 +211,8 @@ export const initUserTermsOfUse = async () => {
       )
       return null
     })
+  // setAcceptTermsDate also flags termsOfUseChecked, so the UI knows the
+  // ToU status is resolved even when the lookup failed.
   if (!termsOfuse?.dateAcceptedTerms) {
     console.debug('[init:initUserTermsOfUse] No terms of use accepted date found.')
     userStore.setAcceptTermsDate(null)
