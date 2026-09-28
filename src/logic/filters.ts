@@ -185,7 +185,7 @@ const TextSearchFilters = [
 
 export const TextReuseContentItemFacets = [
   'language',
-  'newspaper', // should be mediaSource eventually
+  'mediaSource', // should be mediaSource eventually
   // 'type',
   'country',
   // 'partner',
@@ -210,7 +210,7 @@ export const TextReuseFacets = [
   ...TextReuseNumericFacets
 ] as const satisfies FilterType[]
 
-const TextReuseFilters = [...TextReuseFacets, 'textReuseCluster', 'daterange']
+const TextReuseFilters = [...TextReuseFacets, 'string', 'textReuseCluster', 'daterange']
 
 const TextReuseClusterFilters = [
   'textReuseCluster',

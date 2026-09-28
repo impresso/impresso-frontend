@@ -193,7 +193,7 @@ export default {
     standardFacets() {
       return this.facets.filter(({ type }) =>
         [
-          'newspaper',
+          'mediaSource',
           'collection',
           'textReuseCluster',
           'topic',
@@ -414,7 +414,7 @@ export default {
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
 
         await this.loadFacets([
-          'newspaper',
+          'mediaSource',
           'textReuseCluster',
           'topic',
           'country',
