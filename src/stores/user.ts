@@ -26,6 +26,10 @@ export interface State {
   redirectionParams: any
   acceptTermsDate: string | null
   acceptTermsDateOnLocalStorage: string | null
+  // true once the ToU status is known, i.e. after a successful or failed
+  // terms-of-use lookup. Needed so UIs can tell "not accepted" apart from
+  // "not fetched yet", which is not persisted across reloads.
+  termsOfUseChecked: boolean
   hasPendingChangePlanRequest: boolean
 }
 
@@ -49,6 +53,7 @@ export const useUserStore = defineStore('user', {
     acceptTermsDate: null,
     // this is stored on localStorage
     acceptTermsDateOnLocalStorage: null,
+    termsOfUseChecked: false,
     //
     hasPendingChangePlanRequest: false
   }),
@@ -89,6 +94,7 @@ export const useUserStore = defineStore('user', {
     setAcceptTermsDate(date: string | null) {
       this.acceptTermsDate = date
       this.acceptTermsDateOnLocalStorage = date
+      this.termsOfUseChecked = true
     },
     setPendingChangePlanRequest(v: boolean) {
       this.hasPendingChangePlanRequest = v
@@ -112,6 +118,7 @@ export const useUserStore = defineStore('user', {
           this.bitmap = 'AQ=='
           this.acceptTermsDate = null
           this.acceptTermsDateOnLocalStorage = null
+          this.termsOfUseChecked = false
         })
     },
     setUserData(user: User | false) {
@@ -162,6 +169,8 @@ export const useUserStore = defineStore('user', {
           )
           return null
         })
+      // setAcceptTermsDate also flags termsOfUseChecked, so the Terms of Use
+      // modal knows the status is resolved and opens if the user has not accepted.
       if (termsOfuse && termsOfuse.dateAcceptedTerms) {
         this.setAcceptTermsDate(new Date(termsOfuse.dateAcceptedTerms).toISOString())
       } else {
