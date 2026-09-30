@@ -118,6 +118,30 @@ export interface TermsOfUse {
   dateAcceptedTerms: string | null
 }
 
+export type SpecialMembershipAccessModality = 'cc_reviewer' | 'notify_reviewer'
+
+/**
+ * Metadata the reviewer may patch on a special-membership plan.
+ * `specialMembershipAccess.patch(id, { metadata })` replaces the whole object,
+ * so every save must send this shape. Unknown keys are rejected by the backend.
+ */
+export interface SpecialMembershipAccessMetadata {
+  modality?: SpecialMembershipAccessModality
+  enableTemporaryAutomaticApproval?: boolean
+  revokeAfterDays?: number | null
+  revokeTemporaryAutomaticApprovalAfterDays?: number | null
+  emailExtraMessageHtml?: string | null
+  emailExtraMessageText?: string | null
+  /**
+   * Display-only fields still returned by some records. Never send these on
+   * patch; the backend treats them as unknown.
+   */
+  provider?: string
+  note?: string
+  /** @deprecated Use `enableTemporaryAutomaticApproval`. */
+  enableTemporaryAutomaticAcceptance?: boolean
+}
+
 /**
  * Special Membership Access item interface,
  * it defines the structure of a special membership access item, with bitmap position.
@@ -128,13 +152,7 @@ export interface SpecialMembershipAccess {
   reviewerId?: number | null
   title: string
   bitmapPosition: number
-  metadata?: {
-    provider?: string
-    note?: string
-    modality?: 'cc_reviewer' | 'notify_reviewer'
-    revokeAfterDays?: number
-    enableTemporaryAutomaticAcceptance?: boolean
-  }
+  metadata?: SpecialMembershipAccessMetadata
   requests?: UserSpecialMembershipRequest[]
 }
 

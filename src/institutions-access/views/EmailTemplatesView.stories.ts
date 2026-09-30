@@ -1,13 +1,35 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'
-import { emailTemplatesHandlers } from '.storybook/mswHandlers'
+import { MockSpecialMembershipAccess } from '.storybook/mockData/specialMembership'
 import EmailTemplatesView from './EmailTemplatesView.vue'
-import type { EmailTemplatesViewProps } from './EmailTemplatesView.vue'
-import {
-  createHttpEmailTemplatesClient,
-  createLocalEmailTemplatesClient
-} from '../services/emailTemplates'
+import type {
+  EmailTemplatesViewProps,
+  SpecialMembershipPlansService
+} from './EmailTemplatesView.vue'
+import type { SpecialMembershipAccess } from '@/services/types'
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+const createMockPlansService = (
+  seed: SpecialMembershipAccess[] = MockSpecialMembershipAccess,
+  { failFind = false }: { failFind?: boolean } = {}
+): SpecialMembershipPlansService => {
+  const store = seed.map(plan => ({ ...plan, metadata: { ...plan.metadata } }))
+  return {
+    async find() {
+      await delay(200)
+      if (failFind) throw new Error('Service unavailable')
+      return { data: store }
+    },
+    async patch(id, data) {
+      await delay(200)
+      const index = store.findIndex(plan => plan.id === id)
+      if (index === -1) throw new Error('Not found')
+      store[index] = { ...store[index], metadata: data.metadata }
+      return store[index]
+    }
+  }
+}
 
 const meta: Meta<typeof EmailTemplatesView> = {
   title: 'institutions-access/views/EmailTemplatesView',
@@ -28,48 +50,26 @@ const meta: Meta<typeof EmailTemplatesView> = {
         </div>
       `
     }
-  },
-  parameters: {
-    msw: {
-      handlers: emailTemplatesHandlers
-    }
   }
 }
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-/**
- * How the app runs today: the auto-reply fragment is seeded from the default
- * and edits are kept in `localStorage`.
- */
-export const LocalStorageClient: Story = {
+export const Default: Story = {
   args: {
-    client: createLocalEmailTemplatesClient({ delay: 0 })
+    service: createMockPlansService()
   } as EmailTemplatesViewProps
 }
 
-/**
- * The HTTP client against the mocked `email-templates` endpoint, which is the
- * contract the backend is expected to implement.
- */
-export const HttpClient: Story = {
+export const NoPlans: Story = {
   args: {
-    client: createHttpEmailTemplatesClient()
+    service: createMockPlansService([])
   } as EmailTemplatesViewProps
 }
 
 export const LoadFailed: Story = {
   args: {
-    client: createHttpEmailTemplatesClient()
-  } as EmailTemplatesViewProps,
-  parameters: {
-    msw: {
-      handlers: [
-        http.get('/api/email-templates/:id', () =>
-          HttpResponse.json({ error: 'Service unavailable' }, { status: 503 })
-        )
-      ]
-    }
-  }
+    service: createMockPlansService(MockSpecialMembershipAccess, { failFind: true })
+  } as EmailTemplatesViewProps
 }

@@ -36,10 +36,23 @@ export const MockSpecialMembershipAccess = MockProviders.map(
   (provider, index) =>
     ({
       id: index + 10,
-      reviewerId: null,
+      reviewerId: 1,
       title: 'Data domain Access ' + index,
       bitmapPosition: 1,
-      metadata: { provider, note: 'Test subscription ' + index },
+      metadata: {
+        provider,
+        note: 'Test subscription ' + index,
+        modality: index % 2 === 0 ? 'cc_reviewer' : 'notify_reviewer',
+        enableTemporaryAutomaticApproval: index % 3 === 0,
+        revokeAfterDays: index % 4 === 0 ? 365 : null,
+        revokeTemporaryAutomaticApprovalAfterDays: index % 3 === 0 ? 14 : null,
+        emailExtraMessageHtml:
+          index === 0
+            ? '<p>If you have questions about this collection, reply to this email.</p>'
+            : null,
+        emailExtraMessageText:
+          index === 0 ? 'If you have questions about this collection, reply to this email.' : null
+      },
       requests: null
     }) as SpecialMembershipAccess
 )

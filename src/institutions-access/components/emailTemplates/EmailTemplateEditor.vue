@@ -1,143 +1,143 @@
 <template>
   <div class="EmailTemplateEditor">
-    <div class="row gy-4">
-      <div class="col-12 col-xl-6">
-        <form @submit.prevent="save">
-          <BFormCheckbox
-            switch
-            class="mb-3"
-            :modelValue="form.enabled"
-            @update:modelValue="value => (form.enabled = Boolean(value))"
-          >
-            {{ $t('enabled') }}
-          </BFormCheckbox>
+    <div class="EmailTemplateEditor__toggle">
+      <BFormCheckbox
+        switch
+        class="InstitutionsAccessSwitch"
+        :model-value="modelValue.enabled"
+        @update:model-value="value => patch({ enabled: Boolean(value) })"
+      >
+        <span class="EmailTemplateEditor__toggleTitle">{{ $t('enabled') }}</span>
+        <span class="EmailTemplateEditor__toggleHint">{{ $t('enabledHint') }}</span>
+      </BFormCheckbox>
+    </div>
 
-          <div class="mb-2">
-            <label class="form-label small font-weight-bold">{{ $t('bodyLabel') }}</label>
-            <HtmlCodeEditor
-              :model-value="form.body"
-              :disabled="isSaving"
-              @update:model-value="value => (form.body = value)"
-            />
-            <div class="small text-muted mt-1">
-              <span v-if="bodyError" class="text-danger">{{ $t(bodyError) }}</span>
-              <span v-else>{{ $t('bodyHint') }}</span>
-            </div>
-          </div>
-
-          <div class="d-flex gap-2 align-items-center flex-wrap">
-            <button
-              type="submit"
-              class="btn btn-outline-secondary btn-md px-4 border border-dark"
-              :disabled="!isDirty || isSaving || hasErrors"
-            >
-              {{ $t(isSaving ? 'actions.saving' : 'actions.save') }}
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-secondary btn-md px-4 border border-dark"
-              :disabled="!isDirty || isSaving"
-              @click="reset"
-            >
-              {{ $t('actions.reset') }}
-            </button>
-            <span v-if="isDirty" class="small text-muted">{{ $t('unsavedChanges') }}</span>
-            <span v-else class="very-small text-muted EmailTemplateEditor__saved">
-              {{ $t('lastModified', { date: lastModifiedLabel }) }}
-            </span>
-          </div>
-        </form>
+    <div class="EmailTemplateEditor__grid">
+      <div class="EmailTemplateEditor__composer" :class="{ 'is-off': !modelValue.enabled }">
+        <label class="small-caps EmailTemplateEditor__label">{{ $t('bodyLabel') }}</label>
+        <HtmlCodeEditor
+          :model-value="modelValue.body"
+          :disabled="disabled || !modelValue.enabled"
+          @update:model-value="value => patch({ body: value })"
+        />
+        <p class="EmailTemplateEditor__hint" :class="{ 'is-error': isBodyTooLong }">
+          {{ $t(isBodyTooLong ? 'bodyTooLong' : 'bodyHint') }}
+        </p>
       </div>
 
-      <div class="col-12 col-xl-6">
-        <h3 class="small-caps text-muted h6 mb-2">{{ $t('previewLabel') }}</h3>
-        <EmailTemplatePreview :body="form.body" :enabled="form.enabled" />
+      <div class="EmailTemplateEditor__preview">
+        <p class="small-caps EmailTemplateEditor__previewKicker">{{ $t('previewLabel') }}</p>
+        <EmailTemplatePreview :body="modelValue.body" :enabled="modelValue.enabled" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed } from 'vue'
 import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue'
 import HtmlCodeEditor from './HtmlCodeEditor.vue'
 import EmailTemplatePreview from './EmailTemplatePreview.vue'
-import type { EmailTemplate } from '../../services/emailTemplates'
+import { EmailBodyMaxLength, type EmailTemplate } from '../../services/emailTemplates'
 
 export interface EmailTemplateEditorProps {
-  template: EmailTemplate
-  isSaving?: boolean
-  bodyMaxLength?: number
+  modelValue: EmailTemplate
+  disabled?: boolean
 }
 
 const props = withDefaults(defineProps<EmailTemplateEditorProps>(), {
-  isSaving: false,
-  bodyMaxLength: 5000
+  disabled: false
 })
 
 const emit = defineEmits<{
-  (e: 'save', payload: Pick<EmailTemplate, 'body' | 'enabled'>): void
-  (e: 'update:isDirty', value: boolean): void
+  (e: 'update:modelValue', value: EmailTemplate): void
 }>()
 
-const form = reactive({
-  body: props.template.body,
-  enabled: props.template.enabled
-})
-
-const reset = () => {
-  form.body = props.template.body
-  form.enabled = props.template.enabled
+const patch = (partial: Partial<EmailTemplate>) => {
+  emit('update:modelValue', { ...props.modelValue, ...partial })
 }
 
-watch(() => props.template, reset)
-
-const isDirty = computed(
-  () => form.body !== props.template.body || form.enabled !== props.template.enabled
-)
-
-watch(isDirty, value => emit('update:isDirty', value), { immediate: true })
-
-const bodyError = computed(() => {
-  if (form.body.length > props.bodyMaxLength) return 'bodyTooLong'
-  return ''
-})
-
-const hasErrors = computed(() => bodyError.value !== '')
-
-const lastModifiedLabel = computed(() =>
-  new Date(props.template.dateLastModified).toLocaleDateString()
-)
-
-const save = () => {
-  if (hasErrors.value) return
-  emit('save', { body: form.body, enabled: form.enabled })
-}
-
-defineExpose({ isDirty })
+const isBodyTooLong = computed(() => props.modelValue.body.length > EmailBodyMaxLength)
 </script>
 
 <i18n lang="json">
 {
   "en": {
-    "enabled": "Insert this custom message into the email",
+    "enabled": "Add a custom message to the auto-reply",
+    "enabledHint": "Turn off to send the standard Impresso email only. Saving while off removes your text.",
     "bodyLabel": "Custom message",
-    "bodyHint": "Plain text or basic HTML. The greeting and signature are part of the Impresso email and cannot be edited here.",
-    "previewLabel": "Preview in the email",
-    "unsavedChanges": "You have unsaved changes.",
-    "lastModified": "Last saved on {date}",
-    "bodyTooLong": "The message is too long.",
-    "actions": {
-      "save": "Save message",
-      "saving": "Saving...",
-      "reset": "Discard changes"
-    }
+    "bodyHint": "Plain text or basic HTML. The greeting and signature stay in the Impresso email.",
+    "previewLabel": "In the email",
+    "bodyTooLong": "The message is too long."
   }
 }
 </i18n>
 
 <style>
-.EmailTemplateEditor__saved {
-  font-variant-numeric: tabular-nums;
+.EmailTemplateEditor__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.75rem 2rem;
+  align-items: start;
+}
+.EmailTemplateEditor__composer {
+  min-width: 0;
+}
+.EmailTemplateEditor__toggle {
+  margin-bottom: 1.25rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--clr-grey-600);
+  border-radius: var(--impresso-border-radius-xs);
+}
+.EmailTemplateEditor__toggleTitle {
+  display: block;
+  font-weight: 550;
+  font-variation-settings: 'wght' 550;
+  letter-spacing: -0.01em;
+}
+.EmailTemplateEditor__toggleHint {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--clr-grey-300);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.EmailTemplateEditor__composer.is-off {
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+.EmailTemplateEditor__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--clr-grey-300);
+}
+.EmailTemplateEditor__hint {
+  margin: 0.45rem 0 0;
+  max-width: 58ch;
+  color: var(--clr-grey-300);
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.EmailTemplateEditor__hint.is-error {
+  color: var(--impresso-color-black);
+  font-weight: 550;
+  font-variation-settings: 'wght' 550;
+}
+.EmailTemplateEditor__previewKicker {
+  margin: 0 0 0.55rem;
+  color: var(--clr-grey-300);
+}
+.EmailTemplateEditor__preview {
+  min-width: 0;
+}
+@media (min-width: 1200px) {
+  .EmailTemplateEditor__grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .EmailTemplateEditor__preview {
+    position: sticky;
+    top: 1rem;
+  }
 }
 </style>

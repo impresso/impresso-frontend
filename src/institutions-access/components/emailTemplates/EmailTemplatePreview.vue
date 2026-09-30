@@ -37,38 +37,43 @@ const hasHtml = computed(() => /<\/?[a-z][\s\S]*>/i.test(props.body))
 <i18n lang="json">
 {
   "en": {
-    "customSlot": "Your custom message",
-    "omitted": "No custom message will be inserted.",
-    "disclaimer": "This is the auto-reply sent when someone requests access. The greeting, request details and signature cannot be edited."
+    "customSlot": "Your paragraph",
+    "omitted": "This paragraph is turned off, so it will not appear in the email.",
+    "disclaimer": "Greeting, request details and signature stay in the Impresso auto-reply."
   }
 }
 </i18n>
 
 <style>
 .EmailTemplatePreview__envelope {
-  border: 1px solid var(--clr-grey-500);
-  border-radius: var(--impresso-border-radius-sm);
-  background-color: var(--impresso-color-white);
   overflow: hidden;
+  border: 1px solid var(--clr-grey-600);
+  border-radius: var(--impresso-border-radius-xs);
+  background-color: var(--impresso-color-paper);
+  box-shadow:
+    0 1px 0 rgba(45, 41, 38, 0.06),
+    0 18px 32px -24px rgba(45, 41, 38, 0.28);
 }
 .EmailTemplatePreview__fixed {
   margin: 0;
-  padding: 0.9rem 1rem;
+  padding: 1.15rem 1.2rem;
   white-space: pre-wrap;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
   color: var(--clr-grey-300);
-  background-color: var(--impresso-color-light-grey);
 }
 .EmailTemplatePreview__slot {
-  padding: 0.9rem 1rem;
-  border-top: 1px dashed var(--clr-grey-600);
-  border-bottom: 1px dashed var(--clr-grey-600);
+  margin: 0 0.85rem;
+  padding: 0.95rem 1.05rem 1.05rem;
+  background-color: var(--impresso-color-white);
+  border: 1px dashed var(--clr-grey-500);
+  border-radius: var(--impresso-border-radius-xs);
 }
 .EmailTemplatePreview__slotLabel {
-  margin-bottom: 0.4rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
+  margin-bottom: 0.45rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--clr-grey-300);
 }
@@ -76,21 +81,30 @@ const hasHtml = computed(() => /<\/?[a-z][\s\S]*>/i.test(props.body))
   margin: 0;
   white-space: pre-wrap;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 .EmailTemplatePreview__html {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 .EmailTemplatePreview__html > :last-child {
   margin-bottom: 0;
 }
 .EmailTemplatePreview__omitted {
-  margin: 0;
-  padding: 0.9rem 1rem;
-  font-size: 0.85rem;
+  margin: 0 0.85rem;
+  padding: 0.95rem 1.05rem;
+  font-size: 0.88rem;
   font-style: italic;
+  line-height: 1.5;
   color: var(--clr-grey-300);
-  border-top: 1px dashed var(--clr-grey-600);
-  border-bottom: 1px dashed var(--clr-grey-600);
+  background-color: var(--impresso-color-white);
+  border: 1px dashed var(--clr-grey-500);
+  border-radius: var(--impresso-border-radius-xs);
+}
+.EmailTemplatePreview .very-small {
+  max-width: 52ch;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 </style>

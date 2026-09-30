@@ -152,7 +152,7 @@ const logout = () => {
     "institutionContactpoint": "Reviewer",
     "sections": {
       "requests": "Requests",
-      "emailTemplates": "Auto-reply"
+      "emailTemplates": "Settings"
     }
   }
 }

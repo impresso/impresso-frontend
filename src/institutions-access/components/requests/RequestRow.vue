@@ -121,6 +121,7 @@
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue'
 import type { UserSpecialMembershipRequestReview } from '@/services/types'
+import { isTemporaryAutomaticApprovalEnabled } from '@/logic/specialMembershipAccess'
 import { getUserPlan } from '@/logic/user'
 import RequestStatusBadge from '@/components/specialMembership/RequestStatusBadge.vue'
 import RequestChangelogTimeline from '@/components/specialMembership/RequestChangelogTimeline.vue'
@@ -144,8 +145,8 @@ const requesterFullName = computed(() =>
 
 const provider = computed(() => props.item.specialMembershipAccess.metadata?.provider ?? '')
 
-const allowsTemporaryAccess = computed(
-  () => props.item.specialMembershipAccess.metadata?.enableTemporaryAutomaticAcceptance === true
+const allowsTemporaryAccess = computed(() =>
+  isTemporaryAutomaticApprovalEnabled(props.item.specialMembershipAccess.metadata)
 )
 
 const revokeAfterDays = computed(

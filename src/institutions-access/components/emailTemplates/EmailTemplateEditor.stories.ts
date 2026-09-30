@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { fn } from 'storybook/test'
-import {
-  MockEmailTemplate,
-  MockEmailTemplateDisabled
-} from '.storybook/mockData/emailTemplates'
+import { ref } from 'vue'
+import { MockEmailTemplate, MockEmailTemplateDisabled } from '.storybook/mockData/emailTemplates'
 import EmailTemplateEditor from './EmailTemplateEditor.vue'
 import type { EmailTemplateEditorProps } from './EmailTemplateEditor.vue'
 
@@ -11,20 +8,18 @@ const meta: Meta<typeof EmailTemplateEditor> = {
   title: 'institutions-access/emailTemplates/EmailTemplateEditor',
   component: EmailTemplateEditor,
   tags: ['autodocs'],
-  args: {
-    onSave: fn()
-  },
   render: args => {
     return {
       setup() {
-        return { args }
+        const draft = ref(args.modelValue)
+        return { args, draft }
       },
       components: {
         EmailTemplateEditor
       },
       template: `
         <div style="padding: 16px; background: #f5f4f3">
-          <EmailTemplateEditor v-bind="args" />
+          <EmailTemplateEditor v-bind="args" v-model="draft" />
         </div>
       `
     }
@@ -36,32 +31,32 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    template: MockEmailTemplate
+    modelValue: MockEmailTemplate
   } as EmailTemplateEditorProps
 }
 
 export const EmptyCustomMessage: Story = {
   args: {
-    template: { ...MockEmailTemplate, body: '' }
+    modelValue: { ...MockEmailTemplate, body: '' }
   } as EmailTemplateEditorProps
 }
 
 export const Disabled: Story = {
   args: {
-    template: MockEmailTemplateDisabled
+    modelValue: MockEmailTemplateDisabled
   } as EmailTemplateEditorProps
 }
 
 export const Saving: Story = {
   args: {
-    template: MockEmailTemplate,
-    isSaving: true
+    modelValue: MockEmailTemplate,
+    disabled: true
   } as EmailTemplateEditorProps
 }
 
 export const WithHtml: Story = {
   args: {
-    template: {
+    modelValue: {
       ...MockEmailTemplate,
       body: '<p>Please read our <strong>access conditions</strong> before you continue.</p>'
     }

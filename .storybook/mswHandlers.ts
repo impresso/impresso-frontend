@@ -15,8 +15,6 @@ import {
 import { MockMediaSources } from './mockData/mediaSources'
 import { MockTopic } from './mockData/topics'
 import { MockBaristaConversations } from './mockData/baristaConversations'
-import { MockEmailTemplates } from './mockData/emailTemplates'
-import type { EmailTemplate } from '@/institutions-access/services/emailTemplates'
 
 export const findSearchFacetsHandler = http.get(
   '/api/search-facets/search',
@@ -429,65 +427,6 @@ export const createUserSpecialMembershipRequestHandler = http.post(
     return HttpResponse.json(newRequest)
   }
 )
-
-/**
- * Email templates are not served by the backend yet. These handlers describe
- * the contract the `email-templates` service is expected to expose, so the HTTP
- * client implementation can be exercised in Storybook.
- */
-const emailTemplatesStore = new Map<string, EmailTemplate>(
-  MockEmailTemplates.map(template => [template.id, { ...template }])
-)
-
-export const findEmailTemplatesHandler = http.get('/api/email-templates', async () => {
-  await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
-  const data = [...emailTemplatesStore.values()]
-  return HttpResponse.json({
-    data,
-    pagination: {
-      total: data.length,
-      limit: data.length,
-      offset: 0
-    }
-  } satisfies BaseFindResponse)
-})
-
-export const getEmailTemplateHandler = http.get('/api/email-templates/:id', async ({ params }) => {
-  const { id } = params
-  await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
-  const template = emailTemplatesStore.get(String(id))
-  if (!template) {
-    return HttpResponse.json({ error: 'Unknown email template' }, { status: 404 })
-  }
-  return HttpResponse.json(template)
-})
-
-export const patchEmailTemplateHandler = http.patch(
-  '/api/email-templates/:id',
-  async ({ params, request }) => {
-    const { id } = params
-    const existing = emailTemplatesStore.get(String(id))
-    if (!existing) {
-      return HttpResponse.json({ error: 'Unknown email template' }, { status: 404 })
-    }
-    const body = (await request.json()) as Partial<EmailTemplate>
-    await new Promise(resolve => setTimeout(resolve, 300)) // Simulate network delay
-    const updated: EmailTemplate = {
-      ...existing,
-      ...body,
-      id: existing.id,
-      dateLastModified: new Date().toISOString()
-    }
-    emailTemplatesStore.set(existing.id, updated)
-    return HttpResponse.json(updated)
-  }
-)
-
-export const emailTemplatesHandlers = [
-  findEmailTemplatesHandler,
-  getEmailTemplateHandler,
-  patchEmailTemplateHandler
-]
 
 export const findEmpty = (mswHandler: HttpHandler) => {
   const path = mswHandler.info.path
