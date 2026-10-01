@@ -778,6 +778,18 @@ export default {
       }
     },
     sortBy: 'order by',
+    collectionVisibility: {
+      label: 'visibility',
+      public: 'public',
+      private: 'private',
+      makePublic: 'make public',
+      makePrivate: 'make private',
+      notifications: {
+        updatedPublic: 'Collection "{title}" is now public.',
+        updatedPrivate: 'Collection "{title}" is now private.',
+        updateError: 'Could not change visibility of collection "{title}".'
+      }
+    },
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',

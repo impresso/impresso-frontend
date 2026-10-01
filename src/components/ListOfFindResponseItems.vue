@@ -86,6 +86,11 @@ const emit = defineEmits<{
 export interface ListOfFindResponseItemsExposed {
   refresh: () => Promise<void>
   refreshFromFirstPage: () => Promise<void>
+  /**
+   * Update a single item of the current page in place, without refetching.
+   * Handy to reflect changes made elsewhere (e.g. via PATCH) instantly.
+   */
+  updateItem?: (itemId: string | number, patch: Record<string, any>) => void
 }
 
 export interface ListOfFindResponseItemsProps<T> {
@@ -214,7 +219,18 @@ const refreshFromFirstPage = async () => {
   await fetchFindMethod()
 }
 
-defineExpose<ListOfFindResponseItemsExposed>({ refresh, refreshFromFirstPage })
+const updateItem = (itemId: string | number, patch: Record<string, any>) => {
+  const index = serviceResponse.value.data.findIndex(item => String(item?.id) === String(itemId))
+  if (index !== -1) {
+    serviceResponse.value.data[index] = { ...serviceResponse.value.data[index], ...patch }
+  }
+}
+
+defineExpose<ListOfFindResponseItemsExposed>({
+  refresh,
+  refreshFromFirstPage,
+  updateItem
+})
 
 watch(
   () => props.fetchItemsWhenVisible,

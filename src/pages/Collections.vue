@@ -19,6 +19,7 @@
       </template>
       <template v-slot:default>
         <ListOfFindResponseItems
+          ref="collectionsList"
           :service="collectionsService"
           :params="listParams"
           :list-is-empty-message="$t('no collections')"
@@ -78,15 +79,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, provide, ref } from 'vue'
 import { collections as collectionsService } from '../services'
 
 import { Routes } from '../router/routes'
 import CollectionItem from '../components/modules/lists/CollectionItem.vue'
 
 import ListOfFindResponseItems from '../components/ListOfFindResponseItems.vue'
-import type { GenericListPagination } from '../components/ListOfFindResponseItems.vue'
+import type {
+  GenericListPagination,
+  ListOfFindResponseItemsExposed
+} from '../components/ListOfFindResponseItems.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
+
+const collectionsList = ref<ListOfFindResponseItemsExposed | null>(null)
+
+// Allows child routes (e.g. CollectionDetailPage) to update a collection in
+// this list in place, so visibility badges stay in sync after a PATCH.
+provide('updateCollectionsListItem', (itemId: string, patch: Record<string, unknown>) => {
+  collectionsList.value?.updateItem(itemId, patch)
+})
 
 const orderBy = ref('-date')
 const orderByOptions = ['date', '-date', 'creationDate', '-creationDate']
@@ -103,6 +115,7 @@ const listParams = computed(() => {
     return {
       query: {
         limit: 10,
+        includePublic: true,
         term: searchTerm.value.trim(),
         order_by: orderBy.value
       }
@@ -111,6 +124,7 @@ const listParams = computed(() => {
   return {
     query: {
       limit: 10,
+      includePublic: true,
       order_by: orderBy.value
     }
   }

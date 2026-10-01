@@ -17,7 +17,16 @@
             >
           </span>
 
-          <h3>{{ collection.name }}</h3>
+          <h3>
+            {{ collection.name }}
+            <span
+              v-if="collection.id"
+              class="badge badge-pill ml-1 text-capitalize align-middle border"
+              :class="isPublic ? 'badge-success' : 'badge-light text-muted'"
+            >
+              {{ $t(isPublic ? 'collectionVisibility.public' : 'collectionVisibility.private') }}
+            </span>
+          </h3>
           <ContentItemIdLabel v-if="collection.id" :id="collection.id" class="mt-1" />
           <blockquote class="m-2 pl-2 border-left border-dark">
             {{ collection.description }}
@@ -50,7 +59,17 @@
               {{ $t('compare_collection') }}
             </button>
           </router-link>
+          <b-button
+            v-if="isCollectionOwner"
+            class="m-1"
+            size="sm"
+            :variant="isPublic ? 'outline-success' : 'outline-secondary'"
+            @click="changeAccessLevel(isPublic ? 'private' : 'public')"
+          >
+            {{ $t(isPublic ? 'collectionVisibility.makePrivate' : 'collectionVisibility.makePublic') }}
+          </b-button>
           <b-dropdown
+            v-if="isCollectionOwner"
             class="m-1"
             size="sm"
             variant="outline-primary"
@@ -349,6 +368,7 @@ import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useUserStore } from '@/stores/user'
 import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
@@ -386,6 +406,7 @@ export interface IData {
 }
 
 export default defineComponent({
+  inject: ['updateCollectionsListItem'],
   data: () =>
     ({
       tab: undefined,
@@ -428,7 +449,7 @@ export default defineComponent({
     Modal
   },
   computed: {
-    ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore),
+    ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -440,6 +461,19 @@ export default defineComponent({
     },
     publicApiUrl() {
       return DatalabPublicApiUrl
+    },
+    isPublic() {
+      return this.collection?.status === 'public'
+    },
+    isCollectionOwner() {
+      const user = this.userStore.user
+      if (!user || !this.collection?.id) return false
+      // explicit creator info, when the API provides it
+      if (this.collection.creator?.username) {
+        return this.collection.creator.username === user.username
+      }
+      // fallback: collection ids are prefixed with the creator's uid ("<uid>-<random>")
+      return !!user.uid && this.collection.id.startsWith(`${user.uid}-`)
     },
     base64Filters() {
       if (!this.collection?.id) return ''
@@ -552,7 +586,9 @@ export default defineComponent({
               id: collection.id,
               lastModifiedDate: collection.updatedAt,
               creationDate: collection.createdAt,
-              countItems: collection.totalItems
+              countItems: collection.totalItems,
+              status: collection.accessLevel,
+              creator: collection.creator
             })
           })
           this.fetching = false
@@ -653,6 +689,47 @@ export default defineComponent({
           article_id: article.id
         }
       })
+    },
+    changeAccessLevel(accessLevel: 'public' | 'private') {
+      if (!this.collection.id || this.collection.status === accessLevel) return
+      this.collectionsStore
+        .updateCollectionAccessLevel({
+          id: this.collection.id,
+          accessLevel
+        })
+        .then(() => {
+          this.collection.status = accessLevel
+          // keep the collections list (sidebar) in sync
+          const idx = this.collections.findIndex(c => c.id === this.collection.id)
+          if (idx >= 0 && this.collections[idx]) {
+            this.collections[idx].status = accessLevel
+          }
+          // update the sidebar item rendered by ListOfFindResponseItems in place,
+          // so its visibility badge doesn't go stale
+          if (typeof this.updateCollectionsListItem === 'function') {
+            this.updateCollectionsListItem(String(this.collection.id), { accessLevel })
+          }
+          this.notificationsStore.addNotification({
+            type: 'success',
+            title: this.$t('collectionVisibility.label'),
+            message: this.$t(
+              accessLevel === 'public'
+                ? 'collectionVisibility.notifications.updatedPublic'
+                : 'collectionVisibility.notifications.updatedPrivate',
+              { title: this.collection.name }
+            )
+          })
+        })
+        .catch(err => {
+          console.error('[CollectionDetailPage] changeAccessLevel', err)
+          this.notificationsStore.addNotification({
+            type: 'error',
+            title: this.$t('collectionVisibility.label'),
+            message: this.$t('collectionVisibility.notifications.updateError', {
+              title: this.collection.name
+            })
+          })
+        })
     },
     remove(collection) {
       this.collectionsStore
