@@ -8,7 +8,6 @@ export const RequestsOrderByOptions = ['-dateLastModified', 'dateLastModified'] 
 export type RequestsOrderBy = (typeof RequestsOrderByOptions)[number]
 
 const DefaultOrderBy: RequestsOrderBy = '-dateLastModified'
-const DefaultLimit = 25
 
 export interface UseRequestsQueryOptions {
   /**
@@ -23,13 +22,6 @@ export interface UseRequestsQuery {
   term: ComputedRef<string>
   /** Sort order, mirrored in `?orderBy=`. */
   orderBy: ComputedRef<RequestsOrderBy>
-  /** Page size, mirrored in `?limit=`. */
-  limit: ComputedRef<number>
-  /**
-   * Result offset, mirrored in `?offset=`. This seeds the first load of the
-   * list, which then owns paging internally.
-   */
-  offset: ComputedRef<number>
   /** Whether any filter beyond the status is active. */
   hasActiveFilters: ComputedRef<boolean>
   /** Feathers `find` params built from the current state. */
@@ -44,17 +36,18 @@ const readString = (value: unknown): string => {
   return typeof value === 'string' ? value : ''
 }
 
-const readNumber = (value: unknown, fallback: number): number => {
-  const parsed = parseInt(readString(value), 10)
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
-}
-
 /**
  * Keeps the requests list filters in the URL query string so that a filtered
  * queue can be bookmarked, reloaded or shared with another reviewer.
  *
  * The status filter is intentionally not part of the query string: every status
  * has its own route, which keeps those URLs readable.
+ *
+ * Paging (`limit` / `offset`) is deliberately not mirrored here. The list
+ * component owns its pagination and overrides both keys on every request after
+ * the first load, so these values could only ever seed the initial fetch and
+ * went stale as soon as the reviewer changed page. Keeping them in the URL
+ * suggested they were shareable state when nothing ever wrote them back.
  */
 export const useRequestsQuery = ({ status }: UseRequestsQueryOptions): UseRequestsQuery => {
   const route = useRoute()
@@ -67,10 +60,15 @@ export const useRequestsQuery = ({ status }: UseRequestsQueryOptions): UseReques
     return RequestsOrderByOptions.includes(value) ? value : DefaultOrderBy
   })
 
-  const limit = computed(() => readNumber(route.query.limit, DefaultLimit))
-  const offset = computed(() => readNumber(route.query.offset, 0))
-
   const hasActiveFilters = computed(() => term.value !== '' || orderBy.value !== DefaultOrderBy)
+
+  /**
+   * Query params this composable no longer owns. They are dropped rather than
+   * preserved so that links shared before the paging state moved into the list
+   * (for example `?q=luc&offset=50`) do not keep carrying a page that the list
+   * would now ignore.
+   */
+  const RemovedQueryParams = ['limit', 'offset']
 
   /**
    * Replaces the given query params. Uses `replace` so that filtering does not
@@ -79,6 +77,7 @@ export const useRequestsQuery = ({ status }: UseRequestsQueryOptions): UseReques
   const updateQuery = (patch: Record<string, string | undefined>) => {
     const query: Record<string, string> = {}
     for (const [key, value] of Object.entries({ ...route.query, ...patch })) {
+      if (RemovedQueryParams.includes(key)) continue
       const asString = readString(value)
       if (asString !== '') query[key] = asString
     }
@@ -86,29 +85,24 @@ export const useRequestsQuery = ({ status }: UseRequestsQueryOptions): UseReques
   }
 
   const setTerm = (value: string) => {
-    const normalized = value.trim()
-    // Any change of the result set invalidates the current page.
-    updateQuery({ q: normalized || undefined, offset: undefined })
+    updateQuery({ q: value.trim() || undefined })
   }
 
   const setOrderBy = (value: RequestsOrderBy) => {
-    updateQuery({ orderBy: value === DefaultOrderBy ? undefined : value, offset: undefined })
+    updateQuery({ orderBy: value === DefaultOrderBy ? undefined : value })
   }
 
   const resetFilters = () => {
-    updateQuery({ q: undefined, orderBy: undefined, offset: undefined })
+    updateQuery({ q: undefined, orderBy: undefined })
   }
 
   const serviceParams = computed<ServiceFindParams>(() => {
+    // No `limit` / `offset`: the list supplies both, since it owns paging.
     const query: {
-      limit: number
-      offset: number
       order_by: RequestsOrderBy
       term: string
       status?: RequestStatusFilter[]
     } = {
-      limit: limit.value,
-      offset: offset.value,
       order_by: orderBy.value,
       term: term.value
     }
@@ -123,8 +117,6 @@ export const useRequestsQuery = ({ status }: UseRequestsQueryOptions): UseReques
   return {
     term,
     orderBy,
-    limit,
-    offset,
     hasActiveFilters,
     serviceParams,
     setTerm,
