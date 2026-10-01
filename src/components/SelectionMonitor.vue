@@ -96,6 +96,7 @@
               </SearchFacetTimeline>
             </div>
             <!-- end timeline -->
+
             <!-- filters -->
             <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
               <BFormCheckbox
@@ -273,6 +274,16 @@ const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.typ
 // be called on every computed that touched monitorFilter (monitorFilters, timelineFilters,
 // summaryFilters, displayFilters) — even when monitor.item hadn't changed.
 const monitorType = computed(() => monitor.type)
+const filterType = computed(() => {
+  const typeAliases: Record<string, string> = {
+    persons: 'person',
+    locations: 'location',
+    organisations: 'organisation',
+    newsagencies: 'nag'
+  }
+  const type = monitorType.value ?? ''
+  return typeAliases[type] ?? type
+})
 const monitorItem = computed(() => monitor.item as { id?: string; q?: string | string[] } | null)
 
 const editedMonitorItemAsFilter = ref<Filter | null>(null)
@@ -289,7 +300,7 @@ const monitorItemAsFilter = computed<Filter | null>(() => {
     : [String(item?.q ?? item?.id ?? '')]
 
   return FilterFactory.create({
-    type: monitorType.value,
+    type: filterType.value,
     q: query,
     items: item ? [item] : []
   }) as Filter
@@ -425,7 +436,9 @@ const applyFilter = () => {
     return
   }
 
-  const baseFilters = props.filters.filter(filter => filter.type !== monitorType.value)
+  const baseFilters = props.filters.filter(
+    filter => filter.type !== monitorItemAsFilter.value?.type
+  )
 
   if (initialSearchFilters.value.length) {
     emit('change', baseFilters.concat(initialSearchFilters.value))
@@ -473,12 +486,18 @@ watch(
 
     isLoadingFilterItems.value = true
     try {
+      const requestedFilters = monitorFilters.value
       const nextFiltersWithItems = await filterItemsService
-        .find({ query: { filters: serializeFilters(monitorFilters.value) } })
+        .find({ query: { filters: serializeFilters(requestedFilters) } })
         .then(joinFiltersWithItems)
 
       if (!cancelled && requestId === filterItemsRequestId.value) {
-        monitorFiltersWithItems.value = nextFiltersWithItems
+        monitorFiltersWithItems.value = requestedFilters.map(filter => {
+          const filterWithItems = nextFiltersWithItems.find(candidate =>
+            FilterFactory.filtersAreEqual(filter, candidate)
+          )
+          return filterWithItems ? { ...filter, items: filterWithItems.items } : filter
+        })
       }
     } catch (e) {
       console.error('[SelectionMonitor] Failed to load filter items', e)
