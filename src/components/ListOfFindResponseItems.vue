@@ -268,6 +268,13 @@ watch(
   () => paramsSignature.value,
   () => {
     console.debug('[ListOfFindResponseItems] Params changed, refetching:', props.params)
+    // A new result set has no page 3. Return to the first page, otherwise the
+    // offset carried over from the previous filters can point past the end of
+    // the new results and show an empty page.
+    serviceResponse.value.pagination = {
+      ...serviceResponse.value.pagination,
+      offset: 0
+    }
     fetchFindMethod()
   }
 )

@@ -29,7 +29,7 @@ export const Default: Story = {
       metadata: {
         modality: 'notify_reviewer',
         revokeAfterDays: 30,
-        enableTemporaryAutomaticAcceptance: true
+        enableTemporaryAutomaticApproval: true
       }
     },
     notesMinLength: 20,

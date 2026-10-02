@@ -2,12 +2,10 @@
   <form class="MagicLinkForm" @submit.prevent="onSubmit" novalidate>
     <BFormGroup
       id="token-group"
-      label="Magic Link Token *"
+      :label="$t('tokenLabel')"
       label-for="token"
       :description="(v$.token!.$errors[0]?.$message as string) || ''"
-      :style="{
-        display: $props.isLoading ? 'none' : 'block'
-      }"
+      :class="{ 'd-none': props.isLoading }"
     >
       <BFormInput
         id="token"
@@ -16,12 +14,12 @@
         type="text"
         required
         :disabled="props.isLoading"
-        placeholder="Enter your magic link token"
+        :placeholder="$t('tokenPlaceholder')"
         :class="{
           'border-danger': v$.token!.$error,
           'border-dark': !v$.token!.$error
         }"
-        class="rounded-sm shadow-sm bg-light"
+        class="rounded-sm bg-light"
         v-model.trim="formData.token"
       />
     </BFormGroup>
@@ -31,9 +29,9 @@
         type="submit"
         :disabled="props.isLoading || v$.token!.$error"
         class="btn btn-outline-primary btn-md px-4 gap-2 border border-dark"
+        :aria-busy="props.isLoading"
       >
-        <span v-if="!props.isLoading">{{ $t('actions.verifyTokenAndLogIn') }}</span>
-        <span v-else>{{ $t('actions.verifyingToken') }}</span>
+        <span>{{ $t(props.isLoading ? 'actions.verifyingToken' : 'actions.verifyTokenAndLogIn') }}</span>
       </button>
       <slot name="actions"></slot>
     </section>
@@ -41,22 +39,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { helpers, required, minLength } from '@vuelidate/validators'
 import BFormGroup from 'impresso-ui-components/components/legacy/BFormGroup.vue'
 import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue'
 
-/**
- * Type definitions for the form payload
- */
 export interface MagicLinkFormPayload {
   token: string
 }
 
-/**
- * Type definitions for component props
- */
 export interface MagicLinkFormProps {
   className?: string
   isLoading?: boolean
@@ -77,9 +69,6 @@ const formData = reactive<MagicLinkFormPayload>({
   token: props.token
 })
 
-/**
- * Validation rules using Vuelidate
- */
 const formRules = {
   token: {
     required: helpers.withMessage('Please enter a token', required),
@@ -89,9 +78,6 @@ const formRules = {
 
 const v$ = useVuelidate(formRules, formData)
 
-/**
- * Handle form submission
- */
 const onSubmit = async () => {
   v$.value.$touch()
   const isValid = await v$.value.$validate()
@@ -99,7 +85,6 @@ const onSubmit = async () => {
   if (!isValid) {
     return
   }
-  // Emit both events for flexibility
   emit('submit', {
     token: formData.token
   })
@@ -109,18 +94,11 @@ const onSubmit = async () => {
 <i18n lang="json">
 {
   "en": {
-    "magicLinkTitle": "Verify Magic Link Token",
-    "magicLinkDescription": "Please enter the token from your magic link to verify access",
-    "tokenPlaceholder": "Enter your magic link token",
-    "verifyButton": "Verify Token",
-    "verifyingButton": "Verifying...",
-    "tokenRequired": "Token is required",
-    "tokenMinLength": "Token must be at least 10 characters long",
-    "invalidToken": "Invalid or expired token",
-    "verificationError": "An error occurred during token verification",
+    "tokenLabel": "Sign-in token",
+    "tokenPlaceholder": "Paste the token from your email",
     "actions": {
-      "verifyTokenAndLogIn": "Verify Token and Log In",
-      "verifyingToken": "Verifying Token..."
+      "verifyTokenAndLogIn": "Verify and sign in",
+      "verifyingToken": "Checking link"
     }
   }
 }
