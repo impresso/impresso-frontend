@@ -14,7 +14,7 @@
           :y="yScale(idx)"
           :width="Math.max(1, xScale(nestedValue.dateRange[1]) - xScale(nestedValue.dateRange[0]))"
           :height="barHeight"
-          :fill="colorScale(nestedValue.value)"
+          :fill="colorScale(dataValue.item?.type)(nestedValue.value)"
           opacity="0.9"
         />
       </g>
@@ -25,7 +25,7 @@
         :y="yScale(idx)"
         :width="Math.max(1, xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0]))"
         :height="barHeight"
-        :fill="colorScale(dataValue.value)"
+        :fill="colorScale(dataValue.item?.type)(dataValue.value)"
         opacity="0.9"
       />
     </template>
@@ -37,6 +37,8 @@ import { computed } from 'vue'
 import * as d3 from 'd3'
 import type { DataValue } from './SourcesOverviewDateValueItem.vue'
 import type { MediaSource } from '@/models/generated/canonical'
+import { getColorScaleFnBySourceType } from './colors'
+
 export interface Props {
   startDate: Date
   endDate: Date
@@ -97,15 +99,14 @@ const valueExtent = computed<{ min: number; max: number }>(() => {
 
 // D3 color scale using interpolateYlGn
 const colorScale = computed(() => {
-  return d3
-    .scalePow()
-    .exponent(props.scaleExponent)
-    .domain([valueExtent.value.min, valueExtent.value.max])
-    .range([0, 1])
-    .interpolate(() => (t: number) => {
-      // Use d3's YlGn interpolator with adjusted range for better visibility
-      return d3.interpolateYlGn(0.5 + t * 0.5)
-    })
+  return (sourceType: MediaSource['type']) => {
+    return d3
+      .scalePow()
+      .exponent(props.scaleExponent)
+      .domain([valueExtent.value.min, valueExtent.value.max])
+      .range([0, 1])
+      .interpolate(() => getColorScaleFnBySourceType(sourceType))
+  }
 })
 </script>
 

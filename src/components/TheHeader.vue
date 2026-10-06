@@ -187,7 +187,7 @@
           </span>
           <span v-else>{{ error }}</span>
           <span v-if="error.id" class="error-id">
-            <info-button name="error-id" placement="bottom" class="ml-2" />
+            <InfoButton name="error-id" placement="bottom" class="ml-2" />
             [ {{ error.id }} ]
           </span>
         </span>
@@ -214,6 +214,7 @@ import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/Swi
 import { Routes } from '@/router/routes'
 import type { RouteLocationRaw } from 'vue-router'
 import { useRoute } from 'vue-router'
+import InfoButton from './base/InfoButton.vue'
 
 const route = useRoute()
 const jobsStore = useJobsStore()
@@ -287,7 +288,6 @@ watch(
   },
   { immediate: true }
 )
-
 </script>
 
 <style lang="css">
