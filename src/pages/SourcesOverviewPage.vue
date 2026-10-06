@@ -29,7 +29,7 @@ import { Filter } from '@/models'
 import type { FacetType } from '@/models'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
-
+import MediaTypeSwitch, { MediaType } from '@/components/MediaTypeSwitch.vue'
 /** User-specific facets that require authentication. */
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
@@ -112,7 +112,7 @@ const minimumVerticalHeight = ref<number>(4)
 const withPowerScale = ref(true)
 const tooltipPosition = ref<TooltipPosition | null>(null)
 const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
-
+const mediaType = ref<MediaType>('radio_broadcast')
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
@@ -140,12 +140,35 @@ const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
 
+const initializeMediaTypeFromFilters = () => {
+  const sourceTypeFilter = props.filters.find(f => f.type === 'sourceType')
+  if (sourceTypeFilter) {
+    const filterValue = sourceTypeFilter as Filter
+    if (filterValue.context === 'exclude') {
+      if (filterValue.q === 'radio') {
+        mediaType.value = 'newspaper'
+      } else if (filterValue.q === 'newspaper') {
+        mediaType.value = 'radio_broadcast'
+      } else {
+        mediaType.value = 'both'
+      }
+    } else if (filterValue.q === 'radio_broadcast' || filterValue.q === 'newspaper') {
+      mediaType.value = filterValue.q as MediaType
+    } else {
+      mediaType.value = 'both'
+    }
+  } else {
+    mediaType.value = 'both'
+  }
+}
+
 watch(
   [allowedFilters, shouldLoadCollections],
   async ([newVal]) => {
     isLoading.value = true
     totalResults.value = 0
 
+    initializeMediaTypeFromFilters()
     const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
     const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
     const [facetsItems, timelineFacets, userFacets] = await Promise.all([
@@ -213,46 +236,47 @@ watch(
       {} as Record<string, MediaSource>
     )
 
-    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> = statsItems.items.reduce(
-      (
-        acc: Record<string, DataValue<MediaSource>[]>,
-        d: {
-          domain: string
-          value: {
-            count: number
-            items: {
-              term: string
+    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> =
+      statsItems.items.reduce(
+        (
+          acc: Record<string, DataValue<MediaSource>[]>,
+          d: {
+            domain: string
+            value: {
               count: number
-            }[]
+              items: {
+                term: string
+                count: number
+              }[]
+            }
           }
-        }
-      ) => {
-        d.value.items.forEach(item => {
-          if (!acc[item.term]) {
-            acc[item.term] = []
-          }
-          const date = new Date(d.domain)
-          let startDate = new Date(date.getFullYear(), 0, 1)
-          let endDate = new Date(date.getFullYear(), 11, 31)
-          if (statsItems.meta.resolution === 'month') {
-            startDate = new Date(date.getFullYear(), date.getMonth(), 1)
-            endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-          } else if (statsItems.meta.resolution === 'day') {
-            startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-            endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-          }
-          acc[item.term].push({
-            id: `${item.term}-${d.domain}`,
-            date: startDate,
-            dateRange: [startDate, endDate],
-            value: item.count,
-            label: item.term
-          } as DataValue<MediaSource>)
-        })
-        return acc
-      },
-      {} as Record<string, DataValue<MediaSource>[]>
-    )
+        ) => {
+          d.value.items.forEach(item => {
+            if (!acc[item.term]) {
+              acc[item.term] = []
+            }
+            const date = new Date(d.domain)
+            let startDate = new Date(date.getFullYear(), 0, 1)
+            let endDate = new Date(date.getFullYear(), 11, 31)
+            if (statsItems.meta.resolution === 'month') {
+              startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+              endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+            } else if (statsItems.meta.resolution === 'day') {
+              startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+              endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+            }
+            acc[item.term].push({
+              id: `${item.term}-${d.domain}`,
+              date: startDate,
+              dateRange: [startDate, endDate],
+              value: item.count,
+              label: item.term
+            } as DataValue<MediaSource>)
+          })
+          return acc
+        },
+        {} as Record<string, DataValue<MediaSource>[]>
+      )
 
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
       const allDates = values.flatMap(v => [v.dateRange[0], v.dateRange[1]])
@@ -277,6 +301,20 @@ watch(
   },
   { immediate: true }
 )
+
+const changeMediaTypeFilter = (v: MediaType) => {
+  mediaType.value = v
+  const filtervalue = v === 'both' ? ['newspaper', 'radio_broadcast'] : v
+  // check if there is already a mediaFilterType
+  if (props.filters.some(f => f.type === 'sourceType')) {
+    emit('filtersChanged', [
+      ...props.filters.filter(f => f.type !== 'sourceType'),
+      { type: 'sourceType', q: filtervalue }
+    ])
+  } else {
+    emit('filtersChanged', [...props.filters, { type: 'sourceType', q: filtervalue }])
+  }
+}
 
 onMounted(() => {
   facets.value = []
@@ -323,6 +361,24 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
+          <template #actions>
+            <li>
+              <div
+                class="d-block mb-1"
+                :class="{
+                  'text-muted': isLoading
+                }"
+              >
+                {{ $t('label_mediaType') }}
+              </div>
+              <MediaTypeSwitch
+                class="small"
+                :model-value="mediaType"
+                @update:model-value="changeMediaTypeFilter"
+                :disabled="isLoading"
+              />
+            </li>
+          </template>
           <template #summaryActions>
             <b-dropdown
               size="sm"
@@ -516,7 +572,8 @@ onMounted(() => {
     "withPowerScaleInfoTitle": "With Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
     "gettingStarted": "Open Getting Started Guide",
-    "label_loadCollection": "Enable Collections"
+    "label_loadCollection": "Enable Collections",
+    "label_mediaType": "Media Type"
   }
 }
 </i18n>
