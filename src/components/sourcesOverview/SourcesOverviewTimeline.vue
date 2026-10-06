@@ -213,6 +213,9 @@
             :width="xScale(dataValue.dateRange[1]) - xScale(dataValue.dateRange[0])"
             :exponent="props.scaleExponent"
             @item-click="onDataValueItemClick"
+            :colorScaleFn="getColorScaleFnBySourceType(dataValue.item?.type)"
+              
+            "
           />
         </div>
       </div>
@@ -225,6 +228,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import * as d3 from 'd3'
 import SourcesOverviewDateValueItem, { DataValue } from './SourcesOverviewDateValueItem.vue'
 import Tooltip from '../modules/tooltips/Tooltip.vue'
+import { getColorScaleFnBySourceType } from './colors'
 
 const singleYearStrokeWidth = 0.25
 const decadeStrokeWidth = 1

@@ -7,11 +7,14 @@
       }"
     >
       <div
-        class="label font-weight-bold small position-relative"
+        class="label font-weight-bold small position-relative line-height-1"
         :class="{ 'reduced-label': reducedLabel }"
         :title="dataValue.label"
       >
         {{ label }}
+        <div class="font-weigh-normal very-small-caps">
+          {{ $t(`buckets.sourceType.${dataValue.item?.type}`) }}
+        </div>
       </div>
       <div v-if="dataValue.dateRange" class="date-range text-no-wrap very-small">
         {{ $d(dataValue.dateRange[0], 'month') }}
@@ -63,7 +66,15 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { interpolateYlGn, max, min, scalePow, scaleSequential, scaleTime } from 'd3'
+import {
+  interpolateGnBu,
+  interpolateYlGn,
+  max,
+  min,
+  scalePow,
+  scaleSequential,
+  scaleTime
+} from 'd3'
 import { computed } from 'vue'
 
 export interface DataValue<T = any> {
@@ -91,6 +102,7 @@ export interface SourcesOverviewDateValueItemProps {
   minValue?: number
   maxValue?: number
   backgroundColor?: string
+  colorScaleFn?: (value: number) => string
 }
 
 const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
@@ -101,7 +113,8 @@ const props = withDefaults(defineProps<SourcesOverviewDateValueItemProps>(), {
   minBarHeight: 4,
   exponent: 1,
   normalizeLocally: false,
-  backgroundColor: 'purple'
+  backgroundColor: 'purple',
+  colorScaleFn: (value: number) => interpolateGnBu(0.5 + value * 0.5)
 })
 
 const emit = defineEmits<{
@@ -135,7 +148,7 @@ const xScale = computed(() => {
 })
 
 const colorScale = computed(() => {
-  return scaleSequential(t => interpolateYlGn(0.5 + t * 0.5)).domain([0, props.maxValue])
+  return scaleSequential(props.colorScaleFn).domain([0, props.maxValue])
 })
 
 const yScale = computed(() => {

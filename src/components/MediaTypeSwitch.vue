@@ -40,7 +40,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { v4 } from 'uuid'
 import { MediaSource } from '@/models/generated/canonical'
-
+import { RadioLow, RadioHigh, NewspaperLow, NewspaperHigh } from './sourcesOverview/colors'
 export type MediaType = MediaSource['type'] | 'both'
 
 export type MediaTypeSwitchColors = Partial<Record<MediaType, string>>
@@ -58,9 +58,9 @@ const props = withDefaults(defineProps<MediaTypeSwitchProps>(), {
   disabled: false,
   dataTestid: undefined,
   colors: () => ({
-    radio_broadcast: 'var(--impresso-color-vintage-purple)',
-    newspaper: 'var(--impresso-color-turquoise-surf)'
-    // no 'both' default: it falls back to a radio/newspaper split gradient below
+    radio_broadcast: `linear-gradient(90deg, rgb(${RadioLow.join(', ')}), rgb(${RadioHigh.join(', ')}))`, //' var(--impresso-color-vintage-purple)',
+    newspaper: `linear-gradient(90deg, rgb(${NewspaperLow.join(', ')}), rgb(${NewspaperHigh.join(', ')}))`, //' var(--impresso-color-vintage-blue)',
+    both: `linear-gradient(90deg, rgb(${RadioLow.join(', ')}), rgb(${RadioHigh.join(', ')}), rgb(${NewspaperLow.join(', ')}), rgb(${NewspaperHigh.join(', ')}))`
   }),
   // Bootstrap 5 variable (Bootstrap 4 used --dark)
   defaultColor: 'var(--bs-dark)',
@@ -93,11 +93,6 @@ const selectedIndex = computed(() => options.findIndex(option => option.value ==
 const thumbBackground = computed(() => {
   const explicit = props.colors[localValue.value]
   if (explicit) return explicit
-  if (localValue.value === 'both') {
-    const radioColor = props.colors.radio_broadcast ?? props.defaultColor
-    const newspaperColor = props.colors.newspaper ?? props.defaultColor
-    return `linear-gradient(90deg, ${radioColor} 50%, ${newspaperColor} 50%)`
-  }
   return props.defaultColor
 })
 
