@@ -47,58 +47,92 @@
       </div>
     </div>
 
-    <div class="suggestions position-absolute" v-show="showSuggestions">
-      <div>
-        <div
-          class="suggestion p-1"
-          v-for="(suggestion, index) in staticSuggestions"
-          :key="index"
-          @click="submitStaticSuggestion(suggestion)"
-          :data-idx="suggestion.idx"
-          @mouseover="select(suggestion)"
-          :class="{ selected: selectedIndex === suggestion.idx }"
-        >
-          <div :class="`suggestion-${suggestion.type}`">
-            <span class="small" v-if="suggestion.h" v-html="suggestion.h" />
-            <b class="small" v-else>{{ q }}</b>
-            <span class="suggestion-cta"> {{ $t(`label.${suggestion.type}.title`) }} ↵ </span>
-          </div>
+    <div class="suggestions position-absolute pb-2" v-show="showSuggestions">
+      <!-- Static Search Actions -->
+      <div
+        class="suggestion d-flex align-items-center justify-content-between px-2 py-1"
+        v-for="(suggestion, index) in staticSuggestions"
+        :key="index"
+        @click="submitStaticSuggestion(suggestion)"
+        :data-idx="suggestion.idx"
+        @mouseover="select(suggestion)"
+        :class="{ selected: selectedIndex === suggestion.idx }"
+      >
+        <span class="text-truncate" v-if="suggestion.h" v-html="suggestion.h" />
+        <b class="text-truncate" v-else>{{ q }}</b>
+        <div class="text-muted text-nowrap">
+          <span class="small">{{ $t(`label.${suggestion.type}.title`) }}</span>
+          <span> ↵</span>
         </div>
       </div>
-      <div v-for="(type, i) in suggestionTypes" :key="i" class="suggestion-box">
+
+      <!-- Dynamic Suggestion Sections -->
+      <div v-for="(type, i) in suggestionTypes" :key="i">
         <div :title="$t(`label.${type}.title`)">
-          <div class="suggestion-section-header" v-if="type !== 'mention'">
-            <Icon :name="typeIconMap[type] ?? type" :width="12" :height="12" :stroke-width="1.5" />
+          <!-- Section Header (Includes Mention Entities) -->
+          <div class="border-top very-small-caps text-muted px-2 py-1">
             {{ $t('label.' + type + '.title', suggestionIndex[type]?.length || 0) }}
           </div>
+
           <div
             v-for="(s, j) in suggestionIndex[type]"
             :key="j"
             @click="submit(s)"
             @mouseover="select(s)"
             :data-idx="s.idx"
-            class="suggestion pr-1 pl-2 py-1"
+            class="suggestion px-2 py-1"
             :class="{
               selected: selectedIndex === s.idx
             }"
           >
-            <div v-if="s.fake && type !== 'mention'" :title="$t(`label.${type}.moreLikeThis`)">
-              <b class="small">{{ q }}</b>
-              <span class="suggestion-cta"> {{ $t(`label.${type}.moreLikeThis`) }} → </span>
+            <!-- More like this CTA row -->
+            <div
+              v-if="s.fake && type !== 'mention'"
+              class="d-flex align-items-center justify-content-between w-100"
+              :title="$t(`label.${type}.moreLikeThis`)"
+            >
+              <b class="text-truncate">{{ q }}</b>
+              <span class="text-nowrap small text-muted"
+                >{{ $t(`label.${type}.moreLikeThis`) }} →</span
+              >
             </div>
-            <div v-else :class="`${type} small`">
-              <span v-if="['location', 'person'].includes(type)" v-html="s.h" />
-              <span v-if="['collection', 'newspaper'].includes(type)" v-html="s.item.name" />
-              <span v-if="['topic', 'mention'].includes(type)" v-html="s.h" />
-              <span v-if="s.type === 'daterange'">
-                {{ $d(s.daterange.start, 'short') }} - {{ $d(s.daterange.end, 'short') }}
-              </span>
+
+            <!-- Standard Entity & Mention Rows -->
+            <div v-else class="small d-flex align-items-center justify-content-between w-100">
+              <div class="d-flex align-items-center gap-2 text-truncate me-2">
+                <Icon
+                  v-if="typeIconMap[type]"
+                  :name="typeIconMap[type]"
+                  :width="13"
+                  :height="13"
+                  class="text-muted flex-shrink-0"
+                />
+                <span
+                  class="text-truncate"
+                  v-if="['location', 'person'].includes(type)"
+                  v-html="s.h"
+                />
+                <span
+                  class="text-truncate"
+                  v-if="['collection', 'newspaper'].includes(type)"
+                  v-html="s.item?.name"
+                />
+                <span
+                  class="text-truncate"
+                  v-if="['topic', 'mention'].includes(type)"
+                  v-html="s.h"
+                />
+                <span v-if="s.type === 'daterange'">
+                  {{ $d(s.daterange?.start, 'short') }} - {{ $d(s.daterange?.end, 'short') }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
   <explorer
     v-model="explorerFilters"
     :is-visible="explorerVisible"
@@ -111,7 +145,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
@@ -133,10 +167,14 @@ const AVAILABLE_TYPES = [
   'mention'
 ] as const
 
-// Maps suggestion types to Icon names for section headers
+// Maps suggestion types to corresponding Icon component names
 const typeIconMap: Record<string, string> = {
+  newspaper: 'newspaper',
+  topic: 'label',
   location: 'position',
-  topic: 'label'
+  person: 'user',
+  collection: 'folder',
+  mention: 'mention'
 }
 
 type AvailableType = (typeof AVAILABLE_TYPES)[number]
@@ -243,7 +281,6 @@ const filterCount = computed(() => {
 const suggestionIndex = computed(() => {
   const index: Record<string, Suggestion[]> = {}
 
-  // Group suggestions by type
   suggestions.value.forEach(item => {
     const type = item.type as string
     if (!index[type]) {
@@ -375,16 +412,19 @@ const submit = (payload?: SubmitPayload) => {
       emit('submitEmpty')
     }
   } else {
+    const filterType = type === 'newspaper' ? 'mediaSource' : (type as FacetType)
     emit(
       'submit',
       FilterFactory.create({
-        type,
+        type: filterType,
         q: [(item as any).id],
         items: [item]
       })
     )
     q.value = ''
   }
+
+  hideSuggestions()
 }
 
 const select = (suggestion: Suggestion) => {
@@ -412,6 +452,7 @@ const handleFiltersChanged = (filters: Filter[]) => {
   console.debug('[Autocomplete] @handleFiltersChanged')
   emit('filtersChanged', filters)
 }
+
 const hideSuggestions = () => {
   showSuggestions.value = false
 }
@@ -450,8 +491,6 @@ const keyup = (event: KeyboardEvent) => {
   }
 }
 
-// Lifecycle
-
 useClickOutside(
   autocomplete,
   (e: MouseEvent) => {
@@ -471,20 +510,20 @@ useClickOutside(
 }
 
 .Autocomplete .search-input {
-  border: 1px solid var(--impresso-color-black);
-  border-top-left-radius: var(--border-radius-sm);
-  border-bottom-left-radius: var(--border-radius-sm);
-  background-color: transparent;
+  border: 1px solid var(--impresso-color-black, #111827);
+  border-top-left-radius: var(--border-radius-sm, 4px);
+  border-bottom-left-radius: var(--border-radius-sm, 4px);
+  background-color: var(--clr-white, #ffffff);
   box-shadow: var(--bs-box-shadow-sm);
-  color: var(--impresso-color-black);
+  color: var(--impresso-color-black, #111827);
 }
 
 .Autocomplete .search-input:focus {
-  background-color: var(--clr-white-rgba-90);
+  background-color: var(--clr-white, #ffffff);
 }
 
 .Autocomplete .search-input::placeholder {
-  color: var(--clr-grey-500);
+  color: var(--clr-grey-500, #6b7280);
 }
 
 .Autocomplete.show .search-input {
@@ -493,131 +532,56 @@ useClickOutside(
 
 .Autocomplete .suggestions {
   width: 100%;
-  z-index: 10;
-  background: var(--clr-white-rgba-90);
-  border-bottom-right-radius: var(--border-radius-md);
-  border-bottom-left-radius: var(--border-radius-md);
-  padding-bottom: var(--spacing-2);
-  border: 1px solid var(--impresso-color-black);
-  border-top: 0px solid transparent;
+  z-index: 1050;
+  background-color: var(--clr-white, #ffffff);
+  border-bottom-right-radius: var(--border-radius-md, 6px);
+  border-bottom-left-radius: var(--border-radius-md, 6px);
+  border: 1px solid var(--clr-grey-300, #d1d5db);
+  border-top: 0;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
 }
 
-.Autocomplete .suggestion-section-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-1);
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--clr-grey-400);
-  padding: var(--spacing-1) var(--spacing-2-5);
-  border-top: 1px solid var(--clr-grey-700);
-  margin-top: var(--spacing-1);
-}
-
-.Autocomplete .suggestion-section-header .Icon {
-  opacity: 0.5;
-  margin-right: 0.25rem;
-}
-
-.Autocomplete .suggestion-cta {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.7rem;
-  color: var(--clr-grey-300);
-  background: var(--clr-grey-900);
-  border: 1px solid var(--clr-grey-700);
-  border-radius: 3px;
-  padding: 1px 5px;
-  margin-left: var(--spacing-2);
-  transition:
-    background-color 0.1s,
-    border-color 0.1s,
-    color 0.1s;
-  white-space: nowrap;
-}
-
-.Autocomplete .suggestion.selected .suggestion-cta {
-  background: var(--impresso-color-yellow);
-  border-color: var(--impresso-color-yellow);
-  color: var(--impresso-color-black);
-}
-
-.bg-dark.Autocomplete .suggestion-section-header {
-  color: var(--clr-grey-500);
-  border-top-color: var(--clr-grey-200);
-}
-
-.bg-dark.Autocomplete .suggestion-cta {
-  color: var(--clr-grey-500);
-  background: transparent;
-  border-color: var(--clr-grey-200);
-}
-
-.bg-dark.Autocomplete .suggestion.selected .suggestion-cta {
-  background: var(--impresso-color-yellow);
-  border-color: var(--impresso-color-yellow);
-  color: var(--impresso-color-black);
+.Autocomplete .suggestion {
+  cursor: pointer;
 }
 
 .Autocomplete .suggestion.selected {
-  background: var(--clr-grey-200);
-  cursor: pointer;
-  color: white;
+  background-color: var(--impresso-color-yellow, #ffeb78);
+  color: var(--impresso-color-black, #111827);
 }
 
-.Autocomplete .input-group-append button:first-child {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
+.Autocomplete .suggestion.selected * {
+  color: inherit !important;
 }
 
 .bg-dark.Autocomplete .suggestions {
-  background: #3e454c;
-  border: 1px solid var(--impresso-color-yellow);
-  border-top: 0px solid transparent;
+  background-color: #2a2e33;
+  border-color: #4b5563;
+  border-top: 0;
+}
+
+.bg-dark.Autocomplete .suggestion-section-header {
+  color: #9ca3af;
+  border-top-color: #374151;
 }
 
 .bg-dark.Autocomplete.show .search-input,
 .bg-dark.Autocomplete.show .search-input:focus {
-  border-color: var(--impresso-color-yellow) !important;
-  background-color: #3e454c !important;
-  color: var(--impresso-color-white);
-}
-
-.bg-dark.Autocomplete .search-input:hover::placeholder {
-  color: var(--impresso-color-white);
-}
-
-.bg-dark.Autocomplete .search-input {
-  color: var(--impresso-color-white);
-  border-top-left-radius: var(--border-radius-sm);
-  border-bottom-left-radius: var(--border-radius-sm);
-  border-color: var(--clr-grey-500);
+  border-color: var(--impresso-color-yellow, #fef08a) !important;
+  background-color: #2a2e33 !important;
+  color: #ffffff;
 }
 
 .bg-dark.Autocomplete .input-group-append button {
-  border-color: var(--clr-grey-500) !important;
-  color: var(--clr-grey-500);
+  border-color: #4b5563 !important;
+  color: #9ca3af;
   background-color: transparent;
 }
 
-.bg-dark.Autocomplete .input-group-append button:hover {
-  color: var(--impresso-color-white);
-}
-
-.bg-dark.Autocomplete.show,
-.bg-dark.Autocomplete.show .suggestions {
-  box-shadow: var(--bs-box-shadow-md-darker);
-}
-
 .bg-dark.Autocomplete.show .input-group-append button {
-  border-color: var(--impresso-color-yellow) !important;
-  color: var(--impresso-color-yellow);
-}
-
-.Autocomplete.show .input-group-append button:last-child {
-  border-bottom-right-radius: 0;
+  border-color: var(--impresso-color-yellow, #fef08a) !important;
+  color: var(--impresso-color-yellow, #fef08a);
 }
 </style>
 
@@ -632,33 +596,33 @@ useClickOutside(
         "title": "Search in article contents"
       },
       "mention": {
-        "title": "in contents ..."
+        "title": "Mentioned Entities (Unlinked)"
       },
       "title": {
         "title": "Search in article titles"
       },
       "topic": {
-        "title": "suggested topics",
+        "title": "Suggested Topics",
         "moreLikeThis": "More Topics ..."
       },
       "person": {
-        "title": "suggested people",
+        "title": "Suggested People",
         "moreLikeThis": "More Persons ..."
       },
       "location": {
-        "title": "suggested locations",
+        "title": "Suggested Locations",
         "moreLikeThis": "More Locations ..."
       },
       "collection": {
-        "title": "suggested collections",
+        "title": "Suggested Collections",
         "moreLikeThis": "More Collections ..."
       },
       "newspaper": {
-        "title": "suggested newspapers",
-        "moreLikeThis": "More Newspapers ..."
+        "title": "Suggested media sources",
+        "moreLikeThis": "More media sources ..."
       },
       "daterange": {
-        "title": "filter by date of publication",
+        "title": "Filter by date of publication",
         "item": "From {start} to {end}"
       }
     }
