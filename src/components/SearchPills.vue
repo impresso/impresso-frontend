@@ -354,16 +354,9 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
   }
 
   if (
-    [
-      'person',
-      'location',
-      'newspaper',
-      'mediaSource',
-      'entity',
-      'nag',
-      'organisation',
-      'mention'
-    ].includes(filter.type)
+    ['person', 'location', 'newspaper', 'mediaSource', 'entity', 'nag', 'organisation'].includes(
+      filter.type
+    )
   ) {
     return {
       ...labelByItems({ items: filter.items, max: 2, op: filter.op }),
@@ -381,7 +374,8 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
       'dataDomain',
       'partner',
       'sourceType',
-      'sourceMedium'
+      'sourceMedium',
+      'mention'
     ].includes(filter.type)
   ) {
     return {

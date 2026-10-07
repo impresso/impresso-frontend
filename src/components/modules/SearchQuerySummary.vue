@@ -48,6 +48,7 @@ const AvailableFilterTypes = [
   'language',
   'country',
   'copyright',
+  'mention',
   'nag',
   'organisation',
   'page',
