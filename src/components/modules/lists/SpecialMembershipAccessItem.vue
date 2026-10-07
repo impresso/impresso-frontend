@@ -41,7 +41,7 @@
           <div v-if="showMetadata">
             <div
               class="d-flex align-items-center gap-2"
-              v-for="metadataKey in ['enableTemporaryAutomaticAcceptance', 'revokeAfterDays']"
+              v-for="metadataKey in displayedMetadataKeys"
               :key="metadataKey"
             >
               <div class="text-muted small">{{ $t(`metadata.${metadataKey}.label`) }}</div>
@@ -50,8 +50,8 @@
                 class="smallcaps"
                 v-html="
                   $t(
-                    `metadata.${metadataKey}.${item.metadata![metadataKey] ? 'available' : 'disabled'}`,
-                    { value: item.metadata![metadataKey] }
+                    `metadata.${metadataKey}.${displayedMetadata[metadataKey] ? 'available' : 'disabled'}`,
+                    { value: displayedMetadata[metadataKey] }
                   )
                 "
               ></div>
@@ -59,12 +59,12 @@
               <InfoButton
                 :name="
                   $t(
-                    `metadata.${metadataKey}.infoTitle.${item.metadata![metadataKey] ? 'available' : 'disabled'}`
+                    `metadata.${metadataKey}.infoTitle.${displayedMetadata[metadataKey] ? 'available' : 'disabled'}`
                   )
                 "
                 :default-content="
                   $t(
-                    `metadata.${metadataKey}.infoText.${item.metadata![metadataKey] ? 'available' : 'disabled'}`
+                    `metadata.${metadataKey}.infoText.${displayedMetadata[metadataKey] ? 'available' : 'disabled'}`
                   )
                 "
               >
@@ -89,6 +89,7 @@ import type { SpecialMembershipAccess } from '@/services/types'
 import TimeAgo from '../../TimeAgo.vue'
 import Icon, { IconProps } from 'impresso-ui-components/components/Icon.vue'
 import { computed } from 'vue'
+import { isTemporaryAutomaticApprovalEnabled } from '@/logic/specialMembershipAccess'
 import InfoButton from '@/components/base/InfoButton.vue'
 import {
   SpecialMembershipRequestStatusApproved,
@@ -123,6 +124,11 @@ const hasRequests = computed(() => {
 const showMetadata = computed(() => {
   return props.withMetadata && props.item.metadata
 })
+const displayedMetadata = computed(() => ({
+  ...props.item.metadata,
+  enableTemporaryAutomaticApproval: isTemporaryAutomaticApprovalEnabled(props.item.metadata)
+}))
+const displayedMetadataKeys = ['enableTemporaryAutomaticApproval', 'revokeAfterDays'] as const
 const showActions = computed(() => {
   if (!hasRequests.value) {
     return props.withActions
@@ -182,7 +188,7 @@ const iconArgs = computed<IconProps>(() => {
       "pending-t": "Pending Provisional Access request"
     },
     "metadata": {
-      "enableTemporaryAutomaticAcceptance": {
+      "enableTemporaryAutomaticApproval": {
         "label": "Provisional access:",
         "available": "available",
         "disabled": "Disabled",

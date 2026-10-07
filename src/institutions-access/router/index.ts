@@ -2,6 +2,7 @@ import { InstitutionsAccessBaseUrl } from '@/constants'
 import * as services from '@/services'
 import { decodeJwt } from '@/util/auth'
 import { createRouter, createWebHistory } from 'vue-router'
+import { Routes, RoutesByRequestStatus } from './routes.js'
 
 /**
  * Router configuration for the institutions-access sibling app.
@@ -11,10 +12,21 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(InstitutionsAccessBaseUrl),
   routes: [
+    ...RoutesByRequestStatus.map(([status, path, name]) => ({
+      path,
+      name,
+      component: () => import('../views/RequestsView.vue'),
+      props: {
+        status
+      },
+      meta: {
+        requiresAuth: true
+      }
+    })),
     {
-      path: '/',
-      name: 'Index',
-      component: () => import('../views/Index.vue'),
+      path: Routes.emailTemplates.path,
+      name: Routes.emailTemplates.name,
+      component: () => import('../views/EmailTemplatesView.vue'),
       meta: {
         requiresAuth: true
       }
@@ -38,8 +50,11 @@ const router = createRouter({
     {
       path: '/special-membership-request/:id',
       name: 'SpecialMembershipRequest',
-      component: () => import('../views/Index.vue'),
-      props: route => ({ prefetchedItem: route.meta.prefetchedItem }),
+      component: () => import('../views/RequestsView.vue'),
+      props: route => ({
+        prefetchedItem: route.meta.prefetchedItem,
+        status: route.meta.prefetchedStatus
+      }),
       meta: {
         requiresAuth: true
       },
@@ -53,9 +68,11 @@ const router = createRouter({
             to.params.id as string
           )
           to.meta.prefetchedItem = item
+          to.meta.prefetchedStatus = item?.status ?? 'pending'
           console.info('[router] Prefetched special membership request with ID:', to.params.id)
         } catch (e) {
           console.error('[router] Failed to prefetch special membership request:', e)
+          to.meta.prefetchedStatus = 'pending'
         }
       }
     }

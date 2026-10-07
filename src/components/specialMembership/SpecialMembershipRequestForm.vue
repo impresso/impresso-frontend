@@ -53,6 +53,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { SpecialMembershipAccess } from '@/services/types'
+import { isTemporaryAutomaticApprovalEnabled } from '@/logic/specialMembershipAccess'
 import LoadingBlock from '../LoadingBlock.vue'
 import Icon from 'impresso-ui-components/components/Icon.vue'
 import useVuelidate from '@vuelidate/core'
@@ -95,7 +96,7 @@ const isTemporaryAutoAcceptEnabled = computed(() => {
   if (props.isRevoked) {
     return false
   }
-  return props.specialMembershipAccess?.metadata?.enableTemporaryAutomaticAcceptance ?? false
+  return isTemporaryAutomaticApprovalEnabled(props.specialMembershipAccess?.metadata)
 })
 
 const submitHandler = (event: Event) => {
