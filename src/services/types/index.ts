@@ -126,6 +126,9 @@ export interface TermsOfUse {
 export interface SpecialMembershipAccess {
   id: number
   reviewerId?: number | null
+  countryCode?: string
+  fullname?: string
+  dataProviderAlias?: string
   title: string
   bitmapPosition: number
   metadata?: {
