@@ -5,38 +5,30 @@
     modalClass="BaristaModal"
     :dialogClass="props.dialogClass"
     content-class="h-100"
-    bodyClass="p-0 mt-2 mx-3 border-top"
+    bodyClass="BaristaModal__body p-0"
     @close="dismiss"
     hide-footer
   >
     <template v-slot:modal-header>
-      <div class="d-flex align-items-center gap-2">
-        <h5 class="modal-title">{{ $t('BaristaModalTitle') }}</h5>
-        <button
-          type="button"
-          :disabled="!hasMessages"
-          class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
-          @click="resetChat"
-        >
-          {{ $t('new chat') }}
-          <Icon name="dots" class="ms-1" :scale="0.25" :stroke-width="5" />
-        </button>
+      <div class="BaristaModal__heading">
+        <p class="small-caps BaristaModal__kicker">{{ $t('BaristaModalTitle') }}</p>
         <template v-if="baristaStore.currentConversation">
-          <span
+          <button
             v-if="!editingTitle"
-            class="small text-muted text-truncate"
-            style="max-width: 200px; cursor: pointer"
+            type="button"
+            class="BaristaModal__conversation"
             :title="$t('click to rename')"
             @click="startEditingTitle"
-            >{{ baristaStore.currentConversation.label }}</span
           >
+            {{ baristaStore.currentConversation.label }}
+          </button>
           <div v-else class="d-flex align-items-center gap-1">
             <input
               ref="titleInputRef"
               v-model="titleDraft"
               type="text"
               class="form-control form-control-sm"
-              style="width: 180px"
+              style="width: 16rem"
               @keydown.enter="saveTitle"
               @keydown.esc="cancelEditingTitle"
             />
@@ -67,35 +59,44 @@
         <Icon name="cross" color />
       </button>
     </template>
-    <div class="container-fluid" ref="containerRef">
-      <div class="row mb-3">
-        <div class="col-lg-8 py-2 order-md-2 order-lg-1">
-          <BaristaChat
-            :filters="suggestedFilters"
-            @suggestFilters="handleFiltersChanged"
-            @updateHeight="handleUpdateHeight"
-          >
-          </BaristaChat>
+    <div class="BaristaModal__layout" ref="containerRef">
+      <section class="BaristaModal__chat">
+        <BaristaChat
+          :filters="suggestedFilters"
+          @suggestFilters="handleFiltersChanged"
+          @updateHeight="handleUpdateHeight"
+        >
+        </BaristaChat>
+      </section>
+      <aside class="BaristaModal__side">
+        <button
+          type="button"
+          :disabled="!hasMessages"
+          class="btn btn-outline-secondary btn-md w-100 border border-dark BaristaModal__newChat"
+          @click="resetChat"
+        >
+          <Icon name="edit" :scale="0.7" :stroke-width="1.75" />
+          {{ $t('newChat') }}
+        </button>
+        <div class="BaristaModal__tabs">
+          <b-tabs pills>
+            <template v-slot:tabs-end>
+              <b-nav-item v-for="(tabItem, i) in AvailableTabs" :key="i" class="w-50">
+                <button
+                  type="button"
+                  class="border-0 small-caps nav-link w-100 cursor-pointer text-center"
+                  :class="{ active: tabItem === activeRightTab }"
+                  @click="activeRightTab = tabItem"
+                >
+                  {{ $t(tabItem) }}
+                </button>
+              </b-nav-item>
+            </template>
+          </b-tabs>
         </div>
-        <div class="col-lg-4 pb-2 order-md-1 order-lg-2">
-          <div class="position-sticky top-0 bg-white z-index-1 pt-2">
-            <b-tabs pills>
-              <template v-slot:tabs-end>
-                <b-nav-item v-for="(tabItem, i) in AvailableTabs" :key="i" class="w-50">
-                  <button
-                    type="button"
-                    class="border-0 small-caps nav-link w-100 cursor-pointer text-center"
-                    :class="{ active: tabItem === activeRightTab }"
-                    @click="activeRightTab = tabItem"
-                  >
-                    {{ $t(tabItem) }}
-                  </button>
-                </b-nav-item>
-              </template>
-            </b-tabs>
-          </div>
-          <div v-if="activeRightTab === 'overview'" class="my-3">
-            <section class="pt-1 border-bottom pb-2 small">
+        <div class="BaristaModal__sideBody">
+          <template v-if="activeRightTab === 'overview'">
+            <section class="BaristaModal__blurb">
               <Ellipsis :initialHeight="70">
                 <p>
                   Barista [ba’rista] is the person behind the counter in a coffee shop: they listen
@@ -108,34 +109,33 @@
                 </p>
               </Ellipsis>
             </section>
-          </div>
-          <div v-if="activeRightTab === 'overview'" class="position-sticky py-2" style="top: 50px">
-            <div>
-              <BFormCheckbox switch v-model="baristaStore.sendCurrentFilters" class="mb-2 ml-1">
-                Share current search filters with Barista
-              </BFormCheckbox>
-              <section v-if="baristaStore.sendCurrentFilters">
-                <p class="text-muted small mb-2">
-                  These filters are shared between you and Barista :)
-                </p>
+            <BFormCheckbox switch v-model="baristaStore.sendCurrentFilters" class="mb-2">
+              Share current search filters with Barista
+            </BFormCheckbox>
+            <section v-if="baristaStore.sendCurrentFilters">
+              <p class="text-muted small mb-2">
+                These filters are shared between you and Barista :)
+              </p>
 
-                <SearchPills
-                  :right-aligned="true"
-                  :filters="suggestedFiltersWithItems"
-                  @changed="handleFiltersChanged"
-                />
-                <button class="btn btn-outline-primary w-100 mt-3" @click="handleApplyFilters">
-                  Apply Filters to current search
-                </button>
-              </section>
-            </div>
-          </div>
-
-          <div v-else class="position-sticky py-2" style="top: 50px">
-            <BaristaConversations :fetch-items-when-visible="activeRightTab === 'conversations'" />
-          </div>
+              <SearchPills
+                :right-aligned="true"
+                :filters="suggestedFiltersWithItems"
+                @changed="handleFiltersChanged"
+              />
+              <button
+                class="btn btn-outline-secondary btn-md w-100 mt-3 border border-dark"
+                @click="handleApplyFilters"
+              >
+                Apply Filters to current search
+              </button>
+            </section>
+          </template>
+          <BaristaConversations
+            v-else
+            :fetch-items-when-visible="activeRightTab === 'conversations'"
+          />
         </div>
-      </div>
+      </aside>
     </div>
     <template v-slot:modal-footer>
       <button type="button" class="btn btn-sm btn-outline-secondary" @click="dismiss">
@@ -281,6 +281,7 @@ function dismiss() {
     "BaristaModalTitle": "Ask Barista",
     "overview": "Overview",
     "conversations": "Conversations",
+    "newChat": "New chat",
     "click to rename": "Click to rename",
     "save": "Save",
     "cancel": "Cancel"
@@ -289,25 +290,121 @@ function dismiss() {
 </i18n>
 <style lang="css">
 .BaristaModal {
-  --bs-modal-width: 800px;
+  --bs-modal-width: 920px;
+}
+.BaristaModal .modal-dialog {
+  height: min(90dvh, 52rem);
+}
+.BaristaModal .modal-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 .BaristaModal .modal-header {
-  border-bottom: none;
-  padding-right: var(--spacing-1);
-  padding-bottom: var(--spacing-1);
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid var(--clr-grey-700);
+  padding: 0.9rem 0.75rem 0.85rem 1.25rem;
 }
-
+.BaristaModal .modal-dialog-scrollable .modal-body,
+.BaristaModal .modal-body,
+.BaristaModal__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
 .BaristaModal .modal-footer {
-  border-top: none;
-  padding-right: var(--spacing-2);
-  padding-bottom: var(--spacing-2);
+  display: none;
 }
-
-.BaristaModalTabs .nav-link {
-  color: var(--bs-secondary-color);
+.BaristaModal__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
-
-.BaristaModalTabs .nav-link.active {
-  color: var(--bs-light);
+.BaristaModal__kicker {
+  margin: 0;
+  color: var(--clr-grey-300);
+}
+.BaristaModal__conversation {
+  all: unset;
+  cursor: pointer;
+  max-width: 36rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-weight: 550;
+  font-variation-settings: 'wght' 550;
+}
+.BaristaModal__conversation:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.BaristaModal__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.BaristaModal__chat {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 0.35rem 1rem 0.75rem 1.15rem;
+}
+.BaristaModal__side {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.85rem 1rem 1rem;
+  border-left: 1px solid var(--clr-grey-700);
+  background-color: var(--impresso-color-paper);
+}
+.BaristaModal__newChat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+.BaristaModal__tabs {
+  flex: 0 0 auto;
+  margin-top: 0.85rem;
+  background-color: var(--impresso-color-paper);
+}
+.BaristaModal__sideBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-top: 0.85rem;
+}
+.BaristaModal__blurb {
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--clr-grey-700);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--clr-grey-200);
+}
+.BaristaModal__sideBody .BaristaConversations {
+  max-height: none;
+  min-height: 0;
+}
+@media (max-width: 991.98px) {
+  .BaristaModal__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) minmax(9rem, 36%);
+  }
+  .BaristaModal__side {
+    border-left: 0;
+    border-top: 1px solid var(--clr-grey-700);
+  }
 }
 </style>

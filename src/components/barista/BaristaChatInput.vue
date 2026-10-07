@@ -1,7 +1,7 @@
 <template>
-  <div class="chat-input position-sticky bottom-0 rounded bg-white pb-3">
-    <div class="border shadow-sm rounded p-2">
-      <details class="mb-2">
+  <div class="BaristaChatInput">
+    <div class="BaristaChatInput__composer">
+      <details class="BaristaChatInput__settings">
         <summary
           class="small text-muted d-flex align-items-center gap-2"
           style="cursor: pointer; list-style: none"
@@ -51,7 +51,7 @@
         </div>
       </details>
 
-      <div class="d-flex align-items-end">
+      <div class="BaristaChatInput__field">
         <BTextarea
           v-model="inputMessage"
           :debounce="0"
@@ -59,22 +59,20 @@
           placeholder="Type your message..."
           :disabled="isLoading"
           ref="humanPrompt"
-          class="border rounded-sm form-control border-dark"
-          :rows="3"
+          class="BaristaChatInput__textarea"
+          :rows="1"
           autosize
-          :maxRows="10"
+          :maxRows="8"
         />
-
-        <div class="ml-2">
-          <button
-            @click="handleSubmit"
-            :disabled="!inputMessage.trim() || isLoading"
-            class="btn btn-outline-primary"
-          >
-            <span v-if="isLoading">Sending...</span>
-            <span v-else>Send</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          @click="handleSubmit"
+          :disabled="!inputMessage.trim() || isLoading"
+          class="btn btn-outline-secondary btn-md border border-dark BaristaChatInput__send"
+        >
+          <span v-if="isLoading">Sending...</span>
+          <span v-else>Send</span>
+        </button>
       </div>
 
       <div v-if="showRemainingConversations" class="mt-2 px-1">
@@ -198,6 +196,50 @@ defineExpose({ focus })
 </style>
 
 <style scoped>
+.BaristaChatInput {
+  flex: 0 0 auto;
+  padding-top: 0.35rem;
+  background-color: var(--impresso-color-white);
+}
+.BaristaChatInput__composer {
+  border: 1px solid var(--clr-grey-600);
+  border-radius: var(--impresso-border-radius-sm);
+  background-color: var(--impresso-color-white);
+  padding: 0.55rem 0.55rem 0.55rem 0.8rem;
+}
+.BaristaChatInput__settings {
+  margin-bottom: 0.35rem;
+}
+.BaristaChatInput__field {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+.BaristaChatInput__textarea {
+  flex: 1 1 auto;
+  min-height: 2.5rem;
+  max-height: 9rem;
+  padding: 0.45rem 0.15rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  resize: none;
+}
+.BaristaChatInput__textarea:focus {
+  outline: none;
+  box-shadow: none;
+}
+.BaristaChatInput__composer:focus-within {
+  border-color: var(--clr-grey-200);
+  outline: 2px solid var(--impresso-color-black);
+  outline-offset: 2px;
+}
+.BaristaChatInput__send {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+  align-self: flex-end;
+}
 details summary::-webkit-details-marker {
   display: none;
 }
@@ -207,5 +249,10 @@ details[open] .details-chevron {
 .details-chevron {
   transition: transform 0.15s ease;
   flex-shrink: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .details-chevron {
+    transition: none;
+  }
 }
 </style>

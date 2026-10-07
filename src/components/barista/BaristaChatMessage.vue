@@ -225,7 +225,7 @@ const formatActionType = (type: string): string => {
 .BaristaChatMessage__content.system,
 .BaristaChatMessage__content.error {
   align-self: flex-start;
-  background-color: #ebebeb;
+  background-color: var(--impresso-color-paper);
   color: var(--impresso-color-black);
 }
 

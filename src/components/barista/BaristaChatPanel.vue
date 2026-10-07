@@ -1,16 +1,13 @@
 <template>
-  <div class="barista-chat-panel my-3">
-    <div class="chat-history pb-5" ref="chatHistoryRef">
+  <div class="barista-chat-panel">
+    <div class="chat-history" ref="chatHistoryRef">
       <BaristaChatMessage
         v-for="(message, index) in messages"
         :key="index"
         :message="message"
         :hideToolCalls="shouldHideToolCalls(message)"
-        :class="{
-          'position-sticky top-0': message.type === 'user'
-        }"
       />
-      <div v-if="isLoading">working...</div>
+      <p v-if="isLoading" class="BaristaChatPanel__status">working...</p>
     </div>
 
     <BaristaChatInput
@@ -70,6 +67,12 @@ function updateHeight() {
       chatHistoryRef.value?.scrollHeight || 0
     )
 
+    if (chatHistoryRef.value) {
+      chatHistoryRef.value.scrollTo({
+        top: chatHistoryRef.value.scrollHeight,
+        behavior: 'smooth'
+      })
+    }
     chatInputRef.value?.focus()
     emit('updateHeight', chatHistoryRef.value?.scrollHeight || 0)
   })
@@ -89,11 +92,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.barista-chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
 .chat-history {
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.85rem;
+  padding: 0.85rem 0.15rem 1rem;
+}
+.BaristaChatPanel__status {
+  margin: 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--clr-grey-300);
 }
 </style>

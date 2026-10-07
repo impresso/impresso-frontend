@@ -11,6 +11,19 @@
   </div>
 </template>
 
+<style scoped>
+.barista-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.barista-chat > :deep(*) {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+</style>
+
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import BaristaChatPanel from './BaristaChatPanel.vue'
