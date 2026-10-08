@@ -168,6 +168,20 @@
             }"
             rx="4"
           />
+          <rect
+            v-if="props.selectedIdx != null && props.selectedIdx >= 0 && selectedRowColor"
+            class="SourcesOverviewTimeline__selected"
+            :transform="`translate(0 ${props.selectedIdx * props.minimumVerticalGap})`"
+            :x="0"
+            :y="0"
+            :width="svgWidth"
+            :height="props.minimumVerticalGap"
+            :fill="selectedRowColor"
+            fill-opacity="0.18"
+            :stroke="selectedRowColor"
+            stroke-width="1"
+            rx="4"
+          />
         </svg>
       </div>
       <div
@@ -247,6 +261,8 @@ export interface Props {
   addExtraHorizontalSpace?: boolean
   fitToContainerWidth?: boolean
   scaleExponent?: number
+  /* index of the currently selected row, kept highlighted */
+  selectedIdx?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -259,7 +275,17 @@ const props = withDefaults(defineProps<Props>(), {
   timeResolution: 'year',
   addExtraHorizontalSpace: true,
   fitToContainerWidth: true,
-  scaleExponent: 2
+  scaleExponent: 2,
+  selectedIdx: null
+})
+
+const selectedRowColor = computed(() => {
+  const selectedDataValue =
+    props.selectedIdx == null ? undefined : props.dataValues[props.selectedIdx]
+
+  return selectedDataValue?.item
+    ? getColorScaleFnBySourceType(selectedDataValue.item.type)(1)
+    : undefined
 })
 
 export interface TooltipPosition {

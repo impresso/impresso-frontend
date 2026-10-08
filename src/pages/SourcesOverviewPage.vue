@@ -120,6 +120,7 @@ const minimumVerticalGap = ref<number>(visualisationSettingsDefaults.minimumVert
 const minimumVerticalHeight = ref<number>(visualisationSettingsDefaults.minimumVerticalHeight)
 const withPowerScale = ref(visualisationSettingsDefaults.withPowerScale)
 const tooltipPosition = ref<TooltipPosition | null>(null)
+const selectedIdx = ref<number | null>(null)
 const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 const mediaType = ref<MediaType>('radio_broadcast')
 
@@ -140,6 +141,7 @@ const selectionMonitorStore = useSelectionMonitorStore()
 const handleTooltipClick = (pos: TooltipPosition) => {
   const item = dataValues.value[pos.idx]
   if (item) {
+    selectedIdx.value = pos.idx
     selectionMonitorStore.show({
       item,
       searchIndex: 'search',
@@ -184,6 +186,8 @@ const initializeMediaTypeFromFilters = () => {
 watch(
   [allowedFilters, shouldLoadCollections],
   async ([newVal]) => {
+    selectedIdx.value = null
+    selectionMonitorStore.hide()
     isLoading.value = true
     totalResults.value = 0
 
@@ -542,6 +546,7 @@ onMounted(() => {
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
         @tooltip-click="handleTooltipClick"
+        :selected-idx="selectedIdx"
       />
       <div class="position-absolute top-0 right-0 left-0 bottom-0 pointer-events-none">
         <SourceOverviewNavigator
