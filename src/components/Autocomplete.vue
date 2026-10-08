@@ -35,6 +35,7 @@
         >
           <Icon name="arrowEnlargeTag" :stroke-width="1.25" :scale="1" />
         </button>
+        <SemanticSearchButton />
         <AuthGate v-if="isBaristaEnabled">
           <template #authenticated>
             <BaristaButton
@@ -156,6 +157,7 @@ import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from './base/Icon.vue'
 import BaristaButton from './barista/BaristaButton.vue'
 import AuthGate from './AuthGate.vue'
+import SemanticSearchButton from './SemanticSearchButton.vue'
 import { toCanonicalFilter } from '@/logic/filters'
 
 const AVAILABLE_TYPES = [
