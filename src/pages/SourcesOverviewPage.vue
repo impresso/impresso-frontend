@@ -104,15 +104,34 @@ const loadCollectionsFlag = computed({
 
 const shouldLoadCollections = computed(() => userStore.isLoggedIn && loadCollectionsFlag.value)
 
-const normalize = ref(false)
-const fitToContainerWidth = ref(false)
-const minimumGap = ref<number>(10)
-const minimumVerticalGap = ref<number>(50)
-const minimumVerticalHeight = ref<number>(4)
-const withPowerScale = ref(true)
+const visualisationSettingsDefaults = {
+  normalize: false,
+  fitToContainerWidth: false,
+  minimumGap: 10,
+  minimumVerticalGap: 50,
+  minimumVerticalHeight: 4,
+  withPowerScale: true
+} as const
+
+const normalize = ref(visualisationSettingsDefaults.normalize)
+const fitToContainerWidth = ref(visualisationSettingsDefaults.fitToContainerWidth)
+const minimumGap = ref<number>(visualisationSettingsDefaults.minimumGap)
+const minimumVerticalGap = ref<number>(visualisationSettingsDefaults.minimumVerticalGap)
+const minimumVerticalHeight = ref<number>(visualisationSettingsDefaults.minimumVerticalHeight)
+const withPowerScale = ref(visualisationSettingsDefaults.withPowerScale)
 const tooltipPosition = ref<TooltipPosition | null>(null)
 const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
 const mediaType = ref<MediaType>('radio_broadcast')
+
+const resetVisualisationSettings = () => {
+  normalize.value = visualisationSettingsDefaults.normalize
+  fitToContainerWidth.value = visualisationSettingsDefaults.fitToContainerWidth
+  minimumGap.value = visualisationSettingsDefaults.minimumGap
+  minimumVerticalGap.value = visualisationSettingsDefaults.minimumVerticalGap
+  minimumVerticalHeight.value = visualisationSettingsDefaults.minimumVerticalHeight
+  withPowerScale.value = visualisationSettingsDefaults.withPowerScale
+}
+
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
 }
@@ -124,7 +143,7 @@ const handleTooltipClick = (pos: TooltipPosition) => {
     selectionMonitorStore.show({
       item,
       searchIndex: 'search',
-      type: 'newspaper',
+      type: 'mediaSource',
       applyCurrentSearchFilters: true,
       displayCurrentSearchFilters: true
     })
@@ -456,6 +475,16 @@ onMounted(() => {
                   >
                   </InfoButton>
                 </div>
+                <div class="border-top px-3 pt-3">
+                  <b-button
+                    size="sm"
+                    variant="outline-secondary"
+                    type="button"
+                    @click="resetVisualisationSettings"
+                  >
+                    {{ $t('resetVisualisationSettings') }}
+                  </b-button>
+                </div>
               </section>
             </b-dropdown>
           </template>
@@ -553,8 +582,8 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "pageLabel": "Media Titles Overview",
-    "pageTitle": "Explore the media titles in the archive",
+    "pageLabel": "Corpus overview",
+    "pageTitle": "Explore Impresso's newspaper and radio collection",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
     "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources",
@@ -562,15 +591,16 @@ onMounted(() => {
     "normalizeLocally": "Normalize Data per source",
     "normalizeLocallyInfoTitle": "Normalize Data per Source",
     "normalizeLocallyInfoDescription": "When enabled, the data for each media source is normalized individually, allowing for better comparison between sources with varying content volumes.",
-    "fitToContainerWidth": "Fit to Container Width",
-    "fitToContainerWidthInfoTitle": "Fit to Container Width",
+    "fitToContainerWidth": "Fit to screen Width",
+    "fitToContainerWidthInfoTitle": "Fit to screen Width",
     "fitToContainerWidthInfoDescription": "When enabled, the timeline will adjust its width to fit the container, providing an optimal viewing experience across different screen sizes.",
     "minimumVerticalGap": "Vertical bar height (px)",
     "minimumGap": "Horizontal bar width (px)",
     "minimumVerticalHeight": "Minimum height for lower values (px)",
-    "withPowerScale": "With Power Scale",
-    "withPowerScaleInfoTitle": "With Power Scale",
+    "withPowerScale": "Apply Power Scale",
+    "withPowerScaleInfoTitle": "Apply Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
+    "resetVisualisationSettings": "Reset visualisation settings",
     "gettingStarted": "Open Getting Started Guide",
     "label_loadCollection": "Enable Collections",
     "label_mediaType": "Media Type"

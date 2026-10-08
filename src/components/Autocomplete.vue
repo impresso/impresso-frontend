@@ -173,7 +173,7 @@ const typeIconMap: Record<string, string> = {
   topic: 'label',
   location: 'position',
   person: 'user',
-  collection: 'folder',
+  collection: 'collection',
   mention: 'mention'
 }
 
