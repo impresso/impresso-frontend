@@ -43,7 +43,7 @@
             </h2>
             <!-- item previews -->
             <MediaSourcePreview
-              v-if="monitor.type === 'newspaper'"
+              v-if="monitor.type === 'newspaper' || monitor.type === 'mediaSource'"
               :item="monitor.item"
               :itemType="monitor.type"
               class="mx-3 mb-2 text-muted"

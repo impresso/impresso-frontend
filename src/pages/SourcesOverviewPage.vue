@@ -143,7 +143,7 @@ const handleTooltipClick = (pos: TooltipPosition) => {
     selectionMonitorStore.show({
       item,
       searchIndex: 'search',
-      type: 'newspaper',
+      type: 'mediaSource',
       applyCurrentSearchFilters: true,
       displayCurrentSearchFilters: true
     })
