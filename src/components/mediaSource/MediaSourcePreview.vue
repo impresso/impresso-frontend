@@ -1,31 +1,32 @@
 <template>
-  <div class="MediaSourcePreview">
-    <DataProviderLabel
-      v-if="dataProviderId"
-      :item="{ id: dataProviderId }"
-      class="small"
-      :withDash="false"
-    />
+  <div class="MediaSourcePreview rounded border border-dark">
     <blockquote
-      class="MediaSourcePreview__metadata text-dark p-2 my-2 rounded d-flex align-items-center flex-wrap"
+      class="MediaSourcePreview__metadata rounded text-dark p-2 m-0 d-flex align-items-center flex-wrap"
     >
+      <DataProviderLabel
+        v-if="dataProviderId"
+        :item="{ id: dataProviderId }"
+        class="small"
+        :withDash="false"
+      />
       <div v-html="title" class="small font-weight-medium"></div>
       {{ ' ' }}
       <span v-for="{ label, value } in labelsAndValues" :key="label" class="small">
         &middot; <strong>{{ $t(`metadata.${label}`) }}:</strong> {{ value }} </span
       >{{ ' ' }}
     </blockquote>
-
-    <router-link
-      class="btn btn-sm btn-outline-secondary d-block w-100"
-      :to="{
-        name: Routes.mediaSource.children.metadata.name,
-        params: { media_source_id: item.id }
-      }"
-      @click="emit('more')"
-    >
-      {{ $t('actions.exploreInMediaSource') }}
-    </router-link>
+    <div class="d-flex justify-content-center w-100 border-top border-tertiary">
+      <router-link
+        class="btn btn-sm btn-outline-secondary m-2"
+        :to="{
+          name: Routes.mediaSource.children.metadata.name,
+          params: { media_source_id: item.id }
+        }"
+        @click="emit('more')"
+      >
+        {{ $t('actions.exploreInMediaSource') }}
+      </router-link>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -168,10 +169,13 @@ watch(() => props.item.id, fetchMediaSource, { immediate: true })
 }
 </i18n>
 <style>
+.MediaSourcePreview {
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  border-color: var(--impresso-color-black);
+}
 .MediaSourcePreview__metadata {
   max-height: 100px;
   overflow-y: auto;
   background-color: var(--impresso-color-light-grey);
-  border-color: var(--impresso-color-dark-grey);
 }
 </style>

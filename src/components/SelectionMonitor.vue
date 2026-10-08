@@ -566,7 +566,7 @@ watch(
 {
   "en": {
     "labels": {
-      "applyCurrentSearchFilters": "Show within current search"
+      "applyCurrentSearchFilters": "Toggle current search query"
     },
     "searchIndexes": {
       "search": "content items",
