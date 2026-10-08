@@ -6,7 +6,7 @@
       <DataProviderLabel
         v-if="dataProviderId"
         :item="{ id: dataProviderId }"
-        class="small"
+        class="small w-100"
         :withDash="false"
       />
       <div v-html="title" class="small font-weight-medium"></div>
