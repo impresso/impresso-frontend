@@ -1,14 +1,10 @@
 <template>
   <div class="ContentItemAccess d-flex align-items-center gap-3">
-    <div class="d-flex align-items-center gap-2 flex-wrap">
-      <ContentItemAccessBadge
-        v-for="dimension in accessDimensions"
-        :key="dimension.key"
-        :label="dimension.label"
-        :description="dimension.description"
-        :granted="dimension.granted"
-      />
-    </div>
+    <ContentItemAccessDimensions
+      :explore-granted="hasExploreAccess"
+      :transcript-granted="hasTranscriptAccess"
+      :facsimile-granted="hasFacsimileAccess"
+    />
     <template v-if="isSpecialMembershipsEnabled && contentItemRequiresSpecialMembershipAccess">
       <ContentItemAccessButton
         :currentAccessLevel="accessLevel"
@@ -24,9 +20,8 @@ import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useUserStore } from '@/stores/user'
 import { base64BytesToBigInt } from '@/util/bigint'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
-import ContentItemAccessBadge from './ContentItemAccessBadge.vue'
+import ContentItemAccessDimensions from './ContentItemAccessDimensions.vue'
 import { MaxPlanBitPosition } from '@/constants'
 import { Features } from '@/init'
 
@@ -38,7 +33,6 @@ export interface ContentItemAccessProps {
 
 const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
-const { t } = useI18n()
 
 const isLoggedIn = computed(() => !!userStore.userData)
 const isSpecialMembershipsEnabled = computed(() => {
@@ -151,38 +145,6 @@ const accessDescriptionTranslationKey = computed(() => {
 })
 
 /**
- * Per-dimension breakdown used to render the 3 access badges
- * (Web App / Transcript / Facsimile) in the non-special-membership case.
- */
-const accessDimensions = computed(() => {
-  const guestSuffix = isLoggedIn.value ? '' : '_guest'
-
-  const buildDescriptionKey = (dimensionKey: string, granted: boolean) =>
-    `badge_${dimensionKey}_${granted ? 'granted' : 'denied'}${guestSuffix}_description`
-
-  return [
-    {
-      key: 'explore',
-      label: t('badge_explore_label'),
-      granted: hasExploreAccess.value,
-      description: t(buildDescriptionKey('explore', hasExploreAccess.value))
-    },
-    {
-      key: 'transcript',
-      label: t('badge_transcript_label'),
-      granted: hasTranscriptAccess.value,
-      description: t(buildDescriptionKey('transcript', hasTranscriptAccess.value))
-    },
-    {
-      key: 'facsimile',
-      label: t('badge_facsimile_label'),
-      granted: hasFacsimileAccess.value,
-      description: t(buildDescriptionKey('facsimile', hasFacsimileAccess.value))
-    }
-  ]
-})
-
-/**
  * Computed property that converts content item access bitmaps from base64 to BigInt format.
  *
  * @returns {ComputedRef<{explore: bigint, transcript: bigint}>} Object containing:
@@ -254,25 +216,8 @@ const contentItemBitmapsAsBigInts = computed<{
     "explore_facsimile_guest": "Web App access",
     "explore_facsimile_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
     "other": "Limited Access",
-    "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript.",
+    "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
 
-    "badge_explore_label": "Web App",
-    "badge_explore_granted_description": "You can view this item's digital surrogate, metadata, and semantic enrichments in the Web App.",
-    "badge_explore_denied_description": "Your current user plan does not include Web App access to this item's digital surrogate.",
-    "badge_explore_granted_guest_description": "You can view this item's digital surrogate in the Web App (Public Domain content).",
-    "badge_explore_denied_guest_description": "Log in or create an account to check whether you can view this item's digital surrogate in the Web App.",
-
-    "badge_transcript_label": "Transcript",
-    "badge_transcript_granted_description": "You can access and export this item's transcript via CSV export and the Datalab (Impresso Python library).",
-    "badge_transcript_denied_description": "Your current user plan does not include transcript access via CSV export or the Datalab.",
-    "badge_transcript_granted_guest_description": "You can view this item's transcript in the Web App. Log in to also access it via the Datalab.",
-    "badge_transcript_denied_guest_description": "Log in or create an account to check whether you can access this item's transcript.",
-
-    "badge_facsimile_label": "Facsimile",
-    "badge_facsimile_granted_description": "You can access and export this item's facsimile images via CSV export and the Datalab (Impresso Python library).",
-    "badge_facsimile_denied_description": "Your current user plan does not include facsimile image access via CSV export or the Datalab.",
-    "badge_facsimile_granted_guest_description": "You can view this item's facsimile images in the Web App. Log in to also access them via the Datalab.",
-    "badge_facsimile_denied_guest_description": "Log in or create an account to check whether you can access this item's facsimile images."
   }
 }
 </i18n>

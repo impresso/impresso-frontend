@@ -10,8 +10,20 @@
   </button>
 
   <Teleport to="body">
+    <InfoModal
+      :isVisible="isModalVisible && !isSpecialMembershipsRequestsEnabled"
+      @dismiss="handleModalDismiss"
+      dialogClass="modal-md modal-dialog-centered"
+      :modal-title="$t('specialMembershipRequestsDisabledTitle')"
+    >
+      <p class="m-0" v-html="$t('specialMembershipRequestsDisabled')"></p>
+    </InfoModal>
     <SpecialMembershipRequestModal
-      :isVisible="isModalVisible && specialMembershipAccessItem !== null"
+      :isVisible="
+        isSpecialMembershipsRequestsEnabled &&
+        isModalVisible &&
+        specialMembershipAccessItem !== null
+      "
       :item="specialMembershipAccessItem"
       @dismiss="handleModalDismiss"
     />
@@ -19,9 +31,12 @@
 </template>
 <script setup lang="ts">
 import { specialMembershipAccess as specialMembershipAccessService } from '@/services'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { SpecialMembershipAccess } from '@/services/types'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
+import { useUserStore } from '@/stores/user'
+import type { Features } from '@/init'
+import InfoModal from '@/components/InfoModal.vue'
 
 export interface ContentItemAccessButtonProps {
   specialMembershipAccessBitPositions: number[]
@@ -36,12 +51,30 @@ const accessLevelTranslationKeys: Record<number, string> = {
 }
 
 const props = withDefaults(defineProps<ContentItemAccessButtonProps>(), {
-  currentAccessLevel: 1
+  currentAccessLevel: 1,
+  hasMembershipAccess: false
 })
 const isLoading = ref(false)
 const isAccessChecked = ref(false)
 const isModalVisible = ref(false)
 const specialMembershipAccessItem = ref<SpecialMembershipAccess | null>(null)
+
+const userStore = useUserStore()
+
+const isLoggedIn = computed(() => !!userStore.userData)
+const isSpecialMembershipsRequestsEnabled = computed(() => {
+  if (!isLoggedIn.value) {
+    return false
+  }
+  const glob = window as any as { impressoFeatures: Features }
+  if (!glob.impressoFeatures) {
+    return false
+  }
+  if (!glob.impressoFeatures.specialMemberships) {
+    return false
+  }
+  return glob.impressoFeatures.specialMembershipRequests?.enabled ?? false
+})
 
 const keyAccessLevel = (level: number): string => {
   const prefix = accessLevelTranslationKeys[level] || 'unknownAccessLevel'
@@ -91,14 +124,16 @@ const getSpecialMembershipAccess = async () => {
     })
 }
 </script>
-<i18n>
+<i18n lang="json">
 {
   "en": {
-    "noAccess": "No Access",
-    "exploreOnly": "apply for full access",
+    "noAccess": "No Access - apply for access",
+    "exploreOnly": "Partial access - apply for full access",
     "exploreAndTranscript": "check your current access status",
     "fullAccess": "check your current access status",
-    "unknownAccessLevel": "Unknown access level"
+    "unknownAccessLevel": "Unknown access level",
+    "specialMembershipRequestsDisabledTitle": "Special Membership Requests Disabled",
+    "specialMembershipRequestsDisabled": "Special membership requests are temporarily unavailable while we work on this feature.<br/>For further assistance, please contact us at <a href='mailto:info{'@'}impresso-project.ch'>info{'@'}impresso-project.ch</a>."
   }
 }
 </i18n>

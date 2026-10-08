@@ -27,7 +27,7 @@
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
     <Toaster />
-    <Modals />
+    <Modals :filters="filters" />
   </div>
 </template>
 

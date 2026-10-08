@@ -17,12 +17,14 @@ export interface Features {
   viewPlans?: { enabled: boolean }
   barista?: { enabled: boolean }
   specialMemberships?: { enabled: boolean }
+  specialMembershipRequests?: { enabled: boolean }
 }
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
   viewPlans: { enabled: true },
-  specialMemberships: { enabled: true }
+  specialMemberships: { enabled: true },
+  specialMembershipRequests: { enabled: false }
 } satisfies Features
 
 type ApiVersion = {

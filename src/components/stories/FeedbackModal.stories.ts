@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import FeedbackModal from '@/components/FeedbackModal.vue'
+import FeedbackModal from '@/components/feedback/FeedbackModal.vue'
 import { vueRouter } from 'storybook-vue3-router'
 import { ref } from 'vue'
 import { action } from 'storybook/actions'

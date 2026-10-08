@@ -5,7 +5,12 @@
   >
     <span class="access-badge__dot" aria-hidden="true"></span>
     <span class="very-small">{{ label }}</span>
-    <InfoButton style="margin-top: -2px" :default-content="description" :name="label" />
+    <InfoButton
+      style="margin-top: -2px"
+      :default-content="description"
+      :name="label"
+      :teleport="teleport"
+    />
   </div>
 </template>
 
@@ -19,6 +24,8 @@ export interface ContentItemAccessBadgeProps {
   description: string
   /** Whether the user currently has access to this dimension */
   granted: boolean
+  /** Whether to teleport the info popover to the body */
+  teleport?: boolean
 }
 
 defineProps<ContentItemAccessBadgeProps>()
