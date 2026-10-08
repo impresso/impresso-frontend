@@ -583,6 +583,12 @@ useClickOutside(
   border-color: var(--impresso-color-yellow, #fef08a) !important;
   color: var(--impresso-color-yellow, #fef08a);
 }
+
+.Autocomplete.bg-dark .search-input {
+  border-color: #4b5563 !important;
+  background-color: var(--impresso-color-black);
+  color: var(--clr-white, #ffffff);
+}
 </style>
 
 <i18n lang="json">
