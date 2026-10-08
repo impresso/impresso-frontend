@@ -131,7 +131,7 @@ export type SpecialMembershipModalProps = {
 }
 
 const props = withDefaults(defineProps<SpecialMembershipModalProps>(), {
-  dialogClass: ' modal-lg p-0 modal-dialog modal-dialog-scrollable',
+  dialogClass: ' modal-xl p-0 modal-dialog modal-dialog-scrollable',
   title: 'Request Special Membership Access'
 })
 

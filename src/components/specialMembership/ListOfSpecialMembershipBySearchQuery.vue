@@ -7,15 +7,11 @@
     :data-accessor="dataAccessor"
     :pagination-accessor="paginationAccessor"
   >
-    <template #header="{ total }">
+    <template #header>
       <div class="p-2">
         <div class="container-fluid">
           <div class="row">
             <div class="col-12 border-bottom pb-2 d-flex gap-3 align-items-center">
-              <div
-                v-html="$t('numbers.itemsGeneric', { n: $n(total) }, total)"
-                class="small text-muted"
-              ></div>
               <BFormCheckbox
                 switch
                 v-model="applyCurrentSearchFilters"
@@ -56,9 +52,10 @@
                   :explore-granted="hasMembershipAccess(item)"
                   :transcript-granted="hasMembershipAccess(item)"
                   :facsimile-granted="hasMembershipAccess(item)"
+                  :teleport="true"
                 />
                 <ContentItemAccessButton
-                  v-if="!hasMembershipAccess(item)"
+                  :currentAccessLevel="hasMembershipAccess(item) ? 3 : 0"
                   :specialMembershipAccessBitPositions="[item.bitmapPosition]"
                 >
                 </ContentItemAccessButton>

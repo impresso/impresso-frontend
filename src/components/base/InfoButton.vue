@@ -6,36 +6,38 @@
       ref="reference"
       @click.prevent.stop="togglePopover"
     ></div>
-    <div
-      v-if="show"
-      ref="floating"
-      role="tooltip"
-      tabindex="-1"
-      class="popover b-popover bs-popover-right drop-shadow bg-dark font-weight-inherit"
-      :style="floatingStyles"
-    >
-      <div class="position-absolute" ref="floatingArrow" :style="floatingArrowStyles"></div>
-      <h3 class="popover-header" v-if="content.title">
-        {{ content.title }}
-      </h3>
+    <Teleport to="body" :disabled="!teleport">
+      <div
+        v-if="show"
+        ref="floating"
+        role="tooltip"
+        tabindex="-1"
+        class="info-button-popover popover b-popover bs-popover-right drop-shadow bg-dark font-weight-inherit"
+        :style="floatingStyles"
+      >
+        <div class="position-absolute" ref="floatingArrow" :style="floatingArrowStyles"></div>
+        <h3 class="popover-header" v-if="content.title">
+          {{ content.title }}
+        </h3>
 
-      <div class="popover-body pt-1 text-right">
-        <div class="text-left" v-if="content.summary" v-html="content.summary" />
-        <router-link
-          v-if="content.description"
-          class="btn-rounded mt-2 btn btn-outline-secondary btn-sm"
-          v-bind:to="{ name: `faq`, hash: `#${content.id}` }"
-        >
-          {{ $t('more_info') }} &rarr;
-        </router-link>
-        <slot :close="togglePopover"></slot>
+        <div class="popover-body pt-1 text-right">
+          <div class="text-left" v-if="content.summary" v-html="content.summary" />
+          <router-link
+            v-if="content.description"
+            class="btn-rounded mt-2 btn btn-outline-secondary btn-sm"
+            v-bind:to="{ name: `faq`, hash: `#${content.id}` }"
+          >
+            {{ $t('more_info') }} &rarr;
+          </router-link>
+          <slot :close="togglePopover"></slot>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { arrow, offset, useFloating, autoPlacement, type Side } from '@floating-ui/vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useSettingsStore } from '@/stores/settings'
@@ -48,6 +50,8 @@ type MiddlewareData = {
   }
 }
 
+const closeInfoButtonPopoversEvent = 'close-info-button-popovers'
+
 const reference = ref(null)
 const floating = ref(null)
 const floatingArrow = ref(null)
@@ -59,6 +63,7 @@ export interface InfoButtonProps {
   defaultContent?: string
   placement?: 'top' | 'right' | 'bottom' | 'left'
   offsetOptions?: Parameters<typeof offset>[0]
+  teleport?: boolean
 }
 
 const props = withDefaults(defineProps<InfoButtonProps>(), {
@@ -66,7 +71,8 @@ const props = withDefaults(defineProps<InfoButtonProps>(), {
   triggerClass: '',
   defaultContent: undefined,
   placement: undefined,
-  offsetOptions: () => ({})
+  offsetOptions: () => ({}),
+  teleport: false
 })
 
 const middleware = computed(() => {
@@ -108,9 +114,33 @@ const content = computed(() => {
   return content
 })
 
-const togglePopover = () => (show.value = !show.value)
+const closePopover = () => {
+  show.value = false
+}
 
-useClickOutside(floating, () => (show.value = false), reference)
+const openPopover = () => {
+  window.dispatchEvent(new Event(closeInfoButtonPopoversEvent))
+  show.value = true
+}
+
+const togglePopover = () => {
+  if (show.value) {
+    closePopover()
+    return
+  }
+
+  openPopover()
+}
+
+useClickOutside(floating, closePopover, reference)
+
+onMounted(() => {
+  window.addEventListener(closeInfoButtonPopoversEvent, closePopover)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(closeInfoButtonPopoversEvent, closePopover)
+})
 </script>
 
 <style lang="css">
@@ -123,7 +153,8 @@ useClickOutside(floating, () => (show.value = false), reference)
   color: var(--clr-grey-100);
 }
 
-.InfoButton .popover {
+.InfoButton .popover,
+.info-button-popover {
   border: none;
   pointer-events: none;
   border-radius: var(--impresso-border-radius-sm);
@@ -131,7 +162,9 @@ useClickOutside(floating, () => (show.value = false), reference)
 }
 
 .InfoButton .popover-header,
-.InfoButton .popover-body {
+.InfoButton .popover-body,
+.info-button-popover .popover-header,
+.info-button-popover .popover-body {
   pointer-events: auto;
   padding: var(--spacing-2-5);
   max-width: 200px;
@@ -139,11 +172,14 @@ useClickOutside(floating, () => (show.value = false), reference)
   color: var(--impresso-color-paper) !important;
 }
 .InfoButton .popover-header a,
-.InfoButton .popover-body a {
+.InfoButton .popover-body a,
+.info-button-popover .popover-header a,
+.info-button-popover .popover-body a {
   color: var(--impresso-color-paper);
 }
 
-.InfoButton .popover-header {
+.InfoButton .popover-header,
+.info-button-popover .popover-header {
   /* font-weight: bold; */
   font-style: italic;
   border-bottom: none !important;
@@ -152,7 +188,8 @@ useClickOutside(floating, () => (show.value = false), reference)
   font-weight: var(--impresso-wght-medium);
   font-variation-settings: 'wght' var(--impresso-wght-medium);
 }
-.InfoButton .popover-header::after {
+.InfoButton .popover-header::after,
+.info-button-popover .popover-header::after {
   content: '';
   display: block;
   padding-top: 0.5em;

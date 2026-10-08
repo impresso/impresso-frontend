@@ -6,6 +6,7 @@
       :label="$t(dimension.labelKey)"
       :description="$t(dimension.descriptionKey)"
       :granted="dimension.granted"
+      :teleport="props.teleport"
     />
   </div>
 </template>
@@ -19,6 +20,7 @@ export interface ContentItemAccessDimensionsProps {
   exploreGranted: boolean
   transcriptGranted: boolean
   facsimileGranted: boolean
+  teleport?: boolean
 }
 
 const props = defineProps<ContentItemAccessDimensionsProps>()
