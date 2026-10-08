@@ -6,10 +6,10 @@ You are an AI assistant in a Vite-based Vue 3 (TypeScript) project utilizing Pin
 
 To maintain high precision, do not attempt to remember all project rules at once. Instead, defer to the specialized agent instructions located in `.github/agents/` based on the user's task:
 
-- **Creating/Editing Vue Components or Pinia Stores:** Read and strictly follow the rules inside `.github/agents/component-architect.agent.md`.
-- **Creating/Editing Storybook Stories:** Read and strictly follow the rules inside `.github/agents/storybook-engineer.agent.md`.
-- **Mocking APIs (MSW) or Injecting Router/Pinia into Stories:** Read and strictly follow the rules inside `.github/agents/environment-specialist.agent.md`.
-- **Writing Release Notes/Changelogs:** Read and strictly follow the rules inside `.github/agents/release-manager.agent.md`.
+- **Creating/Editing Vue Components or Pinia Stores:** Read and strictly follow the rules inside `.github/agents/develop-and-edit-app-components.agent.md`.
+- **Creating/Editing Storybook Stories:** Read and strictly follow the rules inside `.github/agents/develop-and-edit-storybook-stories.agent.md`.
+- **Mocking APIs (MSW) or Injecting Router/Pinia into Stories:** Read and strictly follow the rules inside `.github/agents/storybook-mocking.agent.md`.
+- **Writing Release Notes/Changelogs:** Read and strictly follow the rules inside `.github/agents/release-and-document.agent.md`.
 
 ## Universal Constraints
 
