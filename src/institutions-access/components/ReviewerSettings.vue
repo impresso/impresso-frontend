@@ -1,6 +1,6 @@
 <template>
   <div class="ReviewerSettings">
-    <h6 class="small-caps text-muted text-uppercase mb-2">{{ $t('title') }}</h6>
+    <h6 class="small-caps text-muted mb-2">{{ $t('title') }}</h6>
     <template v-if="user">
       <div class="small text-muted font-weight-bold">{{ $t('email') }}</div>
       <div class="small">{{ user.email }}</div>

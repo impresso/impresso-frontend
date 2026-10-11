@@ -10,6 +10,7 @@ import 'dripicons/webfont/webfont.css'
 import '../src/assets/legacy/bootstrap-impresso-theme.css'
 import '../src/assets/legacy/bootstrap-vue.css'
 import '../src/styles/style.css'
+import '../src/institutions-access/styles.css'
 
 /*
  * Initializes MSW
