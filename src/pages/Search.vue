@@ -308,6 +308,7 @@ import { includes } from '@/util/fn'
 import type { Features } from '@/init'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import type { FacetType, Filter, Facet } from '@/models'
+import type { FindQuery } from '@/services/types/contentItems'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -427,14 +428,14 @@ const orderByOptions = computed(() =>
   })
 )
 
-const orderBy = computed({
+const orderBy = computed<FindQuery['order_by']>({
   get: () => {
     // Explicit user choice wins.
-    if (route.query.orderBy != null) return route.query.orderBy as string
+    if (route.query.orderBy != null) return route.query.orderBy as FindQuery['order_by']
     // Without filters relevance is constant, so show higher OCR quality first.
     return searchQuery.value.filters.length === 0 ? '-ocrQuality' : '-relevance'
   },
-  set: (value: string) => updateQueryParametersWithHistory({ orderBy: value })
+  set: (value: FindQuery['order_by']) => updateQueryParametersWithHistory({ orderBy: value })
 })
 
 const groupBy = computed(() => (route.query.groupBy as string) ?? 'articles')
@@ -479,13 +480,11 @@ const isFront = computed({
     )
 })
 
-const searchServiceQuery = computed(() => ({
+const searchServiceQuery = computed<FindQuery>(() => ({
   filters: filters.value.map(getFilterQuery),
-  groupBy: groupBy.value,
-  orderBy: orderBy.value,
   limit: paginationPerPage.value,
-  page: paginationCurrentPage.value,
-  loadCollections: loadCollectionsFlag.value
+  offset: (paginationCurrentPage.value - 1) * paginationPerPage.value,
+  order_by: orderBy.value
 }))
 
 const paginationData = computed(() => ({
@@ -617,16 +616,14 @@ function exportSelectedCsv() {
 // ---------------------------------------------------------------------------
 // Data fetching
 // ---------------------------------------------------------------------------
-type ServiceQuery = typeof searchServiceQuery.value
-
 const toFacetModels = (data: unknown[]) => data.map(f => new FacetModel(f as any))
 
 async function fetchSearchResults({
-  page,
+  offset = 0,
   limit,
-  filters: queryFilters,
-  orderBy: order
-}: ServiceQuery) {
+  filters: queryFilters = [],
+  order_by
+}: FindQuery) {
   const requestId = ++activeSearchRequestId
   const isStale = () => isUnmounted || requestId !== activeSearchRequestId
   const startTime = Date.now()
@@ -635,10 +632,10 @@ async function fetchSearchResults({
   try {
     const response = await contentItemsService.find({
       query: {
-        offset: (page - 1) * limit,
+        offset,
         limit,
         filters: queryFilters,
-        order_by: order
+        order_by
       }
     })
     if (isStale()) return
@@ -693,7 +690,11 @@ async function fetchSearchResults({
 // ---------------------------------------------------------------------------
 // Watchers & lifecycle
 // ---------------------------------------------------------------------------
-watch(searchServiceQuery, query => fetchSearchResults(query), { deep: true, immediate: true })
+watch(
+  [searchServiceQuery, shouldLoadCollections],
+  () => fetchSearchResults(searchServiceQuery.value),
+  { deep: true, immediate: true }
+)
 
 watch(searchResults, results => {
   if (
