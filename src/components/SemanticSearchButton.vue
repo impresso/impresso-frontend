@@ -4,7 +4,7 @@
     class="btn btn-sm btn-outline-secondary d-flex gap-1 align-content-center px-2"
     v-bind="$attrs"
     :title="$t('open')"
-    @click="openModal"
+    @click="openModal()"
     data-testid="semantic-search-button"
   >
     <slot>
@@ -82,7 +82,8 @@ const v$ = useVuelidate(
   { text }
 )
 
-function openModal() {
+function openModal(initialText = '') {
+  text.value = initialText
   isModalOpen.value = true
 }
 
@@ -112,6 +113,8 @@ async function submit() {
     isLoading.value = false
   }
 }
+
+defineExpose({ openModal })
 </script>
 
 <i18n lang="json">

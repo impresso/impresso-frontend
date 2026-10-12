@@ -23,7 +23,10 @@
                   ignoredFilterTypes.length
                 )
               "
-            />{{ ' ' }}<InfoButton :name="infoButtonName" />
+            />{{ ' '
+            }}<InfoButton :name="infoButtonName">
+              {{ ignoredFilterTypes }}
+            </InfoButton>
           </span>
         </div>
       </div>

@@ -9,19 +9,35 @@
       @changed="handleFiltersChanged"
     >
       <template v-slot:header="{ focusHandler }">
-        <Autocomplete
-          class="mb-2"
-          @submit="onSuggestion"
-          @open-explorer="searchExpertToolsRef?.openExplorer($event)"
-          @input-focus="focusHandler"
-          :filters="filters"
-        />
+        <div class="d-flex gap-1 mb-2">
+          <Autocomplete
+            class="flex-grow-1"
+            v-model:search-mode="autocompleteSearchMode"
+            :enable-mode-switch="true"
+            :disabled-search-modes="disabledSearchModes"
+            @submit="onSuggestion"
+            @submit-semantic="searchExpertToolsRef?.openSemanticSearch($event)"
+            @submit-prompt="searchExpertToolsRef?.openBarista($event)"
+            @open-explorer="refineFiltersButtonRef?.openExplorer($event)"
+            @input-focus="focusHandler"
+            :filters="filters"
+          >
+            <template v-slot:extra-actions>
+              <RefineFiltersButton
+                ref="refineFiltersButtonRef"
+                :filters="filters"
+                @filters-changed="handleFiltersChanged"
+              />
+            </template>
+          </Autocomplete>
+        </div>
       </template>
       <SearchExpertTools
-        class="mx-3 pb-2 border-bottom mb-2"
         ref="searchExpertToolsRef"
         :filters="filters"
         :is-barista-enabled="isBaristaEnabled"
+        :is-logged-in="isLoggedIn"
+        :show-controls="false"
         @semantic-search="handleSemanticSearch"
         @filters-changed="handleFiltersChanged"
       />
@@ -270,7 +286,9 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Autocomplete from '@/components/Autocomplete.vue'
+import RefineFiltersButton from '@/components/RefineFiltersButton.vue'
 import SearchExpertTools from '@/components/SearchExpertTools.vue'
+import type { SearchMode } from '@/components/SearchModeSwitch.vue'
 import Pagination from '@/components/modules/Pagination.vue'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import CollectionAddToList, {
@@ -379,9 +397,17 @@ const dynamicFacets = ref<Facet[]>(buildEmptyFacets(DynamicFacetTypes))
 const decimalRangeFacets = ref<Facet[]>(buildEmptyFacets(SearchDecimalFacetTypes))
 
 const searchResultsFirstElementRef = ref<HTMLElement | null>(null)
-const searchExpertToolsRef = ref<{
+const refineFiltersButtonRef = ref<{
   openExplorer(options?: { initialQ?: string; initialType?: FacetType }): void
 } | null>(null)
+const searchExpertToolsRef = ref<{
+  openSemanticSearch(text: string): void
+  openBarista(prompt: string): void
+} | null>(null)
+const autocompleteSearchMode = ref<SearchMode>('keyword')
+const disabledSearchModes = computed<SearchMode[]>(() =>
+  isLoggedIn.value ? [] : ['semantic', 'prompt']
+)
 
 // Non-reactive request bookkeeping
 let activeSearchRequestId = 0
@@ -411,6 +437,11 @@ const searchQuery = computed<SearchQuery>({
 // Computed
 // ---------------------------------------------------------------------------
 const isLoggedIn = computed(() => !!userStore.userData)
+watch(isLoggedIn, loggedIn => {
+  if (!loggedIn) {
+    autocompleteSearchMode.value = 'keyword'
+  }
+})
 const loadCollectionsFlag = computed({
   get: () => (route.query.c as string) === '1',
   set: (value: boolean) => updateQueryParametersWithHistory({ c: value ? '1' : undefined })
