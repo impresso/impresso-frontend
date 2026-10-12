@@ -129,6 +129,7 @@ export default {
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
+      barista: 'Barista',
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',
@@ -172,6 +173,7 @@ export default {
       requestNewPassword: 'Apply changes',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
+      refine: 'refine',
       resetItems: 'reset list',
       resetMyPassword: 'Reset your password',
       resetObservedItems: 'reset observed list',
@@ -180,7 +182,8 @@ export default {
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
       viewTopic: 'go to topic',
-      readContentItem: 'read content item ...'
+      readContentItem: 'read content item ...',
+      semanticSearch: 'Semantic Search'
     },
     filters: {
       daterange: {

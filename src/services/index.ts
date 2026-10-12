@@ -235,6 +235,8 @@ export const baristaConversations = app.service('barista-conversations')
 export const mediaSources = app.service('media-sources')
 export const dataProviders = new DataProvidersService()
 
+export const embedderTextTool = app.service('/tools/embedder/text')
+
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
