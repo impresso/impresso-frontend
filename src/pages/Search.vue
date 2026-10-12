@@ -25,23 +25,27 @@
         @semantic-search="handleSemanticSearch"
         @filters-changed="handleFiltersChanged"
       />
-      <div>
-        <button
-          class="float-right mx-3 btn btn-sm btn-outline-secondary"
-          @click="showModal('embeddings')"
-          data-testid="add-similar-words-button"
-        >
-          {{ $t('label_embeddings') }}
+
+      <div
+        class="mx-3 mb-2 d-flex align-items-center justify-content-between"
+        data-testid="is-frontpage-toggle"
+      >
+        <BFormCheckbox v-model="isFront" switch>
+          {{ $t('label_isFront') }}
+        </BFormCheckbox>
+        <div>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            @click="showModal('embeddings')"
+            data-testid="add-similar-words-button"
+          >
+            {{ $t('label_embeddings') }}
+          </button>
           <InfoButton
             class="ml-1"
             :offset-options="{ crossAxis: 100, mainAxis: 20 }"
             name="how-are-word-embeddings-generated"
           />
-        </button>
-        <div class="mx-3 mb-3" data-testid="is-frontpage-toggle">
-          <BFormCheckbox v-model="isFront" switch>
-            {{ $t('label_isFront') }}
-          </BFormCheckbox>
         </div>
       </div>
       <template v-slot:after-facets>
