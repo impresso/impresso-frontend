@@ -1,12 +1,16 @@
 <template>
   <button
     type="button"
-    class="btn btn-outline-primary d-flex align-content-center px-2"
+    class="btn btn-sm btn-outline-secondary d-flex gap-1 align-content-center px-2"
+    v-bind="$attrs"
     :title="$t('open')"
     @click="openModal"
     data-testid="semantic-search-button"
   >
-    <Icon name="search" :stroke-width="2.5" :height="16" :width="16" />
+    <slot>
+      <span>SemanticSearchButton</span>
+      <Icon name="search" :stroke-width="1.75" :scale="0.75" />
+    </slot>
   </button>
   <Teleport to="body">
     <Modal
@@ -58,14 +62,18 @@ import type { ImpressoTextEmbeddingRequest } from '@/models/generated/app/reques
 import { embedderTextTool } from '@/services'
 
 const minimumTextLength = 50
+defineOptions({
+  inheritAttrs: false
+})
 const text = defineModel<string>({ default: '' })
 const isModalOpen = ref(false)
 const inputId = `semantic-search-${useId()}`
 const isLoading = ref(false)
 const errorMessage = ref<string | null>(null)
 const embeddingResult = ref<string | null>(null)
+
 const emit = defineEmits<{
-  (e: 'search', { text: string, embedding: string }): void
+  (e: 'search', { text, embedding }: { text: string; embedding: string }): void
 }>()
 const v$ = useVuelidate(
   {

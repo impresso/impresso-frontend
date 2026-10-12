@@ -7,7 +7,9 @@
     v-bind="$attrs"
     :title="$t('actions.openBaristaModal')"
   >
-    <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    <slot>
+      <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    </slot>
   </button>
   <Teleport to="body">
     <BaristaModal

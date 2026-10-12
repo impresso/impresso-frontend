@@ -24,30 +24,11 @@
           @click="submit({ type: 'string', q })"
           data-testid="add-keyword-button"
         >
-          <Icon name="search" :stroke-width="2.5" :height="16" :width="16" />
+          <span class="smallcaps mr-1">search</span>
+          <Icon name="search" :stroke-width="1.5" :height="16" :width="16" />
         </button>
-        <button
-          type="button"
-          class="btn btn-outline-primary d-flex align-content-center px-2"
-          :title="$t('actions.addFilter')"
-          @click="showExplorer"
-          data-testid="add-filter-button"
-        >
-          <Icon name="arrowEnlargeTag" :stroke-width="1.25" :scale="1" />
-        </button>
-        <SemanticSearchButton />
-        <AuthGate v-if="isBaristaEnabled">
-          <template #authenticated>
-            <BaristaButton
-              :filters="filters.map(toCanonicalFilter)"
-              @filtersChanged="handleFiltersChanged"
-              class="btn btn-outline-primary px-2"
-            />
-          </template>
-        </AuthGate>
       </div>
     </div>
-
     <div class="suggestions position-absolute pb-2" v-show="showSuggestions">
       <!-- Static Search Actions -->
       <div
@@ -134,15 +115,6 @@
     </div>
   </section>
 
-  <explorer
-    v-model="explorerFilters"
-    :is-visible="explorerVisible"
-    @onHide="handleExplorerHide"
-    :searching-enabled="true"
-    :initial-q="q"
-    :initial-type="explorerInitialType"
-    :included-types="explorerIncludedTypes"
-  />
 </template>
 
 <script setup lang="ts">
@@ -150,15 +122,9 @@ import { ref, computed } from 'vue'
 import FilterFactory from '@/models/FilterFactory'
 import { useAutocompleteStore } from '@/stores/autocomplete'
 import { useUserStore } from '@/stores/user'
-import type { Filter, FacetType } from '@/models'
-import type { Features } from '@/init'
-import Explorer from './Explorer.vue'
+import type { FacetType, Filter } from '@/models'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from './base/Icon.vue'
-import BaristaButton from './barista/BaristaButton.vue'
-import AuthGate from './AuthGate.vue'
-import SemanticSearchButton from './SemanticSearchButton.vue'
-import { toCanonicalFilter } from '@/logic/filters'
 
 const AVAILABLE_TYPES = [
   'newspaper',
@@ -210,23 +176,12 @@ interface SubmitPayload {
 export interface AutocompleteProps {
   bodyClass?: string
   variant?: string
-  explorerIncludedTypes?: FacetType[]
   filters?: Filter[]
 }
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
   bodyClass: '',
   variant: 'primary',
-  explorerIncludedTypes: () =>
-    [
-      'mediaSource',
-      'topic',
-      'location',
-      'person',
-      'organisation',
-      'nag',
-      'collection'
-    ] as FacetType[],
   filters: () => []
 })
 
@@ -234,7 +189,7 @@ const emit = defineEmits<{
   (e: 'submit', filter: unknown): void
   (e: 'submitEmpty'): void
   (e: 'input-focus', focused: boolean): void
-  (e: 'filtersChanged', filters: Filter[]): void
+  (e: 'openExplorer', options: { initialQ: string; initialType: FacetType }): void
 }>()
 
 // Stores
@@ -244,7 +199,6 @@ const userStore = useUserStore()
 // Refs
 const q = ref('')
 const showSuggestions = ref(false)
-const explorerVisible = ref(false)
 const selectedIndex = ref(0)
 const maxSelectedIndex = ref(0)
 const selectableSuggestions = ref<Suggestion[]>([])
@@ -267,11 +221,6 @@ const staticSuggestions = computed(() => {
         idx
       }) as Suggestion
   )
-})
-
-const isBaristaEnabled = computed(() => {
-  const features = (window as any)?.impressoFeatures as Features | undefined
-  return features?.barista?.enabled ?? false
 })
 
 const filterCount = computed(() => {
@@ -334,22 +283,6 @@ const suggestionType = computed<FacetType>(() => {
   return (selectableSuggestions.value[selectedIndex.value].type || 'string') as FacetType
 })
 
-const explorerInitialType = computed(() => {
-  if (props.explorerIncludedTypes.includes(suggestionType.value)) {
-    return suggestionType.value
-  }
-  return props.explorerIncludedTypes[0] || 'mediaSource'
-})
-
-const explorerFilters = computed({
-  get: () => [],
-  set: (filters: unknown[]) => {
-    const filter = filters[0]
-    emit('submit', filter)
-    q.value = ''
-  }
-})
-
 // Methods
 const search = () => {
   showSuggestions.value = q.value.length > 0
@@ -396,7 +329,11 @@ const submit = (payload?: SubmitPayload) => {
   const { type, item = {}, q: queryStr, fake = false } = payload
 
   if (fake) {
-    showExplorer()
+    emit('openExplorer', {
+      initialQ: q.value,
+      initialType: suggestionType.value
+    })
+    q.value = ''
   } else if (['string', 'title', 'mention'].includes(type || '')) {
     const sq = String(queryStr || (item as any).name || q.value || '').trim()
     if (sq.length) {
@@ -450,21 +387,8 @@ const handleInputBlur = () => {
   emit('input-focus', false)
 }
 
-const handleFiltersChanged = (filters: Filter[]) => {
-  console.debug('[Autocomplete] @handleFiltersChanged')
-  emit('filtersChanged', filters)
-}
-
 const hideSuggestions = () => {
   showSuggestions.value = false
-}
-
-const showExplorer = () => {
-  explorerVisible.value = true
-}
-
-const handleExplorerHide = () => {
-  explorerVisible.value = false
 }
 
 const keyup = (event: KeyboardEvent) => {

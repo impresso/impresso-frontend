@@ -7,6 +7,9 @@
           <SearchTabs />
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
+          <slot name="header" :focusHandler="focusHandler">
+            <!-- extra header -->
+          </slot>
           <SearchPills :filters="filters" @changed="handleFiltersChanged" />
           <span class="d-block mb-2" v-if="filters.length && ignoredFilterTypes.length">
             <i
@@ -22,9 +25,6 @@
               "
             />{{ ' ' }}<InfoButton :name="infoButtonName" />
           </span>
-          <slot name="header" :focusHandler="focusHandler">
-            <!-- extra header -->
-          </slot>
         </div>
       </div>
     </template>
