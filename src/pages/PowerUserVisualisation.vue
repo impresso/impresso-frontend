@@ -93,12 +93,14 @@
 
 <script lang="ts">
 import { schemeCategory10, schemeAccent } from 'd3'
+import { mapStores } from 'pinia'
 
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import Autocomplete from '@/components/Autocomplete.vue'
 import PowerVisBase, { MetricsByFacetType } from '@/components/modules/vis/PowerVisBase.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
+import { useFeaturesStore } from '@/stores/features'
 import { searchFacets, filtersItems, stats } from '@/services'
 import {
   serializeFilters,
@@ -246,13 +248,13 @@ export default {
     this.facets = buildEmptyFacets(this.facetTypes)
   },
   computed: {
+    ...mapStores(useFeaturesStore),
     $navigation() {
       return new Navigation(this)
     },
     /** @returns {boolean} */
     textReuseEnabled() {
-      // @ts-ignore
-      return !!window.impressoFeatures?.textReuse?.enabled
+      return this.featuresStore.isTextReuseEnabled
     },
     /** @returns {{ value: string, text: string}[]} */
     availableStatsFacets() {

@@ -61,7 +61,7 @@ const regionsOverlays = ref<HTMLDivElement[]>([])
 
 const dimensions = ref({ width: 0, height: 0, aspectRatio: 1 })
 let viewer: OpenSeadragon.Viewer | null = null
-let pageWidthWorld = 1
+const pageWidthWorld = 1
 let aspectRatio = 1
 const loadedPagesRef = ref<Set<number>>(new Set())
 

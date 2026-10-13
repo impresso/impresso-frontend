@@ -8,7 +8,6 @@
       class="mb-2"
       :model-value="searchMode"
       :modes="availableSearchModes"
-      :disabled-modes="disabledSearchModes"
       @update:model-value="handleSearchModeChanged"
     />
     <div class="d-flex gap-1">
@@ -157,8 +156,6 @@ const typeIconMap: Record<string, string> = {
   mention: 'mention'
 }
 
-type AvailableType = (typeof AVAILABLE_TYPES)[number]
-
 interface InitialSuggestion {
   type: string
   h?: string
@@ -192,7 +189,6 @@ export interface AutocompleteProps {
   enableModeSwitch?: boolean
   searchMode?: SearchMode
   availableSearchModes?: SearchMode[]
-  disabledSearchModes?: SearchMode[]
 }
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
@@ -201,8 +197,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   filters: () => [],
   enableModeSwitch: false,
   searchMode: 'keyword',
-  availableSearchModes: () => ['keyword', 'semantic', 'prompt'],
-  disabledSearchModes: () => []
+  availableSearchModes: () => ['keyword', 'semantic', 'prompt']
 })
 
 const emit = defineEmits<{

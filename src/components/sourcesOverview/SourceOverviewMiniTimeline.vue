@@ -83,7 +83,7 @@ const yScale = computed(() => {
 
 // Get the min and max values for color scaling
 const valueExtent = computed<{ min: number; max: number }>(() => {
-  let allValues: number[] = []
+  const allValues: number[] = []
 
   props.dataValues.forEach(dv => {
     if (Array.isArray(dv.dataValues) && dv.dataValues.length > 0) {

@@ -274,7 +274,7 @@ export default {
         ]
         // group_by: 'articles',
       }
-      for (let facetType of this.facetTypes) {
+      for (const facetType of this.facetTypes) {
         const result = await searchFacetsService
           .get(facetType, {
             query

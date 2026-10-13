@@ -21,14 +21,14 @@ export interface EmailVerificationResendPayload {
   email: string
 }
 
-export interface EmailVerificationService extends Pick<
+export type EmailVerificationService = Pick<
   ServiceMethods<unknown, EmailVerificationPayload>,
   'create'
-> {}
-export interface EmailVerificationResendService extends Pick<
+>
+export type EmailVerificationResendService = Pick<
   ServiceMethods<unknown, EmailVerificationResendPayload>,
   'create'
-> {}
+>
 
 interface ErrorsCollectorPayload {
   id: string
@@ -39,10 +39,10 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export interface ErrorsCollectorService extends Pick<
-  ServiceMethods<{}, ErrorsCollectorPayload>,
+export type ErrorsCollectorService = Pick<
+  ServiceMethods<unknown, ErrorsCollectorPayload>,
   'create'
-> {}
+>
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 

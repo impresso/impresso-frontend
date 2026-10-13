@@ -173,7 +173,7 @@ export default class LineChart {
         const point = this.getClosestPoint(x, y, data)
         const date = this.x.invert(x)
         const value = this.y.invert(y)
-        // eslint-disable-next-line no-console
+         
         // console.debug('onMouseMove', x, y, date, point)
 
         options.onMouseMove({

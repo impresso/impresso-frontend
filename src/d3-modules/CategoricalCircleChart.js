@@ -27,7 +27,7 @@ export default class CategoricalCircleChart {
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
    * @param {{ itemsDictionary?: {[key: string]: string}, onClick?: (any) => undefined }} options
    */
-  // eslint-disable-next-line no-unused-vars
+   
   render(data, lineMetrics = [], areaMetrics = [], options = {}) {
     const { width, height } = this.element.getBoundingClientRect()
     const { itemsDictionary = {}, onClick = () => null } = options

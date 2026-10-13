@@ -238,7 +238,7 @@ const serviceQuery = computed<{
   }
   if (props.issue) {
     sq.filters.push({ type: 'issue', q: props.issue.id })
-  } // eslint-disable-next-line
+  }  
   console.debug(
     '[IssueViewerPage] computed serviceQuery enabled:',
     sq.enabled,
