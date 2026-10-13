@@ -25,5 +25,8 @@ jobs:
       - name: Type check
         run: npm run type-check
 
+      - name: Lint
+        run: npm run lint:ci
+
       - name: Unit tests
         run: npx vitest run
