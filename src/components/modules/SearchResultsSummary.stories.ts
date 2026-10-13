@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SearchResultsSummary from './SearchResultsSummary.vue'
 import type { SearchResultsSummaryProps } from './SearchResultsSummary.vue'
 

@@ -34,8 +34,8 @@ import { specialMembershipAccess as specialMembershipAccessService } from '@/ser
 import { computed, ref } from 'vue'
 import { SpecialMembershipAccess } from '@/services/types'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
+import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
-import type { Features } from '@/init'
 import InfoModal from '@/components/InfoModal.vue'
 
 export interface ContentItemAccessButtonProps {
@@ -60,20 +60,17 @@ const isModalVisible = ref(false)
 const specialMembershipAccessItem = ref<SpecialMembershipAccess | null>(null)
 
 const userStore = useUserStore()
+const featuresStore = useFeaturesStore()
 
 const isLoggedIn = computed(() => !!userStore.userData)
 const isSpecialMembershipsRequestsEnabled = computed(() => {
   if (!isLoggedIn.value) {
     return false
   }
-  const glob = window as any as { impressoFeatures: Features }
-  if (!glob.impressoFeatures) {
+  if (!featuresStore.features?.specialMemberships) {
     return false
   }
-  if (!glob.impressoFeatures.specialMemberships) {
-    return false
-  }
-  return glob.impressoFeatures.specialMembershipRequests?.enabled ?? false
+  return featuresStore.isSpecialMembershipRequestsEnabled
 })
 
 const keyAccessLevel = (level: number): string => {

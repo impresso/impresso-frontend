@@ -60,7 +60,7 @@
               </div>
             </div>
           </template>
-          <template #default="{ items, isSuccess }">
+          <template #default="{ items }">
             <div class="pb-5">
               <div
                 v-for="item in items"

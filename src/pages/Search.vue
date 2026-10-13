@@ -14,7 +14,6 @@
             class="flex-grow-1"
             v-model:search-mode="autocompleteSearchMode"
             :enable-mode-switch="true"
-            :disabled-search-modes="disabledSearchModes"
             @submit="onSuggestion"
             @submit-semantic="searchExpertToolsRef?.openSemanticSearch($event)"
             @submit-prompt="searchExpertToolsRef?.openBarista($event)"
@@ -35,7 +34,7 @@
       <SearchExpertTools
         ref="searchExpertToolsRef"
         :filters="filters"
-        :is-barista-enabled="isBaristaEnabled"
+        :is-barista-enabled="featuresStore.isBaristaEnabled"
         :is-logged-in="isLoggedIn"
         :show-controls="false"
         @semantic-search="handleSemanticSearch"
@@ -322,12 +321,12 @@ import {
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useAudioStore } from '@/stores/audio'
+import { useFeaturesStore } from '@/stores/features'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 import { useUserStore } from '@/stores/user'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
-import type { Features } from '@/init'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import type { FacetType, Filter, Facet } from '@/models'
 import type { FindQuery } from '@/services/types/contentItems'
@@ -361,6 +360,7 @@ const route = useRoute()
 const router = useRouter()
 const collectionsStore = useCollectionsStore()
 const audioStore = useAudioStore()
+const featuresStore = useFeaturesStore()
 const notificationsStore = useNotificationsStore()
 const searchQueriesStore = useSearchQueriesStore()
 const userStore = useUserStore()
@@ -405,9 +405,6 @@ const searchExpertToolsRef = ref<{
   openBarista(prompt: string): void
 } | null>(null)
 const autocompleteSearchMode = ref<SearchMode>('keyword')
-const disabledSearchModes = computed<SearchMode[]>(() =>
-  isLoggedIn.value ? [] : ['semantic', 'prompt']
-)
 
 // Non-reactive request bookkeeping
 let activeSearchRequestId = 0
@@ -533,10 +530,6 @@ const searchQueryHash = computed(
     new SearchQuery({ filters: filters.value }).getSerialized({ serializer: 'protobuf' }) as string
 )
 const base64Filters = computed(() => searchQueryHash.value)
-
-const isBaristaEnabled = computed(
-  () => (window as unknown as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
-)
 
 const facets = computed(() => [
   ...timelineFacets.value,

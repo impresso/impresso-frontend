@@ -310,6 +310,14 @@
             "title": "Why does the image search have limited filters?",
             "summary": "Due to technical limitations, the image search has fewer filters than the full-text search: results can be sorted by newspaper title, publication date and whether the images appear on the front page.",
             "description": []
+          },
+          {
+            "id": "how-do-search-modes-work",
+            "title": "How do search modes work?",
+            "summary": "Choose the search mode that best matches how you want to explore the corpus. Switching modes changes how your query is processed without losing your active dataset filters.",
+            "description": [
+              "Keywords performs exact text and Boolean matching against original digitized documents, making it ideal for named entities, specific phrases, or precise archival references. Semantic uses vector AI to search by concept and meaning, retrieving contextually relevant passages even when exact historical terminology varies. Prompt connects directly with the Barista Agent to let you ask complex research questions, generate query expansions, or receive guided assistance with your search criteria."
+            ]
           }
         ]
       },

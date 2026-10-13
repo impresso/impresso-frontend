@@ -143,6 +143,10 @@ export interface IData {
   collections: Collection[]
 }
 
+type ContentItemCollections = NonNullable<
+  NonNullable<ContentItemSchema['semanticEnrichments']>['collections']
+>
+
 export default defineComponent({
   data(): IData {
     return {
@@ -169,7 +173,7 @@ export default defineComponent({
       default: false
     }
   },
-  emits: ['toggleSelected', 'click'],
+  emits: ['update:modelValue', 'toggleSelected', 'click'],
   computed: {
     ...mapStores(useCollectionsStore, useUserStore, useNotificationsStore),
     contentItem(): ContentItemSchema {
@@ -273,15 +277,16 @@ export default defineComponent({
       if (!updatedItem || !updatedItem.collectionIds) return
 
       if (updatedItem.added) {
-        this.modelValue.semanticEnrichments.collections = [
-          ...(this.modelValue?.semanticEnrichments?.collections ?? []),
+        this.updateCollections([
+          ...(currentContentItem.semanticEnrichments?.collections ?? []),
           payload.collection as any
-        ]
+        ])
       } else if (updatedItem.removed) {
-        this.modelValue.semanticEnrichments.collections =
-          this.modelValue?.semanticEnrichments?.collections?.filter(
+        this.updateCollections(
+          currentContentItem.semanticEnrichments?.collections?.filter(
             c => c.id !== payload.collection.id
           ) ?? []
+        )
       }
     },
     async onRemoveCollection(collectionId: string) {
@@ -300,10 +305,18 @@ export default defineComponent({
         title: 'Collection',
         message: `Removed from collection "${collection.title || (collection as any)?.name}"`
       })
-      if (this.modelValue?.semanticEnrichments?.collections) {
-        this.modelValue.semanticEnrichments.collections =
-          this.modelValue.semanticEnrichments.collections.filter(c => c.id !== collectionId)
-      }
+      this.updateCollections(collections.filter(c => c.id !== collectionId))
+    },
+    updateCollections(collections: ContentItemCollections) {
+      const item = this.modelValue
+      if (!item) return
+      this.$emit('update:modelValue', {
+        ...item,
+        semanticEnrichments: {
+          ...item.semanticEnrichments,
+          collections
+        }
+      })
     },
     toggleSelected() {
       this.$emit('toggleSelected')

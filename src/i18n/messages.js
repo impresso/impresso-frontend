@@ -264,10 +264,10 @@ export default {
       unigramMentions:
         'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
       ignoredFilters:
-        // eslint-disable-next-line quotes
+         
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
       ignoredFiltersDetailed:
-        // eslint-disable-next-line quotes
+         
         "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
@@ -467,7 +467,7 @@ export default {
         filtered: 'Results are filtered when:',
         selected: 'Filter results if <b>one of {count} selected</b> collection applies',
         description: 'Check one or more collection to filter results',
-        // eslint-disable-next-line quotes
+         
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
       },

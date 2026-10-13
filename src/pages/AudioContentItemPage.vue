@@ -38,7 +38,7 @@
             />
           </div>
         </template>
-        <template #default="{ items, isSuccess }">
+        <template #default="{ items }">
           <div ref="sidebarItemsContainerRef">
             <ContentItem
               v-for="item in items"

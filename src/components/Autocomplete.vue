@@ -8,7 +8,6 @@
       class="mb-2"
       :model-value="searchMode"
       :modes="availableSearchModes"
-      :disabled-modes="disabledSearchModes"
       @update:model-value="handleSearchModeChanged"
     />
     <div class="d-flex gap-1">
@@ -157,8 +156,6 @@ const typeIconMap: Record<string, string> = {
   mention: 'mention'
 }
 
-type AvailableType = (typeof AVAILABLE_TYPES)[number]
-
 interface InitialSuggestion {
   type: string
   h?: string
@@ -192,7 +189,6 @@ export interface AutocompleteProps {
   enableModeSwitch?: boolean
   searchMode?: SearchMode
   availableSearchModes?: SearchMode[]
-  disabledSearchModes?: SearchMode[]
 }
 
 const props = withDefaults(defineProps<AutocompleteProps>(), {
@@ -201,8 +197,7 @@ const props = withDefaults(defineProps<AutocompleteProps>(), {
   filters: () => [],
   enableModeSwitch: false,
   searchMode: 'keyword',
-  availableSearchModes: () => ['keyword', 'semantic', 'prompt'],
-  disabledSearchModes: () => []
+  availableSearchModes: () => ['keyword', 'semantic', 'prompt']
 })
 
 const emit = defineEmits<{
@@ -223,8 +218,6 @@ const userStore = useUserStore()
 const q = ref('')
 const showSuggestions = ref(false)
 const selectedIndex = ref(0)
-const maxSelectedIndex = ref(0)
-const selectableSuggestions = ref<Suggestion[]>([])
 const recentSuggestions = ref<InitialSuggestion[]>([])
 const collectionSuggestions = ref<Suggestion[]>([])
 const suggestions = ref<Suggestion[]>([])
@@ -246,7 +239,7 @@ const staticSuggestions = computed(() => {
   )
 })
 
-const suggestionIndex = computed(() => {
+const suggestionData = computed(() => {
   const index: Record<string, Suggestion[]> = {}
 
   suggestions.value.forEach(item => {
@@ -283,11 +276,16 @@ const suggestionIndex = computed(() => {
     selectableSuggestionsList = selectableSuggestionsList.concat(index[type] || [])
   })
 
-  maxSelectedIndex.value = idx
-  selectableSuggestions.value = selectableSuggestionsList
-
-  return index
+  return {
+    index,
+    maxSelectedIndex: idx,
+    selectableSuggestions: selectableSuggestionsList
+  }
 })
+
+const suggestionIndex = computed(() => suggestionData.value.index)
+const selectableSuggestions = computed(() => suggestionData.value.selectableSuggestions)
+const maxSelectedIndex = computed(() => suggestionData.value.maxSelectedIndex)
 
 const suggestionTypes = computed(() => {
   return AVAILABLE_TYPES.filter(type => !!suggestionIndex.value[type])

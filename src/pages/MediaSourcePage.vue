@@ -67,7 +67,7 @@
             </div>
           </div>
         </template>
-        <template #default="{ items = [], isSuccess }">
+        <template #default="{ items = [] }">
           <div ref="sidebarItemsContainerRef">
             <MediaSourceItem
               v-for="item in items"

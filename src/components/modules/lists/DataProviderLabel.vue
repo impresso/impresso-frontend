@@ -1,5 +1,5 @@
 <template>
-  <span :class="class">
+  <span :class="props.class">
     <span v-html="$t(withDash ? 'label_provided_by_dash_before' : 'label_providedBy')" />
     <ItemSelector
       v-if="showLink"

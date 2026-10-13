@@ -242,7 +242,6 @@ const props = withDefaults(
     sortOptions?: { value: string; text: string }[]
     defaultSortOrder?: string
     defaultFilterBy?: string
-    filterByOptions?: { accessor: any; value: string; text: string }[]
   }>(),
   {
     dialogClass: 'modal-dialog-scrollable',

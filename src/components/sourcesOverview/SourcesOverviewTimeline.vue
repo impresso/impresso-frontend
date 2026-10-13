@@ -228,8 +228,6 @@
             :exponent="props.scaleExponent"
             @item-click="onDataValueItemClick"
             :colorScaleFn="getColorScaleFnBySourceType(dataValue.item?.type)"
-              
-            "
           />
         </div>
       </div>

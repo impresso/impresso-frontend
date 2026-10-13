@@ -1,60 +1,64 @@
 <template>
-  <div
-    ref="root"
-    class="SearchModeSwitch d-inline-flex position-relative rounded-pill border border-dark bg-light shadow-sm"
-    :class="{ disabled: props.disabled }"
-    role="radiogroup"
-    :aria-disabled="props.disabled"
-    :data-testid="dataTestid"
-  >
-    <span
-      class="SearchModeSwitch__thumb rounded-pill"
-      :class="{ 'SearchModeSwitch__thumb--animated': ready }"
-      :style="{
-        width: `${thumb.width}px`,
-        transform: `translateX(${thumb.x}px)`
-      }"
-    ></span>
-    <label
-      v-for="option in availableOptions"
-      :key="option.value"
-      class="SearchModeSwitch__option small-caps rounded-pill text-center m-0 px-2 py-1"
-      :class="{
-        active: props.modelValue === option.value,
-        'SearchModeSwitch__option--disabled': disabledModes.includes(option.value)
-      }"
-      :aria-disabled="props.disabled || disabledModes.includes(option.value)"
+  <div class="SearchModeSwitch d-flex align-items-center gap-2">
+    <div
+      ref="root"
+      class="SearchModeSwitch__root d-inline-flex position-relative rounded-pill border border-dark bg-light shadow-sm"
+      :class="{ disabled: props.disabled }"
+      role="radiogroup"
+      :aria-disabled="props.disabled"
+      :data-testid="dataTestid"
     >
-      <input
-        type="radio"
-        class="SearchModeSwitch__input"
-        :name="uid"
-        :value="option.value"
-        :checked="props.modelValue === option.value"
-        :disabled="props.disabled || disabledModes.includes(option.value)"
-        @change="handleChanged(option.value)"
-      />
-      <span>{{ $t(option.labelKey) }}</span>
-    </label>
+      <span
+        class="SearchModeSwitch__thumb rounded-pill"
+        :class="{ 'SearchModeSwitch__thumb--animated': ready }"
+        :style="{
+          width: `${thumb.width}px`,
+          transform: `translateX(${thumb.x}px)`
+        }"
+      ></span>
+      <label
+        v-for="option in availableOptions"
+        :key="option.value"
+        class="SearchModeSwitch__option small-caps rounded-pill text-center m-0 px-2 py-1"
+        :class="{
+          active: props.modelValue === option.value,
+          'SearchModeSwitch__option--disabled': disabledModes.includes(option.value)
+        }"
+        :aria-disabled="props.disabled || disabledModes.includes(option.value)"
+      >
+        <input
+          type="radio"
+          class="SearchModeSwitch__input"
+          :name="uid"
+          :value="option.value"
+          :checked="props.modelValue === option.value"
+          :disabled="props.disabled || disabledModes.includes(option.value)"
+          @change="handleChanged(option.value)"
+        />
+        <span class="px-1">{{ $t(option.labelKey) }}</span>
+      </label>
+    </div>
+    <InfoButton name="how-do-search-modes-work"></InfoButton>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, useId, watch } from 'vue'
+import { useFeaturesStore } from '@/stores/features'
+import InfoButton from './base/InfoButton.vue'
+import { useUserStore } from '@/stores/user'
 
 export type SearchMode = 'keyword' | 'semantic' | 'prompt'
 
 export interface SearchModeSwitchProps {
   modelValue: SearchMode
   modes?: SearchMode[]
-  disabledModes?: SearchMode[]
   disabled?: boolean
   dataTestid?: string
 }
 
 const props = withDefaults(defineProps<SearchModeSwitchProps>(), {
   modes: () => ['keyword', 'semantic', 'prompt'],
-  disabledModes: () => [],
   disabled: false,
   dataTestid: undefined
 })
@@ -62,15 +66,27 @@ const props = withDefaults(defineProps<SearchModeSwitchProps>(), {
 const emit = defineEmits<{
   (e: 'update:modelValue', value: SearchMode): void
 }>()
+const featuresStore = useFeaturesStore()
+const userStore = useUserStore()
+
+const disabledModes = computed(() => {
+  if (!userStore.isLoggedIn) {
+    return ['semantic', 'prompt']
+  }
+  if (!featuresStore.isBaristaEnabled) {
+    return ['prompt']
+  }
+  return []
+})
 
 const options: { value: SearchMode; labelKey: string }[] = [
   { value: 'keyword', labelKey: 'options.keyword' },
   { value: 'semantic', labelKey: 'options.semantic' },
   { value: 'prompt', labelKey: 'options.prompt' }
 ]
-const availableOptions = computed(() => options.filter(option => props.modes.includes(option.value)))
-const disabledModes = computed(() => props.disabledModes)
-
+const availableOptions = computed(() =>
+  options.filter(option => props.modes.includes(option.value))
+)
 const uid = useId()
 const selectedIndex = computed(() =>
   availableOptions.value.findIndex(option => option.value === props.modelValue)
@@ -109,12 +125,12 @@ const handleChanged = (value: SearchMode) => {
 </script>
 
 <style>
-.SearchModeSwitch {
+.SearchModeSwitch__root {
   --switch-pad: 2px;
   padding: var(--switch-pad);
   user-select: none;
 }
-.SearchModeSwitch.disabled {
+.SearchModeSwitch__root.disabled {
   opacity: 0.5;
   pointer-events: none;
 }

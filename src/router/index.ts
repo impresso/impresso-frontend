@@ -23,7 +23,7 @@ import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
 import { Routes } from '@/router/routes'
 
-// eslint-disable-next-line
+ 
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
 
 const router = createRouter({
