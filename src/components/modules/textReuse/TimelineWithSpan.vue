@@ -53,9 +53,15 @@ export default {
     }
   },
   watch: {
-    timelineSpan() { this.updateTimelineData },
-    selectionSpan() { this.updateTimelineData },
-    height() { this.updateTimelineData }
+    timelineSpan() {
+      this.updateTimelineData()
+    },
+    selectionSpan() {
+      this.updateTimelineData()
+    },
+    height() {
+      this.updateTimelineData()
+    }
   }
 }
 </script>

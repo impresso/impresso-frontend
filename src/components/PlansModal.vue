@@ -59,7 +59,7 @@
         </div>
         <div
           class="row PlansModal__hRow py-1"
-          key="{key}"
+          :key="requirementsLabels[key]"
           v-for="key in Object.keys(requirementsLabels)"
         >
           <div class="col-lg-2 small PlansModal__hRow__requirementsLabel">

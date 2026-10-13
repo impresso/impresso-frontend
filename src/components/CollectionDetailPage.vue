@@ -66,7 +66,9 @@
             :variant="isPublic ? 'outline-success' : 'outline-secondary'"
             @click="changeAccessLevel(isPublic ? 'private' : 'public')"
           >
-            {{ $t(isPublic ? 'collectionVisibility.makePrivate' : 'collectionVisibility.makePublic') }}
+            {{
+              $t(isPublic ? 'collectionVisibility.makePrivate' : 'collectionVisibility.makePublic')
+            }}
           </b-button>
           <b-dropdown
             v-if="isCollectionOwner"
@@ -212,7 +214,7 @@
             v-for="(contentItem, index) in contentItems"
             v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-list-item :modelValue="contentItem" />
+            <search-results-list-item v-model="contentItems[index]" />
           </b-col>
         </b-row>
 
@@ -225,7 +227,7 @@
             v-for="(contentItem, index) in contentItems"
             v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-tiles-item :modelValue="contentItem" />
+            <search-results-tiles-item v-model="contentItems[index]" />
             <!-- 
               v-if="contentItem.text?.itemType === 'ar'"
 
@@ -293,7 +295,7 @@
             lg="6"
             xl="4"
             class="mb-3"
-            v-for="(facet, idx) in facets"
+            v-for="facet in facets"
             v-bind:key="facet.type"
           >
             <stacked-bars-panel

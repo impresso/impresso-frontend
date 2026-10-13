@@ -64,8 +64,8 @@ export interface IDateRangeSuggestion extends ITyped<'daterange'> {
 }
 
 export class SuggestionDaterange implements IDateRangeSuggestion {
-  type: 'daterange' = 'daterange'
-  context: 'include' = 'include'
+  type = 'daterange' as const
+  context = 'include' as const
   daterange: Daterange
 
   constructor(args: ConstructorParameters<typeof Daterange>[0]) {
@@ -80,8 +80,8 @@ export interface IRegexSuggestion extends ITyped<'regex'> {
 }
 
 export class SuggestionRegex implements IRegexSuggestion {
-  type: 'regex' = 'regex'
-  context: 'include' = 'include'
+  type = 'regex' as const
+  context = 'include' as const
   q: string
 
   constructor({ q }: { q: string }) {

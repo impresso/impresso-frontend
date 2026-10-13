@@ -184,7 +184,6 @@ import {
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
 import IIIFFragment from '../IIIFFragment.vue'
-import ListOfSimilarContentItems from '../ListOfSimilarContentItems.vue'
 import Collection from '@/models/Collection'
 import { useNotificationsStore } from '@/stores/notifications'
 
@@ -347,9 +346,9 @@ export default {
       default: false
     }
   },
+  emits: ['update:contentItem'],
   components: {
     ContentItem,
-    ListOfSimilarContentItems,
     AnnotatedText,
     CompareTextReusePassageModal,
     InfoButton,
@@ -395,10 +394,13 @@ export default {
         title: 'Collection',
         message: `Removed from collection "${collection.title || (collection as any)?.name}"`
       })
-      if (this.contentItem?.semanticEnrichments?.collections) {
-        this.contentItem.semanticEnrichments.collections =
-          this.contentItem.semanticEnrichments.collections.filter(c => c.id !== collectionId)
-      }
+      this.$emit('update:contentItem', {
+        ...item,
+        semanticEnrichments: {
+          ...item.semanticEnrichments,
+          collections: collections.filter(c => c.id !== collectionId)
+        }
+      })
     },
     mouseenterPassageHandler(clusterId, passageId, e: MouseEvent) {
       this.selectedPassageId = passageId

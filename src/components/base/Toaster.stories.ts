@@ -1,4 +1,4 @@
-import type { Meta, StoryObj, Decorator } from '@storybook/vue3'
+import type { Meta, StoryObj, Decorator } from '@storybook/vue3-vite'
 import Toaster from './Toaster.vue'
 import { StoredNotification, useNotificationsStore } from '@/stores/notifications'
 import { nextTick } from 'vue'

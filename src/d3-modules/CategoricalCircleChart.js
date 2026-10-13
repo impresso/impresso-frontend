@@ -27,17 +27,18 @@ export default class CategoricalCircleChart {
    * @param {{ id: string, extractor: AreaValueExtractor}[]} areaMetrics
    * @param {{ itemsDictionary?: {[key: string]: string}, onClick?: (any) => undefined }} options
    */
-   
-  render(data, lineMetrics = [], areaMetrics = [], options = {}) {
+
+  render(data, lineMetrics = [], ...areaMetricsAndOptions) {
+    const [, options = {}] = areaMetricsAndOptions
     const { width, height } = this.element.getBoundingClientRect()
     const { itemsDictionary = {}, onClick = () => null } = options
 
     this.svg.attr('viewBox', [0, 0, width, height].join(' '))
 
     const maxValue =
-      /** @type {number} */ (d3.max(data, d =>
-        d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))),
-      )) ?? d3.max(data.map(d => d.value))
+      /** @type {number} */ (
+        d3.max(data, d => d3.max(lineMetrics.map(({ extractor }) => extractor(d.value))))
+      ) ?? d3.max(data.map(d => d.value))
 
     // X
     const x = d3
@@ -54,7 +55,7 @@ export default class CategoricalCircleChart {
             .axisBottom(x)
             .ticks(width / 80)
             .tickSizeOuter(0)
-            .tickSize(-height),
+            .tickSize(-height)
         )
         .call(g => g.selectAll('line').style('stroke', '#eee'))
         .selectAll('text')
@@ -65,12 +66,7 @@ export default class CategoricalCircleChart {
           return dataItem != null ? dataItem.domain.label : ''
         })
 
-    this.axes
-      .selectAll('g.x')
-      .data([null])
-      .join('g')
-      .attr('class', 'x')
-      .call(xAxis)
+    this.axes.selectAll('g.x').data([null]).join('g').attr('class', 'x').call(xAxis)
 
     // Y
     const y = d3
@@ -82,12 +78,7 @@ export default class CategoricalCircleChart {
       g
         .attr('transform', `translate(${this.margin.left}, 0)`)
         .style('stroke-dasharray', '3,3')
-        .call(
-          d3
-            .axisLeft(y)
-            .tickSizeOuter(0)
-            .tickSize(-width),
-        )
+        .call(d3.axisLeft(y).tickSizeOuter(0).tickSize(-width))
         .call(g => g.selectAll('line').style('stroke', '#eee'))
         .selectAll('text')
         .style('text-anchor', 'end')
@@ -97,12 +88,7 @@ export default class CategoricalCircleChart {
           }
           return itemsDictionary[itemValue] || itemsDictionary
         })
-    this.axes
-      .selectAll('g.y')
-      .data([null])
-      .join('g')
-      .attr('class', 'y')
-      .call(yAxis)
+    this.axes.selectAll('g.y').data([null]).join('g').attr('class', 'y').call(yAxis)
 
     const bar = this.bars
       .selectAll('g.bar')
@@ -120,7 +106,7 @@ export default class CategoricalCircleChart {
           lineMetrics
             .map(({ id, extractor }) => ({ id, value: extractor(dataItem.value), item: dataItem }))
             .filter(({ value }) => !isNaN(value)),
-        ({ id }) => id,
+        ({ id }) => id
       )
       .join('circle')
       .attr('class', ({ id }) => id)

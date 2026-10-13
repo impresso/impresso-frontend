@@ -171,6 +171,7 @@ const iconArgs = computed<IconProps>(() => {
       color: 'var(--bs-danger)'
     }
   }
+  return {}
 })
 </script>
 <i18n lang="json">

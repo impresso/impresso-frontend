@@ -53,6 +53,22 @@
       {{ $t('label_feedback') }}
     </LinkToModal>
 
+    <template v-if="user && user.isStaff">
+      <li class="mx-3"><hr class="dropdown-divider" /></li>
+      <li class="mx-3 small text-muted pb-2">[staff only] Features</li>
+      <li class="mx-3">
+        <b-dropdown-form v-for="key in FeatureKeys" :key="key">
+          <b-form-checkbox
+            switch
+            :model-value="featuresStore.features?.[key]?.enabled ?? false"
+            @update:model-value="(value: boolean) => featuresStore.setFeatureEnabled(key, value)"
+          >
+            {{ key }}
+          </b-form-checkbox>
+        </b-dropdown-form>
+      </li>
+    </template>
+
     <li class="mx-3">
       <hr class="dropdown-divider" />
     </li>
@@ -97,7 +113,7 @@ import {
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
-import { useFeaturesStore } from '@/stores/features'
+import { useFeaturesStore, FeatureKeys } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'

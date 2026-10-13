@@ -351,7 +351,6 @@ export default {
     },
     /** @return {string} */
     chartHeightString() {
-      // @ts-ignore
       return `${0.5 * window.innerHeight}px`
     },
     /** @return {{ id: string, label: string | undefined, color: string }[]} */

@@ -34,7 +34,7 @@
             />
           </div>
         </template>
-        <template #default="{ items, isSuccess }">
+        <template #default="{ items }">
           <div>
             <div
               v-for="item in items"
@@ -100,7 +100,12 @@
       </template>
 
       <div class="container ml-0 py-4 pr-5">
-        <router-view :image="image" :user-plan="userPlan" :content-item="contentItem" :content-item-regions="contentItemRegions"></router-view>
+        <router-view
+          :image="image"
+          :user-plan="userPlan"
+          :content-item="contentItem"
+          :content-item-regions="contentItemRegions"
+        ></router-view>
       </div>
     </i-layout-section>
   </i-layout>

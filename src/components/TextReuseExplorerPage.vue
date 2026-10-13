@@ -77,6 +77,7 @@
             class="nav-item pl-2"
             v-for="routeName in ['textReuseOverview', 'textReuseClusters', 'textReusePassages']"
             :class="{ active: $route.name === routeName }"
+            :key="routeName"
           >
             <RouterLink class="nav-link" :to="goToRoute({ name: routeName, query: { p: 1 } })">
               <span
@@ -355,12 +356,11 @@ export default {
     },
     async loadClusters({ query }) {
       if (this.isLoadingClusters) {
-         
         console.debug('[TextReuseExplorer] loadClusters() \n busy.')
         return
       }
       this.isLoadingClusters = true
-       
+
       console.debug('[TextReuseExplorer] loadClusters() \n loading...')
 
       try {
@@ -369,7 +369,7 @@ export default {
           .then(result => [result.data, result.total])
         this.clusters = clusters.map(d => TextReuseCluster.fromTextReusePassage(d))
         this.totalClusters = total
-         
+
         console.debug('[TextReuseExplorer] loadClusters() \n - total: ', this.totalClusters)
       } finally {
         this.isLoadingClusters = false
@@ -377,13 +377,12 @@ export default {
     },
     async loadPassages({ query }) {
       if (this.isLoadingPassages) {
-         
         console.debug('[TextReuseExplorer] loadPassages() \n busy.')
         return
       }
       this.isLoadingPassages = true
       this.passages = []
-       
+
       console.debug('[TextReuseExplorer] loadPassages() \n loading...', query)
 
       try {
@@ -392,7 +391,7 @@ export default {
           .then(result => [result.data, result.total])
         this.passages = passages
         this.totalPassages = total
-         
+
         console.debug('[TextReuseExplorer] loadPassages() \n - total: ', this.totalPassages)
       } finally {
         this.isLoadingPassages = false
@@ -400,14 +399,12 @@ export default {
     },
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-       
       console.debug('[TextReuseExplorer] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
       })
     },
     handleAddToCollectionClick(item) {
-       
       console.debug('[TextReuseExplorer] handleAddToCollectionClick', item)
       this.selectedCollection = item
       // open up confimation modal...?
@@ -415,13 +412,11 @@ export default {
     },
     // opens up create Collection modal
     handleAddToCollectionCreate({ name = '' }) {
-       
       console.debug('[TextReuseExplorer] handleAddToCollectionCreate name:', name)
       this.newCollectionName = name
       this.showCreateCollectionModal()
     },
     handleCollectionCreated(collection) {
-       
       console.debug('[TextReuseExplorer] handleCollectionCreated', collection)
       this.hideCreateCollectionModal()
 
@@ -460,10 +455,8 @@ export default {
           console.debug('[TextReuseExplorer]  success')
         })
         .catch(err => {
-           
           console.error('[TextReuseExplorer] handleCreateCollection', err)
           if (err.code === 400) {
-             
             console.warn('[TextReuseExplorer] handleAddToCollectionClick', err.data)
             this.addNotification({
               title: 'Error',
@@ -485,7 +478,7 @@ export default {
     },
     async handleCreateCollection(name, description) {
       const collection = await collections.create({ name, description })
-       
+
       console.debug(
         '[TextReuseExplorer] handleCreateCollection \n - name: ',
         name,
@@ -562,7 +555,7 @@ export default {
         if (previousValue && previousValue.hash === hash) {
           return false
         }
-         
+
         console.debug(
           '[TextReuseExplorer] @searchApiQueryParameters \n query:',
           query,

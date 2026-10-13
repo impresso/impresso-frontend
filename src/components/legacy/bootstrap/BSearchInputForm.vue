@@ -35,7 +35,11 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
-import { required, minLength, maxLength } from '@vuelidate/validators'
+import {
+  required as requiredValidator,
+  minLength as minLengthValidator,
+  maxLength as maxLengthValidator
+} from '@vuelidate/validators'
 import BFormInput from './BFormInput.vue'
 import Icon from '@/components/base/Icon.vue'
 
@@ -71,9 +75,9 @@ const form = reactive<BSearchInputFormPayload>({
 
 const validationRules = {
   q: {
-    ...(props.required && { required }),
-    ...(props.minLength > 0 && { minLength: minLength(props.minLength) }),
-    ...(props.maxLength > 0 && { maxLength: maxLength(props.maxLength) })
+    ...(props.required && { required: requiredValidator }),
+    ...(props.minLength > 0 && { minLength: minLengthValidator(props.minLength) }),
+    ...(props.maxLength > 0 && { maxLength: maxLengthValidator(props.maxLength) })
   }
 }
 

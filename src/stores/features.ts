@@ -11,6 +11,16 @@ import type { ImpressoFeatures, ImpressoGlobalMetadata } from '@/models/Impresso
 const readFeatures = (): ImpressoFeatures | undefined =>
   (window as unknown as ImpressoGlobalMetadata).impressoFeatures
 
+export type FeatureKey = keyof ImpressoFeatures
+
+export const FeatureKeys: FeatureKey[] = [
+  'barista',
+  'textReuse',
+  'viewPlans',
+  'specialMemberships',
+  'specialMembershipRequests'
+]
+
 /**
  * Centralises access to the Impresso feature flags.
  *
@@ -45,8 +55,14 @@ export const useFeaturesStore = defineStore('features', () => {
     features.value = next
   }
 
+  /** Override a single feature flag at runtime (used by the staff switches). */
+  function setFeatureEnabled(key: FeatureKey, enabled: boolean) {
+    features.value = { ...features.value, [key]: { ...features.value?.[key], enabled } }
+  }
+
   return {
     features,
+    setFeatureEnabled,
     isBaristaEnabled,
     isTextReuseEnabled,
     isViewPlansEnabled,

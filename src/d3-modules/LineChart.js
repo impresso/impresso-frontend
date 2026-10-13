@@ -173,7 +173,7 @@ export default class LineChart {
         const point = this.getClosestPoint(x, y, data)
         const date = this.x.invert(x)
         const value = this.y.invert(y)
-         
+
         // console.debug('onMouseMove', x, y, date, point)
 
         options.onMouseMove({
@@ -204,7 +204,7 @@ export default class LineChart {
 
     // Areas
 
-    // @ts-ignore
+    // @ts-expect-error D3 cannot infer the nested tuple datum required by this area generator.
     const area = d3
       .area /** @type {d3.Area<[Date, [number, number]]>} */
       ()

@@ -48,4 +48,19 @@ describe('useFeaturesStore', () => {
     expect(store.isBaristaEnabled).toBe(true)
     expect(store.features).toEqual({ barista: { enabled: true } })
   })
+
+  it('updates one flag without resetting the others', () => {
+    const store = useFeaturesStore()
+    store.setFeatures({
+      barista: { enabled: true },
+      textReuse: { enabled: false }
+    })
+
+    store.setFeatureEnabled('textReuse', true)
+
+    expect(store.features).toEqual({
+      barista: { enabled: true },
+      textReuse: { enabled: true }
+    })
+  })
 })

@@ -218,8 +218,6 @@ const userStore = useUserStore()
 const q = ref('')
 const showSuggestions = ref(false)
 const selectedIndex = ref(0)
-const maxSelectedIndex = ref(0)
-const selectableSuggestions = ref<Suggestion[]>([])
 const recentSuggestions = ref<InitialSuggestion[]>([])
 const collectionSuggestions = ref<Suggestion[]>([])
 const suggestions = ref<Suggestion[]>([])
@@ -241,7 +239,7 @@ const staticSuggestions = computed(() => {
   )
 })
 
-const suggestionIndex = computed(() => {
+const suggestionData = computed(() => {
   const index: Record<string, Suggestion[]> = {}
 
   suggestions.value.forEach(item => {
@@ -278,11 +276,16 @@ const suggestionIndex = computed(() => {
     selectableSuggestionsList = selectableSuggestionsList.concat(index[type] || [])
   })
 
-  maxSelectedIndex.value = idx
-  selectableSuggestions.value = selectableSuggestionsList
-
-  return index
+  return {
+    index,
+    maxSelectedIndex: idx,
+    selectableSuggestions: selectableSuggestionsList
+  }
 })
+
+const suggestionIndex = computed(() => suggestionData.value.index)
+const selectableSuggestions = computed(() => suggestionData.value.selectableSuggestions)
+const maxSelectedIndex = computed(() => suggestionData.value.maxSelectedIndex)
 
 const suggestionTypes = computed(() => {
   return AVAILABLE_TYPES.filter(type => !!suggestionIndex.value[type])
