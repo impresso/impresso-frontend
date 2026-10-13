@@ -147,11 +147,18 @@ const confirm = () => {
   emit('confirm')
 }
 
+const truncateIfMoreThan = (str: string, maxLength: number) => {
+  if (str.length > maxLength) {
+    return str.substring(0, maxLength) + '[...] truncated (see params for full route info)'
+  }
+  return str
+}
+
 const handleSubmit = (payload: FeedbackFormPayload) => {
   const payloadWithRoute: FeedbackFormPayloadWithRoute = {
     ...payload,
     route: {
-      fullPath: route.fullPath,
+      fullPath: truncateIfMoreThan(route.fullPath, 100),
       params: route.params,
       query: route.query,
       name: route.name as string | null
