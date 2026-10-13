@@ -175,6 +175,7 @@ import IIIFViewer from './IIIFViewer.vue'
 
 import Article from '@/models/Article'
 import { useCollectionsStore } from '@/stores/collections'
+import { useFeaturesStore } from '@/stores/features'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 
 import {
@@ -234,6 +235,7 @@ export default {
   },
   computed: {
     ...mapStores(useCollectionsStore),
+    ...mapStores(useFeaturesStore),
     ...mapStores(useNotificationsStore),
     ...mapStores(useSelectionMonitorStore),
 
@@ -334,8 +336,7 @@ export default {
       return this.$route.query.trClusterId as string
     },
     textReuseEnabled() {
-      // @ts-ignore
-      return !!window.impressoFeatures?.textReuse?.enabled
+      return this.featuresStore.isTextReuseEnabled
     }
   },
   props: {

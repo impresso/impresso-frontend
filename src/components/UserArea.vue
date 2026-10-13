@@ -97,6 +97,7 @@ import {
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
+import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
@@ -104,6 +105,7 @@ import SpecialMembershipButton from './specialMembership/SpecialMembershipButton
 import { triggerClickOutside } from '@/composables/useClickOutside'
 
 const userStore = useUserStore()
+const featuresStore = useFeaturesStore()
 
 export interface UserAreaProps {
   user: User
@@ -119,14 +121,14 @@ const version = computed(() => {
 })
 
 const isViewPlansFeatureEnabled = computed(() => {
-  return (window as any).impressoFeatures?.viewPlans?.enabled
+  return featuresStore.isViewPlansEnabled
 })
 
 const isSpecialMembershipsEnabled = computed(() => {
   if (props.user && props.user.isStaff) {
     return true
   }
-  return (window as any).impressoFeatures?.specialMemberships?.enabled
+  return featuresStore.isSpecialMembershipsEnabled
 })
 
 const logout = () => {

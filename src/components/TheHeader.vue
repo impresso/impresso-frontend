@@ -204,6 +204,7 @@ import LinkToModal from './LinkToModal.vue'
 import TasksDropdownPreview from '@/components/TasksDropdownPreview.vue'
 import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
+import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import type { ErrorMessage } from '@/stores/notifications'
@@ -218,6 +219,7 @@ import InfoButton from './base/InfoButton.vue'
 
 const route = useRoute()
 const jobsStore = useJobsStore()
+const featuresStore = useFeaturesStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 
@@ -258,10 +260,7 @@ const errorMessages = computed<ErrorMessage[]>(() => {
 })
 const showAlert = computed(() => errorMessages.value.length > 0)
 const connectivityStatus = computed(() => notificationsStore.connectivityStatus)
-const textReuseEnabled = computed(
-  () =>
-    !!(window as typeof window & { impressoFeatures?: any }).impressoFeatures?.textReuse?.enabled
-)
+const textReuseEnabled = computed(() => featuresStore.isTextReuseEnabled)
 
 function getRouteWithSearchQuery(
   routeParams: RouteLocationRaw,

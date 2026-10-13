@@ -17,13 +17,13 @@
 </template>
 <script setup lang="ts">
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
+import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import { base64BytesToBigInt } from '@/util/bigint'
 import { computed } from 'vue'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
 import ContentItemAccessDimensions from './ContentItemAccessDimensions.vue'
 import { MaxPlanBitPosition } from '@/constants'
-import { Features } from '@/init'
 
 const FullAccessLevel = 3
 
@@ -33,14 +33,14 @@ export interface ContentItemAccessProps {
 
 const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
+const featuresStore = useFeaturesStore()
 
 const isLoggedIn = computed(() => !!userStore.userData)
 const isSpecialMembershipsEnabled = computed(() => {
   if (!isLoggedIn.value) {
     return false
   }
-  return (window as any as { impressoFeatures: Features }).impressoFeatures?.specialMemberships
-    ?.enabled
+  return featuresStore.isSpecialMembershipsEnabled
 })
 /**
  * Computed property that converts the user's access bitmap from base64 to BigInt.
