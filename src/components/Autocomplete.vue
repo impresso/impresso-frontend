@@ -554,6 +554,12 @@ defineExpose({ focus })
   border-top-color: #374151;
 }
 
+.bg-dark.Autocomplete .SearchInput .search-input:focus {
+  background-color: var(--impresso-color-black);
+  color: #ffffff;
+  box-shadow: 0 0 0 4px var(--impresso-color-yellow-alpha-30) !important;
+}
+
 .bg-dark.Autocomplete.show .search-input,
 .bg-dark.Autocomplete.show .search-input:focus {
   border-color: var(--impresso-color-yellow, #fef08a) !important;
@@ -562,20 +568,27 @@ defineExpose({ focus })
 }
 
 .bg-dark.Autocomplete .input-group-append button {
-  border-color: #4b5563 !important;
-  color: #9ca3af;
+  border-color: var(--impresso-color-white-alpha-50, #ffffff) !important;
+  color: var(--impresso-color-white-alpha-50, #ffffff);
   background-color: transparent;
 }
-
+.bg-dark.Autocomplete .input-group-append button:hover {
+  border-color: var(--impresso-color-yellow, #fef08a) !important;
+  color: var(--impresso-color-yellow, #fef08a);
+}
 .bg-dark.Autocomplete.show .input-group-append button {
   border-color: var(--impresso-color-yellow, #fef08a) !important;
   color: var(--impresso-color-yellow, #fef08a);
 }
 
 .Autocomplete.bg-dark .search-input {
-  border-color: #4b5563 !important;
+  border-color: var(--impresso-color-white-alpha-50, #ffffff) !important;
   background-color: var(--impresso-color-black);
   color: var(--clr-white, #ffffff);
+}
+.Autocomplete.bg-dark .search-input:hover {
+  border-color: var(--impresso-color-yellow, #fef08a) !important;
+  color: var(--impresso-color-yellow, #fef08a);
 }
 </style>
 
