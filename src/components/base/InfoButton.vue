@@ -22,6 +22,7 @@
 
         <div class="popover-body pt-1 text-right">
           <div class="text-left" v-if="content.summary" v-html="content.summary" />
+          <slot name="details"></slot>
           <router-link
             v-if="content.description"
             class="btn-rounded mt-2 btn btn-outline-secondary btn-sm"

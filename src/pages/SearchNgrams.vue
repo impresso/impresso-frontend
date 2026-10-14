@@ -57,13 +57,14 @@
           </b-navbar-nav>
         </b-navbar>
         <b-navbar class="border-bottom">
-          <span style="white-space: nowrap" class="mr-3"
-            >Enter unigram
+          <span style="white-space: nowrap" class="mr-3">
+            {{ $t('actions.enterUnigram') }}
             <info-button name="what-are-ngram" />
           </span>
           <div class="input-group">
             <TagsInput
               :value="unigrams"
+              :colors="getUnigramColor"
               :disabled="isLoading"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
               class="mb-2"
@@ -108,7 +109,7 @@
         >
           <template v-slot="tooltipScope">
             <div>
-              <h4>
+              <h4 class="text-white font-size-inherit font-weight-bold">
                 {{ $d(getTooltipScopeTime(tooltipScope) ?? new Date(), timelineResolution, 'en') }}
               </h4>
               <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
@@ -138,7 +139,6 @@
               <div>
                 {{ $t('downloadVisualisationData') }}
               </div>
-              <div class="d-flex dripicons dripicons-download ml-2" />
             </div>
           </a>
         </div>
@@ -154,6 +154,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
+import { schemeCategory10 } from 'd3'
 import { useRoute, useRouter } from 'vue-router'
 import {
   serializeFilters,
@@ -240,7 +241,7 @@ const QueryParameters = Object.freeze({
   Unigrams: 'unigrams'
 })
 
-const AllowedFilterTypes = SupportedFiltersByContext.search
+const AllowedFilterTypes = SupportedFiltersByContext.ngrams
 
 function getTotalNumberOfResults(facets: Facet[]): number {
   const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
@@ -396,6 +397,11 @@ const plotItems = computed<ItemsSet[]>(() => {
     }
   })
 })
+
+function getUnigramColor(ngram: string): string | undefined {
+  const trendIndex = trends.value.findIndex(trend => trend.ngram === ngram)
+  return trendIndex >= 0 ? schemeCategory10[trendIndex] : undefined
+}
 
 const plotItemsData = computed<string>(() => {
   const { domainValues, totals } = ngramResult.value
@@ -569,9 +575,12 @@ function handleSuggestedTermSelected(term: string) {
     },
     "loading": "Loading ...",
     "tooltipValueUnit": "per 1 million",
-    "downloadVisualisationData": "download data in JSON",
+    "downloadVisualisationData": "download data as JSON",
     "tooltipAbsoluteValue": "{count} tokens",
-    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts."
+    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts.",
+    "actions": {
+      "enterUnigram": "Enter unigram(s)"
+    }
   }
 }
 </i18n>

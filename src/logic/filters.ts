@@ -253,11 +253,13 @@ export const SupportedFiltersByContext = Object.freeze({
   textReusePassages: TextReuseFilters,
   textReuseClusters: TextReuseClusterFilters,
   entities: EntitiesFilters,
-  images: ImagesFilters
+  images: ImagesFilters,
+  ngrams: TextSearchFilters.filter(f => f !== 'string') // ngrams does not support string filters
 })
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
   tr_passages: SupportedFiltersByContext.textReusePassages,
+  ngrams: SupportedFiltersByContext.ngrams,
   tr_clusters: SupportedFiltersByContext.textReuseClusters
 })
