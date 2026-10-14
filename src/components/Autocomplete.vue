@@ -11,32 +11,26 @@
       @update:model-value="handleSearchModeChanged"
     />
     <div class="d-flex gap-1">
-      <div class="input-group">
-        <b-form-input
-          ref="input"
-          class="search-input"
-          :placeholder="$t(`searchModes.${searchMode}.placeholder`)"
-          v-model.trim="q"
-          @update:modelValue="search"
-          @focus="handleInputFocus"
-          @blur="handleInputBlur"
-          @keyup="keyup"
-          data-testid="autocomplete-input"
-        />
-        <div class="input-group-append">
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            ref="searchButton"
-            :title="$t(`searchModes.${searchMode}.submit`)"
-            @click="handleModeSubmit"
-            data-testid="add-keyword-button"
-          >
-            <Icon :name="searchModeIcon" :stroke-width="1.5" :height="16" :width="16" />
-          </button>
+      <SearchInput
+        ref="input"
+        class="flex-grow-1"
+        v-model="q"
+        :placeholder="$t(`searchModes.${searchMode}.placeholder`)"
+        :icon="searchModeIcon"
+        :submit-title="$t(`searchModes.${searchMode}.submit`)"
+        :submit-on-enter="false"
+        data-testid="autocomplete-input"
+        submit-testid="add-keyword-button"
+        @update:model-value="search"
+        @focus="handleInputFocus"
+        @blur="handleInputBlur"
+        @keyup="keyup"
+        @submit="handleModeSubmit"
+      >
+        <template #append>
           <slot name="append"></slot>
-        </div>
-      </div>
+        </template>
+      </SearchInput>
       <slot name="extra-actions"></slot>
     </div>
     <div class="suggestions position-absolute pb-2" v-show="showSuggestions">
@@ -134,6 +128,7 @@ import { useUserStore } from '@/stores/user'
 import type { FacetType, Filter } from '@/models'
 import { useClickOutside } from '@/composables/useClickOutside'
 import Icon from './base/Icon.vue'
+import SearchInput from './modules/SearchInput.vue'
 import SearchModeSwitch from './SearchModeSwitch.vue'
 import type { SearchMode } from './SearchModeSwitch.vue'
 
@@ -223,8 +218,11 @@ const collectionSuggestions = ref<Suggestion[]>([])
 const suggestions = ref<Suggestion[]>([])
 
 const autocomplete = ref<HTMLElement>()
-const input = ref<any>()
-const searchButton = ref<HTMLElement>()
+const input = ref<InstanceType<typeof SearchInput>>()
+// Root element of the SearchInput, used for click-outside detection.
+const inputGroupEl = computed<HTMLElement | null>(
+  () => (input.value?.$el as HTMLElement | undefined) ?? null
+)
 
 const initialSuggestions: InitialSuggestion[] = [{ type: 'string' }, { type: 'title' }]
 
@@ -344,7 +342,7 @@ const search = () => {
 const handleSearchModeChanged = async (mode: SearchMode) => {
   emit('update:searchMode', mode)
   await nextTick()
-  input.value?.focus?.()
+  input.value?.focus()
 }
 
 const handleModeSubmit = () => {
@@ -434,9 +432,8 @@ const handleInputFocus = (e: FocusEvent) => {
 }
 
 const focusInputAfterEnter = () => {
-  input.value?.focus?.()
-  const el = (input.value as any)?.inputRef?.value as HTMLInputElement | undefined
-  el?.select?.()
+  input.value?.focus()
+  input.value?.select()
   emit('input-focus', true)
 }
 
@@ -484,17 +481,14 @@ const keyup = (event: KeyboardEvent) => {
   }
 }
 
-useClickOutside(
-  autocomplete,
-  (e: MouseEvent) => {
-    if (e.target === input.value?.$el) {
-      showSuggestions.value = true
-    } else {
-      hideSuggestions()
-    }
-  },
-  searchButton
-)
+useClickOutside(autocomplete, () => hideSuggestions(), inputGroupEl)
+
+/** Focus the underlying search field. */
+const focus = () => {
+  input.value?.focus()
+}
+
+defineExpose({ focus })
 </script>
 
 <style lang="css">
@@ -502,7 +496,7 @@ useClickOutside(
   position: relative;
 }
 
-.Autocomplete .search-input {
+.Autocomplete .SearchInput .search-input {
   border: 1px solid var(--impresso-color-black, #111827);
   border-top-left-radius: var(--border-radius-sm, 4px);
   border-bottom-left-radius: var(--border-radius-sm, 4px);
@@ -511,21 +505,16 @@ useClickOutside(
   color: var(--impresso-color-black, #111827);
 }
 
-.Autocomplete .search-input:focus {
+.Autocomplete .SearchInput .search-input:focus {
   background-color: var(--clr-white, #ffffff);
 }
 
-.Autocomplete .input-group .input-group-append > .btn:first-of-type {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.Autocomplete .search-input::placeholder {
+.Autocomplete .SearchInput .search-input::placeholder {
   color: var(--clr-grey-300, #6b7280);
   opacity: 1;
 }
 
-.Autocomplete.show .search-input {
+.Autocomplete.show .SearchInput .search-input {
   border-bottom-left-radius: 0;
 }
 

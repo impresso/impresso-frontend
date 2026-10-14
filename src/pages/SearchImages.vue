@@ -118,7 +118,7 @@
               showPreview
               class="border p-2 rounded-sm"
             >
-              <div class="d-flex justify-content-between gap-2 pt-2">
+              <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">
                 <router-link
                   v-if="searchResult.contentItemId"
                   :to="{
