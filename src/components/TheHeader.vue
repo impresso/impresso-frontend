@@ -128,8 +128,16 @@
           <template v-slot:button-content>
             <span>{{ $t('label_data_access') }}</span>
           </template>
-
-          <li v-for="viewName in [ViewPlans, ViewTermsOfUse]" :key="viewName">
+          <li>
+            <RouterLink
+              :to="{ name: Routes.plans.name }"
+              active-class="active"
+              class="nav-link px-3"
+            >
+              <span>{{ $t('label_plans') }}</span>
+            </RouterLink>
+          </li>
+          <li v-for="viewName in [ViewTermsOfUse]" :key="viewName">
             <LinkToModal class="nav-link px-3" :view="viewName">
               <span>{{ $t(`label_${viewName.toLowerCase()}`) }}</span>
             </LinkToModal>
