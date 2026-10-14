@@ -228,6 +228,14 @@ const router = createRouter({
       }
     },
     {
+      path: Routes.plans.path,
+      name: Routes.plans.name,
+      component: () => import('@/pages/Plans.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/collections',
       component: () => import('@/pages/Collections.vue'),
       children: [
