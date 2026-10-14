@@ -11,6 +11,7 @@
       <template v-slot:header="{ focusHandler }">
         <div class="d-flex gap-1 mb-2">
           <Autocomplete
+            ref="autocompleteRef"
             class="flex-grow-1"
             v-model:search-mode="autocompleteSearchMode"
             :enable-mode-switch="true"
@@ -281,7 +282,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Autocomplete from '@/components/Autocomplete.vue'
@@ -397,6 +398,9 @@ const dynamicFacets = ref<Facet[]>(buildEmptyFacets(DynamicFacetTypes))
 const decimalRangeFacets = ref<Facet[]>(buildEmptyFacets(SearchDecimalFacetTypes))
 
 const searchResultsFirstElementRef = ref<HTMLElement | null>(null)
+const autocompleteRef = ref<{
+  focus(): void
+} | null>(null)
 const refineFiltersButtonRef = ref<{
   openExplorer(options?: { initialQ?: string; initialType?: FacetType }): void
 } | null>(null)
@@ -742,6 +746,13 @@ watch(paginationData, ({ perPage, currentPage = 1, total }) => {
 })
 
 audioStore.pruneReadingProgress()
+
+onMounted(() => {
+  // Focus the search field as soon as the page is ready.
+  nextTick(() => {
+    autocompleteRef.value?.focus()
+  })
+})
 
 onBeforeUnmount(() => {
   isUnmounted = true

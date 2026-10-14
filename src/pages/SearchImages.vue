@@ -52,7 +52,7 @@
           </div>
         </div>
         <filter-image-upload v-if="enableUpload" />
-        <search-input @submit="onSearchQuery" />
+        <search-input ref="searchInputRef" @submit="onSearchQuery" />
       </template>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch>
@@ -118,7 +118,7 @@
               showPreview
               class="border p-2 rounded-sm"
             >
-              <div class="d-flex justify-content-between gap-2 pt-2">
+              <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">
                 <router-link
                   v-if="searchResult.contentItemId"
                   :to="{
@@ -173,7 +173,7 @@
 </i18n>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, getCurrentInstance } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -251,6 +251,9 @@ const isLoading = ref(false)
 const selectedItems = ref<IImage[]>([])
 const similarToImage = ref<IImage | null>(null)
 const searchResults = ref<IImage[]>([])
+const searchInputRef = ref<{
+  focus(): void
+} | null>(null)
 const paginationTotalRows = ref(0)
 const facets = ref<FacetModel[]>(buildEmptyFacets(AllowedFacetTypes) as FacetModel[])
 
@@ -459,6 +462,13 @@ async function fetchSimilarToImage(id: string) {
 
 watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
 watch(serviceQuery, fetchSearchResults, { immediate: true })
+
+onMounted(() => {
+  // Focus the search field as soon as the page is ready.
+  nextTick(() => {
+    searchInputRef.value?.focus()
+  })
+})
 </script>
 
 <style>

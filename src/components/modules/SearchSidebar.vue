@@ -25,7 +25,16 @@
               "
             />{{ ' '
             }}<InfoButton :name="infoButtonName">
-              {{ ignoredFilterTypes }}
+              <template #details>
+                <details class="text-left border-top pt-2 mt-2">
+                  <summary>{{ $t('Details') }}</summary>
+                  <ul class="p-0 pl-3 m-0">
+                    <li v-for="(filterType, index) in ignoredFilterTypes" :key="index">
+                      {{ $t(`label.${filterType}.filterTitle`) }}
+                    </li>
+                  </ul>
+                </details>
+              </template>
             </InfoButton>
           </span>
         </div>

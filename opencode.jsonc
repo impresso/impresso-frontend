@@ -26,6 +26,11 @@
 
   "experimental": {
     "policies": [
+      // Allow edits to selected file types within this project.
+      { "action": "permission", "resource": "edit:*.vue", "effect": "allow" },
+      { "action": "permission", "resource": "edit:*.ts", "effect": "allow" },
+      { "action": "permission", "resource": "edit:*.md", "effect": "allow" },
+
       // Block direct reads and edits of real environment files.
       { "action": "permission", "resource": "read:*.env", "effect": "deny" },
       { "action": "permission", "resource": "read:*.env.*", "effect": "deny" },
@@ -45,8 +50,20 @@
       { "action": "permission", "resource": "read:*.pem", "effect": "deny" },
       { "action": "permission", "resource": "read:*.key", "effect": "deny" },
 
+      // Allow project TypeScript checks and test commands.
+      { "action": "permission", "resource": "shell:npx vue-tsc*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npx tsc*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npm run type-check*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npm test*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npm run test*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npx prettier*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:npx eslint*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:find * -name *.ts", "effect": "allow" },
+
       // Hard-stop common privileged and remote mutation commands.
       { "action": "permission", "resource": "shell:sudo *", "effect": "deny" },
+      { "action": "permission", "resource": "shell:git diff*", "effect": "allow" },
+      { "action": "permission", "resource": "shell:git branch*", "effect": "allow" },
       { "action": "permission", "resource": "shell:git push *", "effect": "deny" }
     ]
   }

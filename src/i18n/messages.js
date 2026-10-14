@@ -264,10 +264,8 @@ export default {
       unigramMentions:
         'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
       ignoredFilters:
-         
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
       ignoredFiltersDetailed:
-         
         "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
@@ -467,7 +465,7 @@ export default {
         filtered: 'Results are filtered when:',
         selected: 'Filter results if <b>one of {count} selected</b> collection applies',
         description: 'Check one or more collection to filter results',
-         
+
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
       },
@@ -618,7 +616,8 @@ export default {
         item: '{label} [{start} TO {end}]'
       },
       string: {
-        title: 'article text'
+        title: 'content item text',
+        filterTitle: 'content item text'
       },
       textReuseClusterSize: {
         title: 'filter by text reuse cluster size',
