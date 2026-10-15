@@ -129,6 +129,7 @@ export default {
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
+      barista: 'Barista',
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',
@@ -172,6 +173,7 @@ export default {
       requestNewPassword: 'Apply changes',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
+      refine: 'refine',
       resetItems: 'reset list',
       resetMyPassword: 'Reset your password',
       resetObservedItems: 'reset observed list',
@@ -180,7 +182,8 @@ export default {
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
       viewTopic: 'go to topic',
-      readContentItem: 'read content item ...'
+      readContentItem: 'read content item ...',
+      semanticSearch: 'Semantic Search'
     },
     filters: {
       daterange: {
@@ -261,10 +264,8 @@ export default {
       unigramMentions:
         'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
       ignoredFilters:
-        // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
       ignoredFiltersDetailed:
-        // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
@@ -464,7 +465,7 @@ export default {
         filtered: 'Results are filtered when:',
         selected: 'Filter results if <b>one of {count} selected</b> collection applies',
         description: 'Check one or more collection to filter results',
-        // eslint-disable-next-line quotes
+
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
       },
@@ -615,7 +616,8 @@ export default {
         item: '{label} [{start} TO {end}]'
       },
       string: {
-        title: 'article text'
+        title: 'content item text',
+        filterTitle: 'content item text'
       },
       textReuseClusterSize: {
         title: 'filter by text reuse cluster size',
@@ -778,6 +780,18 @@ export default {
       }
     },
     sortBy: 'order by',
+    collectionVisibility: {
+      label: 'visibility',
+      public: 'public',
+      private: 'private',
+      makePublic: 'make public',
+      makePrivate: 'make private',
+      notifications: {
+        updatedPublic: 'Collection "{title}" is now public.',
+        updatedPrivate: 'Collection "{title}" is now private.',
+        updateError: 'Could not change visibility of collection "{title}".'
+      }
+    },
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',

@@ -23,7 +23,7 @@ import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
 import { Routes } from '@/router/routes'
 
-// eslint-disable-next-line
+ 
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
 
 const router = createRouter({
@@ -223,6 +223,14 @@ const router = createRouter({
       path: Routes.emailVerificationSuccess.path,
       name: Routes.emailVerificationSuccess.name,
       component: () => import('@/pages/EmailVerificationSuccess.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: Routes.plans.path,
+      name: Routes.plans.name,
+      component: () => import('@/pages/Plans.vue'),
       meta: {
         requiresAuth: false
       }

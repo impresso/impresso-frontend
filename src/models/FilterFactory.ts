@@ -61,7 +61,8 @@ const buildFilter = (filterData: any | Filter): Filter => {
       'year',
       'copyright',
       'partner',
-      'textReuseClusterId'
+      'textReuseClusterId',
+      'embedding'
     ].includes(filterData.type)
   ) {
     filter = new FilterItem(filterData)

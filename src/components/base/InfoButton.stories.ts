@@ -57,3 +57,12 @@ export const WithSlot: Story = {
     triggerClass: 'ms-1'
   } as InfoButtonProps
 }
+
+export const Teleported: Story = {
+  args: {
+    name: 'About this feature',
+    defaultContent: 'This popover is teleported to the document body.',
+    triggerClass: 'ms-1',
+    teleport: true
+  } as InfoButtonProps
+}

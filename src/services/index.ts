@@ -9,7 +9,6 @@ import { buildExportSignature, claimExport } from '@/logic/exportGuard'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'
 import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
-import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
 import type { EmailVerificationService, EmailVerificationResendService, Services } from './types'
 import { DataProvidersService } from './local/dataProviders'
@@ -90,7 +89,6 @@ app.hooks({
         } else if (route === 'authentication.create') {
           console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
         } else if (!silentErrorCodes.includes(context.error.code)) {
-          // eslint-disable-next-line no-console
           console.warn('app.hooks.error.all', context.error, context.error.stack, route)
           notificationsStore.displayError({
             error: context.error,
@@ -235,6 +233,8 @@ export const baristaConversations = app.service('barista-conversations')
 export const mediaSources = app.service('media-sources')
 export const dataProviders = new DataProvidersService()
 
+export const embedderTextTool = app.service('/tools/embedder/text')
+
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
 export const MIDDLELAYER_MEDIA_URL = [MIDDLELAYER_API, MIDDLELAYER_MEDIA_PATH].join('')
@@ -242,4 +242,3 @@ export const MEDIA_COOKIE_NAME = 'impresso_jwt'
 
 export const getAuthenticationToken = (): string | undefined =>
   app.authentication.options.storage['feathers-jwt']
-export const namesService = new NamesService()

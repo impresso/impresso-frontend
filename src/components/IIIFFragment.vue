@@ -264,7 +264,7 @@ export default defineComponent({
     },
     computedImageUrl() {
       // remove inof.json from IIIF if any
-      let iiif = this.iiif.replace('/info.json', '')
+      const iiif = this.iiif.replace('/info.json', '')
 
       const size = this.adjustedSize ?? this.size
       const format = `default.${this.extension}`

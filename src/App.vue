@@ -27,7 +27,7 @@
     <cookie-disclaimer />
     <TroublesAhead v-if="enableTroublesAhead" />
     <Toaster />
-    <Modals />
+    <Modals :filters="filters" />
   </div>
 </template>
 
@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     handleChangeFilters(filters) {
-      // eslint-disable-next-line no-console
+       
       console.debug('[App] handleChangeFilters', serializeFilters(optimizeFilters(filters)))
       this.$navigation.updateQueryParameters({
         [CommonQueryParameters.SearchFilters]: serializeFilters(optimizeFilters(filters))
@@ -108,7 +108,7 @@ export default {
         .find({ query: { filters: serializeFilters(this.filters) } })
         .then(joinFiltersWithItems)
       this.filtersWithItems = filtersWithItems
-      // eslint-disable-next-line
+       
       console.debug('[App] loadFilterItems', filtersWithItems)
     }
   },

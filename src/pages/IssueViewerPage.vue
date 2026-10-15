@@ -71,7 +71,7 @@
         <IssueViewerText
           v-if="viewMode === IIIFViewerTranscriptMode"
           :article_id="contentItemId"
-          :contentItem="contentItemOriginal"
+          v-model:content-item="contentItemOriginal"
           withIIIFViewer
         />
         <IssueViewerText v-if="viewMode === RegionTranscriptMode" :article_id="contentItemId" />

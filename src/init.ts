@@ -6,23 +6,23 @@ import {
   version as versionService
 } from '@/services'
 import { PlanNone } from './constants'
-import type { ImpressoDataProvider, ImpressoGlobalMetadata } from './models/ImpressoMetadata'
+import type {
+  ImpressoDataProvider,
+  ImpressoFeatures,
+  ImpressoGlobalMetadata
+} from './models/ImpressoMetadata'
 import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { reducedTimeoutPromise } from './services/utils'
 import { useNotificationsStore } from './stores/notifications'
 import { useUserStore } from './stores/user'
 
-export interface Features {
-  textReuse?: { enabled: boolean }
-  viewPlans?: { enabled: boolean }
-  barista?: { enabled: boolean }
-  specialMemberships?: { enabled: boolean }
-}
+export type Features = ImpressoFeatures
 
 const DefaultImpressoFeatures = {
   textReuse: { enabled: true },
   viewPlans: { enabled: true },
-  specialMemberships: { enabled: true }
+  specialMemberships: { enabled: true },
+  specialMembershipRequests: { enabled: false }
 } satisfies Features
 
 type ApiVersion = {
@@ -140,10 +140,10 @@ export const initSequence = async () => {
   ])
     .catch(err => {
       if (err.code === 401) {
-        // eslint-disable-next-line
+         
         console.debug('[init:initSequence] Not authenticated (status 401):', err.message)
         if (userStore.user) {
-          // eslint-disable-next-line
+           
           console.debug(
             '[init:initSequence] Authentication failed. However, previous user metadata are still present in localStorage. Forcing logout.'
           )
@@ -169,7 +169,7 @@ export const initSequence = async () => {
       }
       const payload = decodeJwt(res.accessToken)
       const { bitmap, groups } = payload
-      // eslint-disable-next-line
+       
       console.debug('[init:initSequence] Loading app & data version:', Object.keys(res))
       console.debug(
         '[init:initSequence] from JWT - uid:',
@@ -211,6 +211,8 @@ export const initUserTermsOfUse = async () => {
       )
       return null
     })
+  // setAcceptTermsDate also flags termsOfUseChecked, so the UI knows the
+  // ToU status is resolved even when the lookup failed.
   if (!termsOfuse?.dateAcceptedTerms) {
     console.debug('[init:initUserTermsOfUse] No terms of use accepted date found.')
     userStore.setAcceptTermsDate(null)

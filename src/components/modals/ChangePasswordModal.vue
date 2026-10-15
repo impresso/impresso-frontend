@@ -8,7 +8,11 @@
     @close="dismiss"
     hideBackdrop
   >
-    <ChangePasswordForm :is-loading="isLoading" class="pt-3 px-3" @submit="handleOnSubmit">
+    <ChangePasswordForm
+      :is-loading="isLoading || isLocalLoading"
+      class="pt-3 px-3"
+      @submit="handleOnSubmit"
+    >
       <template #form-errors v-if="error">
         <Alert type="warning" class="mb-3 p-3" role="alert">
           <p class="m-0">{{ error.message }}</p>
@@ -37,7 +41,7 @@ export type ChangePasswordModalProps = {
   isLoading?: boolean
 }
 
-const isLoading = ref(false)
+const isLocalLoading = ref(false)
 const error = ref<FeathersError | null>(null)
 
 const props = withDefaults(defineProps<ChangePasswordModalProps>(), {
@@ -46,7 +50,7 @@ const props = withDefaults(defineProps<ChangePasswordModalProps>(), {
 })
 
 function handleOnSubmit(payload: PasswordChangePayload) {
-  isLoading.value = true
+  isLocalLoading.value = true
   console.debug('[ChangePasswordModal] handleOnSubmit', payload)
   changePasswordService
     .create(payload, {
@@ -61,7 +65,7 @@ function handleOnSubmit(payload: PasswordChangePayload) {
       console.error('[ChangePasswordModal] Error changing password:', err)
     })
     .finally(() => {
-      isLoading.value = false
+      isLocalLoading.value = false
     })
 }
 const emit = defineEmits(['dismiss', 'success'])

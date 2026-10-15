@@ -7,6 +7,9 @@
           <SearchTabs />
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
+          <slot name="header" :focusHandler="focusHandler">
+            <!-- extra header -->
+          </slot>
           <SearchPills :filters="filters" @changed="handleFiltersChanged" />
           <span class="d-block mb-2" v-if="filters.length && ignoredFilterTypes.length">
             <i
@@ -20,11 +23,20 @@
                   ignoredFilterTypes.length
                 )
               "
-            />{{ ' ' }}<InfoButton :name="infoButtonName" />
+            />{{ ' '
+            }}<InfoButton :name="infoButtonName">
+              <template #details>
+                <details class="text-left border-top pt-2 mt-2">
+                  <summary>{{ $t('Details') }}</summary>
+                  <ul class="p-0 pl-3 m-0">
+                    <li v-for="(filterType, index) in ignoredFilterTypes" :key="index">
+                      {{ $t(`label.${filterType}.filterTitle`) }}
+                    </li>
+                  </ul>
+                </details>
+              </template>
+            </InfoButton>
           </span>
-          <slot name="header" :focusHandler="focusHandler">
-            <!-- extra header -->
-          </slot>
         </div>
       </div>
     </template>

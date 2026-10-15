@@ -13,9 +13,13 @@
           {{ $d(tooltipScope?.tooltip?.item?.t ?? 0, 'year') }} &middot;
           <span
             v-html="
-              $t('numbers.articles', {
-                n: $n(tooltipScope?.tooltip?.item?.w ?? 0)
-              }, tooltipScope?.tooltip?.item?.w ?? 0)
+              $t(
+                'numbers.articles',
+                {
+                  n: $n(tooltipScope?.tooltip?.item?.w ?? 0)
+                },
+                tooltipScope?.tooltip?.item?.w ?? 0
+              )
             "
           />
         </div>
@@ -92,7 +96,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    // @ts-ignore
+    // @ts-expect-error impressoDocumentsDateSpan is an application-specific window property.
     let { firstDate } = window.impressoDocumentsDateSpan
     const lastDate = new Date()
     firstDate = new Date(firstDate)

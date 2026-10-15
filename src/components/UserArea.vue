@@ -53,6 +53,22 @@
       {{ $t('label_feedback') }}
     </LinkToModal>
 
+    <template v-if="user && user.isStaff">
+      <li class="mx-3"><hr class="dropdown-divider" /></li>
+      <li class="mx-3 small text-muted pb-2">[staff only] Features</li>
+      <li class="mx-3">
+        <b-dropdown-form v-for="key in FeatureKeys" :key="key">
+          <b-form-checkbox
+            switch
+            :model-value="featuresStore.features?.[key]?.enabled ?? false"
+            @update:model-value="(value: boolean) => featuresStore.setFeatureEnabled(key, value)"
+          >
+            {{ key }}
+          </b-form-checkbox>
+        </b-dropdown-form>
+      </li>
+    </template>
+
     <li class="mx-3">
       <hr class="dropdown-divider" />
     </li>
@@ -97,6 +113,7 @@ import {
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
+import { useFeaturesStore, FeatureKeys } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
@@ -104,6 +121,7 @@ import SpecialMembershipButton from './specialMembership/SpecialMembershipButton
 import { triggerClickOutside } from '@/composables/useClickOutside'
 
 const userStore = useUserStore()
+const featuresStore = useFeaturesStore()
 
 export interface UserAreaProps {
   user: User
@@ -119,14 +137,14 @@ const version = computed(() => {
 })
 
 const isViewPlansFeatureEnabled = computed(() => {
-  return (window as any).impressoFeatures?.viewPlans?.enabled
+  return featuresStore.isViewPlansEnabled
 })
 
 const isSpecialMembershipsEnabled = computed(() => {
   if (props.user && props.user.isStaff) {
     return true
   }
-  return (window as any).impressoFeatures?.specialMemberships?.enabled
+  return featuresStore.isSpecialMembershipsEnabled
 })
 
 const logout = () => {

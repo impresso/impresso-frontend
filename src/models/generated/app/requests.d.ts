@@ -158,6 +158,23 @@ export interface NewCollectionRequest {
 
 
 /**
+ * Signed delivery receipts identify receiving accounts and ordered item IDs only. They do not attest item content or identify a publisher.
+ */
+export type ProvenanceVerificationRequest = {
+  token: string;
+  /**
+   * @maxItems 100000
+   */
+  ids?: string[];
+  csv?: string;
+  idsHash?: string;
+  idsCount?: number;
+} & {
+  [k: string]: unknown;
+};
+
+
+/**
  * Request to update collectible items in a collection
  */
 export interface UpdateCollectableItemsRequest {

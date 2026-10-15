@@ -760,8 +760,8 @@ watch(
       "embedding": {
         "title": "semantic embedding",
         "context": {
-          "include": "similar to",
-          "exclude": "<b>NOT</b> similar to"
+          "include": "most similar to",
+          "exclude": "<b>LEAST</b> similar to"
         }
       },
       "nag": {

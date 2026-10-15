@@ -7,9 +7,19 @@
           class="m-0 select-item"
           v-bind:checked="isChecked"
           v-on:change="$emit('toggleSelected', item)"
+        ></b-checkbox>
+        <ImageItem
+          v-if="isImageAvailable"
+          fluid-grow
+          :item="item"
+          show-meta
+          :default-visibility="defaultVisibility"
         />
-        <image-item v-if="isImageAvailable" fluid-grow :item="item" show-meta :default-visibility="defaultVisibility" />
-        <div v-else v-html="$t(messageKey)" class="p-3 my-3 text-center font-style-italic"></div>
+        <span
+          v-else
+          v-html="$t(messageKey)"
+          class="d-block p-3 my-3 text-center font-style-italic"
+        ></span>
       </p>
     </div>
     <div v-if="enableSimilarTo" class="card-footer p-2">

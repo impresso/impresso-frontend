@@ -85,11 +85,11 @@ const viewer = ref<Viewer | null>(null)
 const errorKind = ref<'forbidden' | 'unknown' | undefined>()
 
 const manifestUrlsChanged = computed(() => {
-  return JSON.stringify(props.manifestUrls) // eslint-disable-line
+  return JSON.stringify(props.manifestUrls)  
 })
 
 const overlaysChanged = computed(() => {
-  return JSON.stringify(props.overlays) // eslint-disable-line
+  return JSON.stringify(props.overlays)  
 })
 
 /**
