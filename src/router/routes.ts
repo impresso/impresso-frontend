@@ -35,6 +35,10 @@ export const Routes = {
       }
     }
   },
+  issue: {
+    path: '/issue/:issue_id/view',
+    name: 'issue-viewer'
+  },
   contentItem: {
     path: '/content-item/:content_item_id',
     name: 'contentItem'
