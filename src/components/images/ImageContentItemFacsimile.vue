@@ -1,7 +1,7 @@
 <template>
   <div class="ImageContentItemFacsimile">
     <div class="row">
-      <div :class="hasCaption || regionTexts.length ? 'col-sm-6 col-xl-7' : 'col-12'">
+      <div :class="hasCaption || regionTexts.length ? 'col-xl-7 col-xxl-8' : 'col-12'">
         <div
           ref="viewerWrapper"
           class="facsimile-viewer mb-3 position-sticky top-0 border rounded-sm"
@@ -19,7 +19,7 @@
         </div>
       </div>
 
-      <div v-if="hasCaption || regionTexts?.length" class="col-sm-6 col-xl-5">
+      <div v-if="hasCaption || regionTexts?.length" class="col-xl-5 col-xxl-4">
         <template v-if="hasCaption">
           <h4 class="small-caps">{{ $t('caption') }}</h4>
           <p class="mb-4">
