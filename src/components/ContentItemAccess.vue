@@ -16,24 +16,33 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
-import { base64BytesToBigInt } from '@/util/bigint'
 import { computed } from 'vue'
 import ContentItemAccessButton from './ContentItemAccessButton.vue'
 import ContentItemAccessDimensions from './ContentItemAccessDimensions.vue'
 import { MaxPlanBitPosition } from '@/constants'
+import {
+  useContentItemAccess,
+  type ContentItemAccessSource
+} from '@/composables/useContentItemAccess'
 
 const FullAccessLevel = 3
 
 export interface ContentItemAccessProps {
-  item: ContentItem
+  item: ContentItemAccessSource
 }
 
 const props = defineProps<ContentItemAccessProps>()
 const userStore = useUserStore()
 const featuresStore = useFeaturesStore()
+const {
+  accessLevel,
+  contentItemBitmapsAsBigInts,
+  hasExploreAccess,
+  hasTranscriptAccess,
+  hasFacsimileAccess
+} = useContentItemAccess(() => props.item)
 
 const isLoggedIn = computed(() => !!userStore.userData)
 const isSpecialMembershipsEnabled = computed(() => {
@@ -42,19 +51,6 @@ const isSpecialMembershipsEnabled = computed(() => {
   }
   return featuresStore.isSpecialMembershipsEnabled
 })
-/**
- * Computed property that converts the user's access bitmap from base64 to BigInt.
- *
- * @returns {ComputedRef<bigint>} The user's access bitmap as a BigInt value.
- * Returns 0n if user data is not available, indicating no access permissions.
- */
-const userBitmapAsBigInt = computed(() => {
-  if (!userStore.userData) {
-    return 1n // Default to basic access
-  }
-  return base64BytesToBigInt(userStore.bitmap)
-})
-
 /**
  * Computed property that extracts the positions of bits set to 1 in
  * the content item's access bitmaps (explore, transcript, facsimile).
@@ -98,27 +94,6 @@ const contentItemRequiresSpecialMembershipAccess = computed<boolean>(() => {
   )
 })
 
-const hasExploreAccess = computed(() => {
-  return (userBitmapAsBigInt.value & contentItemBitmapsAsBigInts.value.explore) !== 0n
-})
-
-const hasTranscriptAccess = computed(() => {
-  return (userBitmapAsBigInt.value & contentItemBitmapsAsBigInts.value.transcript) !== 0n
-})
-
-const hasFacsimileAccess = computed(() => {
-  return (userBitmapAsBigInt.value & (contentItemBitmapsAsBigInts.value.facsimile ?? 0n)) !== 0n
-})
-
-/**
- * Computed property that determines the user's access level to the content item
- * based on the presence of explore, transcript, and facsimile access.
- * Still used to drive ContentItemAccessButton in the special-membership branch.
- */
-const accessLevel = computed<number>(() => {
-  return +hasExploreAccess.value + +hasTranscriptAccess.value + +hasFacsimileAccess.value
-})
-
 const accessTranslationKey = computed(() => {
   let key = 'no_access'
   if (accessLevel.value === FullAccessLevel) {
@@ -144,49 +119,6 @@ const accessDescriptionTranslationKey = computed(() => {
   return accessTranslationKey.value + '_description'
 })
 
-/**
- * Computed property that converts content item access bitmaps from base64 to BigInt format.
- *
- * @returns {ComputedRef<{explore: bigint, transcript: bigint}>} Object containing:
- * - explore: BigInt representation of explore access bitmap, or 0n if not available
- * - transcript: BigInt representation of transcript access bitmap, or 0n if not available
- *
- * If the item has no access property, both values default to 0n indicating no access.
- */
-const contentItemBitmapsAsBigInts = computed<{
-  explore: bigint
-  transcript: bigint
-  facsimile?: bigint
-}>(() => {
-  if (!props.item.access || !props.item.access.accessBitmaps) {
-    return {
-      explore: 0n,
-      transcript: 0n,
-      facsimile: 0n
-    }
-  }
-
-  try {
-    const { explore, getTranscript, getImages } = props.item.access.accessBitmaps
-    return {
-      explore: explore ? base64BytesToBigInt(explore as string) : 0n,
-      transcript: getTranscript ? base64BytesToBigInt(getTranscript as string) : 0n,
-      facsimile: getImages ? base64BytesToBigInt(getImages as string) : 0n // Not used currently
-    }
-  } catch (e) {
-    console.error(
-      'Error converting content item access bitmaps: original data:',
-      props.item.access,
-      "\nLet's set them all to false.\n error:",
-      e
-    )
-    return {
-      explore: 0n,
-      transcript: 0n,
-      facsimile: 0n
-    }
-  }
-})
 </script>
 <i18n lang="json">
 {
