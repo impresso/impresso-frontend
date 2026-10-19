@@ -7,6 +7,7 @@
       :item="cachedItem"
       type="newspaper"
       :class="titleClass"
+      :searchIndex="props.searchIndex"
       hideIcon
     />
     <span v-else :class="titleClass">{{ title }}</span>
@@ -19,19 +20,22 @@
 import type { MediaSource } from '@/models'
 import ItemSelector from '../ItemSelector.vue'
 import { computed } from 'vue'
+import { SearchIndex } from '@/services/types/index.js'
 
 export interface MediaSourceLabelProps {
   item: MediaSource
   showLink?: boolean
   showType?: boolean
   titleClass?: string
+  searchIndex?: SearchIndex
 }
 
 const glob = window as any
 const props = withDefaults(defineProps<MediaSourceLabelProps>(), {
   showType: true,
   showLink: true,
-  titleClass: ''
+  titleClass: '',
+  searchIndex: 'search'
 })
 
 const cachedItem = computed(() => {

@@ -8,6 +8,7 @@
       center-on-mount
       respect-boundaries
       class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
+      :data-testid="`selection-monitor-${monitor.type}-${monitor.scope}-${monitor.searchIndex}`"
       :title="$t('selectionMonitorTitle', { type: $t(`tabs_${monitor.type}_${monitor.scope}`) })"
       handle-class="pl-3 d-flex justify-content-between align-items-center gap-2"
     >
@@ -351,9 +352,15 @@ const monitorFilters = computed<Filter[]>(() => {
   } else if (monitorItemAsFilter.value) {
     baseFilters = baseFilters.concat([monitorItemAsFilter.value])
   }
-  return baseFilters.filter(
-    (filter: Filter) => !!filter && availableFilterTypes.includes(filter.type)
-  )
+  return baseFilters
+    .filter((filter: Filter) => !!filter && availableFilterTypes.includes(filter.type))
+    .reduce((acc: Filter[], filter: Filter) => {
+      // deduplicate filters by type and query
+      if (!acc.some(existing => FilterFactory.filtersAreEqual(existing, filter))) {
+        acc.push(filter)
+      }
+      return acc
+    }, [])
 })
 const monitorFiltersWithItems = ref<Filter[]>([])
 
@@ -570,6 +577,7 @@ watch(
     },
     "searchIndexes": {
       "search": "content items",
+      "images": "images",
       "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
@@ -617,6 +625,8 @@ watch(
     "tabs_organisations_overview": "organisation",
     "tabs_newsagencies_overview": "news agency",
     "tabs_nag_overview": "news agency",
+    "tabs_imageContentType_overview": "image content type",
+    "tabs_imageVisualContent_overview": "image visual content",
     "actions.loading": "Loading…",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",

@@ -263,6 +263,7 @@ export const SupportedFiltersByContext = Object.freeze({
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
+  images: SupportedFiltersByContext.images,
   tr_passages: SupportedFiltersByContext.textReusePassages,
   ngrams: SupportedFiltersByContext.ngrams,
   tr_clusters: SupportedFiltersByContext.textReuseClusters

@@ -6,6 +6,7 @@
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
       contextTag="images"
+      searchIndex="images"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>

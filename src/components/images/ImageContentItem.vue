@@ -1,6 +1,6 @@
 <template>
   <div class="ImageContentItem" v-bind="attrs">
-    <div v-if="shouldShowPreview" class="mb-2">
+    <div v-if="shouldShowPreview" class="mb-2 cursor-pointer" @click="handlePreviewClick">
       <AuthImg
         :src="image.previewUrl"
         class="ImageContentItem__preview d-block rounded-sm border"
@@ -12,17 +12,22 @@
         }"
       />
     </div>
-    <div v-else-if="showPreview && accessType === 'none'" class="mb-2">
+    <div
+      v-else-if="showPreview && accessType === 'none'"
+      class="mb-2 cursor-pointer"
+      @click="handlePreviewClick"
+    >
       <div
-        class="ImageContentItem__preview d-flex align-items-center justify-content-center rounded-sm border"
+        class="ImageContentItem__preview d-flex flex-column align-items-center justify-content-center rounded-sm border text-muted"
         :style="{
           aspectRatio: previewAspectRatio,
           width: '100%',
           maxHeight: '100px',
           objectFit: 'cover'
         }"
+        :title="$t('errors.images.notAuthorized')"
       >
-        <Icon name="mediaImage" size="3x" />
+        <Icon name="mediaImage" />
       </div>
     </div>
     <div class="d-flex align-items-start gap-2">
@@ -51,6 +56,7 @@
           type: image.mediaSourceRef?.type
         }"
         show-link
+        search-index="images"
         class="d-inline-block"
       >
         {{ ' ' }}
@@ -106,7 +112,7 @@ import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
 import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
 import ContentItemAccess from '../ContentItemAccess.vue'
 import { Routes } from '@/router/routes'
-import { RouteLocationRaw } from 'vue-router'
+import { RouteLocationRaw, useRouter } from 'vue-router'
 import AuthImg from '@/components/AuthImg.vue'
 import {
   useContentItemAccess,
@@ -161,10 +167,13 @@ const generatedIssueIdFromImageId = computed(() => {
   return issueId
 })
 
-const generatedPageIdFromImageIdAndPageNumber = computed(() => {
-  const pageNumber = String(props.image.pageNumbers?.[0] ?? 1)
-  return `p${pageNumber.padStart(4, '0')}`
-})
+const router = useRouter()
+const handlePreviewClick = () => {
+  router.push({
+    name: Routes.viewImage.children.facsimile.name,
+    params: { image_id: props.image.id }
+  })
+}
 
 const routerLinkPageUrl = computed(() => {
   const query = { p: props.image.pageNumbers?.[0] ?? 1 }
