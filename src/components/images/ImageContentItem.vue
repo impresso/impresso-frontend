@@ -36,8 +36,8 @@
         v-if="showTitle || contentItem?.text?.title"
         class="m-0 font-size-inherit font-weight-bold line-height-inherit"
       >
-        <RouterLink v-if="showLink" :to="routerLinkUrl">{{ image.caption || image.id }}</RouterLink>
-        <span v-else>{{ image.caption || image.id }}</span>
+        <RouterLink v-if="showLink" :to="routerLinkUrl">{{ displayCaption }}</RouterLink>
+        <span v-else>{{ displayCaption }}</span>
         <span v-if="contentItem?.text?.title" class="font-weight-normal">
           &mdash; {{ contentItem.text.title }}
         </span>
@@ -118,6 +118,7 @@ import {
   useContentItemAccess,
   type ContentItemAccessSource
 } from '@/composables/useContentItemAccess'
+import { truncateToWords } from '@/util/fn'
 
 defineOptions({ inheritAttrs: false })
 
@@ -134,6 +135,7 @@ export interface ImageContentItemProps {
   showId?: boolean
   showLink?: boolean
   showPreview?: boolean
+  maxWordsInCaption?: number
 }
 
 const props = withDefaults(defineProps<ImageContentItemProps>(), {
@@ -189,6 +191,15 @@ const routerLinkPageUrl = computed(() => {
     query
   } as RouteLocationRaw
 })
+
+/**
+ * The caption to display, falling back to the image id when no caption is set.
+ * When `maxWordsInCaption` is a positive number, the caption is truncated to that
+ * many words and an ellipsis is appended if any words were dropped.
+ */
+const displayCaption = computed(() =>
+  truncateToWords(props.image.caption || props.image.id, props.maxWordsInCaption)
+)
 
 const shouldShowMediaSource = computed(
   () => props.showMediaSource && !!props.image.mediaSourceRef?.id

@@ -1,7 +1,7 @@
 <template>
   <div class="ImageContentItemFacsimile">
     <div class="row">
-      <div :class="regionTexts.length ? 'col-sm-6 col-xl-7' : 'col-12'">
+      <div :class="hasCaption || regionTexts.length ? 'col-sm-6 col-xl-7' : 'col-12'">
         <div
           ref="viewerWrapper"
           class="facsimile-viewer mb-3 position-sticky top-0 border rounded-sm"
@@ -18,7 +18,17 @@
           />
         </div>
       </div>
-      <div v-if="regionTexts?.length" class="col-sm-6 col-xl-5">
+
+      <div v-if="hasCaption || regionTexts?.length" class="col-sm-6 col-xl-5">
+        <template v-if="hasCaption">
+          <h4 class="small-caps">{{ $t('caption') }}</h4>
+          <p class="mb-4">
+            {{ image.caption }}
+          </p>
+        </template>
+        <template v-if="regionTexts?.length">
+          <h4 class="small-caps">{{ $t('imageContentItem.transcript') }}</h4>
+        </template>
         <div
           v-for="(text, i) in regionTexts"
           :key="i"
@@ -92,6 +102,8 @@ const overlays = computed<Overlay[]>(() => {
   if (regions.length === 0) return []
   return [{ id: 'all-regions', regions }]
 })
+
+const hasCaption = computed(() => !!props.image?.caption && props.image.caption.trim().length > 0)
 
 const regionTexts = computed(() => {
   const content = props.contentItem?.text?.content
@@ -177,3 +189,13 @@ watch(manifestUrl, () => {
   border-color: var(--clr-grey-400);
 }
 </style>
+<i18n lang="json">
+{
+  "en": {
+    "caption": "Caption",
+    "imageContentItem": {
+      "transcript": "Transcript"
+    }
+  }
+}
+</i18n>

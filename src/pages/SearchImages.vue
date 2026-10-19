@@ -121,6 +121,7 @@
               showPreview
               :showContentItemAccess="false"
               class="border p-2 rounded-sm"
+              :max-words-in-caption="10"
             >
               <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">
                 <router-link
