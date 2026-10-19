@@ -166,18 +166,20 @@ const generatedPageIdFromImageIdAndPageNumber = computed(() => {
   return `p${pageNumber.padStart(4, '0')}`
 })
 
-const routerLinkPageUrl = computed(
-  () =>
-    ({
-      name: Routes.issue.name,
-      params: {
-        issue_id: generatedIssueIdFromImageId.value
-      },
-      query: {
-        p: props.image.pageNumbers?.[0] ?? 1
-      }
-    }) as RouteLocationRaw
-)
+const routerLinkPageUrl = computed(() => {
+  const query = { p: props.image.pageNumbers?.[0] ?? 1 }
+  // if there is an attached contentItem, use its ID to generate the contentItemId= query param
+  if (props.contentItem?.id) {
+    query['contentItemId'] = props.contentItem.id.split('-').pop()
+  }
+  return {
+    name: Routes.issue.name,
+    params: {
+      issue_id: generatedIssueIdFromImageId.value
+    },
+    query
+  } as RouteLocationRaw
+})
 
 const shouldShowMediaSource = computed(
   () => props.showMediaSource && !!props.image.mediaSourceRef?.id
