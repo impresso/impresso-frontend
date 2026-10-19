@@ -42,7 +42,14 @@
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
               :class="{ 'border-dark': item.id === image.id }"
             >
-              <ImageContentItem showLink showPreview showImageTypes showIcon :image="item" />
+              <ImageContentItem
+                showLink
+                showPreview
+                showImageTypes
+                showIcon
+                :image="item"
+                :max-words-in-caption="MAX_WORDS_IN_TITLE"
+              />
             </div>
           </div>
         </template>
@@ -73,6 +80,7 @@
               showContentItemAccess
               showImageTypes
               :showPreview="false"
+              :max-words-in-caption="MAX_WORDS_IN_TITLE"
               showId
             />
           </section>
@@ -121,6 +129,7 @@ import { useUserStore } from '@/stores/user'
 import { IImage } from '@/models'
 import { Routes } from '@/router/routes'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import { truncateToWords } from '@/util/fn'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 
 const route = useRoute()
@@ -138,9 +147,11 @@ const contentItem = ref<ContentItemType | null>(null)
 const userPlan = computed(() => userStore.userPlan)
 const imageId = computed(() => route.params.image_id as string)
 
+const MAX_WORDS_IN_TITLE = 10
+
 const title = computed(() => {
   if (!image.value) return ''
-  return image.value.caption || image.value.id
+  return truncateToWords(image.value.caption || image.value.id, MAX_WORDS_IN_TITLE)
 })
 
 const attachedContentItemTitle = computed(() => {
