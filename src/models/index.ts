@@ -4,6 +4,7 @@ import {
   SearchFacet as SearchFacetBase,
   ContentItemMeta
 } from './generated/deprecated/models.js'
+import type { ContentItemAccessBitmaps } from './generated/canonical/contentItem'
 import { FacetWithLabel } from './generated/canonical.js'
 import {
   Filter as BaseFilter,
@@ -188,6 +189,7 @@ export interface IImage {
   }
   access: {
     copyright?: string
+    accessBitmaps?: ContentItemAccessBitmaps
   }
 }
 

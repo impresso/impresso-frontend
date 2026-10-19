@@ -12,6 +12,19 @@
         }"
       />
     </div>
+    <div v-else-if="showPreview && accessType === 'none'" class="mb-2">
+      <div
+        class="ImageContentItem__preview d-flex align-items-center justify-content-center rounded-sm border"
+        :style="{
+          aspectRatio: previewAspectRatio,
+          width: '100%',
+          maxHeight: '100px',
+          objectFit: 'cover'
+        }"
+      >
+        <Icon name="mediaImage" size="3x" />
+      </div>
+    </div>
     <div class="d-flex align-items-start gap-2">
       <Icon v-if="showIcon" name="mediaImage" />
       <h2
@@ -41,15 +54,17 @@
         class="d-inline-block"
       >
         {{ ' ' }}
-        <span v-if="shouldShowDate">
-          {{ shouldShowMediaSource ? '&mdash;' : '' }}
-          {{ $d(new Date(image.date as Date), 'long') }}
-          {{ '  ' }}
-        </span>
-        <span v-if="shouldShowPages">
-          {{ shouldShowMediaSource || shouldShowDate ? '&mdash;' : '' }}
-          <span v-html="pagesLabel"></span>
-        </span>
+        {{ shouldShowDate || shouldShowPages ? '&mdash;' : '' }}
+        <RouterLink v-if="shouldShowDate || shouldShowPages" :to="routerLinkPageUrl">
+          <span v-if="shouldShowDate">
+            {{ $d(new Date(image.date as Date), 'long') }}
+            {{ '  ' }}
+          </span>
+          <span v-if="shouldShowPages">
+            {{ shouldShowDate ? '&mdash;' : '' }}
+            <span v-html="pagesLabel"></span>
+          </span>
+        </RouterLink>
       </MediaSourceLabel>
       {{ '  ' }}
 
@@ -75,11 +90,7 @@
           <span>{{ $t(`buckets.copyright.${image.access.copyright}`) }}</span>
         </span>
       </template>
-      <ContentItemAccess
-        v-if="props.showContentItemAccess"
-        :item="props.image as unknown as ContentItem"
-      >
-      </ContentItemAccess>
+      <ContentItemAccess v-if="props.showContentItemAccess" :item="accessItem"> </ContentItemAccess>
     </div>
     <slot></slot>
   </div>
@@ -97,7 +108,10 @@ import ContentItemAccess from '../ContentItemAccess.vue'
 import { Routes } from '@/router/routes'
 import { RouteLocationRaw } from 'vue-router'
 import AuthImg from '@/components/AuthImg.vue'
-import Image from '@/models/Image.js'
+import {
+  useContentItemAccess,
+  type ContentItemAccessSource
+} from '@/composables/useContentItemAccess'
 
 defineOptions({ inheritAttrs: false })
 
@@ -132,13 +146,36 @@ const props = withDefaults(defineProps<ImageContentItemProps>(), {
 const attrs = useAttrs()
 const { t } = useI18n()
 
-const hasCaption = computed(() => (props.image.caption?.length ?? 0) > 0)
-
+const accessItem = computed<ContentItemAccessSource>(() => props.image)
+const { accessType } = useContentItemAccess(accessItem)
 const routerLinkUrl = computed(
   () =>
     ({
       name: Routes.viewImage.children.facsimile.name,
       params: { image_id: props.image.id }
+    }) as RouteLocationRaw
+)
+
+const generatedIssueIdFromImageId = computed(() => {
+  const issueId = props.image.id.split('-').slice(0, -1).join('-') // assuming the image ID is in the format "issueId-pageNumber"
+  return issueId
+})
+
+const generatedPageIdFromImageIdAndPageNumber = computed(() => {
+  const pageNumber = String(props.image.pageNumbers?.[0] ?? 1)
+  return `p${pageNumber.padStart(4, '0')}`
+})
+
+const routerLinkPageUrl = computed(
+  () =>
+    ({
+      name: Routes.issue.name,
+      params: {
+        issue_id: generatedIssueIdFromImageId.value
+      },
+      query: {
+        p: props.image.pageNumbers?.[0] ?? 1
+      }
     }) as RouteLocationRaw
 )
 
@@ -154,7 +191,9 @@ const shouldShowImageTypes = computed(
   () => props.showImageTypes && !!Object.keys(props.image.imageTypes || {}).length
 )
 
-const shouldShowPreview = computed(() => props.showPreview && !!props.image.previewUrl)
+const shouldShowPreview = computed(
+  () => props.showPreview && !!props.image.previewUrl && accessType.value !== 'none'
+)
 
 // Fallback for when the previewUrl's IIIF region isn't pixel coords (e.g. "full" or "pct:...").
 const DEFAULT_PREVIEW_ASPECT_RATIO = 3 / 4
