@@ -72,6 +72,7 @@
               :show-icon="false"
               showContentItemAccess
               showImageTypes
+              :showPreview="false"
               showId
             />
           </section>

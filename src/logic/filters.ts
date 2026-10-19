@@ -224,9 +224,13 @@ const ImagesFacets = [
   'mediaSource',
   'year',
   'imageVisualContent',
-  'imageTechnique',
-  'imageCommunicationGoal',
+  // @todo To be added when the API supports it:
+  // 'imageTechnique',
+  // 'imageCommunicationGoal',
   'imageContentType'
+  // @todo To be added when the API supports it:
+  // 'permissionExplore',
+  // 'permissionGetImage'
 ] as const satisfies FilterType[]
 
 const ImagesFilters = [
@@ -259,6 +263,7 @@ export const SupportedFiltersByContext = Object.freeze({
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
+  images: SupportedFiltersByContext.images,
   tr_passages: SupportedFiltersByContext.textReusePassages,
   ngrams: SupportedFiltersByContext.ngrams,
   tr_clusters: SupportedFiltersByContext.textReuseClusters

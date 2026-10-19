@@ -78,7 +78,8 @@ const emit = defineEmits<{
   "en": {
     "incipit": "Sorry, {groupByLabel} found | {groupByLabel} found | {groupByLabel} found",
     "loading": {
-      "articles": "... loading matching content items"
+      "articles": "... loading matching content items",
+      "images": "... loading images"
     }
   }
 }

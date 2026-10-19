@@ -59,7 +59,9 @@ const AvailableFilterTypes = [
   'topic',
   'permissionExplore',
   'permissionGetTranscript',
-  'permissionGetImage'
+  'permissionGetImage',
+  'imageContentType',
+  'imageVisualContent'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)

@@ -39,10 +39,7 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export type ErrorsCollectorService = Pick<
-  ServiceMethods<unknown, ErrorsCollectorPayload>,
-  'create'
->
+export type ErrorsCollectorService = Pick<ServiceMethods<unknown, ErrorsCollectorPayload>, 'create'>
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
@@ -227,3 +224,5 @@ export interface DataReleaseExtended extends DataRelease {
     embDocs?: { models: DataReleaseModel[] }
   }
 }
+
+export type SearchIndex = 'search' | 'tr_clusters' | 'tr_passages' | 'images'

@@ -6,53 +6,56 @@
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
       contextTag="images"
+      searchIndex="images"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>
-        <div
-          v-if="similarToImage"
-          class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
-        >
-          <div class="flex-shrink-1">
-            <auth-img
-              class="h-100"
-              v-if="similarToImage.previewUrl"
-              :src="similarToImage.previewUrl"
-            />
-          </div>
-          <div class="align-self-between">
-            <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
-            <media-source-label
-              :item="{
-                id: similarToImage.mediaSourceRef?.id || '',
-                name: similarToImage.mediaSourceRef?.name || '',
-                type: 'newspaper'
-              }"
-            ></media-source-label>
+        <div class="mb-2">
+          <div
+            v-if="similarToImage"
+            class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
+          >
+            <div class="flex-shrink-1">
+              <auth-img
+                class="h-100"
+                v-if="similarToImage.previewUrl"
+                :src="similarToImage.previewUrl"
+              />
+            </div>
+            <div class="align-self-between">
+              <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
+              <media-source-label
+                :item="{
+                  id: similarToImage.mediaSourceRef?.id || '',
+                  name: similarToImage.mediaSourceRef?.name || '',
+                  type: 'newspaper'
+                }"
+              ></media-source-label>
 
-            <p v-if="similarToImage.date" class="small m-0">
-              {{ $d(similarToImage.date, 'long') }}
-              <span class="text-nowrap">
-                &mdash;
-                {{
-                  similarToImage.pageNumbers
-                    ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
-                    : ''
-                }}
-              </span>
-            </p>
+              <p v-if="similarToImage.date" class="small m-0">
+                {{ $d(similarToImage.date, 'long') }}
+                <span class="text-nowrap">
+                  &mdash;
+                  {{
+                    similarToImage.pageNumbers
+                      ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
+                      : ''
+                  }}
+                </span>
+              </p>
+            </div>
+            <div class="flex-shrink-1 ml-auto">
+              <button
+                class="ImageItemSimilar__remove btn btn-transparent"
+                @click.prevent="onRemoveSimilarTo"
+              >
+                <icon name="cross" />
+              </button>
+            </div>
           </div>
-          <div class="flex-shrink-1 ml-auto">
-            <button
-              class="ImageItemSimilar__remove btn btn-transparent"
-              @click.prevent="onRemoveSimilarTo"
-            >
-              <icon name="cross" />
-            </button>
-          </div>
+          <filter-image-upload v-if="enableUpload" />
+          <search-input ref="searchInputRef" @submit="onSearchQuery" />
         </div>
-        <filter-image-upload v-if="enableUpload" />
-        <search-input ref="searchInputRef" @submit="onSearchQuery" />
       </template>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch>
@@ -116,6 +119,7 @@
               showImageTypes
               showLink
               showPreview
+              :showContentItemAccess="false"
               class="border p-2 rounded-sm"
             >
               <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">

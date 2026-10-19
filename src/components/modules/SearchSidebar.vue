@@ -46,6 +46,7 @@
         <!-- slot here for extra facets -->
       </slot>
       <SearchFacets
+        :searchIndex="props.searchIndex"
         :facets="includedFacets"
         :filters="filters"
         :start-year="startYear"
@@ -72,10 +73,13 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
 import type { Facet, Filter, FacetType, FilterType } from '@/models'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
+import { SearchIndex } from '@/services/types'
 
 export interface SearchSidebarProps {
   /** Used for helper button */
   contextTag?: string
+  /** The search index to use */
+  searchIndex?: SearchIndex
   width?: string
   filters?: Filter[]
   /** facets to visualize */
@@ -91,7 +95,9 @@ const props = withDefaults(defineProps<SearchSidebarProps>(), {
   filters: () => [],
   facets: () => [],
   ignoredFilterTypes: () => [],
-  ignoredFacetTypes: () => []
+  ignoredFacetTypes: () => [],
+  searchIndex: 'search',
+  contextTag: 'search'
 })
 
 const emit = defineEmits<{

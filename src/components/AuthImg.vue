@@ -31,6 +31,7 @@ const imgRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
 const observer = ref<IntersectionObserver | null>(null)
 const isForbidden = ref(false)
+const loadError = ref<string | null>(null)
 
 const loadImage = async () => {
   if (!props.src || !isVisible.value) return
@@ -49,12 +50,16 @@ const loadImage = async () => {
       throw err
     }
     isForbidden.value = false
+    loadError.value = null
 
     const blob = await res.blob()
     if (imageSrc.value) URL.revokeObjectURL(imageSrc.value)
     imageSrc.value = URL.createObjectURL(blob)
   } catch (error) {
     console.error('Error loading image:', error, 'for:', props.src)
+    if (!isForbidden.value) {
+      loadError.value = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+    }
     emit('error', error)
   }
 }
@@ -106,6 +111,7 @@ watch(
       observer.value.unobserve(imgRef.value)
     }
     isVisible.value = false
+    loadError.value = null
     setupIntersectionObserver()
   }
 )
@@ -121,19 +127,31 @@ onBeforeUnmount(() => {
 
 <template>
   <div :class="props.class">
-    <img
-      v-if="!isForbidden"
-      ref="imgRef"
-      :src="imageSrc"
-      v-bind="attrs"
-      @load="handleLoad"
-      crossorigin="use-credentials"
-    />
-    <div
-      v-else
-      class="error rounded bg-light border p-4 d-flex align-items-center justify-content-center"
-    >
+    <div v-if="isForbidden" class="error p-2 d-flex align-items-center justify-content-center">
       {{ $t('login_message') }}
+    </div>
+    <div
+      v-else-if="loadError"
+      class="error p-2 d-flex flex-column align-items-center justify-content-center"
+    >
+      <span>{{ $t('error_loading_image') }}</span>
+      <small class="text-muted">{{ loadError }}</small>
+    </div>
+    <div v-else class="position-relative" :style="{ minHeight: imageSrc ? undefined : '4rem' }">
+      <img
+        ref="imgRef"
+        :src="imageSrc"
+        v-bind="attrs"
+        :class="{ invisible: !imageSrc }"
+        @load="handleLoad"
+        crossorigin="use-credentials"
+      />
+      <div
+        v-if="!imageSrc"
+        class="position-absolute text-muted p-2 top-0 left-0 d-flex align-items-center justify-content-center h-100 w-100"
+      >
+        {{ $t('loading_image') }}
+      </div>
     </div>
   </div>
 </template>
@@ -141,7 +159,9 @@ onBeforeUnmount(() => {
 <i18n lang="json">
 {
   "en": {
-    "login_message": "You need to be signed in to view this image"
+    "login_message": "You need to be signed in to view this image",
+    "error_loading_image": "The image could not be loaded",
+    "loading_image": "Loading image…"
   }
 }
 </i18n>

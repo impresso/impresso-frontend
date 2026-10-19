@@ -19,6 +19,8 @@
 </template>
 <script setup lang="ts">
 // usage <icon name="slack" />
+// Image SVG path from https://iconoir.com/
+// https://github.com/iconoir-icons/iconoir
 import { computed, type CSSProperties } from 'vue'
 
 interface Path {
@@ -895,6 +897,20 @@ const Icons: Record<string, IconData> = {
         d: 'M16 10C14.8954 10 14 9.10457 14 8C14 6.89543 14.8954 6 16 6C17.1046 6 18 6.89543 18 8C18 9.10457 17.1046 10 16 10Z'
       }
     ]
+  },
+  pentagon: {
+    paths: [
+      {
+        d: 'M11.6473 2.25623C11.8576 2.10344 12.1424 2.10344 12.3527 2.25623L22.1089 9.34458C22.3192 9.49737 22.4072 9.76819 22.3269 10.0154L18.6003 21.4846C18.52 21.7318 18.2896 21.8992 18.0297 21.8992H5.97029C5.71035 21.8992 5.47998 21.7318 5.39965 21.4846L1.67309 10.0154C1.59276 9.76819 1.68076 9.49737 1.89105 9.34458L11.6473 2.25623Z'
+      }
+    ]
+  },
+  exagon: {
+    paths: [
+      {
+        d: 'M12 2L21 7V17L12 22L3 17V7L12 2Z'
+      }
+    ]
   }
 }
 
@@ -921,7 +937,9 @@ const IconAliases: Record<string, string> = {
   contentLength: 'rulerArrow',
   permissionExplore: 'key',
   permissionGetTranscript: 'key',
-  permissionGetImage: 'key'
+  permissionGetImage: 'key',
+  imageContentType: 'pentagon',
+  imageVisualContent: 'exagon'
 }
 
 const computedPaths = computed(() => {

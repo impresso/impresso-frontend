@@ -34,6 +34,11 @@
           "
           >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
+        <span
+          class="small-caps"
+          v-else-if="['imageContentType', 'imageVisualContent'].includes(filter.type)"
+          >{{ item.label }}</span
+        >
         <template v-else-if="filter.type === 'topic'">
           <span class="small-caps" v-if="item.label">
             {{ item.label }}
@@ -205,7 +210,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
       "permissionExplore": "with explore access:",
       "permissionGetTranscript": "with transcript access:",
-      "permissionGetImage": "with facsimile access:"
+      "permissionGetImage": "with facsimile access:",
+      "imageContentType": "with content type:",
+      "imageVisualContent": "being:"
     },
     "exclude": {
       "sourceMedium": "not",
@@ -246,7 +253,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
       "permissionExplore": "without WebApp access:",
       "permissionGetTranscript": "without transcript access:",
-      "permissionGetImage": "without facsimile access:"
+      "permissionGetImage": "without facsimile access:",
+      "imageContentType": "without content type:",
+      "imageVisualContent": "not being:"
     }
   }
 }
