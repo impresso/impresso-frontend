@@ -57,7 +57,7 @@
       <li class="mx-3"><hr class="dropdown-divider" /></li>
       <li class="mx-3 small text-muted pb-2">[staff only] Features</li>
       <li class="mx-3">
-        <b-dropdown-form v-for="key in FeatureKeys" :key="key">
+        <form v-for="key in FeatureKeys" :key="key">
           <b-form-checkbox
             switch
             :model-value="featuresStore.features?.[key]?.enabled ?? false"
@@ -65,7 +65,7 @@
           >
             {{ key }}
           </b-form-checkbox>
-        </b-dropdown-form>
+        </form>
       </li>
     </template>
 
