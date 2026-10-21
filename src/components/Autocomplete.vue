@@ -95,7 +95,7 @@
                 />
                 <span
                   class="text-truncate"
-                  v-if="['location', 'person'].includes(type)"
+                  v-if="['location', 'person', 'organisation', 'newsagency', 'radiostation'].includes(type)"
                   v-html="s.h"
                 />
                 <span
@@ -137,6 +137,9 @@ const AVAILABLE_TYPES = [
   'topic',
   'location',
   'person',
+  'organisation',
+  'newsagency',
+  'radiostation',
   'collection',
   'mention'
 ] as const
@@ -147,8 +150,19 @@ const typeIconMap: Record<string, string> = {
   topic: 'label',
   location: 'position',
   person: 'user',
+  organisation: 'organisation',
+  newsagency: 'newsagency',
+  radiostation: 'antennaSignalTag',
   collection: 'collection',
   mention: 'mention'
+}
+
+// Suggestion types that are not valid filter types on their own are
+// mapped to the filter type supported by the search API.
+const suggestionToFilterType: Record<string, FacetType> = {
+  newspaper: 'mediaSource',
+  newsagency: 'nag',
+  radiostation: 'entity'
 }
 
 interface InitialSuggestion {
@@ -406,7 +420,7 @@ const submit = (payload?: SubmitPayload) => {
       emit('submitEmpty')
     }
   } else {
-    const filterType = type === 'newspaper' ? 'mediaSource' : (type as FacetType)
+    const filterType = suggestionToFilterType[type as string] ?? (type as FacetType)
     emit(
       'submit',
       FilterFactory.create({
