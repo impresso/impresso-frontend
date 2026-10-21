@@ -59,6 +59,29 @@
           : $t('label_max_length_exceeded', { max: props.contentMaxLength })
       }}
     </span>
+    <label :for="`${uniqueId}-email`" class="form-label font-size-inherit font-weight-bold mt-3">
+      {{ $t('label_email_optional') }}
+    </label>
+    <p class="text-muted small">
+      {{ $t('label_email_hint') }}
+    </p>
+    <input
+      :id="`${uniqueId}-email`"
+      type="email"
+      autocomplete="email"
+      v-model.trim="form.email"
+      :placeholder="$t('label_email_placeholder')"
+      class="form-control shadow-sm rounded-sm border"
+      :class="{
+        'is-invalid': v$.email.$error,
+        'border-danger': v$.email.$error,
+        'border-success': v$.email.$dirty && form.email.length > 0 && !v$.email.$error
+      }"
+      @input="v$.email.$touch()"
+    />
+    <span v-if="v$.email.$error" class="text-danger">
+      {{ $t('label_email_invalid') }}
+    </span>
     <button
       type="submit"
       :disabled="!form.issue"
@@ -76,7 +99,7 @@ import Icon from './base/Icon.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import { AvailableFeedbackOptions } from '@/constants'
 import useVuelidate from '@vuelidate/core'
-import { required, maxLength, minLength } from '@vuelidate/validators'
+import { email, required, maxLength, minLength } from '@vuelidate/validators'
 
 const uniqueId = ref<string>('feedbackform-' + Math.random().toString(36).substring(7))
 
@@ -91,11 +114,13 @@ export interface FeedbackFormProps {
 export interface FeedbackFormPayload {
   issue: string
   content: string
+  email?: string
 }
 
-const form = ref<FeedbackFormPayload>({
+const form = ref<Required<FeedbackFormPayload>>({
   issue: '',
-  content: ''
+  content: '',
+  email: ''
 })
 
 const props = withDefaults(defineProps<FeedbackFormProps>(), {
@@ -115,7 +140,8 @@ const v$ = useVuelidate(
       required,
       minLength: minLength(props.contentMinLength),
       maxLength: maxLength(props.contentMaxLength)
-    }
+    },
+    email: { email }
   },
   form
 )
@@ -134,7 +160,8 @@ const handleOnSubmit = (event: Event) => {
   }
   emits('submit', {
     issue: form.value.issue,
-    content: form.value.content
+    content: form.value.content,
+    ...(form.value.email ? { email: form.value.email } : {})
   } as FeedbackFormPayload)
 }
 </script>
@@ -155,6 +182,10 @@ const handleOnSubmit = (event: Event) => {
     "label_type_of_issue": "What type of issue are you experiencing?",
     "label_additional_details": "Additional details",
     "label_additional_details_hint": "Please provide any extra information that might help us understand the issue better.",
+    "label_email_optional": "Your email (optional)",
+    "label_email_hint": "Leave your email if you'd like a personal reply. Otherwise, your feedback stays anonymous.",
+    "label_email_placeholder": "you{'@'}example.com",
+    "label_email_invalid": "Please enter a valid email address.",
     "label_max_length_exceeded": "The content exceeds the maximum length of {max} characters.",
     "label_min_length": "Please don't leave this blank :)"
   }

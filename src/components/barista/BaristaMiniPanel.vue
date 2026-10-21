@@ -62,6 +62,7 @@
         <BaristaChat
           class="BaristaMiniPanel__chat"
           :filters="suggestedFilters"
+          :initial-prompt="initialPrompt"
           @suggestFilters="handleFiltersChanged"
         />
       </div>
@@ -84,6 +85,7 @@ export interface BaristaMiniPanelProps {
   filters?: Filter[]
   /** Filters suggested by Barista, kept in sync with the full view */
   suggestedFilters?: Filter[]
+  initialPrompt?: string
 }
 
 const props = withDefaults(defineProps<BaristaMiniPanelProps>(), {

@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { vueRouter } from 'storybook-vue3-router'
 import ListOfSimilarContentItems from './ListOfSimilarContentItems.vue'
 import { MockContentItem } from './modules/lists/ContentItem.stories'

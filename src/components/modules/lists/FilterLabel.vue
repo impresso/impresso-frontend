@@ -4,9 +4,11 @@
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
       <ItemSelector
-        v-if="showItemSelector && item.id?.length"
+        v-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
-        :id="item.id"
+        :id="
+          String(item.id) // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db, ID change is implemented in ItemSelector
+        "
         :item="item"
         :type="filter.type"
         class="position-relative"
@@ -32,6 +34,11 @@
           "
           >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
+        <span
+          class="small-caps"
+          v-else-if="['imageContentType', 'imageVisualContent'].includes(filter.type)"
+          >{{ item.label }}</span
+        >
         <template v-else-if="filter.type === 'topic'">
           <span class="small-caps" v-if="item.label">
             {{ item.label }}
@@ -41,6 +48,9 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
+        <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
         <span v-else>{{ item.name ?? item.id }}</span>
       </ItemSelector>
       <span v-else-if="filter.type === 'year'">{{ item.id }}</span>
@@ -61,6 +71,7 @@
       >
         {{ item.name }}
       </RouterLink>
+
       <template v-if="index < filterItems.length - 1">
         <span class="separator small-caps m-1"
           >{{ ' ' }}{{ $t(operatorTranslationKey) }}{{ ' ' }}</span
@@ -80,6 +91,7 @@ import { includes } from '@/util/fn.js'
 
 type FilterLabelItem = Entity & {
   name?: string
+  title?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date
@@ -131,7 +143,7 @@ const daterangeTranslationOptions = computed(() => {
 })
 
 const operatorTranslationKey = computed(() => {
-  const op = props.filter.op || 'AND'
+  const op = props.filter.op ?? 'OR'
   return `op.${op.toLowerCase()}`
 })
 
@@ -176,6 +188,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       },
       "nag": "released by",
       "newspaper": "published in",
+      "mention": "mentioning",
       "mediaSource": "published in",
       "partner": "from",
       "person": "mentioning",
@@ -194,7 +207,12 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseCluster": "showing up in clusters",
       "textReuseClusterSize": "in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap spans from <span class='number'>{min}%</span> to <span class='number'>{max}%</span>",
-      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "with explore access:",
+      "permissionGetTranscript": "with transcript access:",
+      "permissionGetImage": "with facsimile access:",
+      "imageContentType": "with content type:",
+      "imageVisualContent": "being:"
     },
     "exclude": {
       "sourceMedium": "not",
@@ -214,6 +232,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "nag": "not released by",
       "newspaper": "not published in",
       "mediaSource": "not published in",
+      "mention": "not mentioning",
       "partner": "not from",
       "person": "not mentioning",
       "location": "not mentioning",
@@ -231,7 +250,12 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseCluster": "not in clusters",
       "textReuseClusterSize": "not in clusters of size <span class='number'>{min}</span> to <span class='number'>{max}</span>",
       "textReuseClusterLexicalOverlap": "where lexical overlap does not span from <span class='number'>{min}</span> to <span class='number'>{max}</span>",
-      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days"
+      "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
+      "permissionExplore": "without WebApp access:",
+      "permissionGetTranscript": "without transcript access:",
+      "permissionGetImage": "without facsimile access:",
+      "imageContentType": "without content type:",
+      "imageVisualContent": "not being:"
     }
   }
 }

@@ -8,6 +8,7 @@
       center-on-mount
       respect-boundaries
       class="SelectionMonitor bg-light border border-dark rounded shadow pointer-events-auto"
+      :data-testid="`selection-monitor-${monitor.type}-${monitor.scope}-${monitor.searchIndex}`"
       :title="$t('selectionMonitorTitle', { type: $t(`tabs_${monitor.type}_${monitor.scope}`) })"
       handle-class="pl-3 d-flex justify-content-between align-items-center gap-2"
     >
@@ -43,7 +44,7 @@
             </h2>
             <!-- item previews -->
             <MediaSourcePreview
-              v-if="monitor.type === 'newspaper'"
+              v-if="monitor.type === 'newspaper' || monitor.type === 'mediaSource'"
               :item="monitor.item"
               :itemType="monitor.type"
               class="mx-3 mb-2 text-muted"
@@ -96,6 +97,7 @@
               </SearchFacetTimeline>
             </div>
             <!-- end timeline -->
+
             <!-- filters -->
             <div class="mx-3" v-if="monitor.displayCurrentSearchFilters">
               <BFormCheckbox
@@ -273,6 +275,16 @@ const isRangeMonitorType = computed(() => rangeMonitorTypes.includes(monitor.typ
 // be called on every computed that touched monitorFilter (monitorFilters, timelineFilters,
 // summaryFilters, displayFilters) — even when monitor.item hadn't changed.
 const monitorType = computed(() => monitor.type)
+const filterType = computed(() => {
+  const typeAliases: Record<string, string> = {
+    persons: 'person',
+    locations: 'location',
+    organisations: 'organisation',
+    newsagencies: 'nag'
+  }
+  const type = monitorType.value ?? ''
+  return typeAliases[type] ?? type
+})
 const monitorItem = computed(() => monitor.item as { id?: string; q?: string | string[] } | null)
 
 const editedMonitorItemAsFilter = ref<Filter | null>(null)
@@ -289,7 +301,7 @@ const monitorItemAsFilter = computed<Filter | null>(() => {
     : [String(item?.q ?? item?.id ?? '')]
 
   return FilterFactory.create({
-    type: monitorType.value,
+    type: filterType.value,
     q: query,
     items: item ? [item] : []
   }) as Filter
@@ -340,9 +352,15 @@ const monitorFilters = computed<Filter[]>(() => {
   } else if (monitorItemAsFilter.value) {
     baseFilters = baseFilters.concat([monitorItemAsFilter.value])
   }
-  return baseFilters.filter(
-    (filter: Filter) => !!filter && availableFilterTypes.includes(filter.type)
-  )
+  return baseFilters
+    .filter((filter: Filter) => !!filter && availableFilterTypes.includes(filter.type))
+    .reduce((acc: Filter[], filter: Filter) => {
+      // deduplicate filters by type and query
+      if (!acc.some(existing => FilterFactory.filtersAreEqual(existing, filter))) {
+        acc.push(filter)
+      }
+      return acc
+    }, [])
 })
 const monitorFiltersWithItems = ref<Filter[]>([])
 
@@ -425,7 +443,9 @@ const applyFilter = () => {
     return
   }
 
-  const baseFilters = props.filters.filter(filter => filter.type !== monitorType.value)
+  const baseFilters = props.filters.filter(
+    filter => filter.type !== monitorItemAsFilter.value?.type
+  )
 
   if (initialSearchFilters.value.length) {
     emit('change', baseFilters.concat(initialSearchFilters.value))
@@ -473,12 +493,18 @@ watch(
 
     isLoadingFilterItems.value = true
     try {
+      const requestedFilters = monitorFilters.value
       const nextFiltersWithItems = await filterItemsService
-        .find({ query: { filters: serializeFilters(monitorFilters.value) } })
+        .find({ query: { filters: serializeFilters(requestedFilters) } })
         .then(joinFiltersWithItems)
 
       if (!cancelled && requestId === filterItemsRequestId.value) {
-        monitorFiltersWithItems.value = nextFiltersWithItems
+        monitorFiltersWithItems.value = requestedFilters.map(filter => {
+          const filterWithItems = nextFiltersWithItems.find(candidate =>
+            FilterFactory.filtersAreEqual(filter, candidate)
+          )
+          return filterWithItems ? { ...filter, items: filterWithItems.items } : filter
+        })
       }
     } catch (e) {
       console.error('[SelectionMonitor] Failed to load filter items', e)
@@ -547,10 +573,11 @@ watch(
 {
   "en": {
     "labels": {
-      "applyCurrentSearchFilters": "Show within current search"
+      "applyCurrentSearchFilters": "Toggle current search query"
     },
     "searchIndexes": {
       "search": "content items",
+      "images": "images",
       "tr_passages": "text reuse passages",
       "textReuse": "Text Reuse"
     },
@@ -571,6 +598,9 @@ watch(
     "tabs_collection_overview": "collection",
     "tabs_mediaSource_overview": "media source",
     "tabs_string_overview": "Text search",
+    "tabs_permissionExplore_overview": "permission to explore in Web App",
+    "tabs_permissionGetTranscript_overview": "permission to get transcript",
+    "tabs_permissionGetImage_overview": "permission to get facsimile",
     "tabs_textReuseCluster_overview": "cluster of text reuse",
     "tabs_textReuseCluster_comparePassages": "compare text reuse passages in this cluster",
     "tabs_textReuseClusterSize_closeUp": "text reuse cluster size",
@@ -595,6 +625,8 @@ watch(
     "tabs_organisations_overview": "organisation",
     "tabs_newsagencies_overview": "news agency",
     "tabs_nag_overview": "news agency",
+    "tabs_imageContentType_overview": "image content type",
+    "tabs_imageVisualContent_overview": "image visual content",
     "actions.loading": "Loading…",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",

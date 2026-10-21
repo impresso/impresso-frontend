@@ -27,7 +27,7 @@ export interface Filter {
   context?: "include" | "exclude";
   op?: "AND" | "OR";
   /**
-   * Possible values are in 'impresso-jscomons Filter.type'
+   * Possible values are in 'impresso-jscommons Filter.type'
    */
   type: string;
   precision?: "fuzzy" | "soft" | "exact" | "partial";
@@ -81,7 +81,7 @@ export interface Filter {
   context?: "include" | "exclude";
   op?: "AND" | "OR";
   /**
-   * Possible values are in 'impresso-jscomons Filter.type'
+   * Possible values are in 'impresso-jscommons Filter.type'
    */
   type: string;
   precision?: "fuzzy" | "soft" | "exact" | "partial";
@@ -155,6 +155,23 @@ export interface NewCollectionRequest {
    */
   accessLevel?: "public" | "private";
 }
+
+
+/**
+ * Signed delivery receipts identify receiving accounts and ordered item IDs only. They do not attest item content or identify a publisher.
+ */
+export type ProvenanceVerificationRequest = {
+  token: string;
+  /**
+   * @maxItems 100000
+   */
+  ids?: string[];
+  csv?: string;
+  idsHash?: string;
+  idsCount?: number;
+} & {
+  [k: string]: unknown;
+};
 
 
 /**

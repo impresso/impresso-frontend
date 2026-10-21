@@ -38,6 +38,7 @@
           class="p-0"
           submit-area-classes="position-sticky bottom-0 bg-light py-3 border-top"
           @changeAcceptTerms="handleChangeAcceptTerms"
+          :terms-accepted="termsAccepted"
           :disabled="!selectedPlan"
         >
           <template #accept-terms-of-use-label>
@@ -76,32 +77,7 @@
       </button>
     </form>
   </InfoModal>
-  <InfoModal
-    :is-visible="isCreated"
-    :modalTitle="$t('userRegister.title')"
-    :ok-label="'OK'"
-    dialogClass="modal-dialog-centered modal-md"
-    @close="handleCloseSignupSuccess"
-    hideFooter
-  >
-    <h3>Thanks for signing up for Impresso!</h3>
-    <p>
-      One of our team members is now reviewing your information to ensure everything is set up
-      correctly.
-    </p>
-    <Alert type="info" class="my-3">
-      You'll receive a separate email notification as soon as your account is activated and ready to
-      go.
-    </Alert>
-    <p>
-      If you have registered with a <b>Student User</b> or <b>Academic User</b> plan, please be
-      aware that your account will be reviewed by our team before activation. We appreciate your
-      patience during this process.
-    </p>
-    <RouterLink to="/" class="btn btn-md btn-outline-secondary border border-dark btn-block">
-      Back to homepage
-    </RouterLink>
-  </InfoModal>
+  <UserRegistrationSuccessModal :is-visible="isCreated" @close="handleCloseSignupSuccess" />
 </template>
 <script setup lang="ts">
 import ProfileForm from 'impresso-ui-components/components/ProfileForm.vue'
@@ -112,7 +88,7 @@ import type {
   ChangePlanFormPayload,
   AvailablePlan as AvailablePlanType
 } from 'impresso-ui-components/components/ChangePlanForm.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import {
   AvailablePlansWithLabels,
@@ -124,7 +100,9 @@ import {
 } from '@/constants'
 import LinkToModal from '@/components/LinkToModal.vue'
 import InfoModal from '@/components/InfoModal.vue'
+import UserRegistrationSuccessModal from '@/components/modals/UserRegistrationSuccessModal.vue'
 import { users as usersService } from '@/services'
+import { useUserStore } from '@/stores/user'
 
 defineOptions({
   inheritAttrs: false
@@ -137,6 +115,13 @@ const error = ref<FeathersError | null>(null)
 const showConfirmModal = ref(false)
 const selectedPlan = ref<AvailablePlanType | null>(null)
 const acceptedTerms = ref<boolean>(false)
+const userStore = useUserStore()
+/**
+ * True only for an explicit acceptance: the checkbox ticked in this session, or
+ * a legally-binding acceptance already recorded in the DB. The temporary local
+ * (non-binding) acceptance must NOT satisfy registration.
+ */
+const termsAccepted = computed(() => acceptedTerms.value || !!userStore.acceptTermsDate)
 
 const profileFormData = ref<ProfileFormPayload>({
   email: '',
@@ -204,7 +189,7 @@ const onSubmit = async (formData: ProfileFormPayload) => {
     isLoading.value = false
     return
   }
-  if (!acceptedTerms.value) {
+  if (!termsAccepted.value) {
     error.value = {
       message: 'You must accept the Terms of Use to register.'
     } as FeathersError
@@ -249,7 +234,7 @@ const handleConfirmModalOk = () => {
       "step2Title": "Complete the registration form",
 
       "confirmRegistrationTitle": "Confirm Registration",
-      "confirmRegistrationMessage": "You are about to register with a Student or Academic User plan. Please make sure you have provided your institutional email address and have the required documentation ready for verification.",
+      "confirmRegistrationMessage": "You  are about to register with a Student or Academic User plan. Please make sure you have provided your institutional email address and have the required documentation ready for verification.",
       "confirmRegistrationReminder": "After submission, your account will be reviewed by our team before activation.",
       "confirmAndRegister": "Confirm and Register"
     }

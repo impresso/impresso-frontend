@@ -129,6 +129,7 @@ export default {
       addFilter: 'Refine your search with additional filters ...',
       addNewDateRangeFilter: 'Add new date filter ...',
       addContextualFilter: 'refine ...',
+      barista: 'Barista',
       agree: 'I agree to the terms of use',
       accept: 'accept',
       browseAll: 'show all ...',
@@ -172,6 +173,7 @@ export default {
       requestNewPassword: 'Apply changes',
       requestAccount: 'Request User Account',
       resetFilters: 'start fresh, reset filters!',
+      refine: 'refine',
       resetItems: 'reset list',
       resetMyPassword: 'Reset your password',
       resetObservedItems: 'reset observed list',
@@ -179,7 +181,9 @@ export default {
       useCurrentQuery: 'Use most recent search query',
       addCurrentSearch: 'Add filters from your current search query',
       updateCurrentFilters: 'modify filter in current search',
-      viewTopic: 'go to topic'
+      viewTopic: 'go to topic',
+      readContentItem: 'read content item ...',
+      semanticSearch: 'Semantic Search'
     },
     filters: {
       daterange: {
@@ -225,6 +229,8 @@ export default {
         '0 clusters | <span class="number">{n}</span> cluster | <span class="number">{n}</span> clusters',
       contentItems:
         'no content items | <span class="number">1</span> content item | <span class="number">{n}</span> content items',
+      collections:
+        'no collections | <span class="number">1</span> collection | <span class="number">{n}</span> collections',
       mediaSources:
         'no media sources | <span class="number">1</span> media source | <span class="number">{n}</span> media sources',
       articles:
@@ -258,10 +264,8 @@ export default {
       unigramMentions:
         'no mentions of <span class="ngram-highlight">{unigram}</span> | <span class="number">1</span> mention of <span class="ngram-highlight">{unigram}</span> | <span class="number">{n}</span> mentions of <span class="ngram-highlight">{unigram}</span> ',
       ignoredFilters:
-        // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied. | * {n} search filters can't be applied.",
       ignoredFiltersDetailed:
-        // eslint-disable-next-line quotes
         "no message | * 1 search filter can't be applied ({detail}). | * {n} search filters can't be applied ({detail}).",
       number: '<span class="number">{n}</span>',
       percentage: '<span class="number">{n}</span>'
@@ -303,6 +307,9 @@ export default {
       changePassword: {
         wrongcredentials: 'Wrong credentials provided...',
         NotValidRegex: 'The new password is too easy to guess!'
+      },
+      images: {
+        notAuthorized: 'The image is not available.'
       },
       Error: 'An unexpected error occurred: "{error}". Please try again later.',
       GeneralError: 'An error occurred: "{error}". Please try again later.',
@@ -370,6 +377,41 @@ export default {
           exclude: 'content <b>NOT</b> available on selected pages'
         }
       },
+      permissionExplore: {
+        title: 'available in Web App | available in Web App | available in Web App',
+        filterTitle: 'availability in Web App',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> explore availability applies',
+        description: 'Check one or more explore availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'explore is available',
+          exclude: 'explore is <b>NOT</b> available'
+        }
+      },
+      permissionGetTranscript: {
+        title: 'Transcript permission',
+        filterTitle: 'transcript availability',
+        filtered: 'Results are filtered when:',
+        selected:
+          'Filter results if <b>one of {count} selected</b> transcript availability applies',
+        description: 'Check one or more transcript availability to filter results',
+        empty: '(no results)',
+        context: {
+          include: 'transcript is available',
+          exclude: 'transcript is <b>NOT</b> available'
+        }
+      },
+      permissionGetImage: {
+        title: 'Facsimile permission',
+        filterTitle: 'facsimile availability',
+        filtered: 'Results are filtered when:',
+        selected: 'Filter results if <b>one of {count} selected</b> facsimile availability applies',
+        context: {
+          include: 'facsimile is available',
+          exclude: 'facsimile is <b>NOT</b> available'
+        }
+      },
       ocrQuality: {
         title: 'OCR quality | OCR quality | OCR qualities',
         filterTitle: 'OCR quality',
@@ -426,7 +468,7 @@ export default {
         filtered: 'Results are filtered when:',
         selected: 'Filter results if <b>one of {count} selected</b> collection applies',
         description: 'Check one or more collection to filter results',
-        // eslint-disable-next-line quotes
+
         empty: "... you haven't saved any result item in your collection",
         item: 'Collection'
       },
@@ -577,7 +619,8 @@ export default {
         item: '{label} [{start} TO {end}]'
       },
       string: {
-        title: 'article text'
+        title: 'content item text',
+        filterTitle: 'content item text'
       },
       textReuseClusterSize: {
         title: 'filter by text reuse cluster size',
@@ -740,6 +783,18 @@ export default {
       }
     },
     sortBy: 'order by',
+    collectionVisibility: {
+      label: 'visibility',
+      public: 'public',
+      private: 'private',
+      makePublic: 'make public',
+      makePrivate: 'make private',
+      notifications: {
+        updatedPublic: 'Collection "{title}" is now public.',
+        updatedPrivate: 'Collection "{title}" is now private.',
+        updateError: 'Could not change visibility of collection "{title}".'
+      }
+    },
     more_info: 'More Info',
     currentSearch: 'current search',
     lexicalOverlap: 'lexical overlap',

@@ -16,9 +16,9 @@
     </template>
     <b-dropdown-item :to="{ name: 'user' }">{{ $t('profile') }}</b-dropdown-item>
 
-    <LinkToModal v-if="user" class="dropdown-item" :view="ViewChangePassword">
-      {{ $t('label_change_password') }}
-    </LinkToModal>
+    <b-dropdown-item :to="{ name: 'passwordReset' }">
+      {{ $t('actions.resetMyPassword') }}
+    </b-dropdown-item>
 
     <LinkToModal
       v-if="user && isViewPlansFeatureEnabled"
@@ -52,6 +52,22 @@
     <LinkToModal v-if="user && user.isStaff" class="dropdown-item" :view="ViewFeedback">
       {{ $t('label_feedback') }}
     </LinkToModal>
+
+    <template v-if="user && user.isStaff">
+      <li class="mx-3"><hr class="dropdown-divider" /></li>
+      <li class="mx-3 small text-muted pb-2">[staff only] Features</li>
+      <li class="mx-3">
+        <form v-for="key in FeatureKeys" :key="key">
+          <b-form-checkbox
+            switch
+            :model-value="featuresStore.features?.[key]?.enabled ?? false"
+            @update:model-value="(value: boolean) => featuresStore.setFeatureEnabled(key, value)"
+          >
+            {{ key }}
+          </b-form-checkbox>
+        </form>
+      </li>
+    </template>
 
     <li class="mx-3">
       <hr class="dropdown-divider" />
@@ -93,11 +109,11 @@ import {
   // ViewPlans
   ViewCorpusOverview,
   ViewFeedback,
-  ViewChangePassword,
   ViewPlans
 } from '@/constants'
 import Icon from './base/Icon.vue'
 import { jobs as jobsService, termsOfUse as termsOfUseService } from '@/services'
+import { useFeaturesStore, FeatureKeys } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import User from '@/models/User'
 import Sunset from 'impresso-ui-components/components/Sunset.vue'
@@ -105,6 +121,7 @@ import SpecialMembershipButton from './specialMembership/SpecialMembershipButton
 import { triggerClickOutside } from '@/composables/useClickOutside'
 
 const userStore = useUserStore()
+const featuresStore = useFeaturesStore()
 
 export interface UserAreaProps {
   user: User
@@ -120,14 +137,14 @@ const version = computed(() => {
 })
 
 const isViewPlansFeatureEnabled = computed(() => {
-  return (window as any).impressoFeatures?.viewPlans?.enabled
+  return featuresStore.isViewPlansEnabled
 })
 
 const isSpecialMembershipsEnabled = computed(() => {
   if (props.user && props.user.isStaff) {
     return true
   }
-  return (window as any).impressoFeatures?.specialMemberships?.enabled
+  return featuresStore.isSpecialMembershipsEnabled
 })
 
 const logout = () => {
@@ -168,8 +185,7 @@ const send_update_bitmap = async () => {
     "join_discussion_channel": "Join our Discord channel",
     "current_version": "Current version: {version}",
     "send_test_job": "[staff only] Send test job",
-    "send_update_bitmap": "[staff only] Test update bitmap",
-    "label_change_password": "Change Password"
+    "send_update_bitmap": "[staff only] Test update bitmap"
   }
 }
 </i18n>

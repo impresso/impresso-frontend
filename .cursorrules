@@ -247,6 +247,17 @@ export interface BaseFindResponse {
 }
 ```
 
+## Creating pages and routes
+
+Full rules are in `.github/agents/create-a-page.agent.md`. In short:
+
+- Page components go in `src/pages/*.vue` and use `<script setup lang="ts">`.
+- Route names/paths are declared in `src/router/routes.ts` (the `Routes` object) and mounted in the `routes` array of `src/router/index.ts` using `Routes.<key>.path` / `.name` and a lazy `component: () => import('@/pages/<Name>.vue')`.
+- Choose the router `meta`: `requiresAuth: false` for public pages; otherwise the global guard requires an access token and redirects to `login`.
+- The catch-all guard maps unmatched paths matching a `Views` constant (`src/constants.ts`) to a modal. Adding a real route with the same path makes that URL render the page instead; existing `LinkToModal` links keep opening the modal. Only add to `Views` for modals, not pages.
+- When the page should show the same content as an existing modal, extract the body into a shared component (e.g. `src/components/modules/`) and render it from both; keep modal lazy-loading via an `isVisible` prop.
+- Verify with `npm run type-check`.
+
 ## Changelog and release notes
 
 When generating release notes for a new tag, take the auto‑generated release notes for tag vX.Y.Z and rewrite them as:

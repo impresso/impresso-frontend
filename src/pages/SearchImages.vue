@@ -1,58 +1,61 @@
 <template>
   <i-layout class="search-images">
     <search-sidebar
-      width="400px"
+      width="380px"
       :filters="availableFiltersWithItems"
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
       contextTag="images"
+      searchIndex="images"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>
-        <div
-          v-if="similarToImage"
-          class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
-        >
-          <div class="flex-shrink-1">
-            <auth-img
-              class="h-100"
-              v-if="similarToImage.previewUrl"
-              :src="similarToImage.previewUrl"
-            />
-          </div>
-          <div class="align-self-between">
-            <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
-            <media-source-label
-              :item="{
-                id: similarToImage.mediaSourceRef?.id || '',
-                name: similarToImage.mediaSourceRef?.name || '',
-                type: 'newspaper'
-              }"
-            ></media-source-label>
+        <div class="mb-2">
+          <div
+            v-if="similarToImage"
+            class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
+          >
+            <div class="flex-shrink-1">
+              <auth-img
+                class="h-100"
+                v-if="similarToImage.previewUrl"
+                :src="similarToImage.previewUrl"
+              />
+            </div>
+            <div class="align-self-between">
+              <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
+              <media-source-label
+                :item="{
+                  id: similarToImage.mediaSourceRef?.id || '',
+                  name: similarToImage.mediaSourceRef?.name || '',
+                  type: 'newspaper'
+                }"
+              ></media-source-label>
 
-            <p v-if="similarToImage.date" class="small m-0">
-              {{ $d(similarToImage.date, 'long') }}
-              <span class="text-nowrap">
-                &mdash;
-                {{
-                  similarToImage.pageNumbers
-                    ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
-                    : ''
-                }}
-              </span>
-            </p>
+              <p v-if="similarToImage.date" class="small m-0">
+                {{ $d(similarToImage.date, 'long') }}
+                <span class="text-nowrap">
+                  &mdash;
+                  {{
+                    similarToImage.pageNumbers
+                      ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
+                      : ''
+                  }}
+                </span>
+              </p>
+            </div>
+            <div class="flex-shrink-1 ml-auto">
+              <button
+                class="ImageItemSimilar__remove btn btn-transparent"
+                @click.prevent="onRemoveSimilarTo"
+              >
+                <icon name="cross" />
+              </button>
+            </div>
           </div>
-          <div class="flex-shrink-1 ml-auto">
-            <button
-              class="ImageItemSimilar__remove btn btn-transparent"
-              @click.prevent="onRemoveSimilarTo"
-            >
-              <icon name="cross" />
-            </button>
-          </div>
+          <filter-image-upload v-if="enableUpload" />
+          <search-input ref="searchInputRef" @submit="onSearchQuery" />
         </div>
-        <filter-image-upload v-if="enableUpload" />
-        <search-input @submit="onSearchQuery" />
       </template>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch>
@@ -63,27 +66,23 @@
 
     <i-layout-section main>
       <template v-slot:header>
-        <b-navbar type="light" variant="light" class="border-bottom px-0 py-0">
-          <b-navbar-nav class="p-2 border-right">
-            <li class="form-inline">
-              <form class="form-inline">
-                <b-button size="sm" variant="outline-primary" @click="loadRandomPage">
-                  {{ $t('actions.loadRandomPage') }}
-                </b-button>
-              </form>
-            </li>
-          </b-navbar-nav>
-        </b-navbar>
+        <PageNavbarHeading :label="$t('search')" :title="$t('searchImages')">
+          <template #actions>
+            <b-button size="sm" variant="outline-primary" @click="loadRandomPage">
+              {{ $t('actions.loadRandomPage') }}
+            </b-button>
+          </template>
+        </PageNavbarHeading>
         <b-navbar type="light" variant="light" class="border-bottom py-0 px-3">
           <b-navbar-nav class="border-right flex-grow-1 py-2">
-            <ellipsis v-if="!isLoading" :initialHeight="60">
+            <ellipsis :initialHeight="60">
               <search-results-summary
+                :isLoading="isLoading"
                 group-by="images"
                 :searchQuery="{ filters: availableFiltersWithItems }"
                 :totalRows="paginationTotalRows"
               />
             </ellipsis>
-            <span v-else>{{ $t('actions.loading') }}</span>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2 align-items-center" v-if="!similarToImage">
             <label class="mr-1 mb-0 text-nowrap">{{ $t('label_order') }}</label>
@@ -103,9 +102,9 @@
       </template>
 
       <div class="p-1 my-2">
-        <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-          <div class="mb-3" v-for="searchResult in searchResults" :key="searchResult.id">
-            <search-results-image-item
+        <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
+          <div class="col mb-2" v-for="searchResult in searchResults" :key="searchResult.id">
+            <!-- <search-results-image-item
               class="mx-1"
               :item="searchResult"
               :enable-checkbox="false"
@@ -114,7 +113,38 @@
               :userPlan="userPlan"
               @toggleSelected="toggleSelected"
               @click:search="onClickSearch"
-            />
+            /> -->
+            <ImageContentItem
+              :image="searchResult"
+              showImageTypes
+              showLink
+              showPreview
+              :showContentItemAccess="false"
+              class="border p-2 rounded-sm"
+              :max-words-in-caption="10"
+            >
+              <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">
+                <router-link
+                  v-if="searchResult.contentItemId"
+                  :to="{
+                    name: 'contentItem',
+                    params: { content_item_id: searchResult.contentItemId }
+                  }"
+                  class="btn btn-outline-primary btn-sm"
+                >
+                  {{ $t('actions.readContentItem') }}
+                </router-link>
+                <b-button
+                  v-if="enableSimilarTo"
+                  variant="outline-primary"
+                  @click="onClickSearch(searchResult)"
+                  class="buttonFindSimilar"
+                  size="sm"
+                >
+                  {{ $t('actions.getSimilarImages') }}
+                </b-button>
+              </div>
+            </ImageContentItem>
           </div>
         </div>
         <div
@@ -148,7 +178,7 @@
 </i18n>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, getCurrentInstance } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -177,6 +207,8 @@ import type { IImage, Filter, FilterType, FacetType } from '@/models'
 import { includes } from '@/util/fn'
 import Icon from '@/components/base/Icon.vue'
 import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
+import ImageContentItem from '@/components/images/ImageContentItem.vue'
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 
 const AllowedFilterTypes = SupportedFiltersByContext.images
 const AllowedFacetTypes = FacetsByContext.images
@@ -224,6 +256,9 @@ const isLoading = ref(false)
 const selectedItems = ref<IImage[]>([])
 const similarToImage = ref<IImage | null>(null)
 const searchResults = ref<IImage[]>([])
+const searchInputRef = ref<{
+  focus(): void
+} | null>(null)
 const paginationTotalRows = ref(0)
 const facets = ref<FacetModel[]>(buildEmptyFacets(AllowedFacetTypes) as FacetModel[])
 
@@ -432,6 +467,13 @@ async function fetchSimilarToImage(id: string) {
 
 watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
 watch(serviceQuery, fetchSearchResults, { immediate: true })
+
+onMounted(() => {
+  // Focus the search field as soon as the page is ready.
+  nextTick(() => {
+    searchInputRef.value?.focus()
+  })
+})
 </script>
 
 <style>
@@ -454,3 +496,12 @@ button.ImageItemSimilar__remove {
   border-bottom-right-radius: 0.15rem;
 }
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "search": "search",
+    "searchImages": "Search Images"
+  }
+}
+</i18n>

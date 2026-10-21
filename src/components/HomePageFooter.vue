@@ -73,7 +73,7 @@
         <div class="col-sm-12 col-md-6">
           <div class="logo">
             <a
-              href="http://www.snf.ch/en/Pages/default.aspx"
+              href="https://www.snf.ch/en"
               target="_blank"
               title="Swiss National Science Foundation"
             >

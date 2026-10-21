@@ -1,6 +1,6 @@
 <template>
   <i-layout id="SearchPage">
-    <search-sidebar
+    <SearchSidebar
       width="380px"
       :filters="enrichedFilters"
       :facets="facets"
@@ -9,43 +9,70 @@
       @changed="handleFiltersChanged"
     >
       <template v-slot:header="{ focusHandler }">
-        <autocomplete
-          @submit="onSuggestion"
-          @filtersChanged="handleFiltersChanged"
-          @input-focus="focusHandler"
-          :filters="filters"
-        />
+        <div class="d-flex gap-1 mb-2">
+          <Autocomplete
+            ref="autocompleteRef"
+            class="flex-grow-1"
+            v-model:search-mode="autocompleteSearchMode"
+            :enable-mode-switch="true"
+            @submit="onSuggestion"
+            @submit-semantic="searchExpertToolsRef?.openSemanticSearch($event)"
+            @submit-prompt="searchExpertToolsRef?.openBarista($event)"
+            @submit-empty="autocompleteSearchMode === 'prompt' && searchExpertToolsRef?.openBarista('')"
+            @open-explorer="refineFiltersButtonRef?.openExplorer($event)"
+            @input-focus="focusHandler"
+            :filters="filters"
+          >
+            <template v-slot:extra-actions>
+              <RefineFiltersButton
+                ref="refineFiltersButtonRef"
+                :filters="filters"
+                @filters-changed="handleFiltersChanged"
+              />
+            </template>
+          </Autocomplete>
+        </div>
       </template>
-      <div>
-        <button
-          class="float-right mx-3 btn btn-sm btn-outline-secondary"
-          @click="showModal('embeddings')"
-          data-testid="add-similar-words-button"
-        >
-          {{ $t('label_embeddings') }}
-          <info-button
+      <SearchExpertTools
+        ref="searchExpertToolsRef"
+        :filters="filters"
+        :is-barista-enabled="featuresStore.isBaristaEnabled"
+        :is-logged-in="isLoggedIn"
+        :show-controls="false"
+        @semantic-search="handleSemanticSearch"
+        @filters-changed="handleFiltersChanged"
+      />
+
+      <div
+        class="mx-3 mb-2 d-flex align-items-center justify-content-between"
+        data-testid="is-frontpage-toggle"
+      >
+        <BFormCheckbox v-model="isFront" switch>
+          {{ $t('label_isFront') }}
+        </BFormCheckbox>
+        <div>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            @click="showModal('embeddings')"
+            data-testid="add-similar-words-button"
+          >
+            {{ $t('label_embeddings') }}
+          </button>
+          <InfoButton
             class="ml-1"
-            :offset-options="{
-              crossAxis: 100,
-              mainAxis: 20
-            }"
+            :offset-options="{ crossAxis: 100, mainAxis: 20 }"
             name="how-are-word-embeddings-generated"
           />
-        </button>
-        <b-form-group class="mx-3" data-testid="is-frontpage-toggle">
-          <b-form-checkbox v-model="isFront" switch>
-            {{ $t('label_isFront') }}
-          </b-form-checkbox>
-        </b-form-group>
+        </div>
       </div>
       <template v-slot:after-facets>
         <div class="p-3">
-          <b-form-checkbox v-model="loadCollectionsFlag" switch>
+          <BFormCheckbox v-model="loadCollectionsFlag" switch>
             {{ $t('label_loadCollection') }}
-          </b-form-checkbox>
+          </BFormCheckbox>
         </div>
       </template>
-    </search-sidebar>
+    </SearchSidebar>
 
     <i-layout-section main>
       <template v-slot:header>
@@ -53,12 +80,7 @@
           <template #actions>
             <RouterLink
               class="mr-2 btn btn-sm btn-outline-primary"
-              :to="{
-                name: 'compare',
-                query: {
-                  left: searchQueryHash
-                }
-              }"
+              :to="{ name: 'compare', query: { left: searchQueryHash } }"
             >
               {{ $t('actions.compare') }}
             </RouterLink>
@@ -69,50 +91,47 @@
               functionName="find"
               :public-api-url="publicApiUrl"
             />
-            <b-dropdown
+            <BDropdown
               v-if="isLoggedIn"
-              v-bind:text="$t('query_actions')"
+              :text="$t('query_actions')"
               size="sm"
               variant="outline-primary"
               right
               class="bg-white"
             >
-              <b-dropdown-item
+              <BDropdownItem
                 v-if="selectedItems.length > 0"
                 @click="showModal('nameSelectionCollection')"
               >
                 <span class="dripicons-checklist pr-1"></span>
                 {{ $t('add_n_to_collection', selectedItems.length) }}
-              </b-dropdown-item>
-              <b-dropdown-item v-on:click="exportSelectedCsv" v-if="selectedItems.length > 0">
+              </BDropdownItem>
+              <BDropdownItem v-if="selectedItems.length > 0" @click="exportSelectedCsv">
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('selected_export_csv') }}
-              </b-dropdown-item>
-              <b-dropdown-item @click="showModal('nameCollection')">
+              </BDropdownItem>
+              <BDropdownItem @click="showModal('nameCollection')">
                 <span class="dripicons-archive pr-1"></span>
                 {{ $t('query_add_to_collection') }}
-              </b-dropdown-item>
-              <b-dropdown-item v-on:click="exportQueryCsv">
+              </BDropdownItem>
+              <BDropdownItem @click="exportQueryCsv">
                 <span class="dripicons-export pr-1"></span>
                 {{ $t('query_export_csv') }}
-                <info-button
+                <InfoButton
                   placement="left"
                   name="am-i-allowed-to-automatically-mass-download-newspaper-images-and-texts"
                   right
                   class="float-right"
-                  :offset-options="{
-                    crossAxis: 100,
-                    mainAxis: 20
-                  }"
+                  :offset-options="{ crossAxis: 100, mainAxis: 20 }"
                 />
-              </b-dropdown-item>
-            </b-dropdown>
+              </BDropdownItem>
+            </BDropdown>
           </template>
           <template #summary>
-            <Ellipsis v-bind:initialHeight="70" :additional-height="50">
+            <Ellipsis :initialHeight="70" :additional-height="50">
               <SearchResultsSummary
-                :isLoading="isLoadingResults"
-                @onSummary="onSummary"
+                :isLoading="isLoading"
+                @onSummary="msg => onSummary(msg, $t('Based on search query with'))"
                 :group-by="groupBy"
                 :search-query="{ filters: enrichedFilters }"
                 :totalRows="paginationTotalRows"
@@ -124,12 +143,12 @@
               <label class="mr-2 text-nowrap">{{ $t('label_order') }}</label>
               <i-dropdown
                 v-model="orderBy"
-                v-bind:options="orderByOptions"
+                :options="orderByOptions.map(o => ({ value: o.value, text: $t(o.labelKey) }))"
                 size="sm"
                 variant="outline-primary"
                 right
                 data-testid="order-by-dropdown"
-              ></i-dropdown>
+              />
             </div>
           </template>
         </PageNavbarHeading>
@@ -141,19 +160,26 @@
         body-class="m-0 p-0"
         :title="$t('add_n_to_collection', selectedItems.length)"
         :show="visibleModal === 'nameSelectionCollection'"
-        @shown="nameSelectedCollectionOnShown()"
+        @shown="collectionsStore.loadCollections()"
       >
-        <collection-add-to-list :items="selectedCollectableItems" />
+        <CollectionAddToList :items="selectedCollectableItems" />
       </Modal>
 
       <CreateCollectionModal
         :show="visibleModal === 'nameCollection'"
-        @dismiss="hideModal"
-        @success="handleCreateCollectionModalSuccess"
+        @dismiss="hideModal()"
+        @success="
+          handleCreateCollectionModalSuccess(
+            $t('query_add_to_collection_success_title'),
+            $t('query_add_to_collection_success_message')
+          )
+        "
         :filters="searchServiceQuery.filters"
         :initial-payload="{
           name: inputName,
-          description: inputDescription
+          description: searchQueryDescription
+            ? $t('collectionDescription', { inputDescription: searchQueryDescription })
+            : inputDescription
         }"
       />
 
@@ -167,23 +193,20 @@
           :withPreview="true"
           :filters="searchServiceQuery.filters"
           @filters-changed="
-            filters => {
-              handleFiltersChanged(filters)
-              hideModal('embeddings')
+            (newFilters: Filter[]) => {
+              handleFiltersChanged(newFilters)
+              hideModal()
             }
           "
         />
       </InfoModal>
 
       <div class="p-1">
-        <b-container fluid>
+        <div class="container-fluid">
           <div ref="searchResultsFirstElementRef" />
-          <b-row>
-            <b-col
-              cols="12"
-              v-for="(searchResult, index) in searchResults"
-              v-bind:key="searchResult.id"
-            >
+          <LoadingBlock v-if="isLoading && !searchResults.length" />
+          <div class="row">
+            <div class="col-12" v-for="searchResult in searchResults" :key="searchResult.id">
               <div class="p-3 border rounded my-2 shadow-sm mr-5">
                 <AudioContentItem
                   v-if="searchResult.meta?.sourceMedium === 'audio'"
@@ -192,10 +215,11 @@
                   :is-playing="isAudioItemPlaying(searchResult.id)"
                   :current-time="getAudioItemReadingTime(searchResult.id)"
                   @update:is-playing="
-                    isPlaying => onAudioItemPlayingChanged(searchResult.id, isPlaying)
+                    (isPlaying: boolean) => onAudioItemPlayingChanged(searchResult.id, isPlaying)
                   "
                   @update:current-time="
-                    currentTime => onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
+                    (currentTime: number) =>
+                      onAudioItemCurrentTimeChanged(searchResult.id, currentTime)
                   "
                   showCollections
                   showProvider
@@ -214,9 +238,7 @@
                   showContentItemAccess
                   showSemanticEnrichments
                   enableAddToCollection
-                >
-                </AudioContentItem>
-
+                />
                 <ContentItemComponent
                   v-else
                   :contentItem="searchResult"
@@ -240,21 +262,16 @@
                   enableAddToCollection
                   contentItemTopicClasses="col-12 col-xxl-6"
                 />
-                <!-- <search-results-list-item
-                  v-else-if
-                  v-bind:checkbox="false"
-                  v-model="searchResults[index]"
-                /> -->
               </div>
-            </b-col>
-          </b-row>
-        </b-container>
+            </div>
+          </div>
+        </div>
         <div class="my-5" />
         <div class="fixed-pagination-footer p-1 m-0">
-          <pagination
+          <Pagination
             v-if="searchResults.length"
             :current-page="paginationCurrentPage"
-            @change="$event => (paginationCurrentPage = $event)"
+            @change="(page: number) => (paginationCurrentPage = page)"
             :per-page="paginationPerPage"
             :total-rows="paginationTotalRows"
             class="float-left small-caps"
@@ -265,28 +282,38 @@
   </i-layout>
 </template>
 
-<script lang="ts">
-import { mapStores } from 'pinia'
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import Autocomplete from '@/components/Autocomplete.vue'
+import RefineFiltersButton from '@/components/RefineFiltersButton.vue'
+import SearchExpertTools from '@/components/SearchExpertTools.vue'
+import type { SearchMode } from '@/components/SearchModeSwitch.vue'
 import Pagination from '@/components/modules/Pagination.vue'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import CollectionAddToList, {
-  ItemWithCollections
+  type ItemWithCollections
 } from '@/components/modules/CollectionAddToList.vue'
 import Ellipsis from '@/components/modules/Ellipsis.vue'
 import EmbeddingsSearch from '@/components/modules/EmbeddingsSearch.vue'
 import SearchSidebar from '@/components/modules/SearchSidebar.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import InfoModal from '@/components/InfoModal.vue'
+import LoadingBlock from '@/components/LoadingBlock.vue'
+import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
+import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import AudioContentItem from '@/components/audio/AudioContentItem.vue'
+import ContentItemComponent from '@/components/modules/lists/ContentItem.vue'
+import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
+
 import SearchQuery, { getFilterQuery } from '@/models/SearchQuery'
 import FacetModel from '@/models/Facet'
 import FilterFactory from '@/models/FilterFactory'
-import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import InfoModal from '@/components/InfoModal.vue'
-import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
-import { buildEmptyFacets } from '@/logic/facets'
-import { SearchDynamicFacetTypes, SearchDecimalFacetTypes } from '@/logic/facets'
+import { buildEmptyFacets, SearchDynamicFacetTypes, SearchDecimalFacetTypes } from '@/logic/facets'
+import { buildExportDescription } from '@/logic/exportDescription'
+import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { SupportedFiltersByContext, TextContentItemFacets } from '@/logic/filters'
 import { searchQueryGetter, searchQuerySetter } from '@/logic/queryParams'
 import {
@@ -296,583 +323,442 @@ import {
 } from '@/services'
 import { useCollectionsStore } from '@/stores/collections'
 import { useAudioStore } from '@/stores/audio'
+import { useFeaturesStore } from '@/stores/features'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 import { useUserStore } from '@/stores/user'
-import { Navigation } from '@/plugins/Navigation'
-import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
-
-import { ContentItem } from '@/models/generated/canonical/contentItem'
-import type { FacetType, Filter, Facet } from '@/models'
-import { ComponentPublicInstance, defineComponent, PropType, ref } from 'vue'
-import { Features } from '@/init'
-import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import { DatalabPublicApiUrl } from '@/constants'
 import { includes } from '@/util/fn'
-import AudioContentItem from '@/components/audio/AudioContentItem.vue'
-import ContentItemComponent from '@/components/modules/lists/ContentItem.vue'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
+import type { FacetType, Filter, Facet } from '@/models'
+import type { FindQuery } from '@/services/types/contentItems'
 
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
 const AllowedFilterTypes = SupportedFiltersByContext.search
-
 const FacetTypes = TextContentItemFacets
 /** Range facets (currently none for search). */
 const RangeFacetTypes = [] satisfies FacetType[]
-
 const DynamicFacetTypes = SearchDynamicFacetTypes
-
-// Facet that has to be fetched to render the timeline slider.
+/** Facet that has to be fetched to render the timeline slider. */
 const TimelineFacetTypes = ['year'] satisfies FacetType[]
-
 /** User-specific facets that require authentication. */
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
-export interface IData {
-  _activeSearchRequestId: number
-  _isUnmounted: boolean
-  selectedItems: ContentItem[]
-  inputName: string
-  inputDescription: string
-  searchResults: ContentItem[]
-  paginationTotalRows: number
-  timelineFacets: Facet[]
+const publicApiUrl = DatalabPublicApiUrl
 
-  /**
-   * Common facets are expected to be loaded first.
-   */
-  commonFacets: Facet[]
-  /**
-   * User specific facets may take time to load and are not expected to be available immediately.
-   */
-  userFacets: Facet[]
-  /**
-   * Range facets are expected to be loaded first and are treated differently in the UI.
-   */
-  rangeFacets: Facet[]
-  /**
-   * Dynamic facets are expected to be loaded first and are treated differently in the UI.
-   */
-  dynamicFacets: Facet[]
-  /**
-   * Decimal range facets are expected to be loaded first and are treated differently in the UI.
-   */
-  decimalRangeFacets: Facet[]
-  visibleModal?: string
-  isLoadingResults: boolean
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+const props = withDefaults(defineProps<{ filtersWithItems?: Filter[] }>(), {
+  filtersWithItems: () => []
+})
+
+// ---------------------------------------------------------------------------
+// Router, stores
+// ---------------------------------------------------------------------------
+const route = useRoute()
+const router = useRouter()
+const collectionsStore = useCollectionsStore()
+const audioStore = useAudioStore()
+const featuresStore = useFeaturesStore()
+const notificationsStore = useNotificationsStore()
+const searchQueriesStore = useSearchQueriesStore()
+const userStore = useUserStore()
+
+/** Replacement for `$navigation.updateQueryParametersWithHistory`. */
+const updateQueryParametersWithHistory = (params: Record<string, string | number | undefined>) => {
+  const query: Record<string, any> = { ...route.query }
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === undefined) delete query[key]
+    else query[key] = String(value)
+  })
+  router.push({ query })
 }
 
-export default defineComponent({
-  data(): IData {
-    return {
-      selectedItems: [],
-      inputName: '',
-      inputDescription: 'All of Impresso',
-      searchResults: [],
-      paginationTotalRows: 0,
-      commonFacets: [],
-      userFacets: [],
-      timelineFacets: [],
-      dynamicFacets: [],
-      rangeFacets: [],
-      _activeSearchRequestId: 0,
-      _isUnmounted: false,
-      visibleModal: null,
-      isLoadingResults: false,
-      decimalRangeFacets: []
-    } satisfies IData
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
+const selectedItems = ref<ContentItem[]>([])
+const inputName = ref('')
+const inputDescription = 'All of Impresso'
+const searchQueryDescription = ref<string | null>(null)
+const searchResults = ref<ContentItem[]>([])
+const paginationTotalRows = ref(0)
+const visibleModal = ref<string | undefined>(undefined)
+const isLoading = ref(false)
+
+const timelineFacets = ref<Facet[]>(buildEmptyFacets(TimelineFacetTypes))
+/** Common facets are expected to be loaded first. */
+const commonFacets = ref<Facet[]>(buildEmptyFacets(FacetTypes))
+/** User specific facets may take time to load. */
+const userFacets = ref<Facet[]>([])
+const rangeFacets = ref<Facet[]>(buildEmptyFacets(RangeFacetTypes))
+const dynamicFacets = ref<Facet[]>(buildEmptyFacets(DynamicFacetTypes))
+const decimalRangeFacets = ref<Facet[]>(buildEmptyFacets(SearchDecimalFacetTypes))
+
+const searchResultsFirstElementRef = ref<HTMLElement | null>(null)
+const autocompleteRef = ref<{
+  focus(): void
+} | null>(null)
+const refineFiltersButtonRef = ref<{
+  openExplorer(options?: { initialQ?: string; initialType?: FacetType }): void
+} | null>(null)
+const searchExpertToolsRef = ref<{
+  openSemanticSearch(text: string): void
+  openBarista(prompt: string): void
+} | null>(null)
+const autocompleteSearchMode = ref<SearchMode>('keyword')
+
+// Non-reactive request bookkeeping
+let activeSearchRequestId = 0
+let isUnmounted = false
+
+// ---------------------------------------------------------------------------
+// Search query (route <-> SearchQuery)
+// ---------------------------------------------------------------------------
+// The legacy getter/setter helpers rely on `this.$route` / `this.$navigation`.
+// They are bound to a minimal context here until they are rewritten as composables.
+const legacyContext = {
+  get $route() {
+    return route
   },
-  props: {
-    filtersWithItems: {
-      type: Array as PropType<Filter[]>,
-      default: () => []
-    }
-  },
-  setup() {
-    const inputNameRef = ref<ComponentPublicInstance | undefined>()
-    const searchResultsFirstElementRef = ref<ComponentPublicInstance | undefined>()
-    return { inputNameRef, searchResultsFirstElementRef }
-  },
-  computed: {
-    ...mapStores(
-      useCollectionsStore,
-      useAudioStore,
-      useNotificationsStore,
-      useSearchQueriesStore,
-      useUserStore
-    ),
-    $navigation() {
-      return new Navigation(this)
-    },
-    selectedCollectableItems(): ItemWithCollections[] {
-      return this.selectedItems.map(item => ({
-        itemId: item.id,
-        collectionIds: item.semanticEnrichments?.collections?.map(c => c.id)
-      }))
-    },
-    searchQuery: {
-      ...searchQueryGetter(),
-      ...searchQuerySetter({
-        additionalQueryParams: {
-          p: '1'
-        }
-      })
-    },
-    publicApiUrl() {
-      return DatalabPublicApiUrl
-    },
-    groupByOptions() {
-      return ['issues', 'pages', 'articles'].map(value => ({
-        value,
-        text: this.$t(`order_${value}`),
-        disabled: value !== 'articles'
-      }))
-    },
-    orderByOptions() {
-      return ['-ocrQuality', '-relevance', 'date', '-date'].map(value => {
-        const label = value.replace(/^-/, '')
-        const direction = value.indexOf('-') === 0 ? 'desc' : 'asc'
-        return {
-          value,
-          text: this.$t(`sort.${label}.${direction}`)
-        }
-      })
-    },
-    isFront: {
-      get() {
-        return this.filters.some(({ type }) => type === 'isFront')
-      },
-      set(val: boolean) {
-        this.handleFiltersChanged(
-          this.filters
-            .filter(d => d.type !== 'isFront')
-            .concat(val ? [FilterFactory.create({ type: 'isFront' })] : [])
-        )
-      }
-    },
-    isLoggedIn() {
-      return !!this.userStore.userData
-    },
-    shouldLoadCollections() {
-      return this.isLoggedIn && this.loadCollectionsFlag
-    },
-    orderBy: {
-      get() {
-        // If the user explicitly set an orderBy parameter, we use that.
-        if (this.$route.query.orderBy != null) {
-          return this.$route.query.orderBy as string
-        }
+  $router: router,
+  $navigation: { updateQueryParametersWithHistory }
+}
+const legacyGetter = searchQueryGetter()
+const legacySetter = searchQuerySetter({ additionalQueryParams: { p: '1' } })
 
-        // We want to use ocrQuality as default order to show higher quality content
-        // because without filters the relevance is always the same.
-        // But if there are filters, we assume the user wants relevance sorting.
-        return this.searchQuery.filters.length === 0 ? '-ocrQuality' : '-relevance'
-      },
-      set(orderBy: string) {
-        this.$navigation.updateQueryParametersWithHistory({
-          orderBy
-        })
-      }
-    },
-    groupBy: {
-      get() {
-        return (this.$route.query.groupBy as string) ?? 'articles'
-      },
-      set(groupBy: string) {
-        this.$navigation.updateQueryParametersWithHistory({
-          groupBy
-        })
-      }
-    },
-    displayStyle: {
-      get() {
-        return (this.$route.query.displayStyle as string) ?? 'list'
-      },
-      set(displayStyle: string) {
-        this.$navigation.updateQueryParametersWithHistory({
-          displayStyle
-        })
-      }
-    },
-    loadCollectionsFlag: {
-      get() {
-        return (this.$route.query.c as string) === '1'
-      },
-      set(loadCollections: boolean) {
-        this.$navigation.updateQueryParametersWithHistory({
-          c: loadCollections ? '1' : undefined
-        })
-      }
-    },
-    paginationCurrentPage: {
-      get() {
-        return parseInt((this.$route.query.p as string) ?? '1', 10)
-      },
-      set(p: number) {
-        this.$navigation.updateQueryParametersWithHistory({
-          p
-        })
-      }
-    },
-    paginationPerPage: {
-      get() {
-        const limit = parseInt((this.$route.query.limit as string) ?? '1')
-        return Math.min(25, Math.max(limit, 50))
-      },
-      set(limit: number) {
-        this.$navigation.updateQueryParametersWithHistory({
-          limit
-        })
-      }
-    },
-    allowedFiltersWithItems() {
-      return this.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
-    },
-    enrichedFilters() {
-      return this.allowedFiltersWithItems.length ? this.allowedFiltersWithItems : this.filters
-    },
-    ignoredFilters() {
-      return this.searchQuery.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
-    },
-    filters(): Filter[] {
-      // filter by type
-      return (
-        this.searchQuery.filters
-          .filter(({ type }) => AllowedFilterTypes.includes(type))
-          // add impliit filters
-          .concat([FilterFactory.create({ type: 'hasTextContents' })])
-      )
-    },
-    filtersIndex() {
-      return this.searchQuery.filtersIndex
-    },
-    searchServiceQuery() {
-      const query = {
-        filters: this.filters.map(getFilterQuery),
-        groupBy: this.groupBy,
-        orderBy: this.orderBy,
-        limit: this.paginationPerPage,
-        page: this.paginationCurrentPage,
-        loadCollections: this.loadCollectionsFlag
-      }
-      return query
-    },
-    paginationData() {
-      return {
-        perPage: this.paginationPerPage,
-        currentPage: this.paginationCurrentPage,
-        total: this.paginationTotalRows
-      }
-    },
-    searchQueryHash() {
-      return new SearchQuery({
-        filters: this.filters
-      }).getSerialized({ serializer: 'protobuf' }) as string
-    },
-    base64Filters() {
-      return this.searchQueryHash
-    },
-    isBaristaEnabled() {
-      return (window as any as { impressoFeatures: Features }).impressoFeatures?.barista?.enabled
-    },
-    facets() {
-      // return this.timelineFacets.concat(this.commonFacets, this.userFacets)
-      return [
-        ...this.timelineFacets,
-        ...this.commonFacets,
-        ...this.dynamicFacets,
-        ...this.decimalRangeFacets,
-        ...this.rangeFacets,
-        ...this.userFacets
-      ]
-    }
-  },
-  mounted() {
-    console.info('[Search]@mounted. \n - FacetTypes:', FacetTypes)
-    this.audioStore.pruneReadingProgress()
-    this.facets = buildEmptyFacets(FacetTypes)
-    this.timelineFacets = buildEmptyFacets(TimelineFacetTypes)
-    this.rangeFacets = buildEmptyFacets(RangeFacetTypes)
-    this.dynamicFacets = buildEmptyFacets(DynamicFacetTypes)
-    this.decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
-  },
-  beforeUnmount() {
-    this._isUnmounted = true
-    this.audioStore.setIsPlaying(false)
-    this.audioStore.setContentItemId(null)
-  },
-  methods: {
-    isAudioItemPlaying(contentItemId: string) {
-      return this.audioStore.contentItemId === contentItemId && this.audioStore.isPlaying
-    },
-    getAudioItemReadingTime(contentItemId: string) {
-      return this.audioStore.getReadingTimeByContentItemId(contentItemId)
-    },
-    onAudioItemCurrentTimeChanged(contentItemId: string, currentTime: number) {
-      this.audioStore.setReadingTime(contentItemId, currentTime)
-    },
-    onAudioItemPlayingChanged(contentItemId: string, isPlaying: boolean) {
-      if (isPlaying) {
-        this.audioStore.setContentItemId(contentItemId)
-        this.audioStore.setIsPlaying(true)
-        return
-      }
+const searchQuery = computed<SearchQuery>({
+  get: () => (legacyGetter as any).get.call(legacyContext),
+  set: (value: SearchQuery) => (legacySetter as any).set.call(legacyContext, value)
+})
 
-      if (this.audioStore.contentItemId === contentItemId) {
-        this.audioStore.setIsPlaying(false)
-      }
-    },
-    toggleLoadCollections() {
-      this.loadCollectionsFlag = !this.loadCollectionsFlag
-    },
-    isModalVisible(name) {
-      return this.visibleModal === name
-    },
-    showModal(name) {
-      this.visibleModal = name
-    },
-    hideModal(name = undefined) {
-      this.visibleModal = name
-    },
-    handleCreateCollectionModalSuccess() {
-      this.notificationsStore.addNotification({
-        title: this.$t('query_add_to_collection_success_title') as string,
-        message: this.$t('query_add_to_collection_success_message') as string,
-        type: 'info'
-      })
-      this.hideModal()
-    },
-    handleFiltersChanged(filters) {
-      // add back ignored filters so that we can reuse them in other views
-      this.searchQuery = new SearchQuery({
-        filters: filters.concat(this.ignoredFilters)
-      })
-    },
-    nameSelectedCollectionOnShown() {
-      return this.collectionsStore.loadCollections()
-    },
-    onSummary(msg: string) {
-      const searchQueryDescription = msg
-        .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
-        .replace('Found', this.$t('Based on search query with'))
-
-      this.searchQueriesStore.recordHash(this.searchQueryHash, searchQueryDescription)
-
-      this.inputDescription = this.$t('collectionDescription', {
-        inputDescription: searchQueryDescription
-      })
-    },
-    onSuggestion(filter) {
-      this.handleFiltersChanged(this.filters.concat([filter]))
-    },
-    itemSelected(item: ContentItem) {
-      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
-    },
-    addSelectedItem(item) {
-      if (!this.itemSelected(item)) {
-        this.selectedItems.push(item)
-      }
-    },
-    removeSelectedItem(item: ContentItem) {
-      if (this.itemSelected(item)) {
-        const idx = this.selectedItems.findIndex(c => c.id === item.id)
-        this.selectedItems.splice(idx, 1)
-      }
-    },
-    toggleSelected(item: ContentItem) {
-      if (!this.itemSelected(item)) {
-        this.selectedItems.push(item)
-      } else {
-        const idx = this.selectedItems.findIndex(c => c.id === item.id)
-        this.selectedItems.splice(idx, 1)
-      }
-    },
-    isChecked(item: ContentItem) {
-      return this.selectedItems.findIndex(c => c.id === item.id) !== -1
-    },
-
-    exportQueryCsv() {
-      exporterService.create(
-        {
-          description: this.inputDescription.slice(0, 1000)
-        },
-        {
-          query: {
-            group_by: 'articles',
-            filters: this.filters.map(getFilterQuery),
-            format: 'csv'
-          }
-        }
-      )
-    },
-    exportSelectedCsv() {
-      const ids = this.selectedItems.map(a => a.id)
-      exporterService.create(
-        {},
-        {
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'uid',
-                q: ids
-              }
-            ],
-            format: 'csv'
-          }
-        }
-      )
-    },
-    reset() {
-      this.searchQuery = new SearchQuery({
-        filters: this.ignoredFilters
-      })
-    }
-  },
-  watch: {
-    searchResults(searchResults: ContentItem[]) {
-      if (
-        this.audioStore.contentItemId != null &&
-        !searchResults.some(item => item.id === this.audioStore.contentItemId)
-      ) {
-        this.audioStore.setIsPlaying(false)
-        this.audioStore.setContentItemId(null)
-      }
-    },
-    searchServiceQuery: {
-      async handler({ page, limit, filters, orderBy }) {
-        const requestId = ++this._activeSearchRequestId
-        console.debug('[Search] @searchServiceQuery')
-        const startTime = new Date()
-        this.isLoadingResults = true
-        try {
-          const { data, total } = await contentItemsService
-            .find({
-              query: {
-                offset: (page - 1) * limit,
-                limit,
-                filters,
-                // facets: FacetTypesWithMultipleValues,
-                order_by: orderBy
-                // group_by: groupBy
-              }
-            })
-            .then(response => ({
-              data: response.data,
-              total: response.pagination.total
-            }))
-          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
-
-          this.paginationTotalRows = total
-          this.searchResults = data
-
-          const [timelineFacets, rangeFacets, commonFacets, userFacets] = await Promise.all([
-            searchFacetsService
-              .find({
-                query: {
-                  facets: TimelineFacetTypes,
-                  filters,
-                  limit: 300 // get all values
-                }
-              })
-              .then(response => response.data.map(f => new FacetModel(f as any))),
-            searchFacetsService
-              .find({
-                query: {
-                  facets: RangeFacetTypes,
-                  filters,
-                  limit: 50
-                }
-              })
-              .then(response => {
-                const data = response.data.map(f => {
-                  const buckets = (f.buckets as { value: number }[]).sort(
-                    (a, b) => a.value - b.value
-                  ) // sort buckets by key (numerical order)
-                  return new FacetModel({
-                    ...f,
-                    buckets
-                  } as any)
-                })
-                return data
-              }),
-            searchFacetsService
-              .find({
-                query: {
-                  facets: FacetTypes,
-                  filters
-                }
-              })
-              .then(response => response.data.map(f => new FacetModel(f as any))),
-            this.shouldLoadCollections
-              ? searchFacetsService
-                  .find({
-                    query: {
-                      facets: UserFacetTypes,
-                      filters
-                    }
-                  })
-                  .then(response => response.data.map(f => new FacetModel(f as any)))
-              : Promise.resolve([])
-          ])
-
-          if (this._isUnmounted || requestId !== this._activeSearchRequestId) return
-          // this.searchInfo = info
-          console.info(
-            '[Search] @searchServiceQuery: took',
-            new Date().getTime() - startTime.getTime(),
-            'ms. Total results:',
-            total
-          )
-
-          // @todo next tick
-          this.$nextTick(() => {
-            if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
-              this.searchResultsFirstElementRef?.$el?.scrollIntoView({ behavior: 'smooth' })
-            }
-          })
-
-          this.timelineFacets = timelineFacets
-          this.rangeFacets = rangeFacets
-          this.commonFacets = commonFacets
-          this.userFacets = this.shouldLoadCollections ? userFacets : []
-        } catch (error) {
-          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
-            console.error('[Search] @searchServiceQuery failed:', error)
-          }
-        } finally {
-          if (!this._isUnmounted && requestId === this._activeSearchRequestId) {
-            this.isLoadingResults = false
-          }
-        }
-      },
-      deep: true,
-      immediate: true
-    },
-    paginationData({ perPage, currentPage = 1, total }) {
-      if (total == null) return
-      if (perPage * currentPage > total) {
-        this.paginationCurrentPage = Math.ceil(total / perPage)
-      }
-    }
-  },
-  components: {
-    Autocomplete,
-    CreateCollectionModal,
-    Pagination,
-    SearchResultsListItem,
-    SearchResultsTilesItem,
-    SearchResultsSummary,
-    CollectionAddToList,
-    Ellipsis,
-    EmbeddingsSearch,
-    SearchSidebar,
-    InfoButton,
-    Modal,
-    CopyToDatalabButton,
-    PageNavbarHeading,
-    InfoModal,
-    AudioContentItem,
-    ContentItemComponent
+// ---------------------------------------------------------------------------
+// Computed
+// ---------------------------------------------------------------------------
+const isLoggedIn = computed(() => !!userStore.userData)
+watch(isLoggedIn, loggedIn => {
+  if (!loggedIn) {
+    autocompleteSearchMode.value = 'keyword'
   }
+})
+const loadCollectionsFlag = computed({
+  get: () => (route.query.c as string) === '1',
+  set: (value: boolean) => updateQueryParametersWithHistory({ c: value ? '1' : undefined })
+})
+const shouldLoadCollections = computed(() => isLoggedIn.value && loadCollectionsFlag.value)
+
+const selectedCollectableItems = computed<ItemWithCollections[]>(() =>
+  selectedItems.value.map(item => ({
+    itemId: item.id,
+    collectionIds: item.semanticEnrichments?.collections?.map(c => c.id)
+  }))
+)
+
+const orderByOptions = computed(() =>
+  ['-ocrQuality', '-relevance', 'date', '-date'].map(value => {
+    const label = value.replace(/^-/, '')
+    const direction = value.startsWith('-') ? 'desc' : 'asc'
+    return { value, labelKey: `sort.${label}.${direction}` }
+  })
+)
+
+const orderBy = computed<FindQuery['order_by']>({
+  get: () => {
+    // Explicit user choice wins.
+    if (route.query.orderBy != null) return route.query.orderBy as FindQuery['order_by']
+    // Without filters relevance is constant, so show higher OCR quality first.
+    return searchQuery.value.filters.length === 0 ? '-ocrQuality' : '-relevance'
+  },
+  set: (value: FindQuery['order_by']) => updateQueryParametersWithHistory({ orderBy: value })
+})
+
+const groupBy = computed(() => (route.query.groupBy as string) ?? 'articles')
+
+const paginationCurrentPage = computed({
+  get: () => parseInt((route.query.p as string) ?? '1', 10),
+  set: (p: number) => updateQueryParametersWithHistory({ p })
+})
+
+// NOTE: behaviour preserved from the original (always resolves to 25).
+const paginationPerPage = computed(() => {
+  const limit = parseInt((route.query.limit as string) ?? '1')
+  return Math.min(25, Math.max(limit, 50))
+})
+
+const allowedFiltersWithItems = computed(() =>
+  props.filtersWithItems.filter(({ type }) => includes(AllowedFilterTypes, type))
+)
+
+const filters = computed<Filter[]>(() =>
+  searchQuery.value.filters
+    .filter(({ type }) => AllowedFilterTypes.includes(type))
+    // implicit filter
+    .concat([FilterFactory.create({ type: 'hasTextContents' })])
+)
+
+const enrichedFilters = computed(() =>
+  allowedFiltersWithItems.value.length ? allowedFiltersWithItems.value : filters.value
+)
+
+const ignoredFilters = computed(() =>
+  searchQuery.value.filters.filter(({ type }) => !AllowedFilterTypes.includes(type))
+)
+
+const isFront = computed({
+  get: () => filters.value.some(({ type }) => type === 'isFront'),
+  set: (value: boolean) =>
+    handleFiltersChanged(
+      filters.value
+        .filter(d => d.type !== 'isFront')
+        .concat(value ? [FilterFactory.create({ type: 'isFront' })] : [])
+    )
+})
+
+const searchServiceQuery = computed<FindQuery>(() => ({
+  filters: filters.value.map(getFilterQuery),
+  limit: paginationPerPage.value,
+  offset: (paginationCurrentPage.value - 1) * paginationPerPage.value,
+  order_by: orderBy.value
+}))
+
+const paginationData = computed(() => ({
+  perPage: paginationPerPage.value,
+  currentPage: paginationCurrentPage.value,
+  total: paginationTotalRows.value
+}))
+
+const searchQueryHash = computed(
+  () =>
+    new SearchQuery({ filters: filters.value }).getSerialized({ serializer: 'protobuf' }) as string
+)
+const base64Filters = computed(() => searchQueryHash.value)
+
+const facets = computed(() => [
+  ...timelineFacets.value,
+  ...commonFacets.value,
+  ...dynamicFacets.value,
+  ...decimalRangeFacets.value,
+  ...rangeFacets.value,
+  ...userFacets.value
+])
+
+// ---------------------------------------------------------------------------
+// Modals
+// ---------------------------------------------------------------------------
+const isModalVisible = (name: string) => visibleModal.value === name
+const showModal = (name: string) => {
+  visibleModal.value = name
+}
+const hideModal = (name: string | undefined = undefined) => {
+  visibleModal.value = name
+}
+
+const handleCreateCollectionModalSuccess = (title: string, message: string) => {
+  notificationsStore.addNotification({ title, message, type: 'info' })
+  hideModal()
+}
+
+// ---------------------------------------------------------------------------
+// Filters
+// ---------------------------------------------------------------------------
+function handleFiltersChanged(newFilters: Filter[]) {
+  // add back ignored filters so that they can be reused in other views
+  searchQuery.value = new SearchQuery({
+    filters: newFilters.concat(ignoredFilters.value)
+  })
+}
+
+function onSuggestion(filter: Filter) {
+  handleFiltersChanged(filters.value.concat([filter]))
+}
+
+function handleSemanticSearch({ text, embedding }: { text: string; embedding: string }) {
+  if (text && embedding) {
+    onSuggestion(FilterFactory.create({ type: 'embedding', q: [embedding] }))
+  }
+}
+
+function onSummary(msg: string, basedOnLabel: string) {
+  const description = msg
+    .replace(/<(?:.|\n)*?>/gm, '') // strip html tags
+    .replace('Found', basedOnLabel)
+  searchQueriesStore.recordHash(searchQueryHash.value, description)
+  searchQueryDescription.value = description
+}
+
+// ---------------------------------------------------------------------------
+// Audio
+// ---------------------------------------------------------------------------
+const isAudioItemPlaying = (id: string) => audioStore.contentItemId === id && audioStore.isPlaying
+const getAudioItemReadingTime = (id: string) => audioStore.getReadingTimeByContentItemId(id)
+const onAudioItemCurrentTimeChanged = (id: string, currentTime: number) =>
+  audioStore.setReadingTime(id, currentTime)
+const onAudioItemPlayingChanged = (id: string, isPlaying: boolean) => {
+  if (isPlaying) {
+    audioStore.setContentItemId(id)
+    audioStore.setIsPlaying(true)
+    return
+  }
+  if (audioStore.contentItemId === id) audioStore.setIsPlaying(false)
+}
+
+// ---------------------------------------------------------------------------
+// Export
+// ---------------------------------------------------------------------------
+function notifyExportPreparing() {
+  notificationsStore.addNotification({
+    type: 'success',
+    title: 'Export is being prepared',
+    message: 'You can track its progress in Tasks.'
+  })
+}
+
+function requestCsvExport(description: string, queryFilters: unknown[]) {
+  const payload = { description: description.slice(0, 1000) }
+  const params = {
+    query: { group_by: 'articles', filters: queryFilters, format: 'csv' }
+  }
+  // The service hook is the authority that blocks the real create; this
+  // only skips a second toast if we already claimed the same export.
+  if (isDuplicateExport(buildExportSignature(payload, params))) return
+  exporterService.create(payload, params)
+  notifyExportPreparing()
+}
+
+function exportQueryCsv() {
+  requestCsvExport(
+    buildExportDescription({
+      filters: filters.value,
+      totalRows: paginationTotalRows.value,
+      groupBy: 'articles'
+    }),
+    filters.value.map(getFilterQuery)
+  )
+}
+
+function exportSelectedCsv() {
+  const ids = selectedItems.value.map(a => a.id)
+  requestCsvExport(buildExportDescription({ selectedCount: ids.length, groupBy: 'articles' }), [
+    { type: 'uid', q: ids }
+  ])
+}
+
+// ---------------------------------------------------------------------------
+// Data fetching
+// ---------------------------------------------------------------------------
+const toFacetModels = (data: unknown[]) => data.map(f => new FacetModel(f as any))
+
+async function fetchSearchResults({
+  offset = 0,
+  limit,
+  filters: queryFilters = [],
+  order_by
+}: FindQuery) {
+  const requestId = ++activeSearchRequestId
+  const isStale = () => isUnmounted || requestId !== activeSearchRequestId
+  const startTime = Date.now()
+  isLoading.value = true
+
+  try {
+    const response = await contentItemsService.find({
+      query: {
+        offset,
+        limit,
+        filters: queryFilters,
+        order_by
+      }
+    })
+    if (isStale()) return
+
+    const total = response.pagination.total
+    paginationTotalRows.value = total
+    searchResults.value = response.data
+
+    const [timeline, range, common, user] = await Promise.all([
+      searchFacetsService
+        .find({ query: { facets: TimelineFacetTypes, filters: queryFilters, limit: 300 } })
+        .then(r => toFacetModels(r.data)),
+      searchFacetsService
+        .find({ query: { facets: RangeFacetTypes, filters: queryFilters, limit: 50 } })
+        .then(r =>
+          r.data.map(f => {
+            // sort buckets by key (numerical order)
+            const buckets = (f.buckets as { value: number }[]).sort((a, b) => a.value - b.value)
+            return new FacetModel({ ...f, buckets } as any)
+          })
+        ),
+      searchFacetsService
+        .find({ query: { facets: FacetTypes, filters: queryFilters } })
+        .then(r => toFacetModels(r.data)),
+      shouldLoadCollections.value
+        ? searchFacetsService
+            .find({ query: { facets: UserFacetTypes, filters: queryFilters } })
+            .then(r => toFacetModels(r.data))
+        : Promise.resolve([] as Facet[])
+    ])
+    if (isStale()) return
+
+    console.info('[Search] took', Date.now() - startTime, 'ms. Total results:', total)
+
+    nextTick(() => {
+      if (!isStale()) {
+        searchResultsFirstElementRef.value?.scrollIntoView({ behavior: 'smooth' })
+      }
+    })
+
+    timelineFacets.value = timeline
+    rangeFacets.value = range
+    commonFacets.value = common
+    userFacets.value = shouldLoadCollections.value ? user : []
+  } catch (error) {
+    if (!isStale()) console.error('[Search] fetchSearchResults failed:', error)
+  } finally {
+    if (!isStale()) isLoading.value = false
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Watchers & lifecycle
+// ---------------------------------------------------------------------------
+watch(
+  [searchServiceQuery, shouldLoadCollections],
+  () => fetchSearchResults(searchServiceQuery.value),
+  { deep: true, immediate: true }
+)
+
+watch(searchResults, results => {
+  if (
+    audioStore.contentItemId != null &&
+    !results.some(item => item.id === audioStore.contentItemId)
+  ) {
+    audioStore.setIsPlaying(false)
+    audioStore.setContentItemId(null)
+  }
+})
+
+watch(paginationData, ({ perPage, currentPage = 1, total }) => {
+  if (total == null) return
+  if (perPage * currentPage > total) {
+    paginationCurrentPage.value = Math.ceil(total / perPage)
+  }
+})
+
+audioStore.pruneReadingProgress()
+
+onMounted(() => {
+  // Focus the search field as soon as the page is ready.
+  nextTick(() => {
+    autocompleteRef.value?.focus()
+  })
+})
+
+onBeforeUnmount(() => {
+  isUnmounted = true
+  audioStore.setIsPlaying(false)
+  audioStore.setContentItemId(null)
 })
 </script>
 

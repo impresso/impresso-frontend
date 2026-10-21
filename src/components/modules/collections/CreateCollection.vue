@@ -121,7 +121,7 @@ export default {
   methods: {
     submitHandler(e) {
       e.preventDefault()
-      // eslint-disable-next-line no-console
+       
       console.debug('[CreateCollection] @submitHandler', this.inputName)
       this.formValidated = true
       // check thqt the name is not empty

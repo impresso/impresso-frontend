@@ -42,17 +42,19 @@ const emit = defineEmits<Emits>()
 const selectionMonitorStore = useSelectionMonitorStore()
 
 function selectItem(): void {
+  // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db
+  const itemToSelect = { ...props.item, id: props.id }
+  if (['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(props.type)) {
+    itemToSelect.id = props.item.bitmapPosition
+  }
   const params = {
-    item: {
-      ...props.item,
-      id: props.id
-    },
+    item: itemToSelect,
     type: props.type
   }
 
   if (!props.defaultClickActionDisabled) {
     selectionMonitorStore.show({
-      item: props.item,
+      item: itemToSelect,
       searchIndex: props.searchIndex,
       type: props.type,
       applyCurrentSearchFilters: true,

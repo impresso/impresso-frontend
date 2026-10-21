@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
 import type { ContentItemIdLabelProps } from '@/components/ContentItemIdLabel.vue'
 
@@ -14,8 +14,7 @@ const meta: Meta<typeof ContentItemIdLabel> = {
       components: { ContentItemIdLabel },
       template: `
         <div class="bg-light d-flex align-items-center p-4" style="height: 200px;width: 100%;">
-          <ContentItemIdLabel v-bind="args">
-          </ContentItemIdLabel>
+          <ContentItemIdLabel v-bind="args" />
         </div>
       `
     }
@@ -27,24 +26,12 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    item: {
-      id: 'GDU-1900-01-01-a-i0234',
-      type: 'ar',
-      dataProvider: 'Impresso',
-      publicationDate: '2024-01-01',
-      title: 'Sample Article',
-      nbPages: 10,
-      pages: [],
-      transcriptLength: 0,
-      access: {
-        dataDomain: 'prt',
-        copyright: 'in_cpy',
-        accessBitmaps: {
-          explore: 'AAAAAAAAAAI=',
-          getTranscript: 'AAAAgAAAAAA=',
-          getImages: 'AAAAgAAAAAA='
-        }
-      }
-    }
+    id: 'GDU-1900-01-01-a-i0234'
+  } as ContentItemIdLabelProps
+}
+
+export const Collection: Story = {
+  args: {
+    id: 'local-abc123xyz'
   } as ContentItemIdLabelProps
 }

@@ -5,12 +5,12 @@ import { feathers } from '@feathersjs/feathers'
 import { useBaristaStore } from '@/stores/barista'
 import { useJobsStore } from '@/stores/jobs'
 import { useNotificationsStore } from '@/stores/notifications'
+import { buildExportSignature, claimExport } from '@/logic/exportGuard'
 import articlesSuggestionsHooks from './hooks/articlesSuggestions'
 import imagesHooks from './hooks/images'
 import uploadedImagesHooks from './hooks/uploadedImages'
-import NamesService from './names'
 import { configureRestTransport, configureSocketIoTransport } from './transport'
-import type { Services } from './types'
+import type { EmailVerificationService, EmailVerificationResendService, Services } from './types'
 import { DataProvidersService } from './local/dataProviders'
 
 export const app = feathers<Services>()
@@ -89,7 +89,6 @@ app.hooks({
         } else if (route === 'authentication.create') {
           console.warn('Ignore NotAuthenticated error on "authentication.create" route.')
         } else if (!silentErrorCodes.includes(context.error.code)) {
-          // eslint-disable-next-line no-console
           console.warn('app.hooks.error.all', context.error, context.error.stack, route)
           notificationsStore.displayError({
             error: context.error,
@@ -115,14 +114,19 @@ app.service('logs').on('created', payload => {
     })
   }
   if (payload.job) {
-    const extra: { collection?: any } = {}
-    if (payload.collection) {
-      extra.collection = payload.collection
+    const extra: Record<string, any> = {
+      ...(payload.job.extra ?? {})
     }
+    if (payload.collection) extra.collection = payload.collection
+    if (payload.progress != null) extra.progress = payload.progress
+    if (payload.taskname != null) extra.taskname = payload.taskname
+    if (payload.taskstate != null) extra.taskstate = payload.taskstate
+    if (payload.message != null) extra.message = payload.message
+
     const jobsStore = useJobsStore()
     jobsStore.updateJob({
       ...payload.job,
-      progress: payload.progress,
+      progress: payload.progress ?? payload.job.progress,
       extra
     })
   }
@@ -151,7 +155,23 @@ export const collectionsItems = app.service('/collections/:collection_id/items')
 export const topics = app.service('topics')
 export const topicsGraph = app.service('topics-graph')
 export const jobs = app.service('jobs')
-export const exporter = app.service('search-exporter')
+export const exporter = app.service('search-exporter').hooks({
+  before: {
+    create: [
+      context => {
+        const signature = buildExportSignature(context.data, context.params)
+        if (!claimExport(signature)) {
+          // Skip the real backend call. Setting result in a before hook
+          // short-circuits the service method (Feathers).
+          context.result = { skipped: true, reason: 'duplicate-export' }
+        } else {
+          console.info('[search-exporter.create]', signature.slice(0, 160))
+        }
+        return context
+      }
+    ]
+  }
+})
 export const articlesSuggestions = app
   .service('articles-suggestions')
   .hooks(articlesSuggestionsHooks)
@@ -202,13 +222,18 @@ export const userSpecialMembershipRequestsReviews = app.service(
 )
 export const magicLink = app.service('magic-link')
 
-export const specialMembershipAccess = app.service('special-membership-access')
+export const emailVerification = app.service('user-email-verification')
+export const emailVerificationResend = app.service('user-email-verification-resend')
+
+export const specialMembershipAccess = app.service('special-membership-plans')
 export const feedback = app.service('feedback-collector')
 export const datalabSupport = app.service('datalab-support')
 export const barista = app.service('barista-proxy')
 export const baristaConversations = app.service('barista-conversations')
 export const mediaSources = app.service('media-sources')
 export const dataProviders = new DataProvidersService()
+
+export const embedderTextTool = app.service('/tools/embedder/text')
 
 export const MIDDLELAYER_API = import.meta.env.VITE_MIDDLELAYER_API
 export const MIDDLELAYER_MEDIA_PATH = import.meta.env.VITE_MIDDLELAYER_MEDIA_PATH
@@ -217,4 +242,3 @@ export const MEDIA_COOKIE_NAME = 'impresso_jwt'
 
 export const getAuthenticationToken = (): string | undefined =>
   app.authentication.options.storage['feathers-jwt']
-export const namesService = new NamesService()

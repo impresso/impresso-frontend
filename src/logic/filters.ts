@@ -149,7 +149,10 @@ export const TextContentItemFacets = [
   'location',
   'nag',
   'organisation',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage'
 ] as const satisfies FilterType[]
 
 export const NumericContentItemsFacets = [
@@ -182,7 +185,7 @@ const TextSearchFilters = [
 
 export const TextReuseContentItemFacets = [
   'language',
-  'newspaper', // should be mediaSource eventually
+  'mediaSource', // should be mediaSource eventually
   // 'type',
   'country',
   // 'partner',
@@ -207,7 +210,7 @@ export const TextReuseFacets = [
   ...TextReuseNumericFacets
 ] as const satisfies FilterType[]
 
-const TextReuseFilters = [...TextReuseFacets, 'textReuseCluster', 'daterange']
+const TextReuseFilters = [...TextReuseFacets, 'string', 'textReuseCluster', 'daterange']
 
 const TextReuseClusterFilters = [
   'textReuseCluster',
@@ -221,9 +224,13 @@ const ImagesFacets = [
   'mediaSource',
   'year',
   'imageVisualContent',
-  'imageTechnique',
-  'imageCommunicationGoal',
+  // @todo To be added when the API supports it:
+  // 'imageTechnique',
+  // 'imageCommunicationGoal',
   'imageContentType'
+  // @todo To be added when the API supports it:
+  // 'permissionExplore',
+  // 'permissionGetImage'
 ] as const satisfies FilterType[]
 
 const ImagesFilters = [
@@ -250,11 +257,14 @@ export const SupportedFiltersByContext = Object.freeze({
   textReusePassages: TextReuseFilters,
   textReuseClusters: TextReuseClusterFilters,
   entities: EntitiesFilters,
-  images: ImagesFilters
+  images: ImagesFilters,
+  ngrams: TextSearchFilters.filter(f => f !== 'string') // ngrams does not support string filters
 })
 
 export const SupportedFiltersByIndex = Object.freeze({
   search: SupportedFiltersByContext.search,
+  images: SupportedFiltersByContext.images,
   tr_passages: SupportedFiltersByContext.textReusePassages,
+  ngrams: SupportedFiltersByContext.ngrams,
   tr_clusters: SupportedFiltersByContext.textReuseClusters
 })

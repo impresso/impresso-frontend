@@ -87,6 +87,12 @@ export interface BaseFindResponse {
      */
     offset: number;
   };
+  meta?: {
+    provenance?: {
+      token: string;
+      kid: string;
+    };
+  };
 }
 
 
@@ -182,7 +188,18 @@ export type PassageID = string;
 export interface FindTextReuseClustersResponse {
   clusters: TextReuseClusterCompound[];
   info: {
-    [k: string]: unknown;
+    /**
+     * The number of items returned in this response
+     */
+    limit: number;
+    /**
+     * Starting index of the items subset returned in this response
+     */
+    offset: number;
+    /**
+     * The total number of items matching the query
+     */
+    total: number;
   };
 }
 /**
@@ -407,6 +424,29 @@ export interface ImpressoNamedEntityRecognitionEntity {
    */
   name?: string;
 }
+
+
+/**
+ * Signed delivery receipts identify receiving accounts and ordered item IDs only. They do not attest item content or identify a publisher.
+ */
+export type ProvenanceVerificationResponse =
+  | {
+      valid: true;
+      claims:
+        | {
+            kind?: "api";
+            [k: string]: unknown;
+          }
+        | {
+            kind?: "export";
+            [k: string]: unknown;
+          };
+      idsMatch?: boolean;
+    }
+  | {
+      valid: false;
+      reason: string;
+    };
 
 
 /**

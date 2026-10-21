@@ -1,0 +1,243 @@
+<template>
+  <div class="ImageContentItem" v-bind="attrs">
+    <div v-if="shouldShowPreview" class="mb-2 cursor-pointer" @click="handlePreviewClick">
+      <AuthImg
+        :src="image.previewUrl"
+        class="ImageContentItem__preview d-block rounded-sm border"
+        :style="{
+          aspectRatio: previewAspectRatio,
+          width: '100%',
+          maxHeight: '300px',
+          objectFit: 'cover'
+        }"
+      />
+    </div>
+    <div
+      v-else-if="showPreview && accessType === 'none'"
+      class="mb-2 cursor-pointer"
+      @click="handlePreviewClick"
+    >
+      <div
+        class="ImageContentItem__preview d-flex flex-column align-items-center justify-content-center rounded-sm border text-muted"
+        :style="{
+          aspectRatio: previewAspectRatio,
+          width: '100%',
+          maxHeight: '100px',
+          objectFit: 'cover'
+        }"
+        :title="$t('errors.images.notAuthorized')"
+      >
+        <Icon name="mediaImage" />
+      </div>
+    </div>
+    <div class="d-flex align-items-start gap-2">
+      <Icon v-if="showIcon" name="mediaImage" />
+      <h2
+        v-if="showTitle || contentItem?.text?.title"
+        class="m-0 font-size-inherit font-weight-bold line-height-inherit"
+      >
+        <RouterLink v-if="showLink" :to="routerLinkUrl">{{ displayCaption }}</RouterLink>
+        <span v-else>{{ displayCaption }}</span>
+        <span v-if="contentItem?.text?.title" class="font-weight-normal">
+          &mdash; {{ contentItem.text.title }}
+        </span>
+      </h2>
+    </div>
+
+    <div
+      v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages || showId"
+      class="d-flex align-items-center gap-2 flex-wrap"
+    >
+      <MediaSourceLabel
+        v-if="shouldShowMediaSource"
+        :item="{
+          id: image.mediaSourceRef?.id,
+          name: image.mediaSourceRef?.name,
+          type: image.mediaSourceRef?.type
+        }"
+        show-link
+        search-index="images"
+        class="d-inline-block"
+      >
+        {{ ' ' }}
+        {{ shouldShowDate || shouldShowPages ? '&mdash;' : '' }}
+        <RouterLink v-if="shouldShowDate || shouldShowPages" :to="routerLinkPageUrl">
+          <span v-if="shouldShowDate">
+            {{ $d(new Date(image.date as Date), 'long') }}
+            {{ '  ' }}
+          </span>
+          <span v-if="shouldShowPages">
+            {{ shouldShowDate ? '&mdash;' : '' }}
+            <span v-html="pagesLabel"></span>
+          </span>
+        </RouterLink>
+      </MediaSourceLabel>
+      {{ '  ' }}
+
+      <ContentItemIdLabel v-if="showId" :id="image.id" />
+    </div>
+
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+      <template v-if="shouldShowImageTypes">
+        <div
+          v-for="(imageType, index) in image.imageTypes"
+          :key="index"
+          class="small-caps"
+          style="margin-top: 2px"
+        >
+          {{ imageType }}
+        </div>
+      </template>
+      {{ '  ' }}
+      <!-- copyright and provider -->
+      <template v-if="image.access.copyright">
+        <span>
+          &mdash;
+          <span>{{ $t(`buckets.copyright.${image.access.copyright}`) }}</span>
+        </span>
+      </template>
+      <ContentItemAccess v-if="props.showContentItemAccess" :item="accessItem"> </ContentItemAccess>
+    </div>
+    <slot></slot>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, useAttrs } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { IImage } from '@/models'
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
+import Icon from '@/components/base/Icon.vue'
+import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
+import ContentItemAccess from '../ContentItemAccess.vue'
+import { Routes } from '@/router/routes'
+import { RouteLocationRaw, useRouter } from 'vue-router'
+import AuthImg from '@/components/AuthImg.vue'
+import {
+  useContentItemAccess,
+  type ContentItemAccessSource
+} from '@/composables/useContentItemAccess'
+import { truncateToWords } from '@/util/fn'
+
+defineOptions({ inheritAttrs: false })
+
+export interface ImageContentItemProps {
+  image: IImage
+  contentItem?: ContentItem | null
+  showIcon?: boolean
+  showTitle?: boolean
+  showMediaSource?: boolean
+  showDate?: boolean
+  showPages?: boolean
+  showContentItemAccess?: boolean
+  showImageTypes?: boolean
+  showId?: boolean
+  showLink?: boolean
+  showPreview?: boolean
+  maxWordsInCaption?: number
+}
+
+const props = withDefaults(defineProps<ImageContentItemProps>(), {
+  showIcon: true,
+  showTitle: true,
+  showMediaSource: true,
+  showDate: true,
+  showPages: true,
+  showId: false,
+  showContentItemAccess: false,
+  showImageTypes: false,
+  showLink: false,
+  showPreview: false
+})
+
+const attrs = useAttrs()
+const { t } = useI18n()
+
+const accessItem = computed<ContentItemAccessSource>(() => props.image)
+const { accessType } = useContentItemAccess(accessItem)
+const routerLinkUrl = computed(
+  () =>
+    ({
+      name: Routes.viewImage.children.facsimile.name,
+      params: { image_id: props.image.id }
+    }) as RouteLocationRaw
+)
+
+const generatedIssueIdFromImageId = computed(() => {
+  const issueId = props.image.id.split('-').slice(0, -1).join('-') // assuming the image ID is in the format "issueId-pageNumber"
+  return issueId
+})
+
+const router = useRouter()
+const handlePreviewClick = () => {
+  router.push({
+    name: Routes.viewImage.children.facsimile.name,
+    params: { image_id: props.image.id }
+  })
+}
+
+const routerLinkPageUrl = computed(() => {
+  const query = { p: props.image.pageNumbers?.[0] ?? 1 }
+  // if there is an attached contentItem, use its ID to generate the contentItemId= query param
+  if (props.contentItem?.id) {
+    query['contentItemId'] = props.contentItem.id.split('-').pop()
+  }
+  return {
+    name: Routes.issue.name,
+    params: {
+      issue_id: generatedIssueIdFromImageId.value
+    },
+    query
+  } as RouteLocationRaw
+})
+
+/**
+ * The caption to display, falling back to the image id when no caption is set.
+ * When `maxWordsInCaption` is a positive number, the caption is truncated to that
+ * many words and an ellipsis is appended if any words were dropped.
+ */
+const displayCaption = computed(() =>
+  truncateToWords(props.image.caption || props.image.id, props.maxWordsInCaption)
+)
+
+const shouldShowMediaSource = computed(
+  () => props.showMediaSource && !!props.image.mediaSourceRef?.id
+)
+
+const shouldShowDate = computed(() => props.showDate && !!props.image.date)
+
+const shouldShowPages = computed(() => props.showPages && !!props.image.pageNumbers?.length)
+
+const shouldShowImageTypes = computed(
+  () => props.showImageTypes && !!Object.keys(props.image.imageTypes || {}).length
+)
+
+const shouldShowPreview = computed(
+  () => props.showPreview && !!props.image.previewUrl && accessType.value !== 'none'
+)
+
+// Fallback for when the previewUrl's IIIF region isn't pixel coords (e.g. "full" or "pct:...").
+const DEFAULT_PREVIEW_ASPECT_RATIO = 3 / 4
+
+/**
+ * previewUrl is a IIIF Image API url (`.../{region}/{size}/{rotation}/{quality}.{format}`).
+ * When the region is expressed in pixel coords (`x,y,w,h`), derive the crop's aspect ratio
+ * so the thumbnail reserves the right amount of space before it loads.
+ */
+const previewAspectRatio = computed(() => {
+  const url = props.image.previewUrl
+  if (!url) return DEFAULT_PREVIEW_ASPECT_RATIO
+  const region = url.match(/\/([^/]+)\/[^/]+\/[^/]+\/[^/]+$/)?.[1]
+  const pixelMatch = region?.match(/^(\d+),(\d+),(\d+),(\d+)$/)
+  if (!pixelMatch) return DEFAULT_PREVIEW_ASPECT_RATIO
+  const [, , , w, h] = pixelMatch
+  const width = Number(w)
+  const height = Number(h)
+  return width > 0 && height > 0 ? width / height : DEFAULT_PREVIEW_ASPECT_RATIO
+})
+
+const pagesLabel = computed(() =>
+  t('pp', { pages: props.image.pageNumbers?.join(',') ?? '' }, props.image.pageNumbers?.length ?? 0)
+)
+</script>

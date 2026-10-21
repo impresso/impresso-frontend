@@ -1,5 +1,18 @@
-const StatusDone = 'DON'
-const StatusRunning = 'RUN'
+export const JobStatuses = {
+  Done: 'DON',
+  Running: 'RUN',
+  Stopped: 'STO',
+  Removed: 'RIP',
+  Error: 'ERR'
+} as const
+
+export type JobStatus = (typeof JobStatuses)[keyof typeof JobStatuses] | string
+
+const StatusDone = JobStatuses.Done
+const StatusRunning = JobStatuses.Running
+const StatusStopped = JobStatuses.Stopped
+const StatusRemoved = JobStatuses.Removed
+const StatusError = JobStatuses.Error
 const TypeExport = 'EXP'
 const typeExportCollection = 'EXC'
 
@@ -89,18 +102,49 @@ export default class Job {
     }
   }
 
+  isExportType() {
+    return this.type === TypeExport || this.type === typeExportCollection
+  }
+
   isExportable() {
-    return (
-      this.status === StatusDone && (this.type === TypeExport || this.type === typeExportCollection)
-    )
+    return this.status === StatusDone && this.isExportType()
   }
 
   isActive() {
-    return [StatusDone, StatusRunning].includes(this.status)
+    return this.status === StatusDone || this.status === StatusRunning
   }
 
   isRunning() {
     return this.status === StatusRunning
+  }
+
+  isStoppable() {
+    return this.status === StatusRunning
+  }
+
+  isStopped() {
+    return this.status === StatusStopped
+  }
+
+  isRemoved() {
+    return this.status === StatusRemoved
+  }
+
+  isFailed() {
+    return this.status === StatusError
+  }
+
+  isDone() {
+    return this.status === StatusDone
+  }
+
+  isTerminal() {
+    return (
+      this.status === StatusDone ||
+      this.status === StatusStopped ||
+      this.status === StatusRemoved ||
+      this.status === StatusError
+    )
   }
 
   getSearchQueryHash() {

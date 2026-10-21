@@ -9,6 +9,7 @@ import FilterItem from '@/models/FilterItem'
 import FilterDaterange from '@/models/FilterDaterange'
 import FilterCollection from '@/models/FilterCollection'
 import { Filter } from '@/models'
+import { isEqual } from 'lodash'
 
 type FilterData = Omit<Partial<Filter>, 'type' | 'q'> & {
   type: string
@@ -61,7 +62,8 @@ const buildFilter = (filterData: any | Filter): Filter => {
       'year',
       'copyright',
       'partner',
-      'textReuseClusterId'
+      'textReuseClusterId',
+      'embedding'
     ].includes(filterData.type)
   ) {
     filter = new FilterItem(filterData)
@@ -86,14 +88,20 @@ const buildFilter = (filterData: any | Filter): Filter => {
   return filter as Filter
 }
 
-const filtersAreEqual = (a: Filter, b: Filter): boolean => {
-  const { key: _a, items: _itemA, ...restA } = a as FilterData
-  const { key: _b, items: _itemB, ...restB } = b as FilterData
-  return (
-    JSON.stringify(restA, Object.keys(restA).sort()) ===
-    JSON.stringify(restB, Object.keys(restB).sort())
-  )
+/**
+ * Flattens the `q` property of a filter to a single string.
+ * @param q
+ * @returns
+ */
+const flattenFilterQ = (q: Filter['q']): string => (Array.isArray(q) ? q.join(' ') : (q ?? ''))
+
+const normalizeFilter = (filter: Filter) => {
+  const { key, items, q, ...rest } = filter as FilterData
+  return { ...rest, q: flattenFilterQ(q as Filter['q']) }
 }
+
+const filtersAreEqual = (a: Filter, b: Filter): boolean =>
+  isEqual(normalizeFilter(a), normalizeFilter(b))
 
 const filterFactory = {
   /**

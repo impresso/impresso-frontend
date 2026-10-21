@@ -28,6 +28,11 @@ export interface EditCollectionDetails extends AddCollectionDetails {
   id: string
 }
 
+export interface UpdateCollectionAccessLevelDetails {
+  id: string
+  accessLevel: 'public' | 'private'
+}
+
 export interface AddCollectionItemDetails {
   item: { id: string }
   collection: { id: string }
@@ -79,6 +84,7 @@ export const useCollectionsStore = defineStore('collections', {
             query: {
               page: this.collectionsPaginationCurrentPage,
               limit: paginationPerPage,
+              includePublic: true,
               order_by: this.collectionsOrderBy,
               q: this.collectionsQ
             }
@@ -131,6 +137,11 @@ export const useCollectionsStore = defineStore('collections', {
       return collectionsService.patch(id, {
         title: name,
         description
+      })
+    },
+    updateCollectionAccessLevel({ id, accessLevel }: UpdateCollectionAccessLevelDetails) {
+      return collectionsService.patch(id, {
+        accessLevel
       })
     },
     addCollection({ name, description }: AddCollectionDetails) {

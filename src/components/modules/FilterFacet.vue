@@ -412,6 +412,8 @@ export default defineComponent({
     createFilter(): void {
       const newFilter: FilterWithItems<Entity> = {
         type: this.facet.type as Filter['type'],
+        op: this.facet.operators?.[0] || 'OR',
+        context: 'include',
         q: this.selectedBucketsIds,
         items: this.selectedBucketsItems
       }

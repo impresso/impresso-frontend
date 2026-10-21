@@ -332,7 +332,7 @@ export default {
     BaseTitleBar
   },
   mounted() {
-    // @ts-ignore
+    // @ts-expect-error impressoDocumentsDateSpan is an application-specific window property.
     let { firstDate } = window.impressoDocumentsDateSpan
     const lastDate = new Date()
     firstDate = new Date(firstDate)
@@ -447,7 +447,7 @@ export default {
       /** @returns {string[]} */
       get() {
         try {
-          // @ts-ignore
+          // @ts-expect-error Route query values can be string arrays but atob requires a string.
           const items = /** @type {string} */ (
             window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds])
           )
@@ -459,7 +459,7 @@ export default {
       /** @param {string[]} items */
       set(items) {
         this.$navigation.updateQueryParameters({
-          // @ts-ignore
+          // @ts-expect-error Query parameter key is dynamically computed from the route enum.
           [QueryParameters.SelectedEntitiesIds]:
             items.length > 0 ? window.btoa(items.join(',')) : undefined
         })

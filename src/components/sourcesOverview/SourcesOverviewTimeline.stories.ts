@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SourcesOverviewTimeline, { TooltipPosition } from './SourcesOverviewTimeline.vue'
 import { DataValue } from './SourcesOverviewDateValueItem.vue'
 import SourceOverviewNavigator from './SourceOverviewNavigator.vue'

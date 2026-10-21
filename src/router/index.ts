@@ -23,7 +23,7 @@ import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
 import { Routes } from '@/router/routes'
 
-// eslint-disable-next-line
+ 
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
 
 const router = createRouter({
@@ -97,12 +97,29 @@ const router = createRouter({
       }
     },
     {
-      path: '/search/images/:image_id',
-      name: 'viewImage',
+      path: Routes.viewImage.path,
+      name: Routes.viewImage.name,
       component: () => import('@/pages/ViewImage.vue'),
       meta: {
         requiresAuth: false
-      }
+      },
+      children: [
+        {
+          name: Routes.viewImage.children.facsimile.name,
+          path: Routes.viewImage.children.facsimile.path,
+          component: () => import('@/components/images/ImageContentItemFacsimile.vue')
+        },
+        {
+          name: Routes.viewImage.children.citeAs.name,
+          path: Routes.viewImage.children.citeAs.path,
+          component: () => import('@/components/images/ImageContentItemCiteAs.vue')
+        },
+        {
+          name: Routes.viewImage.children.similarItems.name,
+          path: Routes.viewImage.children.similarItems.path,
+          component: () => import('@/components/images/ImageContentItemSimilarItems.vue')
+        }
+      ]
     },
     {
       path: '/helpers/filters',
@@ -191,6 +208,30 @@ const router = createRouter({
       component: () => import('@/pages/PasswordResetSent.vue'),
       meta: {
         realm: 'user',
+        requiresAuth: false
+      }
+    },
+    {
+      path: Routes.emailVerification.path,
+      name: Routes.emailVerification.name,
+      component: () => import('@/pages/EmailVerification.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: Routes.emailVerificationSuccess.path,
+      name: Routes.emailVerificationSuccess.name,
+      component: () => import('@/pages/EmailVerificationSuccess.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
+      path: Routes.plans.path,
+      name: Routes.plans.name,
+      component: () => import('@/pages/Plans.vue'),
+      meta: {
         requiresAuth: false
       }
     },

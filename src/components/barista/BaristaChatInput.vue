@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import BFormSelect, { type Option } from '@/components/legacy/bootstrap/BFormSelect.vue'
 import BFormCheckbox from '@/components/legacy/bootstrap/BFormCheckbox.vue'
 import Icon from '@/components/base/Icon.vue'
@@ -127,13 +127,16 @@ export interface BaristaChatInputProps {
   isLoading?: boolean
   filters?: Filter[]
   showDeveloperSettings?: boolean
+  /** Prompt to pre-fill the input with, e.g. from the search bar prompt mode */
+  initialPrompt?: string
 }
 
 const baristaStore = useBaristaStore()
 const props = withDefaults(defineProps<BaristaChatInputProps>(), {
   isLoading: false,
   filters: () => [],
-  showDeveloperSettings: false
+  showDeveloperSettings: false,
+  initialPrompt: ''
 })
 const emit = defineEmits<{
   (e: 'submit', request: BaristaRequest): void
@@ -152,6 +155,15 @@ const showRemainingConversations = ref(false)
 let hideTimer: ReturnType<typeof setTimeout> | undefined
 
 const canSubmit = computed(() => inputMessage.value.trim().length > 0 && !props.isLoading)
+
+watch(
+  () => props.initialPrompt,
+  prompt => {
+    inputMessage.value = prompt
+    if (prompt) nextTick(() => humanPrompt.value?.focus())
+  },
+  { immediate: true }
+)
 
 watch(
   () => baristaStore.remainingConversations,

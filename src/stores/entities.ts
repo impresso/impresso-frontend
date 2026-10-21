@@ -12,10 +12,8 @@ import { FindQuery as FindContentItemsQuery } from '@/services/types/contentItem
 import { FindQuery as FindMentionsQuery } from '@/services/types/mentions'
 import { Filter } from '@/models'
 
-export interface State {}
-
 export const useEntitiesStore = defineStore('entities', {
-  state: (): State => ({}),
+  state: () => ({}),
   getters: {},
   actions: {
     loadEntityContentItems({ offset, filters, order_by }: FindContentItemsQuery = {}) {

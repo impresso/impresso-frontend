@@ -287,7 +287,7 @@ export const findMediaSourcesHandler = http.get('/api/media-sources', async ({ r
 })
 
 export const findSpecialMembershipAccessHandler = http.get(
-  '/api/special-membership-access',
+  '/api/special-membership-plans',
   async ({ request }) => {
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '10')
@@ -306,7 +306,7 @@ export const findSpecialMembershipAccessHandler = http.get(
 )
 
 export const findSpecialMembershipAccessHandlerWithoutRequests = http.get(
-  '/api/special-membership-access',
+  '/api/special-membership-plans',
   async ({ request }) => {
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '10')

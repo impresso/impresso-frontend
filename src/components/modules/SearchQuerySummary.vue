@@ -48,6 +48,7 @@ const AvailableFilterTypes = [
   'language',
   'country',
   'copyright',
+  'mention',
   'nag',
   'organisation',
   'page',
@@ -55,7 +56,12 @@ const AvailableFilterTypes = [
   'textReuseClusterSize',
   'textReuseClusterLexicalOverlap',
   'textReuseClusterDayDelta',
-  'topic'
+  'topic',
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage',
+  'imageContentType',
+  'imageVisualContent'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)

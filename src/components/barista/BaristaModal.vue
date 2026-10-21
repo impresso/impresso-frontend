@@ -60,7 +60,11 @@
     </template>
     <div class="BaristaModal__layout">
       <section class="BaristaModal__chat">
-        <BaristaChat :filters="suggestedFilters" @suggestFilters="handleFiltersChanged" />
+        <BaristaChat
+          :filters="suggestedFilters"
+          :initial-prompt="initialPrompt"
+          @suggestFilters="handleFiltersChanged"
+        />
       </section>
       <aside class="BaristaModal__side">
         <button
@@ -131,6 +135,7 @@ export type BaristaModalProps = {
   filters?: Filter[]
   /** Filters suggested by Barista, kept in sync with the compact view */
   suggestedFilters?: Filter[]
+  initialPrompt?: string
 }
 
 const AvailableTabs = ['filters', 'history'] as const

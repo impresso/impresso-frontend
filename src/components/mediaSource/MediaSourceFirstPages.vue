@@ -56,7 +56,7 @@ import { pages as pagesService } from '@/services'
 import ListOfFindResponseItems from '../ListOfFindResponseItems.vue'
 import IIIFFragment from '../IIIFFragment.vue'
 import { computed, ref } from 'vue'
-import { MediaSource } from '@/models/generated/canonical.js'
+import { MediaSource } from '../../models/generated/canonical.js'
 import LoadingBlock from '../LoadingBlock.vue'
 import { useScrollToTop } from '@/composables/useScrollToTop'
 

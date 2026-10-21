@@ -17,7 +17,17 @@
             >
           </span>
 
-          <h3>{{ collection.name }}</h3>
+          <h3>
+            {{ collection.name }}
+            <span
+              v-if="collection.id"
+              class="badge badge-pill ml-1 text-capitalize align-middle border"
+              :class="isPublic ? 'badge-success' : 'badge-light text-muted'"
+            >
+              {{ $t(isPublic ? 'collectionVisibility.public' : 'collectionVisibility.private') }}
+            </span>
+          </h3>
+          <ContentItemIdLabel v-if="collection.id" :id="collection.id" class="mt-1" />
           <blockquote class="m-2 pl-2 border-left border-dark">
             {{ collection.description }}
           </blockquote>
@@ -28,6 +38,14 @@
         </section>
 
         <section class="ml-auto py-3 text-right">
+          <CopyToDatalabButton
+            v-if="collection.id"
+            class="m-1 d-inline-block text-left"
+            :base64Filters="base64Filters"
+            resource="search"
+            functionName="find"
+            :public-api-url="publicApiUrl"
+          />
           <router-link
             :to="
               updateCurrentRoute({
@@ -41,7 +59,19 @@
               {{ $t('compare_collection') }}
             </button>
           </router-link>
+          <b-button
+            v-if="isCollectionOwner"
+            class="m-1"
+            size="sm"
+            :variant="isPublic ? 'outline-success' : 'outline-secondary'"
+            @click="changeAccessLevel(isPublic ? 'private' : 'public')"
+          >
+            {{
+              $t(isPublic ? 'collectionVisibility.makePrivate' : 'collectionVisibility.makePublic')
+            }}
+          </b-button>
           <b-dropdown
+            v-if="isCollectionOwner"
             class="m-1"
             size="sm"
             variant="outline-primary"
@@ -184,7 +214,7 @@
             v-for="(contentItem, index) in contentItems"
             v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-list-item :modelValue="contentItem" />
+            <search-results-list-item v-model="contentItems[index]" />
           </b-col>
         </b-row>
 
@@ -197,7 +227,7 @@
             v-for="(contentItem, index) in contentItems"
             v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-tiles-item :modelValue="contentItem" />
+            <search-results-tiles-item v-model="contentItems[index]" />
             <!-- 
               v-if="contentItem.text?.itemType === 'ar'"
 
@@ -265,7 +295,7 @@
             lg="6"
             xl="4"
             class="mb-3"
-            v-for="(facet, idx) in facets"
+            v-for="facet in facets"
             v-bind:key="facet.type"
           >
             <stacked-bars-panel
@@ -325,6 +355,9 @@ import { mapFilters } from '@/logic/queryParams'
 import { containsFilter } from '@/logic/filters'
 import CollectionRecommendationsPanel from '@/components/modules/collections/CollectionRecommendationsPanel.vue'
 import InfoButton from '@/components/base/InfoButton.vue'
+import ContentItemIdLabel from '@/components/ContentItemIdLabel.vue'
+import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
+import { DatalabPublicApiUrl } from '@/constants'
 import { getQueryParameter } from '../router/util'
 import {
   exporter as exporterService,
@@ -336,6 +369,9 @@ import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
+import { useNotificationsStore } from '@/stores/notifications'
+import { useUserStore } from '@/stores/user'
+import { buildExportSignature, isDuplicateExport } from '@/logic/exportGuard'
 import { Navigation } from '@/plugins/Navigation'
 import { defineComponent } from 'vue'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
@@ -372,6 +408,7 @@ export interface IData {
 }
 
 export default defineComponent({
+  inject: ['updateCollectionsListItem'],
   data: () =>
     ({
       tab: undefined,
@@ -408,11 +445,13 @@ export default defineComponent({
     StackedBarsPanel,
     CollectionRecommendationsPanel,
     InfoButton,
+    ContentItemIdLabel,
+    CopyToDatalabButton,
     RadioGroup,
     Modal
   },
   computed: {
-    ...mapStores(useCollectionsStore, useSettingsStore),
+    ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
     },
@@ -421,6 +460,28 @@ export default defineComponent({
         { value: 'list', text: this.$t('display_button_list') },
         { value: 'tiles', text: this.$t('display_button_tiles') }
       ]
+    },
+    publicApiUrl() {
+      return DatalabPublicApiUrl
+    },
+    isPublic() {
+      return this.collection?.status === 'public'
+    },
+    isCollectionOwner() {
+      const user = this.userStore.user
+      if (!user || !this.collection?.id) return false
+      // explicit creator info, when the API provides it
+      if (this.collection.creator?.username) {
+        return this.collection.creator.username === user.username
+      }
+      // fallback: collection ids are prefixed with the creator's uid ("<uid>-<random>")
+      return !!user.uid && this.collection.id.startsWith(`${user.uid}-`)
+    },
+    base64Filters() {
+      if (!this.collection?.id) return ''
+      return new SearchQuery({
+        filters: [{ type: 'collection', q: this.collection.id }]
+      }).getSerialized({ serializer: 'protobuf' }) as string
     },
     collectionId() {
       return this.$route.params.collection_id as string
@@ -527,7 +588,9 @@ export default defineComponent({
               id: collection.id,
               lastModifiedDate: collection.updatedAt,
               creationDate: collection.createdAt,
-              countItems: collection.totalItems
+              countItems: collection.totalItems,
+              status: collection.accessLevel,
+              creator: collection.creator
             })
           })
           this.fetching = false
@@ -548,23 +611,30 @@ export default defineComponent({
       this.isConfirmDeleteModalVisible = false
     },
     handleExportCollection() {
-      exporterService.create(
-        {
-          description: this.collectionId
-        },
-        {
-          query: {
-            group_by: 'articles',
-            filters: [
-              {
-                type: 'collection',
-                q: [this.collectionId]
-              }
-            ],
-            format: 'csv'
-          }
+      const collectionName =
+        (this.collection && (this.collection.name as string)) || this.collectionId
+      const description = `Export of collection "${collectionName}" (${this.collectionId})`
+      const payload = { description: description.slice(0, 1000) }
+      const params = {
+        query: {
+          group_by: 'articles',
+          filters: [
+            {
+              type: 'collection',
+              q: [this.collectionId]
+            }
+          ],
+          format: 'csv'
         }
-      )
+      }
+      if (isDuplicateExport(buildExportSignature(payload, params))) return
+
+      exporterService.create(payload, params)
+      this.notificationsStore.addNotification({
+        type: 'success',
+        title: 'Export is being prepared',
+        message: 'You can track its progress in Tasks.'
+      })
     },
     handleRecommendersSettingsUpdated(settings) {
       this.recommendersSettings = settings
@@ -621,6 +691,47 @@ export default defineComponent({
           article_id: article.id
         }
       })
+    },
+    changeAccessLevel(accessLevel: 'public' | 'private') {
+      if (!this.collection.id || this.collection.status === accessLevel) return
+      this.collectionsStore
+        .updateCollectionAccessLevel({
+          id: this.collection.id,
+          accessLevel
+        })
+        .then(() => {
+          this.collection.status = accessLevel
+          // keep the collections list (sidebar) in sync
+          const idx = this.collections.findIndex(c => c.id === this.collection.id)
+          if (idx >= 0 && this.collections[idx]) {
+            this.collections[idx].status = accessLevel
+          }
+          // update the sidebar item rendered by ListOfFindResponseItems in place,
+          // so its visibility badge doesn't go stale
+          if (typeof this.updateCollectionsListItem === 'function') {
+            this.updateCollectionsListItem(String(this.collection.id), { accessLevel })
+          }
+          this.notificationsStore.addNotification({
+            type: 'success',
+            title: this.$t('collectionVisibility.label'),
+            message: this.$t(
+              accessLevel === 'public'
+                ? 'collectionVisibility.notifications.updatedPublic'
+                : 'collectionVisibility.notifications.updatedPrivate',
+              { title: this.collection.name }
+            )
+          })
+        })
+        .catch(err => {
+          console.error('[CollectionDetailPage] changeAccessLevel', err)
+          this.notificationsStore.addNotification({
+            type: 'error',
+            title: this.$t('collectionVisibility.label'),
+            message: this.$t('collectionVisibility.notifications.updateError', {
+              title: this.collection.name
+            })
+          })
+        })
     },
     remove(collection) {
       this.collectionsStore

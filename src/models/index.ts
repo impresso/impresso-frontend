@@ -4,6 +4,7 @@ import {
   SearchFacet as SearchFacetBase,
   ContentItemMeta
 } from './generated/deprecated/models.js'
+import type { ContentItemAccessBitmaps } from './generated/canonical/contentItem'
 import { FacetWithLabel } from './generated/canonical.js'
 import {
   Filter as BaseFilter,
@@ -76,8 +77,10 @@ export interface Filter<T extends FilterType = FilterType> extends Omit<BaseFilt
 
 export type Entity = FacetWithLabel
 
-export interface SearchQuery<F extends Filter = Filter>
-  extends Omit<ImpressoSearchQuery, 'filters'> {
+export interface SearchQuery<F extends Filter = Filter> extends Omit<
+  ImpressoSearchQuery,
+  'filters'
+> {
   filters: F[]
 }
 
@@ -181,6 +184,13 @@ export interface IImage {
   pageNumbers: number[]
   mediaSourceRef?: MediaSource
   date?: Date
+  imageTypes?: {
+    [key: string]: string
+  }
+  access: {
+    copyright?: string
+    accessBitmaps?: ContentItemAccessBitmaps
+  }
 }
 
 export type User = {

@@ -145,6 +145,7 @@ const fetch = async (
     query: {
       limit: 10,
       offset: 0,
+      includePublic: true,
       orderBy: 'createdAt'
     }
   } as {
@@ -153,6 +154,7 @@ const fetch = async (
       offset?: number
       orderBy?: string
       term?: string
+      includePublic?: boolean
     }
   }
 ) => {
@@ -301,6 +303,7 @@ watch(
       query: {
         limit: 10,
         offset: 0,
+        includePublic: true,
         orderBy: 'createdAt',
         term: inputString.value
       }

@@ -7,13 +7,16 @@
     v-bind="$attrs"
     :title="$t('actions.openBaristaModal')"
   >
-    <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    <slot>
+      <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    </slot>
   </button>
   <Teleport to="body">
     <BaristaModal
       :isVisible="isChatOpen && mode === 'full'"
       :filters="props.filters"
       v-model:suggestedFilters="suggestedFilters"
+      :initial-prompt="initialPrompt"
       @dismiss="closeChat"
       @compact="mode = 'compact'"
       @applyFilters="applyAndClose"
@@ -22,6 +25,7 @@
       v-if="isChatOpen && mode === 'compact'"
       :filters="props.filters"
       v-model:suggestedFilters="suggestedFilters"
+      :initial-prompt="initialPrompt"
       @dismiss="closeChat"
       @expand="mode = 'full'"
       @applyFilters="apply"
@@ -61,8 +65,24 @@ const mode = ref<BaristaMode>(props.initialMode)
 /** shared by the full and the compact view, so switching between them keeps the suggestion */
 const suggestedFilters = ref<Filter[] | undefined>(undefined)
 
-const toggleChat = () => (isChatOpen.value = !isChatOpen.value)
-const closeChat = () => (isChatOpen.value = false)
+/** cleared on close, so sending the same prompt again still fills the input */
+const initialPrompt = ref('')
+
+const toggleChat = () => {
+  if (!isChatOpen.value) initialPrompt.value = ''
+  isChatOpen.value = !isChatOpen.value
+}
+const closeChat = () => {
+  isChatOpen.value = false
+  initialPrompt.value = ''
+}
+
+/** opened from the search bar: start in the compact window so the results stay visible */
+const openChat = (prompt = '') => {
+  initialPrompt.value = prompt
+  mode.value = 'compact'
+  isChatOpen.value = true
+}
 
 /** the compact window floats over the results, so it stays open to keep refining the search */
 const apply = (filters: Filter[]) => emit('filtersChanged', filters)
@@ -70,6 +90,8 @@ const applyAndClose = (filters: Filter[]) => {
   apply(filters)
   closeChat()
 }
+
+defineExpose({ openChat })
 </script>
 <i18n lang="json">
 {

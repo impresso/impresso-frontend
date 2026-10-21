@@ -68,6 +68,11 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
   path?: string
 }
 
+export interface GenericListPagination {
+  total: number
+  offset: number
+  limit: number
+}
 /**
  * Emits 'items-rendered' after the DOM has been updated with the new items,
  * rather than the moment the fetch resolves. This makes it safe for consumers
@@ -75,12 +80,17 @@ interface FindServiceWithPath<T> extends Pick<FeathersService<T>, 'find'> {
  */
 const emit = defineEmits<{
   'page-changed': [newPage: number]
-  'items-rendered': [items: any[]]
+  'items-rendered': [items: any[], pagination: GenericListPagination]
 }>()
 
 export interface ListOfFindResponseItemsExposed {
   refresh: () => Promise<void>
   refreshFromFirstPage: () => Promise<void>
+  /**
+   * Update a single item of the current page in place, without refetching.
+   * Handy to reflect changes made elsewhere (e.g. via PATCH) instantly.
+   */
+  updateItem?: (itemId: string | number, patch: Record<string, any>) => void
 }
 
 export interface ListOfFindResponseItemsProps<T> {
@@ -93,6 +103,11 @@ export interface ListOfFindResponseItemsProps<T> {
   listIsEmptyMessage?: string
   service: FindServiceWithPath<T>
   itemsClass?: string
+  dataAccessor?: (data: T[]) => any[]
+  paginationAccessor?: (
+    data: T[],
+    pagination: any
+  ) => { total: number; offset: number; limit: number }
 }
 
 const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
@@ -101,7 +116,10 @@ const props = withDefaults(defineProps<ListOfFindResponseItemsProps<any>>(), {
   errorLoadingItemsMessage: 'errorLoadingItems',
   listIsEmptyMessage: 'listIsEmpty',
   params: () => ({ query: { limit: 5, offset: 0 } }),
-  itemsClass: 'p2'
+  itemsClass: 'p2',
+  dataAccessor: (data: any[]) => data,
+  paginationAccessor: (_data: any[], pagination: any) =>
+    pagination ?? { total: 0, offset: 0, limit: 5 }
 })
 
 const error = ref<FeathersError | null>(null)
@@ -164,22 +182,32 @@ const fetchFindMethod = async () => {
   const service = toRaw(props.service)
 
   try {
-    const { data, pagination } = await service.find({
-      ...props.params,
-      query: {
-        ...props.params?.query,
-        offset: serviceResponse.value.pagination.offset,
-        limit: serviceResponse.value.pagination.limit
-      }
-    })
+    const { data, pagination } = await service
+      .find({
+        ...props.params,
+        query: {
+          ...props.params?.query,
+          offset: serviceResponse.value.pagination.offset,
+          limit: serviceResponse.value.pagination.limit
+        }
+      })
+      .then((response: any) => {
+        const data = props.dataAccessor(response.data)
+        const pagination = props.paginationAccessor(data, response.pagination)
+        return { data, pagination }
+      })
 
     console.info('[ListOfFindResponseItems] @success', props.service.path)
-    serviceResponse.value = { data, status: 'success', pagination }
+    serviceResponse.value = {
+      data,
+      status: 'success',
+      pagination: pagination ?? serviceResponse.value.pagination
+    }
 
     // Wait for Vue to flush DOM updates before notifying the parent.
     // This ensures consumers can safely query the DOM in the handler.
     await nextTick()
-    emit('items-rendered', data)
+    emit('items-rendered', data, serviceResponse.value.pagination)
   } catch (err) {
     const feathersError = err as FeathersError
     console.error(
@@ -209,7 +237,18 @@ const refreshFromFirstPage = async () => {
   await fetchFindMethod()
 }
 
-defineExpose<ListOfFindResponseItemsExposed>({ refresh, refreshFromFirstPage })
+const updateItem = (itemId: string | number, patch: Record<string, any>) => {
+  const index = serviceResponse.value.data.findIndex(item => String(item?.id) === String(itemId))
+  if (index !== -1) {
+    serviceResponse.value.data[index] = { ...serviceResponse.value.data[index], ...patch }
+  }
+}
+
+defineExpose<ListOfFindResponseItemsExposed>({
+  refresh,
+  refreshFromFirstPage,
+  updateItem
+})
 
 watch(
   () => props.fetchItemsWhenVisible,

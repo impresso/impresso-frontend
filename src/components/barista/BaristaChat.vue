@@ -2,6 +2,7 @@
   <div class="barista-chat">
     <BaristaChatPanel
       :filters="simplifiedFilters"
+      :initial-prompt="initialPrompt"
       :messages="messages"
       :isLoading="baristaStore.isWorking"
       @submit="handleMessageSubmit"
@@ -44,8 +45,9 @@ import { includes } from '@/util/fn.js'
 /** Formatting tool call that always comes last; not relevant to show to users */
 const HiddenToolCallName = 'BaristaFormattedResponse'
 
-const props = withDefaults(defineProps<{ filters?: Filter[] }>(), {
-  filters: () => []
+const props = withDefaults(defineProps<{ filters?: Filter[]; initialPrompt?: string }>(), {
+  filters: () => [],
+  initialPrompt: ''
 })
 
 const emit = defineEmits<{

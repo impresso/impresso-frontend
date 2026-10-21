@@ -41,6 +41,7 @@
       ref="chatInputRef"
       :isLoading="isLoading"
       :filters="filters"
+      :initial-prompt="initialPrompt"
       @submit="emit('submit', $event)"
     />
   </div>
@@ -58,6 +59,7 @@ export interface BaristaChatPanelProps {
   messages: ChatMessage[]
   isLoading?: boolean
   filters?: Filter[]
+  initialPrompt?: string
 }
 
 /** one starter per Barista task: build filters, explain Impresso, sum up the current search */
