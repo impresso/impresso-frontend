@@ -928,6 +928,7 @@ const IconAliases: Record<string, string> = {
   nag: 'newsagency',
   newsagency: 'newsagency',
   organisation: 'organisation',
+  radiostation: 'antennaSignalTag',
   sourceType: 'label',
   sourceMedium: 'sourceMedium',
   collection: 'boxIso',

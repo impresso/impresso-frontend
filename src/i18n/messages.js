@@ -511,9 +511,30 @@ export default {
         empty: '(no results)',
         item: 'News agency'
       },
+      newsagency: {
+        title: 'News Agency | News Agency | News Agencies',
+        filterTitle: 'news agency',
+        moreLikeThis: 'More news agencies',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> news agencies applies',
+        description: 'check one or more news agencies to filter results',
+        empty: '(no results)',
+        item: 'News agency'
+      },
+      radiostation: {
+        title: 'Radio Station | Radio Station | Radio Stations',
+        filterTitle: 'radio station',
+        moreLikeThis: 'More radio stations',
+        filtered: 'results are filtered when:',
+        selected: 'filter results if <b>one of {count} selected</b> radio stations applies',
+        description: 'check one or more radio stations to filter results',
+        empty: '(no results)',
+        item: 'Radio station'
+      },
       organisation: {
         title: 'Organisation | Organisation | Organisations',
         filterTitle: 'organisation',
+        moreLikeThis: 'More organisations',
         filtered: 'results are filtered when:',
         selected: 'filter results if <b>one of {count} selected</b> organisations applies',
         description: 'check one or more organisations to filter results',
