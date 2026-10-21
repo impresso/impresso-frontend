@@ -9,12 +9,26 @@
       :item="bucket.item"
       :type="type"
       :searchIndex="searchIndex"
+      class="text-decoration-none"
     >
-      <item-label v-if="bucket.item" :item="bucket.item" :type="type" :label="bucket.label" />
-      <span v-if="bucket.count > -1">
+      <span class="small-caps mr-1" v-if="bucket.item?.language">
+        {{ bucket.item.language }}
+      </span>
+      <item-label
+        v-if="bucket.item"
+        class="text-decoration-underline"
+        :item="bucket.item"
+        :type="type"
+        :label="bucket.label"
+      />
+      <span v-if="bucket.count > -1" class="ml-1 text-muted">
         (<span
           v-html="
-            $t(type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results', { n: $n(bucket.count) }, bucket.count)
+            $t(
+              type === 'collection' ? 'numbers.articlesMatchingSearchFilters' : 'numbers.results',
+              { n: $n(bucket.count) },
+              bucket.count
+            )
           "
         />)
         <!-- {{ type }}-->
@@ -45,7 +59,9 @@ export default {
   }),
   props: {
     bucket: {
-      type: Object as PropType<IBucket & { checked?: boolean; operator?: string; item?: Bucket['item'] }>,
+      type: Object as PropType<
+        IBucket & { checked?: boolean; operator?: string; item?: Bucket['item'] }
+      >,
       required: true
     },
     type: {

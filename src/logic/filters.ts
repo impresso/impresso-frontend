@@ -225,12 +225,12 @@ const ImagesFacets = [
   'year',
   'imageVisualContent',
   // @todo To be added when the API supports it:
-  // 'imageTechnique',
-  // 'imageCommunicationGoal',
-  'imageContentType'
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType',
   // @todo To be added when the API supports it:
-  // 'permissionExplore',
-  // 'permissionGetImage'
+  'permissionExplore',
+  'permissionGetImage'
 ] as const satisfies FilterType[]
 
 const ImagesFilters = [

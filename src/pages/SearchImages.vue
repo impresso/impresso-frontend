@@ -1,6 +1,6 @@
 <template>
   <i-layout class="search-images">
-    <search-sidebar
+    <SearchSidebar
       width="380px"
       :filters="availableFiltersWithItems"
       :ignored-filter-types="ignoredFilterTypes"
@@ -62,7 +62,7 @@
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
-    </search-sidebar>
+    </SearchSidebar>
 
     <i-layout-section main>
       <template v-slot:header>
@@ -104,16 +104,6 @@
       <div class="p-1 my-2">
         <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
           <div class="col mb-2" v-for="searchResult in searchResults" :key="searchResult.id">
-            <!-- <search-results-image-item
-              class="mx-1"
-              :item="searchResult"
-              :enable-checkbox="false"
-              :enable-similar-to="enableSimilarTo"
-              :isChecked="isChecked(searchResult)"
-              :userPlan="userPlan"
-              @toggleSelected="toggleSelected"
-              @click:search="onClickSearch"
-            /> -->
             <ImageContentItem
               :image="searchResult"
               showImageTypes
