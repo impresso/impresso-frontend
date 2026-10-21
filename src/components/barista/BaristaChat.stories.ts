@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import BaristaChat from './BaristaChat.vue'
-import { fn } from 'storybook/test'
 import { useBaristaStore } from '@/stores/barista'
 import { type BaristaMessageItem } from '@/services/types/barista'
 import { type Filter } from '@/models'

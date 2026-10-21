@@ -11,62 +11,65 @@
   </button>
   <Teleport to="body">
     <BaristaModal
-      :isVisible="isChatOpen"
-      :filters="baristaSearchFilters"
+      :isVisible="isChatOpen && mode === 'full'"
+      :filters="props.filters"
+      v-model:suggestedFilters="suggestedFilters"
       @dismiss="closeChat"
-      @applyFilters="handleApplyFilters"
+      @compact="mode = 'compact'"
+      @applyFilters="applyAndClose"
+    />
+    <BaristaMiniPanel
+      v-if="isChatOpen && mode === 'compact'"
+      :filters="props.filters"
+      v-model:suggestedFilters="suggestedFilters"
+      @dismiss="closeChat"
+      @expand="mode = 'full'"
+      @applyFilters="apply"
     />
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import BaristaModal from './BaristaModal.vue'
-import Icon from '../base/Icon.vue'
+import BaristaMiniPanel from './BaristaMiniPanel.vue'
+import Icon from '@/components/base/Icon.vue'
 import type { Filter } from '@/models'
 
 defineOptions({
   inheritAttrs: false
 })
 
-const isChatOpen = ref(false)
+export type BaristaMode = 'full' | 'compact'
+
+export interface BaristaButtonProps {
+  filters?: Filter[]
+  initialMode?: BaristaMode
+}
+
+const props = withDefaults(defineProps<BaristaButtonProps>(), {
+  filters: () => [],
+  initialMode: 'full'
+})
+
 const emit = defineEmits<{
   (e: 'filtersChanged', filters: Filter[]): void
 }>()
 
-const handleApplyFilters = (filters: Filter[]) => {
-  emit('filtersChanged', filters)
+const isChatOpen = ref(false)
+const mode = ref<BaristaMode>(props.initialMode)
+/** shared by the full and the compact view, so switching between them keeps the suggestion */
+const suggestedFilters = ref<Filter[] | undefined>(undefined)
+
+const toggleChat = () => (isChatOpen.value = !isChatOpen.value)
+const closeChat = () => (isChatOpen.value = false)
+
+/** the compact window floats over the results, so it stays open to keep refining the search */
+const apply = (filters: Filter[]) => emit('filtersChanged', filters)
+const applyAndClose = (filters: Filter[]) => {
+  apply(filters)
   closeChat()
 }
-/**
- * Props
- */
-export interface BaristaButtonProps {
-  filters?: Filter[]
-}
-
-const props = withDefaults(defineProps<BaristaButtonProps>(), {
-  filters: () => []
-})
-
-const baristaSearchFilters = ref<Filter[]>([])
-
-const toggleChat = () => {
-  isChatOpen.value = !isChatOpen.value
-}
-
-const closeChat = () => {
-  isChatOpen.value = false
-}
-
-watch(
-  () => props.filters,
-  (newFilters: Filter[]) => {
-    console.debug('[BaristaButton] Detected filters change from props:', newFilters)
-    baristaSearchFilters.value = newFilters
-  },
-  { immediate: true }
-)
 </script>
 <i18n lang="json">
 {
