@@ -1,6 +1,23 @@
 import * as d3 from 'd3'
 import TopicWord from '@/models/TopicWord'
 import type { Entity as IEntity } from '.'
+import type { CachedTopic } from '@/models/generated/app/cache'
+
+export interface RelatedTopic {
+  id: string
+  w: number
+  avg?: number
+}
+
+/**
+ * Data shape accepted by the Topic constructor. It is the cached/public topic
+ * payload plus the search-only `matches` and the frontend-derived `excerpt`.
+ */
+export type TopicPayload = Omit<Partial<CachedTopic>, 'words'> & {
+  words?: Array<Partial<TopicWord> & { w?: string; p?: number }>
+  excerpt?: TopicWord[]
+  matches?: string[]
+}
 
 const wordMapper = token => d => {
   if (token) {
@@ -9,16 +26,32 @@ const wordMapper = token => d => {
   return d.h ? `<span class="h">${d.w}</span>` : d.w
 }
 
-export default class Topic implements IEntity {
+export default class Topic implements Partial<CachedTopic>, IEntity {
   id: string
   language: string
   model: string
   words: TopicWord[]
   excerpt: TopicWord[]
   matches: string[]
-  countItems: number
-  relatedTopics: string[]
-  label: string
+  contentItemsCount: number
+  relatedTopics: RelatedTopic[]
+  relatedTopicsStats?: CachedTopic['relatedTopicsStats']
+  shortLabel?: string
+  longLabel?: string
+  topicNumber?: number
+  description?: string
+  metadata?: string
+  category?: string
+  confidence?: 'high' | 'medium' | 'low'
+  representativeTerms?: string[]
+  generatedBy?: string
+  degree?: number
+  pagerank?: number
+  community?: number
+  hub?: number
+  authority?: number
+  x?: number
+  y?: number
   hwp?: number
   highlighted?: TopicWord[]
   htmlExcerpt?: string
@@ -35,24 +68,56 @@ export default class Topic implements IEntity {
       excerpt = [],
       matches = [],
       relatedTopics = [],
-      countItems = -1,
-      label = ''
-    } = {},
+      contentItemsCount = -1,
+      relatedTopicsStats = undefined,
+      shortLabel = undefined,
+      longLabel = undefined,
+      topicNumber = undefined,
+      description = undefined,
+      metadata = undefined,
+      category = undefined,
+      confidence = undefined,
+      representativeTerms = undefined,
+      generatedBy = undefined,
+      degree = undefined,
+      pagerank = undefined,
+      community = undefined,
+      hub = undefined,
+      authority = undefined,
+      x = undefined,
+      y = undefined
+    }: TopicPayload = {},
     { highlight = '', quantizeRange = [0.4, 0.7, 1, 1] } = {}
   ) {
     this.id = String(id)
     this.language = String(language)
     this.model = String(model)
-    this.words = words.filter(d => d.p > 0.0)
+    this.words = words.filter(d => (d.p ?? 0) > 0.0).map(d => new TopicWord(d))
     this.excerpt = excerpt
     if (matches.length) {
       this.matches = matches.map(d => d.trim().split(' ')).reduce((acc, d) => acc.concat(d), [])
     } else {
       this.matches = matches
     }
-    this.countItems = countItems
+    this.contentItemsCount = contentItemsCount
     this.relatedTopics = relatedTopics
-    this.label = label
+    this.relatedTopicsStats = relatedTopicsStats
+    this.shortLabel = shortLabel
+    this.longLabel = longLabel
+    this.topicNumber = topicNumber
+    this.description = description
+    this.metadata = metadata
+    this.category = category
+    this.confidence = confidence
+    this.representativeTerms = representativeTerms
+    this.generatedBy = generatedBy
+    this.degree = degree
+    this.pagerank = pagerank
+    this.community = community
+    this.hub = hub
+    this.authority = authority
+    this.x = x
+    this.y = y
     if (words.length) {
       const normalize = d3
         .scaleQuantize()
@@ -89,14 +154,23 @@ export default class Topic implements IEntity {
         this.htmlExcerpt = this.getHtmlExcerpt()
       }
     }
-    if (label != '') {
+    if (this.shortLabel || this.longLabel) {
       this.htmlExcerpt = this.getHtmlExcerpt()
     }
   }
 
+  /**
+   * Backwards-compatible label accessor required by the `Entity`/`FacetWithLabel`
+   * contract. Prefer `shortLabel` / `longLabel` in new code.
+   */
+  get label(): string {
+    return this.shortLabel ?? this.longLabel ?? ''
+  }
+
   getHtmlExcerpt({ token = null } = {}) {
-    if (this.label != '') {
-      return this.label
+    const label = this.shortLabel || this.longLabel || ''
+    if (label !== '') {
+      return label
     }
 
     if (this.matches.length) {

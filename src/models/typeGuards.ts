@@ -29,13 +29,21 @@ export const isEntityWithName = (item: Entity | undefined): item is EntityWithNa
   return typeof (item as EntityWithName | undefined)?.name === 'string'
 }
 
-export type EntityWithLanguageAndExcerpt = Entity & { language?: string; htmlExcerpt?: string }
+export type EntityWithLanguageAndExcerpt = Entity & {
+  language?: string
+  htmlExcerpt?: string
+  shortLabel?: string
+}
 export const isEntityWithLanguageAndExcerpt = (
   item: Entity | undefined
 ): item is EntityWithLanguageAndExcerpt => {
   if (!item) return false
   const maybeTopic = item as EntityWithLanguageAndExcerpt
-  return typeof maybeTopic.language === 'string' || typeof maybeTopic.htmlExcerpt === 'string'
+  return (
+    typeof maybeTopic.language === 'string' ||
+    typeof maybeTopic.htmlExcerpt === 'string' ||
+    typeof maybeTopic.shortLabel === 'string'
+  )
 }
 
 export type EntityWithYearValue = Entity & { y: string }

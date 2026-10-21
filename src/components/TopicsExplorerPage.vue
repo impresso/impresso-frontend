@@ -230,6 +230,9 @@ export default {
 
     this.graph = new Graph({
       element: this.$refs.graph,
+      // TODO(topics-migration): topics-graph still returns `label` and `countItems`
+      // node fields (see docs/specs/migrate-topics-to-cached-topic.md). Revisit
+      // together with the backend topics-graph service.
       nodeLabel: d => d.label, // excerpt.map(w => w.w).join('-'),
       showLabel: d => d.community === d.id,
       identity: d => d.id

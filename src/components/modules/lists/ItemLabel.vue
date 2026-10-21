@@ -6,7 +6,7 @@
       <span class="date small">{{ $t('created', { date: $d(item.creationDate, 'short') }) }}</span>
     </template>
     <template v-else-if="itemType === 'topic'">
-      <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.label }}
+      <span class="small-caps">{{ item.language }}</span> {{ item.htmlExcerpt ?? item.shortLabel }}
     </template>
     <span
       v-else-if="
@@ -22,7 +22,7 @@
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
       <div><label class="small-caps">top words in topic</label></div>
-      <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
+      <div class="d-inline-block" v-if="item.shortLabel">{{ item.shortLabel }}</div>
       <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
         <span>{{ word.w }}</span>
         <span v-if="idx < topicItem.words.length - 1">&nbsp;&middot;&nbsp;</span>
@@ -66,7 +66,9 @@ export default defineComponent({
     },
     computedLabel() {
       let t = ''
-      if (this.item.label) {
+      if (this.item.shortLabel) {
+        t = this.item.shortLabel
+      } else if (this.item.label) {
         t = this.item.label
       } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)

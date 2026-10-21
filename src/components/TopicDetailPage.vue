@@ -346,7 +346,7 @@ export default {
         this.topic = await topicsService
           .get(params.topic_id, { fl: 'id' })
           .then(result => new Topic(result))
-        this.total = +this.topic.countItems
+        this.total = +this.topic.contentItemsCount
         // set active tab
         const tabIdx = this.tabs.findIndex(d => d.name === query.tab)
         this.tab = tabIdx !== -1 ? this.tabs[tabIdx] : this.tabs[0]

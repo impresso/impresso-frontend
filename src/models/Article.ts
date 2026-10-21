@@ -148,7 +148,7 @@ export default class Article extends ArticleBase implements ArticleInterface {
             topic: new Topic({
               id: topic.id,
               language: topic.languageCode,
-              label: topic.label
+              shortLabel: topic.label
             })
           })
       ) ?? []

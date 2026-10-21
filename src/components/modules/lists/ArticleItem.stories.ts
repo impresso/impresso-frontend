@@ -73,27 +73,27 @@ const mockArticle = {
   topics: [
     new ArticleTopic({
       relevance: 0.9,
-      topic: new Topic({ id: 'topic1', label: 'Politics' })
+      topic: new Topic({ id: 'topic1', shortLabel: 'Politics' })
     }),
     new ArticleTopic({
       relevance: 0.75,
-      topic: new Topic({ id: 'topic2', label: 'Economy' })
+      topic: new Topic({ id: 'topic2', shortLabel: 'Economy' })
     }),
     new ArticleTopic({
       relevance: 0.5,
-      topic: new Topic({ id: 'topic3', label: 'Culture' })
+      topic: new Topic({ id: 'topic3', shortLabel: 'Culture' })
     }),
     new ArticleTopic({
       relevance: 0.4,
-      topic: new Topic({ id: 'topic4', label: 'Sports' })
+      topic: new Topic({ id: 'topic4', shortLabel: 'Sports' })
     }),
     new ArticleTopic({
       relevance: 0.3,
-      topic: new Topic({ id: 'topic5', label: 'Arts' })
+      topic: new Topic({ id: 'topic5', shortLabel: 'Arts' })
     }),
     new ArticleTopic({
       relevance: 0.2,
-      topic: new Topic({ id: 'topic6', label: 'Science' })
+      topic: new Topic({ id: 'topic6', shortLabel: 'Science' })
     })
   ],
   matches: [

@@ -11,6 +11,7 @@
         name: item.label
       }"
     />
+    {{ item }}
   </div>
 </template>
 
