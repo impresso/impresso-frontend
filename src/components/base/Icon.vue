@@ -107,6 +107,24 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  // iconoir "expand"
+  expand: {
+    paths: [
+      { d: 'M9 9L4 4M4 4V8M4 4H8' },
+      { d: 'M15 9L20 4M20 4V8M20 4H16' },
+      { d: 'M9 15L4 20M4 20V16M4 20H8' },
+      { d: 'M15 15L20 20M20 20V16M20 20H16' }
+    ]
+  },
+  // floating window over a page (picture in picture)
+  floatingWindow: {
+    paths: [
+      { d: 'M21 11V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19H10' },
+      {
+        d: 'M14 14H20C20.5523 14 21 14.4477 21 15V19C21 19.5523 20.5523 20 20 20H14C13.4477 20 13 19.5523 13 19V15C13 14.4477 13.4477 14 14 14Z'
+      }
+    ]
+  },
   arrowEnlargeTag: {
     paths: [
       {
@@ -410,6 +428,9 @@ const Icons: Record<string, IconData> = {
         d: 'M6.90588 4.53682C6.50592 4.2998 6 4.58808 6 5.05299V18.947C6 19.4119 6.50592 19.7002 6.90588 19.4632L18.629 12.5162C19.0211 12.2838 19.0211 11.7162 18.629 11.4838L6.90588 4.53682Z'
       }
     ]
+  },
+  plus: {
+    paths: [{ d: 'M6 12H12M18 12H12M12 12V6M12 12V18' }]
   },
   edit: {
     paths: [

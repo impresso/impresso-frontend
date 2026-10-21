@@ -1,25 +1,37 @@
-import { getFiltersAndSearchDestination } from '@/logic/barista'
 import { toSerializedFilters } from '@/logic/filters'
+import type { Filter } from '@/models'
 import {
   barista as baristaService,
   baristaConversations as baristaConversationsService
 } from '@/services'
-import { type BaristaMessageItem, type BaristaRequest } from '@/services/types/barista'
-import type {
-  BaristaConversation,
-  BaristaConversationsFindResult
-} from '@/services/types/baristaConversations'
+import {
+  supportsStructuredResponse,
+  type BaristaMessageItem,
+  type BaristaRequest
+} from '@/services/types/barista'
+import type { BaristaConversation } from '@/services/types/baristaConversations'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export interface BaristaStoreMessage {
   id: string
   timestamp: Date
-  isLast: boolean
   message: BaristaMessageItem
 }
 
+export interface BaristaStreamPayload {
+  type: string
+  data: BaristaMessageItem[]
+  remainingConversations?: number
+}
+
 const newSessionId = () => `iwa-${crypto.randomUUID()}`
+
+const toStoreMessage = (message: BaristaMessageItem): BaristaStoreMessage => ({
+  id: crypto.randomUUID(),
+  timestamp: new Date(),
+  message
+})
 
 export const useBaristaStore = defineStore('barista', () => {
   /** Ordered list of all messages in the current session. */
@@ -32,43 +44,34 @@ export const useBaristaStore = defineStore('barista', () => {
   const sendCurrentFilters = ref(true)
   /** Serialized form of the most recent filter set suggested by Barista, if any. */
   const lastFiltersReceived = ref<string | undefined>(undefined)
-  /** Search destination (e.g. 'search', 'tr_passages') paired with `lastFiltersReceived`. */
-  const lastFiltersDestination = ref<string | undefined>(undefined)
   /** The conversation record currently loaded in the panel, if any. Carries the label shown in the UI. */
   const currentConversation = ref<BaristaConversation | undefined>(undefined)
   /** Number of remaining Barista conversations for the current user, as reported by the last 'done' event. */
   const remainingConversations = ref<number | undefined>(undefined)
 
   /** The most recently appended message, used to drive reactive UI updates. */
-  const latestMessage = computed<BaristaStoreMessage | undefined>(() =>
-    messages.value.length > 0 ? messages.value[messages.value.length - 1] : undefined
-  )
-  /** Convenience alias for `lastFiltersReceived`. */
-  const lastFilters = computed(() => lastFiltersReceived.value)
+  const latestMessage = computed<BaristaStoreMessage | undefined>(() => messages.value.at(-1))
 
-  function addMessage(message: BaristaMessageItem, isLast: boolean) {
-    messages.value.push({ id: newSessionId(), timestamp: new Date(), isLast, message })
+  function addMessage(message: BaristaMessageItem) {
+    messages.value.push(toStoreMessage(message))
   }
 
   /**
-   * Send a user message to Barista. Prepends the human message to the log,
+   * Send a user message to Barista. Appends the human message to the log,
    * sets `isWorking`, and appends a fallback error message if the request fails.
    * The response arrives asynchronously via `parseBaristaStream`.
    */
   async function sendMessage(request: BaristaRequest) {
-    addMessage({ content: request.message, type: 'human', sessionId: request.sessionId }, true)
+    addMessage({ content: request.message, type: 'human', sessionId: request.sessionId })
     isWorking.value = true
     try {
       return await baristaService.create(request)
     } catch (error) {
-      addMessage(
-        {
-          content: 'Sorry, there was an error processing your message.',
-          type: 'ai',
-          sessionId: request.sessionId
-        },
-        true
-      )
+      addMessage({
+        content: 'Sorry, there was an error processing your message.',
+        type: 'ai',
+        sessionId: request.sessionId
+      })
       isWorking.value = false
       throw error
     }
@@ -85,92 +88,63 @@ export const useBaristaStore = defineStore('barista', () => {
   }
 
   /**
-   * Fetch a paginated list of the user's saved conversations.
-   * Delegates directly to the conversations service `find` endpoint.
-   */
-  async function getConversations(
-    params?: Parameters<typeof baristaConversationsService.find>[0]
-  ): Promise<BaristaConversationsFindResult> {
-    return baristaConversationsService.find(params) as Promise<BaristaConversationsFindResult>
-  }
-
-  /**
-   * Load a previously saved conversation into the store.
-   * Fetches the full message history for the given session ID, replaces the
-   * current message list with it, and switches `sessionId` to match — so that
-   * any subsequent `sendMessage` call continues the loaded conversation rather
-   * than starting a new one.
+   * Load a previously saved conversation into the store and switch `sessionId`
+   * to it, so that the next `sendMessage` continues that conversation.
    */
   async function loadConversation(id: string) {
     const conversation = await baristaConversationsService.get(id)
     currentConversation.value = conversation
-    messages.value = conversation.messages.map(msg => ({
-      id: newSessionId(),
-      timestamp: new Date(),
-      isLast: true,
-      message: msg
-    }))
+    messages.value = conversation.messages.map(toStoreMessage)
     sessionId.value = id
   }
 
-  /**
-   * Rename a saved conversation. `id` is the numeric row ID of the
-   * conversation record (not the session UUID); `label` is the new title.
-   */
+  /** Rename a saved conversation. */
   async function editConversationTitle(id: string, label: string) {
     return baristaConversationsService.patch(id, { label })
   }
 
+  /** The conversation record only exists once Barista has answered the first message. */
+  function fetchCurrentConversation() {
+    if (currentConversation.value) return
+    baristaConversationsService
+      .get(sessionId.value)
+      .then(conversation => (currentConversation.value = conversation))
+      .catch(err => console.warn('[BaristaStore] Failed to load conversation metadata:', err))
+  }
+
   /**
    * Process a streaming payload from the Barista socket event.
-   * Appends each message to the log and extracts any suggested filters.
-   * Marks `isWorking` as false when the stream signals completion (`type === 'done'`).
+   * Appends each message of the current session to the log and keeps track of the
+   * suggested filters. A `done` payload ends the request.
    */
-  function parseBaristaStream(payload: { type: string; data: BaristaMessageItem[]; remainingConversations?: number }) {
-    const isLast = payload?.type === 'done'
-    if (isLast && payload.remainingConversations !== undefined) {
+  function parseBaristaStream(payload: BaristaStreamPayload) {
+    const isDone = payload.type === 'done'
+    if (isDone && payload.remainingConversations !== undefined) {
       remainingConversations.value = payload.remainingConversations
     }
-    const incoming = (payload?.data ?? []).filter((msg: BaristaMessageItem) => {
-      if (msg.sessionId !== sessionId.value) {
-        console.warn(
-          `[BaristaStore] Dropping message from stale session (got "${msg.sessionId}", expected "${sessionId.value}")`
-        )
-        return false
-      }
-      return true
+
+    const incoming = (payload.data ?? []).filter(msg => {
+      if (msg.sessionId === sessionId.value) return true
+      console.warn(
+        `[BaristaStore] Dropping message from stale session (got "${msg.sessionId}", expected "${sessionId.value}")`
+      )
+      return false
     })
-    console.debug('Parsing Barista stream payload:', payload, isLast && incoming.length === 0)
-    if (isLast && incoming.length === 0) {
+
+    incoming.forEach(msg => {
+      addMessage(msg)
+      const filters = supportsStructuredResponse(msg)
+        ? (msg.structuredResponse?.searchQuery?.filters as Filter[] | undefined)
+        : undefined
+      if (filters) {
+        lastFiltersReceived.value = toSerializedFilters(filters)
+      }
+    })
+
+    if (isDone) {
       isWorking.value = false
-      if (!currentConversation.value) {
-        baristaConversationsService
-          .get(sessionId.value)
-          .then(conversation => (currentConversation.value = conversation))
-          .catch(err => console.warn('[BaristaStore] Failed to load conversation metadata:', err))
-      }
-      return
+      fetchCurrentConversation()
     }
-    incoming.forEach((msg: BaristaMessageItem) => {
-      addMessage(msg, isLast)
-      if (isLast) {
-        isWorking.value = false
-        if (!currentConversation.value) {
-          baristaConversationsService
-            .get(sessionId.value)
-            .then(conversation => (currentConversation.value = conversation))
-            .catch(err => console.warn('[BaristaStore] Failed to load conversation metadata:', err))
-        }
-      }
-      const filtersAndDestination = getFiltersAndSearchDestination(msg)
-      if (filtersAndDestination) {
-        const [filters, destination] = filtersAndDestination
-        if (filters) {
-          lastFiltersReceived.value = toSerializedFilters(filters)
-          lastFiltersDestination.value = destination
-        }
-      }
-    })
   }
 
   return {
@@ -180,14 +154,11 @@ export const useBaristaStore = defineStore('barista', () => {
     isWorking,
     sendCurrentFilters,
     lastFiltersReceived,
-    lastFiltersDestination,
     remainingConversations,
     latestMessage,
-    lastFilters,
     sendMessage,
     createNewSession,
     parseBaristaStream,
-    getConversations,
     loadConversation,
     editConversationTitle
   }

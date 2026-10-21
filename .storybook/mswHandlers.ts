@@ -14,6 +14,7 @@ import {
 import { MockMediaSources } from './mockData/mediaSources'
 import { MockTopic } from './mockData/topics'
 import { MockBaristaConversations } from './mockData/baristaConversations'
+import { MockBaristaSuggestedFiltersWithItems } from './mockData/baristaFilters'
 
 export const findSearchFacetsHandler = http.get(
   '/api/search-facets/search',
@@ -134,6 +135,16 @@ const sendBaristaMessage = http.post('/api/barista-proxy', () => {
 const getFiltersItems = http.get('/api/filters-items', () => {
   return HttpResponse.json({
     filtersWithItems: []
+  })
+})
+
+export const getBaristaFiltersItemsHandler = http.get('/api/filters-items', async () => {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  return HttpResponse.json({
+    filtersWithItems: MockBaristaSuggestedFiltersWithItems.map(({ items, ...filter }) => ({
+      filter,
+      items
+    }))
   })
 })
 
