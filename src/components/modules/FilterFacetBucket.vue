@@ -11,13 +11,7 @@
       :searchIndex="searchIndex"
       class="text-decoration-none"
     >
-      <item-label
-        v-if="bucket.item"
-        class="text-decoration-underline"
-        :item="bucket.item"
-        :type="type"
-        :label="bucket.label"
-      />
+      <item-label v-if="bucket.item" :item="bucket.item" :type="type" :label="bucket.label" />
       <span v-if="bucket.count > -1" class="ml-1 text-muted">
         (<span
           v-html="

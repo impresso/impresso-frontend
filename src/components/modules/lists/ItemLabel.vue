@@ -1,32 +1,29 @@
 <template>
   <div v-if="!detailed" class="ItemLabel d-inline" :class="itemType">
     <template v-if="itemType === 'collection'">
-      <b>{{ item.name }}</b
-      >{{ ' ' }}
+      <b>{{ item.name }}</b>
       <span class="date small">{{ $t('created', { date: $d(item.creationDate, 'short') }) }}</span>
     </template>
     <template v-else-if="itemType === 'topic'">
-      <span v-if="item.label">
-        {{ item.label }}
-      </span>
-      <span v-else>
-        {{ item.id }}
-      </span>
+      <span class="small-caps" v-if="item.language">{{ item.language }}</span>
+      {{ item.label || item.id }}
     </template>
-    <span
-      v-else-if="
-        ['type', 'sourceType', 'country', 'language', 'copyright', 'dataDomain'].includes(itemType)
-      "
-    >
+    <template v-else-if="isBucketType">
       {{ $t(`buckets.${itemType}.${item.id}`) }}
-    </span>
-    <span v-else v-html="computedLabel"></span>
+    </template>
+    <TextReuseClusterLabel v-else-if="isCluster" :item="item" />
+    <TextReusePassageLabel v-else-if="isPassage" :item="item" />
+    <template v-else>{{ computedLabel }}</template>
     <!-- detailed type -->
-    <span v-if="itemType === 'newspaper'" class="small-caps">{{ ' ' }}&middot; newspaper</span>
+    <span v-if="itemType === 'newspaper'" class="small-caps"
+      >&nbsp;&middot; {{ $t('newspaper') }}</span
+    >
   </div>
   <div v-else class="ItemLabel">
     <div v-if="type === 'topic'">
-      <div><label class="small-caps">top words in topic</label></div>
+      <div>
+        <label class="small-caps">{{ $t('topWordsInTopic') }}</label>
+      </div>
       <div class="d-inline-block" v-if="item.label">{{ item.label }}</div>
       <div class="d-inline-block word" v-for="(word, idx) in topicItem.words" :key="idx">
         <span>{{ word.w }}</span>
@@ -39,140 +36,67 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { FacetType } from '@/models'
 import { Topic } from '@/models/generated/canonical'
-import { defineComponent, PropType } from 'vue'
+import { computed } from 'vue'
+import TextReuseClusterLabel from './TextReuseClusterLabel.vue'
+import TextReusePassageLabel from './TextReusePassageLabel.vue'
 
-export default defineComponent({
-  name: 'ItemLabel',
-  props: {
-    item: {
-      type: Object,
-      required: true
-    },
-    label: {
-      type: String
-    },
-    type: {
-      type: String as PropType<FacetType | string>,
-      required: true
-    },
-    detailed: {
-      type: Boolean
-    },
-    hideuser: {
-      type: Boolean
-    }
-  },
-  computed: {
-    itemType() {
-      return String(this.item.type ?? this.type)
-    },
-    computedLabel() {
-      let t = ''
-      if (this.item.label) {
-        t = this.item.label
-      } else if (this.type === 'textReuseCluster') {
-        t = this.getTextReuseClusterSummary(this.item)
-      } else if (this.type === 'textReusePassage') {
-        t = this.getTextReusePassageSummary(this.item)
-      } else if (
-        ['permissionExplore', 'permissionGetTranscript', 'permissionGetImage'].includes(this.type)
-      ) {
-        t = this.item.title
-      } else if (this.type === 'year') {
-        t = this.item ? this.item.y : this.item.val
-      } else if (
-        [
-          'imageVisualContent',
-          'imageTechnique',
-          'imageCommunicationGoal',
-          'imageContentType'
-        ].includes(this.type)
-      ) {
-        t = this.item.id
-      } else if (typeof this.item.name === 'string' && this.item.name.length) {
-        t = this.item.name
-      } else {
-        t = this.item.id
-      }
-      return t != '' ? t : (this.label ?? '')
-    },
-    topicItem() {
-      return this.item as Topic
-    }
-  },
-  methods: {
-    getTextReuseClusterSummary(item) {
-      if (!item.clusterSize) {
-        return item.id
-      }
-      const clusterSizeLabel =
-        item.clusterSize != null
-          ? this.$t(
-              'numbers.clusterSize',
-              {
-                n: this.$n(item.clusterSize)
-              },
-              item.clusterSize
-            )
-          : 'size'
-      const lexicalOverlapLabel =
-        item.lexicalOverlap != null
-          ? this.$t(
-              'numbers.lexicalOverlap',
-              {
-                n: this.$n(Math.round(item.lexicalOverlap * 100) / 100)
-              },
-              item.lexicalOverlap
-            )
-          : ''
-      let dates = []
-      if (!item.maxDate || !item.minDate) {
-        dates = []
-      } else if (item.timeDifferenceDay === 0) {
-        dates = [this.$d(item.maxDate, 'short')]
-      } else if (item.timeDifferenceDay < 30) {
-        // show time difference in days
-        dates = [this.$d(item.minDate, 'short'), this.$d(item.maxDate, 'short')]
-      } else if (item.timeDifferenceDay < 365) {
-        //   // show time difference in months
-        dates = [this.$d(item.minDate, 'month'), this.$d(item.maxDate, 'month')]
-      } else {
-        const minYear = item.minDate.getFullYear()
-        const maxYear = item.maxDate.getFullYear()
-        if (minYear === maxYear) {
-          dates = [minYear]
-        } else {
-          dates = [minYear, maxYear]
-        }
-      }
-      return this.$t('textReuseClusterSummary', {
-        shortId: item.shortId,
-        textSampleExcerpt: item.textSampleExcerpt,
-        size: clusterSizeLabel,
-        lexicalOverlap: lexicalOverlapLabel,
-        timespan: this.$t(
-          'numbers.days',
-          {
-            n: this.$n(item.timeDifferenceDay)
-          },
-          item.timeDifferenceDay
-        ),
-        dates: dates.join(' - ')
-      })
-    },
-    getTextReusePassageSummary(item) {
-      const passageDate = item.date instanceof Date ? item.date : new Date(item.date)
-      // generate excerpt with ellipsis at the end if needed
-      const excerpt = item.content.length > 50 ? `${item.content.substring(0, 50)}…` : item.content
-      return [
-        `<span class='small-caps'>${this.$d(passageDate, 'long').toLowerCase()}</span>`,
-        `"${excerpt}"`
-      ].join(' ')
-    }
-  }
+defineOptions({ name: 'ItemLabel' })
+
+const BUCKET_TYPES = new Set<string>([
+  'type',
+  'sourceType',
+  'country',
+  'language',
+  'copyright',
+  'dataDomain'
+])
+const PERMISSION_TYPES = new Set<string>([
+  'permissionExplore',
+  'permissionGetTranscript',
+  'permissionGetImage'
+])
+const IMAGE_TYPES = new Set<string>([
+  'imageVisualContent',
+  'imageTechnique',
+  'imageCommunicationGoal',
+  'imageContentType'
+])
+
+const props = defineProps<{
+  item: Record<string, any>
+  label?: string
+  type: FacetType | string
+  detailed?: boolean
+  mainLabelClass?: string | Record<string, boolean> | Array<string | Record<string, boolean>>
+}>()
+
+const itemType = computed(() => String(props.item.type ?? props.type))
+const isBucketType = computed(() => BUCKET_TYPES.has(itemType.value))
+const topicItem = computed(() => props.item as Topic)
+
+// an explicit item.label always wins over the text reuse summaries
+const isCluster = computed(
+  () => !props.item.label && props.type === 'textReuseCluster' && !!props.item.clusterSize
+)
+const isPassage = computed(() => !props.item.label && props.type === 'textReusePassage')
+
+function resolveLabel(item: Record<string, any>, type: string) {
+  if (item.label) return item.label
+  if (type === 'textReuseCluster') return item.id // cluster without clusterSize
+  if (PERMISSION_TYPES.has(type)) return item.title
+  if (type === 'year') return item.y
+  if (IMAGE_TYPES.has(type)) return item.id
+  if (typeof item.name === 'string' && item.name.length) return item.name
+  return item.id
+}
+
+// plain text only: the HTML-producing summaries live in their own components
+const computedLabel = computed(() => {
+  const text = resolveLabel(props.item, props.type)
+  return text != '' ? text : (props.label ?? '')
 })
 </script>
 
@@ -181,10 +105,8 @@ export default defineComponent({
 {
   "en": {
     "created": "created on {date}",
-    "numbers": {
-      "days": "the same day|over <span class='number'>{n}</span> day|over <span class='number'>{n}</span> days"
-    },
-    "textReuseClusterSummary": "Cluster <b>{shortId}</b> - {size}.<br/><div>{lexicalOverlap} {timespan} ({dates}).</div><blockquote class='my-1 ml-0 border-left pl-2'>{textSampleExcerpt}</blockquote>"
+    "newspaper": "newspaper",
+    "topWordsInTopic": "top words in topic"
   }
 }
 </i18n>
