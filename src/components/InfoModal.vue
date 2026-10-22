@@ -6,6 +6,7 @@
     :dialogClass="props.dialogClass"
     @close="dismiss"
     :hideFooter="props.hideFooter"
+    :hideHeaderClose="props.hideHeaderClose"
   >
     <template v-slot:modal-header-extra><slot name="modal-header-extra"></slot></template>
     <h5 v-if="title" class="mb-4">{{ title }}</h5>
@@ -24,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
 export type InfoModalProps = {
@@ -32,19 +34,37 @@ export type InfoModalProps = {
   title?: string
   isVisible?: boolean
   hideFooter?: boolean
+  hideHeaderClose?: boolean
 }
 
 const props = withDefaults(defineProps<InfoModalProps>(), {
   dialogClass: 'modal-dialog-scrollable modal-md',
   modalTitle: 'Info',
-  hideFooter: false
+  hideFooter: false,
+  hideHeaderClose: false
 })
 
-const emit = defineEmits(['dismiss'])
+const emit = defineEmits<{
+  (event: 'dismiss'): void
+}>()
 
 function dismiss() {
   emit('dismiss')
 }
+
+const preventEscapeDismissal = (event: KeyboardEvent) => {
+  if (props.isVisible && props.hideHeaderClose && event.key === 'Escape') {
+    event.stopImmediatePropagation()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', preventEscapeDismissal, true)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', preventEscapeDismissal, true)
+})
 </script>
 <style>
 .InfoModal .modal-header {

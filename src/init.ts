@@ -11,6 +11,7 @@ import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { reducedTimeoutPromise } from './services/utils'
 import { useNotificationsStore } from './stores/notifications'
 import { useUserStore } from './stores/user'
+import { loadAnnouncement } from './composables/useAnnouncement'
 
 export interface Features {
   textReuse?: { enabled: boolean }
@@ -130,6 +131,7 @@ export const loadVersion = async () => {
 }
 
 export const initSequence = async () => {
+  void loadAnnouncement()
   await loadVersion()
   const userStore = useUserStore()
   let shouldRefreshUser = false

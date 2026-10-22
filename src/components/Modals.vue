@@ -22,6 +22,22 @@
     >
       <p class="m-0" v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
+    <InfoModal
+      v-if="showAnnouncement"
+      :isVisible="showAnnouncement"
+      :modalTitle="$t('announcementMaintenanceModalTitle')"
+      :hideFooter="!announcement?.dismissible"
+      :hideHeaderClose="!announcement?.dismissible"
+      dialogClass="modal-md modal-dialog-centered"
+      @dismiss="dismissAnnouncement"
+    >
+      <Alert v-if="announcement?.title" :type="announcement.severity">
+        <p class="m-0">{{ announcement.title }}</p>
+      </Alert>
+      <div class="mt-2 p-1">
+        <MarkdownContent class="p-2" :url="announcement?.url" />
+      </div>
+    </InfoModal>
 
     <SpecialMembershipModal :isVisible="view === ViewSpecialMembership" @dismiss="resetView" />
     <SpecialMembershipRequestModal
@@ -200,11 +216,17 @@ import LinkToModal from './LinkToModal.vue'
 import SpecialMembershipRequestModal from './specialMembership/SpecialMembershipRequestModal.vue'
 import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.vue'
 import UserSettingsModal from './modals/UserSettingsModal.vue'
+import MarkdownContent from './MarkdownContent.vue'
+import {
+  announcement as announcementState,
+  dismissAnnouncement
+} from '@/composables/useAnnouncement'
 
 const store = useViewsStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 const userPlan = computed(() => userStore.userPlan)
+const announcement = announcementState
 
 const view = ref<(typeof Views)[number] | null>(store.view)
 const isLoading = ref(false)
@@ -220,11 +242,17 @@ const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOn
 // date of accepting the ToU on current store (sort of cached value)
 const acceptTermsDate = computed(() => userStore.acceptTermsDate)
 
+const showAnnouncement = computed(
+  () =>
+    !!announcement.value && view.value === null && notificationsStore.initSequenceDone
+)
+
 const showChangePlanToLegacyUsers = computed(() => {
   // if the user is logged in and has a plan, show the change plan modal
   return (
     view.value === null &&
     notificationsStore.initSequenceDone &&
+    !announcement.value &&
     isLoggedIn.value &&
     userPlan.value === PlanNone &&
     !userStore.hasPendingChangePlanRequest
@@ -236,6 +264,7 @@ const showTermsOfUse = computed(() => {
   return (
     view.value === null &&
     notificationsStore.initSequenceDone &&
+    !announcement.value &&
     isLoggedIn.value &&
     acceptTermsDate.value === null &&
     userPlan.value === PlanGuest
@@ -386,7 +415,8 @@ watch(
     "view_create-special-membership-request-success_modalTitle": "Special Membership Request Submitted",
     "view_create-special-membership-request-success_title": "Special Membership request submitted successfully",
     "view_create-special-membership-request-success_content": "Your special membership access request has been submitted successfully. We will notify you via email once your request has been processed.",
-    "corpusCatalogueModalTitle": "Impresso Corpus Catalogue"
+    "corpusCatalogueModalTitle": "Impresso Corpus Catalogue",
+    "announcementMaintenanceModalTitle": "Maintenance"
   }
 }
 </i18n>
