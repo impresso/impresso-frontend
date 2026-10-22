@@ -11,9 +11,6 @@
       :searchIndex="searchIndex"
       class="text-decoration-none"
     >
-      <span class="small-caps mr-1" v-if="bucket.item?.language">
-        {{ bucket.item.language }}
-      </span>
       <item-label
         v-if="bucket.item"
         class="text-decoration-underline"

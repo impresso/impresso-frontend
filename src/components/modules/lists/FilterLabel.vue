@@ -40,8 +40,8 @@
           >{{ item.label }}</span
         >
         <template v-else-if="filter.type === 'topic'">
-          <span class="small-caps" v-if="item.shortLabel">
-            {{ item.shortLabel }}
+          <span class="small-caps" v-if="item.label">
+            {{ item.label }}
           </span>
           <span class="small-caps" v-else-if="Array.isArray(item.excerpt) && item.excerpt.length">
             {{ item.excerpt.map(d => d.w).join(' · ') }}
@@ -92,7 +92,7 @@ import { includes } from '@/util/fn.js'
 type FilterLabelItem = Entity & {
   name?: string
   title?: string
-  shortLabel?: string
+  label?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date

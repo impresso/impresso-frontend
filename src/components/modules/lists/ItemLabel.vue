@@ -71,9 +71,7 @@ export default defineComponent({
     },
     computedLabel() {
       let t = ''
-      if (this.item.shortLabel) {
-        t = this.item.shortLabel
-      } else if (this.item.label) {
+      if (this.item.label) {
         t = this.item.label
       } else if (this.type === 'textReuseCluster') {
         t = this.getTextReuseClusterSummary(this.item)

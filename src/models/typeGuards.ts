@@ -32,7 +32,7 @@ export const isEntityWithName = (item: Entity | undefined): item is EntityWithNa
 export type EntityWithLanguageAndExcerpt = Entity & {
   language?: string
   htmlExcerpt?: string
-  shortLabel?: string
+  label?: string
 }
 export const isEntityWithLanguageAndExcerpt = (
   item: Entity | undefined
@@ -42,7 +42,7 @@ export const isEntityWithLanguageAndExcerpt = (
   return (
     typeof maybeTopic.language === 'string' ||
     typeof maybeTopic.htmlExcerpt === 'string' ||
-    typeof maybeTopic.shortLabel === 'string'
+    typeof maybeTopic.label === 'string'
   )
 }
 

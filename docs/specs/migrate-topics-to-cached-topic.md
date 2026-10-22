@@ -51,7 +51,7 @@ export interface CachedTopic {
   description?: string
   metadata?: string
   category?: string
-  shortLabel?: string
+  label?: string
   longLabel?: string
   confidence?: 'high' | 'medium' | 'low'
   representativeTerms?: string[]
@@ -86,20 +86,20 @@ Import it with `import type { CachedTopic } from '@/models/generated/app/cache'`
 
 ### Renames and shape changes
 
-| Old frontend field (`src/models/Topic.ts`) | New field | Notes |
-| --- | --- | --- |
-| `countItems: number` | `contentItemsCount?: number` | Same meaning, new name. Every `item.countItems` must be renamed. |
-| `label: string` | `shortLabel?: string`, `longLabel?: string` | `label` no longer exists. Prefer `shortLabel`, fall back to `longLabel`, then to the words-based excerpt. |
-| `relatedTopics: string[]` | `relatedTopics?: { id, w, avg? }[]` | Shape changed from IDs to weighted objects. Also add `relatedTopicsStats?`. |
+| Old frontend field (`src/models/Topic.ts`) | New field                              | Notes                                                                                                |
+| ------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `countItems: number`                       | `contentItemsCount?: number`           | Same meaning, new name. Every `item.countItems` must be renamed.                                     |
+| `label: string`                            | `label?: string`, `longLabel?: string` | `label` no longer exists. Prefer `label`, fall back to `longLabel`, then to the words-based excerpt. |
+| `relatedTopics: string[]`                  | `relatedTopics?: { id, w, avg? }[]`    | Shape changed from IDs to weighted objects. Also add `relatedTopicsStats?`.                          |
 
 ### Unchanged API fields
 
-| Field | Type | Notes |
-| --- | --- | --- |
-| `id` | `string` | required |
-| `language` | `string` | required |
-| `model` | `string \| undefined` | now optional |
-| `words` | `{ w, p, h? }[]` | same shape as before |
+| Field      | Type                  | Notes                |
+| ---------- | --------------------- | -------------------- |
+| `id`       | `string`              | required             |
+| `language` | `string`              | required             |
+| `model`    | `string \| undefined` | now optional         |
+| `words`    | `{ w, p, h? }[]`      | same shape as before |
 
 ### New optional label/graph fields to expose
 
@@ -152,7 +152,7 @@ the derived `excerpt` / `htmlExcerpt`), but:
    `type TopicPayload = Partial<CachedTopic> & { matches?: string[] }`;
 4. add an `implements Partial<CachedTopic>` (documentation intent) and keep the
    derived members as extra properties;
-5. make `getHtmlExcerpt()` prefer `shortLabel`, then `longLabel`.
+5. make `getHtmlExcerpt()` prefer `label`, then `longLabel`.
 
 Alternatives considered: dropping the class for the plain generated types
 (rejected for now — it would move label/excerpt logic into every component), and
@@ -164,17 +164,17 @@ callers stop relying on the computed `htmlExcerpt`).
 ### Model / type layer
 
 - `src/models/Topic.ts` — rename `countItems` → `contentItemsCount`; replace
-  `label` with `shortLabel` / `longLabel`; retype `relatedTopics` to the object
+  `label` with `label` / `longLabel`; retype `relatedTopics` to the object
   array and add `relatedTopicsStats`; add the v3 and graph fields; update
   `getHtmlExcerpt()` fallback order.
 - `src/models/TopicWord.ts` — no field change; optionally
   `implements TopicWord` from `@/models/generated/canonical` (it adds the
   frontend-only `l` quantize level).
 - `src/models/Bucket.ts:55` — `new Topic({ ...item, id: value, name: label })`;
-  the spread already carries `contentItemsCount` / `shortLabel` once the
+  the spread already carries `contentItemsCount` / `label` once the
   constructor stores them.
 - `src/models/Article.ts:148` — maps `ContentItemTopic` into `Topic` with
-  `label: topic.label`. Change to `shortLabel: topic.label` (the canonical
+  `label: topic.label`. Change to `label: topic.label` (the canonical
   content-item field stays `label`).
 - `src/models/ArticleTopic.js`, `src/models/FilterTopic.ts`,
   `src/models/Suggestion.ts`, `src/stores/topics.ts`, `src/stores/monitor.ts` —
@@ -182,9 +182,9 @@ callers stop relying on the computed `htmlExcerpt`).
   the new fields. Optional: type the payloads instead of `any`.
 - `src/logic/facets.ts:146` — `LabelExtractors.topic` builds a `Topic` and falls
   back to `item.htmlExcerpt ?? item.label`; change the fallback to
-  `item.htmlExcerpt ?? item.shortLabel`.
+  `item.htmlExcerpt ?? item.label`.
 - `src/models/typeGuards.ts` — `isEntityWithLanguageAndExcerpt` checks
-  `language` / `htmlExcerpt`; consider also accepting `shortLabel`.
+  `language` / `htmlExcerpt`; consider also accepting `label`.
 
 ### Components (topic field reads)
 
@@ -195,16 +195,16 @@ callers stop relying on the computed `htmlExcerpt`).
 - `src/components/modules/tooltips/TopicsExplorerTooltip.vue` — `item.countItems`
   → `item.contentItemsCount`; `item.degree` is already the new name.
 - `src/components/modules/lists/ItemLabel.vue:9,25` — `item.htmlExcerpt ?? item.label`
-  and the detailed `item.label` → `item.htmlExcerpt ?? item.shortLabel` /
-  `item.shortLabel`.
+  and the detailed `item.label` → `item.htmlExcerpt ?? item.label` /
+  `item.label`.
 - `src/components/modules/lists/FilterLabel.vue:43-44` (topic branch) and its
-  local `FilterLabelItem` type → `shortLabel`.
+  local `FilterLabelItem` type → `label`.
 - `src/components/Monitor.vue:183` — `label: this.item.label ?? this.item.id` →
-  `shortLabel`.
+  `label`.
 - `src/components/modules/FilterMonitor.vue:146` — renders `item.htmlExcerpt`
-  for topics; no change once the class derives it from `shortLabel`.
+  for topics; no change once the class derives it from `label`.
 - `src/components/modules/collections/recommendations/TopicsRecommendationsPanel.vue:54-57`
-  — fabricated items use `htmlExcerpt`; consider `shortLabel` for consistency.
+  — fabricated items use `htmlExcerpt`; consider `label` for consistency.
 - `src/components/modules/TopicListItem.vue`, `src/components/topics/TopicPreview.vue`,
   `src/components/modules/FilterTopic.vue` (marked deprecated) — use
   `getHtmlExcerpt()` / `words`, no direct rename.
@@ -219,7 +219,7 @@ callers stop relying on the computed `htmlExcerpt`).
 ### Fixtures / stories
 
 - `src/components/modules/lists/ArticleItem.stories.ts:76-96` — `new Topic({ id, label })`
-  → `shortLabel`.
+  → `label`.
 - `FilterFacet.stories.ts` and `SearchPills.logic.test.ts` use `htmlExcerpt` /
   plain object fixtures, not `Topic`; no change needed.
 
@@ -229,19 +229,19 @@ callers stop relying on the computed `htmlExcerpt`).
    the `TopicPayload` type, fix `getHtmlExcerpt()`. Include `contentItemsCount`
    in the derived label pipeline so `TopicItem.vue` works.
 2. **Label fallbacks.** Update `getHtmlExcerpt()` and the direct `item.label`
-   readers listed above to `shortLabel` (falling back to `longLabel`). Keep the
+   readers listed above to `label` (falling back to `longLabel`). Keep the
    words-based excerpt as the last resort so label-less topics still render.
 3. **Counts.** Rename every `countItems` read to `contentItemsCount`
    (`TopicItem.vue`, `TopicDetailPage.vue`, `TopicsExplorerTooltip.vue`). Leave
    `TopicsExplorerPage.vue` graph nodes on `countItems` with a TODO.
-4. **Mappers.** Fix `Article.ts` (`label` → `shortLabel`) and
+4. **Mappers.** Fix `Article.ts` (`label` → `label`) and
    `logic/facets.ts` fallback. Verify `Bucket.ts` spreads the new fields.
 5. **Stories.** Update `ArticleItem.stories.ts` fixtures.
 6. **Types.** Replace `any[]` in `stores/topics.ts` with `Topic[]` and type
    `stores/monitor.ts` / `Suggestion.ts` payloads if cheap.
 
 Done when: `grep` for `\.countItems` and `\.label` on topic objects resolves to
-`contentItemsCount` / `shortLabel` (except the graph nodes and `ContentItemTopic`),
+`contentItemsCount` / `label` (except the graph nodes and `ContentItemTopic`),
 and the type-check reaches zero new errors.
 
 ## Verification
@@ -251,7 +251,7 @@ and the type-check reaches zero new errors.
 - `npm run lint`.
 - Manual: topics list (`/topics`), topic detail, search-results topic facets,
   topic tooltip in the graph, and a content-item page with topics. Confirm:
-  - labels show `shortLabel` when present, otherwise the word excerpt;
+  - labels show `label` when present, otherwise the word excerpt;
   - article counts show `contentItemsCount` (not `undefined`);
   - pre-v3 topics (no label fields) still render and do not crash;
   - the topics graph still renders (unchanged `label` / `countItems` node reads).

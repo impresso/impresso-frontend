@@ -144,7 +144,7 @@ const LabelExtractors = {
       return bucket?.item?.label
     }
     const item = new Topic(bucket.item)
-    return `${item.language ?? 'N/A'}: ${item.htmlExcerpt ?? item.shortLabel}`
+    return `${item.language ?? 'N/A'}: ${item.htmlExcerpt ?? item.label ?? item.id}`
   },
   year: (bucket?: Bucket<Entity>): string | undefined => {
     const val = isEntityWithYearValue(bucket?.item) ? bucket.item.y : bucket?.value

@@ -36,7 +36,7 @@ export default class Topic implements Partial<CachedTopic>, IEntity {
   contentItemsCount: number
   relatedTopics: RelatedTopic[]
   relatedTopicsStats?: CachedTopic['relatedTopicsStats']
-  shortLabel?: string
+  label: string
   longLabel?: string
   topicNumber?: number
   description?: string
@@ -70,7 +70,7 @@ export default class Topic implements Partial<CachedTopic>, IEntity {
       relatedTopics = [],
       contentItemsCount = -1,
       relatedTopicsStats = undefined,
-      shortLabel = undefined,
+      label = undefined,
       longLabel = undefined,
       topicNumber = undefined,
       description = undefined,
@@ -102,7 +102,7 @@ export default class Topic implements Partial<CachedTopic>, IEntity {
     this.contentItemsCount = contentItemsCount
     this.relatedTopics = relatedTopics
     this.relatedTopicsStats = relatedTopicsStats
-    this.shortLabel = shortLabel
+    this.label = label
     this.longLabel = longLabel
     this.topicNumber = topicNumber
     this.description = description
@@ -154,21 +154,13 @@ export default class Topic implements Partial<CachedTopic>, IEntity {
         this.htmlExcerpt = this.getHtmlExcerpt()
       }
     }
-    if (this.shortLabel || this.longLabel) {
+    if (this.label || this.longLabel) {
       this.htmlExcerpt = this.getHtmlExcerpt()
     }
   }
 
-  /**
-   * Backwards-compatible label accessor required by the `Entity`/`FacetWithLabel`
-   * contract. Prefer `shortLabel` / `longLabel` in new code.
-   */
-  get label(): string {
-    return this.shortLabel ?? this.longLabel ?? ''
-  }
-
   getHtmlExcerpt({ token = null } = {}) {
-    const label = this.shortLabel || this.longLabel || ''
+    const label = this.label || this.longLabel || ''
     if (label !== '') {
       return label
     }

@@ -46,7 +46,7 @@ export interface CachedTopic {
   /**
    * Short human-readable topic label
    */
-  shortLabel?: string;
+  label?: string;
   /**
    * Long-form English topic label
    */
