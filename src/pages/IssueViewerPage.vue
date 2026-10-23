@@ -161,7 +161,7 @@ const SimilarArticlesMode = '4'
 const ContentItemCardMode = '5'
 const AvailableViewModes = [
   FacsimileMode,
-  RegionTranscriptMode,
+  // RegionTranscriptMode,
   IIIFViewerTranscriptMode,
   TextReuseMode,
   SimilarArticlesMode,
@@ -524,7 +524,7 @@ watch(
     "viewModes": {
       "0": "Facsimile",
       "1": "Region Transcript",
-      "2": "Facsimile + Transcript",
+      "2": "Content item transcript",
       "3": "Text Reuse",
       "4": "Similar Articles",
       "5": "Cite as..."
