@@ -1,4 +1,5 @@
 import type { Topic } from '@/models/generated/canonical'
+import TopicModel from '@/models/Topic'
 
 export const MockTopic: Topic & {
   label: string
@@ -21,3 +22,21 @@ export const MockTopic: Topic & {
     { w: 'development', p: 0.7, l: 0.7 }
   ]
 }
+
+export const MockLabeledTopic = new TopicModel({
+  ...MockTopic,
+  excerpt: [],
+  label: 'Railways and transport',
+  longLabel: 'Railway development and public transport',
+  description: 'Newspaper coverage of railway networks, stations, and trains.',
+  contentItemsCount: 1250
+})
+
+export const MockWordsOnlyTopic = new TopicModel({
+  ...MockTopic,
+  label: undefined,
+  excerpt: [],
+  contentItemsCount: 42
+})
+
+export const MockMinimalTopic = new TopicModel({ id: MockTopic.id })

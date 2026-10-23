@@ -11,7 +11,6 @@ import EntitiesTemporaryPage from '@/components/EntitiesTemporaryPage.vue'
 import EntitiesDetailPage from '@/components/EntitiesDetailPage.vue'
 import TopicsPage from '@/components/TopicsPage.vue'
 import TopicsExplorerPage from '@/components/TopicsExplorerPage.vue'
-import TopicDetailPage from '@/components/TopicDetailPage.vue'
 import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
 
 import IssueViewerPage from '@/pages/IssueViewerPage.vue'
@@ -398,8 +397,8 @@ const router = createRouter({
         },
         {
           path: ':topic_id',
-          component: TopicDetailPage,
-          name: 'topic',
+          component: () => import('@/pages/TopicDetailPage.vue'),
+          name: Routes.topic.name,
           meta: {
             requiresAuth: false
           }
