@@ -6,7 +6,7 @@ In `src/pages/SearchImages.vue`, load a predictable results page at startup. Loa
 random page only when the user clicks **Load random page**, and enable that button
 only when the main image search has a known, positive total.
 
-## Current behavior
+## Original behavior
 
 - `paginationCurrentPage` defaults to `0` when the route has no `p` parameter.
 - The immediate `serviceQuery` watcher calls `fetchSearchResults()` on startup.
@@ -31,17 +31,29 @@ only when the main image search has a known, positive total.
   filter, sorting, similarity, and page-reset behavior otherwise.
 - Keep the normal startup search and facets request; this change does not mean
   showing an empty view until the user interacts.
+- Whenever active filters are added, removed, or edited, reset the URL and
+  pagination to page `1` before fetching. Fetch only `offset: 0` for the new
+  filters, not the previous page first. This also applies to prop-driven changes.
 
 ### Explicit random-page action
 
 - Keep the existing button and translated label.
-- Only an enabled button click may initiate a random-page request using the
-  service's existing omitted-offset behavior.
+- Only an enabled button click may initiate a random-page request. Calculate the
+  page locally using the already-loaded main results total and current page size:
+
+  ```text
+  totalPages = ceil(paginationTotalRows / limit)
+  page = floor(random() * totalPages) + 1
+  offset = (page - 1) * limit
+  ```
+
+- Always send explicit `limit` and `offset`, including for random selections. Do
+  not use page `0`, omit `offset`, or ask the backend to select a random page.
 - Preserve the active filters, sort order, similarity target, and page size.
 - After the response, update the displayed page from the returned pagination
   metadata and keep the URL and pagination controls consistent with that page.
-- Random selection is one-shot: subsequent ordinary requests must use an explicit
-  offset. Do not let a random-request marker become the default startup state.
+- Subsequent ordinary requests must also use an explicit offset. No special
+  random-request marker is stored in the URL.
 - Clicking again after completion must request another random page, even if the
   previous response happened to select the same page. A different page is not
   guaranteed.
@@ -87,14 +99,19 @@ isLoading === false && paginationTotalRows > 0
    does not navigate or request a random page.
 6. While a new search is pending after a previous positive total: disable the
    button and prevent random requests.
-7. Click the enabled button: request a random page without `offset`, retaining all
-   other active search inputs. Disable the button until loading completes.
+7. Click the enabled button: calculate a valid page from the loaded total and
+   request its explicit `limit` and `offset`, retaining all other active search
+   inputs. Disable the button until loading completes.
 8. Resolve that random request: display its results and synchronize the returned
    page with the URL and pagination controls without another random request.
 9. Click again after completion: issue a new random request, including when the
    previous random page was page `1` or the same page as before.
 10. After a random selection, use ordinary pagination or change search inputs:
     subsequent non-random requests include the appropriate explicit offset.
+11. Cover single-page totals, partial last pages, and different limits: random
+    offsets must always address a valid page.
+12. Add, remove, or edit filters while on a later page: request the new filters
+    exactly once at `offset: 0` and reset the URL and pagination to page `1`.
 
 ## Scope
 

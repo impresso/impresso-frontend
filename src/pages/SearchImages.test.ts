@@ -81,8 +81,9 @@ async function setup(query: LocationQueryRaw = {}) {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  vi.spyOn(Math, 'random').mockReturnValue(0.25)
   findImages.mockImplementation(({ query }) =>
-    Promise.resolve(response(100, query.offset ?? 24, query.limit))
+    Promise.resolve(response(100, query.offset, query.limit))
   )
   findFacets.mockResolvedValue({ data: [] })
   getImage.mockResolvedValue({ id: 'image-1' })
@@ -90,6 +91,7 @@ beforeEach(() => {
 
 afterEach(() => {
   mounted.splice(0).forEach(({ wrapper }) => wrapper.unmount())
+  vi.restoreAllMocks()
 })
 
 describe('SearchImages pagination', () => {
@@ -149,6 +151,7 @@ describe('SearchImages pagination', () => {
         filters: serializeFilters(filters),
         order_by: 'date',
         limit: 12,
+        offset: 24,
         similar_to_image_id: 'image-1'
       }
     })
@@ -158,7 +161,7 @@ describe('SearchImages pagination', () => {
     await button().trigger('click')
     await flushPromises()
     expect(findImages).toHaveBeenCalledTimes(2)
-    expect(findImages.mock.calls[1][0].query).not.toHaveProperty('offset')
+    expect(findImages.mock.calls[1][0].query.offset).toBe(24)
 
     await router.push({ query: { ...router.currentRoute.value.query, p: '2' } })
     await flushPromises()
@@ -169,14 +172,62 @@ describe('SearchImages pagination', () => {
   it('allows another random click when the returned page is page one', async () => {
     const { button } = await setup()
     await flushPromises()
-    findImages.mockResolvedValue(response(100, 0))
+    vi.mocked(Math.random).mockReturnValue(0)
     await button().trigger('click')
     await flushPromises()
     await button().trigger('click')
     await flushPromises()
     expect(findImages).toHaveBeenCalledTimes(3)
-    expect(findImages.mock.calls.slice(1).every(([{ query }]) => !('offset' in query))).toBe(true)
+    expect(findImages.mock.calls.slice(1).every(([{ query }]) => query.offset === 0)).toBe(true)
   })
+
+  it.each([
+    { total: 1, limit: 12, random: 0.99, offset: 0 },
+    { total: 25, limit: 12, random: 0.99, offset: 24 },
+    { total: 100, limit: 20, random: 0.99, offset: 80 },
+    { total: 100, limit: 20, random: 0, offset: 0 }
+  ])(
+    'calculates an in-range random offset from $total items and limit $limit',
+    async ({ total, limit, random, offset }) => {
+      findImages.mockImplementation(({ query }) =>
+        Promise.resolve(response(total, query.offset, query.limit))
+      )
+      vi.mocked(Math.random).mockReturnValue(random)
+      const { button, router } = await setup({ limit: String(limit) })
+      await flushPromises()
+      await button().trigger('click')
+      await flushPromises()
+      expect(findImages).toHaveBeenCalledTimes(2)
+      expect(findImages.mock.calls[1][0].query).toMatchObject({ limit, offset })
+      expect(router.currentRoute.value.query.p).toBe(String(offset / limit + 1))
+    }
+  )
+
+  it.each(['add', 'remove', 'edit'])(
+    'resets to page one before fetching when filters %s',
+    async change => {
+      const { wrapper, router } = await setup({ p: '4' })
+      const original = [FilterFactory.create({ type: 'title', q: 'original' })]
+      await wrapper.setProps({ filtersWithItems: original })
+      await flushPromises()
+      await router.push({ query: { p: '4' } })
+      await flushPromises()
+      findImages.mockClear()
+
+      const updated =
+        change === 'remove'
+          ? []
+          : change === 'edit'
+            ? [FilterFactory.create({ type: 'title', q: 'updated' })]
+            : original.concat(FilterFactory.create({ type: 'isFront' }))
+      await wrapper.setProps({ filtersWithItems: updated })
+      await flushPromises()
+      expect(findImages).toHaveBeenCalledExactlyOnceWith({
+        query: { filters: serializeFilters(updated), order_by: '-date', limit: 12, offset: 0 }
+      })
+      expect(router.currentRoute.value.query.p).toBe('1')
+    }
+  )
 
   it('prevents additional random requests while a random page is loading', async () => {
     const { wrapper, button } = await setup()

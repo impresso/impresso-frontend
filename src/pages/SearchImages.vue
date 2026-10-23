@@ -417,24 +417,26 @@ function onSearchQuery({ q = '' }: { q?: string }) {
 
 async function loadRandomPage() {
   if (!canLoadRandomPage.value) return
-  await fetchSearchResults(true)
+  const totalPages = Math.ceil(paginationTotalRows.value / paginationPerPage.value)
+  const page = Math.floor(Math.random() * totalPages) + 1
+  await fetchSearchResults(page)
 }
 
 let latestRequestId = 0
 let synchronizedQuery = ''
 
-async function fetchSearchResults(random = false) {
+async function fetchSearchResults(page = paginationCurrentPage.value) {
   const requestId = ++latestRequestId
   isLoading.value = true
   try {
-    const q = serviceQuery.value
+    const q = { ...serviceQuery.value, page }
     const serializedFilters = serializeFilters(q.filters)
     const query: Record<string, unknown> = {
       filters: serializedFilters,
       order_by: q.orderBy,
-      limit: q.limit
+      limit: q.limit,
+      offset: (q.page - 1) * q.limit
     }
-    if (!random) query.offset = (q.page - 1) * q.limit
     if (q.similarTo) query.similar_to_image_id = q.similarTo
 
     const [imagesRes, facetsRes] = await Promise.all([
@@ -474,10 +476,25 @@ async function fetchSimilarToImage(id: string) {
 
 watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
 watch(
-  () => JSON.stringify(serviceQuery.value),
-  query => {
+  [
+    () => JSON.stringify(serviceQuery.value),
+    () => serializeFilters(availableFiltersWithItems.value)
+  ],
+  ([query, filters], [, previousFilters]) => {
     const isSynchronized = query === synchronizedQuery
     synchronizedQuery = ''
+    if (
+      previousFilters !== undefined &&
+      filters !== previousFilters &&
+      paginationCurrentPage.value !== 1
+    ) {
+      // Wait for the route watcher to fetch page one, rather than fetching the
+      // previous page with the new filters. Invalidate any pending old response.
+      isLoading.value = true
+      latestRequestId++
+      paginationCurrentPage.value = 1
+      return
+    }
     if (!isSynchronized) return fetchSearchResults()
   },
   { immediate: true }
