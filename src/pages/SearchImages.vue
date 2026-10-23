@@ -68,7 +68,12 @@
       <template v-slot:header>
         <PageNavbarHeading :label="$t('search')" :title="$t('searchImages')">
           <template #actions>
-            <b-button size="sm" variant="outline-primary" @click="loadRandomPage">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              :disabled="!canLoadRandomPage"
+              @click="loadRandomPage"
+            >
               {{ $t('actions.loadRandomPage') }}
             </b-button>
           </template>
@@ -250,6 +255,7 @@ const searchInputRef = ref<{
   focus(): void
 } | null>(null)
 const paginationTotalRows = ref(0)
+const canLoadRandomPage = computed(() => !isLoading.value && paginationTotalRows.value > 0)
 const facets = ref<FacetModel[]>(buildEmptyFacets(AllowedFacetTypes) as FacetModel[])
 
 const userPlan = computed(() => userStore.userPlan)
@@ -342,12 +348,12 @@ const orderBy = computed<string>({
 
 const paginationCurrentPage = computed<number>({
   get() {
-    const parsed = parseInt(String(route.query.p ?? 0), 10)
-    return isNaN(parsed) ? 0 : parsed
+    const parsed = Number(firstQueryValue(route.query.p, '1'))
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1
   },
   set(page) {
     new Navigation(proxy).updateQueryParametersWithHistory({
-      p: isNaN(page) ? 1 : page
+      p: Number.isSafeInteger(page) && page > 0 ? page : 1
     })
   }
 })
@@ -409,11 +415,16 @@ function onSearchQuery({ q = '' }: { q?: string }) {
   )
 }
 
-function loadRandomPage() {
-  new Navigation(proxy).updateQueryParametersWithHistory({ p: 0 })
+async function loadRandomPage() {
+  if (!canLoadRandomPage.value) return
+  await fetchSearchResults(true)
 }
 
-async function fetchSearchResults() {
+let latestRequestId = 0
+let synchronizedQuery = ''
+
+async function fetchSearchResults(random = false) {
+  const requestId = ++latestRequestId
   isLoading.value = true
   try {
     const q = serviceQuery.value
@@ -423,7 +434,7 @@ async function fetchSearchResults() {
       order_by: q.orderBy,
       limit: q.limit
     }
-    if (q.page > 0) query.offset = (q.page - 1) * q.limit
+    if (!random) query.offset = (q.page - 1) * q.limit
     if (q.similarTo) query.similar_to_image_id = q.similarTo
 
     const [imagesRes, facetsRes] = await Promise.all([
@@ -436,13 +447,19 @@ async function fetchSearchResults() {
       })
     ])
 
+    // A newer search may have started while these requests were pending.
+    if (requestId !== latestRequestId) return
+
     paginationTotalRows.value = imagesRes.pagination.total
     searchResults.value = imagesRes.data
-    paginationCurrentPage.value =
-      Math.round(imagesRes.pagination.offset / imagesRes.pagination.limit) + 1
+    const resolvedPage = Math.floor(imagesRes.pagination.offset / imagesRes.pagination.limit) + 1
+    // Updating the URL must not fetch the results we have just received again.
+    synchronizedQuery = JSON.stringify({ ...q, page: resolvedPage })
+    await new Navigation(proxy).updateQueryParametersWithHistory({ p: resolvedPage })
+    if (requestId !== latestRequestId) return
     facets.value = (facetsRes.data as unknown[]).map(f => new FacetModel(f as never))
   } finally {
-    isLoading.value = false
+    if (requestId === latestRequestId) isLoading.value = false
   }
 }
 
@@ -456,7 +473,15 @@ async function fetchSimilarToImage(id: string) {
 }
 
 watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
-watch(serviceQuery, fetchSearchResults, { immediate: true })
+watch(
+  () => JSON.stringify(serviceQuery.value),
+  query => {
+    const isSynchronized = query === synchronizedQuery
+    synchronizedQuery = ''
+    if (!isSynchronized) return fetchSearchResults()
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   // Focus the search field as soon as the page is ready.
