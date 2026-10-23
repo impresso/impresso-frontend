@@ -98,7 +98,7 @@ import {
 import ItemLabel from './modules/lists/ItemLabel.vue'
 import TextReuseCluster from '@/models/TextReuseCluster'
 
-interface TextReuseItem {
+export interface TextReuseItem {
   id: string
   content: string
   textReuseCluster: TextReuseCluster
