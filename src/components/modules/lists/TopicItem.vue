@@ -30,8 +30,8 @@ export default {
     ...mapStores(useTopicsStore),
     label() {
       const countlabel = this.$t('numbers.articles', {
-        n: this.$n(this.item.countItems)
-      }, this.item.countItems)
+        n: this.$n(this.item.contentItemsCount)
+      }, this.item.contentItemsCount)
       return `${this.item.getHtmlExcerpt()} (${countlabel})`
     },
     labelMatches() {

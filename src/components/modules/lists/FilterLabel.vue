@@ -92,6 +92,7 @@ import { includes } from '@/util/fn.js'
 type FilterLabelItem = Entity & {
   name?: string
   title?: string
+  label?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date

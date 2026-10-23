@@ -14,9 +14,9 @@
             $t(
               'numbers.articles',
               {
-                n: $n(tooltip.item.countItems)
+                n: $n(tooltip.item.contentItemsCount)
               },
-              tooltip.item.countItems
+              tooltip.item.contentItemsCount
             )
           "
         />
