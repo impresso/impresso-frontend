@@ -9,7 +9,7 @@ const meta: Meta<typeof TopicItem> = {
   title: 'components/topics/TopicItem',
   component: TopicItem,
   tags: ['autodocs'],
-  decorators: [vueRouter([{ ...Routes.topic, component: { template: '<div />' } }])],
+  decorators: [vueRouter([{ ...Routes.topics.children.topic, component: { template: '<div />' } }])],
   render: (args: TopicItemProps) => ({
     components: { TopicItem },
     setup: () => ({ args }),

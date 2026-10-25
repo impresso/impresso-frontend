@@ -153,7 +153,7 @@
         </div>
       </div>
       <router-view
-        :mediaSource="mediaSource"
+        :item="mediaSource"
         :listFilters="[{ type: 'newspaper', q: route.params.media_source_id }]"
       />
     </i-layout-section>

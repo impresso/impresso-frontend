@@ -88,7 +88,17 @@ export const Routes = {
       },
       topic: {
         path: ':topic_id',
-        name: 'topic'
+        name: 'topic',
+        children: {
+          overview: {
+            path: '',
+            name: 'topicOverview'
+          },
+          contentItems: {
+            path: 'content-items',
+            name: 'topicContentItems'
+          }
+        }
       }
     }
   },

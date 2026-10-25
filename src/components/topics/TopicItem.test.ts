@@ -38,7 +38,7 @@ describe('TopicItem', () => {
     expect(wrapper.text()).toContain('model-1')
     expect(wrapper.text()).toContain('42 articles')
     expect(wrapper.text()).toContain('Transport coverage')
-    expect(wrapper.get('code').text()).toBe('topic-1')
+    expect(wrapper.get('.ContentItemIdLabel').text()).toContain('topic-1')
   })
 
   it.each([

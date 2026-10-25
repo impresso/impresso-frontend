@@ -6,7 +6,6 @@ import TopicDetailPage from './TopicDetailPage.vue'
 import type { TopicDetailPageProps } from './TopicDetailPage.vue'
 import { deserializeFilters, serializeFilters } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
-import { getImpressoMetadata } from '@/models/ImpressoMetadata'
 
 const { getTopic, getFacet, findContentItems } = vi.hoisted(() => ({
   getTopic: vi.fn(),
@@ -20,9 +19,6 @@ vi.mock('@/services', () => ({
 }))
 vi.mock('@/components/modules/lists/ContentItem.vue', () => ({
   default: { name: 'ContentItem', props: ['contentItem'], template: '<div />' }
-}))
-vi.mock('@/components/modules/Timeline.vue', () => ({
-  default: { name: 'Timeline', props: ['values', 'domain'], template: '<div />' }
 }))
 vi.mock('@/components/modules/vis/StackedBarsPanel.vue', () => ({
   default: { name: 'StackedBarsPanel', props: ['buckets', 'facetType'], template: '<div />' }
@@ -78,7 +74,11 @@ async function mountPage(
       plugins: [
         router,
         (app: App) => {
-          Object.assign(app.config.globalProperties, { $t: (key: string) => key, $n: String })
+          Object.assign(app.config.globalProperties, {
+            $t: (key: string) => key,
+            $n: String,
+            $d: String
+          })
         }
       ],
       renderStubDefaultSlot: true,
@@ -90,7 +90,11 @@ async function mountPage(
           template: '<button :disabled="disabled"><slot /></button>'
         },
         'i-dropdown': { name: 'IDropdown', props: ['modelValue', 'options'], template: '<div />' },
-        Timeline: { name: 'Timeline', props: ['values', 'domain'], template: '<div />' },
+        SearchFacetTimeline: {
+          name: 'SearchFacetTimeline',
+          props: ['facetType', 'searchIndex', 'title', 'height', 'filters'],
+          template: '<div />'
+        },
         RouterLink: false
       }
     }
@@ -116,7 +120,6 @@ beforeEach(() => {
     clear: () => storage.clear()
   })
   localStorage.clear()
-  getImpressoMetadata().impressoDocumentsYearSpan = { firstYear: 1800, lastYear: 2000 }
   getTopic.mockImplementation(id => Promise.resolve(topic(id)))
   getFacet.mockImplementation(type =>
     Promise.resolve({
@@ -150,16 +153,14 @@ describe('TopicDetailPage', () => {
     const { wrapper } = await setup({ tab })
     await flushPromises()
     expect(getTopic).toHaveBeenCalledExactlyOnceWith('topic-1')
-    expect(getFacet).toHaveBeenCalledWith('year', {
-      query: { filters: [{ type: 'topic', q: ['topic-1'] }], limit: 500 }
-    })
     expect(getFacet).toHaveBeenCalledWith('country', {
       query: { filters: [{ type: 'topic', q: ['topic-1'] }] }
     })
     expect(wrapper.findComponent({ name: 'TopicWord' }).props('item').w).toBe('train')
-    expect(wrapper.findComponent({ name: 'Timeline' }).props()).toMatchObject({
-      domain: [1800, 2000],
-      values: [expect.objectContaining({ t: 1900, w: 3 })]
+    expect(wrapper.findComponent({ name: 'SearchFacetTimeline' }).props()).toMatchObject({
+      facetType: 'year',
+      searchIndex: 'search',
+      filters: [{ type: 'topic', q: 'topic-1' }]
     })
     expect(findContentItems).not.toHaveBeenCalled()
   })
