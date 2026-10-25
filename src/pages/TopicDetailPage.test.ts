@@ -307,6 +307,15 @@ describe('TopicDetailPage', () => {
     expect(getTopic).not.toHaveBeenCalled()
   })
 
+  it('does not enable topic actions for an invalid topic payload', async () => {
+    getTopic.mockResolvedValueOnce({})
+    const { wrapper } = await setup()
+    await flushPromises()
+    expect(wrapper.get('[role="alert"]').text()).toBe('topicLoadError')
+    expect(wrapper.get('button').attributes('disabled')).toBeDefined()
+    expect(getFacet).not.toHaveBeenCalled()
+  })
+
   it.each(['overview', 'articles'])('clears loading and shows errors for the %s tab', async tab => {
     if (tab === 'overview') getFacet.mockRejectedValue(new Error('Failed'))
     else findContentItems.mockRejectedValue(new Error('Failed'))

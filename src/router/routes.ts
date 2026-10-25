@@ -78,9 +78,19 @@ export const Routes = {
     }
   },
 
-  topic: {
-    path: '/topics/:topic_id',
-    name: 'topic'
+  topics: {
+    path: '/topics',
+    name: 'topicsRoot',
+    children: {
+      metadata: {
+        path: '',
+        name: 'topics'
+      },
+      topic: {
+        path: ':topic_id',
+        name: 'topic'
+      }
+    }
   },
   search: {
     path: '/search',

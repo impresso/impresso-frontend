@@ -16,7 +16,7 @@
             active-class=""
             :aria-current="tab === name ? 'page' : undefined"
             :to="{
-              name: Routes.topic.name,
+              name: Routes.topics.children.topic.name,
               params: { topic_id: topicId },
               query: { ...route.query, tab: name }
             }"
@@ -280,7 +280,9 @@ watch(
     try {
       if (!id) throw new Error('Missing topic ID')
       const result = await topicsService.get(id)
-      if (active) topic.value = new Topic(result)
+      const loadedTopic = new Topic(result)
+      if (!loadedTopic.id) throw new Error('Missing topic data')
+      if (active) topic.value = loadedTopic
     } catch {
       if (active) topicError.value = true
     } finally {
