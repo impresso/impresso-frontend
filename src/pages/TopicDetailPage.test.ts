@@ -1,26 +1,14 @@
-import { flushPromises, shallowMount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type App } from 'vue'
 import { createMemoryHistory, createRouter, type LocationQueryRaw } from 'vue-router'
 import TopicDetailPage from './TopicDetailPage.vue'
-import { deserializeFilters, serializeFilters } from '@/logic/filters'
-import FilterFactory from '@/models/FilterFactory'
 
-const { getTopic, getFacet, findContentItems } = vi.hoisted(() => ({
-  getTopic: vi.fn(),
-  getFacet: vi.fn(),
-  findContentItems: vi.fn()
+const { getTopic } = vi.hoisted(() => ({
+  getTopic: vi.fn()
 }))
 vi.mock('@/services', () => ({
-  topics: { get: getTopic },
-  searchFacets: { get: getFacet },
-  contentItems: { find: findContentItems }
-}))
-vi.mock('@/components/modules/lists/ContentItem.vue', () => ({
-  default: { name: 'ContentItem', props: ['contentItem'], template: '<div />' }
-}))
-vi.mock('@/components/modules/vis/StackedBarsPanel.vue', () => ({
-  default: { name: 'StackedBarsPanel', props: ['buckets', 'facetType'], template: '<div />' }
+  topics: { get: getTopic }
 }))
 
 function deferred<T>() {
@@ -32,6 +20,7 @@ function deferred<T>() {
   })
   return { promise, resolve, reject }
 }
+
 function topic(id = 'topic-1') {
   return {
     id,
@@ -41,18 +30,34 @@ function topic(id = 'topic-1') {
     contentItemsCount: 42
   }
 }
-function contentItems(offset = 0, total = 42) {
-  return {
-    data: [{ id: `item-${offset}`, text: { title: 'Canonical title' } }],
-    pagination: { offset, limit: 10, total }
-  }
+
+// Host that renders the matched route, so `TopicDetailPage` is mounted in its
+// real position (with its own <router-view> resolving the nested child route).
+const RootView = { name: 'RootView', template: '<router-view />' }
+
+const TopicOverviewRoute = {
+  name: 'TopicOverviewRoute',
+  props: ['item', 'listFilters'],
+  template: '<div class="route-overview" />'
+}
+const TopicMetadataRoute = {
+  name: 'TopicMetadataRoute',
+  props: ['item', 'listFilters'],
+  template: '<div class="route-metadata" />'
+}
+const TopicContentItemsRoute = {
+  name: 'TopicContentItemsRoute',
+  props: ['item', 'listFilters'],
+  template: '<div class="route-content-items" />'
 }
 
-async function mountPage(
-  query: LocationQueryRaw = {},
-  props: Record<string, unknown> = {},
-  id = 'topic-1'
-) {
+interface MountOptions {
+  id?: string
+  routeName?: string
+  query?: LocationQueryRaw
+}
+
+async function mountPage({ id = 'topic-1', routeName = 'topicOverview', query = {} }: MountOptions = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -61,14 +66,18 @@ async function mountPage(
         path: '/topics/:topic_id?',
         name: 'topic',
         component: TopicDetailPage,
-        meta: { requiresAuth: false }
+        meta: { requiresAuth: false },
+        children: [
+          { path: '', name: 'topicOverview', component: TopicOverviewRoute },
+          { path: 'metadata', name: 'topicMetadata', component: TopicMetadataRoute },
+          { path: 'content-items', name: 'topicContentItems', component: TopicContentItemsRoute }
+        ]
       },
       { path: '/search', name: 'search', component: { template: '<div />' } }
     ]
   })
-  await router.push({ name: 'topic', params: { topic_id: id }, query })
-  const wrapper = shallowMount(TopicDetailPage, {
-    props: { facetTypes: ['country'], ...props },
+  await router.push({ name: routeName, params: { topic_id: id }, query })
+  const wrapper = mount(RootView, {
     global: {
       plugins: [
         router,
@@ -80,215 +89,104 @@ async function mountPage(
           })
         }
       ],
-      renderStubDefaultSlot: true,
       stubs: {
         'i-layout-section': { template: '<div><slot name="header" /><slot /></div>' },
-        'b-navbar': { template: '<div><slot /></div>' },
-        'b-button': {
-          props: ['disabled'],
-          template: '<button :disabled="disabled"><slot /></button>'
+        PageNavbarHeading: {
+          name: 'PageNavbarHeading',
+          template:
+            '<div><slot name="label" /><slot name="title" /><slot /><slot name="actions" /></div>'
         },
-        'i-dropdown': { name: 'IDropdown', props: ['modelValue', 'options'], template: '<div />' },
+        TopicItem: {
+          name: 'TopicItem',
+          props: ['topic', 'showLink', 'showModel', 'showDescription', 'showLanguage', 'showId', 'showTitle'],
+          template: '<div class="TopicItem" />'
+        },
+        OpenInSearchButton: {
+          name: 'OpenInSearchButton',
+          props: ['filters'],
+          template: '<div class="OpenInSearchButton" />'
+        },
         SearchFacetTimeline: {
           name: 'SearchFacetTimeline',
-          props: ['facetType', 'searchIndex', 'title', 'height', 'filters'],
-          template: '<div />'
+          props: ['facetType', 'searchIndex', 'title', 'height', 'filters', 'errorLoadingItemsMessage'],
+          template: '<div class="SearchFacetTimeline" />'
         },
-        RouterLink: false
+        LoadingBlock: {
+          name: 'LoadingBlock',
+          props: ['label', 'height'],
+          template: '<div class="LoadingBlock" />'
+        }
       }
     }
   })
   return { wrapper, router }
 }
+
 const mounted: Awaited<ReturnType<typeof mountPage>>[] = []
-async function setup(
-  query: LocationQueryRaw = {},
-  props: Record<string, unknown> = {},
-  id = 'topic-1'
-) {
-  const result = await mountPage(query, props, id)
+async function setup(options: MountOptions = {}) {
+  const result = await mountPage(options)
   mounted.push(result)
   return result
 }
+
 beforeEach(() => {
   vi.resetAllMocks()
-  const storage = new Map<string, string>()
-  vi.stubGlobal('localStorage', {
-    getItem: (key: string) => storage.get(key) ?? null,
-    setItem: (key: string, value: string) => storage.set(key, value),
-    clear: () => storage.clear()
-  })
-  localStorage.clear()
+  vi.spyOn(console, 'error').mockImplementation(() => {})
   getTopic.mockImplementation(id => Promise.resolve(topic(id)))
-  getFacet.mockImplementation(type =>
-    Promise.resolve({
-      type,
-      buckets: type === 'year' ? [{ value: '1900', count: 3 }] : []
-    })
-  )
-  findContentItems.mockImplementation(({ query }) => Promise.resolve(contentItems(query.offset)))
 })
 afterEach(() => {
   mounted.splice(0).forEach(({ wrapper }) => wrapper.unmount())
-  localStorage.clear()
-  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 
 describe('TopicDetailPage', () => {
-  it('shows loading and disables topic actions until the topic is available', async () => {
+  it('fetches the topic matching the current route param', async () => {
+    await setup({ id: 'topic-9' })
+    await flushPromises()
+    expect(getTopic).toHaveBeenCalledExactlyOnceWith('topic-9')
+  })
+
+  it('shows loading and hides topic actions until the topic resolves', async () => {
     const pending = deferred<ReturnType<typeof topic>>()
     getTopic.mockReturnValueOnce(pending.promise)
     const { wrapper } = await setup()
     expect(wrapper.findComponent({ name: 'LoadingBlock' }).exists()).toBe(true)
-    expect(wrapper.get('button').attributes('disabled')).toBeDefined()
-    expect(getFacet).not.toHaveBeenCalled()
+    expect(wrapper.findComponent({ name: 'OpenInSearchButton' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'TopicItem' }).exists()).toBe(false)
+
     pending.resolve(topic())
     await flushPromises()
-    expect(wrapper.get('button').attributes('disabled')).toBeUndefined()
+    expect(wrapper.findComponent({ name: 'LoadingBlock' }).exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'TopicItem' }).props('topic')).toMatchObject({ id: 'topic-1' })
     expect(wrapper.findComponent({ name: 'TopicItem' }).props('showLink')).toBe(false)
+    expect(wrapper.findComponent({ name: 'OpenInSearchButton' }).props('filters')).toEqual([
+      { type: 'topic', q: 'topic-1' }
+    ])
   })
 
-  it.each([undefined, 'overview', 'invalid'])('loads the overview for tab=%s', async tab => {
-    const { wrapper } = await setup({ tab })
+  it('refetches when navigating to a different topic', async () => {
+    const { router } = await setup()
     await flushPromises()
-    expect(getTopic).toHaveBeenCalledExactlyOnceWith('topic-1')
-    expect(getFacet).toHaveBeenCalledWith('country', {
-      query: { filters: [{ type: 'topic', q: ['topic-1'] }] }
-    })
-    expect(wrapper.findComponent({ name: 'TopicWord' }).props('item').w).toBe('train')
-    expect(wrapper.findComponent({ name: 'SearchFacetTimeline' }).props()).toMatchObject({
-      facetType: 'year',
-      searchIndex: 'search',
-      filters: [{ type: 'topic', q: 'topic-1' }]
-    })
-    expect(findContentItems).not.toHaveBeenCalled()
-  })
-
-  it('preserves unrelated query parameters across tabs without refetching the topic', async () => {
-    const { wrapper, router } = await setup({ sq: 'existing-query', q: 'train' })
+    await router.push({ name: 'topicContentItems', params: { topic_id: 'topic-2' } })
     await flushPromises()
-    const articlesLink = wrapper.findAll('a').find(link => link.text() === 'tabs.relatedArticles')!
-    await articlesLink.trigger('click')
-    await flushPromises()
-    expect(router.currentRoute.value.query).toMatchObject({
-      sq: 'existing-query',
-      q: 'train',
-      tab: 'articles'
-    })
-    expect(getTopic).toHaveBeenCalledTimes(1)
-    expect(findContentItems).toHaveBeenCalledTimes(1)
-    await router.push({ query: { ...router.currentRoute.value.query, unrelated: 'value' } })
-    await flushPromises()
-    expect(getTopic).toHaveBeenCalledTimes(1)
-    expect(findContentItems).toHaveBeenCalledTimes(1)
-  })
-
-  it('renders canonical content items and reads pagination totals', async () => {
-    const { wrapper } = await setup({ tab: 'articles' })
-    await flushPromises()
-    expect(findContentItems).toHaveBeenCalledExactlyOnceWith({
-      query: {
-        filters: [{ type: 'topic', q: ['topic-1'] }],
-        limit: 10,
-        offset: 0,
-        order_by: '-topicRelevance'
-      }
-    })
-    expect(wrapper.findComponent({ name: 'ContentItem' }).props('contentItem')).toEqual(
-      contentItems().data[0]
-    )
-    expect(wrapper.findComponent({ name: 'Pagination' }).props()).toMatchObject({
-      currentPage: 1,
-      totalRows: 42,
-      perPage: 10
-    })
-    expect(getFacet).not.toHaveBeenCalled()
-  })
-
-  it('paginates and resets to page one on ordering changes without duplicate requests', async () => {
-    const { wrapper } = await setup({ tab: 'articles' })
-    await flushPromises()
-    wrapper.findComponent({ name: 'Pagination' }).vm.$emit('change', 3)
-    await flushPromises()
-    expect(findContentItems).toHaveBeenCalledTimes(2)
-    expect(findContentItems.mock.calls[1][0].query.offset).toBe(20)
-    expect(wrapper.findComponent({ name: 'Pagination' }).props('currentPage')).toBe(3)
-    wrapper.findComponent({ name: 'IDropdown' }).vm.$emit('update:modelValue', 'date')
-    await flushPromises()
-    expect(findContentItems).toHaveBeenCalledTimes(3)
-    expect(findContentItems.mock.calls[2][0].query).toMatchObject({ offset: 0, order_by: 'date' })
-    expect(wrapper.findComponent({ name: 'Pagination' }).props('currentPage')).toBe(1)
-    expect(getTopic).toHaveBeenCalledTimes(1)
-  })
-
-  it('uses the returned offset to synchronize the displayed page', async () => {
-    findContentItems.mockResolvedValueOnce(contentItems(20))
-    const { wrapper } = await setup({ tab: 'articles' })
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'Pagination' }).props('currentPage')).toBe(3)
-  })
-
-  it('resets pagination when navigating to a different topic', async () => {
-    const { wrapper, router } = await setup({ tab: 'articles' })
-    await flushPromises()
-    wrapper.findComponent({ name: 'Pagination' }).vm.$emit('change', 3)
-    await flushPromises()
-    await router.push({
-      name: 'topic',
-      params: { topic_id: 'topic-2' },
-      query: { tab: 'articles' }
-    })
-    await flushPromises()
-    expect(findContentItems).toHaveBeenCalledTimes(3)
-    expect(findContentItems.mock.calls[2][0].query).toMatchObject({
-      offset: 0,
-      filters: [{ type: 'topic', q: ['topic-2'] }]
-    })
-    expect(wrapper.findComponent({ name: 'Pagination' }).props('currentPage')).toBe(1)
+    expect(getTopic).toHaveBeenCalledTimes(2)
+    expect(getTopic).toHaveBeenLastCalledWith('topic-2')
   })
 
   it('ignores stale topic responses during quick navigation', async () => {
     const pending = deferred<ReturnType<typeof topic>>()
     getTopic.mockReturnValueOnce(pending.promise)
     const { wrapper, router } = await setup()
-    await router.push({ name: 'topic', params: { topic_id: 'topic-2' } })
+    await router.push({ name: 'topicContentItems', params: { topic_id: 'topic-2' } })
     await flushPromises()
     pending.resolve(topic('topic-1'))
     await flushPromises()
-    expect(wrapper.findComponent({ name: 'TopicItem' }).props('topic').id).toBe('topic-2')
-    expect(
-      getFacet.mock.calls.every(([, params]) => params.query.filters[0].q[0] === 'topic-2')
-    ).toBe(true)
-  })
-
-  it('ignores stale article responses belonging to the previous topic', async () => {
-    const pending = deferred<ReturnType<typeof contentItems>>()
-    findContentItems.mockReturnValueOnce(pending.promise)
-    const { wrapper, router } = await setup({ tab: 'articles' })
-    await flushPromises()
-    await router.push({
-      name: 'topic',
-      params: { topic_id: 'topic-2' },
-      query: { tab: 'articles' }
+    expect(wrapper.findComponent({ name: 'TopicItem' }).props('topic')).toMatchObject({
+      id: 'topic-2'
     })
-    await flushPromises()
-    pending.resolve(contentItems(90, 999))
-    await flushPromises()
-    expect(wrapper.findComponent({ name: 'ContentItem' }).props('contentItem').id).toBe('item-0')
-    expect(wrapper.findComponent({ name: 'Pagination' }).props('totalRows')).toBe(42)
-  })
-
-  it('ignores overview responses after switching tabs', async () => {
-    const pending = deferred<{ type: string; buckets: [] }>()
-    getFacet.mockReturnValue(pending.promise)
-    const { wrapper, router } = await setup()
-    await flushPromises()
-    await router.push({ query: { tab: 'articles' } })
-    await flushPromises()
-    pending.reject(new Error('Old overview error'))
-    await flushPromises()
-    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
-    expect(wrapper.findComponent({ name: 'ContentItem' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'OpenInSearchButton' }).props('filters')).toEqual([
+      { type: 'topic', q: 'topic-2' }
+    ])
   })
 
   it('shows a topic error and clears loading when the topic cannot be loaded', async () => {
@@ -297,72 +195,85 @@ describe('TopicDetailPage', () => {
     await flushPromises()
     expect(wrapper.get('[role="alert"]').text()).toBe('topicLoadError')
     expect(wrapper.findComponent({ name: 'LoadingBlock' }).exists()).toBe(false)
-    expect(getFacet).not.toHaveBeenCalled()
+    expect(wrapper.findComponent({ name: 'OpenInSearchButton' }).exists()).toBe(false)
   })
 
-  it('handles a missing topic ID without requesting an invalid topic', async () => {
-    const { wrapper } = await setup({}, {}, '')
-    await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toBe('topicLoadError')
-    expect(getTopic).not.toHaveBeenCalled()
-  })
-
-  it('does not enable topic actions for an invalid topic payload', async () => {
+  it('does not enable topic actions when the payload has no id', async () => {
     getTopic.mockResolvedValueOnce({})
     const { wrapper } = await setup()
     await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toBe('topicLoadError')
-    expect(wrapper.get('button').attributes('disabled')).toBeDefined()
-    expect(getFacet).not.toHaveBeenCalled()
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'OpenInSearchButton' }).exists()).toBe(false)
   })
 
-  it.each(['overview', 'articles'])('clears loading and shows errors for the %s tab', async tab => {
-    if (tab === 'overview') getFacet.mockRejectedValue(new Error('Failed'))
-    else findContentItems.mockRejectedValue(new Error('Failed'))
-    const { wrapper } = await setup({ tab })
+  it('does not request a topic when the route has no topic id', async () => {
+    const { wrapper } = await setup({ id: '' })
     await flushPromises()
-    expect(wrapper.get('[role="alert"]').text()).toBe(
-      tab === 'overview' ? 'overviewLoadError' : 'articlesLoadError'
+    expect(getTopic).not.toHaveBeenCalled()
+    // No id usually means we are leaving the route: stay silent, no error.
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(wrapper.findAll('a')).toHaveLength(0)
+    expect(wrapper.findComponent({ name: 'TopicOverviewRoute' }).exists()).toBe(false)
+  })
+
+  it('renders tabs that link to the nested topic routes with the topic id', async () => {
+    const { wrapper } = await setup({ routeName: 'topicMetadata' })
+    await flushPromises()
+    const hrefs = wrapper.findAll('a').map(link => link.attributes('href'))
+    expect(hrefs).toContain('/topics/topic-1')
+    expect(hrefs).toContain('/topics/topic-1/metadata')
+    expect(hrefs).toContain('/topics/topic-1/content-items')
+  })
+
+  it('marks the tab matching the current route as active', async () => {
+    const { wrapper } = await setup({ routeName: 'topicMetadata' })
+    await flushPromises()
+    const metadataLink = wrapper.findAll('a').find(link => link.text() === 'route.metadata')!
+    const overviewLink = wrapper.findAll('a').find(link => link.text() === 'route.overview')!
+    expect(metadataLink.classes()).toContain('active')
+    expect(overviewLink.classes()).not.toContain('active')
+  })
+
+  it.each(['topicOverview', 'topicMetadata'])(
+    'renders the timeline scoped to the topic on the %s route',
+    async routeName => {
+      const { wrapper } = await setup({ routeName })
+      await flushPromises()
+      const timeline = wrapper.findComponent({ name: 'SearchFacetTimeline' })
+      expect(timeline.exists()).toBe(true)
+      expect(timeline.props()).toMatchObject({
+        facetType: 'year',
+        searchIndex: 'search',
+        height: '85px',
+        filters: [{ type: 'topic', q: 'topic-1' }]
+      })
+    }
+  )
+
+  it('does not render the timeline on the content items route', async () => {
+    const { wrapper } = await setup({ routeName: 'topicContentItems' })
+    await flushPromises()
+    expect(wrapper.findComponent({ name: 'SearchFacetTimeline' }).exists()).toBe(false)
+  })
+
+  it('renders the nested route view for the matched tab', async () => {
+    const overview = await setup({ routeName: 'topicOverview' })
+    await flushPromises()
+    expect(overview.wrapper.findComponent({ name: 'TopicOverviewRoute' }).exists()).toBe(true)
+
+    const contentItems = await setup({ routeName: 'topicContentItems' })
+    await flushPromises()
+    expect(contentItems.wrapper.findComponent({ name: 'TopicContentItemsRoute' }).exists()).toBe(
+      true
     )
-    expect(wrapper.findComponent({ name: 'LoadingBlock' }).exists()).toBe(false)
+    expect(contentItems.wrapper.findComponent({ name: 'TopicOverviewRoute' }).exists()).toBe(false)
   })
 
-  it('renders empty overview and article states', async () => {
-    getTopic.mockResolvedValueOnce({ id: 'topic-1' })
-    getFacet.mockResolvedValue({ buckets: [] })
-    findContentItems.mockResolvedValue({ data: [], pagination: { offset: 0, limit: 10, total: 0 } })
-    const { wrapper, router } = await setup({}, { facetTypes: [] })
+  it('passes the topic and topic filter down to the nested route view', async () => {
+    const { wrapper } = await setup({ routeName: 'topicOverview' })
     await flushPromises()
-    expect(wrapper.text()).toContain('noWords')
-    expect(wrapper.text()).toContain('noTimeline')
-    expect(wrapper.text()).toContain('noFacets')
-    await router.push({ query: { tab: 'articles' } })
-    await flushPromises()
-    expect(wrapper.text()).toContain('noArticles')
-    expect(wrapper.findComponent({ name: 'Pagination' }).exists()).toBe(false)
-  })
-
-  it('preserves current filters, prevents duplicate topic filters, and builds a serialized search link', async () => {
-    const existing = [
-      FilterFactory.create({ type: 'language', q: ['en'] }),
-      FilterFactory.create({ type: 'topic', q: ['topic-1'] })
-    ]
-    const { wrapper, router } = await setup({ sq: serializeFilters(existing), tab: 'articles' })
-    await flushPromises()
-    await wrapper.get('button').trigger('click')
-    await flushPromises()
-    await wrapper.get('button').trigger('click')
-    await flushPromises()
-    const filters = deserializeFilters(router.currentRoute.value.query.sq as string)
-    expect(filters.filter(filter => filter.type === 'topic')).toHaveLength(1)
-    expect(filters.find(filter => filter.type === 'language')?.q).toBe('en')
-    expect(getTopic).toHaveBeenCalledTimes(1)
-    expect(findContentItems).toHaveBeenCalledTimes(1)
-    const searchLink = wrapper.findAll('a').find(link => link.text() === 'actions.searchMore')!
-    const target = new URL(searchLink.attributes('href'), 'http://localhost')
-    expect(target.pathname).toBe('/search')
-    const searchFilters = deserializeFilters(target.searchParams.get('sq')!)
-    expect(searchFilters).toHaveLength(1)
-    expect(searchFilters[0].q).toBe('topic-1')
+    const routeView = wrapper.findComponent({ name: 'TopicOverviewRoute' })
+    expect(routeView.props('item')).toMatchObject({ id: 'topic-1' })
+    expect(routeView.props('listFilters')).toEqual([{ type: 'topic', q: 'topic-1' }])
   })
 })
