@@ -106,7 +106,8 @@ export interface ListOfFindResponseItemsProps<T> {
   dataAccessor?: (data: T[]) => any[]
   paginationAccessor?: (
     data: T[],
-    pagination: any
+    pagination: any,
+    response?: any
   ) => { total: number; offset: number; limit: number }
 }
 
@@ -193,7 +194,7 @@ const fetchFindMethod = async () => {
       })
       .then((response: any) => {
         const data = props.dataAccessor(response.data)
-        const pagination = props.paginationAccessor(data, response.pagination)
+        const pagination = props.paginationAccessor(data, response.pagination, response)
         return { data, pagination }
       })
 

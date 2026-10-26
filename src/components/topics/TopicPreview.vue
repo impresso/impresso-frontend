@@ -19,7 +19,7 @@
         v-if="loadedTopic.id"
         class="btn btn-sm btn-outline-secondary m-2"
         :to="{
-          name: Routes.topics.children.topic.name,
+          name: Routes.topics.children.topic.children.metadata.name,
           params: {
             topic_id: item.id
           }

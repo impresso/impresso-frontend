@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { createPinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import TopicItem from './TopicItem.vue'
 import type { TopicItemProps } from './TopicItem.vue'
@@ -8,13 +9,22 @@ import Topic from '@/models/Topic'
 function render(topic: TopicItemProps['topic'], props = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [{ path: '/topics/:topic_id', name: 'topic', component: { template: '<div />' } }]
+    routes: [
+      {
+        path: '/topics/:topic_id/metadata',
+        name: 'topicMetadata',
+        component: { template: '<div />' }
+      }
+    ]
   })
   return mount(TopicItem, {
     props: { topic, ...props },
     global: {
-      plugins: [router],
-      mocks: { $t: (_key: string, params: { n: string }) => `${params.n} articles`, $n: String }
+      plugins: [router, createPinia()],
+      mocks: {
+        $t: (_key: string, params?: { n: string }) => (params ? `${params.n} articles` : _key),
+        $n: String
+      }
     }
   })
 }
@@ -30,10 +40,10 @@ describe('TopicItem', () => {
         contentItemsCount: 42,
         description: 'Transport coverage'
       }),
-      { showDescription: true, showId: true }
+      { showDescription: true, showId: true, showModel: true }
     )
     expect(wrapper.get('a').text()).toBe('Railways')
-    expect(wrapper.get('a').attributes('href')).toBe('/topics/topic-1')
+    expect(wrapper.get('a').attributes('href')).toBe('/topics/topic-1/metadata')
     expect(wrapper.text()).toContain('en')
     expect(wrapper.text()).toContain('model-1')
     expect(wrapper.text()).toContain('42 articles')
@@ -84,6 +94,40 @@ describe('TopicItem', () => {
     expect(wrapper.emitted('click')?.[0]).toEqual([topic])
     await wrapper.setProps({ showTitle: false })
     expect(wrapper.text()).toBe('')
+  })
+
+  it('shows the term surrounded by the previous and next word as a search result', () => {
+    const topic = new Topic({
+      id: 'topic-1',
+      label: 'Railways',
+      words: [
+        { w: 'railway', p: 0.9 },
+        { w: 'train', p: 0.8 },
+        { w: 'station', p: 0.7 },
+        { w: 'tunnel', p: 0.6 }
+      ]
+    })
+
+    const wrapper = render(topic, { term: 'station' })
+    expect(wrapper.get('a').text()).toBe('Railways')
+    expect(wrapper.get('.TopicItem__term-context').text()).toBe('… · train · station · tunnel')
+    expect(wrapper.get('.highlight').text()).toBe('station')
+  })
+
+  it('falls back to the topic title when the term is empty or does not match a word', async () => {
+    const topic = new Topic({
+      id: 'topic-1',
+      label: 'Railways',
+      words: [{ w: 'train', p: 0.8 }]
+    })
+
+    const wrapper = render(topic, { term: '  ' })
+    expect(wrapper.get('a').text()).toBe('Railways')
+    expect(wrapper.find('.TopicItem__term-context').exists()).toBe(false)
+
+    await wrapper.setProps({ term: 'missing' })
+    expect(wrapper.get('a').text()).toBe('Railways')
+    expect(wrapper.find('.TopicItem__term-context').exists()).toBe(false)
   })
 
   it('renders an actions slot and escapes labels as text', () => {

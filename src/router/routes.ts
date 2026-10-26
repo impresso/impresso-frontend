@@ -97,6 +97,10 @@ export const Routes = {
           contentItems: {
             path: 'content-items',
             name: 'topicContentItems'
+          },
+          metadata: {
+            path: 'metadata',
+            name: 'topicMetadata'
           }
         }
       }

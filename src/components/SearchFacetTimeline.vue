@@ -2,8 +2,8 @@
   <div class="SearchFacetTimeline">
     <slot name="beforeHeader"></slot>
     <slot name="header" :total="total" :values="timelineValues" :status="status">
-      <h5 class="m-0 font-size-inherit" v-if="props.title">
-        <span class="small-caps-bold" v-html="props.title"></span>
+      <h5 class="m-0 font-size-inherit font-weight-bold" v-if="props.title">
+        <span v-html="props.title"></span>
       </h5>
     </slot>
     <slot name="afterHeader"></slot>

@@ -59,6 +59,7 @@ import { computed, ref } from 'vue'
 import { MediaSource } from '../../models/generated/canonical.js'
 import LoadingBlock from '../LoadingBlock.vue'
 import { useScrollToTop } from '@/composables/useScrollToTop'
+import Alert from 'impresso-ui-components/components/Alert.vue'
 
 export interface MediaSourceFirstPagesProps {
   mediaSource?: MediaSource

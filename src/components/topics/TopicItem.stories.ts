@@ -9,7 +9,15 @@ const meta: Meta<typeof TopicItem> = {
   title: 'components/topics/TopicItem',
   component: TopicItem,
   tags: ['autodocs'],
-  decorators: [vueRouter([{ ...Routes.topics.children.topic, component: { template: '<div />' } }])],
+  decorators: [
+    vueRouter([
+      {
+        path: '/topics/:topic_id/metadata',
+        name: Routes.topics.children.topic.children.metadata.name,
+        component: { template: '<div />' }
+      }
+    ])
+  ],
   render: (args: TopicItemProps) => ({
     components: { TopicItem },
     setup: () => ({ args }),
@@ -26,6 +34,10 @@ export const Labeled: Story = {
 
 export const WordsOnly: Story = {
   args: { topic: MockWordsOnlyTopic }
+}
+
+export const SearchTerm: Story = {
+  args: { topic: MockWordsOnlyTopic, term: 'station' }
 }
 
 export const MissingMetadata: Story = {

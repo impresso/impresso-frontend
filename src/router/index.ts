@@ -408,7 +408,24 @@ const router = createRouter({
           name: Routes.topics.children.topic.name,
           meta: {
             requiresAuth: false
-          }
+          },
+          children: [
+            {
+              path: Routes.topics.children.topic.children.overview.path,
+              component: () => import('@/components/ItemOverview.vue'),
+              name: Routes.topics.children.topic.children.overview.name
+            },
+            {
+              path: Routes.topics.children.topic.children.metadata.path,
+              component: () => import('@/components/topics/TopicMetadata.vue'),
+              name: Routes.topics.children.topic.children.metadata.name
+            },
+            {
+              path: Routes.topics.children.topic.children.contentItems.path,
+              component: () => import('@/components/ListOfContentItems.vue'),
+              name: Routes.topics.children.topic.children.contentItems.name
+            }
+          ]
         }
       ]
     },
@@ -586,7 +603,7 @@ const router = createRouter({
         {
           path: Routes.mediaSource.children.overview.path,
           name: Routes.mediaSource.children.overview.name,
-          component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          component: () => import('@/components/ItemOverview.vue'),
           meta: {
             requiresAuth: false
           }

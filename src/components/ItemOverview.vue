@@ -1,5 +1,5 @@
 <template>
-  <div v-if="props.item" class="ItemOverview container-xxl">
+  <div v-if="props.item" class="ItemOverview container-xxl ml-0">
     <ListOfSearchFacetsStackedBars
       :facet-types="facetTypes"
       :filters="props.listFilters"

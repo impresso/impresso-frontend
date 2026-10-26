@@ -7,12 +7,35 @@
       <h2 v-if="showTitle" class="m-0 font-size-inherit font-weight-bold">
         <router-link
           v-if="showLink && topic.id"
-          :to="{ name: Routes.topics.children.topic.name, params: { topic_id: topic.id } }"
+          :to="{
+            name: Routes.topics.children.topic.children.metadata.name,
+            params: { topic_id: topic.id }
+          }"
         >
           {{ title }}
         </router-link>
         <span v-else>{{ title }}</span>
       </h2>
+    </div>
+    <div v-if="termContext.length" class="small mt-2 TopicItem__term-context">
+      <template v-for="(match, index) in termContext" :key="`${match.word}-${index}`">
+        <template v-if="match.hasMoreBefore">… · </template>
+        <template v-if="match.previous">{{ match.previous }} · </template>
+        <span class="highlight">{{ match.word }}</span>
+        <template v-if="match.next"> · {{ match.next }}</template>
+        <template v-if="match.hasMoreAfter"> · …</template>
+        <template v-if="index < termContext.length - 1"> · … · </template>
+      </template>
+    </div>
+    <div v-if="showRepresentativeTerms && topic.representativeTerms?.length">
+      <div class="small mt-2">
+        <span v-if="showCategory && topic.category" class="small-caps text-muted">
+          {{ topic.category }} &mdash;
+        </span>
+        <span v-for="(term, i) in topic.representativeTerms" :key="term">
+          {{ term }}<span v-if="i < topic.representativeTerms.length - 1">, </span>
+        </span>
+      </div>
     </div>
     <div v-if="showModel && topic.model" class="small-caps">{{ topic.model }}</div>
     <div
@@ -44,6 +67,9 @@ export interface TopicItemProps {
   showCount?: boolean
   showId?: boolean
   showDescription?: boolean
+  showCategory?: boolean
+  showRepresentativeTerms?: boolean
+  term?: string
 }
 
 const props = withDefaults(defineProps<TopicItemProps>(), {
@@ -53,7 +79,10 @@ const props = withDefaults(defineProps<TopicItemProps>(), {
   showModel: false,
   showCount: true,
   showId: false,
-  showDescription: false
+  showDescription: false,
+  showCategory: false,
+  showRepresentativeTerms: false,
+  term: ''
 })
 
 const emit = defineEmits<{ click: [topic: TopicItemProps['topic']] }>()
@@ -68,6 +97,35 @@ const title = computed(
       .join(' · ') ||
     props.topic.id
 )
+export interface TermContextMatch {
+  previous?: string
+  word: string
+  next?: string
+  hasMoreBefore: boolean
+  hasMoreAfter: boolean
+}
+
+const termContext = computed<TermContextMatch[]>(() => {
+  const term = props.term?.trim().toLowerCase()
+  if (!term) return []
+
+  const words = (props.topic.words ?? [])
+    .map(word => word.w?.trim())
+    .filter((word): word is string => Boolean(word))
+
+  return words.reduce<TermContextMatch[]>((matches, word, index) => {
+    if (!word.toLowerCase().includes(term)) return matches
+
+    matches.push({
+      previous: words[index - 1],
+      word,
+      next: words[index + 1],
+      hasMoreBefore: index > 1,
+      hasMoreAfter: index < words.length - 2
+    })
+    return matches
+  }, [])
+})
 const hasCount = computed(
   () =>
     typeof props.topic.contentItemsCount === 'number' &&
