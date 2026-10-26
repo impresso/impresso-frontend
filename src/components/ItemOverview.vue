@@ -37,11 +37,12 @@ const props = withDefaults(defineProps<ItemOverviewProps>(), {
 })
 
 const facetTypes = [
-  'type',
+  'mediaSource',
   'language',
   'person',
   'location',
   'topic',
+  'type',
   'organisation',
   'nag'
 ] satisfies FacetType[]
