@@ -96,8 +96,7 @@
           <pre
             class="bg-light shadow-sm rounded-sm border p-1 very-small"
             style="word-break: break-all; white-space: normal; max-height: 100px; overflow: scroll"
-            >{{ item.id }}</pre
-          >
+            >{{ item.id }}</pre>
         </div>
         <b-form-checkbox
           v-else-if="isStringType(type) || isIntegerType(type)"
@@ -108,7 +107,7 @@
             size="sm"
             placeholder=""
             class="accepted"
-            :value="String(item.id)"
+            :model-value="String(item.id)"
             :type="isIntegerType(type) ? 'number' : 'text'"
             @click.prevent.stop
             @update:modelValue="changeFilterItemAtIndex($event, idx)"
