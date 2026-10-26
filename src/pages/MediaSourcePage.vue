@@ -1,6 +1,6 @@
 <template>
   <i-layout>
-    <i-layout-section collapsible width="auto">
+    <i-layout-section collapsible width="380px">
       <template #header>
         <ul class="nav nav-pills mx-2 mt-1">
           <li class="nav-item active">
@@ -84,7 +84,7 @@
     </i-layout-section>
     <i-layout-section main width="auto">
       <template v-slot:header>
-        <div class="container-xxl">
+        <div class="container-xxl ml-0">
           <div class="row">
             <PageNavbarHeading
               :label="$t('buckets.sourceType.' + (mediaSource?.type || ''))"
@@ -120,7 +120,7 @@
         </div>
       </template>
       <!-- Timeline -->
-      <div class="container-xxl my-3" v-if="shouldDisplayTimeline">
+      <div class="container-xxl ml-0 my-3" v-if="shouldDisplayTimeline">
         <div class="row">
           <div class="col-12">
             <SearchFacetTimeline
@@ -153,7 +153,7 @@
         </div>
       </div>
       <router-view
-        :mediaSource="mediaSource"
+        :item="mediaSource"
         :listFilters="[{ type: 'newspaper', q: route.params.media_source_id }]"
       />
     </i-layout-section>

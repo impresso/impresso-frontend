@@ -9,9 +9,8 @@ import NewspapersExplorerPage from '@/components/NewspapersExplorerPage.vue'
 import NewspapersDetailPage from '@/components/NewspapersDetailPage.vue'
 import EntitiesTemporaryPage from '@/components/EntitiesTemporaryPage.vue'
 import EntitiesDetailPage from '@/components/EntitiesDetailPage.vue'
-import TopicsPage from '@/components/TopicsPage.vue'
+
 import TopicsExplorerPage from '@/components/TopicsExplorerPage.vue'
-import TopicDetailPage from '@/components/TopicDetailPage.vue'
 import PowerUserVisualisation from '@/pages/PowerUserVisualisation.vue'
 
 import IssueViewerPage from '@/pages/IssueViewerPage.vue'
@@ -23,7 +22,6 @@ import { AnalyticsObject } from '@/plugins/analytics'
 import { Views, WebAppBaseUrl } from '@/constants'
 import { Routes } from '@/router/routes'
 
- 
 console.debug('[router] Router with BASE_URL set to:', WebAppBaseUrl)
 
 const router = createRouter({
@@ -385,24 +383,49 @@ const router = createRouter({
       }
     },
     {
-      path: '/topics',
-      component: TopicsPage,
+      path: Routes.topics.path,
+      component: () => import('@/pages/Topics.vue'),
       children: [
+        // {
+        //   path: '',
+        //   component: TopicsExplorerPage,
+        //   name: 'topics',
+        //   meta: {
+        //     requiresAuth: false
+        //   }
+        // },
         {
-          path: '',
-          component: TopicsExplorerPage,
-          name: 'topics',
+          path: Routes.topics.children.metadata.path,
+          component: () => import('@/pages/TopicDetailPage.vue'),
+          name: Routes.topics.children.metadata.name,
           meta: {
             requiresAuth: false
           }
         },
         {
-          path: ':topic_id',
-          component: TopicDetailPage,
-          name: 'topic',
+          path: Routes.topics.children.topic.path,
+          component: () => import('@/pages/TopicDetailPage.vue'),
+          name: Routes.topics.children.topic.name,
           meta: {
             requiresAuth: false
-          }
+          },
+          children: [
+            {
+              path: Routes.topics.children.topic.children.overview.path,
+              component: () => import('@/components/ItemOverview.vue'),
+              name: Routes.topics.children.topic.children.overview.name
+            },
+            {
+              path: Routes.topics.children.topic.children.metadata.path,
+              component: () => import('@/components/topics/TopicMetadata.vue'),
+              name: Routes.topics.children.topic.children.metadata.name
+            },
+            {
+              path: Routes.topics.children.topic.children.contentItems.path,
+              component: () => import('@/components/ListOfContentItems.vue'),
+              name: Routes.topics.children.topic.children.contentItems.name
+            }
+          ]
         }
       ]
     },
@@ -580,7 +603,7 @@ const router = createRouter({
         {
           path: Routes.mediaSource.children.overview.path,
           name: Routes.mediaSource.children.overview.name,
-          component: () => import('@/components/mediaSource/MediaSourceOverview.vue'),
+          component: () => import('@/components/ItemOverview.vue'),
           meta: {
             requiresAuth: false
           }

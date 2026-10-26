@@ -12,7 +12,9 @@
     @items-rendered="handeItemsRendered"
   >
     <template v-slot:header="{ total }">
-      <div class="container-xxl d-flex align-items-center justify-content-between gap-3 py-2">
+      <div
+        class="container-xxl d-flex align-items-center justify-content-between gap-3 py-2 ml-0 pl-4"
+      >
         <div v-if="isSuccess" v-html="$t('numbers.contentItems', { n: $n(total) }, total)" />
         <div v-else class="text-muted">{{ $t('actions.loading') }}</div>
         <div class="d-flex align-items-center gap-2">
@@ -33,7 +35,7 @@
       </div>
     </template>
     <template #loading="{ isLoading }">
-      <div class="container-xxl" v-if="isLoading">
+      <div class="container-xxl ml-0 pl-4" v-if="isLoading">
         <div ref="topOfListRef" class="pt-4" />
         <div class="row mb-4">
           <div :class="props.eachItemClass" v-for="n in 12" :key="n" class="mb-4">
@@ -44,7 +46,7 @@
     </template>
     <template #default="{ items, isSuccess }">
       <slot v-bind="{ items, isSuccess }">
-        <div class="container-xxl">
+        <div class="container-xxl ml-0 pl-4">
           <div ref="topOfListRef" class="pt-4" />
           <div class="row mb-4">
             <div class="col-12" v-if="items.length === 0 && isSuccess">

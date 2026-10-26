@@ -6,6 +6,7 @@ import { BaseFind } from '../../models/generated/deprecated/internalApi'
 type OrderBy =
   | 'date'
   | 'relevance'
+  | 'topicRelevance'
   | 'id'
   | 'issue'
   | 'page'
