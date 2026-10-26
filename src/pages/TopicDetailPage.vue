@@ -102,8 +102,6 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import OpenInSearchButton from '@/components/OpenInSearchButton.vue'
 import SearchFacetTimeline from '@/components/SearchFacetTimeline.vue'
 
-export interface TopicDetailPageProps {}
-
 const route = useRoute()
 
 const nestedRoutes = [

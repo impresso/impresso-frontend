@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type App } from 'vue'
 import { createMemoryHistory, createRouter, type LocationQueryRaw } from 'vue-router'
 import TopicDetailPage from './TopicDetailPage.vue'
-import type { TopicDetailPageProps } from './TopicDetailPage.vue'
 import { deserializeFilters, serializeFilters } from '@/logic/filters'
 import FilterFactory from '@/models/FilterFactory'
 
@@ -51,7 +50,7 @@ function contentItems(offset = 0, total = 42) {
 
 async function mountPage(
   query: LocationQueryRaw = {},
-  props: TopicDetailPageProps = {},
+  props: Record<string, unknown> = {},
   id = 'topic-1'
 ) {
   const router = createRouter({
@@ -104,7 +103,7 @@ async function mountPage(
 const mounted: Awaited<ReturnType<typeof mountPage>>[] = []
 async function setup(
   query: LocationQueryRaw = {},
-  props: TopicDetailPageProps = {},
+  props: Record<string, unknown> = {},
   id = 'topic-1'
 ) {
   const result = await mountPage(query, props, id)
