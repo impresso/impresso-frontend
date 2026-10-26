@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { http, HttpResponse } from 'msw'
-import MediaSourceOverview from './MediaSourceOverview.vue'
-import type { MediaSourceOverviewProps } from './MediaSourceOverview.vue'
+import ItemOverview from './ItemOverview.vue'
+import type { ItemOverviewProps } from './ItemOverview.vue'
 import { MockMediaSources } from '.storybook/mockData/mediaSources'
 
 const successResponse = {
@@ -35,18 +35,18 @@ const successResponse = {
   ]
 }
 
-const meta: Meta<typeof MediaSourceOverview> = {
-  title: 'components/mediaSource/MediaSourceOverview',
-  component: MediaSourceOverview,
+const meta: Meta<typeof ItemOverview> = {
+  title: 'components/ItemOverview',
+  component: ItemOverview,
   tags: ['autodocs'],
   render: args => ({
-    components: { MediaSourceOverview },
+    components: { ItemOverview },
     setup() {
       return { args }
     },
     template: `
       <div style="width: 100%; max-width: 1200px;">
-        <MediaSourceOverview v-bind="args" />
+        <ItemOverview v-bind="args" />
       </div>
     `
   }),
@@ -67,6 +67,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    mediaSource: MockMediaSources[0]
-  } as MediaSourceOverviewProps
+    item: MockMediaSources[0],
+    listFilters: [{ type: 'newspaper', q: MockMediaSources[0].id }]
+  } as ItemOverviewProps
 }
