@@ -18,6 +18,36 @@ const getOffsets = (response, field) => {
   return items.length > 0 ? items[0][field] : [];
 }
 
+const MENTION_TYPE_TO_ENTITY_TYPE = Object.freeze({
+  persons: 'person',
+  locations: 'location',
+  organisations: 'organisation',
+  newsagencies: 'newsagency'
+});
+
+/**
+ * Extract named entity annotations from a canonical `ContentItem`'s semantic
+ * enrichments. Mentions carry absolute `startOffset` / `endOffset`, so unlike
+ * `getNamedEntitiesFromArticleResponse` no offset/length pairing is needed.
+ *
+ * @param {import('@/models/generated/canonical/contentItem').ContentItem} contentItem
+ */
+export function getNamedEntitiesFromContentItem(contentItem) {
+  const mentions = contentItem?.semanticEnrichments?.mentions ?? {};
+
+  return Object.entries(mentions).flatMap(([mentionType, items]) => {
+    const type = MENTION_TYPE_TO_ENTITY_TYPE[mentionType] ?? mentionType;
+    return (items || [])
+      .filter(item => item != null && item.startOffset !== undefined && item.endOffset !== undefined)
+      .map((item, index) => ({
+        id: `${type}-${index}`,
+        kind: 'namedEntity',
+        type,
+        offset: { start: item.startOffset, end: item.endOffset }
+      }));
+  });
+}
+
 export function getNamedEntitiesFromArticleResponse(response) {
   const personOffsets = getOffsets(response, 'person');
   const locationOffsets = getOffsets(response, 'location');
