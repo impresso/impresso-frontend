@@ -169,7 +169,7 @@ import { useFeaturesStore } from '@/stores/features'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import {
-  getNamedEntitiesFromArticleResponse,
+  getNamedEntitiesFromContentItem,
   getAnnotateTextTree,
   passageToPassageEntity
 } from '@/logic/articleAnnotations'
@@ -222,6 +222,10 @@ const root = ref<HTMLDivElement | null>(null)
 const contentItemHeader = ref<HTMLDivElement | null>(null)
 
 const article = ref<Article | null>(null)
+// canonical content item fetched from `article_id` when the parent does not
+// provide one through the `contentItem` prop.
+const fetchedContentItem = ref<ContentItemType | null>(null)
+const resolvedContentItem = computed(() => props.contentItem ?? fetchedContentItem.value)
 const textReusePassages = ref<any[]>([])
 const selectedPassageId = ref<string | number | undefined>(undefined)
 const hoverPassageLineTopOffset = ref(0)
@@ -298,15 +302,17 @@ const clusterColourMap = computed(() => {
 })
 
 const regionsAnnotationTree = computed(() => {
-  const a = article.value
-  if (!a) return []
-  const entities = getNamedEntitiesFromArticleResponse(a)
+  // NOTE: `article` (the deprecated Article model) is intentionally not used
+  // here. Annotations are derived directly from the canonical `ContentItem`.
+  const contentItem = resolvedContentItem.value
+  if (!contentItem?.text?.content) return []
+  const entities = getNamedEntitiesFromContentItem(contentItem)
   const passageEntities = textReusePassages.value.map(passageToPassageEntity)
   return getAnnotateTextTree(
-    a.content,
+    contentItem.text.content,
     entities.concat(passageEntities),
-    a.contentLineBreaks,
-    a.regionBreaks
+    contentItem.facsimile?.lineBreaks ?? [],
+    contentItem.facsimile?.regionBreaks ?? []
   ).children
 })
 
@@ -404,7 +410,10 @@ watch(
     onCleanup(() => (stale = true))
 
     fitBoundsToOverlayIdx.value = [0, 0]
-    if (!articleId) return
+    if (!articleId) {
+      fetchedContentItem.value = null
+      return
+    }
 
     const [contentItem, passages] = await Promise.all([
       contentItemsService.get(articleId),
@@ -416,6 +425,7 @@ watch(
     ])
     if (stale) return
     article.value = Article.fromContentItem(contentItem)
+    fetchedContentItem.value = contentItem
     textReusePassages.value = passages
   },
   { immediate: true }

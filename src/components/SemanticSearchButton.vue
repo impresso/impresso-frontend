@@ -20,9 +20,11 @@
       hide-footer
       @close="closeModal"
     >
+      <p v-html="$t('description')"></p>
       <LoadingBlock v-if="isLoading" :height="180" />
       <form v-else @submit.prevent="submit">
         <label :for="inputId" class="small d-block mb-2">{{ $t('label') }}</label>
+
         <textarea
           :id="inputId"
           class="form-control shadow-md rounded"
@@ -31,6 +33,7 @@
           v-model.trim="text"
           @blur="v$.text.$touch"
           data-testid="semantic-search-input"
+          :placeholder="$t('placeholder')"
         />
         <pre v-if="embeddingResult" class="mt-3 p-2 bg-light rounded small">
           {{ embeddingResult }}
@@ -40,6 +43,9 @@
         </div>
         <div v-if="errorMessage" class="alert alert-danger mt-3 mb-0" role="alert">
           {{ errorMessage }}
+        </div>
+        <div class="alert alert-info border-info mt-3 mb-0" role="alert">
+          {{ $t('disclaimer') }}
         </div>
         <div class="d-flex justify-content-end mt-3">
           <button type="submit" class="btn btn-sm btn-outline-secondary">
@@ -61,7 +67,7 @@ import LoadingBlock from '@/components/LoadingBlock.vue'
 import type { ImpressoTextEmbeddingRequest } from '@/models/generated/app/requests'
 import { embedderTextTool } from '@/services'
 
-const minimumTextLength = 50
+const minimumTextLength = 1
 defineOptions({
   inheritAttrs: false
 })
@@ -120,9 +126,12 @@ defineExpose({ openModal })
 <i18n lang="json">
 {
   "en": {
-    "open": "Search semantically",
-    "label": "Paste here long text, it will be transformed into text embedding! Search semantically!",
-    "searchSemantically": "Search semantically",
+    "open": "semantic search",
+    "disclaimer": "Experimental feature. Searches may take longer than usual.",
+    "description": "Find content that matches the meaning of your text, even when it uses different words. This is done by comparing the vector representations (embeddings) of your text and the content items.",
+    "placeholder": "Enter your text here...",
+    "label": "Describe what you're looking for in German, French or English. A full sentence or short paragraph works better than a single keyword.",
+    "searchSemantically": "Search",
     "textTooShort": "Enter at least {min} characters."
   }
 }
