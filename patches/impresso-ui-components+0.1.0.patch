@@ -1,0 +1,71 @@
+diff --git a/node_modules/impresso-ui-components/src/components/AcceptTermsOfUse.vue b/node_modules/impresso-ui-components/src/components/AcceptTermsOfUse.vue
+index 4f61a54..b58890c 100644
+--- a/node_modules/impresso-ui-components/src/components/AcceptTermsOfUse.vue
++++ b/node_modules/impresso-ui-components/src/components/AcceptTermsOfUse.vue
+@@ -2,14 +2,14 @@
+   <section class="AcceptTermsOfUse">
+     <div class="form-check d-inline-block w-auto d-flex align-items-center">
+       <input
+-        id="terms-of-use"
++        :id="inputId"
+         type="checkbox"
+         class="form-check-input"
+         :checked="checked"
+         :disabled="disabled"
+         @change="handleChange"
+       />
+-      <label for="terms-of-use" class="form-check-label font-weight-bold">
++      <label :for="inputId" class="form-check-label font-weight-bold">
+         <slot>I HAVE READ and I AGREE to the Impresso Terms of Use.</slot>
+       </label>
+     </div>
+@@ -17,6 +17,8 @@
+ </template>
+ 
+ <script setup lang="ts">
++import { useId } from 'vue'
++
+ export interface AcceptTermsOfUseProps {
+   disabled?: boolean
+   checked?: boolean
+@@ -31,6 +33,9 @@ const props = withDefaults(defineProps<AcceptTermsOfUseProps>(), {
+   },
+ })
+ 
++/** Unique id so modal + form checkboxes don't clash when both are mounted. */
++const inputId = useId()
++
+ const handleChange = (event: Event) => {
+   props.onChange?.(event)
+ }
+diff --git a/node_modules/impresso-ui-components/src/components/ProfileForm.vue b/node_modules/impresso-ui-components/src/components/ProfileForm.vue
+index e53519d..31a469c 100644
+--- a/node_modules/impresso-ui-components/src/components/ProfileForm.vue
++++ b/node_modules/impresso-ui-components/src/components/ProfileForm.vue
+@@ -179,7 +179,8 @@
+     <AcceptTermsOfUse
+       class="mb-3"
+       v-if="mode === 'create'"
+-      :disabled="isLoading"
++      :checked="termsAccepted"
++      :disabled="isLoading || termsAccepted"
+       @change="
+         (event: Event) => {
+           emit('changeAcceptTerms', (event.target as HTMLInputElement).checked)
+@@ -260,6 +261,8 @@ export interface ProfileFormProps {
+   commonEmailProviders?: string[]
+   submitAreaClasses?: string
+   disabled?: boolean
++  /** Controlled checked state for the Terms of Use checkbox (e.g. after accepting in the modal). */
++  termsAccepted?: boolean
+ }
+ 
+ const props = withDefaults(defineProps<ProfileFormProps>(), {
+@@ -286,6 +289,7 @@ const props = withDefaults(defineProps<ProfileFormProps>(), {
+   ],
+   submitAreaClasses: 'position-sticky bottom-0 bg-white border-top py-3',
+   disabled: false,
++  termsAccepted: false,
+ })
+ const initialColors = props.initialValues.pattern?.length
+   ? props.initialValues.pattern.split(',')
