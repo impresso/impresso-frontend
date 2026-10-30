@@ -48,6 +48,7 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'partner'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
