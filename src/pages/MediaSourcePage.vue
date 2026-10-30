@@ -153,8 +153,9 @@
         </div>
       </div>
       <router-view
+        v-if="mediaSource"
         :item="mediaSource"
-        :listFilters="[{ type: 'newspaper', q: route.params.media_source_id }]"
+        :listFilters="[{ type: 'mediaSource', q: route.params.media_source_id }]"
       />
     </i-layout-section>
   </i-layout>

@@ -1,6 +1,6 @@
 <template>
   <ListOfFindResponseItems
-    v-if="props.mediaSource"
+    v-if="props.item"
     :service="pagesService"
     :params="listParams"
     @page-changed="handlePageChanged"
@@ -62,7 +62,7 @@ import { useScrollToTop } from '@/composables/useScrollToTop'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 
 export interface MediaSourceFirstPagesProps {
-  mediaSource?: MediaSource
+  item?: MediaSource
 }
 
 const props = defineProps<MediaSourceFirstPagesProps>()
@@ -81,7 +81,7 @@ const listParams = computed(() => {
   return {
     query: {
       num: [1],
-      mediaSourceId: props.mediaSource?.id,
+      mediaSourceId: props.item?.id,
       limit: 12,
       order_by: 'dateasc'
     }

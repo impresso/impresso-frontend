@@ -1,5 +1,5 @@
 <template>
-  <div class="MediaSourceMetadata container-xxl" v-if="props.mediaSource">
+  <div class="MediaSourceMetadata container-xxl" v-if="props.item">
     <div class="row" v-for="category in Categories" :key="category">
       <div class="col-12 position-sticky top-0 bg-light z-index-1 border-bottom py-2">
         <h3 class="font-weight-bold font-size-inherit text-capitalize m-0">
@@ -53,7 +53,7 @@ import Icon from 'impresso-ui-components/components/Icon.vue'
 import { urlsToHtml } from './utils'
 
 export interface MediaSourceMetadataProps {
-  mediaSource?: MediaSource
+  item?: MediaSource
 }
 
 const props = defineProps<MediaSourceMetadataProps>()
@@ -95,7 +95,7 @@ const propertiesByCategories: Record<(typeof Categories)[number], string[]> = {
 }
 
 const institutionLogosSrc = computed<string[]>(() => {
-  const logos = props.mediaSource?.properties.find(prop => prop.id === 'institutionLogos')?.value
+  const logos = props.item?.properties.find(prop => prop.id === 'institutionLogos')?.value
 
   if (!logos) {
     return []
@@ -107,7 +107,7 @@ const institutionLogosSrc = computed<string[]>(() => {
 })
 
 const mappedProperties = computed(() => {
-  if (!props.mediaSource || !Array.isArray(props.mediaSource.properties)) {
+  if (!props.item || !Array.isArray(props.item.properties)) {
     return {}
   }
   const categoryByProperty: Record<string, string> = Object.entries(propertiesByCategories).reduce(
@@ -121,7 +121,7 @@ const mappedProperties = computed(() => {
   )
   // fill the propertiesByCategories with the values from mediaSource.properties
   const mapped: Record<string, Record<string, string[]>> = {}
-  props.mediaSource.properties.forEach(prop => {
+  props.item.properties.forEach(prop => {
     const category = categoryByProperty[prop.id] || 'uncategorized'
     if (!mapped[category]) {
       mapped[category] = {}
@@ -135,7 +135,7 @@ const mappedProperties = computed(() => {
 })
 
 const downloadAsCSV = () => {
-  if (!props.mediaSource) return
+  if (!props.item) return
 
   const rows: string[][] = [['Category', 'Property', 'Value']]
 
@@ -170,7 +170,7 @@ const downloadAsCSV = () => {
   const link = document.createElement('a')
   const url = URL.createObjectURL(blob)
   link.setAttribute('href', url)
-  link.setAttribute('download', `${props.mediaSource.id || 'media-source'}-metadata.csv`)
+  link.setAttribute('download', `${props.item?.id || 'media-source'}-metadata.csv`)
   link.style.visibility = 'hidden'
   document.body.appendChild(link)
   link.click()
