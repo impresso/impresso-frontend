@@ -2,9 +2,14 @@
   <div class="d-inline" ref="summaryRef">
     <template v-for="(itemKey, idx) in translatableFilterTypes" :key="itemKey">
       <template v-if="translationTable[itemKey]">
-        <template v-for="(filter, j) in translationTable[itemKey]" :key="filter.type">
-          <FilterLabel :filter="filter"></FilterLabel>
-          <span class="small-caps" v-if="j < translationTable[itemKey].length - 1"> AND </span>
+        <template v-if="itemKey === 'embedding'">
+          <span data-testid="embedding-similarity-summary">{{ $t('similarity') }}</span>
+        </template>
+        <template v-else>
+          <template v-for="(filter, j) in translationTable[itemKey]" :key="filter.type">
+            <FilterLabel :filter="filter"></FilterLabel>
+            <span class="small-caps" v-if="j < translationTable[itemKey].length - 1"> AND </span>
+          </template>
         </template>
       </template>
       <template v-if="idx < translatableFilterTypes.length - 1"
@@ -59,9 +64,10 @@ const AvailableFilterTypes = [
   'topic',
   'permissionExplore',
   'permissionGetTranscript',
-  'permissionGetImage',
-  'imageContentType',
-  'imageVisualContent'
+    'permissionGetImage',
+    'imageContentType',
+    'imageVisualContent',
+    'embedding'
 ]
 
 const summaryRef = ref<HTMLElement | null>(null)
@@ -135,3 +141,11 @@ watch(
   { deep: false, immediate: true }
 )
 </script>
+
+<i18n lang="json">
+{
+  "en": {
+    "similarity": "Retrieved by semantic similarity"
+  }
+}
+</i18n>
