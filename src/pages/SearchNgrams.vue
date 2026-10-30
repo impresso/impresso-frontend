@@ -88,6 +88,9 @@
                 />
               </div>
             </b-dropdown>
+            <small v-if="isUnigramLimitReached" class="w-100 text-muted">
+              {{ $t('unigramLimitReached', { limit: MaxUnigrams }) }}
+            </small>
           </div>
         </b-navbar>
       </template>
@@ -243,6 +246,9 @@ const QueryParameters = Object.freeze({
 
 const AllowedFilterTypes = SupportedFiltersByContext.ngrams
 
+// Must match `maxItems` of `ngrams` in the middle layer's POST /ngram-trends schema.
+const MaxUnigrams = 10
+
 function getTotalNumberOfResults(facets: Facet[]): number {
   const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
   if (facetsWithBuckets.length === 0) return 0
@@ -305,15 +311,18 @@ const unigrams = computed<string[]>({
       .split(',')
       .filter(v => v !== '')
       .map(v => v.trim().replace(' ', ''))
+      .slice(0, MaxUnigrams)
   },
   set(newUnigrams: string[]) {
-    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', ''))
+    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', '')).slice(0, MaxUnigrams)
     const navigation = new Navigation(proxy)
     navigation.updateQueryParameters({
       [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
     })
   }
 })
+
+const isUnigramLimitReached = computed<boolean>(() => unigrams.value.length >= MaxUnigrams)
 
 const isLoggedIn = computed(() => userStore.userData)
 
@@ -562,6 +571,7 @@ function handleSuggestedTermSelected(term: string) {
     "search_ngrams_title": "Search for Unigrams",
     "search_ngrams_label": "Ngram viewer",
     "missingUnigram": " ... (no unigram has been selected)",
+    "unigramLimitReached": "You can compare up to {limit} unigrams at the same time.",
     "label": {
       "timeline": {
         "unigramTitle": "Yearly unigram mentions (per million)",
