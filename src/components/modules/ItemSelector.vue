@@ -57,7 +57,7 @@ function selectItem(): void {
       item: itemToSelect,
       searchIndex: props.searchIndex,
       type: props.type,
-      applyCurrentSearchFilters: true,
+      applyCurrentSearchFilters: false,
       displayCurrentSearchFilters: true
     })
   }
