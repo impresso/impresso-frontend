@@ -201,7 +201,7 @@
             </button>
           </div>
           <!-- end actions -->
-          <pre v-if="!monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
+          <pre v-if="monitor.debug">{{ JSON.stringify(monitor, null, 2) }}</pre>
         </div>
       </div>
     </ModalDraggable>
