@@ -317,7 +317,10 @@ const unigrams = computed<string[]>({
       .slice(0, MaxUnigrams)
   },
   set(newUnigrams: string[]) {
-    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', '')).slice(0, MaxUnigrams)
+    const sanitisedUnigrams = newUnigrams
+      .map(v => v.trim())
+      .filter(v => v !== '')
+      .slice(0, MaxUnigrams)
     const navigation = new Navigation(proxy)
     navigation.updateQueryParameters({
       [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
