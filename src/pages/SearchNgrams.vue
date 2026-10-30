@@ -94,6 +94,13 @@
             <small v-if="multiWordUnigrams.length > 0" class="w-100 text-danger">
               {{ $t('unigramMultiWord', { terms: multiWordUnigrams.join(', ') }) }}
             </small>
+            <small
+              v-for="terms in identicalUnigrams"
+              :key="terms.join(',')"
+              class="w-100 text-muted"
+            >
+              {{ $t('unigramsIdentical', { terms: terms.join(', ') }) }}
+            </small>
           </div>
         </b-navbar>
       </template>
@@ -185,6 +192,7 @@ import PageHeading from '@/components/base/PageHeading.vue'
 
 import { ngramTrends as ngramTrendsService, searchFacets as searchFacetsService } from '@/services'
 import { buildEmptyFacets } from '@/logic/facets'
+import { findIdenticalTrends } from '@/logic/ngrams'
 import { CommonQueryParameters } from '@/router/util'
 import { Navigation } from '@/plugins/Navigation'
 import type { RouteLocationRaw } from 'vue-router'
@@ -338,6 +346,8 @@ const isUnigramLimitReached = computed<boolean>(() => unigrams.value.length >= M
 const isLoggedIn = computed(() => userStore.userData)
 
 const trends = computed<NgramTrend[]>(() => ngramResult.value.trends)
+
+const identicalUnigrams = computed<string[][]>(() => findIdenticalTrends(trends.value))
 
 const totalArticlesCount = computed<number>(() => getTotalNumberOfResults(facets.value))
 
@@ -582,6 +592,7 @@ function handleSuggestedTermSelected(term: string) {
     "search_ngrams_title": "Search for Unigrams",
     "search_ngrams_label": "Ngram viewer",
     "missingUnigram": " ... (no unigram has been selected)",
+    "unigramsIdentical": "{terms} have identical counts. They are probably normalized to the same term in the index.",
     "unigramMultiWord": "Enter single words only. Not searched: {terms}",
     "unigramLimitReached": "You can compare up to {limit} unigrams at the same time.",
     "label": {
