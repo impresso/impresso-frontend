@@ -91,12 +91,15 @@
             <small v-if="isUnigramLimitReached" class="w-100 text-muted">
               {{ $t('unigramLimitReached', { limit: MaxUnigrams }) }}
             </small>
+            <small v-if="multiWordUnigrams.length > 0" class="w-100 text-danger">
+              {{ $t('unigramMultiWord', { terms: multiWordUnigrams.join(', ') }) }}
+            </small>
           </div>
         </b-navbar>
       </template>
       <div
         class="m-3"
-        v-if="unigrams.length > 0"
+        v-if="validUnigrams.length > 0"
         :style="{ position: isLoading ? 'relative' : undefined }"
       >
         <base-title-bar class="my-3">
@@ -309,18 +312,26 @@ const unigrams = computed<string[]>({
     if (Array.isArray(value)) serializedUnigrams = value.join(',')
     return serializedUnigrams
       .split(',')
+      .map(v => v.trim())
       .filter(v => v !== '')
-      .map(v => v.trim().replace(' ', ''))
       .slice(0, MaxUnigrams)
   },
   set(newUnigrams: string[]) {
-    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', '')).slice(0, MaxUnigrams)
+    const sanitisedUnigrams = newUnigrams
+      .map(v => v.trim())
+      .filter(v => v !== '')
+      .slice(0, MaxUnigrams)
     const navigation = new Navigation(proxy)
     navigation.updateQueryParameters({
       [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
     })
   }
 })
+
+// The middle layer rejects terms with whitespace in them, so they are kept
+// in the input with a message but not used in any request.
+const multiWordUnigrams = computed<string[]>(() => unigrams.value.filter(v => /\s/.test(v)))
+const validUnigrams = computed<string[]>(() => unigrams.value.filter(v => !/\s/.test(v)))
 
 const isUnigramLimitReached = computed<boolean>(() => unigrams.value.length >= MaxUnigrams)
 
@@ -442,7 +453,7 @@ const isoDates = computed<string[]>(() => {
 })
 
 const embeddingsFilter = computed<Filter | undefined>(() => {
-  const lastUnigram = unigrams.value[unigrams.value.length - 1]
+  const lastUnigram = validUnigrams.value[validUnigrams.value.length - 1]
   if (lastUnigram == null) return undefined
   return {
     q: [lastUnigram]
@@ -453,9 +464,9 @@ const fullFilters = computed<Filter[]>(() => {
   const stringFilter: Filter = {
     type: 'string',
     op: 'OR',
-    q: unigrams.value
+    q: validUnigrams.value
   }
-  return allowedFilters.value.concat(unigrams.value.length > 0 ? [stringFilter] : [])
+  return allowedFilters.value.concat(validUnigrams.value.length > 0 ? [stringFilter] : [])
 })
 
 watch(
@@ -487,7 +498,7 @@ watch(
 )
 
 const unigramsQueryParameters = computed(() => ({
-  ngrams: unigrams.value,
+  ngrams: validUnigrams.value,
   filters: optimizeFilters(allowedFilters.value)
 }))
 
@@ -571,6 +582,7 @@ function handleSuggestedTermSelected(term: string) {
     "search_ngrams_title": "Search for Unigrams",
     "search_ngrams_label": "Ngram viewer",
     "missingUnigram": " ... (no unigram has been selected)",
+    "unigramMultiWord": "Enter single words only. Not searched: {terms}",
     "unigramLimitReached": "You can compare up to {limit} unigrams at the same time.",
     "label": {
       "timeline": {
