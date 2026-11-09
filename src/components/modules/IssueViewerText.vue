@@ -43,13 +43,6 @@
         <p>{{ article.excerpt }}</p>
       </div>
       <b-container fluid v-else class="region-row px-0 mt-3 mb-3 position-relative">
-        <div v-if="textReusePassages.length" class="small d-flex align-items-center m-0">
-          <div
-            v-html="$t('textReuseLabel', { n: textReusePassages.length }, textReusePassages.length)"
-          />
-          <info-button class="ml-2" name="text-reuse" />
-        </div>
-
         <!-- computed regions -->
         <div class="row" v-if="withIIIFViewer">
           <div class="col-sm-6 col-xl-7">
@@ -79,24 +72,7 @@
                   class="text-serif"
                   v-if="regionsAnnotationTree[region.idx]"
                   :node="regionsAnnotationTree[region.idx]"
-                  :cluster-colours="clusterColourMap"
-                  :selected-cluster-id="selectedClusterId"
-                  @clusterSelected="clusterSelectedHandler"
-                  @passageClicked="passageSelectedHandler"
-                  @passageMouseenter="mouseenterPassageHandler"
-                  @passageMouseleave="mouseleavePassageHandler"
                 />
-                <!-- <AnnotatedText
-                  class="text-serif"
-                  v-if="regionsAnnotationTree[region.idx]"
-                  :children="regionsAnnotationTree[region.idx].children"
-                  :cluster-colours="clusterColourMap"
-                  :selected-cluster-id="selectedClusterId"
-                  @clusterSelected="clusterSelectedHandler"
-                  @passageClicked="passageSelectedHandler"
-                  @passageMouseenter="mouseenterPassageHandler"
-                  @passageMouseleave="mouseleavePassageHandler"
-                /> -->
               </div>
             </div>
           </div>
@@ -123,12 +99,6 @@
               <AnnotatedText
                 v-if="regionsAnnotationTree[i]"
                 :children="regionsAnnotationTree[i].children"
-                :cluster-colours="clusterColourMap"
-                :selected-cluster-id="selectedClusterId"
-                @clusterSelected="clusterSelectedHandler"
-                @passageClicked="passageSelectedHandler"
-                @passageMouseenter="mouseenterPassageHandler"
-                @passageMouseleave="mouseleavePassageHandler"
               />
             </div>
           </div>
@@ -137,63 +107,26 @@
     </div>
 
     <hr class="py-4" />
-    <div
-      :style="{ top: `${hoverPassageLineTopOffset}px` }"
-      class="passage-control bs-tooltip-left"
-      role="tooltip"
-      v-if="selectedPassage"
-    >
-      <div class="tooltip-inner">
-        {{ $t('cluster_tooltip', { size: selectedPassage.clusterSize }) }}
-      </div>
-    </div>
-
-    <CompareTextReusePassageModal
-      :is-visible="isCompareTextReusePassageModalVisible"
-      :item="selectedTextReusePassageItem"
-      @dismiss="isCompareTextReusePassageModalVisible = false"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
-import { articleTextReusePassages, contentItems as contentItemsService } from '@/services'
+import { contentItems as contentItemsService } from '@/services'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 import Article from '@/models/Article'
 import Collection from '@/models/Collection'
 import { useCollectionsStore } from '@/stores/collections'
-import { useFeaturesStore } from '@/stores/features'
 import { useNotificationsStore } from '@/stores/notifications'
-import { useSelectionMonitorStore } from '@/stores/selectionMonitor'
-import {
-  getNamedEntitiesFromContentItem,
-  getAnnotateTextTree,
-  passageToPassageEntity
-} from '@/logic/articleAnnotations'
+import { getNamedEntitiesFromContentItem, getAnnotateTextTree } from '@/logic/articleAnnotations'
 
 import ContentItem from './lists/ContentItem.vue'
 import AnnotatedTextTree from './AnnotatedTextTree.vue'
+import AnnotatedText from './AnnotatedText.vue'
 import IIIFViewer, { type Overlay } from './IIIFViewer.vue'
 import IIIFFragment from '../IIIFFragment.vue'
-import CompareTextReusePassageModal from '@/components/CompareTextReusePassageModal.vue'
-import InfoButton from '@/components/base/InfoButton.vue'
 
-const COLOUR_SCHEME = [
-  '#8dd3c7',
-  '#bebada',
-  '#fb8072',
-  '#80b1d3',
-  '#fdb462',
-  '#b3de69',
-  '#fccde5',
-  '#d9d9d9',
-  '#bc80bd',
-  '#ccebc5',
-  '#ffed6f'
-]
 const iiifViewerMinHeight = 500
 const iiifViewerMarginTop = 20
 
@@ -210,12 +143,8 @@ const emit = defineEmits<{
   'update:contentItem': [contentItem: ContentItemType]
 }>()
 
-const route = useRoute()
-const router = useRouter()
 const collectionsStore = useCollectionsStore()
-const featuresStore = useFeaturesStore()
 const notificationsStore = useNotificationsStore()
-const selectionMonitorStore = useSelectionMonitorStore()
 
 // template refs (matched by name with ref="root" / ref="contentItemHeader")
 const root = ref<HTMLDivElement | null>(null)
@@ -226,13 +155,8 @@ const article = ref<Article | null>(null)
 // provide one through the `contentItem` prop.
 const fetchedContentItem = ref<ContentItemType | null>(null)
 const resolvedContentItem = computed(() => props.contentItem ?? fetchedContentItem.value)
-const textReusePassages = ref<any[]>([])
-const selectedPassageId = ref<string | number | undefined>(undefined)
-const hoverPassageLineTopOffset = ref(0)
 const fitBoundsToOverlayIdx = ref<[number, number]>([0, 0])
 const iiifViewerHeight = ref(iiifViewerMinHeight)
-const isCompareTextReusePassageModalVisible = ref(false)
-const selectedTextReusePassageItem = ref<any | null>(null)
 
 const contentItemCollections = computed<Collection[]>(() => {
   const collections = props.contentItem?.semanticEnrichments?.collections ?? []
@@ -291,38 +215,19 @@ const computedRegions = computed(() => {
   }))
 })
 
-const clusterColourMap = computed(() => {
-  const clusterIds = new Set<string>(textReusePassages.value.map(({ clusterId }) => clusterId))
-  const map: Record<string, string> = {}
-  let idx = 0
-  for (const id of clusterIds) {
-    map[id] = COLOUR_SCHEME[idx++ % COLOUR_SCHEME.length]
-  }
-  return map
-})
-
 const regionsAnnotationTree = computed(() => {
   // NOTE: `article` (the deprecated Article model) is intentionally not used
   // here. Annotations are derived directly from the canonical `ContentItem`.
   const contentItem = resolvedContentItem.value
   if (!contentItem?.text?.content) return []
   const entities = getNamedEntitiesFromContentItem(contentItem)
-  const passageEntities = textReusePassages.value.map(passageToPassageEntity)
   return getAnnotateTextTree(
     contentItem.text.content,
-    entities.concat(passageEntities),
+    entities,
     contentItem.facsimile?.lineBreaks ?? [],
     contentItem.facsimile?.regionBreaks ?? []
   ).children
 })
-
-const selectedPassage = computed(() =>
-  selectedPassageId.value
-    ? textReusePassages.value.find(({ id }) => id === selectedPassageId.value)
-    : undefined
-)
-
-const selectedClusterId = computed(() => route.query.trClusterId as string)
 
 function annotatedTextClickHandler(idx: [number, number]) {
   fitBoundsToOverlayIdx.value = idx
@@ -362,46 +267,6 @@ async function onRemoveCollection(collectionId: string) {
   })
 }
 
-function mouseenterPassageHandler(_clusterId: string, passageId: string, e: MouseEvent) {
-  selectedPassageId.value = passageId
-  hoverPassageLineTopOffset.value = (e.currentTarget as HTMLElement).getBoundingClientRect().y
-}
-
-function mouseleavePassageHandler() {
-  selectedPassageId.value = undefined
-}
-
-function passageSelectedHandler(trClusterId: string, trPassageId: string) {
-  const trPassage = textReusePassages.value.find(p => p.id === trPassageId)
-  if (!trPassage) {
-    console.error(
-      '[IssueViewerText] @passageSelectedHandler Passage not found with id:',
-      trPassageId
-    )
-    return
-  }
-  selectedTextReusePassageItem.value = {
-    id: trPassage.id,
-    title: trPassage.title,
-    date: trPassage.date,
-    content: trPassage.content,
-    article: { id: trPassage.articleId || trPassage.article?.id },
-    textReuseCluster: {
-      id: trClusterId,
-      clusterSize: trPassage.clusterSize,
-      lexicalOverlap: trPassage.lexicalOverlap,
-      timeDifferenceDay: trPassage.timeDifferenceDay
-    }
-  }
-  // Defensive: if any parallel UI path opens the selection monitor, force-close it.
-  selectionMonitorStore.hide()
-  isCompareTextReusePassageModalVisible.value = true
-}
-
-function clusterSelectedHandler(trClusterId: string) {
-  router.replace({ query: { ...route.query, trClusterId } })
-}
-
 watch(
   () => props.article_id,
   async (articleId, _prev, onCleanup) => {
@@ -415,18 +280,10 @@ watch(
       return
     }
 
-    const [contentItem, passages] = await Promise.all([
-      contentItemsService.get(articleId),
-      featuresStore.isTextReuseEnabled
-        ? articleTextReusePassages
-            .find({ query: { id: articleId } })
-            .then(({ passages }) => passages)
-        : Promise.resolve<any[]>([])
-    ])
+    const contentItem = await contentItemsService.get(articleId)
     if (stale) return
     article.value = Article.fromContentItem(contentItem)
     fetchedContentItem.value = contentItem
-    textReusePassages.value = passages
   },
   { immediate: true }
 )
@@ -499,13 +356,6 @@ onBeforeUnmount(() => {
     }
   }
 
-  .passage-control {
-    position: fixed;
-    right: 0;
-    max-width: 100%;
-    pointer-events: none;
-  }
-
   span.location::before {
     content: '\e012';
   }
@@ -544,9 +394,7 @@ onBeforeUnmount(() => {
     "collections": "collections",
     "viewCollection": "View collection",
     "removeFromCollection": "Remove from collection",
-    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\"",
-    "cluster_tooltip": "View all {size} articles containing this passage",
-    "textReuseLabel": "No text reuse passages available| <b>1</b> text reuse passage available | <b>{n}</b> text reuse passages available"
+    "wrongLayout": "Note: Facsimile could not be retrieve for this specific article. To read it in its digitized version, switch to \"Facsimile view\""
   }
 }
 </i18n>
