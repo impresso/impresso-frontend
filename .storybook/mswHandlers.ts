@@ -9,6 +9,7 @@ import {
 import {
   MockSpecialMembershipAccess,
   MockSpecialMembershipAccessWithRequests,
+  MockUserSpecialMembershipRequestReviews,
   MockUserSpecialMembershipRequests
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
@@ -329,6 +330,56 @@ export const findUserSpecialMembershipRequestsHandler = http.get(
         limit: limit
       }
     })
+  }
+)
+
+export const findUserSpecialMembershipRequestsReviewsHandler = http.get(
+  '/api/user-special-membership-requests-reviews',
+  async ({ request }) => {
+    const url = new URL(request.url)
+    const limit = parseInt(url.searchParams.get('limit') || '25')
+    const offset = parseInt(url.searchParams.get('offset') || '0')
+    const term = (url.searchParams.get('term') || '').toLowerCase()
+    // The feathers rest client serialises arrays with indices (`status[0]=x`),
+    // while other clients use `status[]=x` or a bare `status=x`. Accept all.
+    const statuses = [...url.searchParams.entries()]
+      .filter(([key]) => /^status(\[\d*\])?$/.test(key))
+      .map(([, value]) => value)
+    await new Promise(resolve => setTimeout(resolve, 400)) // Simulate network delay
+
+    let items = MockUserSpecialMembershipRequestReviews
+    if (statuses.length > 0) {
+      items = items.filter(item => statuses.includes(item.status))
+    }
+    if (term !== '') {
+      items = items.filter(item =>
+        `${item.requester.firstname} ${item.requester.lastname}`.toLowerCase().includes(term)
+      )
+    }
+
+    return HttpResponse.json({
+      data: items.slice(offset, offset + limit),
+      pagination: {
+        total: items.length,
+        offset,
+        limit
+      }
+    } satisfies BaseFindResponse)
+  }
+)
+
+export const patchUserSpecialMembershipRequestsReviewHandler = http.patch(
+  '/api/user-special-membership-requests-reviews/:id',
+  async ({ params }) => {
+    const { id } = params
+    await new Promise(resolve => setTimeout(resolve, 400)) // Simulate network delay
+    const item = MockUserSpecialMembershipRequestReviews.find(
+      review => String(review.id) === String(id)
+    )
+    if (!item) {
+      return HttpResponse.json({ error: 'Unknown request' }, { status: 404 })
+    }
+    return HttpResponse.json(item)
   }
 )
 

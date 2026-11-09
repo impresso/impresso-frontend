@@ -69,6 +69,7 @@ const emit = defineEmits<{
 export interface BSearchInputFormPayload {
   q: string
 }
+
 const form = reactive<BSearchInputFormPayload>({
   q: props.modelValue || ''
 })
