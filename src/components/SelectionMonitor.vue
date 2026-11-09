@@ -116,7 +116,7 @@
               <BFormCheckbox
                 switch
                 v-model="applyCurrentSearchFilters"
-                :disabled="!(monitor.displayTimeline && total)"
+                :disabled="!monitor.displayTimeline"
               >
                 <span
                   v-html="

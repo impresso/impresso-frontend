@@ -6,6 +6,9 @@ import FilterString from '@/models/FilterString'
 export type SuggestionType =
   | 'person'
   | 'location'
+  | 'organisation'
+  | 'newsagency'
+  | 'radiostation'
   | 'organization'
   | 'nag'
   | 'topic'
@@ -116,6 +119,9 @@ export const createSuggestion = (data: any): AnySuggestion | null => {
     case 'location':
     case 'entity':
     case 'newspaper':
+    case 'organisation':
+    case 'newsagency':
+    case 'radiostation':
       return new Suggestion({ ...data, q: data.item?.id != null ? [data.item.id] : data.q })
     case 'mention':
       return new Suggestion({

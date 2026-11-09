@@ -48,6 +48,7 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'partner'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
@@ -92,6 +93,7 @@ import { includes } from '@/util/fn.js'
 type FilterLabelItem = Entity & {
   name?: string
   title?: string
+  label?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date

@@ -40,6 +40,51 @@ Finally run with:
 npm run dev
 ```
 
+## Maintenance announcement
+
+The optional maintenance announcement displays a Markdown message from the project wiki in the main
+application. It is disabled unless its source URL is configured.
+
+### Enable it
+
+Set `VITE_ANNOUNCEMENT_MD_URL` in the environment file for the target build, for example:
+
+```sh
+VITE_ANNOUNCEMENT_MD_URL=https://raw.githubusercontent.com/wiki/impresso/impresso.github.io/Maintenance.md
+```
+
+The page may include front matter to configure the message:
+
+```markdown
+---
+id: 2026-10-22-maintenance
+severity: warning
+title: 'Scheduled maintenance'
+dismissible: true
+---
+
+Impresso will be unavailable from 12:00 to 13:00 UTC.
+```
+
+Changing the `id` shows an announcement again for users who dismissed an earlier one. The supported
+severity values are `info`, `warning`, and `error`.
+
+### Disable it
+
+To disable the feature for an environment, remove `VITE_ANNOUNCEMENT_MD_URL` or set it to an empty
+value. To temporarily hide an enabled announcement while keeping the configured source, set
+`active: false` in the wiki page front matter:
+
+```markdown
+---
+id: 2026-10-22-maintenance
+active: false
+---
+```
+
+The Markdown body can remain in place and will not be displayed until `active` is removed or set to
+`true`.
+
 ## AI Coding Assistant Configuration
 
 This project includes configuration files for AI coding assistants to help maintain consistency and follow project conventions:

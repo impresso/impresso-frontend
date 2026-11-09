@@ -78,9 +78,33 @@ export const Routes = {
     }
   },
 
-  topic: {
-    path: '/topics/:topic_id',
-    name: 'topic'
+  topics: {
+    path: '/topics',
+    name: 'topicsRoot',
+    children: {
+      metadata: {
+        path: '',
+        name: 'topics'
+      },
+      topic: {
+        path: ':topic_id',
+        name: 'topic',
+        children: {
+          overview: {
+            path: '',
+            name: 'topicOverview'
+          },
+          contentItems: {
+            path: 'content-items',
+            name: 'topicContentItems'
+          },
+          metadata: {
+            path: 'metadata',
+            name: 'topicMetadata'
+          }
+        }
+      }
+    }
   },
   search: {
     path: '/search',

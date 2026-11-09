@@ -224,9 +224,8 @@ const ImagesFacets = [
   'mediaSource',
   'year',
   'imageVisualContent',
-  // @todo To be added when the API supports it:
-  // 'imageTechnique',
-  // 'imageCommunicationGoal',
+  'imageTechnique',
+  'imageCommunicationGoal',
   'imageContentType'
   // @todo To be added when the API supports it:
   // 'permissionExplore',

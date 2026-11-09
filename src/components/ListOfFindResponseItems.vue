@@ -106,7 +106,8 @@ export interface ListOfFindResponseItemsProps<T> {
   dataAccessor?: (data: T[]) => any[]
   paginationAccessor?: (
     data: T[],
-    pagination: any
+    pagination: any,
+    response?: any
   ) => { total: number; offset: number; limit: number }
 }
 
@@ -193,7 +194,7 @@ const fetchFindMethod = async () => {
       })
       .then((response: any) => {
         const data = props.dataAccessor(response.data)
-        const pagination = props.paginationAccessor(data, response.pagination)
+        const pagination = props.paginationAccessor(data, response.pagination, response)
         return { data, pagination }
       })
 
@@ -286,6 +287,13 @@ watch(
   () => paramsSignature.value,
   () => {
     console.debug('[ListOfFindResponseItems] Params changed, refetching:', props.params)
+    // A new result set has no page 3. Return to the first page, otherwise the
+    // offset carried over from the previous filters can point past the end of
+    // the new results and show an empty page.
+    serviceResponse.value.pagination = {
+      ...serviceResponse.value.pagination,
+      offset: 0
+    }
     fetchFindMethod()
   }
 )

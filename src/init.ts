@@ -15,6 +15,7 @@ import type { TermsOfUse, UserChangePlanRequest } from './services/types'
 import { reducedTimeoutPromise } from './services/utils'
 import { useNotificationsStore } from './stores/notifications'
 import { useUserStore } from './stores/user'
+import { loadAnnouncement } from './composables/useAnnouncement'
 
 export type Features = ImpressoFeatures
 
@@ -130,6 +131,7 @@ export const loadVersion = async () => {
 }
 
 export const initSequence = async () => {
+  void loadAnnouncement()
   await loadVersion()
   const userStore = useUserStore()
   let shouldRefreshUser = false

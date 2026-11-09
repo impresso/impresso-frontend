@@ -22,6 +22,22 @@
     >
       <p class="m-0" v-html="$t('view_' + view + '_content')"></p>
     </InfoModal>
+    <InfoModal
+      v-if="showAnnouncement"
+      :isVisible="showAnnouncement"
+      :modalTitle="$t('announcementMaintenanceModalTitle')"
+      :hideFooter="!announcement?.dismissible"
+      :hideHeaderClose="!announcement?.dismissible"
+      dialogClass="modal-md modal-dialog-centered"
+      @dismiss="dismissAnnouncement"
+    >
+      <Alert v-if="announcement?.title" :type="announcement.severity">
+        <p class="m-0">{{ announcement.title }}</p>
+      </Alert>
+      <div class="mt-2 p-1">
+        <MarkdownContent class="p-2" :url="announcement?.url" />
+      </div>
+    </InfoModal>
 
     <SpecialMembershipModal
       :isVisible="view === ViewSpecialMembership"
@@ -35,7 +51,7 @@
       @success="changeView(ViewCreateSpecialMembershipRequestSuccess)"
     />
 
-    <TermsOfUseModalHost />
+    <TermsOfUseModalHost v-if="!announcement" />
     <PlansModal
       :isVisible="view === ViewPlans"
       @dismiss="resetView"
@@ -151,6 +167,9 @@ import SpecialMembershipModal from './specialMembership/SpecialMembershipModal.v
 import UserSettingsModal from './modals/UserSettingsModal.vue'
 import FeedbackButton from './feedback/FeedbackButton.vue'
 import { Filter } from '@/models'
+import Alert from './Alert.vue'
+import MarkdownContent from './MarkdownContent.vue'
+import { announcement, dismissAnnouncement } from '@/composables/useAnnouncement'
 
 const store = useViewsStore()
 const userStore = useUserStore()
@@ -161,6 +180,9 @@ const props = defineProps<{
   filters: Filter[]
 }>()
 const view = ref<(typeof Views)[number] | null>(store.view)
+const showAnnouncement = computed(
+  () => !!announcement.value && view.value === null && notificationsStore.initSequenceDone
+)
 const isLoggedIn = computed(() => !!userStore.userData)
 // date of accepting the ToU on localStorage
 const acceptTermsDateOnLocalStorage = computed(() => userStore.acceptTermsDateOnLocalStorage)
@@ -172,6 +194,7 @@ const showChangePlanToLegacyUsers = computed(() => {
   return (
     view.value === null &&
     notificationsStore.initSequenceDone &&
+    !announcement.value &&
     isLoggedIn.value &&
     userPlan.value === PlanNone &&
     !userStore.hasPendingChangePlanRequest
@@ -243,6 +266,7 @@ watch(
     "user_accept_terms_date_on_db_label": "User Accept Terms Date on db",
     "verbose_info_label": "[staff only] Verbose Info",
     "not_accepted_local_label": "Not accepted on this device",
+    "announcementMaintenanceModalTitle": "Maintenance",
     "not_accepted_on_db_label": "Not accepted on the server",
     "view_change-password-success_modalTitle": "Password changed",
     "view_change-password-success_title": "Password changed successfully",

@@ -31,7 +31,7 @@ export interface State {
 
 export const useMonitorStore = defineStore('monitor', {
   state: (): State => ({
-    applyCurrentSearchFilters: true,
+    applyCurrentSearchFilters: false,
     filters: [],
     timeline: [],
     isPendingTimeline: false,
