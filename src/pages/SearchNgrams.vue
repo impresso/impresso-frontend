@@ -57,13 +57,14 @@
           </b-navbar-nav>
         </b-navbar>
         <b-navbar class="border-bottom">
-          <span style="white-space: nowrap" class="mr-3"
-            >Enter unigram
+          <span style="white-space: nowrap" class="mr-3">
+            {{ $t('actions.enterUnigram') }}
             <info-button name="what-are-ngram" />
           </span>
           <div class="input-group">
             <TagsInput
               :value="unigrams"
+              :colors="getUnigramColor"
               :disabled="isLoading"
               :placeholder="unigrams.length === 0 ? 'search unigrams ...' : ''"
               class="mb-2"
@@ -87,12 +88,18 @@
                 />
               </div>
             </b-dropdown>
+            <small v-if="isUnigramLimitReached" class="w-100 text-muted">
+              {{ $t('unigramLimitReached', { limit: MaxUnigrams }) }}
+            </small>
+            <small v-if="multiWordUnigrams.length > 0" class="w-100 text-danger">
+              {{ $t('unigramMultiWord', { terms: multiWordUnigrams.join(', ') }) }}
+            </small>
           </div>
         </b-navbar>
       </template>
       <div
         class="m-3"
-        v-if="unigrams.length > 0"
+        v-if="validUnigrams.length > 0"
         :style="{ position: isLoading ? 'relative' : undefined }"
       >
         <base-title-bar class="my-3">
@@ -108,7 +115,7 @@
         >
           <template v-slot="tooltipScope">
             <div>
-              <h4>
+              <h4 class="text-white font-size-inherit font-weight-bold">
                 {{ $d(getTooltipScopeTime(tooltipScope) ?? new Date(), timelineResolution, 'en') }}
               </h4>
               <div v-for="(item, index) in tooltipScope.tooltip.item.items" :key="item.label">
@@ -138,7 +145,6 @@
               <div>
                 {{ $t('downloadVisualisationData') }}
               </div>
-              <div class="d-flex dripicons dripicons-download ml-2" />
             </div>
           </a>
         </div>
@@ -154,6 +160,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
+import { schemeCategory10 } from 'd3'
 import { useRoute, useRouter } from 'vue-router'
 import {
   serializeFilters,
@@ -240,7 +247,10 @@ const QueryParameters = Object.freeze({
   Unigrams: 'unigrams'
 })
 
-const AllowedFilterTypes = SupportedFiltersByContext.search
+const AllowedFilterTypes = SupportedFiltersByContext.ngrams
+
+// Must match `maxItems` of `ngrams` in the middle layer's POST /ngram-trends schema.
+const MaxUnigrams = 10
 
 function getTotalNumberOfResults(facets: Facet[]): number {
   const facetsWithBuckets = facets.filter(({ buckets }) => buckets != null && buckets.length > 0)
@@ -302,17 +312,28 @@ const unigrams = computed<string[]>({
     if (Array.isArray(value)) serializedUnigrams = value.join(',')
     return serializedUnigrams
       .split(',')
+      .map(v => v.trim())
       .filter(v => v !== '')
-      .map(v => v.trim().replace(' ', ''))
+      .slice(0, MaxUnigrams)
   },
   set(newUnigrams: string[]) {
-    const sanitisedUnigrams = newUnigrams.map(v => v.trim().replace(' ', ''))
+    const sanitisedUnigrams = newUnigrams
+      .map(v => v.trim())
+      .filter(v => v !== '')
+      .slice(0, MaxUnigrams)
     const navigation = new Navigation(proxy)
     navigation.updateQueryParameters({
       [QueryParameters.Unigrams]: sanitisedUnigrams.join(',')
     })
   }
 })
+
+// The middle layer rejects terms with whitespace in them, so they are kept
+// in the input with a message but not used in any request.
+const multiWordUnigrams = computed<string[]>(() => unigrams.value.filter(v => /\s/.test(v)))
+const validUnigrams = computed<string[]>(() => unigrams.value.filter(v => !/\s/.test(v)))
+
+const isUnigramLimitReached = computed<boolean>(() => unigrams.value.length >= MaxUnigrams)
 
 const isLoggedIn = computed(() => userStore.userData)
 
@@ -397,6 +418,11 @@ const plotItems = computed<ItemsSet[]>(() => {
   })
 })
 
+function getUnigramColor(ngram: string): string | undefined {
+  const trendIndex = trends.value.findIndex(trend => trend.ngram === ngram)
+  return trendIndex >= 0 ? schemeCategory10[trendIndex] : undefined
+}
+
 const plotItemsData = computed<string>(() => {
   const { domainValues, totals } = ngramResult.value
   const data = ngramResult.value.trends.map(({ ngram, values }) => ({
@@ -427,7 +453,7 @@ const isoDates = computed<string[]>(() => {
 })
 
 const embeddingsFilter = computed<Filter | undefined>(() => {
-  const lastUnigram = unigrams.value[unigrams.value.length - 1]
+  const lastUnigram = validUnigrams.value[validUnigrams.value.length - 1]
   if (lastUnigram == null) return undefined
   return {
     q: [lastUnigram]
@@ -438,9 +464,9 @@ const fullFilters = computed<Filter[]>(() => {
   const stringFilter: Filter = {
     type: 'string',
     op: 'OR',
-    q: unigrams.value
+    q: validUnigrams.value
   }
-  return allowedFilters.value.concat(unigrams.value.length > 0 ? [stringFilter] : [])
+  return allowedFilters.value.concat(validUnigrams.value.length > 0 ? [stringFilter] : [])
 })
 
 watch(
@@ -472,7 +498,7 @@ watch(
 )
 
 const unigramsQueryParameters = computed(() => ({
-  ngrams: unigrams.value,
+  ngrams: validUnigrams.value,
   filters: optimizeFilters(allowedFilters.value)
 }))
 
@@ -556,6 +582,8 @@ function handleSuggestedTermSelected(term: string) {
     "search_ngrams_title": "Search for Unigrams",
     "search_ngrams_label": "Ngram viewer",
     "missingUnigram": " ... (no unigram has been selected)",
+    "unigramMultiWord": "Enter single words only. Not searched: {terms}",
+    "unigramLimitReached": "You can compare up to {limit} unigrams at the same time.",
     "label": {
       "timeline": {
         "unigramTitle": "Yearly unigram mentions (per million)",
@@ -569,9 +597,12 @@ function handleSuggestedTermSelected(term: string) {
     },
     "loading": "Loading ...",
     "tooltipValueUnit": "per 1 million",
-    "downloadVisualisationData": "download data in JSON",
+    "downloadVisualisationData": "download data as JSON",
     "tooltipAbsoluteValue": "{count} tokens",
-    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts."
+    "label_ignored_string_filters": "It is currently not possible to use keyword or phrase filters to retrieve unigram counts.",
+    "actions": {
+      "enterUnigram": "Enter unigram(s)"
+    }
   }
 }
 </i18n>

@@ -69,11 +69,11 @@
 </template>
 <script setup lang="ts">
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
-import LoadingBlock from './LoadingBlock.vue'
-import FeedbackForm from './FeedbackForm.vue'
-import type { FeedbackFormPayload } from './FeedbackForm.vue'
+import LoadingBlock from '@/components/LoadingBlock.vue'
+import FeedbackForm from '@/components/FeedbackForm.vue'
+import type { FeedbackFormPayload } from '@/components/FeedbackForm.vue'
 import { computed, ref, watch } from 'vue'
-import { BadRequestWithData } from './FeathersErrorManager.vue'
+import { BadRequestWithData } from '@/components/FeathersErrorManager.vue'
 import { useRoute } from 'vue-router'
 import { ErrorMessage } from '@/stores/notifications'
 import {
@@ -147,11 +147,18 @@ const confirm = () => {
   emit('confirm')
 }
 
+const truncateIfMoreThan = (str: string, maxLength: number) => {
+  if (str.length > maxLength) {
+    return str.substring(0, maxLength) + '[...] truncated (see params for full route info)'
+  }
+  return str
+}
+
 const handleSubmit = (payload: FeedbackFormPayload) => {
   const payloadWithRoute: FeedbackFormPayloadWithRoute = {
     ...payload,
     route: {
-      fullPath: route.fullPath,
+      fullPath: truncateIfMoreThan(route.fullPath, 100),
       params: route.params,
       query: route.query,
       name: route.name as string | null

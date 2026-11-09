@@ -164,7 +164,7 @@ export default class TimePunchcardChart extends EventEmitter {
    * @param {ChartData} data
    * @param {} options
    */
-  // eslint-disable-next-line no-unused-vars
+   
   render(data: ChartData, options: RenderOptions = {}) {
     this.boundingClientRect = this.element.getBoundingClientRect()
     // will be used later to calculate nearest value per category in _getNearestValue function

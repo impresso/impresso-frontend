@@ -19,6 +19,7 @@
       </template>
       <template v-slot:default>
         <ListOfFindResponseItems
+          ref="collectionsList"
           :service="collectionsService"
           :params="listParams"
           :list-is-empty-message="$t('no collections')"
@@ -38,9 +39,28 @@
                   )
                 "
               />
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <div
+                  class="text-muted"
+                  v-html="$t('numbers.collections', { n: $n(total) }, total)"
+                ></div>
+
+                <i-dropdown
+                  right
+                  v-model="orderBy"
+                  :options="
+                    orderByOptions.map(value => ({
+                      value,
+                      text: $t(`label_sort_${value}`)
+                    }))
+                  "
+                  size="sm"
+                  variant="outline-tertiary"
+                ></i-dropdown>
+              </div>
             </div>
           </template>
-          <template #default="{ items, isSuccess }">
+          <template #default="{ items }">
             <div class="pb-5">
               <div
                 v-for="item in items"
@@ -59,33 +79,57 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, provide, ref } from 'vue'
 import { collections as collectionsService } from '../services'
 
 import { Routes } from '../router/routes'
 import CollectionItem from '../components/modules/lists/CollectionItem.vue'
 
 import ListOfFindResponseItems from '../components/ListOfFindResponseItems.vue'
-import type { GenericListPagination } from '../components/ListOfFindResponseItems.vue'
+import type {
+  GenericListPagination,
+  ListOfFindResponseItemsExposed
+} from '../components/ListOfFindResponseItems.vue'
 import SearchInput from '@/components/modules/SearchInput.vue'
 
+const collectionsList = ref<ListOfFindResponseItemsExposed | null>(null)
+
+// Allows child routes (e.g. CollectionDetailPage) to update a collection in
+// this list in place, so visibility badges stay in sync after a PATCH.
+provide('updateCollectionsListItem', (itemId: string, patch: Record<string, unknown>) => {
+  collectionsList.value?.updateItem(itemId, patch)
+})
+
+const orderBy = ref('-date')
+const orderByOptions = ['date', '-date', 'creationDate', '-creationDate']
 const searchTerm = ref('')
+
 const listParams = computed(() => {
-  console.log('Computed listParams with searchTerm:', searchTerm.value)
+  console.debug(
+    'Computed listParams with searchTerm:',
+    searchTerm.value,
+    'and orderBy:',
+    orderBy.value
+  )
   if (searchTerm.value.trim() !== '') {
     return {
       query: {
         limit: 10,
-        term: searchTerm.value.trim()
+        includePublic: true,
+        term: searchTerm.value.trim(),
+        order_by: orderBy.value
       }
     }
   }
   return {
     query: {
-      limit: 10
+      limit: 10,
+      includePublic: true,
+      order_by: orderBy.value
     }
   }
 })
+
 const listPagination = ref<GenericListPagination>({
   limit: 10,
   offset: 0,
@@ -109,7 +153,11 @@ const onSearchQuery = ({ q: query }) => {
   "en": {
     "collections": "collections",
     "searchPlaceholder": "search in {total} collections ...",
-    "searchPlaceholderLoading": "searching ..."
+    "searchPlaceholderLoading": "searching ...",
+    "label_sort_date": "sort by date ↑",
+    "label_sort_creationDate": "sort by creation date ↑ ",
+    "label_sort_-date": "sort by date ↓",
+    "label_sort_-creationDate": "sort by creation date ↓"
   }
 }
 </i18n>

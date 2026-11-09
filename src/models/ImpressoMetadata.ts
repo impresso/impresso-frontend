@@ -50,6 +50,14 @@ export interface ImpressoFeatures {
   barista?: {
     enabled: boolean
   }
+  /** Special memberships feature configuration */
+  specialMemberships?: {
+    enabled: boolean
+  }
+  /** Special membership requests feature configuration */
+  specialMembershipRequests?: {
+    enabled: boolean
+  }
 }
 
 /**

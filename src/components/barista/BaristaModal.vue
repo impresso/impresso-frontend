@@ -72,6 +72,7 @@
         <div class="col-lg-8 py-2 order-md-2 order-lg-1">
           <BaristaChat
             :filters="suggestedFilters"
+            :initial-prompt="initialPrompt"
             @suggestFilters="handleFiltersChanged"
             @updateHeight="handleUpdateHeight"
           >
@@ -162,6 +163,7 @@ export type BaristaModalProps = {
   dialogClass?: string
   isVisible?: boolean
   filters?: Filter[]
+  initialPrompt?: string
 }
 
 const AvailableTabs = ['overview', 'conversations'] as const

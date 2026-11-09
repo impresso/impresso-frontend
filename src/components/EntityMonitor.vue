@@ -145,7 +145,7 @@ export default defineComponent({
         if (request.tab !== 'results') {
           return false
         }
-        // eslint-disable-next-line
+         
         console.debug('[EntityMonitor] @apiQueryParams \n query:', request.query)
         this.isLoading = true
 

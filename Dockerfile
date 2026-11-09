@@ -8,19 +8,25 @@ ARG APP_HOST
 
 WORKDIR /impresso_frontend
 
+# Install dependencies from the lockfile (reproducible install)
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci
 
+# Application sources required to type-check and build
+COPY index.html ./
 COPY src ./src
-COPY static ./static
 COPY public ./public
 COPY widget ./widget
 COPY institutions-access ./institutions-access
+COPY static ./static
 COPY .storybook ./.storybook
 
-COPY .eslintrc.cjs .eslintignore tsconfig.app.json tsconfig.json tsconfig.node.json tsconfig.vitest.json ./
-COPY env.d.ts .prettierrc.json index.html ./
+# TypeScript / Vite configuration
+COPY tsconfig.app.json tsconfig.json tsconfig.node.json tsconfig.vitest.json ./
+COPY env.d.ts .prettierrc.json eslint.config.mjs ./
 COPY vite.config.ts vitest.config.ts ./
+
+# Environment files consumed by Vite
 COPY .env .env.production ./
 
 ENV PUBLIC_PATH=/app/

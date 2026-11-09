@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import ContentItem from './ContentItem.vue'
 import { vueRouter } from 'storybook-vue3-router'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'

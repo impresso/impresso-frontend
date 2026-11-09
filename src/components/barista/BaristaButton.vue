@@ -7,12 +7,15 @@
     v-bind="$attrs"
     :title="$t('actions.openBaristaModal')"
   >
-    <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    <slot>
+      <Icon name="sparks" :scale="1" :stroke-width="1.5" />
+    </slot>
   </button>
   <Teleport to="body">
     <BaristaModal
       :isVisible="isChatOpen"
       :filters="baristaSearchFilters"
+      :initial-prompt="initialPrompt"
       @dismiss="closeChat"
       @applyFilters="handleApplyFilters"
     />
@@ -30,6 +33,7 @@ defineOptions({
 })
 
 const isChatOpen = ref(false)
+const initialPrompt = ref('')
 const emit = defineEmits<{
   (e: 'filtersChanged', filters: Filter[]): void
 }>()
@@ -52,7 +56,15 @@ const props = withDefaults(defineProps<BaristaButtonProps>(), {
 const baristaSearchFilters = ref<Filter[]>([])
 
 const toggleChat = () => {
+  if (!isChatOpen.value) {
+    initialPrompt.value = ''
+  }
   isChatOpen.value = !isChatOpen.value
+}
+
+const openChat = (prompt = '') => {
+  initialPrompt.value = prompt
+  isChatOpen.value = true
 }
 
 const closeChat = () => {
@@ -67,6 +79,8 @@ watch(
   },
   { immediate: true }
 )
+
+defineExpose({ openChat })
 </script>
 <i18n lang="json">
 {

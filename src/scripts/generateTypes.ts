@@ -30,6 +30,7 @@ const schemaBits: string[] = [
   'app/models',
   'app/requests',
   'app/responses',
+  'app/cache',
   'canonical',
   'canonical/contentItem',
   'deprecated',
@@ -59,7 +60,7 @@ async function compileDirectory(
     const isDir = fs.statSync(path).isDirectory()
     return !isDir
   })
-  // eslint-disable-next-line no-console
+
   console.log(`${files.length} files in ${dir}:`)
 
   const tsContents: string[] = await Promise.all(
@@ -82,7 +83,6 @@ async function compileAll(
   directories: string[]
 ): Promise<void> {
   for (const dir of directories) {
-    // eslint-disable-next-line no-console
     console.log(`Generating types for group ${dir}...`)
     await compileDirectory(basePath, dir, outputPath)
   }
@@ -93,7 +93,6 @@ async function generateBaristaTypes(): Promise<void> {
   const outputDir = './src/models/generated/barista'
   const outputFile = path.join(outputDir, 'schema.d.ts')
 
-  // eslint-disable-next-line no-console
   console.log('Generating types from Barista OpenAPI spec...')
 
   try {
@@ -120,10 +119,8 @@ async function generateBaristaTypes(): Promise<void> {
     const content = openapiTsBanner + '\n' + typeContent
     fs.writeFileSync(outputFile, content)
 
-    // eslint-disable-next-line no-console
     console.log(`✓ Generated Barista types at ${outputFile}`)
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.warn(
       '⚠ Could not generate Barista types (service may not be running):',
       error instanceof Error ? error.message : error
@@ -141,7 +138,6 @@ async function generateAllTypes(): Promise<void> {
 
 generateAllTypes()
   .then(() => {
-    // eslint-disable-next-line no-console
     console.log('Done')
   })
   .catch((e: Error) => console.error(e))

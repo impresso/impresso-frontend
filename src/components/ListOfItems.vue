@@ -102,7 +102,7 @@ export default defineComponent({
         if (previousValue && previousValue.hash === hash) {
           return
         }
-        // eslint-disable-next-line
+         
         console.debug('[ListOfItems] @apiRequestConfig \n request:', request)
         await this.loadItems(request.query)
       },

@@ -34,7 +34,7 @@
             />
           </div>
         </template>
-        <template #default="{ items, isSuccess }">
+        <template #default="{ items }">
           <div>
             <div
               v-for="item in items"
@@ -42,7 +42,14 @@
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
               :class="{ 'border-dark': item.id === image.id }"
             >
-              <ImageContentItem showLink showPreview showImageTypes showIcon :image="item" />
+              <ImageContentItem
+                showLink
+                showPreview
+                showImageTypes
+                showIcon
+                :image="item"
+                :max-words-in-caption="MAX_WORDS_IN_TITLE"
+              />
             </div>
           </div>
         </template>
@@ -72,6 +79,8 @@
               :show-icon="false"
               showContentItemAccess
               showImageTypes
+              :showPreview="false"
+              :max-words-in-caption="MAX_WORDS_IN_TITLE"
               showId
             />
           </section>
@@ -100,7 +109,12 @@
       </template>
 
       <div class="container ml-0 py-4 pr-5">
-        <router-view :image="image" :user-plan="userPlan" :content-item="contentItem" :content-item-regions="contentItemRegions"></router-view>
+        <router-view
+          :image="image"
+          :user-plan="userPlan"
+          :content-item="contentItem"
+          :content-item-regions="contentItemRegions"
+        ></router-view>
       </div>
     </i-layout-section>
   </i-layout>
@@ -115,6 +129,7 @@ import { useUserStore } from '@/stores/user'
 import { IImage } from '@/models'
 import { Routes } from '@/router/routes'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import { truncateToWords } from '@/util/fn'
 import type { ContentItem as ContentItemType } from '@/models/generated/canonical/contentItem'
 
 const route = useRoute()
@@ -132,9 +147,11 @@ const contentItem = ref<ContentItemType | null>(null)
 const userPlan = computed(() => userStore.userPlan)
 const imageId = computed(() => route.params.image_id as string)
 
+const MAX_WORDS_IN_TITLE = 10
+
 const title = computed(() => {
   if (!image.value) return ''
-  return image.value.caption || image.value.id
+  return truncateToWords(image.value.caption || image.value.id, MAX_WORDS_IN_TITLE)
 })
 
 const attachedContentItemTitle = computed(() => {

@@ -29,7 +29,7 @@ import { Filter } from '@/models'
 import type { FacetType } from '@/models'
 import { useSettingsStore } from '@/stores/settings'
 import { useUserStore } from '@/stores/user'
-
+import MediaTypeSwitch, { MediaType } from '@/components/MediaTypeSwitch.vue'
 /** User-specific facets that require authentication. */
 const UserFacetTypes = ['collection'] satisfies FacetType[]
 
@@ -104,14 +104,34 @@ const loadCollectionsFlag = computed({
 
 const shouldLoadCollections = computed(() => userStore.isLoggedIn && loadCollectionsFlag.value)
 
-const normalize = ref(false)
-const fitToContainerWidth = ref(false)
-const minimumGap = ref<number>(10)
-const minimumVerticalGap = ref<number>(50)
-const minimumVerticalHeight = ref<number>(4)
-const withPowerScale = ref(true)
+const visualisationSettingsDefaults = {
+  normalize: false,
+  fitToContainerWidth: false,
+  minimumGap: 10,
+  minimumVerticalGap: 50,
+  minimumVerticalHeight: 4,
+  withPowerScale: true
+} as const
+
+const normalize = ref(visualisationSettingsDefaults.normalize)
+const fitToContainerWidth = ref(visualisationSettingsDefaults.fitToContainerWidth)
+const minimumGap = ref<number>(visualisationSettingsDefaults.minimumGap)
+const minimumVerticalGap = ref<number>(visualisationSettingsDefaults.minimumVerticalGap)
+const minimumVerticalHeight = ref<number>(visualisationSettingsDefaults.minimumVerticalHeight)
+const withPowerScale = ref(visualisationSettingsDefaults.withPowerScale)
 const tooltipPosition = ref<TooltipPosition | null>(null)
+const selectedIdx = ref<number | null>(null)
 const timelineRef = ref<InstanceType<typeof SourcesOverviewTimeline>>()
+const mediaType = ref<MediaType>('radio_broadcast')
+
+const resetVisualisationSettings = () => {
+  normalize.value = visualisationSettingsDefaults.normalize
+  fitToContainerWidth.value = visualisationSettingsDefaults.fitToContainerWidth
+  minimumGap.value = visualisationSettingsDefaults.minimumGap
+  minimumVerticalGap.value = visualisationSettingsDefaults.minimumVerticalGap
+  minimumVerticalHeight.value = visualisationSettingsDefaults.minimumVerticalHeight
+  withPowerScale.value = visualisationSettingsDefaults.withPowerScale
+}
 
 const handleTooltipMove = (pos: TooltipPosition) => {
   tooltipPosition.value = pos
@@ -121,10 +141,11 @@ const selectionMonitorStore = useSelectionMonitorStore()
 const handleTooltipClick = (pos: TooltipPosition) => {
   const item = dataValues.value[pos.idx]
   if (item) {
+    selectedIdx.value = pos.idx
     selectionMonitorStore.show({
       item,
       searchIndex: 'search',
-      type: 'newspaper',
+      type: 'mediaSource',
       applyCurrentSearchFilters: true,
       displayCurrentSearchFilters: true
     })
@@ -140,12 +161,37 @@ const toggleOpenHelperModal = (isOpen: boolean) => {
   isHelperModalVisible.value = isOpen
 }
 
+const initializeMediaTypeFromFilters = () => {
+  const sourceTypeFilter = props.filters.find(f => f.type === 'sourceType')
+  if (sourceTypeFilter) {
+    const filterValue = sourceTypeFilter as Filter
+    if (filterValue.context === 'exclude') {
+      if (filterValue.q === 'radio') {
+        mediaType.value = 'newspaper'
+      } else if (filterValue.q === 'newspaper') {
+        mediaType.value = 'radio_broadcast'
+      } else {
+        mediaType.value = 'both'
+      }
+    } else if (filterValue.q === 'radio_broadcast' || filterValue.q === 'newspaper') {
+      mediaType.value = filterValue.q as MediaType
+    } else {
+      mediaType.value = 'both'
+    }
+  } else {
+    mediaType.value = 'both'
+  }
+}
+
 watch(
   [allowedFilters, shouldLoadCollections],
   async ([newVal]) => {
+    selectedIdx.value = null
+    selectionMonitorStore.hide()
     isLoading.value = true
     totalResults.value = 0
 
+    initializeMediaTypeFromFilters()
     const decimalRangeFacets = buildEmptyFacets(SearchDecimalFacetTypes)
     const dynamicFacets = buildEmptyFacets(SearchDynamicFacetTypes)
     const [facetsItems, timelineFacets, userFacets] = await Promise.all([
@@ -213,46 +259,47 @@ watch(
       {} as Record<string, MediaSource>
     )
 
-    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> = statsItems.items.reduce(
-      (
-        acc: Record<string, DataValue<MediaSource>[]>,
-        d: {
-          domain: string
-          value: {
-            count: number
-            items: {
-              term: string
+    const dataValuesByMediaSourceId: Record<string, DataValue<MediaSource>[]> =
+      statsItems.items.reduce(
+        (
+          acc: Record<string, DataValue<MediaSource>[]>,
+          d: {
+            domain: string
+            value: {
               count: number
-            }[]
+              items: {
+                term: string
+                count: number
+              }[]
+            }
           }
-        }
-      ) => {
-        d.value.items.forEach(item => {
-          if (!acc[item.term]) {
-            acc[item.term] = []
-          }
-          const date = new Date(d.domain)
-          let startDate = new Date(date.getFullYear(), 0, 1)
-          let endDate = new Date(date.getFullYear(), 11, 31)
-          if (statsItems.meta.resolution === 'month') {
-            startDate = new Date(date.getFullYear(), date.getMonth(), 1)
-            endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-          } else if (statsItems.meta.resolution === 'day') {
-            startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-            endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-          }
-          acc[item.term].push({
-            id: `${item.term}-${d.domain}`,
-            date: startDate,
-            dateRange: [startDate, endDate],
-            value: item.count,
-            label: item.term
-          } as DataValue<MediaSource>)
-        })
-        return acc
-      },
-      {} as Record<string, DataValue<MediaSource>[]>
-    )
+        ) => {
+          d.value.items.forEach(item => {
+            if (!acc[item.term]) {
+              acc[item.term] = []
+            }
+            const date = new Date(d.domain)
+            let startDate = new Date(date.getFullYear(), 0, 1)
+            let endDate = new Date(date.getFullYear(), 11, 31)
+            if (statsItems.meta.resolution === 'month') {
+              startDate = new Date(date.getFullYear(), date.getMonth(), 1)
+              endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+            } else if (statsItems.meta.resolution === 'day') {
+              startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+              endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+            }
+            acc[item.term].push({
+              id: `${item.term}-${d.domain}`,
+              date: startDate,
+              dateRange: [startDate, endDate],
+              value: item.count,
+              label: item.term
+            } as DataValue<MediaSource>)
+          })
+          return acc
+        },
+        {} as Record<string, DataValue<MediaSource>[]>
+      )
 
     dataValues.value = Object.entries(dataValuesByMediaSourceId).map(([mediaSourceId, values]) => {
       const allDates = values.flatMap(v => [v.dateRange[0], v.dateRange[1]])
@@ -277,6 +324,20 @@ watch(
   },
   { immediate: true }
 )
+
+const changeMediaTypeFilter = (v: MediaType) => {
+  mediaType.value = v
+  const filtervalue = v === 'both' ? ['newspaper', 'radio_broadcast'] : v
+  // check if there is already a mediaFilterType
+  if (props.filters.some(f => f.type === 'sourceType')) {
+    emit('filtersChanged', [
+      ...props.filters.filter(f => f.type !== 'sourceType'),
+      { type: 'sourceType', q: filtervalue }
+    ])
+  } else {
+    emit('filtersChanged', [...props.filters, { type: 'sourceType', q: filtervalue }])
+  }
+}
 
 onMounted(() => {
   facets.value = []
@@ -323,6 +384,24 @@ onMounted(() => {
           :label="$t('pageLabel' + (isLoading ? '-loading' : ''))"
           :title="$t('pageTitle' + (isLoading ? '-loading' : ''))"
         >
+          <template #actions>
+            <li>
+              <div
+                class="d-block mb-1"
+                :class="{
+                  'text-muted': isLoading
+                }"
+              >
+                {{ $t('label_mediaType') }}
+              </div>
+              <MediaTypeSwitch
+                class="small"
+                :model-value="mediaType"
+                @update:model-value="changeMediaTypeFilter"
+                :disabled="isLoading"
+              />
+            </li>
+          </template>
           <template #summaryActions>
             <b-dropdown
               size="sm"
@@ -400,6 +479,16 @@ onMounted(() => {
                   >
                   </InfoButton>
                 </div>
+                <div class="border-top px-3 pt-3">
+                  <b-button
+                    size="sm"
+                    variant="outline-secondary"
+                    type="button"
+                    @click="resetVisualisationSettings"
+                  >
+                    {{ $t('resetVisualisationSettings') }}
+                  </b-button>
+                </div>
               </section>
             </b-dropdown>
           </template>
@@ -457,6 +546,7 @@ onMounted(() => {
         :scaleExponent="withPowerScale ? 4 : 1"
         @tooltip-move="handleTooltipMove"
         @tooltip-click="handleTooltipClick"
+        :selected-idx="selectedIdx"
       />
       <div class="position-absolute top-0 right-0 left-0 bottom-0 pointer-events-none">
         <SourceOverviewNavigator
@@ -497,8 +587,8 @@ onMounted(() => {
 <i18n lang="json">
 {
   "en": {
-    "pageLabel": "Media Titles Overview",
-    "pageTitle": "Explore the media titles in the archive",
+    "pageLabel": "Corpus overview",
+    "pageTitle": "Explore Impresso's newspaper and radio collection",
     "pageLabel-loading": "Loading...",
     "pageTitle-loading": "Loading...",
     "sources_overview_page_summary": "0 media sources | in 1 media source | in {total} media sources",
@@ -506,17 +596,19 @@ onMounted(() => {
     "normalizeLocally": "Normalize Data per source",
     "normalizeLocallyInfoTitle": "Normalize Data per Source",
     "normalizeLocallyInfoDescription": "When enabled, the data for each media source is normalized individually, allowing for better comparison between sources with varying content volumes.",
-    "fitToContainerWidth": "Fit to Container Width",
-    "fitToContainerWidthInfoTitle": "Fit to Container Width",
+    "fitToContainerWidth": "Fit to screen Width",
+    "fitToContainerWidthInfoTitle": "Fit to screen Width",
     "fitToContainerWidthInfoDescription": "When enabled, the timeline will adjust its width to fit the container, providing an optimal viewing experience across different screen sizes.",
     "minimumVerticalGap": "Vertical bar height (px)",
     "minimumGap": "Horizontal bar width (px)",
     "minimumVerticalHeight": "Minimum height for lower values (px)",
-    "withPowerScale": "With Power Scale",
-    "withPowerScaleInfoTitle": "With Power Scale",
+    "withPowerScale": "Apply Power Scale",
+    "withPowerScaleInfoTitle": "Apply Power Scale",
     "withPowerScaleInfoDescription": "When enabled, the vertical scaling of the bars will use a power scale, enhancing the visibility of sources with lower content volumes.",
+    "resetVisualisationSettings": "Reset visualisation settings",
     "gettingStarted": "Open Getting Started Guide",
-    "label_loadCollection": "Enable Collections"
+    "label_loadCollection": "Enable Collections",
+    "label_mediaType": "Media Type"
   }
 }
 </i18n>

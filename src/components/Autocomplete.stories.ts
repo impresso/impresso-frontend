@@ -12,7 +12,6 @@ type StoryArgs = AutocompleteProps & {
   onSubmit: (filter: unknown) => void
   onSubmitEmpty: () => void
   onInputFocus: (focused: boolean) => void
-  onFiltersChanged: (filters: unknown[]) => void
 }
 
 const findSuggestionsHandler = http.get('/api/suggestions', async ({ request }) => {
@@ -99,7 +98,6 @@ const meta: Meta<typeof Autocomplete> = {
             @submit="handleSubmit"
             @submitEmpty="args.onSubmitEmpty"
             @input-focus="args.onInputFocus"
-            @filtersChanged="args.onFiltersChanged"
           />
           <pre
             v-if="submittedPayloadText"
@@ -123,12 +121,10 @@ type Story = StoryObj<typeof meta>
 const defaultArgs: StoryArgs = {
   bodyClass: '',
   variant: 'primary',
-  explorerIncludedTypes: ['mediaSource', 'topic', 'location', 'person', 'organisation', 'nag'],
   filters: [],
   onSubmit: fn(),
   onSubmitEmpty: fn(),
-  onInputFocus: fn(),
-  onFiltersChanged: fn()
+  onInputFocus: fn()
 }
 
 export const Default: Story = {

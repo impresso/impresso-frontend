@@ -1,29 +1,30 @@
-const helpers = {};
+const helpers = {}
 
-const timelineValuesSorter = (a, b) => a.t - b.t;
+const timelineValuesSorter = (a, b) => a.t - b.t
 
-helpers.groupBy = (data, key) => data.reduce((reduced, item) => {
-  (reduced[item[key]] = reduced[item[key]] || []).push(item);
-  return reduced;
-}, {});
+helpers.groupBy = (data, key) =>
+  data.reduce((reduced, item) => {
+    ;(reduced[item[key]] = reduced[item[key]] || []).push(item)
+    return reduced
+  }, {})
 
 helpers.excerpt = (text, { maxWords = 15, maxChars = 300 } = {}) => {
-  const words = text.split(/\s+/);
-  let result = '';
+  const words = text.split(/\s+/)
+  let result
   if (words.length > maxWords) {
-    result = words.slice(0, maxWords).join(' ');
+    result = words.slice(0, maxWords).join(' ')
   } else {
-    result = text;
+    result = text
   }
   if (result.length > maxChars) {
-    return `${result.substr(0, maxChars)} [...]`;
+    return `${result.substr(0, maxChars)} [...]`
   }
-  return `${result} [...]`;
-};
+  return `${result} [...]`
+}
 
-helpers.isEntity = type => ['person', 'location'].indexOf(type) !== -1;
+helpers.isEntity = type => ['person', 'location'].indexOf(type) !== -1
 
-helpers.timeline = {};
+helpers.timeline = {}
 
 /**
  * Add empty intervals to a list of timeline items (Item is a `{ w, t, w1, p }` object).
@@ -36,73 +37,75 @@ helpers.timeline = {};
  */
 helpers.timeline.addEmptyIntervals = (values, unit = 'number') => {
   if (!values.length) {
-    return [];
+    return []
   }
   // add zeroes to values array. Use the current extent.
-  const vs = [values[0]];
+  const vs = [values[0]]
 
   for (let i = 1, l = values.length; i < l; i += 1) {
-    let diff;
+    let diff
     switch (unit) {
       case 'year':
-        diff = Math.round((values[i].t - values[i - 1].t) / (365 * 24 * 60 * 60 * 1000));
-        break;
+        diff = Math.round((values[i].t - values[i - 1].t) / (365 * 24 * 60 * 60 * 1000))
+        break
       case 'month':
-        diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000));
-        break;
+        diff = Math.round((values[i].t - values[i - 1].t) / (30 * 24 * 60 * 60 * 1000))
+        break
       case 'day':
-        diff = Math.round((values[i].t - values[i - 1].t) / (24 * 60 * 60 * 1000));
-        break;
+        diff = Math.round((values[i].t - values[i - 1].t) / (24 * 60 * 60 * 1000))
+        break
       default:
-        diff = values[i].t - values[i - 1].t;
+        diff = values[i].t - values[i - 1].t
     }
     for (let j = 1; j < diff; j += 1) {
-      let newValue;
+      let newValue
       switch (unit) {
         case 'year':
-          newValue = new Date(values[i - 1].t);
-          newValue.setFullYear(values[i - 1].t.getFullYear() + j);
-          break;
+          newValue = new Date(values[i - 1].t)
+          newValue.setFullYear(values[i - 1].t.getFullYear() + j)
+          break
         case 'month':
-          newValue = new Date(values[i - 1].t);
-          newValue.setMonth(values[i - 1].t.getMonth() + j);
-          break;
+          newValue = new Date(values[i - 1].t)
+          newValue.setMonth(values[i - 1].t.getMonth() + j)
+          break
         case 'day':
-          newValue = new Date(values[i - 1].t);
-          newValue.setDate(values[i - 1].t.getDate() + j);
-          break;
+          newValue = new Date(values[i - 1].t)
+          newValue.setDate(values[i - 1].t.getDate() + j)
+          break
         default:
-          newValue = values[i - 1].t + j;
+          newValue = values[i - 1].t + j
       }
       vs.push({
         t: newValue,
         w: 0,
         w1: 0,
-        p: 0,
-      });
+        p: 0
+      })
     }
-    vs.push(values[i]);
+    vs.push(values[i])
   }
-  return vs;
-};
+  return vs
+}
 
 helpers.timeline.addEmptyYearsWithRange = (timelineValues, timelineRange) => {
-  if (!timelineRange) return timelineValues;
-  const [rangeMin, rangeMax] = timelineRange;
-  const presentYears = timelineValues.map(({ t }) => t);
+  if (!timelineRange) return timelineValues
+  const [rangeMin, rangeMax] = timelineRange
+  const presentYears = timelineValues.map(({ t }) => t)
 
-  const rangeSize = rangeMax - rangeMin;
-  if (isNaN(rangeSize)) return timelineValues;
+  const rangeSize = rangeMax - rangeMin
+  if (isNaN(rangeSize)) return timelineValues
 
-  const range = [...Array(rangeSize).keys()].map(i => rangeMin + i);
+  const range = [...Array(rangeSize).keys()].map(i => rangeMin + i)
 
-  return range.reduce((values, year) => {
-    if (presentYears.indexOf(year) === -1) {
-      values.push({ t: year, w: 0 });
-    }
-    return values;
-  }, timelineValues).sort(timelineValuesSorter);
-};
+  return range
+    .reduce((values, year) => {
+      if (presentYears.indexOf(year) === -1) {
+        values.push({ t: year, w: 0 })
+      }
+      return values
+    }, timelineValues)
+    .sort(timelineValuesSorter)
+}
 
 function parseDate(date, resolution) {
   if (resolution == null || resolution === 'year') return parseInt(date, 10)
@@ -112,37 +115,39 @@ function parseDate(date, resolution) {
 }
 
 helpers.timeline.fromBuckets = (buckets, resolution) => {
-  const values = buckets.map(d => ({
-    ...d,
-    w: d.count,
-    w1: 0,
-    t: parseDate(d.value, resolution),
-  })).sort((a, b) => a.t - b.t);
+  const values = buckets
+    .map(d => ({
+      ...d,
+      w: d.count,
+      w1: 0,
+      t: parseDate(d.value, resolution)
+    }))
+    .sort((a, b) => a.t - b.t)
   // add zeroes
-  return helpers.timeline.addEmptyIntervals(values, resolution);
-};
+  return helpers.timeline.addEmptyIntervals(values, resolution)
+}
 
-helpers.numbers = {};
+helpers.numbers = {}
 
 /**
  * Like `Number#toFixed` but only if there is a decimal part
  * longer than `decimalPlaces`.
  */
 helpers.numbers.toFixedOptional = (value, decimalPlaces) => {
-  const [integerPart, decimalPart] = `${value}`.split('.');
+  const [integerPart, decimalPart] = `${value}`.split('.')
 
   if (decimalPart !== undefined) {
-    return `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`;
+    return `${integerPart}.${decimalPart.slice(0, decimalPlaces)}`
   }
-  return integerPart;
-};
+  return integerPart
+}
 
 const Helpers = {
   install(Vue) {
-    Vue.helpers = helpers;
-    Vue.prototype.$helpers = helpers;
+    Vue.helpers = helpers
+    Vue.prototype.$helpers = helpers
   },
-  ...helpers,
-};
+  ...helpers
+}
 
-export default Helpers;
+export default Helpers

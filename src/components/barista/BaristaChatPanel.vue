@@ -17,6 +17,7 @@
       ref="chatInputRef"
       :isLoading="isLoading"
       :filters="filters"
+      :initial-prompt="initialPrompt"
       @submit="emit('submit', $event)"
     />
   </div>
@@ -33,6 +34,7 @@ export interface BaristaChatPanelProps {
   messages: ChatMessage[]
   isLoading?: boolean
   filters?: Filter[]
+  initialPrompt?: string
 }
 
 const props = withDefaults(defineProps<BaristaChatPanelProps>(), {

@@ -1,8 +1,10 @@
-export default class TopicWord {
+import type { TopicWord as CachedTopicWord } from '@/models/generated/app/cache'
+
+export default class TopicWord implements CachedTopicWord {
   w: string
   p: number
   l: number
-  h: boolean
+  h?: boolean
 
   constructor({ w = '', p = 0.0, l = 0.0, h = false } = {}) {
     this.w = String(w)

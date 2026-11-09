@@ -2,6 +2,7 @@
   <div class="barista-chat">
     <BaristaChatPanel
       :filters="simplifiedFilters"
+      :initial-prompt="initialPrompt"
       :messages="displayedMessages"
       :isLoading="isWorking"
       @submit="handleMessageSubmit"
@@ -36,6 +37,7 @@ const isWorking = computed(() => baristaStore.isWorking)
 const props = withDefaults(
   defineProps<{
     filters?: Filter[]
+    initialPrompt?: string
   }>(),
   {
     filters: () => []

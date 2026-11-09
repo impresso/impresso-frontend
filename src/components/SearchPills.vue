@@ -34,7 +34,10 @@
             />
           </span>
 
-          <template v-for="itemLabel in [getItemLabel(filter)]" :key="`item-label-${filterIndex}`">
+          <template
+            v-for="itemLabel in [getItemLabel(filter)]"
+            :key="`item-label-${filterIndex}-${itemLabel?.hiddenCount}`"
+          >
             <SearchPillsItemLabel
               v-if="itemLabel"
               :label="itemLabel"
@@ -43,7 +46,10 @@
             />
           </template>
 
-          <template v-for="qLabel in [getQLabel(filter)]" :key="`q-label-${filterIndex}`">
+          <template
+            v-for="qLabel in [getQLabel(filter)]"
+            :key="`q-label-${filterIndex}-${qLabel?.values}`"
+          >
             <span v-if="qLabel" class="label" :class="[...qLabel.classNames, filter.context]">
               <template v-if="qLabel.translationKey">
                 {{ $t(qLabel.translationKey, qLabel.params, qLabel.plural) }}
@@ -63,7 +69,7 @@
           >
             <template
               v-for="numeric in [labelForNumeric({ items: filter.items, type: filter.type })]"
-              :key="`numeric-${filterIndex}`"
+              :key="`numeric-${filterIndex}-${numeric.params.start}-${numeric.params.end}`"
             >
               {{
                 $t(numeric.translationKey, {
@@ -82,16 +88,19 @@
           >
             <template
               v-for="dateLabel in [labelByDaterangeItems({ items: filter.items, max: 2 })]"
-              :key="`daterange-${filterIndex}`"
+              :key="`daterange-${filterIndex}-${dateLabel.items.length}-${dateLabel.hiddenCount}`"
             >
-              <template v-for="(item, index) in dateLabel.items" :key="`daterange-item-${index}`">
+              <template
+                v-for="(item, itemIndex) in dateLabel.items"
+                :key="`daterange-item-${item.startDate.getTime()}-${item.endDate.getTime()}-${itemIndex}`"
+              >
                 {{
                   $t(dateLabel.itemTranslationKey, {
                     start: $d(item.startDate, 'compactUtc'),
                     end: $d(item.endDate, 'compactUtc')
                   })
                 }}
-                <span v-if="index < dateLabel.items.length - 1" class="op or px-1">{{
+                <span v-if="itemIndex < dateLabel.items.length - 1" class="op or px-1">{{
                   $t(dateLabel.operatorKey)
                 }}</span>
               </template>
@@ -354,16 +363,9 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
   }
 
   if (
-    [
-      'person',
-      'location',
-      'newspaper',
-      'mediaSource',
-      'entity',
-      'nag',
-      'organisation',
-      'mention'
-    ].includes(filter.type)
+    ['person', 'location', 'newspaper', 'mediaSource', 'entity', 'nag', 'organisation'].includes(
+      filter.type
+    )
   ) {
     return {
       ...labelByItems({ items: filter.items, max: 2, op: filter.op }),
@@ -381,7 +383,8 @@ const getItemLabel = (filter: FilterWithItems<PillItem>): ItemLabelResult | null
       'dataDomain',
       'partner',
       'sourceType',
-      'sourceMedium'
+      'sourceMedium',
+      'mention'
     ].includes(filter.type)
   ) {
     return {

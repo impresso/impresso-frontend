@@ -50,9 +50,11 @@ export default defineComponent({
       pinchRotate: false
     }
 
+    const tileSources = this.tileSources ? [this.tileSources as any] : []
+
     this.viewer = createOpenSeadragon({
       id: this.id,
-      tileSources: [this.tileSources],
+      tileSources,
       showNavigationControl: false,
       defaultZoomLevel: 0,
       gestureSettingsMouse: gestureSettings,

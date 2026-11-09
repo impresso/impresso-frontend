@@ -1,5 +1,5 @@
 <script lang="tsx">
-import { defineComponent, PropType } from 'vue'
+import { defineComponent, h, PropType } from 'vue'
 
 export interface Entity {
   kind: string
@@ -107,17 +107,16 @@ const getClusterTitle = (props: RenderProps, clusterId: string) => {
 const getClusterClass = (isLast: boolean) =>
   isLast ? 'cluster-tag ending' : 'cluster-tag starting'
 
-const renderChildren = (props: RenderProps, child: Child) => (
-  <annotated-text
-    children={child.children}
-    cluster-colours={props.clusterColours}
-    selected-cluster-id={props.selectedClusterId}
-    onClusterSelected={props.onClusterSelected}
-    onPassageClicked={props.onPassageClicked}
-    onPassageMouseenter={props.onPassageMouseenter}
-    onPassageMouseleave={props.onPassageMouseleave}
-  />
-)
+const renderChildren = (props: RenderProps, child: Child) =>
+  h('annotated-text', {
+    children: child.children,
+    clusterColours: props.clusterColours,
+    selectedClusterId: props.selectedClusterId,
+    onClusterSelected: props.onClusterSelected,
+    onPassageClicked: props.onPassageClicked,
+    onPassageMouseenter: props.onPassageMouseenter,
+    onPassageMouseleave: props.onPassageMouseleave
+  })
 
 const renderClusterTags = (props: RenderProps, child: Child) => {
   if (child.entity.kind !== 'line') return ''

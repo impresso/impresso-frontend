@@ -48,7 +48,7 @@
     <slot name="actions"></slot>
 
     <div v-if="showEntities" class="article-extras article-entities mt-2">
-      <div v-for="entityType in ['person', 'location', 'organisation']">
+      <div v-for="entityType in ['person', 'location', 'organisation']" :key="entityType">
         <div v-if="item[`${entityType}s`]?.length" data-testid="article-locations">
           <Ellipsis :initialHeight="100" :maxHeight="200">
             <b-badge variant="light" class="mr-1 very-small-caps">{{

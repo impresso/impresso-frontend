@@ -34,6 +34,11 @@
           "
           >{{ $t(`buckets.${filter.type}.${item.id}`) }}</span
         >
+        <span
+          class="small-caps"
+          v-else-if="['imageContentType', 'imageVisualContent'].includes(filter.type)"
+          >{{ item.label }}</span
+        >
         <template v-else-if="filter.type === 'topic'">
           <span class="small-caps" v-if="item.label">
             {{ item.label }}
@@ -43,6 +48,7 @@
           </span>
           <span v-else>{{ item.id }}</span>
         </template>
+        <span v-else-if="filter.type === 'partner'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionExplore'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetTranscript'">{{ item.title }}</span>
         <span v-else-if="filter.type === 'permissionGetImage'">{{ item.title }}</span>
@@ -87,6 +93,7 @@ import { includes } from '@/util/fn.js'
 type FilterLabelItem = Entity & {
   name?: string
   title?: string
+  label?: string
   excerpt?: { w: string }[]
   start?: string | number | Date
   end?: string | number | Date
@@ -183,6 +190,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       },
       "nag": "released by",
       "newspaper": "published in",
+      "mention": "mentioning",
       "mediaSource": "published in",
       "partner": "from",
       "person": "mentioning",
@@ -204,7 +212,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseClusterDayDelta": "where time spans <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
       "permissionExplore": "with explore access:",
       "permissionGetTranscript": "with transcript access:",
-      "permissionGetImage": "with facsimile access:"
+      "permissionGetImage": "with facsimile access:",
+      "imageContentType": "with content type:",
+      "imageVisualContent": "being:"
     },
     "exclude": {
       "sourceMedium": "not",
@@ -224,6 +234,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "nag": "not released by",
       "newspaper": "not published in",
       "mediaSource": "not published in",
+      "mention": "not mentioning",
       "partner": "not from",
       "person": "not mentioning",
       "location": "not mentioning",
@@ -244,7 +255,9 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "textReuseClusterDayDelta": "where time does not span <span class='number'>{min}</span> to <span class='number'>{max}</span> days",
       "permissionExplore": "without WebApp access:",
       "permissionGetTranscript": "without transcript access:",
-      "permissionGetImage": "without facsimile access:"
+      "permissionGetImage": "without facsimile access:",
+      "imageContentType": "without content type:",
+      "imageVisualContent": "not being:"
     }
   }
 }

@@ -6,6 +6,9 @@ import FilterString from '@/models/FilterString'
 export type SuggestionType =
   | 'person'
   | 'location'
+  | 'organisation'
+  | 'newsagency'
+  | 'radiostation'
   | 'organization'
   | 'nag'
   | 'topic'
@@ -64,8 +67,8 @@ export interface IDateRangeSuggestion extends ITyped<'daterange'> {
 }
 
 export class SuggestionDaterange implements IDateRangeSuggestion {
-  type: 'daterange' = 'daterange'
-  context: 'include' = 'include'
+  type = 'daterange' as const
+  context = 'include' as const
   daterange: Daterange
 
   constructor(args: ConstructorParameters<typeof Daterange>[0]) {
@@ -80,8 +83,8 @@ export interface IRegexSuggestion extends ITyped<'regex'> {
 }
 
 export class SuggestionRegex implements IRegexSuggestion {
-  type: 'regex' = 'regex'
-  context: 'include' = 'include'
+  type = 'regex' as const
+  context = 'include' as const
   q: string
 
   constructor({ q }: { q: string }) {
@@ -116,6 +119,9 @@ export const createSuggestion = (data: any): AnySuggestion | null => {
     case 'location':
     case 'entity':
     case 'newspaper':
+    case 'organisation':
+    case 'newsagency':
+    case 'radiostation':
       return new Suggestion({ ...data, q: data.item?.id != null ? [data.item.id] : data.q })
     case 'mention':
       return new Suggestion({

@@ -48,13 +48,10 @@
           </div>
         </div>
 
-        <template
-          v-for="(availableEnrichment, index) in availableEnrichments"
-          :key="availableEnrichment"
-        >
+        <template v-for="availableEnrichment in availableEnrichments" :key="availableEnrichment">
           <div
             class="row border-bottom py-2"
-            v-for="(mod, index) in latestRelease.impressoEnrichments[availableEnrichment].models"
+            v-for="mod in latestRelease.impressoEnrichments[availableEnrichment].models"
             :key="mod.modelId"
           >
             <div class="col-sm-4 d-flex align-items-center">

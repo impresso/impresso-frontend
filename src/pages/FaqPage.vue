@@ -12,14 +12,14 @@
       </template>
       <nav class="faq-toc mt-2">
         <ul class="list-unstyled">
-          <li v-for="(section, i) in sections" :key="section.id">
+          <li v-for="section in sections" :key="section.id">
             <p
               class="font-weight-bold d-block position-sticky top-0 bg-light z-index-1 border-bottom py-3 px-3 px-xl-4"
             >
               {{ section.title }}
             </p>
             <ul class="list-unstyled p-3 px-xl-4">
-              <li class="mb-2" v-for="(paragraph, j) in section.paragraphs" :key="paragraph.id">
+              <li class="mb-2" v-for="paragraph in section.paragraphs" :key="paragraph.id">
                 <a :href="'#' + paragraph.id" class="text-decoration-none">
                   {{ paragraph.title }}
                 </a>

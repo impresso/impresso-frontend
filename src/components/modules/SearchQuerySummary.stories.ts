@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SearchQuerySummary from './SearchQuerySummary.vue'
 import type { SearchQuerySummaryProps } from './SearchQuerySummary.vue'
 import FilterFactory from '@/models/FilterFactory'

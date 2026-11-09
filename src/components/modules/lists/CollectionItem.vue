@@ -7,6 +7,12 @@
           {{ item.title }}
         </RouterLink>
         <span v-else>{{ item.title }}</span>
+        <span
+          class="badge badge-pill ml-2 text-capitalize align-middle border"
+          :class="isPublic ? 'badge-success' : 'badge-light text-muted'"
+        >
+          {{ $t(isPublic ? 'collectionVisibility.public' : 'collectionVisibility.private') }}
+        </span>
         <label class="badge badge-light ml-2">{{ $n(item.totalItems || 0) }}</label>
       </h3>
     </div>
@@ -47,4 +53,6 @@ const routerLinkUrl = computed(() => {
     params: { collection_id: props.item.id }
   }
 })
+
+const isPublic = computed(() => props.item.accessLevel === 'public')
 </script>

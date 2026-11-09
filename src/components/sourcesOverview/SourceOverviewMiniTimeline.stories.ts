@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import SourceOverviewMiniTimeline from './SourceOverviewMiniTimeline.vue'
 import type { DataValue } from './SourcesOverviewDateValueItem.vue'
 

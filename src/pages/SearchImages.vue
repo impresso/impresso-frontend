@@ -1,71 +1,79 @@
 <template>
   <i-layout class="search-images">
-    <search-sidebar
+    <SearchSidebar
       width="380px"
       :filters="availableFiltersWithItems"
       :ignored-filter-types="ignoredFilterTypes"
       :facets="facets"
       contextTag="images"
+      searchIndex="images"
       @changed="handleFiltersChanged"
     >
       <template v-slot:header>
-        <div
-          v-if="similarToImage"
-          class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
-        >
-          <div class="flex-shrink-1">
-            <auth-img
-              class="h-100"
-              v-if="similarToImage.previewUrl"
-              :src="similarToImage.previewUrl"
-            />
-          </div>
-          <div class="align-self-between">
-            <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
-            <media-source-label
-              :item="{
-                id: similarToImage.mediaSourceRef?.id || '',
-                name: similarToImage.mediaSourceRef?.name || '',
-                type: 'newspaper'
-              }"
-            ></media-source-label>
+        <div class="mb-2">
+          <div
+            v-if="similarToImage"
+            class="ImageItemSimilar p-1 mb-3 bg-white rounded drop-shadow d-flex gap-3"
+          >
+            <div class="flex-shrink-1">
+              <auth-img
+                class="h-100"
+                v-if="similarToImage.previewUrl"
+                :src="similarToImage.previewUrl"
+              />
+            </div>
+            <div class="align-self-between">
+              <span class="very-small-caps">{{ $t('similar_to_image') }}</span>
+              <media-source-label
+                :item="{
+                  id: similarToImage.mediaSourceRef?.id || '',
+                  name: similarToImage.mediaSourceRef?.name || '',
+                  type: 'newspaper'
+                }"
+              ></media-source-label>
 
-            <p v-if="similarToImage.date" class="small m-0">
-              {{ $d(similarToImage.date, 'long') }}
-              <span class="text-nowrap">
-                &mdash;
-                {{
-                  similarToImage.pageNumbers
-                    ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
-                    : ''
-                }}
-              </span>
-            </p>
+              <p v-if="similarToImage.date" class="small m-0">
+                {{ $d(similarToImage.date, 'long') }}
+                <span class="text-nowrap">
+                  &mdash;
+                  {{
+                    similarToImage.pageNumbers
+                      ? $t('pageNumber', { n: similarToImage.pageNumbers.join(', ') })
+                      : ''
+                  }}
+                </span>
+              </p>
+            </div>
+            <div class="flex-shrink-1 ml-auto">
+              <button
+                class="ImageItemSimilar__remove btn btn-transparent"
+                @click.prevent="onRemoveSimilarTo"
+              >
+                <icon name="cross" />
+              </button>
+            </div>
           </div>
-          <div class="flex-shrink-1 ml-auto">
-            <button
-              class="ImageItemSimilar__remove btn btn-transparent"
-              @click.prevent="onRemoveSimilarTo"
-            >
-              <icon name="cross" />
-            </button>
-          </div>
+          <filter-image-upload v-if="enableUpload" />
+          <search-input ref="searchInputRef" @submit="onSearchQuery" />
         </div>
-        <filter-image-upload v-if="enableUpload" />
-        <search-input @submit="onSearchQuery" />
       </template>
       <b-form-group class="mx-3">
         <b-form-checkbox v-model="isFront" switch>
           {{ $t('label.isFront') }}
         </b-form-checkbox>
       </b-form-group>
-    </search-sidebar>
+    </SearchSidebar>
 
     <i-layout-section main>
       <template v-slot:header>
         <PageNavbarHeading :label="$t('search')" :title="$t('searchImages')">
           <template #actions>
-            <b-button size="sm" variant="outline-primary" @click="loadRandomPage">
+            <b-button
+              size="sm"
+              variant="outline-primary"
+              :disabled="!canLoadRandomPage"
+              @click="loadRandomPage"
+            >
               {{ $t('actions.loadRandomPage') }}
             </b-button>
           </template>
@@ -101,24 +109,16 @@
       <div class="p-1 my-2">
         <div class="card-group row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 row-cols-xxl-4">
           <div class="col mb-2" v-for="searchResult in searchResults" :key="searchResult.id">
-            <!-- <search-results-image-item
-              class="mx-1"
-              :item="searchResult"
-              :enable-checkbox="false"
-              :enable-similar-to="enableSimilarTo"
-              :isChecked="isChecked(searchResult)"
-              :userPlan="userPlan"
-              @toggleSelected="toggleSelected"
-              @click:search="onClickSearch"
-            /> -->
             <ImageContentItem
               :image="searchResult"
               showImageTypes
               showLink
               showPreview
+              :showContentItemAccess="false"
               class="border p-2 rounded-sm"
+              :max-words-in-caption="10"
             >
-              <div class="d-flex justify-content-between gap-2 pt-2">
+              <div class="d-flex justify-content-between gap-2 pt-2 flex-wrap">
                 <router-link
                   v-if="searchResult.contentItemId"
                   :to="{
@@ -173,7 +173,7 @@
 </i18n>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch, getCurrentInstance } from 'vue'
+import { computed, nextTick, onMounted, ref, watch, getCurrentInstance } from 'vue'
 import type { ComponentCustomProperties } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -251,7 +251,11 @@ const isLoading = ref(false)
 const selectedItems = ref<IImage[]>([])
 const similarToImage = ref<IImage | null>(null)
 const searchResults = ref<IImage[]>([])
+const searchInputRef = ref<{
+  focus(): void
+} | null>(null)
 const paginationTotalRows = ref(0)
+const canLoadRandomPage = computed(() => !isLoading.value && paginationTotalRows.value > 0)
 const facets = ref<FacetModel[]>(buildEmptyFacets(AllowedFacetTypes) as FacetModel[])
 
 const userPlan = computed(() => userStore.userPlan)
@@ -344,12 +348,12 @@ const orderBy = computed<string>({
 
 const paginationCurrentPage = computed<number>({
   get() {
-    const parsed = parseInt(String(route.query.p ?? 0), 10)
-    return isNaN(parsed) ? 0 : parsed
+    const parsed = Number(firstQueryValue(route.query.p, '1'))
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1
   },
   set(page) {
     new Navigation(proxy).updateQueryParametersWithHistory({
-      p: isNaN(page) ? 1 : page
+      p: Number.isSafeInteger(page) && page > 0 ? page : 1
     })
   }
 })
@@ -411,21 +415,28 @@ function onSearchQuery({ q = '' }: { q?: string }) {
   )
 }
 
-function loadRandomPage() {
-  new Navigation(proxy).updateQueryParametersWithHistory({ p: 0 })
+async function loadRandomPage() {
+  if (!canLoadRandomPage.value) return
+  const totalPages = Math.ceil(paginationTotalRows.value / paginationPerPage.value)
+  const page = Math.floor(Math.random() * totalPages) + 1
+  await fetchSearchResults(page)
 }
 
-async function fetchSearchResults() {
+let latestRequestId = 0
+let synchronizedQuery = ''
+
+async function fetchSearchResults(page = paginationCurrentPage.value) {
+  const requestId = ++latestRequestId
   isLoading.value = true
   try {
-    const q = serviceQuery.value
+    const q = { ...serviceQuery.value, page }
     const serializedFilters = serializeFilters(q.filters)
     const query: Record<string, unknown> = {
       filters: serializedFilters,
       order_by: q.orderBy,
-      limit: q.limit
+      limit: q.limit,
+      offset: (q.page - 1) * q.limit
     }
-    if (q.page > 0) query.offset = (q.page - 1) * q.limit
     if (q.similarTo) query.similar_to_image_id = q.similarTo
 
     const [imagesRes, facetsRes] = await Promise.all([
@@ -438,13 +449,19 @@ async function fetchSearchResults() {
       })
     ])
 
+    // A newer search may have started while these requests were pending.
+    if (requestId !== latestRequestId) return
+
     paginationTotalRows.value = imagesRes.pagination.total
     searchResults.value = imagesRes.data
-    paginationCurrentPage.value =
-      Math.round(imagesRes.pagination.offset / imagesRes.pagination.limit) + 1
+    const resolvedPage = Math.floor(imagesRes.pagination.offset / imagesRes.pagination.limit) + 1
+    // Updating the URL must not fetch the results we have just received again.
+    synchronizedQuery = JSON.stringify({ ...q, page: resolvedPage })
+    await new Navigation(proxy).updateQueryParametersWithHistory({ p: resolvedPage })
+    if (requestId !== latestRequestId) return
     facets.value = (facetsRes.data as unknown[]).map(f => new FacetModel(f as never))
   } finally {
-    isLoading.value = false
+    if (requestId === latestRequestId) isLoading.value = false
   }
 }
 
@@ -458,7 +475,37 @@ async function fetchSimilarToImage(id: string) {
 }
 
 watch(similarToImageId, id => fetchSimilarToImage(id), { immediate: true })
-watch(serviceQuery, fetchSearchResults, { immediate: true })
+watch(
+  [
+    () => JSON.stringify(serviceQuery.value),
+    () => serializeFilters(availableFiltersWithItems.value)
+  ],
+  ([query, filters], [, previousFilters]) => {
+    const isSynchronized = query === synchronizedQuery
+    synchronizedQuery = ''
+    if (
+      previousFilters !== undefined &&
+      filters !== previousFilters &&
+      paginationCurrentPage.value !== 1
+    ) {
+      // Wait for the route watcher to fetch page one, rather than fetching the
+      // previous page with the new filters. Invalidate any pending old response.
+      isLoading.value = true
+      latestRequestId++
+      paginationCurrentPage.value = 1
+      return
+    }
+    if (!isSynchronized) return fetchSearchResults()
+  },
+  { immediate: true }
+)
+
+onMounted(() => {
+  // Focus the search field as soon as the page is ready.
+  nextTick(() => {
+    searchInputRef.value?.focus()
+  })
+})
 </script>
 
 <style>

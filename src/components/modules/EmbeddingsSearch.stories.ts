@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import EmbeddingsSearch from './EmbeddingsSearch.vue'
 import { http, HttpResponse } from 'msw'
 import { MockWordEmbeddings } from '.storybook/mockData/embeddings'

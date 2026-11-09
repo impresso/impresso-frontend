@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import BFormSelect, { type Option } from '../legacy/bootstrap/BFormSelect.vue'
 import BFormCheckbox from '../legacy/bootstrap/BFormCheckbox.vue'
 import type { Filter } from '@/models'
@@ -107,13 +107,15 @@ export interface BaristaChatInputProps {
   isLoading?: boolean
   filters?: Filter[]
   showDeveloperSettings?: boolean
+  initialPrompt?: string
 }
 
 const baristaStore = useBaristaStore()
 const props = withDefaults(defineProps<BaristaChatInputProps>(), {
   isLoading: false,
   filters: () => [],
-  showDeveloperSettings: false
+  showDeveloperSettings: false,
+  initialPrompt: ''
 })
 const emit = defineEmits<{
   (e: 'submit', request: BaristaRequest): void
@@ -132,6 +134,17 @@ const allowTopicsFilters = ref(false)
 const humanPrompt = ref<HTMLTextAreaElement | null>(null)
 const showRemainingConversations = ref(false)
 let hideTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(
+  () => props.initialPrompt,
+  prompt => {
+    inputMessage.value = prompt
+    if (prompt) {
+      nextTick(() => humanPrompt.value?.focus())
+    }
+  },
+  { immediate: true }
+)
 
 watch(
   () => baristaStore.remainingConversations,

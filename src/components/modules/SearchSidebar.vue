@@ -7,6 +7,9 @@
           <SearchTabs />
         </slot>
         <div class="my-3 mx-3" :class="{ focus: hasFocus }">
+          <slot name="header" :focusHandler="focusHandler">
+            <!-- extra header -->
+          </slot>
           <SearchPills :filters="filters" @changed="handleFiltersChanged" />
           <span class="d-block mb-2" v-if="filters.length && ignoredFilterTypes.length">
             <i
@@ -20,11 +23,20 @@
                   ignoredFilterTypes.length
                 )
               "
-            />{{ ' ' }}<InfoButton :name="infoButtonName" />
+            />{{ ' '
+            }}<InfoButton :name="infoButtonName">
+              <template #details>
+                <details class="text-left border-top pt-2 mt-2">
+                  <summary>{{ $t('Details') }}</summary>
+                  <ul class="p-0 pl-3 m-0">
+                    <li v-for="(filterType, index) in ignoredFilterTypes" :key="index">
+                      {{ $t(`label.${filterType}.filterTitle`) }}
+                    </li>
+                  </ul>
+                </details>
+              </template>
+            </InfoButton>
           </span>
-          <slot name="header" :focusHandler="focusHandler">
-            <!-- extra header -->
-          </slot>
         </div>
       </div>
     </template>
@@ -34,6 +46,7 @@
         <!-- slot here for extra facets -->
       </slot>
       <SearchFacets
+        :searchIndex="props.searchIndex"
         :facets="includedFacets"
         :filters="filters"
         :start-year="startYear"
@@ -60,10 +73,13 @@ import InfoButton from '@/components/base/InfoButton.vue'
 import SearchFacets from '@/components/SearchFacets.vue'
 import type { Facet, Filter, FacetType, FilterType } from '@/models'
 import { getImpressoMetadata } from '@/models/ImpressoMetadata'
+import { SearchIndex } from '@/services/types'
 
 export interface SearchSidebarProps {
   /** Used for helper button */
   contextTag?: string
+  /** The search index to use */
+  searchIndex?: SearchIndex
   width?: string
   filters?: Filter[]
   /** facets to visualize */
@@ -79,7 +95,9 @@ const props = withDefaults(defineProps<SearchSidebarProps>(), {
   filters: () => [],
   facets: () => [],
   ignoredFilterTypes: () => [],
-  ignoredFacetTypes: () => []
+  ignoredFacetTypes: () => [],
+  searchIndex: 'search',
+  contextTag: 'search'
 })
 
 const emit = defineEmits<{

@@ -39,6 +39,7 @@
   --impresso-color-black-alpha-20: rgba(52, 58, 64, 0.2);
   --impresso-color-black-alpha-30: rgba(52, 58, 64, 0.3);
   --impresso-color-black-alpha-50: rgba(52, 58, 64, 0.5);
+  --impresso-color-black-alpha-70: rgba(52, 58, 64, 0.7);
   --impresso-color-black-rgb: 52, 58, 64;
 
   --impresso-color-black-deeper: #17191c;
@@ -55,6 +56,9 @@
   --impresso-color-vintage-purple-alpha-50: rgba(var(--impresso-color-vintage-purple-rgb), 0.5);
   --impresso-color-vintage-purple-alpha-80: rgba(var(--impresso-color-vintage-purple-rgb), 0.8);
   --impresso-color-vintage-purple: rgb(var(--impresso-color-vintage-purple-rgb));
+
+  --impresso-color-turquoise-surf-rgb: 0, 165, 207;
+  --impresso-color-turquoise-surf: rgb(var(--impresso-color-turquoise-surf-rgb));
 
   --impresso-border-radius-xs: 5px;
   --impresso-border-radius-sm: 10px;
@@ -446,7 +450,9 @@ label {
 .line-height-inherit {
   line-height: inherit;
 }
-
+.line-height-1 {
+  line-height: 1;
+}
 .text-color-inherit {
   color: inherit;
 }

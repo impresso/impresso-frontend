@@ -193,7 +193,7 @@ export default {
     standardFacets() {
       return this.facets.filter(({ type }) =>
         [
-          'newspaper',
+          'mediaSource',
           'collection',
           'textReuseCluster',
           'topic',
@@ -256,7 +256,7 @@ export default {
         page: 1,
         filters: this.allowedFilters
       }
-      // eslint-disable-next-line
+       
       console.debug('[TextReuse] searchFacetApiQueryParams', query)
       return {
         query,
@@ -267,7 +267,7 @@ export default {
   methods: {
     /** @param {Filter[]} filters */
     handleFiltersChanged(filters) {
-      // eslint-disable-next-line
+       
       console.debug('[TextReuse] handleFiltersChanged', filters)
       this.$navigation.updateQueryParameters({
         [CommonQueryParameters.SearchFilters]: serializeFilters(filters)
@@ -279,7 +279,7 @@ export default {
         this.handleFiltersChanged(this.filters.filter(({ type: t }) => t !== type))
         return
       }
-      // eslint-disable-next-line
+       
       console.debug('[TextReuse] handleFacetFiltersChanged', filters)
       // filter exists, update it
       const filterExists = this.filters.some(({ type }) => type === filters[0].type)
@@ -329,7 +329,7 @@ export default {
       }
       const stringFilter = FilterFactory.create({ type: 'string', q })
       const filterExists = this.filters.some(({ type }) => type === 'string')
-      // eslint-disable-next-line
+       
       console.debug(
         '[TextReuse] handleSearchInputSubmit \n - q:',
         q,
@@ -376,7 +376,7 @@ export default {
         })
     },
     loadFacet(type, opts = {}) {
-      // eslint-disable-next-line
+       
       console.debug('[TextReuse] loadFacet', type, 'query', this.searchFacetApiQueryParams.query)
       getSearchFacetsService('tr_passages')
         .get(type, {
@@ -400,7 +400,7 @@ export default {
     }
   },
   mounted() {
-    // eslint-disable-next-line
+     
     console.debug('[TextReuse] @mounted')
   },
   watch: {
@@ -409,12 +409,12 @@ export default {
         if (previousValue && previousValue.hash === hash) {
           return false
         }
-        // eslint-disable-next-line
+         
         console.debug('[TextReuse] @searchApiQueryParameters \n query:', query)
         await this.loadFacet('year', { limit: 500 }) //, groupby: 'textReuseCluster' })
 
         await this.loadFacets([
-          'newspaper',
+          'mediaSource',
           'textReuseCluster',
           'topic',
           'country',

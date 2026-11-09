@@ -43,9 +43,13 @@
         <div v-if="tooltip.item" class="text-center small-caps">
           <span
             v-html="
-              $t('numbers.articles', {
-                n: $n(tooltip?.item?.value ?? 0)
-              }, tooltip?.item?.value ?? 0)
+              $t(
+                'numbers.articles',
+                {
+                  n: $n(tooltip?.item?.value ?? 0)
+                },
+                tooltip?.item?.value ?? 0
+              )
             "
           />
           &middot; {{ tooltipFormattedTime }}
@@ -107,11 +111,11 @@ export default {
     }
   },
   mounted() {
-    // @ts-ignore
+    // @ts-expect-error Vue instance methods do not satisfy the DOM EventListener signature.
     window.addEventListener('resize', this.render.bind(this))
   },
   beforeUnmount() {
-    // @ts-ignore
+    // @ts-expect-error Vue instance methods do not satisfy the DOM EventListener signature.
     window.removeEventListener('resize', this.render.bind(this))
   },
   methods: {

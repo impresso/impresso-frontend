@@ -45,7 +45,8 @@ function tryMigrateLegacySearchQueryParameter(vue) {
     filters = serialisedLegacyFilters != null ? JSON.parse(serialisedLegacyFilters) : undefined
   } catch (e) {
     console.warn(
-      `Could not parse content of the legacy fiters query parameter "${CommonQueryParameters.LegacySearchFilters}"`
+      `Could not parse content of the legacy fiters query parameter "${CommonQueryParameters.LegacySearchFilters}"`,
+      e
     )
   }
 

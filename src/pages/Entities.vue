@@ -112,7 +112,7 @@ export default {
       /** @returns {string[]} */
       get() {
         try {
-          // @ts-ignore
+          // @ts-expect-error window.atob is not recognized by typescript
           const items = /** @type {string} */ (
             window.atob(this.$route.query[QueryParameters.SelectedEntitiesIds])
           )
@@ -124,7 +124,6 @@ export default {
       /** @param {string[]} items */
       set(items) {
         this.$navigation.updateQueryParameters({
-          // @ts-ignore
           [QueryParameters.SelectedEntitiesIds]:
             items.length > 0 ? window.btoa(items.join(',')) : undefined
         })

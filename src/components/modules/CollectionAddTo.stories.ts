@@ -1,7 +1,7 @@
 import { BaseFindResponse } from '@/models/generated/app/responses'
 import { Collection } from '@/models/generated/canonical'
 import { fn } from 'storybook/test'
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'
 import CollectionAddTo from './CollectionAddTo.vue'

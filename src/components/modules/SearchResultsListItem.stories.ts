@@ -1,6 +1,6 @@
 import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { fn } from 'storybook/test'
-import type { Meta, StoryObj } from '@storybook/vue3'
+import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'
 import SearchResultsListItem from './SearchResultsListItem.vue'

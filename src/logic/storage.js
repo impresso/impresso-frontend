@@ -11,7 +11,7 @@ const LatestSearchQueryKey = 'impressoLatestSearchQuery'
  * @returns {string}
  */
 export function getLatestSerializedSearchQuery() {
-  // @ts-ignore
+  // @ts-expect-error localStorage is only called in the browser
   return localStorage.getItem(LatestSearchQueryKey)
 }
 
@@ -28,6 +28,6 @@ export function getLatestFilters() {
  * @param {string} searchQuery
  */
 export function setLatestSerializedSearchQuery(searchQuery) {
-  // @ts-ignore
-  localStorage.setItem(LatestSearchQueryKey, searchQuery);
+  // @ts-expect-error localStorage is only called in the browser
+  localStorage.setItem(LatestSearchQueryKey, searchQuery)
 }

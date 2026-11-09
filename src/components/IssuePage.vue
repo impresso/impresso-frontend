@@ -375,7 +375,7 @@ export default {
     },
     filters: {
       get() {
-        let filters = [...this.issueFilters]
+        const filters = [...this.issueFilters]
         if (this.issue != null) {
           filters.push({
             type: 'issue',

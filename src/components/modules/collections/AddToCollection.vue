@@ -156,7 +156,7 @@ export default {
       async handler({ query, hash }, previousValue) {
         this.isPristine = true
         if (!this.show || !this.isLoggedIn) {
-          // eslint-disable-next-line
+           
           console.debug(
             '[AddToCollection] @searchApiQueryParameters \n cannot be loaded now.... not loggedin or dialog not shown'
           )
@@ -168,7 +168,7 @@ export default {
         if (previousValue && previousValue.hash === hash) {
           return
         }
-        // eslint-disable-next-line
+         
         console.debug('[AddToCollection] @searchApiQueryParameters \n query:', query)
 
         const [items, total] = await collectionService

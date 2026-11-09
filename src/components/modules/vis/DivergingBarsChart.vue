@@ -78,11 +78,11 @@ export default {
       roundValueFn: this.roundValueFn
     })
     this.render()
-    // @ts-ignore
+    // @ts-expect-error Vue instance methods do not satisfy the DOM EventListener signature.
     window.addEventListener('resize', this.render.bind(this))
   },
   beforeUnmount() {
-    // @ts-ignore
+    // @ts-expect-error Vue instance methods do not satisfy the DOM EventListener signature.
     window.removeEventListener('resize', this.render.bind(this))
   },
   watch: {

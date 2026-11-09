@@ -13,8 +13,7 @@
 
 /* eslint no-console: ["error", { allow: ["warn", "error", "log"] }] */
 import * as d3 from 'd3'
-
-const uuid = require('uuid')
+import { v4 as uuidv4 } from 'uuid'
 
 export default {
   props: {
@@ -36,7 +35,7 @@ export default {
     monthOffset: 2,
     sliderOffsetTop: 23,
     dateFieldWidth: 85,
-    id: `ne-explorer-${uuid.v4()}`
+    id: `ne-explorer-${uuidv4()}`
   }),
   methods: {
     translatePeriod(duration = 0) {

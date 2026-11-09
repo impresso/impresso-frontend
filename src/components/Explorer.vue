@@ -72,11 +72,7 @@
       <LoadingBlock v-if="isLoading" :label="$t('actions.loading')" :height="50" class="m-3" />
       <FacetExplorer
         v-if="!includes(RangeFacets, currentType)"
-        :filterType="
-          currentType === 'mediaSource'
-            ? 'newspaper' /* TODO add mediaSource in API to make this work */
-            : (currentType as FilterType)
-        "
+        :filterType="currentType"
         :itemType="currentType"
         :buckets="buckets"
         v-model="filter"
@@ -331,6 +327,7 @@ async function searchWithService(searchParams: SearchParams): Promise<{
       (item: any) =>
         new Bucket({
           value: item.id,
+          label: item.label ?? item.name ?? item.title ?? item.id,
           item,
           type: searchParams.type
         })

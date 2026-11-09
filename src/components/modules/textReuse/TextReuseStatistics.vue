@@ -394,7 +394,7 @@ export default defineComponent({
       const filters = this.filters as FilterLike[]
       const supportedFilters = filters.filter(({ type }) => supportedFilterTypes.includes(type))
 
-      // eslint-disable-next-line
+       
       console.info(
         '@statsApiQueryParameters check filters:',
         filters,
@@ -429,7 +429,7 @@ export default defineComponent({
         if (previousValue && previousValue.hash === hash) {
           return false
         }
-        // eslint-disable-next-line
+         
         console.debug(
           '[TextReuseOverview] @statsApiQueryParameters \n query:',
           query

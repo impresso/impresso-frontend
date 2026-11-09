@@ -92,7 +92,7 @@ export default class TimeMultiLineChart {
 
     // Lines
 
-    // @ts-ignore
+    // @ts-expect-error d3.line() is a generic function and we are using it with a specific type
     const line = /** @type {d3.Line<Item>} */ (d3.line())
       .defined(({ value }) => !isNaN(value))
       .x(({ time }) => this.x(time))
@@ -138,7 +138,7 @@ export default class TimeMultiLineChart {
 
     const peak = this.peak
       .data(
-        /** @type {[Date, number][]} */(
+        /** @type {[Date, number][]} */ (
           maxValueTime != null && maxValue != null ? [[maxValueTime, maxValue]] : []
         )
       )

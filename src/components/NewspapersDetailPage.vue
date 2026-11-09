@@ -211,7 +211,7 @@ export default {
           logos = institutionLogos.value.match(regex)
         }
         logos.forEach((item, i) => {
-          let tag = `<img src="https://impresso-project.ch/assets/images/${item}" class="logo d-block my-3" />`
+          const tag = `<img src="https://impresso-project.ch/assets/images/${item}" class="logo d-block my-3" />`
           ret +=
             links.length === logos.length ? `<a href="${links[i]}" target="_blank">${tag}</a>` : tag
         })

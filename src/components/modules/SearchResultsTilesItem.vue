@@ -20,12 +20,12 @@ export default {
       get() {
         return this.modelValue
       },
-      set() {
-        /* noop */
+      set(value: ContentItem) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  emits: ['click', 'toggleSelected'],
+  emits: ['update:modelValue', 'click', 'toggleSelected'],
   methods: {
     click() {
       this.$emit('click')

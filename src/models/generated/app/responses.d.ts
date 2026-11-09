@@ -87,6 +87,12 @@ export interface BaseFindResponse {
      */
     offset: number;
   };
+  meta?: {
+    provenance?: {
+      token: string;
+      kid: string;
+    };
+  };
 }
 
 
@@ -418,6 +424,29 @@ export interface ImpressoNamedEntityRecognitionEntity {
    */
   name?: string;
 }
+
+
+/**
+ * Signed delivery receipts identify receiving accounts and ordered item IDs only. They do not attest item content or identify a publisher.
+ */
+export type ProvenanceVerificationResponse =
+  | {
+      valid: true;
+      claims:
+        | {
+            kind?: "api";
+            [k: string]: unknown;
+          }
+        | {
+            kind?: "export";
+            [k: string]: unknown;
+          };
+      idsMatch?: boolean;
+    }
+  | {
+      valid: false;
+      reason: string;
+    };
 
 
 /**

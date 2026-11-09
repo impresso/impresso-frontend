@@ -63,6 +63,7 @@
       :key="index"
       :facet="facet"
       :context-filters="filters"
+      :search-index="props.searchIndex"
       :facet-filters="getFacetFilters(facet.type)"
       @changed="filters => facetFiltersUpdated(facet.type, filters)"
       collapsible
@@ -91,6 +92,7 @@ import FilterDecimalRange from './modules/FilterDecimalRange.vue'
 import { State, useSelectionMonitorStore } from '@/stores/selectionMonitor'
 import { includes } from '@/util/fn.js'
 import { NumericContentItemsFacets } from '@/logic/filters.js'
+import { SearchIndex } from '@/services/types/index.js'
 
 const selectionMonitorStore = useSelectionMonitorStore()
 
@@ -105,7 +107,7 @@ export interface SearchFacetsProps {
   facets?: Facet[]
   startYear?: number
   endYear?: number
-  searchIndex?: string
+  searchIndex?: SearchIndex
 }
 
 const props = withDefaults(defineProps<SearchFacetsProps>(), {

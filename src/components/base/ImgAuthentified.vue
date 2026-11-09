@@ -113,7 +113,7 @@ export default defineComponent({
 
               this.isReady = true
               // build up the image in mmory
-              var i = new Image()
+              const i = new Image()
 
               i.onload = () => {
                 this.imageWidthHeightRatio = i.naturalWidth / i.naturalHeight

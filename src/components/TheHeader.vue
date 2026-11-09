@@ -128,8 +128,16 @@
           <template v-slot:button-content>
             <span>{{ $t('label_data_access') }}</span>
           </template>
-
-          <li v-for="viewName in [ViewPlans, ViewTermsOfUse]" :key="viewName">
+          <li>
+            <RouterLink
+              :to="{ name: Routes.plans.name }"
+              active-class="active"
+              class="nav-link px-3"
+            >
+              <span>{{ $t('label_plans') }}</span>
+            </RouterLink>
+          </li>
+          <li v-for="viewName in [ViewTermsOfUse]" :key="viewName">
             <LinkToModal class="nav-link px-3" :view="viewName">
               <span>{{ $t(`label_${viewName.toLowerCase()}`) }}</span>
             </LinkToModal>
@@ -187,7 +195,7 @@
           </span>
           <span v-else>{{ error }}</span>
           <span v-if="error.id" class="error-id">
-            <info-button name="error-id" placement="bottom" class="ml-2" />
+            <InfoButton name="error-id" placement="bottom" class="ml-2" />
             [ {{ error.id }} ]
           </span>
         </span>
@@ -204,6 +212,7 @@ import LinkToModal from './LinkToModal.vue'
 import TasksDropdownPreview from '@/components/TasksDropdownPreview.vue'
 import { getLatestSerializedSearchQuery } from '@/logic/storage'
 import { useJobsStore } from '@/stores/jobs'
+import { useFeaturesStore } from '@/stores/features'
 import { useUserStore } from '@/stores/user'
 import { useNotificationsStore } from '@/stores/notifications'
 import type { ErrorMessage } from '@/stores/notifications'
@@ -214,9 +223,11 @@ import SwitchBetweenAppDatalab from 'impresso-ui-components/components/logos/Swi
 import { Routes } from '@/router/routes'
 import type { RouteLocationRaw } from 'vue-router'
 import { useRoute } from 'vue-router'
+import InfoButton from './base/InfoButton.vue'
 
 const route = useRoute()
 const jobsStore = useJobsStore()
+const featuresStore = useFeaturesStore()
 const userStore = useUserStore()
 const notificationsStore = useNotificationsStore()
 
@@ -257,10 +268,7 @@ const errorMessages = computed<ErrorMessage[]>(() => {
 })
 const showAlert = computed(() => errorMessages.value.length > 0)
 const connectivityStatus = computed(() => notificationsStore.connectivityStatus)
-const textReuseEnabled = computed(
-  () =>
-    !!(window as typeof window & { impressoFeatures?: any }).impressoFeatures?.textReuse?.enabled
-)
+const textReuseEnabled = computed(() => featuresStore.isTextReuseEnabled)
 
 function getRouteWithSearchQuery(
   routeParams: RouteLocationRaw,
@@ -287,7 +295,6 @@ watch(
   },
   { immediate: true }
 )
-
 </script>
 
 <style lang="css">

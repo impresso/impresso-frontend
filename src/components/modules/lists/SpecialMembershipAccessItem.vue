@@ -11,7 +11,7 @@
         }"
         class="d-flex flex-column justify-content-center gap-1"
       >
-        <h3 class="font-size-inherit m-0 font-weight-bold">{{ item.title }}</h3>
+        <h3 class="font-size-inherit m-0 font-weight-bold">{{ title }}</h3>
         <p class="small m-0">{{ item.metadata?.provider }}</p>
       </div>
       <div
@@ -117,6 +117,10 @@ const emit = defineEmits<{
   (e: 'request-access', item: SpecialMembershipAccess): void
 }>()
 
+const title = computed(() => {
+  return props.item.fullname ?? props.item.title
+})
+
 const hasRequests = computed(() => {
   return props.item.requests && props.item.requests.length > 0
 })
@@ -173,6 +177,7 @@ const iconArgs = computed<IconProps>(() => {
       color: 'var(--bs-danger)'
     }
   }
+  return {}
 })
 </script>
 <i18n lang="json">

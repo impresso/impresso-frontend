@@ -21,14 +21,14 @@ export interface EmailVerificationResendPayload {
   email: string
 }
 
-export interface EmailVerificationService extends Pick<
+export type EmailVerificationService = Pick<
   ServiceMethods<unknown, EmailVerificationPayload>,
   'create'
-> {}
-export interface EmailVerificationResendService extends Pick<
+>
+export type EmailVerificationResendService = Pick<
   ServiceMethods<unknown, EmailVerificationResendPayload>,
   'create'
-> {}
+>
 
 interface ErrorsCollectorPayload {
   id: string
@@ -39,10 +39,7 @@ interface ErrorsCollectorPayload {
   className?: string
   type?: string
 }
-export interface ErrorsCollectorService extends Pick<
-  ServiceMethods<{}, ErrorsCollectorPayload>,
-  'create'
-> {}
+export type ErrorsCollectorService = Pick<ServiceMethods<unknown, ErrorsCollectorPayload>, 'create'>
 
 type UntypedService = Partial<ServiceMethods<any, any, any, any>>
 
@@ -150,6 +147,9 @@ export interface SpecialMembershipAccessMetadata {
 export interface SpecialMembershipAccess {
   id: number
   reviewerId?: number | null
+  countryCode?: string
+  fullname?: string
+  dataProviderAlias?: string
   title: string
   bitmapPosition: number
   metadata?: SpecialMembershipAccessMetadata
@@ -243,3 +243,5 @@ export interface DataReleaseExtended extends DataRelease {
     embDocs?: { models: DataReleaseModel[] }
   }
 }
+
+export type SearchIndex = 'search' | 'tr_clusters' | 'tr_passages' | 'images'
