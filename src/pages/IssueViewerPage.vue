@@ -23,12 +23,19 @@
           :page="page"
         >
           <template v-slot:actions>
-            <CollectionAddTo
-              right
-              v-if="contentItem"
-              :items="contentItemAsCollectableItems"
-              :text="$t('add_to_collection')"
-          /></template>
+            <div class="d-flex justify-content-end align-items-center gap-2">
+              <ContentItemCopyText
+                v-if="contentItemOriginal && isTranscriptMode"
+                :content-item="contentItemOriginal"
+              />
+              <CollectionAddTo
+                right
+                v-if="contentItem"
+                :items="contentItemAsCollectableItems"
+                :text="$t('add_to_collection')"
+              />
+            </div>
+          </template>
         </IssueViewerPageHeading>
         <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
           <b-tabs pills>
@@ -145,6 +152,7 @@ import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
+import ContentItemCopyText from '@/components/contentItem/ContentItemCopyText.vue'
 import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
 import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
@@ -202,6 +210,9 @@ const viewMode = computed(() => {
   }
   return IIIFViewerTranscriptMode
 })
+const isTranscriptMode = computed(() =>
+  [IIIFViewerTranscriptMode, RegionTranscriptMode].includes(viewMode.value)
+)
 
 const contentItemId = computed(() => {
   const id =
