@@ -1,35 +1,17 @@
 <template>
   <template v-if="typeof node === 'string'">{{ node }}</template>
-  <component
-    v-else
-    :is="node.entity.kind === 'region' ? 'p' : 'span'"
-    :class="[
-      node.entity.kind,
-      {
-        continuation: node.isContinuation,
-        selected: isSelected,
-        'passage-link': passage
-      }
-    ]"
-    :style="passageStyle"
-    @click="onClick"
-    @mouseenter="passage && emit('passageMouseenter', passage.clusterId, passage.passageId, $event)"
-    @mouseleave="passage && emit('passageMouseleave', passage.clusterId, passage.passageId, $event)"
-  >
+  <component v-else :is="itemTag" :class="itemClasses" :data-id="node.entity.id" @click="onClick">
+    <Icon
+      :name="node.entity.type"
+      v-if="node.entity.kind === 'namedEntity' && !itemClasses.includes('continuation')"
+      :width="12"
+      :height="12"
+      :stroke-width="2"
+    />
     <AnnotatedTextTree
       v-for="(child, i) in node.children"
       :key="childKey(child, i)"
       :node="child"
-      :cluster-colours="clusterColours"
-      :selected-cluster-id="selectedClusterId"
-      @cluster-selected="clusterId => emit('clusterSelected', clusterId)"
-      @passage-clicked="(clusterId, passageId) => emit('passageClicked', clusterId, passageId)"
-      @passage-mouseenter="
-        (clusterId, passageId, e) => emit('passageMouseenter', clusterId, passageId, e)
-      "
-      @passage-mouseleave="
-        (clusterId, passageId, e) => emit('passageMouseleave', clusterId, passageId, e)
-      "
     />
   </component>
 </template>
@@ -37,48 +19,36 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { getAnnotateTextTree } from '@/logic/articleAnnotations'
+import Icon from '../base/Icon.vue'
 
 defineOptions({ name: 'AnnotatedTextTree' })
 
-// derived from the existing function, so no new interface is declared
 type TreeNode = ReturnType<typeof getAnnotateTextTree>['children'][number]
 
 const props = defineProps<{
   node: TreeNode | string
-  clusterColours?: Record<string, string>
-  selectedClusterId?: string
 }>()
 
-const emit = defineEmits<{
-  clusterSelected: [clusterId: string]
-  passageClicked: [clusterId: string, passageId: string]
-  passageMouseenter: [clusterId: string, passageId: string, e: MouseEvent]
-  passageMouseleave: [clusterId: string, passageId: string, e: MouseEvent]
-}>()
-
-// ASSUMPTION: passage entities look like { kind: 'passage', id, clusterId }
-const passage = computed(() => {
-  const n = props.node
-  if (typeof n === 'string' || n.entity.kind !== 'passage') return null
-  const { id, clusterId } = n.entity as any
-  return { passageId: String(id), clusterId: String(clusterId) }
+const itemTag = computed(() => {
+  if (typeof props.node === 'string') return 'span'
+  if (props.node.entity.kind === 'line') return 'p'
+  if (props.node.entity.kind === 'region') return 'div'
+  return 'span'
 })
 
-const isSelected = computed(
-  () => !!passage.value && passage.value.clusterId === props.selectedClusterId
-)
+const itemClasses = computed(() => {
+  if (typeof props.node === 'string') return undefined
+  const { kind, type } = props.node.entity
+  const continuation = props.node.isContinuation ? ' continuation' : ''
 
-const passageStyle = computed(() =>
-  passage.value ? { backgroundColor: props.clusterColours?.[passage.value.clusterId] } : undefined
-)
+  if (kind === 'namedEntity') return `entity ${type}${continuation}`
+  return kind
+})
 
-// ASSUMPTION: click on a passage selects its cluster, click on the selected one opens it
 function onClick(e: MouseEvent) {
-  if (!passage.value) return
-  e.stopPropagation()
-  const { clusterId, passageId } = passage.value
-  if (isSelected.value) emit('passageClicked', clusterId, passageId)
-  else emit('clusterSelected', clusterId)
+  if (typeof props.node !== 'string' && props.node.entity.kind === 'namedEntity') {
+    e.stopPropagation()
+  }
 }
 
 function childKey(child: TreeNode | string, i: string | number) {
@@ -87,19 +57,3 @@ function childKey(child: TreeNode | string, i: string | number) {
   return `${kind}-${offset.start}-${offset.end}`
 }
 </script>
-
-<style scoped lang="scss">
-.passage-link {
-  cursor: pointer;
-  border-radius: 2px;
-  transition: filter 0.2s;
-
-  &:hover {
-    filter: brightness(0.92);
-  }
-
-  &.selected {
-    outline: 2px solid currentColor;
-  }
-}
-</style>

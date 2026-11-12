@@ -32,6 +32,7 @@ export function useContentItemAccess(item: MaybeRefOrGetter<ContentItemAccessSou
   const contentItemBitmapsAsBigInts = computed(() => {
     const accessBitmaps = toValue(item).access?.accessBitmaps
     if (!accessBitmaps) {
+      // By design, fail closed: missing bitmaps mean no access.
       return {
         explore: 0n,
         transcript: 0n,
@@ -48,6 +49,7 @@ export function useContentItemAccess(item: MaybeRefOrGetter<ContentItemAccessSou
       }
     } catch (error) {
       console.error('Error converting content item access bitmaps:', accessBitmaps, error)
+      // By design, fail closed: wrong bitmaps mean no access.
       return {
         explore: 0n,
         transcript: 0n,

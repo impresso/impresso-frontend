@@ -2,8 +2,10 @@ import { describe, test as it } from 'vitest'
 import assert from 'assert';
 
 import {
+  getNamedEntitiesFromContentItem,
   getNamedEntitiesFromArticleResponse,
-  getAnnotateTextTree
+  getAnnotateTextTree,
+  passageToPassageEntity
 } from '../../../src/logic/articleAnnotations';
 
 
@@ -547,7 +549,86 @@ describe('getNamedEntitiesFromArticleResponse', () => {
   });
 });
 
+describe('getNamedEntitiesFromContentItem', () => {
+  it('extracts valid mentions by type with absolute offsets', () => {
+    const entities = getNamedEntitiesFromContentItem({
+      id: 'item',
+      semanticEnrichments: {
+        mentions: {
+          persons: [null, { startOffset: 2, endOffset: 5 }, { startOffset: 7 }],
+          locations: [{ startOffset: 0, endOffset: 1 }],
+          organisations: [{ startOffset: 8, endOffset: 12 }],
+          newsagencies: [{ startOffset: 13, endOffset: 15 }],
+          other: [{ startOffset: 16, endOffset: 17 }]
+        }
+      }
+    })
+
+    assert.deepStrictEqual(entities, [
+      { id: 'person-0', kind: 'namedEntity', type: 'person', offset: { start: 2, end: 5 } },
+      { id: 'location-0', kind: 'namedEntity', type: 'location', offset: { start: 0, end: 1 } },
+      { id: 'organisation-0', kind: 'namedEntity', type: 'organisation', offset: { start: 8, end: 12 } },
+      { id: 'newsagency-0', kind: 'namedEntity', type: 'newsagency', offset: { start: 13, end: 15 } },
+      { id: 'other-0', kind: 'namedEntity', type: 'other', offset: { start: 16, end: 17 } }
+    ])
+    assert.deepStrictEqual(getNamedEntitiesFromContentItem({ id: 'empty' }), [])
+  })
+})
+
+describe('passageToPassageEntity', () => {
+  it('maps passage identifiers and offsets', () => {
+    assert.deepStrictEqual(
+      passageToPassageEntity({ id: 'passage', clusterId: 'cluster', offsetStart: 2, offsetEnd: 8 }),
+      {
+        id: 'passage',
+        clusterId: 'cluster',
+        kind: 'passage',
+        type: 'passage',
+        offset: { start: 2, end: 8 }
+      }
+    )
+  })
+})
+
 describe('getAnnotateTextTree', () => {
+
+  it('preserves tree metadata when an entity spans lines', () => {
+    const entity = {
+      id: 'person-0',
+      kind: 'namedEntity',
+      type: 'person',
+      offset: { start: 1, end: 3 }
+    }
+
+    assert.deepStrictEqual(getAnnotateTextTree('abcd', [entity], [2], []), {
+      children: [{
+        entity: { kind: 'region', offset: { start: 0, end: 4 } },
+        isContinuation: false,
+        isLast: true,
+        children: [
+          {
+            entity: { kind: 'line', offset: { start: 0, end: 2 } },
+            isContinuation: false,
+            isLast: true,
+            children: [
+              'a',
+              { entity, isContinuation: false, children: ['b'] }
+            ]
+          },
+          {
+            entity: { kind: 'line', offset: { start: 2, end: 4 } },
+            isContinuation: false,
+            isLast: true,
+            children: [
+              { entity, isContinuation: true, isLast: true, children: ['c'] },
+              'd'
+            ]
+          }
+        ]
+      }]
+    })
+    assert.deepStrictEqual(getAnnotateTextTree('', [], [], []), { children: [] })
+  })
 
   const flattenDeep = (arr) => arr.flatMap((subArray) => Array.isArray(subArray) ? flattenDeep(subArray) : subArray)
 
