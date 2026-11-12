@@ -137,9 +137,18 @@ const Icons: Record<string, IconData> = {
       }
     ]
   },
+  mapPin: {
+    paths: [
+      {
+        d: 'M20 10C20 14.4183 12 22 12 22C12 22 4 14.4183 4 10C4 5.58172 7.58172 2 12 2C16.4183 2 20 5.58172 20 10Z'
+      },
+      {
+        d: 'M12 11C12.5523 11 13 10.5523 13 10C13 9.44772 12.5523 9 12 9C11.4477 9 11 9.44772 11 10C11 10.5523 11.4477 11 12 11Z'
+      }
+    ]
+  },
   sparks: {
     paths: [
-      // <?xml version="1.0" encoding="UTF-8"?><svg width="24px" height="24px" viewBox="0 0 24 24" stroke-width="1.5" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000000"><path d="M8 15C12.8747 15 15 12.949 15 8C15 12.949 17.1104 15 22 15C17.1104 15 15 17.1104 15 22C15 17.1104 12.8747 15 8 15Z" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 6.5C5.13376 6.5 6.5 5.18153 6.5 2C6.5 5.18153 7.85669 6.5 11 6.5C7.85669 6.5 6.5 7.85669 6.5 11C6.5 7.85669 5.13376 6.5 2 6.5Z" stroke="#000000" stroke-width="1.5" stroke-linejoin="round"></path></svg>
       {
         d: 'M8 15C12.8747 15 15 12.949 15 8C15 12.949 17.1104 15 22 15C17.1104 15 15 17.1104 15 22C15 17.1104 12.8747 15 8 15Z'
       },
@@ -928,6 +937,16 @@ const Icons: Record<string, IconData> = {
         d: 'M12 2L21 7V17L12 22L3 17V7L12 2Z'
       }
     ]
+  },
+  user: {
+    paths: [
+      {
+        d: 'M5 20V19C5 15.134 8.13401 12 12 12V12C15.866 12 19 15.134 19 19V20'
+      },
+      {
+        d: 'M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z'
+      }
+    ]
   }
 }
 
@@ -942,7 +961,8 @@ const IconAliases: Record<string, string> = {
   partner: 'archive',
   type: 'label',
   country: 'position',
-  person: 'cubeDots',
+  person: 'user',
+  location: 'mapPin',
   nag: 'newsagency',
   newsagency: 'newsagency',
   organisation: 'organisation',

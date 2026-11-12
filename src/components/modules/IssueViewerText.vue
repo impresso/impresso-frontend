@@ -98,7 +98,7 @@
             <div class="col col-sm-7 text-serif py-2">
               <AnnotatedText
                 v-if="regionsAnnotationTree[i]"
-                :children="regionsAnnotationTree[i].children"
+                :children="getRegionChildren(regionsAnnotationTree[i])"
               />
             </div>
           </div>
@@ -120,6 +120,7 @@ import Collection from '@/models/Collection'
 import { useCollectionsStore } from '@/stores/collections'
 import { useNotificationsStore } from '@/stores/notifications'
 import { getNamedEntitiesFromContentItem, getAnnotateTextTree } from '@/logic/articleAnnotations'
+import type { AnnotationTreeChild } from '@/logic/articleAnnotations'
 
 import ContentItem from './lists/ContentItem.vue'
 import AnnotatedTextTree from './AnnotatedTextTree.vue'
@@ -229,6 +230,10 @@ const regionsAnnotationTree = computed(() => {
   ).children
 })
 
+function getRegionChildren(region: AnnotationTreeChild) {
+  return typeof region === 'string' ? [] : region.children
+}
+
 function annotatedTextClickHandler(idx: [number, number]) {
   fitBoundsToOverlayIdx.value = idx
 }
@@ -307,9 +312,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss">
-@use 'sass:color';
-@use '@/assets/legacy/bootstrap-impresso-theme-variables.scss' as *;
-
 .IssueViewerText__region {
   cursor: pointer;
   transition: border-color 0.2s var(--impresso-transition-ease);
@@ -340,36 +342,19 @@ onBeforeUnmount(() => {
 
   span.location,
   span.person {
-    box-shadow: inset 0px -2px 0px 0px color.adjust($clr-tertiary, $alpha: -0.5);
-    transition: box-shadow 0.2s;
-    cursor: pointer;
-
-    &::before {
-      font-family: 'dripicons-v2';
-      font-size: 75%;
-      opacity: 0.6;
-      padding-right: 2px;
-    }
-
-    &:hover {
-      box-shadow: inset 0px -24px 0px 0px color.adjust($clr-tertiary, $alpha: -0.5);
-    }
+    position: relative;
+    background-color: var(--impresso-color-black-alpha-10);
+    padding-left: 16px;
   }
-
-  span.location::before {
-    content: '\e012';
+  span.location.continuation,
+  span.person.continuation {
+    padding-left: 0;
   }
-
-  span.location.continuation::before {
-    content: '';
-  }
-
-  span.person::before {
-    content: '\e056';
-  }
-
-  span.person.continuation::before {
-    content: '';
+  span.location svg,
+  span.person svg {
+    position: absolute;
+    top: 4px;
+    left: 2px;
   }
 
   .region-row {

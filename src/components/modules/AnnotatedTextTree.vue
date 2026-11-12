@@ -1,22 +1,17 @@
 <template>
   <template v-if="typeof node === 'string'">{{ node }}</template>
-  <component
-    v-else
-    :is="itemTag"
-    :class="itemClasses"
-    :data-id="node.entity.id"
-    @click="onClick"
-  >
+  <component v-else :is="itemTag" :class="itemClasses" :data-id="node.entity.id" @click="onClick">
+    <Icon
+      :name="node.entity.type"
+      v-if="node.entity.kind === 'namedEntity' && !itemClasses.includes('continuation')"
+      :width="12"
+      :height="12"
+      :stroke-width="2"
+    />
     <AnnotatedTextTree
       v-for="(child, i) in node.children"
       :key="childKey(child, i)"
       :node="child"
-    />
-    <ItemSelector
-      v-if="node.entity.kind === 'namedEntity' && node.entity.id"
-      :id="String(node.entity.id)"
-      :item="{ id: String(node.entity.id), type: node.entity.type }"
-      :type="String(node.entity.type)"
     />
   </component>
 </template>
@@ -24,7 +19,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { getAnnotateTextTree } from '@/logic/articleAnnotations'
-import ItemSelector from '@/components/modules/ItemSelector.vue'
+import Icon from '../base/Icon.vue'
 
 defineOptions({ name: 'AnnotatedTextTree' })
 
