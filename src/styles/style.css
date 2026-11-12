@@ -36,11 +36,12 @@
   --impresso-color-yellow-alpha-80: rgba(255, 235, 120, 0.8);
 
   --impresso-color-black: #343a40;
-  --impresso-color-black-alpha-20: rgba(52, 58, 64, 0.2);
-  --impresso-color-black-alpha-30: rgba(52, 58, 64, 0.3);
-  --impresso-color-black-alpha-50: rgba(52, 58, 64, 0.5);
-  --impresso-color-black-alpha-70: rgba(52, 58, 64, 0.7);
   --impresso-color-black-rgb: 52, 58, 64;
+  --impresso-color-black-alpha-10: rgba(var(--impresso-color-black-rgb), 0.1);
+  --impresso-color-black-alpha-20: rgba(var(--impresso-color-black-rgb), 0.2);
+  --impresso-color-black-alpha-30: rgba(var(--impresso-color-black-rgb), 0.3);
+  --impresso-color-black-alpha-50: rgba(var(--impresso-color-black-rgb), 0.5);
+  --impresso-color-black-alpha-70: rgba(var(--impresso-color-black-rgb), 0.7);
 
   --impresso-color-black-deeper: #17191c;
 
