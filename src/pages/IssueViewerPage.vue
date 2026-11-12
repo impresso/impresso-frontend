@@ -24,10 +24,6 @@
         >
           <template v-slot:actions>
             <div class="d-flex justify-content-end align-items-center gap-2">
-              <ContentItemCopyText
-                v-if="contentItemOriginal && isTranscriptMode"
-                :content-item="contentItemOriginal"
-              />
               <CollectionAddTo
                 right
                 v-if="contentItem"
@@ -152,7 +148,6 @@ import { SupportedFiltersByContext } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import IssueViewerBookmarker from '@/components/IssueViewerBookmarker.vue'
 import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
-import ContentItemCopyText from '@/components/contentItem/ContentItemCopyText.vue'
 import ListOfTextReusePassages from '@/components/ListOfContentItemTextReusePassages.vue'
 import ListOfSimilarContentItems from '@/components/ListOfSimilarContentItems.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'

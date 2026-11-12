@@ -1,53 +1,52 @@
 <template>
-  <template v-if="canCopy">
-    <button
-      type="button"
-      class="ContentItemCopyText btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-      v-bind="$attrs"
-      @click="isModalVisible = true"
+  <button
+    type="button"
+    :disabled="!canCopy"
+    class="ContentItemCopyText btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+    v-bind="$attrs"
+    @click="isModalVisible = true"
+  >
+    <Icon name="copy" :scale="0.66" :stroke-width="1.5" />
+    {{ $t('actions.copyText') }}
+  </button>
+  <Teleport to="body">
+    <Modal
+      :show="isModalVisible"
+      :title="$t('modalTitle')"
+      modal-class="ContentItemCopyTextModal"
+      dialog-class="modal-dialog-centered"
+      @close="isModalVisible = false"
     >
-      <Icon name="copy" :scale="0.66" :stroke-width="1.5" />
-      {{ $t('actions.copyText') }}
-    </button>
-    <Teleport to="body">
-      <Modal
-        :show="isModalVisible"
-        :title="$t('modalTitle')"
-        modal-class="ContentItemCopyTextModal"
-        dialog-class="modal-dialog-centered"
-        @close="isModalVisible = false"
-      >
-        <p class="ContentItemCopyTextModal__lead">{{ $t('publicDomain') }}</p>
-        <Alert type="warning" class="mb-3">{{ $t('ocrWarning') }}</Alert>
-        <section class="ContentItemCopyTextModal__citation border-top pt-3">
-          <h3 class="small-caps-bold mb-1">{{ $t('citeAs') }}</h3>
-          <ContentItemCitation
-            v-if="isModalVisible"
-            class="small"
-            :content-item="contentItem"
-            @citation-generated="handleCitationGenerated"
-          />
-          <BFormCheckbox v-model="includeCitation" switch class="mt-2 small">
-            {{ $t('includeCitation') }}
-          </BFormCheckbox>
-        </section>
+      <p class="ContentItemCopyTextModal__lead">{{ $t('publicDomain') }}</p>
+      <Alert type="warning" class="mb-3">{{ $t('ocrWarning') }}</Alert>
+      <section class="ContentItemCopyTextModal__citation border-top pt-3">
+        <h3 class="small-caps-bold mb-1">{{ $t('citeAs') }}</h3>
+        <ContentItemCitation
+          v-if="isModalVisible"
+          class="small"
+          :content-item="contentItem"
+          @citation-generated="handleCitationGenerated"
+        />
+        <BFormCheckbox v-model="includeCitation" switch class="mt-2 small">
+          {{ $t('includeCitation') }}
+        </BFormCheckbox>
+      </section>
 
-        <template #modal-footer="{ close }">
-          <button type="button" class="btn btn-sm btn-outline-secondary" @click="close()">
-            {{ $t('actions.cancel') }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-primary"
-            :disabled="!transcript"
-            @click="copyToClipboard"
-          >
-            {{ $t('actions.copy') }}
-          </button>
-        </template>
-      </Modal>
-    </Teleport>
-  </template>
+      <template #modal-footer="{ close }">
+        <button type="button" class="btn btn-sm btn-outline-secondary" @click="close()">
+          {{ $t('actions.cancel') }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-primary"
+          :disabled="!transcript"
+          @click="copyToClipboard"
+        >
+          {{ $t('actions.copy') }}
+        </button>
+      </template>
+    </Modal>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -79,9 +78,7 @@ const includeCitation = ref(true)
 const citation = ref('')
 
 /** without transcript access the backend returns a redacted text, so there is nothing to copy */
-const canCopy = computed(
-  () => props.contentItem.access?.copyright === 'pbl' && hasTranscriptAccess.value
-)
+const canCopy = computed(() => hasTranscriptAccess.value)
 
 /** the transcript as one string, with a blank line between paragraphs */
 const transcript = computed(() => {
