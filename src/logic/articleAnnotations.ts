@@ -1,8 +1,66 @@
 
-// const namedEntitiesToListOfIds = namedEntities => namedEntities
-//   .reduce((ids, { id, relevance }) => ids.concat(Array.from({length: relevance}, () => id)), []);
+import type { ContentItem } from '@/models/generated/canonical/contentItem'
 
-const getNamedEntities = (ids, offsets, type) => ids.map((id, index) => {
+export interface AnnotationEntity {
+  kind: string
+  offset: { start: number; end: number }
+  id?: string
+  type?: string
+  clusterId?: string
+}
+
+export interface NamedEntityAnnotation extends AnnotationEntity {
+  id: string
+  kind: 'namedEntity'
+  type: string
+}
+
+export interface PassageAnnotation extends AnnotationEntity {
+  id: string
+  clusterId: string
+  kind: 'passage'
+  type: 'passage'
+}
+
+export interface AnnotationNode {
+  entity: AnnotationEntity
+  children: AnnotationTreeChild[]
+  isContinuation?: boolean
+  isLast?: boolean
+}
+
+export type AnnotationTreeChild = AnnotationNode | string
+
+export interface AnnotationTree {
+  children: AnnotationTreeChild[]
+}
+
+interface PendingNode {
+  entity: AnnotationEntity
+  children: PendingNode[]
+  isContinuation?: boolean
+  isLast?: boolean
+}
+
+interface PendingRoot {
+  children: PendingNode[]
+}
+
+type MentionOffset = [start: number, length: number]
+type MentionField = 'person' | 'location'
+
+interface ArticleResponse {
+  mentions: (Partial<Record<MentionField, MentionOffset[]>> | null | undefined)[]
+}
+
+interface Passage {
+  id: string
+  clusterId: string
+  offsetStart: number
+  offsetEnd: number
+}
+
+const getNamedEntities = (ids: string[], offsets: MentionOffset[], type: string): NamedEntityAnnotation[] => ids.map((id, index) => {
   const [offset, length] = offsets[index];
   return {
     id: id,
@@ -12,13 +70,13 @@ const getNamedEntities = (ids, offsets, type) => ids.map((id, index) => {
   };
 });
 
-const getOffsets = (response, field) => {
+const getOffsets = (response: ArticleResponse, field: MentionField): MentionOffset[] => {
   const items = response.mentions
     .filter(o => o != null && o[field] !== undefined)
   return items.length > 0 ? items[0][field] : [];
 }
 
-const MENTION_TYPE_TO_ENTITY_TYPE = Object.freeze({
+const MENTION_TYPE_TO_ENTITY_TYPE: Readonly<Record<string, string>> = Object.freeze({
   persons: 'person',
   locations: 'location',
   organisations: 'organisation',
@@ -29,17 +87,15 @@ const MENTION_TYPE_TO_ENTITY_TYPE = Object.freeze({
  * Extract named entity annotations from a canonical `ContentItem`'s semantic
  * enrichments. Mentions carry absolute `startOffset` / `endOffset`, so unlike
  * `getNamedEntitiesFromArticleResponse` no offset/length pairing is needed.
- *
- * @param {import('@/models/generated/canonical/contentItem').ContentItem} contentItem
  */
-export function getNamedEntitiesFromContentItem(contentItem) {
+export function getNamedEntitiesFromContentItem(contentItem: ContentItem): NamedEntityAnnotation[] {
   const mentions = contentItem?.semanticEnrichments?.mentions ?? {};
 
   return Object.entries(mentions).flatMap(([mentionType, items]) => {
     const type = MENTION_TYPE_TO_ENTITY_TYPE[mentionType] ?? mentionType;
     return (items || [])
       .filter(item => item != null && item.startOffset !== undefined && item.endOffset !== undefined)
-      .map((item, index) => ({
+      .map((item, index): NamedEntityAnnotation => ({
         id: `${type}-${index}`,
         kind: 'namedEntity',
         type,
@@ -48,17 +104,14 @@ export function getNamedEntitiesFromContentItem(contentItem) {
   });
 }
 
-export function getNamedEntitiesFromArticleResponse(response) {
+export function getNamedEntitiesFromArticleResponse(response: ArticleResponse): NamedEntityAnnotation[] {
   const personOffsets = getOffsets(response, 'person');
   const locationOffsets = getOffsets(response, 'location');
 
-  // NOTE: "location" and "person" entities do not correspond to the metnions offsets
+  // NOTE: "location" and "person" entities do not correspond to the mentions offsets
   // in another field. This means that some of the entities mentioned have not
   // been disambiguated and we cannot rely on mention -> entity match. Until this
   // is fixed we use mentions indexes as IDs.
-  // const locationIds = namedEntitiesToListOfIds(response.locations || []);
-  // const personIds = namedEntitiesToListOfIds(response.persons || []);
-
   const personIds = personOffsets.map((_, index) => `person-${index}`);
   const locationIds = locationOffsets.map((_, index) => `location-${index}`);
 
@@ -68,7 +121,7 @@ export function getNamedEntitiesFromArticleResponse(response) {
   return personEntities.concat(locationEntities);
 }
 
-export function passageToPassageEntity(passage) {
+export function passageToPassageEntity(passage: Passage): PassageAnnotation {
   return {
     id: passage.id,
     clusterId: passage.clusterId,
@@ -80,8 +133,13 @@ export function passageToPassageEntity(passage) {
 
 const SpecialEntitiesPriorityOrder = ['line', 'region'];
 
-function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, textLength) {
-  const lineEntities = lineBreaks.map((breakpoint, index) => {
+function expandEntitiesAndBreaks(
+  entities: AnnotationEntity[],
+  lineBreaks: number[],
+  regionBreaks: number[],
+  textLength: number
+): AnnotationEntity[] {
+  const lineEntities: AnnotationEntity[] = lineBreaks.map((breakpoint, index) => {
     const offset = index === 0
       ? { start: 0, end: breakpoint }
       : { start: lineBreaks[index - 1], end: breakpoint };
@@ -93,7 +151,7 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     }
   });
 
-  const regionEntities = regionBreaks.map((breakpoint, index) => {
+  const regionEntities: AnnotationEntity[] = regionBreaks.map((breakpoint, index) => {
     const offset = index === 0
       ? { start: 0, end: breakpoint - 1 }
       : { start: regionBreaks[index - 1] - 1, end: breakpoint - 1 }
@@ -110,37 +168,46 @@ function expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text
     .concat(regionEntities)
 }
 
-const withTextParts = (item, text, [boundaryStart, boundaryEnd] = []) => {
-  let [itemStartOffset, itemEndOffset] = item.entity != null
-    ? [item.entity.offset.start, item.entity.offset.end]
-    : [0, text.length]
+function withTextParts(
+  children: PendingNode[],
+  text: string,
+  startOffset: number,
+  endOffset: number
+): AnnotationTreeChild[] {
+  let lastOffset = startOffset
+  const childrenWithText: AnnotationTreeChild[] = []
 
-  if (boundaryStart != null && boundaryStart > itemStartOffset) itemStartOffset = boundaryStart
-  if (boundaryEnd != null && boundaryEnd < itemEndOffset) itemEndOffset = boundaryEnd
-
-  let lastOffset = itemStartOffset
-
-  const childrenWithText = item.children.reduce((acc, child) => {
+  for (const child of children) {
     const { start, end } = child.entity.offset
     if (start - lastOffset > 0) {
-      acc.push(text.slice(lastOffset, start))
+      childrenWithText.push(text.slice(lastOffset, start))
     }
-    acc.push(withTextParts(child, text, [lastOffset, itemEndOffset]))
+    childrenWithText.push({
+      ...child,
+      children: withTextParts(
+        child.children,
+        text,
+        lastOffset > start ? lastOffset : start,
+        endOffset < end ? endOffset : end
+      )
+    })
     lastOffset = end
-    return acc
-  }, [])
-
-  if (itemEndOffset - lastOffset > 0) {
-    childrenWithText.push(text.slice(lastOffset, itemEndOffset))
   }
 
-  item.children = childrenWithText
+  if (endOffset - lastOffset > 0) {
+    childrenWithText.push(text.slice(lastOffset, endOffset))
+  }
 
-  return item
+  return childrenWithText
 }
 
-export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
-  const expandedEntities = expandAndSortEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
+export function getAnnotateTextTree(
+  text: string,
+  entities: AnnotationEntity[],
+  lineBreaks: number[],
+  regionBreaks: number[]
+): AnnotationTree {
+  const expandedEntities = expandEntitiesAndBreaks(entities, lineBreaks, regionBreaks, text.length);
 
   const sortedEntities = expandedEntities
     .sort(({ offset: offsetA }, { offset: offsetB }) => {
@@ -155,22 +222,26 @@ export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
 
   const breakpoints = [...new Set(sortedEntities.map(({ offset: { start, end } }) => [start, end]).flat().sort((a, b) => a - b))]
 
-  const rootItem = { children: [] };
-  let itemsStack = [rootItem];
+  const rootItem: PendingRoot = { children: [] };
+  let itemsStack: (PendingRoot | PendingNode)[] = [rootItem];
 
-  const isInStack = entity => itemsStack.filter(({ entity: e }) => JSON.stringify(entity) === JSON.stringify(e)).length > 0
+  const isInStack = (entity: AnnotationEntity) => itemsStack.some(item =>
+    JSON.stringify(entity) === JSON.stringify('entity' in item ? item.entity : undefined)
+  )
 
-  const getEntitiesMatchingBreakpoint = (entities, breakpoint) => entities
+  const getEntitiesMatchingBreakpoint = (entities: AnnotationEntity[], breakpoint: number) => entities
     .filter(({ offset: { start, end } }) => breakpoint >= start && breakpoint < end)
 
   breakpoints.map(breakpoint => {
-    let closeIndex
-    itemsStack.forEach(({ entity }, index) => {
-      if (closeIndex === undefined && entity && entity.offset.end <= breakpoint) closeIndex = index
+    let closeIndex: number | undefined
+    itemsStack.forEach((item, index) => {
+      if (closeIndex === undefined && 'entity' in item && item.entity.offset.end <= breakpoint) closeIndex = index
     })
 
     if (closeIndex != null) {
-      const finishedItems = itemsStack.filter(({ entity }) => entity && entity.offset.end <= breakpoint)
+      const finishedItems = itemsStack.filter((item): item is PendingNode =>
+        'entity' in item && item.entity.offset.end <= breakpoint
+      )
       itemsStack = itemsStack.slice(0, closeIndex)
       finishedItems.forEach(item => { item.isLast = true })
     }
@@ -187,9 +258,5 @@ export function getAnnotateTextTree(text, entities, lineBreaks, regionBreaks) {
     })
   });
 
-  const rootItemWithText = withTextParts(rootItem, text)
-
-  // console.info('root item with text', JSON.stringify(rootItemWithText, null, 2))
-
-  return rootItemWithText
+  return { children: withTextParts(rootItem.children, text, 0, text.length) }
 }

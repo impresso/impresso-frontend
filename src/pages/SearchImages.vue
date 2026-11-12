@@ -83,10 +83,16 @@
             <ellipsis :initialHeight="60">
               <search-results-summary
                 :isLoading="isLoading"
-                group-by="images"
+                :groupBy="'images'"
                 :searchQuery="{ filters: availableFiltersWithItems }"
                 :totalRows="paginationTotalRows"
-              />
+              >
+                <template #beforeSummary>
+                  <span v-if="similarToImage">
+                    {{ $t('topResultsSimilarToImage', { imageId: similarToImage.id }) }}
+                  </span>
+                </template>
+              </search-results-summary>
             </ellipsis>
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto pl-2 align-items-center" v-if="!similarToImage">
@@ -533,7 +539,8 @@ button.ImageItemSimilar__remove {
 {
   "en": {
     "search": "search",
-    "searchImages": "Search Images"
+    "searchImages": "Search Images",
+    "topResultsSimilarToImage": "Top results similar to selected image"
   }
 }
 </i18n>
