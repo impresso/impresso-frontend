@@ -10,7 +10,7 @@ export interface Announcement {
   title?: string
   severity: (typeof SEVERITIES)[number]
   dismissible: boolean
-  url: string
+  body: string
 }
 
 export interface ParsedFrontMatter {
@@ -81,7 +81,7 @@ export async function loadAnnouncement() {
       title: meta.title ? String(meta.title) : undefined,
       severity: isAnnouncementSeverity(meta.severity) ? meta.severity : 'info',
       dismissible: meta.dismissible !== false,
-      url
+      body
     }
   } catch (error) {
     console.debug('[announcement] none', error)
