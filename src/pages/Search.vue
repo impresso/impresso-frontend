@@ -18,6 +18,7 @@
             @submit="onSuggestion"
             @submit-semantic="searchExpertToolsRef?.openSemanticSearch($event)"
             @submit-prompt="searchExpertToolsRef?.openBarista($event)"
+            @submit-empty="autocompleteSearchMode === 'prompt' && searchExpertToolsRef?.openBarista('')"
             @open-explorer="refineFiltersButtonRef?.openExplorer($event)"
             @input-focus="focusHandler"
             :filters="filters"

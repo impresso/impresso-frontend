@@ -8,9 +8,12 @@
         message.reasoning ? 'with-reasoning' : ''
       ]"
     >
-      <h5 class="small-caps mb-1" :class="{ 'text-white': message.type === 'user' }">
+      <span
+        class="small-caps BaristaChatMessage__persona"
+        :class="{ 'sr-only': message.type === 'user' }"
+      >
         {{ $t(`barista.persona.${message.type}`) }}
-      </h5>
+      </span>
       <div class="message-content" v-html="renderMarkdown(message.content)"></div>
 
       <!-- Additional content -->
@@ -38,76 +41,60 @@
         ></li>
       </ol>
 
-      <TimeAgo
-        class="message-timestamp very-small text-muted text-ellipsis no-wrap"
-        style="white-space: nowrap"
-        :date="message.timestamp"
-      />
+      <TimeAgo class="message-timestamp" :date="message.timestamp" />
     </section>
-    <section v-else-if="message.type === 'tool'" class="BaristaChatMessage__tool">
-      <div class="d-flex align-items-center flex-wrap gap-1 small">
-        <Icon name="brainElectricity" :scale="0.75" :strokeWidth="2" />
-        <span class="font-style-italic text-muted">{{ $t('barista.toolResult') }}</span>
-        <span class="badge badge-light">{{ $t(`barista.tools.${toolId}`) }}</span>
-        <button class="tool-toggle" @click="showDebug = !showDebug">
-          {{ showDebug ? '▾' : '▸' }} {{ $t('barista.debug') }}
+    <section v-else-if="message.type === 'tool'" class="BaristaChatMessage__step">
+      <div class="BaristaChatMessage__stepRow">
+        <Icon name="check" :scale="0.6" :strokeWidth="2" class="BaristaChatMessage__stepIcon" />
+        <span>{{ $t('barista.toolResult') }}</span>
+        <span class="BaristaChatMessage__tool">{{ $t(`barista.tools.${toolId}`) }}</span>
+        <button
+          type="button"
+          class="BaristaChatMessage__toggle"
+          :aria-expanded="showDebug"
+          @click="showDebug = !showDebug"
+        >
+          {{ $t('barista.debug') }}
+          <Icon name="chevron" :scale="0.55" :strokeWidth="2" :class="{ 'is-open': showDebug }" />
         </button>
       </div>
-      <p v-if="showDebug" class="text-muted very-small mt-1 mb-0">{{ message }}</p>
+      <pre v-if="showDebug" class="BaristaChatMessage__debug">{{ message }}</pre>
     </section>
 
-    <!-- Tool calls -->
-    <section
-      v-if="
-        (!hideToolCalls && message.toolCalls && message.toolCalls.length > 0) || message.reasoning
-      "
-      class="BaristaChatMessage__tools"
-    >
-      <div class="d-flex align-items-center flex-wrap gap-1 small">
-        <template v-if="!hideToolCalls && message.toolCalls && message.toolCalls.length > 0">
-          <Icon name="coffeeCup" :scale="0.75" :strokeWidth="2" />
-          <span class="font-style-italic text-muted">{{ $t('barista.usingTools') }}</span>
+    <section v-if="showToolCalls || message.reasoning" class="BaristaChatMessage__step">
+      <div class="BaristaChatMessage__stepRow">
+        <template v-if="showToolCalls">
+          <span class="BaristaChatMessage__pending" aria-hidden="true"></span>
+          <span>{{ $t('barista.usingTools') }}</span>
           <span
             v-for="(tool, toolIdx) in message.toolCalls"
             :key="toolIdx"
-            class="badge badge-light"
+            class="BaristaChatMessage__tool"
           >
             {{ $t(`barista.tools.${tool}`) }}
           </span>
         </template>
         <button
           v-if="message.reasoning"
-          class="tool-toggle"
+          type="button"
+          class="BaristaChatMessage__toggle"
+          :aria-expanded="showReasoning"
           @click="showReasoning = !showReasoning"
         >
-          {{ showReasoning ? '▾' : '▸' }} {{ $t('barista.reasoning') }}
+          {{ $t('barista.reasoning') }}
+          <Icon
+            name="chevron"
+            :scale="0.55"
+            :strokeWidth="2"
+            :class="{ 'is-open': showReasoning }"
+          />
         </button>
       </div>
-      <p
+      <div
         v-if="showReasoning"
-        class="text-muted very-small mt-1 mb-0"
+        class="BaristaChatMessage__reasoning"
         v-html="renderMarkdown(message.reasoning)"
-      ></p>
-    </section>
-    <!-- Actions -->
-    <section
-      v-if="message.actions && message.actions.length > 0"
-      class="BaristaChatMessage__actions mt-2"
-    >
-      <div class="action-dropdown">
-        <span class="action-icon">
-          <span class="icon">⚡</span>
-          <span class="action-tooltip">
-            <div
-              v-for="(action, actionIndex) in message.actions"
-              :key="actionIndex"
-              class="tooltip-action"
-            >
-              {{ formatActionType(action.type) }}: {{ action.context }}
-            </div>
-          </span>
-        </span>
-      </div>
+      ></div>
     </section>
   </div>
 </template>
@@ -138,54 +125,33 @@ const showDebug = ref(false)
 const showReasoning = ref(false)
 
 const isUserOrSystemWithContent = computed(() => {
-  const contentLength =
-    (message.structuredResponse?.searchQuerySummary?.length || 0) +
-    (message.content?.length || 0) +
-    (message.searchQuerySteps?.length || 0)
-  return contentLength > 0 && ['user', 'system', 'error'].includes(message.type)
+  const hasContent = Boolean(
+    message.structuredResponse?.searchQuerySummary ||
+      message.content ||
+      message.searchQuerySteps?.length
+  )
+  return hasContent && ['user', 'system', 'error'].includes(message.type)
 })
 
-const toolParsedContent = computed<{
-  toolId: string
-  data: any
-} | null>(() => {
-  if (message.type !== 'tool') return null
-  // meszsage.content is expected to be something unreadable like:
-  // message.content= '[get_search_facets] [ "<json-as-string>", <actual-json> ]'
-  const match: RegExpMatchArray | null = message.content?.match(/^\s*\[([^\]]+)\]/)
-  if (!match) return null
-  const toolId = match[1]
-  const dataStartIndex = message.content.indexOf(']') + 1
-  return {
-    toolId,
-    data: message.content.slice(dataStartIndex).trim()
-  }
-})
+const showToolCalls = computed(() => !hideToolCalls && Boolean(message.toolCalls?.length))
 
-const toolId = computed<string | undefined>(() => toolParsedContent.value?.toolId)
-
-/**
- * Formats action type by capitalizing the first letter
- */
-const formatActionType = (type: string): string => {
-  return type.charAt(0).toUpperCase() + type.slice(1)
-}
+/** tool message content starts with the tool id: '[get_search_facets] [ ... ]' */
+const toolId = computed(() =>
+  message.type === 'tool' ? message.content?.match(/^\s*\[([^\]]+)\]/)?.[1] : undefined
+)
 </script>
 <i18n lang="json">
 {
   "en": {
     "barista": {
-      "usingTools": "ordering tools...",
-      "debug": "Debug Info",
-      "toolResult": "oh! I got a result for the tool",
+      "usingTools": "Working on",
+      "debug": "Details",
+      "toolResult": "Done",
       "persona": {
         "user": "You",
         "system": "Barista",
         "tool": "Barista (tool)",
-        "error": "Barista (error)",
-        "userReasoning": "You",
-        "systemReasoning": "Barista (with reasoning)",
-        "toolReasoning": "Barista (tool with reasoning)"
+        "error": "Barista (error)"
       },
       "reasoning": "Reasoning",
       "tools": {
@@ -210,7 +176,7 @@ const formatActionType = (type: string): string => {
 
 .BaristaChatMessage__content {
   padding: 10px 14px;
-  border-radius: var(--impresso-border-radius-xs);
+  border-radius: var(--border-radius-md);
   max-width: 80%;
   word-break: break-word;
   position: relative;
@@ -225,63 +191,157 @@ const formatActionType = (type: string): string => {
 .BaristaChatMessage__content.system,
 .BaristaChatMessage__content.error {
   align-self: flex-start;
-  background-color: #ebebeb;
+  background-color: var(--impresso-color-paper);
   color: var(--impresso-color-black);
 }
 
-.message-content :deep(h1),
-.message-content :deep(h2),
-.message-content :deep(h3),
-.message-content :deep(h4),
-.message-content :deep(h5),
-.message-content :deep(h6) {
+.BaristaChatMessage .message-content h1,
+.BaristaChatMessage .message-content h2,
+.BaristaChatMessage .message-content h3,
+.BaristaChatMessage .message-content h4,
+.BaristaChatMessage .message-content h5,
+.BaristaChatMessage .message-content h6 {
   font-size: 1em;
   font-weight: 600;
   margin: 0.75em 0 0.25em;
 }
-.message-content :deep(h1:first-child),
-.message-content :deep(h2:first-child),
-.message-content :deep(h3:first-child) {
+.BaristaChatMessage .message-content h1:first-child,
+.BaristaChatMessage .message-content h2:first-child,
+.BaristaChatMessage .message-content h3:first-child {
   margin-top: 0;
 }
-.message-content :deep(hr) {
+.BaristaChatMessage .message-content hr {
   border: none;
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   margin: 0.5em 0;
 }
-.message-content :deep(p) {
+.BaristaChatMessage .message-content p {
   margin: 0 0 0.5em;
 }
-.message-content :deep(p:last-child) {
+.BaristaChatMessage .message-content p:last-child {
   margin-bottom: 0;
 }
-.message-content :deep(ul),
-.message-content :deep(ol) {
+.BaristaChatMessage .message-content ul,
+.BaristaChatMessage .message-content ol {
   padding-left: 1.25em;
   margin: 0 0 0.5em;
 }
-.message-content :deep(code) {
+.BaristaChatMessage .message-content code {
   font-size: 0.85em;
   background: rgba(0, 0, 0, 0.08);
-  border-radius: 3px;
+  border-radius: var(--border-radius-sm);
   padding: 0.1em 0.3em;
 }
-.message-content :deep(pre) {
+.BaristaChatMessage .message-content pre {
   background: rgba(0, 0, 0, 0.08);
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   padding: 0.5em 0.75em;
   overflow-x: auto;
 }
-.message-content :deep(pre) code {
+.BaristaChatMessage .message-content pre code {
   background: none;
   padding: 0;
 }
 
-.tool-toggle {
+.BaristaChatMessage__persona {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--clr-grey-200);
+}
+.BaristaChatMessage__content .message-timestamp {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  color: var(--clr-grey-300);
+}
+.BaristaChatMessage__content.user .message-timestamp {
+  color: var(--clr-grey-500);
+}
+.BaristaChatMessage__content.error {
+  border-left: 2px solid var(--bs-danger, #b02a37);
+}
+.BaristaChatMessage__step {
+  max-width: 92%;
+  padding-left: 0.25rem;
+}
+.BaristaChatMessage__stepRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--clr-grey-300);
+}
+.BaristaChatMessage__stepIcon {
+  color: var(--clr-grey-200);
+}
+.BaristaChatMessage__pending {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--clr-grey-300);
+}
+.BaristaChatMessage__tool {
+  padding: 0.0625rem 0.375rem;
+  border: 1px solid var(--clr-grey-600);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--impresso-color-white);
+  color: var(--impresso-color-black);
+  font-size: 0.75rem;
+}
+.BaristaChatMessage__toggle {
   all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   cursor: pointer;
-  opacity: 0.55;
-  font-size: inherit;
+  color: var(--clr-grey-300);
+  transition: color 0.2s ease;
+}
+.BaristaChatMessage__toggle:hover {
+  color: var(--impresso-color-black);
+}
+.BaristaChatMessage__toggle:focus-visible {
+  outline: 2px solid var(--impresso-color-black);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+}
+.BaristaChatMessage__toggle .Icon {
+  transition: transform 0.2s ease;
+}
+.BaristaChatMessage__toggle .Icon.is-open {
+  transform: rotate(180deg);
+}
+.BaristaChatMessage__reasoning {
+  margin-top: 0.375rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--clr-grey-600);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--clr-grey-200);
+}
+.BaristaChatMessage__reasoning p:last-child {
+  margin-bottom: 0;
+}
+.BaristaChatMessage__debug {
+  max-height: 12rem;
+  margin: 0.375rem 0 0;
+  padding: 0.5rem 0.625rem;
+  overflow: auto;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--impresso-color-paper);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--clr-grey-200);
+}
+@media (prefers-reduced-motion: reduce) {
+  .BaristaChatMessage__toggle,
+  .BaristaChatMessage__toggle .Icon {
+    transition: none;
+  }
 }
 
 .BaristaChatMessage ol.message-search-steps {

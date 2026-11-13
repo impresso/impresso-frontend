@@ -25,17 +25,7 @@ export const MockSystemMessageWithActions: ChatMessage = {
   content:
     'I can help you search for articles about World War I. Let me suggest some filters to narrow down your search.',
   timestamp: createTimestamp(7),
-  type: 'system',
-  actions: [
-    {
-      type: 'search',
-      context: 'World War I articles from Swiss newspapers'
-    },
-    {
-      type: 'search',
-      context: 'Date range: 1914-1918'
-    }
-  ]
+  type: 'system'
 }
 
 export const MockSystemMessageWithToolCalls: ChatMessage = {
@@ -114,16 +104,6 @@ export const MockComplexSystemMessage: ChatMessage = {
   toolCalls: ['find_newspapers_ids', 'get_search_facets', 'BaristaFormattedResponse'],
   reasoning:
     'First, I identified Swiss newspapers using find_newspapers_ids. Then, I analyzed the search facets with get_search_facets to understand the distribution. Finally, I formatted the response using BaristaFormattedResponse to suggest appropriate filters.',
-  actions: [
-    {
-      type: 'search',
-      context: 'Apply date range filter: 1914-1918'
-    },
-    {
-      type: 'search',
-      context: 'Apply newspaper filter: Swiss publications'
-    }
-  ],
   structuredResponse: {
     searchQuerySummary:
       'World War I articles from Swiss newspapers (1914-1918), estimated 5,000+ results'
@@ -157,7 +137,7 @@ export const MockConversationWithToolStitching: ChatMessage[] = [
     type: 'system'
   },
   {
-    content: "Find Swiss newspapers from World War I",
+    content: 'Find Swiss newspapers from World War I',
     timestamp: createTimestamp(8),
     type: 'user'
   },
@@ -167,7 +147,8 @@ export const MockConversationWithToolStitching: ChatMessage[] = [
     type: 'system',
     toolCalls: ['find_newspapers_ids', 'get_search_facets'],
     toolCallIds: ['call_abc123', 'call_def456'],
-    reasoning: 'I will use find_newspapers_ids to locate Swiss newspapers active during WWI, then get_search_facets to understand the article distribution.'
+    reasoning:
+      'I will use find_newspapers_ids to locate Swiss newspapers active during WWI, then get_search_facets to understand the article distribution.'
   },
   {
     content: '[find_newspapers_ids] [ "Switzerland", { "count": 12 } ]',
@@ -182,7 +163,8 @@ export const MockConversationWithToolStitching: ChatMessage[] = [
     toolCallIds: ['call_def456']
   },
   {
-    content: 'I found 12 Swiss newspapers active during World War I with approximately 4,823 articles between 1914 and 1918.',
+    content:
+      'I found 12 Swiss newspapers active during World War I with approximately 4,823 articles between 1914 and 1918.',
     timestamp: createTimestamp(4),
     type: 'system',
     structuredResponse: {

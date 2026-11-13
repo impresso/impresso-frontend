@@ -20,8 +20,7 @@ const meta: Meta<typeof BaristaChatInput> = {
 export default meta
 type Story = StoryObj<typeof BaristaChatInput>
 
-const wrap = (inner: string) =>
-  `<div style="width: 420px;">${inner}</div>`
+const wrap = (inner: string) => `<div style="width: 420px;">${inner}</div>`
 
 export const Default: Story = {
   render: args => ({

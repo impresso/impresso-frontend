@@ -13,17 +13,6 @@ export type BaristaMessageItem = AIMessage | HumanMessage | ToolMessage | ErrorM
 export type BaristaRequest = components['schemas']['BaristaRequest']
 export type BaristaResponse = components['schemas']['BaristaResponse']
 
-export interface FunctionCall {
-  arguments: string
-  name: string
-}
-
-export interface ToolCall {
-  id: string
-  function: FunctionCall
-  type: 'function'
-}
-
 export const isAIMessage = (message: BaristaMessageItem): message is AIMessage =>
   message.type === 'ai'
 
@@ -42,16 +31,10 @@ export const supportsStructuredResponse = (
   return isAIMessage(message) || isToolMessage(message)
 }
 
-export interface Action {
-  type: 'search' | 'text-reuse' | 'images'
-  context: string
-}
-
 export interface ChatMessage {
   content: string
   timestamp: Date
   type: 'user' | 'system' | 'tool' | 'error'
-  actions?: Action[]
   reasoning?: string
   toolCalls?: string[]
   toolCallIds?: string[]
@@ -64,5 +47,3 @@ export type BaristaService = Pick<
   ClientService<BaristaResponse, BaristaRequest, unknown, unknown>,
   'create'
 >
-
-export type SupportedModels = BaristaRequest['modelId']

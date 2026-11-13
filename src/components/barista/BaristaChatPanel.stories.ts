@@ -93,17 +93,7 @@ export const WithActions: Story = {
         content:
           'Ethiopian coffee beans are known for their distinctive fruity and wine-like flavor profile. They often exhibit notes of blueberry, strawberry, and other berries, with a bright acidity and medium body.',
         timestamp: createTimestamp(7),
-        type: 'system',
-        actions: [
-          {
-            type: 'search',
-            context: 'Ethiopian coffee production statistics'
-          },
-          {
-            type: 'search',
-            context: 'Ethiopian coffee varieties'
-          }
-        ]
+        type: 'system'
       },
       {
         content: 'Do you have more information about Ethiopian Yirgacheffe?',
@@ -114,13 +104,7 @@ export const WithActions: Story = {
         content:
           'Yirgacheffe is a coffee region in Ethiopia known for producing some of the most distinct and sought-after coffees in the world. These beans typically feature floral and citrus notes with a clean, bright acidity and light to medium body.',
         timestamp: createTimestamp(4),
-        type: 'system',
-        actions: [
-          {
-            type: 'search',
-            context: 'Yirgacheffe coffee brewing methods'
-          }
-        ]
+        type: 'system'
       }
     ],
     isLoading: false
@@ -194,16 +178,7 @@ export const Interactive: Story = {
           messages.value.push({
             content: `You asked about: "${request.message}". This is a simulated response in the story.`,
             timestamp: new Date(),
-            type: 'system',
-            actions:
-              request.message.length > 10
-                ? [
-                    {
-                      type: 'search',
-                      context: `More information about ${request.message.substring(0, 20)}...`
-                    }
-                  ]
-                : undefined
+            type: 'system'
           })
           isLoading.value = false
         }, 1500)
