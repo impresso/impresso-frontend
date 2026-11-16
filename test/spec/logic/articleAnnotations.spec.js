@@ -1,12 +1,12 @@
-import { describe, test as it } from 'vitest'
+import { describe, test as it, vi } from 'vitest'
 import assert from 'assert';
 
 import {
-  getNamedEntitiesFromContentItem,
   getNamedEntitiesFromArticleResponse,
   getAnnotateTextTree,
   passageToPassageEntity
 } from '../../../src/logic/articleAnnotations';
+import { getNamedEntitiesFromContentItem } from '../../../src/logic/contentItemAnnotations';
 
 
 const TestAnnotationConfiguration = Object.freeze({
@@ -565,13 +565,65 @@ describe('getNamedEntitiesFromContentItem', () => {
     })
 
     assert.deepStrictEqual(entities, [
-      { id: 'person-0', kind: 'namedEntity', type: 'person', offset: { start: 2, end: 5 } },
-      { id: 'location-0', kind: 'namedEntity', type: 'location', offset: { start: 0, end: 1 } },
-      { id: 'organisation-0', kind: 'namedEntity', type: 'organisation', offset: { start: 8, end: 12 } },
-      { id: 'newsagency-0', kind: 'namedEntity', type: 'newsagency', offset: { start: 13, end: 15 } },
-      { id: 'other-0', kind: 'namedEntity', type: 'other', offset: { start: 16, end: 17 } }
+      { id: 'person-0', kind: 'mention', type: 'person', offset: { start: 2, end: 5 } },
+      { id: 'location-0', kind: 'mention', type: 'location', offset: { start: 0, end: 1 } },
+      { id: 'organisation-0', kind: 'mention', type: 'organisation', offset: { start: 8, end: 12 } },
+      { id: 'newsagency-0', kind: 'mention', type: 'newsagency', offset: { start: 13, end: 15 } },
+      { id: 'other-0', kind: 'mention', type: 'other', offset: { start: 16, end: 17 } }
     ])
     assert.deepStrictEqual(getNamedEntitiesFromContentItem({ id: 'empty' }), [])
+  })
+
+  it('links mentions by entity ID and retains separate offsets', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const entities = getNamedEntitiesFromContentItem({
+        id: 'item',
+        semanticEnrichments: {
+          namedEntities: {
+            persons: [{ id: 'Q22303', label: 'Wang Jingwei' }],
+            locations: [{ id: 'Q64', label: 'Berlin' }, { id: 'Q84', label: 'London' }]
+          },
+          mentions: {
+            persons: [{ id: 'mention-person', entityId: 'Q22303', startOffset: 2, endOffset: 5 }],
+            locations: [
+              { surfaceForm: 'Londres', entityId: 'Q84', startOffset: 6, endOffset: 13 },
+              { entityId: 'Q64', startOffset: 14, endOffset: 20 },
+              { surfaceForm: 'Londres', entityId: 'Q84', startOffset: 21, endOffset: 28 },
+              { id: 'unlinked', startOffset: 29, endOffset: 32 }
+            ]
+          }
+        }
+      })
+
+      assert.deepStrictEqual(entities, [
+        { id: 'Q22303', kind: 'namedEntity', type: 'person', offset: { start: 2, end: 5 } },
+        { id: 'Q84', kind: 'namedEntity', type: 'location', offset: { start: 6, end: 13 } },
+        { id: 'Q64', kind: 'namedEntity', type: 'location', offset: { start: 14, end: 20 } },
+        { id: 'Q84', kind: 'namedEntity', type: 'location', offset: { start: 21, end: 28 } },
+        { id: 'unlinked', kind: 'mention', type: 'location', offset: { start: 29, end: 32 } }
+      ])
+      assert.strictEqual(warn.mock.calls.length, 0)
+    } finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('warns and preserves unmatched mentions, including when entity lists are absent', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const mentions = { locations: [{ id: 'mention-id', entityId: 'Qmissing', startOffset: 1, endOffset: 3 }] }
+      for (const namedEntities of [{ locations: [{ id: 'Q84' }] }, undefined]) {
+        assert.deepStrictEqual(
+          getNamedEntitiesFromContentItem({ id: 'item', semanticEnrichments: { mentions, namedEntities } }),
+          [{ id: 'mention-id', kind: 'mention', type: 'location', offset: { start: 1, end: 3 } }]
+        )
+      }
+      assert.strictEqual(warn.mock.calls.length, 2)
+      assert.ok(warn.mock.calls.every(args => args[0].includes('Qmissing')))
+    } finally {
+      warn.mockRestore()
+    }
   })
 })
 
