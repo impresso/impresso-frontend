@@ -3,7 +3,7 @@
   <component v-else :is="itemTag" :class="itemClasses" :data-id="node.entity.id" @click="onClick">
     <ItemSelector
       class="p-0"
-      v-if="node.entity.kind === 'namedEntity'"
+      v-if="shouldShowItemSelector"
       :id="node.entity.id"
       :item="{
         id: node.entity.id,
@@ -24,6 +24,7 @@
         v-for="(child, i) in node.children"
         :key="childKey(child, i)"
         :node="child"
+        :has-explore-access="hasExploreAccess"
       />
     </ItemSelector>
     <template v-else>
@@ -31,6 +32,7 @@
         v-for="(child, i) in node.children"
         :key="childKey(child, i)"
         :node="child"
+        :has-explore-access="hasExploreAccess"
       />
     </template>
   </component>
@@ -48,8 +50,13 @@ type TreeNode = ReturnType<typeof getAnnotateTextTree>['children'][number]
 
 const props = defineProps<{
   node: TreeNode | string
+  hasExploreAccess?: boolean
 }>()
 
+const shouldShowItemSelector = computed(() => {
+  if (typeof props.node === 'string') return false
+  return props.node.entity.kind === 'namedEntity' && props.hasExploreAccess
+})
 const itemTag = computed(() => {
   if (typeof props.node === 'string') return 'span'
   if (props.node.entity.kind === 'line') return 'p'
