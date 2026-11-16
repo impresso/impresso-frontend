@@ -1,18 +1,38 @@
 <template>
   <template v-if="typeof node === 'string'">{{ node }}</template>
   <component v-else :is="itemTag" :class="itemClasses" :data-id="node.entity.id" @click="onClick">
-    <Icon
-      :name="node.entity.type"
-      v-if="node.entity.kind === 'namedEntity' && !itemClasses.includes('continuation')"
-      :width="12"
-      :height="12"
-      :stroke-width="2"
-    />
-    <AnnotatedTextTree
-      v-for="(child, i) in node.children"
-      :key="childKey(child, i)"
-      :node="child"
-    />
+    <ItemSelector
+      class="p-0"
+      v-if="node.entity.kind === 'namedEntity'"
+      :id="node.entity.id"
+      :item="{
+        id: node.entity.id,
+        type: node.entity.type,
+        label: itemLabel
+      }"
+      :type="node.entity.type"
+      hideIcon
+    >
+      <Icon
+        v-if="!itemClasses.includes('continuation')"
+        :name="node.entity.type"
+        :width="12"
+        :height="12"
+        :stroke-width="2"
+      />
+      <AnnotatedTextTree
+        v-for="(child, i) in node.children"
+        :key="childKey(child, i)"
+        :node="child"
+      />
+    </ItemSelector>
+    <template v-else>
+      <AnnotatedTextTree
+        v-for="(child, i) in node.children"
+        :key="childKey(child, i)"
+        :node="child"
+      />
+    </template>
   </component>
 </template>
 
@@ -20,6 +40,7 @@
 import { computed } from 'vue'
 import type { getAnnotateTextTree } from '@/logic/articleAnnotations'
 import Icon from '../base/Icon.vue'
+import ItemSelector from './ItemSelector.vue'
 
 defineOptions({ name: 'AnnotatedTextTree' })
 
@@ -43,6 +64,12 @@ const itemClasses = computed(() => {
 
   if (kind === 'namedEntity') return `entity ${type}${continuation}`
   return kind
+})
+
+const itemLabel = computed(() => {
+  if (typeof props.node === 'string') return props.node
+  if (!Array.isArray(props.node?.children)) return ''
+  return props.node.children.map(child => (typeof child === 'string' ? child : '')).join('')
 })
 
 function onClick(e: MouseEvent) {
