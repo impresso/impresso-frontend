@@ -65,9 +65,12 @@ In the IIIF viewer transcript, `IssueViewerText.vue` builds an annotation tree
 from the canonical content item and renders it with `AnnotatedTextTree.vue`.
 The tree component:
 
-- Wraps `namedEntity` content in `ItemSelector`, passing the annotation's
-  entity ID and normalized type. Clicking it opens the selection monitor and
-  does not trigger the surrounding region click.
+- When the resolved content item grants explore access, wraps `namedEntity`
+  content in `ItemSelector`, passing the annotation's entity ID and normalized
+  type. Clicking it opens the selection monitor and does not trigger the
+  surrounding region click. Without explore access, no selector is shown.
+  Access is calculated from the provided or fetched content item and forwarded
+  through recursive tree nodes; missing access metadata denies access.
 - Uses the node's immediate text children as the selector item label, not the
   named entity's canonical label. Displays the entity-type icon except on
   continuation fragments.
@@ -93,7 +96,8 @@ In tests for `getNamedEntitiesFromContentItem` (currently in
    retain their existing handling.
 
 Rendering behavior can be verified separately: linked entities open the
-selection monitor with their entity ID, while unlinked mentions do not.
+selection monitor with their entity ID only with explore access, while
+unlinked mentions do not.
 
 ## Scope
 

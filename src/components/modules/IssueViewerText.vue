@@ -39,9 +39,7 @@
       <div class="alert alert-light" role="alert" v-if="!article.isCC">
         <p>{{ $t('wrongLayout') }}</p>
       </div>
-      <div v-if="hasValidRegions === false">
-        <p>{{ article.excerpt }}</p>
-      </div>
+
       <b-container fluid v-else class="region-row px-0 mt-3 mb-3 position-relative">
         <!-- computed regions -->
         <div class="row" v-if="withIIIFViewer">
@@ -61,6 +59,10 @@
             </div>
           </div>
           <div class="col-sm-6 col-xl-4">
+            <div class="p-2">
+              <h4 class="small-caps m-0">{{ $t('snippet') }}</h4>
+              <p class="py-2">{{ contentItem.text?.snippet }}</p>
+            </div>
             <div
               class="d-flex position-sticky top-0 bg-light z-index-1 justify-content-between align-items-center border-bottom p-2"
             >
@@ -79,6 +81,7 @@
                   class="text-serif"
                   v-if="regionsAnnotationTree[region.idx]"
                   :node="regionsAnnotationTree[region.idx]"
+                  :has-explore-access="hasExploreAccess"
                 />
               </div>
             </div>
@@ -126,6 +129,7 @@ import Article from '@/models/Article'
 import Collection from '@/models/Collection'
 import { useCollectionsStore } from '@/stores/collections'
 import { useNotificationsStore } from '@/stores/notifications'
+import { useContentItemAccess } from '@/composables/useContentItemAccess'
 import { getAnnotateTextTree } from '@/logic/articleAnnotations'
 import { getNamedEntitiesFromContentItem } from '@/logic/contentItemAnnotations'
 import type { AnnotationTreeChild } from '@/logic/articleAnnotations'
@@ -165,6 +169,7 @@ const article = ref<Article | null>(null)
 // provide one through the `contentItem` prop.
 const fetchedContentItem = ref<ContentItemType | null>(null)
 const resolvedContentItem = computed(() => props.contentItem ?? fetchedContentItem.value)
+const { hasExploreAccess } = useContentItemAccess(() => resolvedContentItem.value ?? {})
 const fitBoundsToOverlayIdx = ref<[number, number]>([0, 0])
 const iiifViewerHeight = ref(iiifViewerMinHeight)
 
