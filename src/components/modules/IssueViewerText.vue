@@ -61,7 +61,7 @@
           <div class="col-sm-6 col-xl-4">
             <div class="p-2">
               <h4 class="small-caps m-0">{{ $t('snippet') }}</h4>
-              <p class="py-2">{{ contentItem.text?.snippet }}</p>
+              <p class="py-2" v-if="contentItem">{{ contentItem.text?.snippet }}</p>
             </div>
             <div
               class="d-flex position-sticky top-0 bg-light z-index-1 justify-content-between align-items-center border-bottom p-2"
