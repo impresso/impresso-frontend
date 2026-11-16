@@ -51,7 +51,8 @@
                 type="submit"
                 :disabled="isSubmitting"
               >
-                {{ $t('login_button') }}
+                <span />
+                {{ isSubmitting ? $t('login_button_loading') : $t('login_button') }}
               </button>
             </div>
 
@@ -188,6 +189,7 @@ async function authenticate() {
     "login_title": "Log in",
     "login_remember": "Remember me",
     "login_button": "Log in",
+    "login_button_loading": "Logging in…",
     "signup_button": "Register",
     "emailAddress": "Email address",
     "password": "Password",

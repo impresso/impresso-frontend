@@ -270,6 +270,9 @@ describe('UserLoginPage', () => {
 
       const submitButton = wrapper.get('button[type="submit"]')
       expect(submitButton.attributes('disabled')).toBeDefined()
+      // the button shows a loading label while the request is pending
+      expect(submitButton.text()).toBe('login_button_loading')
+      expect(submitButton.find('.spinner-border').exists()).toBe(true)
 
       // a second submit while the request is pending must not re-authenticate
       await wrapper.get('form.form-signin').trigger('submit')
@@ -279,6 +282,7 @@ describe('UserLoginPage', () => {
       pending.reject(notAuthenticatedError())
       await flushPromises()
       expect(submitButton.attributes('disabled')).toBeUndefined()
+      expect(submitButton.text()).toBe('login_button')
       expect(wrapper.get('[role="alert"]').text()).toBe('errors.LoginFailed')
     })
   })
