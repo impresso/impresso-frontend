@@ -38,7 +38,6 @@
         <MarkdownContent class="p-2" :markdown="announcement?.body" />
       </div>
     </InfoModal>
-
     <SpecialMembershipModal
       :isVisible="view === ViewSpecialMembership"
       @dismiss="resetView"

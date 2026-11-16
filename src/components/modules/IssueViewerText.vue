@@ -61,6 +61,13 @@
             </div>
           </div>
           <div class="col-sm-6 col-xl-4">
+            <div
+              class="d-flex position-sticky top-0 bg-light z-index-1 justify-content-between align-items-center border-bottom p-2"
+            >
+              <h4 class="small-caps m-0">{{ $t('transcript') }}</h4>
+              <ContentItemCopyText v-if="contentItem" :content-item="contentItem" />
+            </div>
+
             <div v-for="(page, pageIdx) in pageOverlays" :key="pageIdx">
               <div
                 class="IssueViewerText__region region text-serif py-2"
@@ -127,6 +134,7 @@ import AnnotatedTextTree from './AnnotatedTextTree.vue'
 import AnnotatedText from './AnnotatedText.vue'
 import IIIFViewer, { type Overlay } from './IIIFViewer.vue'
 import IIIFFragment from '../IIIFFragment.vue'
+import ContentItemCopyText from '../contentItem/ContentItemCopyText.vue'
 
 const iiifViewerMinHeight = 500
 const iiifViewerMarginTop = 20

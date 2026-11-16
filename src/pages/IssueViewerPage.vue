@@ -23,12 +23,15 @@
           :page="page"
         >
           <template v-slot:actions>
-            <CollectionAddTo
-              right
-              v-if="contentItem"
-              :items="contentItemAsCollectableItems"
-              :text="$t('add_to_collection')"
-          /></template>
+            <div class="d-flex justify-content-end align-items-center gap-2">
+              <CollectionAddTo
+                right
+                v-if="contentItem"
+                :items="contentItemAsCollectableItems"
+                :text="$t('add_to_collection')"
+              />
+            </div>
+          </template>
         </IssueViewerPageHeading>
         <b-navbar-nav class="IssueViewerPage_tabs px-3 border-bottom pb-2">
           <b-tabs pills>
@@ -202,6 +205,9 @@ const viewMode = computed(() => {
   }
   return IIIFViewerTranscriptMode
 })
+const isTranscriptMode = computed(() =>
+  [IIIFViewerTranscriptMode, RegionTranscriptMode].includes(viewMode.value)
+)
 
 const contentItemId = computed(() => {
   const id =
