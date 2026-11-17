@@ -66,6 +66,7 @@ const RootView = { name: 'RootView', template: '<router-view />' }
 
 interface SetupOptions {
   query?: LocationQueryRaw
+  attachTo?: HTMLElement
 }
 
 async function setup(options: SetupOptions = {}): Promise<{ wrapper: VueWrapper; router: Router }> {
@@ -81,6 +82,7 @@ async function setup(options: SetupOptions = {}): Promise<{ wrapper: VueWrapper;
   })
   await router.push({ name: 'login', query: options.query })
   const wrapper = mount(RootView, {
+    attachTo: options.attachTo,
     global: {
       plugins: [
         router,
@@ -141,6 +143,22 @@ afterEach(() => {
 })
 
 describe('UserLoginPage', () => {
+  it('focuses the email input after mounting', async () => {
+    const requestFrame = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(1)
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    try {
+      const { wrapper, router } = await setup({ attachTo: container })
+      mounted.push({ wrapper, router })
+
+      expect(requestFrame).toHaveBeenCalledOnce()
+      requestFrame.mock.calls[0]![0](0)
+      expect(document.activeElement).toBe(wrapper.get('#inputEmail').element)
+    } finally {
+      container.remove()
+    }
+  })
+
   it('renders the sign-in form without any error message', async () => {
     const { wrapper } = await setup()
     mounted.push({ wrapper, router: wrapper.vm.$router })
@@ -151,6 +169,32 @@ describe('UserLoginPage', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
     expect(wrapper.find('.Alert-stub').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('accountPendingTitle')
+  })
+
+  it('associates visible labels and autocomplete purposes with the credential fields', async () => {
+    const { wrapper } = await setup()
+    mounted.push({ wrapper, router: wrapper.vm.$router })
+
+    for (const [id, label, name] of [
+      ['inputEmail', 'emailAddress', 'email'],
+      ['inputPassword', 'password', 'password']
+    ]) {
+      const input = wrapper.get(`#${id}`)
+      const fieldLabel = wrapper.get(`label[for="${id}"]`)
+      expect(fieldLabel.text()).toBe(label)
+      expect(fieldLabel.classes()).not.toContain('sr-only')
+      expect(fieldLabel.classes()).not.toContain('visually-hidden')
+      expect(input.attributes('name')).toBe(name)
+      expect(input.attributes('required')).toBeDefined()
+      expect(input.attributes('autocomplete')).toBe('off')
+    }
+
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    expect(wrapper.get('#inputEmail').attributes('autocomplete')).toBe('email')
+    expect(wrapper.get('#inputPassword').attributes('autocomplete')).toBe('current-password')
+    await wrapper.get('input[type="checkbox"]').setValue(false)
+    expect(wrapper.get('#inputEmail').attributes('autocomplete')).toBe('off')
+    expect(wrapper.get('#inputPassword').attributes('autocomplete')).toBe('off')
   })
 
   describe('account pending activation (#2074)', () => {
@@ -165,6 +209,7 @@ describe('UserLoginPage', () => {
       // info alert with the dedicated pending-activation copy
       const alert = wrapper.get('.Alert-stub')
       expect(alert.attributes('data-type')).toBe('info')
+      expect(alert.element.parentElement?.getAttribute('role')).toBe('status')
       expect(alert.text()).toContain('accountPendingTitle')
       expect(alert.text()).toContain('accountPendingBody')
       // ...and not the generic auth error
@@ -234,6 +279,24 @@ describe('UserLoginPage', () => {
   })
 
   describe('login behaviour', () => {
+    it('announces when a login is in progress and clears the announcement afterwards', async () => {
+      const pending = deferred<ReturnType<typeof successfulAuthResponse>>()
+      authenticate.mockReturnValue(pending.promise)
+      const { wrapper } = await setup()
+      mounted.push({ wrapper, router: wrapper.vm.$router })
+
+      const status = wrapper.get('.footer [role="status"]')
+      expect(status.text()).toBe('')
+      await fillCredentials(wrapper)
+      await wrapper.get('form.form-signin').trigger('submit')
+      expect(status.text()).toBe('login_button_loading')
+
+      pending.reject(notAuthenticatedError())
+      await flushPromises()
+      expect(status.text()).toBe('')
+      expect(wrapper.get('[role="alert"]').text()).toBe('errors.LoginFailed')
+    })
+
     it('authenticates via the feathers local strategy with the entered credentials', async () => {
       const { wrapper } = await setup()
       mounted.push({ wrapper, router: wrapper.vm.$router })

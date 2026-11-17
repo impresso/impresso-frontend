@@ -7,37 +7,50 @@
             {{ $t('login_title') }}
           </h3>
           <div class="body p-3">
-            <div v-if="errorCode === 401" class="alert alert-danger" role="alert">
-              {{ $t('errors.LoginFailed') }}
+            <div role="status">
+              <Alert v-if="errorCode === 401" type="error" class="mb-3 border border-danger">
+                <div>
+                  <h4 class="font-size-inherit font-weight-bold">{{ $t('loginFailed') }}</h4>
+                  <p class="mb-0">{{ $t('loginFailedBody') }}</p>
+                </div>
+              </Alert>
+              <Alert v-if="errorCode === 403" type="info" class="mb-3 border border-info">
+                <div>
+                  <h4 class="font-size-inherit font-weight-bold">
+                    {{ $t('accountPendingTitle') }}
+                  </h4>
+                  <p class="mb-0">{{ $t('accountPendingBody') }}</p>
+                </div>
+              </Alert>
             </div>
-            <Alert v-else-if="errorCode === 403" type="info" class="mb-3 border border-info">
-              <div>
-                <h4 class="font-size-inherit font-weight-bold">{{ $t('accountPendingTitle') }}</h4>
-                <p class="mb-0">{{ $t('accountPendingBody') }}</p>
-              </div>
-            </Alert>
 
-            <label for="inputEmail" class="sr-only">{{ $t('emailAddress') }}</label>
-            <input
-              id="inputEmail"
-              v-model="email"
-              type="email"
-              class="form-control"
-              :placeholder="$t('emailAddress')"
-              required
-              autofocus
-              :autocomplete="autocomplete"
-            />
-            <label for="inputPassword" class="sr-only">{{ $t('password') }}</label>
-            <input
-              id="inputPassword"
-              v-model="password"
-              type="password"
-              class="form-control"
-              :placeholder="$t('password')"
-              required
-              :autocomplete="autocomplete"
-            />
+            <div class="mb-3 form-group">
+              <label for="inputEmail" class="form-label">{{ $t('emailAddress') }}</label>
+              <BFormInput
+                id="inputEmail"
+                v-model="email"
+                name="email"
+                type="email"
+                class="form-control rounded-sm shadow-sm rounded-sm"
+                :placeholder="$t('emailAddressPlaceholder')"
+                required
+                autofocus
+                :autocomplete="rememberCredentials ? 'email' : 'off'"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="inputPassword" class="form-label">{{ $t('password') }}</label>
+              <input
+                id="inputPassword"
+                v-model="password"
+                name="password"
+                type="password"
+                class="form-control shadow-sm rounded-sm"
+                :placeholder="$t('passwordPlaceholder')"
+                required
+                :autocomplete="rememberCredentials ? 'current-password' : 'off'"
+              />
+            </div>
             <div class="checkbox small-caps">
               <label>
                 <input type="checkbox" v-model="rememberCredentials" />
@@ -54,6 +67,9 @@
                 <span />
                 {{ isSubmitting ? $t('login_button_loading') : $t('login_button') }}
               </button>
+              <span class="visually-hidden" role="status" aria-live="polite">
+                {{ isSubmitting ? $t('login_button_loading') : '' }}
+              </span>
             </div>
 
             <!-- Password forgotten -->
@@ -82,6 +98,7 @@
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 
 defineOptions({ name: 'UserLoginPage' })
@@ -99,8 +116,6 @@ const rememberCredentials = computed({
   get: () => userStore.rememberCredentials,
   set: val => userStore.setRememberCredentials(val)
 })
-
-const autocomplete = computed(() => (rememberCredentials.value === true ? 'on' : 'off'))
 
 async function authenticate() {
   if (isSubmitting.value) return
@@ -147,7 +162,7 @@ async function authenticate() {
 .login-form {
   background: white;
   width: 100%;
-  max-width: 600px;
+  max-width: 400px;
   margin: 40px auto;
   box-shadow: var(--bs-box-shadow-lg-darker);
   border-radius: var(--border-radius-md);
@@ -174,12 +189,18 @@ async function authenticate() {
     position: relative;
     z-index: 2;
   }
-  input[type='email'] {
-    margin-bottom: -1px;
-  }
-  input[type='password'] {
-    margin-bottom: 10px;
-  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 </style>
 
@@ -193,12 +214,17 @@ async function authenticate() {
     "signup_button": "Register",
     "emailAddress": "Email address",
     "password": "Password",
+    "emailAddressPlaceholder": "Enter you email address ...",
+    "passwordPlaceholder": "Enter your password ...",
     "forgotPassword": "Did you forget your password?",
     "needAccount": "Do you need an account?",
     "anyQuestions": "Any Questions?",
     "contactUs": "Contact us at",
     "accountPendingTitle": "Your account is pending activation",
-    "accountPendingBody": "Your credentials are correct, but our staff still need to activate your account. We'll email you as soon as it's ready, usually within a couple of working days."
+    "accountPendingBody": "Your credentials are correct, but our staff still need to activate your account. We'll email you as soon as it's ready, usually within a couple of working days.",
+
+    "loginFailedBody": "The email address or password you entered is incorrect. Please try again.",
+    "loginFailed": "Login failed"
   }
 }
 </i18n>
