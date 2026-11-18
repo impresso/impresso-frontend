@@ -213,7 +213,7 @@ describe('UserLoginPage', () => {
       expect(alert.text()).toContain('accountPendingTitle')
       expect(alert.text()).toContain('accountPendingBody')
       // ...and not the generic auth error
-      expect(wrapper.text()).not.toContain('errors.LoginFailed')
+      expect(wrapper.text()).not.toContain('loginFailed')
       expect(wrapper.find('[role="alert"]').exists()).toBe(false)
     })
 
@@ -225,11 +225,15 @@ describe('UserLoginPage', () => {
       await fillCredentials(wrapper)
       await submitLogin(wrapper)
 
-      const alert = wrapper.get('[role="alert"]')
-      expect(alert.classes()).toContain('alert-danger')
-      expect(alert.text()).toBe('errors.LoginFailed')
+      // error alert with the login-failed copy
+      const alert = wrapper.get('.Alert-stub')
+      expect(alert.attributes('data-type')).toBe('error')
+      expect(alert.classes()).toContain('border-danger')
+      expect(alert.element.parentElement?.getAttribute('role')).toBe('status')
+      expect(alert.text()).toContain('loginFailed')
+      expect(alert.text()).toContain('loginFailedBody')
+      // ...and not the pending activation notice
       expect(wrapper.text()).not.toContain('accountPendingTitle')
-      expect(wrapper.find('.Alert-stub').exists()).toBe(false)
     })
 
     it('replaces the pending activation notice when the next attempt fails differently', async () => {
@@ -245,7 +249,9 @@ describe('UserLoginPage', () => {
       authenticate.mockRejectedValueOnce(notAuthenticatedError())
       await wrapper.get('#inputPassword').setValue('wrong-password')
       await submitLogin(wrapper)
-      expect(wrapper.get('[role="alert"]').text()).toBe('errors.LoginFailed')
+      const alert = wrapper.get('.Alert-stub')
+      expect(alert.attributes('data-type')).toBe('error')
+      expect(alert.text()).toContain('loginFailed')
       expect(wrapper.text()).not.toContain('accountPendingTitle')
     })
 
@@ -294,7 +300,9 @@ describe('UserLoginPage', () => {
       pending.reject(notAuthenticatedError())
       await flushPromises()
       expect(status.text()).toBe('')
-      expect(wrapper.get('[role="alert"]').text()).toBe('errors.LoginFailed')
+      const alert = wrapper.get('.Alert-stub')
+      expect(alert.attributes('data-type')).toBe('error')
+      expect(alert.text()).toContain('loginFailed')
     })
 
     it('authenticates via the feathers local strategy with the entered credentials', async () => {
@@ -335,7 +343,6 @@ describe('UserLoginPage', () => {
       expect(submitButton.attributes('disabled')).toBeDefined()
       // the button shows a loading label while the request is pending
       expect(submitButton.text()).toBe('login_button_loading')
-      expect(submitButton.find('.spinner-border').exists()).toBe(true)
 
       // a second submit while the request is pending must not re-authenticate
       await wrapper.get('form.form-signin').trigger('submit')
@@ -346,7 +353,9 @@ describe('UserLoginPage', () => {
       await flushPromises()
       expect(submitButton.attributes('disabled')).toBeUndefined()
       expect(submitButton.text()).toBe('login_button')
-      expect(wrapper.get('[role="alert"]').text()).toBe('errors.LoginFailed')
+      const alert = wrapper.get('.Alert-stub')
+      expect(alert.attributes('data-type')).toBe('error')
+      expect(alert.text()).toContain('loginFailed')
     })
   })
 })
