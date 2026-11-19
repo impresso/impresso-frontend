@@ -41,7 +41,25 @@ export const Routes = {
   },
   contentItem: {
     path: '/content-item/:content_item_id',
-    name: 'contentItem'
+    name: 'contentItem',
+    children: {
+      transcript: {
+        path: '',
+        name: 'contentItemTranscript'
+      },
+      similarItems: {
+        path: 'similar-items',
+        name: 'contentItemSimilarItems'
+      },
+      citeAs: {
+        path: 'cite-as',
+        name: 'contentItemCiteAs'
+      },
+      debug: {
+        path: 'debug',
+        name: 'contentItemDebug'
+      }
+    }
   },
   emailVerification: {
     path: '/email-verification',

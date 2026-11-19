@@ -431,12 +431,42 @@ const router = createRouter({
     },
     {
       name: 'contentItem',
-      path: '/content-item/:content_item_id',
-      alias: '/article/:article_id',
+      path: Routes.contentItem.path,
+      component: () => import('@/pages/ContentItemPage.vue'),
+      meta: {
+        requiresAuth: true,
+        realm: 'contentItem'
+      },
+      children: [
+        {
+          name: Routes.contentItem.children.transcript.name,
+          component: () => import('@/components/contentItem/ContentItemTranscript.vue'),
+          path: Routes.contentItem.children.transcript.path
+        },
+        {
+          name: Routes.contentItem.children.similarItems.name,
+          component: () => import('@/components/ListOfSimilarContentItems.vue'),
+          path: Routes.contentItem.children.similarItems.path
+        },
+        {
+          name: Routes.contentItem.children.citeAs.name,
+          component: () => import('@/components/contentItem/ContentItemCard.vue'),
+          path: Routes.contentItem.children.citeAs.path
+        },
+        {
+          name: Routes.contentItem.children.debug.name,
+          component: () => import('@/components/contentItem/ContentItemDebug.vue'),
+          path: Routes.contentItem.children.debug.path
+        }
+      ]
+    },
+    {
+      // legacy /article/:article_id URLs keep opening the issue viewer
+      name: 'legacyArticle',
+      path: '/article/:article_id',
       component: () => null,
       beforeEnter: async to => {
-        const contentItemId = to.params.article_id || to.params.content_item_id
-        const ci = await services.contentItems.get(contentItemId as string)
+        const ci = await services.contentItems.get(to.params.article_id as string)
         return {
           name: 'issue-viewer',
           params: {
