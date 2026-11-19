@@ -238,12 +238,7 @@
                   showSemanticEnrichments
                   enableAddToCollection
                 />
-                <div
-                  v-if="searchResult.meta?.sourceMedium === 'audio'"
-                  class="mt-2 d-flex gap-2"
-                >
-                  <AddContentItemToSearch :contentItemId="searchResult.id" />
-                </div>
+
                 <ContentItemComponent
                   v-else
                   :contentItem="searchResult"
@@ -267,11 +262,6 @@
                   enableAddToCollection
                   contentItemTopicClasses="col-12 col-xxl-6"
                 >
-                  <template #actions>
-                    <div class="mt-2 d-flex gap-2">
-                      <AddContentItemToSearch :contentItemId="searchResult.id" />
-                    </div>
-                  </template>
                 </ContentItemComponent>
               </div>
             </div>

@@ -41,7 +41,8 @@ function render(props: Partial<AddContentItemToSearchProps> = {}) {
           teleport: true,
           Modal: {
             props: ['show'],
-            template: '<div v-if="show"><slot /></div>'
+            template:
+              '<div v-if="show"><slot /><slot name="modal-footer" :close="() => {}" /></div>'
           }
         },
         mocks: { $t: (key: string) => key }
@@ -72,6 +73,15 @@ describe('AddContentItemToSearch', () => {
     await router.isReady()
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
 
+    expect(getContentItem).not.toHaveBeenCalled()
+    expect(wrapper.get('[data-testid="embedding-generation-message"]').text()).toBe(
+      'confirmAddToSearch'
+    )
+
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
+
     expect(wrapper.get('[data-testid="embedding-generation-message"]').text()).toBe(
       'generatingSearchFilter'
     )
@@ -100,6 +110,9 @@ describe('AddContentItemToSearch', () => {
     const { wrapper } = render()
 
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
     await vi.waitFor(() => expect(wrapper.text()).toContain('No semantic embedding is available'))
 
     expect(wrapper.find('[data-testid="embedding-generation-message"]').exists()).toBe(false)
@@ -118,6 +131,9 @@ describe('AddContentItemToSearch', () => {
     await router.push({ name: 'contentItem' })
     await router.isReady()
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
     await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('search'))
 
     expect(getContentItem).not.toHaveBeenCalled()
@@ -141,6 +157,9 @@ describe('AddContentItemToSearch', () => {
     await router.push({ name: 'contentItem' })
     await router.isReady()
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
     await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('search'))
 
     expect(getContentItem).toHaveBeenCalledOnce()
@@ -156,6 +175,9 @@ describe('AddContentItemToSearch', () => {
     const { wrapper } = render({ embedding: '' })
 
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
     expect(wrapper.text()).toContain('No semantic embedding is available')
     expect(getContentItem).not.toHaveBeenCalled()
   })
@@ -169,6 +191,9 @@ describe('AddContentItemToSearch', () => {
     await router.push({ name: 'contentItem' })
     await router.isReady()
     await wrapper.get('[data-testid="add-content-item-to-search-button"]').trigger('click')
+    await wrapper
+      .get('[data-testid="confirm-add-content-item-to-search-button"]')
+      .trigger('click')
 
     expect(wrapper.text()).toContain('Additional filters cannot contain an embedding filter.')
     expect(router.currentRoute.value.name).toBe('contentItem')
