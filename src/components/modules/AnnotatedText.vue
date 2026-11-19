@@ -19,7 +19,7 @@ export interface Child {
 type ColourMap = Record<string, string>
 
 export interface Props {
-  children: Child[]
+  children: (Child | string)[]
   clusterColours: ColourMap
   selectedClusterId?: string
 }
@@ -159,7 +159,7 @@ export default defineComponent({
   functional: true,
   props: {
     children: {
-      type: Array as PropType<Child[]>,
+      type: Array as PropType<(Child | string)[]>,
       default: () => []
     },
     clusterColours: {

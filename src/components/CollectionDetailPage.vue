@@ -60,6 +60,16 @@
             </button>
           </router-link>
           <b-button
+            v-if="collection.id && isPublic"
+            class="m-1"
+            size="sm"
+            variant="outline-primary"
+            :title="$t('share_link_title')"
+            @click="copyShareLink"
+          >
+            {{ $t(shareLinkCopied ? 'share_link_copied' : 'share_link') }}
+          </b-button>
+          <b-button
             v-if="isCollectionOwner"
             class="m-1"
             size="sm"
@@ -401,6 +411,7 @@ export interface IData {
   timevalues: any[]
   facets: Facet[]
   isConfirmDeleteModalVisible: boolean
+  shareLinkCopied: boolean
   facetTypes: FacetType[]
   TAB_ARTICLES: string
   TAB_OVERVIEW: string
@@ -434,7 +445,8 @@ export default defineComponent({
         'partner',
         'copyright'
       ],
-      isConfirmDeleteModalVisible: false
+      isConfirmDeleteModalVisible: false,
+      shareLinkCopied: false
     }) as IData,
   components: {
     SearchResultsListItem,
@@ -604,6 +616,27 @@ export default defineComponent({
     }
   },
   methods: {
+    async copyShareLink() {
+      const { href } = this.$router.resolve({
+        name: 'collection',
+        params: { collection_id: this.collection.id }
+      })
+      const url = new URL(href, window.location.origin).toString()
+      try {
+        await navigator.clipboard.writeText(url)
+        this.shareLinkCopied = true
+        setTimeout(() => {
+          this.shareLinkCopied = false
+        }, 1500)
+      } catch (err) {
+        console.warn('[CollectionDetailPage] copyShareLink', err)
+        this.notificationsStore.addNotification({
+          type: 'error',
+          title: this.$t('share_link'),
+          message: url
+        })
+      }
+    },
     showConfirmDeleteModal() {
       this.isConfirmDeleteModalVisible = true
     },
@@ -854,6 +887,9 @@ export default defineComponent({
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",
     "delete_collection_no_option": "Delete Collection",
     "compare_collection": "Compare with ...",
+    "share_link": "Share link",
+    "share_link_copied": "Link copied!",
+    "share_link_title": "Copy a link to this public collection",
     "confirm_delete": "Are you sure you want to delete collection '{0}'?",
     "no_articles_in_collection": "No items in collection yet.",
     "no_articles_in_collection_long": "Articles you add to collection will be listed here."

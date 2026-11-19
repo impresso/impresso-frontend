@@ -2,59 +2,89 @@
   <i-layout id="UserLoginPage">
     <i-layout-section main class="section">
       <div class="login-form">
-        <form v-on:submit.prevent="authenticate" class="form-signin">
+        <form class="form-signin" @submit.prevent="authenticate">
           <h3 class="header p-3">
             {{ $t('login_title') }}
           </h3>
-          <div class="body py-4 px-3">
-            <div class="alert alert-danger" v-show="error" role="alert">
-              {{ error }}
+          <div class="body p-3">
+            <div role="status">
+              <Alert v-if="errorCode === 401" type="error" class="mb-3 border border-danger">
+                <div>
+                  <h4 class="font-size-inherit font-weight-bold">{{ $t('loginFailed') }}</h4>
+                  <p class="mb-0">{{ $t('loginFailedBody') }}</p>
+                </div>
+              </Alert>
+              <Alert v-if="errorCode === 403" type="info" class="mb-3 border border-info">
+                <div>
+                  <h4 class="font-size-inherit font-weight-bold">
+                    {{ $t('accountPendingTitle') }}
+                  </h4>
+                  <p class="mb-0">{{ $t('accountPendingBody') }}</p>
+                </div>
+              </Alert>
             </div>
-            <label for="inputEmail" class="sr-only">Email address</label>
-            <input
-              v-model="email"
-              type="email"
-              class="form-control"
-              placeholder="Email address"
-              required
-              autofocus
-              v-bind:autocomplete="autocomplete()"
-            />
-            <label for="inputPassword" class="sr-only">Password</label>
-            <input
-              v-model="password"
-              type="password"
-              class="form-control"
-              placeholder="Password"
-              required
-              v-bind:autocomplete="autocomplete()"
-            />
-            <div class="checkbox">
+
+            <div class="mb-3 form-group">
+              <label for="inputEmail" class="form-label">{{ $t('emailAddress') }}</label>
+              <BFormInput
+                id="inputEmail"
+                v-model="email"
+                name="email"
+                type="email"
+                class="form-control rounded-sm shadow-sm rounded-sm"
+                :placeholder="$t('emailAddressPlaceholder')"
+                required
+                autofocus
+                :autocomplete="rememberCredentials ? 'email' : 'off'"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="inputPassword" class="form-label">{{ $t('password') }}</label>
+              <input
+                id="inputPassword"
+                v-model="password"
+                name="password"
+                type="password"
+                class="form-control shadow-sm rounded-sm"
+                :placeholder="$t('passwordPlaceholder')"
+                required
+                :autocomplete="rememberCredentials ? 'current-password' : 'off'"
+              />
+            </div>
+            <div class="checkbox small-caps">
               <label>
-                <input type="checkbox" value="remember-me" v-model="rememberCredentials" />
+                <input type="checkbox" v-model="rememberCredentials" />
                 {{ $t('login_remember') }}
               </label>
             </div>
 
             <div class="footer mb-3">
-              <button class="btn btn-md btn-primary btn-block" type="submit">
-                {{ $t('login_button') }}
+              <button
+                class="btn btn-md btn-primary btn-block"
+                type="submit"
+                :disabled="isSubmitting"
+              >
+                <span />
+                {{ isSubmitting ? $t('login_button_loading') : $t('login_button') }}
               </button>
+              <span class="visually-hidden" role="status" aria-live="polite">
+                {{ isSubmitting ? $t('login_button_loading') : '' }}
+              </span>
             </div>
-            <!-- Password forgotten -->
 
+            <!-- Password forgotten -->
             <p class="mb-0">
-              Did you forget your password? <br />
+              {{ $t('forgotPassword') }} <br />
               <router-link :to="{ name: 'passwordReset' }" v-html="$t('actions.resetMyPassword')" />
             </p>
           </div>
           <div class="footer p-3">
-            <h5>Do you need an account?</h5>
+            <h5>{{ $t('needAccount') }}</h5>
             <router-link to="register" class="btn btn-sm btn-outline-primary btn-block">{{
               $t('signup_button')
             }}</router-link>
             <p class="mt-3">
-              Any Questions? <br />Contact us at
+              {{ $t('anyQuestions') }} <br />{{ $t('contactUs') }}
               <a href="mailto:info@impresso-project.ch">info@impresso-project.ch</a>
             </p>
           </div>
@@ -64,60 +94,49 @@
   </i-layout>
 </template>
 
-<script>
-import { mapStores } from 'pinia'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue'
+import Alert from 'impresso-ui-components/components/Alert.vue'
 
-export default {
-  data: () => ({
-    email: '',
-    password: '',
-    error: false
-  }),
-  methods: {
-    autocomplete() {
-      return this.rememberCredentials === true ? 'on' : 'off'
-    },
-    authenticate() {
-      this.error = false
-      const path = this.$route.query.redirect || window.redirect || '/'
-      const pathWithStoredRedirectionParams = {
-        path,
-        ...this.computedRedirectionParams
-      }
-      console.debug('[UserLoginPage] authenticate() with path: ', pathWithStoredRedirectionParams)
-      this.userStore
-        .login({
-          email: this.email,
-          password: this.password
-        })
-        .then(user => {
-          console.debug('[UserLoginPage] logged in! Redirect to: ', pathWithStoredRedirectionParams)
-          this.$router.push(pathWithStoredRedirectionParams)
-        })
-        .catch(err => {
-          if (err.code === 401) {
-            this.error = this.$t('errors.LoginFailed')
-          }
-          console.warn('[UserLoginPage] error', err)
-        })
+defineOptions({ name: 'UserLoginPage' })
+
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
+
+const email = ref('')
+const password = ref('')
+const errorCode = ref<number | null>(null)
+const isSubmitting = ref(false)
+
+const rememberCredentials = computed({
+  get: () => userStore.rememberCredentials,
+  set: val => userStore.setRememberCredentials(val)
+})
+
+async function authenticate() {
+  if (isSubmitting.value) return
+  errorCode.value = null
+  isSubmitting.value = true
+
+  const redirect = route.query.redirect
+  const path = (typeof redirect === 'string' && redirect) || (window as any).redirect || '/'
+  const destination = { path, ...userStore.redirectionParams }
+
+  try {
+    await userStore.login({ email: email.value, password: password.value })
+    await router.push(destination)
+  } catch (err: any) {
+    if (err?.code === 401 || err?.code === 403) {
+      errorCode.value = err.code
     }
-  },
-  computed: {
-    computedRedirectionParams() {
-      return this.userStore.redirectionParams
-    },
-    ...mapStores(useUserStore),
-    rememberCredentials: {
-      get() {
-        return this.userStore.rememberCredentials
-      },
-      set(val) {
-        this.userStore.setRememberCredentials(val)
-      }
-    }
-  },
-  components: {}
+    console.warn('[UserLoginPage] error', err)
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
@@ -125,15 +144,14 @@ export default {
 #UserLoginPage a {
   text-decoration: underline;
 }
+
 #UserLoginPage {
   height: 100%;
   background: url(./../assets/img/login_bg.jpg) no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
   background-size: cover;
   background-color: rgba(0, 0, 0, 0.3);
   background-blend-mode: multiply;
+
   .section {
     align-items: center;
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAG0lEQVQYV2NkYGD4z8DAwMgABXAGNgGwSgwVAFbmAgXQdISfAAAAAElFTkSuQmCC)
@@ -144,30 +162,26 @@ export default {
 .login-form {
   background: white;
   width: 100%;
-  max-width: 350px;
+  max-width: 400px;
   margin: 40px auto;
   box-shadow: var(--bs-box-shadow-lg-darker);
   border-radius: var(--border-radius-md);
-  border-radius: var(--border-radius-md);
-
-  .footer {
-    background: #f4f5f6;
-  }
 
   form {
     border-radius: 2px;
   }
-}
 
-.login-form .header {
-  border-top-left-radius: var(--border-radius-md);
-  border-top-right-radius: var(--border-radius-md);
-  background-color: var(--impresso-color-yellow);
-}
+  .header {
+    border-top-left-radius: var(--border-radius-md);
+    border-top-right-radius: var(--border-radius-md);
+    background-color: var(--impresso-color-yellow);
+  }
 
-.login-form .footer {
-  border-bottom-left-radius: var(--border-radius-md);
-  border-bottom-right-radius: var(--border-radius-md);
+  .footer {
+    background: #f4f5f6;
+    border-bottom-left-radius: var(--border-radius-md);
+    border-bottom-right-radius: var(--border-radius-md);
+  }
 }
 
 .form-signin {
@@ -175,23 +189,42 @@ export default {
     position: relative;
     z-index: 2;
   }
-  input[type='email'] {
-    margin-bottom: -1px;
-  }
-  input[type='password'] {
-    margin-bottom: 10px;
-  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 </style>
 
 <i18n lang="json">
 {
   "en": {
-    "Invalid login": "Invalid login",
-    "login_title": "Login",
+    "login_title": "Log in",
     "login_remember": "Remember me",
-    "login_button": "Sign in",
-    "signup_button": "Register"
+    "login_button": "Log in",
+    "login_button_loading": "Logging in…",
+    "signup_button": "Register",
+    "emailAddress": "Email address",
+    "password": "Password",
+    "emailAddressPlaceholder": "Enter you email address ...",
+    "passwordPlaceholder": "Enter your password ...",
+    "forgotPassword": "Did you forget your password?",
+    "needAccount": "Do you need an account?",
+    "anyQuestions": "Any Questions?",
+    "contactUs": "Contact us at",
+    "accountPendingTitle": "Your account is pending activation",
+    "accountPendingBody": "Your credentials are correct, but our staff still need to activate your account. We'll email you as soon as it's ready, usually within a couple of working days.",
+
+    "loginFailedBody": "The email address or password you entered is incorrect. Please try again.",
+    "loginFailed": "Login failed"
   }
 }
 </i18n>

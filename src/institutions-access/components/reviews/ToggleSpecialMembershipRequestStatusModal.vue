@@ -14,12 +14,8 @@
       <RadioGroup
         class="my-1 p-3 rounded"
         :modelValue="form.status"
-        :options="[
-          { value: 'pending', text: $t('userSpecialMembershipRequestsStatusPending') },
-          { value: 'approved', text: $t('userSpecialMembershipRequestsStatusApproved') },
-          { value: 'rejected', text: $t('userSpecialMembershipRequestsStatusRejected') }
-        ]"
-        @update:modelValue="form.status = $event"
+        :options="statusOptions.map(value => ({ value, text: $t(`status.${value}`) }))"
+        @update:modelValue="form.status = $event as ReviewableStatus"
         type="radio"
       />
       <textarea
@@ -49,9 +45,12 @@
       <button
         type="submit"
         class="mt-3 btn btn-outline-secondary btn-md px-4 border border-dark btn-block"
+        :disabled="isSubmitting || !props.item"
       >
         <Icon name="sendMail" />
-        <span class="ml-2">{{ $t('actions.confirm') }}</span>
+        <span class="ml-2">{{
+          $t(isSubmitting ? 'actions.submitting' : 'actions.confirm')
+        }}</span>
       </button>
     </form>
   </InfoModal>
@@ -60,13 +59,31 @@
 import Icon from '@/components/base/Icon.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import RadioGroup from '@/components/layout/RadioGroup.vue'
-import { UserSpecialMembershipRequest, UserSpecialMembershipRequestReview } from '@/services/types'
-import { ref } from 'vue'
+import { UserSpecialMembershipRequestReview } from '@/services/types'
+import { ref, watch } from 'vue'
 import useVuelidate from '@vuelidate/core'
 import { maxLength, minLength } from '@vuelidate/validators'
 import SpecialMembershipRequestReviewItem from '@/components/modules/lists/SpecialMembershipRequestReviewItem.vue'
 import { userSpecialMembershipRequestsReviews as userSpecialMembershipRequestsReviewsService } from '@/services'
 import { useNotificationsStore } from '@/stores/notifications'
+import {
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusPending,
+  SpecialMembershipRequestStatusRejected,
+  SpecialMembershipRequestStatusRevoked,
+  SpecialMembershipRequestStatusTemporary
+} from '@/constants'
+
+/** The statuses a reviewer is allowed to set by hand. */
+const statusOptions = [
+  SpecialMembershipRequestStatusPending,
+  SpecialMembershipRequestStatusApproved,
+  SpecialMembershipRequestStatusRejected,
+  SpecialMembershipRequestStatusTemporary,
+  SpecialMembershipRequestStatusRevoked
+] as const
+
+export type ReviewableStatus = (typeof statusOptions)[number]
 
 export interface ToggleSpecialMembershipRequestStatusModalProps {
   isVisible: boolean
@@ -76,7 +93,7 @@ export interface ToggleSpecialMembershipRequestStatusModalProps {
 }
 
 export interface SpecialMembershipReviewFormValidation {
-  status: UserSpecialMembershipRequest['status']
+  status: ReviewableStatus
   notes: string
 }
 
@@ -88,38 +105,13 @@ const props = withDefaults(defineProps<ToggleSpecialMembershipRequestStatusModal
 
 const form = ref<SpecialMembershipReviewFormValidation>({
   notes: '',
-  status: props.item?.status || 'pending'
+  status: (props.item?.status as ReviewableStatus) ?? SpecialMembershipRequestStatusPending
 })
 
-const handleOnSubmit = async (event: Event) => {
-  event.preventDefault()
-  v$.value.$validate() // Trigger validation
-  if (v$.value.$error) {
-    return
-  }
-  emit('submit', form.value)
-  try {
-    await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
-      status: form.value.status,
-      notes: form.value.notes
-    })
-    notificationStore.addNotification({
-      type: 'success',
-      title: 'Success',
-      message: 'Special membership request status updated successfully.'
-    })
-    emit('success')
-    emit('dismiss')
-  } catch (error) {
-    console.error('Error updating special membership request review status:', error)
-    notificationStore.addNotification({
-      type: 'error',
-      title: 'Error',
-      message: 'An error occurred while sending the magic link. Please try again.'
-    })
-  }
-}
+const isSubmitting = ref(false)
 
+// The note is optional; vuelidate length rules only apply once something is
+// typed, which is what the hint below the field describes.
 const v$ = useVuelidate(
   {
     notes: {
@@ -129,6 +121,53 @@ const v$ = useVuelidate(
   },
   form
 )
+
+/**
+ * The modal stays mounted between reviews, so the form has to follow the item
+ * rather than being seeded once during setup.
+ */
+watch(
+  () => props.item,
+  item => {
+    form.value = {
+      notes: '',
+      status: (item?.status as ReviewableStatus) ?? SpecialMembershipRequestStatusPending
+    }
+    v$.value.$reset()
+  }
+)
+
+const handleOnSubmit = async (event: Event) => {
+  event.preventDefault()
+  const isValid = await v$.value.$validate()
+  if (!isValid || !props.item) {
+    return
+  }
+  emit('submit', form.value)
+  isSubmitting.value = true
+  try {
+    await userSpecialMembershipRequestsReviewsService.patch(props.item.id, {
+      status: form.value.status,
+      notes: form.value.notes
+    })
+    notificationStore.addNotification({
+      type: 'success',
+      title: 'Request updated',
+      message: 'The requester is notified of the new status.'
+    })
+    emit('success')
+    emit('dismiss')
+  } catch (error) {
+    console.error('Error updating special membership request review status:', error)
+    notificationStore.addNotification({
+      type: 'error',
+      title: 'Error',
+      message: 'The request status could not be updated. Please try again.'
+    })
+  } finally {
+    isSubmitting.value = false
+  }
+}
 
 const emit = defineEmits<{
   dismiss: []
@@ -140,12 +179,20 @@ const emit = defineEmits<{
 {
   "en": {
     "specialMembershipAccessPlaceholder": "Note (optional)",
-    "userSpecialMembershipRequestsStatusPending": "Pending",
-    "userSpecialMembershipRequestsStatusApproved": "Approved",
-    "userSpecialMembershipRequestsStatusRejected": "Rejected",
-    "notesFieldHint": "Note (optional, min: { min} characters, max: {max} characters)",
-    "toggleSpecialMembershipRequestStatusModalTitle": "Toggle special membership request status",
-    "toggleSpecialMembershipRequestStatusModalMessage": "Are you sure you want to toggle the status of this special membership request?"
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "temporary": "Temporary access",
+      "revoked": "Revoked"
+    },
+    "notesFieldHint": "Optional note. If you write one, use between {min} and {max} characters.",
+    "actions": {
+      "confirm": "Confirm",
+      "submitting": "Saving..."
+    },
+    "toggleSpecialMembershipRequestStatusModalTitle": "Change special membership request status",
+    "toggleSpecialMembershipRequestStatusModalMessage": "Set the new status for this special membership request. The requester is notified by email."
   }
 }
 </i18n>

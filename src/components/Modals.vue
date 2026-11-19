@@ -35,10 +35,9 @@
         <p class="m-0">{{ announcement.title }}</p>
       </Alert>
       <div class="mt-2 p-1">
-        <MarkdownContent class="p-2" :url="announcement?.url" />
+        <MarkdownContent class="p-2" :markdown="announcement?.body" />
       </div>
     </InfoModal>
-
     <SpecialMembershipModal
       :isVisible="view === ViewSpecialMembership"
       @dismiss="resetView"

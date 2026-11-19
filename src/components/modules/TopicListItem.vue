@@ -10,6 +10,7 @@
 </template>
 
 <script>
+/** @deprecated This component is deprecated. */
 export default {
   props: ['item']
 }

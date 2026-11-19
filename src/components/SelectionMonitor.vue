@@ -627,6 +627,7 @@ watch(
     "tabs_nag_overview": "news agency",
     "tabs_imageContentType_overview": "image content type",
     "tabs_imageVisualContent_overview": "image visual content",
+    "tabs_imageTechnique_overview": "image technique",
     "actions.loading": "Loading…",
     "itemStatsEmpty": "No results apparently",
     "itemStats": "<b class='number'>{count}</b> {searchIndex}",

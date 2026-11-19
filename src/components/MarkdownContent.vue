@@ -6,39 +6,61 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { ref, watch } from 'vue'
-import LoadingBlock from './LoadingBlock.vue'
+import LoadingBlock from '@/components/LoadingBlock.vue'
 import { marked } from 'marked'
 
 const props = defineProps<{
   url?: string
+  markdown?: string
 }>()
 
 const content = ref('')
 const status = ref<'idle' | 'success' | 'pending' | 'error'>('idle')
 
-const loadContent = async () => {
-  console.debug('[MarkdownContent] loading content from URL:', props.url)
-  if (!props.url) {
+const loadContent = async (
+  url: string | undefined,
+  markdown: string | undefined,
+  isCurrent: () => boolean
+) => {
+  if (markdown === undefined && !url) {
     console.debug('[MarkdownContent] URL is not set. Skipping loading content.')
     return
   }
   try {
     status.value = 'pending'
-    const response = await axios.get(props.url)
-    console.info('[MarkdownContent]loading content from URL:', props.url, 'success')
-    let data = response.data
-    // remove front matter
-    const frontMatterRegex = /^---[\s\S]*?---\n/
-    data = data.replace(frontMatterRegex, '')
-    content.value = await marked.parse(data)
-    status.value = 'success'
-    // get metadata values from frontMatter
-    // title.value = response.data.match(/---\ntitle:\s?(.*)/)?.[1] || 'Terms oooOf Use'
+    let data: string
+    if (markdown !== undefined) {
+      data = markdown
+    } else if (url) {
+      console.debug('[MarkdownContent] loading content from URL:', url)
+      const response = await axios.get<string>(url)
+      console.info('[MarkdownContent]loading content from URL:', url, 'success')
+      data = response.data.replace(/^---[\s\S]*?---\n/, '')
+    } else {
+      return
+    }
+    const rendered = await marked.parse(data)
+    if (isCurrent()) {
+      content.value = rendered
+      status.value = 'success'
+    }
   } catch (error) {
     console.error('Failed to load content from GitHub:', error)
-    status.value = 'error'
+    if (isCurrent()) {
+      status.value = 'error'
+    }
   }
 }
 
-watch(() => props.url, loadContent, { immediate: true })
+watch(
+  [() => props.url, () => props.markdown],
+  ([url, markdown], _previous, onCleanup) => {
+    let current = true
+    onCleanup(() => {
+      current = false
+    })
+    void loadContent(url, markdown, () => current)
+  },
+  { immediate: true }
+)
 </script>

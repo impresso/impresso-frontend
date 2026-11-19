@@ -55,9 +55,9 @@ matter is malformed.
 - Non-dismissible announcements do not expose a close button, footer action, or Escape-key close.
   Unpublish these messages by setting `active: false` when the incident ends.
 
-The parser supports CRLF line endings and uses only the first colon in each front-matter field as
-the separator. The body renderer receives the same cache-busted URL as the parser request, so the
-browser can serve the second request from its HTTP cache.
+The parser supports a leading BOM, whitespace, and CRLF line endings, and uses only the first
+colon in each front-matter field as the separator. The parsed Markdown body is passed directly to
+the renderer, without a second request.
 
 ## Publishing
 
