@@ -432,6 +432,9 @@ const router = createRouter({
     {
       name: 'contentItem',
       path: Routes.contentItem.path,
+      // /content-item/<ID> and named links to the parent would otherwise leave
+      // the child <router-view> empty: only the parent record ends up matched.
+      redirect: { name: Routes.contentItem.children.transcript.name },
       component: () => import('@/pages/ContentItemPage.vue'),
       meta: {
         requiresAuth: true,
