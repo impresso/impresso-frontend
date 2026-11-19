@@ -31,12 +31,16 @@ import { useRouter } from 'vue-router'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { contentItems } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
+import type { Filter } from '@/models'
 import { deserializeFilters, optimizeFilters, serializeFilters } from '@/logic/filters'
 import { CommonQueryParameters } from '@/router/util'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 
 export interface AddContentItemToSearchProps {
   contentItemId: string
+  embedding?: string
+  /** Additional search filters, merged with the current search. Must not contain an embedding. */
+  additionalFilters?: Filter[]
 }
 
 const props = defineProps<AddContentItemToSearchProps>()
@@ -54,10 +58,17 @@ async function addContentItemToSearch() {
   error.value = null
 
   try {
-    const contentItem = await contentItems.get(props.contentItemId, {
-      query: { include_embeddings: true }
-    })
-    const embedding = contentItem.semanticEnrichments?.embeddings?.[0]
+    if (props.additionalFilters?.some(filter => filter.type === 'embedding')) {
+      throw new Error('Additional filters cannot contain an embedding filter.')
+    }
+
+    let embedding = props.embedding
+    if (embedding === undefined) {
+      const contentItem = await contentItems.get(props.contentItemId, {
+        query: { include_embeddings: true }
+      })
+      embedding = contentItem.semanticEnrichments?.embeddings?.[0]
+    }
 
     if (!embedding) {
       throw new Error('No semantic embedding is available for this content item.')
@@ -70,6 +81,7 @@ async function addContentItemToSearch() {
     )
     const filters = optimizeFilters([
       ...currentFilters,
+      ...(props.additionalFilters ?? []),
       FilterFactory.create({ type: 'embedding', q: [embedding] })
     ])
 

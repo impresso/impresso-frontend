@@ -22,6 +22,13 @@
             {{ $t('actions.addTimeframe') }}
           </b-form-checkbox>
         </form>
+        <AddContentItemToSearch
+          v-if="props.contentItem && contentItemEmbedding"
+          :content-item-id="props.contentItem.id"
+          :embedding="contentItemEmbedding"
+          :additional-filters="timeframeFilter ? [timeframeFilter] : []"
+          class="ml-auto"
+        />
       </div>
     </div>
     <slot v-bind:items="similarItems">
@@ -106,6 +113,7 @@ import LoadingBlock from './LoadingBlock.vue'
 import FeathersErrorManager from './FeathersErrorManager.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import ContentItem from './modules/lists/ContentItem.vue'
+import AddContentItemToSearch from './contentItem/AddContentItemToSearch.vue'
 export interface ListOfSimilarContentItemsProps {
   contentItem?: ContentItemType
   minHeight?: number
