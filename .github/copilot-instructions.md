@@ -4,13 +4,13 @@ You are an AI assistant in a Vite-based Vue 3 (TypeScript) project utilizing Pin
 
 ## Architectural Delegation
 
-To maintain high precision, do not attempt to remember all project rules at once. Instead, defer to the specialized agent instructions located in `.github/agents/` based on the user's task:
+To maintain high precision, do not attempt to remember all project rules at once. Instead, defer to the specialized skills located in `.agents/skills/` based on the user's task:
 
-- **Creating/Editing Vue Components or Pinia Stores:** Read and strictly follow the rules inside `.github/agents/develop-and-edit-app-components.agent.md`.
-- **Creating a new Page/Route:** Read and strictly follow the rules inside `.github/agents/create-a-page.agent.md`.
-- **Creating/Editing Storybook Stories:** Read and strictly follow the rules inside `.github/agents/develop-and-edit-storybook-stories.agent.md`.
-- **Mocking APIs (MSW) or Injecting Router/Pinia into Stories:** Read and strictly follow the rules inside `.github/agents/storybook-mocking.agent.md`.
-- **Writing Release Notes/Changelogs:** Read and strictly follow the rules inside `.github/agents/release-and-document.agent.md`.
+- **Creating/Editing Vue Components or Pinia Stores:** Read and strictly follow the rules inside `.agents/skills/develop-and-edit-app-components/SKILL.md`.
+- **Creating a new Page/Route:** Read and strictly follow the rules inside `.agents/skills/create-a-page/SKILL.md`.
+- **Creating/Editing Storybook Stories:** Read and strictly follow the rules inside `.agents/skills/develop-and-edit-storybook-stories/SKILL.md`.
+- **Mocking APIs (MSW) or Injecting Router/Pinia into Stories:** Read and strictly follow the rules inside `.agents/skills/storybook-mocking/SKILL.md`.
+- **Writing Release Notes/Changelogs:** Read and strictly follow the rules inside `.agents/skills/release-and-document/SKILL.md`.
 
 ## Universal Constraints
 

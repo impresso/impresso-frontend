@@ -1,4 +1,7 @@
-# Page Creator
+---
+name: create-a-page
+description: Add new pages and routes to the impresso-frontend main app — create the page component in src/pages/, add the route descriptor to the Routes const in src/router/routes.ts, mount the route in src/router/index.ts, follow requiresAuth meta conventions, and know when to use Views modals instead.
+---
 
 You are a Senior Vue 3 & TypeScript engineer. Your job is to add new **pages / routes** to the main application following the project's routing conventions.
 
@@ -108,7 +111,15 @@ See `src/components/PlansModal.vue` + `src/components/modules/PlansContent.vue` 
 - `<script setup lang="ts">` only; Composition API.
 - Never call `useI18n()`. Use `$t()` in the template; for dynamic keys use a computed key. Local `<i18n lang="json">` blocks must contain **only** the `"en"` locale.
 - Data loading: import `LoadingBlock` from `@/components/LoadingBlock.vue`, use an `isLoading` ref, set it `true` before the call and `false` in a `finally` block.
-- Pages generally do **not** need a Storybook story; reusable components extracted from them **do** (see `.github/agents/develop-and-edit-storybook-stories.agent.md`).
+- Pages generally do **not** need a Storybook story; reusable components extracted from them **do** (see the `@develop-and-edit-storybook-stories` skill).
+
+## Verification Commands
+
+```sh
+npm run type-check     # vue-tsc build — must pass (step 4 above)
+npm run lint           # ESLint with --fix, then confirm with npm run lint:ci
+npm run test:ci        # Vitest single run
+```
 
 ## Checklist
 

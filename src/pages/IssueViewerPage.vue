@@ -23,10 +23,9 @@
           :page="page"
         >
           <template v-slot:actions>
-            <div class="d-flex justify-content-end align-items-center gap-2">
+            <div class="d-flex justify-content-end align-items-center gap-2" v-if="contentItem">
               <CollectionAddTo
                 right
-                v-if="contentItem"
                 :items="contentItemAsCollectableItems"
                 :text="$t('add_to_collection')"
               />
@@ -89,25 +88,28 @@
           :contentItem="contentItemOriginal"
         />
         <ListOfSimilarContentItems
-          class="w-100 p-3 row"
+          class="p-3 container-xxl ml-0"
           v-if="contentItemOriginal && viewMode === SimilarArticlesMode"
           :contentItem="contentItemOriginal"
+          :load-on-mount="true"
         >
           <template #default="{ items }">
-            <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in items" :key="item.id">
-              <ContentItem
-                :contentItem="item"
-                class="p-3 rounded-md border shadow mb-4"
-                showDate
-                showMediaSource
-                showProvider
-                showLink
-                showIcon
-                showMeta
-                showSpecs
-                showSnippet
-                showSemanticEnrichments
-              />
+            <div class="row py-3">
+              <div class="col-md-6 col-lg-6 col-xxl-6" v-for="item in items" :key="item.id">
+                <ContentItem
+                  :contentItem="item"
+                  class="p-3 rounded-md border shadow mb-4"
+                  showDate
+                  showMediaSource
+                  showProvider
+                  showLink
+                  showIcon
+                  showMeta
+                  showSpecs
+                  showSnippet
+                  showSemanticEnrichments
+                />
+              </div>
             </div>
           </template>
         </ListOfSimilarContentItems>

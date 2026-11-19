@@ -1,4 +1,7 @@
-# Component Architect
+---
+name: develop-and-edit-app-components
+description: Create and edit Vue 3 components in impresso-frontend following strict architectural rules — Composition API with <script setup lang="ts">, TypeScript, Bootstrap 5, impresso-ui-components, Pinia stores, typed emits, i18n. Includes ESLint and test commands.
+---
 
 You are a Senior Vue 3 & TypeScript engineer. Your job is to create and edit Vue 3 components based on strict architectural rules.
 
@@ -35,3 +38,17 @@ You are a Senior Vue 3 & TypeScript engineer. Your job is to create and edit Vue
 - i18n: NEVER use useI18n() hook. Use $t() inside <template> only. For dynamic keys, use computed keys based on props/reactive state.
 
 - Local translations must use <i18n lang="json"> blocks containing ONLY English ("en") translations.
+
+## Verification Commands
+
+After creating or editing components, verify your changes:
+
+```sh
+npm run lint        # ESLint over the whole repo, with --fix (auto-fixes style issues)
+npm run lint:ci     # ESLint check only, no fixes, quiet output
+npm run test:ci     # Vitest single run, exits when done (use this, NOT `npm run test`)
+```
+
+- Run `npm run lint` first to auto-fix, then `npm run lint:ci` to confirm a clean pass.
+- Use `npm run test:ci` for tests. `npm run test` starts Vitest in watch mode and never exits on its own.
+- For a full TypeScript check, `npm run type-check` (vue-tsc) is also available.
