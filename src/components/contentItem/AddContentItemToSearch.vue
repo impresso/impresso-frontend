@@ -2,9 +2,9 @@
   <button
     type="button"
     class="btn btn-sm btn-outline-primary"
-    :disabled="props.disabled || isLoading"
+    :disabled="props.disabled"
     data-testid="add-content-item-to-search-button"
-    :title="props.disabled || isLoading ? props.disabledReason : undefined"
+    :title="props.disabled ? props.disabledReason : undefined"
     @click="openModal"
   >
     <slot>{{ $t('addToSearch') }}</slot>
@@ -15,11 +15,11 @@
       :show="isModalOpen"
       :title="$t('addToSearch')"
       dialogClass="modal-md modal-dialog-centered"
-      @close="!isLoading && (isModalOpen = false)"
+      @close="closeModal"
     >
-      <template v-if="!error">
+      <template v-if="!errorKey">
         <p class="mb-0" data-testid="embedding-generation-message">
-          {{ $t(isLoading ? 'generatingSearchFilter' : 'confirmAddToSearch') }}
+          {{ $t(isSubmitting ? 'generatingSearchFilter' : 'confirmAddToSearch') }}
         </p>
 
         <Alert type="info" class="mt-3 mb-0">
@@ -27,15 +27,15 @@
         </Alert>
       </template>
 
-      <p v-else class="alert alert-danger mb-0" role="alert">
-        {{ error }}
-      </p>
+      <Alert v-else type="error" class="border-danger" role="alert">
+        {{ $t(errorKey) }}
+      </Alert>
 
       <template #modal-footer="{ close }">
         <button
           type="button"
           class="btn btn-sm btn-outline-secondary"
-          :disabled="isLoading"
+          :disabled="isSubmitting"
           @click="close()"
         >
           {{ $t('cancel') }}
@@ -53,7 +53,7 @@
             role="status"
             aria-hidden="true"
           />
-          <span>{{ $t(isLoading ? 'preparing' : 'confirm') }}</span>
+          <span>{{ $t(isLoading ? 'preparing' : canRetry ? 'retry' : 'confirm') }}</span>
         </button>
       </template>
     </Modal>
@@ -61,9 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import { contentItems } from '@/services'
@@ -82,41 +81,85 @@ export interface AddContentItemToSearchProps {
   additionalFilters?: Filter[]
 }
 
+/** Keys of the i18n messages shown in the error alert (t() is only available in the template). */
+type ErrorKey =
+  'noEmbeddingAvailable' | 'embeddingFetchFailed' | 'embeddingFilterNotAllowed' | 'searchFailed'
+
 const props = defineProps<AddContentItemToSearchProps>()
 const router = useRouter()
-const { t } = useI18n()
 const searchQueriesStore = useSearchQueriesStore()
 
 const isModalOpen = ref(false)
-const isLoading = ref(false)
-const error = ref<string | null>(null)
+const isFetchingEmbedding = ref(false)
+const isSubmitting = ref(false)
+const errorKey = ref<ErrorKey | null>(null)
+const fetchedEmbedding = ref<string | null>(null)
+
+const isLoading = computed(() => isFetchingEmbedding.value || isSubmitting.value)
+const embedding = computed(() => props.embedding || fetchedEmbedding.value)
+const canRetry = computed(() => errorKey.value !== null && !embedding.value)
+
+// Incremented on every fetch and on close, so late responses from a
+// previous/closed modal session are ignored.
+let requestId = 0
+
+async function loadEmbedding() {
+  const currentRequest = ++requestId
+  errorKey.value = null
+  fetchedEmbedding.value = null
+  isFetchingEmbedding.value = true
+
+  try {
+    const contentItem = await contentItems.get(props.contentItemId, {
+      query: { include_embeddings: true }
+    })
+    if (currentRequest !== requestId) return
+
+    const result = contentItem.semanticEnrichments?.embeddings?.[0]
+    if (result) {
+      fetchedEmbedding.value = result
+    } else {
+      errorKey.value = 'noEmbeddingAvailable'
+    }
+  } catch (reason: unknown) {
+    if (currentRequest !== requestId) return
+    console.error(reason)
+    errorKey.value = 'embeddingFetchFailed'
+  } finally {
+    if (currentRequest === requestId) isFetchingEmbedding.value = false
+  }
+}
 
 function openModal() {
-  error.value = null
+  errorKey.value = null
   isModalOpen.value = true
+  // Start fetching right away, unless the embedding was provided by the parent.
+  if (!props.embedding) loadEmbedding()
+}
+
+function closeModal() {
+  if (isSubmitting.value) return
+  requestId++ // invalidate any in-flight fetch
+  isFetchingEmbedding.value = false
+  isModalOpen.value = false
 }
 
 async function addContentItemToSearch() {
   if (isLoading.value) return
 
-  isLoading.value = true
-  error.value = null
+  // The fetch failed or returned nothing: this click is a retry.
+  if (!embedding.value) {
+    await loadEmbedding()
+    return
+  }
+
+  isSubmitting.value = true
+  errorKey.value = null
 
   try {
     if (props.additionalFilters?.some(filter => filter.type === 'embedding')) {
-      throw new Error('Additional filters cannot contain an embedding filter.')
-    }
-
-    let embedding = props.embedding
-    if (embedding === undefined) {
-      const contentItem = await contentItems.get(props.contentItemId, {
-        query: { include_embeddings: true }
-      })
-      embedding = contentItem.semanticEnrichments?.embeddings?.[0]
-    }
-
-    if (!embedding) {
-      throw new Error(t('noEmbeddingAvailable'))
+      errorKey.value = 'embeddingFilterNotAllowed'
+      return
     }
 
     // A similarity search can use only one content-item vector. Replace any
@@ -127,7 +170,7 @@ async function addContentItemToSearch() {
     const filters = optimizeFilters([
       ...currentFilters,
       ...(props.additionalFilters ?? []),
-      FilterFactory.create({ type: 'embedding', q: [embedding] })
+      FilterFactory.create({ type: 'embedding', q: [embedding.value] })
     ])
 
     await router.push({
@@ -136,9 +179,10 @@ async function addContentItemToSearch() {
     })
     isModalOpen.value = false
   } catch (reason: unknown) {
-    error.value = reason instanceof Error ? reason.message : String(reason)
+    console.error(reason)
+    errorKey.value = 'searchFailed'
   } finally {
-    isLoading.value = false
+    isSubmitting.value = false
   }
 }
 </script>
@@ -151,8 +195,12 @@ async function addContentItemToSearch() {
     "generatingSearchFilter": "Preparing similarity filter and opening Search…",
     "searchDurationNote": "Loading the matching results may take a few seconds, depending on the complexity of your active filters.",
     "noEmbeddingAvailable": "No semantic embedding is available for this content item.",
+    "embeddingFetchFailed": "The semantic embedding could not be loaded. Please try again.",
+    "embeddingFilterNotAllowed": "Additional filters cannot contain an embedding filter.",
+    "searchFailed": "The search could not be opened. Please try again.",
     "cancel": "Cancel",
     "confirm": "Confirm and search",
+    "retry": "Retry",
     "preparing": "Preparing…"
   }
 }
