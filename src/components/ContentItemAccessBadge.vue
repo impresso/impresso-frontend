@@ -49,6 +49,7 @@ defineProps<ContentItemAccessBadgeProps>()
 
 .access-badge--granted .access-badge__dot {
   background-color: var(--bs-success, #198754);
+  border: 2px solid #00150b;
 }
 
 .access-badge--denied .access-badge__dot {

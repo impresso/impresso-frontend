@@ -9,9 +9,6 @@
         <RouterLink v-if="showLink" :to="routerLinkUrl" v-html="contentItemTitle"></RouterLink>
         <span v-else v-html="contentItemTitle"></span>
       </h2>
-      <div v-if="props.showOcrQuality" class="ml-auto">
-        <ContentItemOcrQuality :contentItem="props.contentItem" />
-      </div>
     </div>
 
     <!-- mediaSource -->
@@ -172,7 +169,13 @@
     <!-- add to collection! -->
     <div class="d-flex justify-content-between flex-wrap align-items-center gap-2">
       <!-- content item access -->
-      <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem" />
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <ContentItemAccess v-if="props.showContentItemAccess" :item="props.contentItem">
+        </ContentItemAccess>
+        <div v-if="props.showOcrQuality">
+          <ContentItemOcrQuality :contentItem="props.contentItem" />
+        </div>
+      </div>
       <div v-if="props.enableAddToCollection">
         <CollectionAddTo
           :contentItem="props.contentItem"

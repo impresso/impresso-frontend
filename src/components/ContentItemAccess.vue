@@ -4,7 +4,9 @@
       :explore-granted="hasExploreAccess"
       :transcript-granted="hasTranscriptAccess"
       :facsimile-granted="hasFacsimileAccess"
-    />
+      compact
+    >
+    </ContentItemAccessDimensions>
     <template v-if="isSpecialMembershipsEnabled && contentItemRequiresSpecialMembershipAccess">
       <ContentItemAccessButton
         :currentAccessLevel="accessLevel"
@@ -118,7 +120,6 @@ const accessTranslationKey = computed(() => {
 const accessDescriptionTranslationKey = computed(() => {
   return accessTranslationKey.value + '_description'
 })
-
 </script>
 <i18n lang="json">
 {
@@ -149,7 +150,6 @@ const accessDescriptionTranslationKey = computed(() => {
     "explore_facsimile_guest_description": "You can view the complete content item (metadata, digital surrogate, semantic enrichments, and transcript) in the Web App. If you want to access this content in Datalab, please log in or create an account.",
     "other": "Limited Access",
     "other_description": "With your current user plan, you have partial access to this content item. In the Impresso Web App you can view the transcript and all metadata. You can access associated metadata, transcripts and facsimile images via API and csv export but are not permitted to download the transcript."
-
   }
 }
 </i18n>

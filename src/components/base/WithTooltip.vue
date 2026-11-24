@@ -1,11 +1,16 @@
 <template>
   <div>
-    <div ref="anchorRef" @mouseenter="isOpen = true" @mouseleave="isOpen = false">
+    <div
+      ref="anchorRef"
+      @mouseenter="isOpen = !props.disabled"
+      @mouseleave="isOpen = false"
+      @click="props.hideOnClick && (isOpen = false)"
+    >
       <slot></slot>
     </div>
     <Transition name="fade">
       <div
-        v-if="isOpen"
+        v-if="isOpen && !props.disabled"
         ref="tooltipRef"
         role="tooltip"
         tabindex="-1"
@@ -50,6 +55,8 @@ export interface WithTooltipProps {
   offsetOptions?: OffsetOptions
   shiftOptions?: ShiftOptions
   hideArrow?: boolean
+  disabled?: boolean
+  hideOnClick?: boolean
 }
 
 const props = withDefaults(defineProps<WithTooltipProps>(), {
@@ -101,6 +108,7 @@ const arrowClasses = computed(() => ({
 const tClasses = computed(() => ({
   tooltip: true,
   'b-tooltip': true,
+  rounded: true,
   [`bs-tooltip-${props.placement}`]: props.placement != null,
   delay500: props.delay
 }))
