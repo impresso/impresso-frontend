@@ -88,6 +88,7 @@ const emit = defineEmits(['clickOnOverlayRegion', 'ready'])
 const viewerContainer = ref<HTMLDivElement | null>(null)
 // shallowRef: avoid Vue deep-proxying the whole OpenSeadragon instance.
 const viewer = shallowRef<Viewer | null>(null)
+let isOpening = false
 
 /* ------------------------------------------------------------------ */
 /* Load errors                                                        */
@@ -356,6 +357,7 @@ const createViewer = () => {
     // Use nextTick to ensure the viewport is fully initialized.
     nextTick(() => {
       if (!viewer.value) return // unmounted in the meantime
+      isOpening = false
       // Overlay elements were rebuilt/cleared by the (re)open: forget any stale active state.
       currentOverlayIdx.value = [-1, -1]
       addOverlays()
@@ -376,6 +378,7 @@ const createViewer = () => {
  */
 const openManifests = () => {
   loadError.value = null
+  isOpening = true
   if (!viewer.value) {
     createViewer()
   }
@@ -387,24 +390,20 @@ const openManifests = () => {
   )
 }
 
-watch([manifestUrlsChanged, overlaysChanged], ([manifests, overlays], [prevManifests]) => {
-  if (manifests !== prevManifests) {
-    console.debug('[IIIFViewer] manifestUrls changed to:', props.manifestUrls)
-    // The `open` handler adds the overlays once the images are loaded.
-    openManifests()
-  } else if (viewer.value) {
-    // Only the overlays changed: no need to reload the images.
-    console.debug('[IIIFViewer] overlays changed')
-    addOverlays()
-  }
-})
-
 watch(
-  () => props.fitBoundsToOverlayIdx,
-  v => {
-    if (viewer.value) {
-      console.debug('[IIIFViewer] fitBoundsToOverlayIdx changed to:', v)
-      fitBoundsToOverlay(v)
+  [manifestUrlsChanged, overlaysChanged, () => props.fitBoundsToOverlayIdx],
+  ([manifests, overlays, idx], [prevManifests, prevOverlays, prevIdx]) => {
+    if (manifests !== prevManifests) {
+      console.debug('[IIIFViewer] manifestUrls changed to:', props.manifestUrls)
+      openManifests()
+    } else if (viewer.value && !isOpening) {
+      if (overlays !== prevOverlays) {
+        currentOverlayIdx.value = [-1, -1]
+        addOverlays()
+        if (idx[0] >= 0 && idx[1] >= 0) fitBoundsToOverlay(idx)
+      } else if (idx !== prevIdx) {
+        fitBoundsToOverlay(idx)
+      }
     }
   }
 )

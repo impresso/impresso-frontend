@@ -156,6 +156,12 @@ const toggleReduced = () => {
   isReduced.value = !isReduced.value
 }
 
+const restore = () => {
+  isReduced.value = false
+}
+
+defineExpose({ restore })
+
 const onPointerMove = (event: PointerEvent) => {
   if (!isDragging.value) {
     return

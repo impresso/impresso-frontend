@@ -248,7 +248,7 @@ export default defineComponent({
     computedArticleRouterLink() {
       if (this.article.pages.length === 0) {
         return {
-          name: 'issue',
+          name: 'issue-viewer',
           params: {
             issue_id: this.article.issue.id
           }

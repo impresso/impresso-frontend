@@ -258,14 +258,30 @@ const router = createRouter({
       ]
     },
     {
-      path: '/issue/:issue_id',
-      component: IssueViewerPage,
-      name: 'issue',
+      path: Routes.issuePage.path,
+      component: () => import('@/pages/IssuePage.vue'),
+      name: Routes.issuePage.name,
       props: true,
       meta: {
         requiresAuth: false,
         realm: 'issueviewer'
-      }
+      },
+      children: [
+        {
+          path: '',
+          redirect: { name: Routes.issuePage.children.overview.name }
+        },
+        {
+          path: Routes.issuePage.children.viewer.path,
+          name: Routes.issuePage.children.viewer.name,
+          component: () => import('@/components/issue/IssueViewer.vue')
+        },
+        {
+          path: Routes.issuePage.children.overview.path,
+          name: Routes.issuePage.children.overview.name,
+          component: () => import('@/components/ItemOverview.vue')
+        }
+      ]
     },
     {
       path: '/issue/:issue_id/view',

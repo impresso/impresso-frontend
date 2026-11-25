@@ -3,8 +3,9 @@
   <template v-if="filterItems.length"
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
+      <span v-if="filter.type === 'issue'">{{ item.name ?? item.label ?? item.id }}</span>
       <ItemSelector
-        v-if="showItemSelector && String(item.id) !== 'undefined'"
+        v-else-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
         :id="
           String(item.id) // @warning: permissionExplore and permissionGetTranscript are special cases as the ID in solr is different from the ID in the db, ID change is implemented in ItemSelector
@@ -204,6 +205,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "collection": "saved in",
       "language": "written in",
       "country": "printed in",
+      "issue": "in issue",
       "type": "- tagged as",
       "page": "on page <span class='number'>{page}</span>",
       "textReuseCluster": "showing up in clusters",
@@ -247,6 +249,7 @@ const filterItems = computed<FilterLabelItem[]>(() => {
       "collection": "not saved in",
       "language": "not written in",
       "country": "not printed in",
+      "issue": "not in issue",
       "type": "- not tagged as",
       "page": "not on page <span class='number'>{page}</span>",
       "textReuseCluster": "not in clusters",

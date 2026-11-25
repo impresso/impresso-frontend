@@ -39,6 +39,20 @@ export const Routes = {
     path: '/issue/:issue_id/view',
     name: 'issue-viewer'
   },
+  issuePage: {
+    path: '/issue/:issue_id',
+    name: 'issue',
+    children: {
+      viewer: {
+        path: 'viewer',
+        name: 'issuePageViewer'
+      },
+      overview: {
+        path: 'overview',
+        name: 'issuePageOverview'
+      }
+    }
+  },
   contentItem: {
     path: '/content-item/:content_item_id',
     name: 'contentItem',

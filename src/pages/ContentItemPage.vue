@@ -101,6 +101,14 @@
                 <span>{{ $t('routes.' + nestedRoute.name) }}</span>
               </router-link>
             </li>
+            <li v-if="issueLink" class="nav-item px-3">
+              <router-link
+                :to="issueLink"
+                class="nav-link"
+              >
+                <span>view issue</span>
+              </router-link>
+            </li>
           </ul>
         </b-navbar-nav>
       </template>
@@ -125,6 +133,8 @@ import { Filter } from '@/models'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
+import { getShortArticleId } from '@/logic/ids'
+import { CommonQueryParameters } from '@/router/util'
 
 const route = useRoute()
 
@@ -203,6 +213,23 @@ const scrollSidebarSelectedItemIntoView = () => {
   const el = sidebarItemsContainerRef.value.querySelector(selector)
   el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
+
+
+const issueLink = computed(() => {
+  const item = contentItem.value
+  if (!item?.issueId) return null
+
+  return {
+    name: Routes.issuePage.children.viewer.name,
+    params: {
+      issue_id: item.issueId
+    },
+    query: {
+      [CommonQueryParameters.ContentItemId]: getShortArticleId(item.id),
+      [CommonQueryParameters.PageNumber]: item.facsimile?.pages?.[0]?.number
+    }
+  }
+})
 
 watch(
   () => route.params.content_item_id as string,

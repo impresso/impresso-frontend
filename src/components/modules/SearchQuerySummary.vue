@@ -52,6 +52,7 @@ const AvailableFilterTypes = [
   'location',
   'language',
   'country',
+  'issue',
   'copyright',
   'mention',
   'nag',
