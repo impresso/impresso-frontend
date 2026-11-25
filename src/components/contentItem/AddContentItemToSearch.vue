@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="btn btn-sm btn-outline-primary"
+    class="btn btn-sm btn-outline-secondary"
     :disabled="props.disabled"
     data-testid="add-content-item-to-search-button"
     :title="props.disabled ? props.disabledReason : undefined"

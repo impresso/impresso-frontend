@@ -1,11 +1,16 @@
 <template>
   <div v-if="content" class="InfoButton d-inline">
     <div
-      class="info-button-trigger icon-link dripicons-information d-inline-block"
-      :class="triggerClass"
+      class="info-button-trigger d-inline-block"
+      :class="[triggerClass, { 'icon-link dripicons-information': !$slots.trigger }]"
       ref="reference"
+      :role="$slots.trigger ? 'button' : undefined"
+      :tabindex="$slots.trigger ? 0 : undefined"
+      :aria-expanded="$slots.trigger ? show : undefined"
       @click.prevent.stop="togglePopover"
-    ></div>
+      @keydown.enter.prevent.stop="togglePopover"
+      @keydown.space.prevent.stop="togglePopover"
+    ><slot name="trigger" :open="show"></slot></div>
     <Teleport to="body" :disabled="!teleport">
       <div
         v-if="show"

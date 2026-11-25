@@ -19,8 +19,8 @@ const meta: Meta<typeof SearchResultsListItem> = {
         beforeEnter: fn(() => false)
       },
       {
-        name: 'issue',
-        path: '/issue/:issue_id',
+        name: 'issue-viewer',
+        path: '/issue/:issue_id/view',
         redirect: '/nothing',
         beforeEnter: fn(() => false)
       },

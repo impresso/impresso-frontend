@@ -336,6 +336,45 @@ export default defineComponent({
 
       return this.viewer
     },
+    async updateCurrentPage() {
+      if (this.viewer == null || this.isDragging) return
+      const newIndex = this.currentPageIndex
+      const image = this.viewer.world.getItemAt(newIndex)
+      if (!image) return
+      const currentItemIndex = getCurrentItemIndex(this.viewer)
+
+      if (currentItemIndex !== newIndex) {
+        this.viewer.viewport.panTo(image.getBounds().getCenter(), true)
+      }
+
+      await this.applyMarginaliaAndOverlay(this.viewer, image)
+
+      const loadFrom = Math.max(newIndex - this.neighboursToLoad, 0)
+      const loadTo = Math.min(newIndex + this.neighboursToLoad, this.pages.length - 1)
+      const indicesRange = [...Array(loadTo - loadFrom + 1).keys()].map(i => i + loadFrom)
+
+      indicesRange.forEach(idx => {
+        if (this.realPages.has(idx)) return
+
+        const tiledImage = this.viewer.world.getItemAt(idx)
+        if (tiledImage == null) return
+
+        const page = this.pages[idx]
+        const { x, y, width } = tiledImage.getBounds()
+
+        this.viewer.addTiledImage({
+          tileSource: page,
+          ...(isAuthRequired(page) ? getAuthOptions() : {}),
+          index: idx,
+          x,
+          y,
+          width,
+          replace: true
+        })
+
+        this.realPages.add(idx)
+      })
+    },
     async applyMarginaliaAndOverlay(
       viewer: Openseadragon.Viewer,
       tiledImage: Openseadragon.TiledImage
@@ -354,7 +393,7 @@ export default defineComponent({
         const { overlay, rect } = createRegionOverlay(tiledImage, region, articleId => {
           this.$emit('article-selected', articleId)
         })
-        if (article.id && region.articleId === article.id) {
+        if (article?.id && region.articleId === article.id) {
           overlay.classList.add('active')
         }
         viewer.addOverlay(overlay, rect)
@@ -435,7 +474,7 @@ export default defineComponent({
             idx < Math.max(0, this.currentPageIndex - this.neighboursToLoad) ||
             idx >
               Math.min(
-                this.pages.length - this.neighboursToLoad,
+                pages.length - 1,
                 this.currentPageIndex + this.neighboursToLoad
               )
           ) {
@@ -470,49 +509,19 @@ export default defineComponent({
       immediate: true
     },
     currentPageIndex: {
-      async handler(newIndex: number) {
+      handler() {
+        this.updateCurrentPage()
+      }
+    },
+    isDragging(isDragging: boolean) {
+      if (!isDragging) this.updateCurrentPage()
+    },
+    'article.id': {
+      async handler() {
         if (this.viewer == null) return
-        if (this.isDragging) {
-          console.debug('[OpenSeadragonArticleViewer] Skipping page change while dragging')
-          return
-        }
-        const image = this.viewer.world.getItemAt(newIndex)
-        const currentItemIndex = getCurrentItemIndex(this.viewer)
-
-        if (currentItemIndex !== newIndex) {
-          this.viewer.viewport.panTo(image.getBounds().getCenter(), true)
-        }
-
+        const image = this.viewer.world.getItemAt(this.currentPageIndex)
+        if (image == null) return
         await this.applyMarginaliaAndOverlay(this.viewer, image)
-
-        const loadFrom = Math.max(newIndex - this.neighboursToLoad, 0)
-        const loadTo = Math.min(newIndex + this.neighboursToLoad, this.pages.length - 1)
-        const indicesRange = [...Array(loadTo - loadFrom + 1).keys()].map(i => i + loadFrom)
-
-        indicesRange.forEach(idx => {
-          if (this.realPages.has(idx)) return
-
-          const tiledImage = this.viewer.world.getItemAt(idx)
-          if (tiledImage == null) return
-
-          const page = this.pages[idx]
-
-          // using the bounds of the tiled image to position it correctly
-          // otherwise it will flicker.
-          const { x, y, width } = tiledImage.getBounds()
-
-          this.viewer.addTiledImage({
-            tileSource: page,
-            ...(isAuthRequired(page) ? getAuthOptions() : {}),
-            index: idx,
-            x,
-            y,
-            width,
-            replace: true
-          })
-
-          this.realPages.add(idx)
-        })
       }
     },
     regions: {

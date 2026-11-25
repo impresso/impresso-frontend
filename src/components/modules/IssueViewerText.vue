@@ -293,7 +293,6 @@ watch(
     let stale = false
     onCleanup(() => (stale = true))
 
-    fitBoundsToOverlayIdx.value = [0, 0]
     if (!articleId) {
       fetchedContentItem.value = null
       return
@@ -303,6 +302,7 @@ watch(
     if (stale) return
     article.value = Article.fromContentItem(contentItem)
     fetchedContentItem.value = contentItem
+    fitBoundsToOverlayIdx.value = [0, 0]
   },
   { immediate: true }
 )

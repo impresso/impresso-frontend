@@ -15,12 +15,12 @@
       @pointerdown="onPointerDown"
     >
       <slot name="header" :isReduced="isReduced" :toggleReduced="toggleReduced">
-        <div class="ModalDraggable__defaultHeader">
+        <div class="ModalDraggable__defaultHeader pl-2">
           <span v-if="props.title" class="ModalDraggable__title small-caps">{{ props.title }}</span>
           <div class="ModalDraggable__headerActions">
             <button
               type="button"
-              class="ModalDraggable__toggle btn btn-sm btn-outline-light"
+              class="ModalDraggable__toggle btn btn-sm btn-outline-secondary"
               :aria-label="isReduced ? props.restoreLabel : props.reduceLabel"
               :title="isReduced ? props.restoreLabel : props.reduceLabel"
               @click.stop="toggleReduced"
@@ -155,6 +155,12 @@ const containerStyle = computed(() => {
 const toggleReduced = () => {
   isReduced.value = !isReduced.value
 }
+
+const restore = () => {
+  isReduced.value = false
+}
+
+defineExpose({ restore })
 
 const onPointerMove = (event: PointerEvent) => {
   if (!isDragging.value) {
