@@ -64,34 +64,28 @@
             {{ $t('view') }}
           </router-link> -->
 
-          <slot name="secondary-action">
-            <div class="my-2">
+          <div class="d-flex flex-wrap align-items-center gap-2 my-2">
+            <slot name="secondary-action">
               <CollectionAddTo
                 right
                 @change="onCollectionsAddToChangeHandler"
                 :items="ciAsCollectableItems"
                 :text="$t('add_to_collection')"
               />
-            </div>
-          </slot>
-
-          <ContentItemAccess :item="contentItem" class="mr-3" />
-
-          <div v-if="isShareable" class="shareArticleControl d-inline ml-1">
+            </slot>
             <b-button
-              variant="outline-success"
+              v-if="isShareable"
+              class="shareArticleControl"
+              variant="outline-primary"
               size="sm"
-              v-on:click="showShareContentItemModal()"
-              :title="$t('actions.share')"
+              @click="showShareContentItemModal()"
+              :title="$t('share_title')"
             >
-              <div class="d-flex flex-row align-items-center">
-                <div class="d-flex dripicons dripicons-web mr-1" />
-                <div>
-                  {{ $t('actions.share') }}
-                </div>
-              </div>
+              {{ $t('actions.share') }}
             </b-button>
           </div>
+
+          <ContentItemAccess :item="contentItem" />
         </div>
         <div v-if="showContext && computedRegionsInArticleFirstPage">
           <IIIFFragment
@@ -419,6 +413,7 @@ export default defineComponent({
   "en": {
     "view": "View",
     "add_to_collection": "Save to Collection ...",
+    "share_title": "Embed this public domain item on another website",
     "login_message": "You need to be signed in to view this image"
   }
 }

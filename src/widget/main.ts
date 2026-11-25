@@ -1,8 +1,10 @@
 import { createApp } from 'vue'
+import '@/assets/legacy/bootstrap-impresso-theme.css'
+import '@/styles/style.css'
 import App from './App.vue'
 import router from './router'
-import pinia from '../plugins/pinia'
-import { newI18n } from '../plugins/i18n'
+import pinia from '@/plugins/pinia'
+import { newI18n } from '@/plugins/i18n'
 
 const app = createApp(App)
 app.use(pinia)

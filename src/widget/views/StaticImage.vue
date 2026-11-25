@@ -1,7 +1,6 @@
 <template lang="html">
   <div :style="getBackgroundStyle">
     <div class="image" :style="getImageStyle"></div>
-    <div class="caption">{{ pageId }}, {{ coords }}</div>
   </div>
 </template>
 
@@ -20,16 +19,14 @@ export default {
     cssFilter: String
   },
   mounted() {
-    console.info('@mounted', this.link)
-    pages.get(this.pageId).then(({ iiif, accessRights }) => {
+    pages.get(this.pageId).then(({ iiif }) => {
       this.imageURL = `${iiif}/${this.coords}/max/0/default.jpg`
-      console.info('accessRights', accessRights, this.imageURL)
     })
   },
   computed: {
     pageId() {
       const { pageId } = this.$route.params
-      if (!/^[A-Za-z]+-\d{4}-\d{2}-\d{2}-[a-z]-p\d{4}$/.test(pageId)) {
+      if (!/^[\w-]+-p\d{4}$/.test(pageId)) {
         console.warn('pageId() not valid:', pageId, 'returning index.')
         return ''
       }

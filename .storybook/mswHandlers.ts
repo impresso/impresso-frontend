@@ -14,6 +14,7 @@ import {
 } from './mockData/specialMembership'
 import { MockMediaSources } from './mockData/mediaSources'
 import { MockTopic } from './mockData/topics'
+import { MockAudioContentItem, MockContentItemPublicDomain } from './mockData/contentItems'
 import { MockBaristaConversations } from './mockData/baristaConversations'
 
 export const findSearchFacetsHandler = http.get(
@@ -445,6 +446,19 @@ export const findEmpty = (mswHandler: HttpHandler) => {
     })
   })
 }
+export const getContentItemHandler = http.get('/api/content-items/:id', async ({ params }) => {
+  const { id } = params
+  await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
+  const item = [MockContentItemPublicDomain, MockAudioContentItem].find(ci => ci.id === id)
+  if (!item) {
+    return HttpResponse.json(
+      { name: 'NotFound', message: `No content item found for id ${id}`, code: 404 },
+      { status: 404 }
+    )
+  }
+  return HttpResponse.json(item)
+})
+
 export const getTopicHandler = http.get('/api/topics/:id', async ({ params }) => {
   const { id } = params
   await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
