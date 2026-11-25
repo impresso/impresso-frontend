@@ -165,7 +165,7 @@ section.i-layout-section {
       z-index: 2;
       opacity: 0.25;
       background: linear-gradient(0deg, rgba(255, 255, 255, 0) 0%, rgba(198, 204, 210, 0.21) 100%);
-      border-top: 1px solid #c6ccd2;
+      border-top: 1px solid #97999b;
       transition: opacity 0.2s ease-in-out;
     }
 

@@ -34,7 +34,7 @@
       </div>
       <div class="col-sm-6 col-xl-5">
         <div
-          class="d-flex position-sticky top-0 bg-light justify-content-between align-items-center border-bottom p-2"
+          class="d-flex position-sticky top-0 bg-light justify-content-between align-items-center border-bottom p-2 z-index-1"
         >
           <h4 class="small-caps m-0">{{ $t('transcript') }}</h4>
           <ContentItemCopyText v-if="contentItem" :content-item="contentItem" />

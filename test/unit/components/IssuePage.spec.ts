@@ -3,6 +3,8 @@ import { flushPromises, shallowMount } from '@vue/test-utils'
 import { defineComponent, reactive } from 'vue'
 import IssuePage from '@/pages/IssuePage.vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
+import MediaSourceLabel from '@/components/modules/lists/MediaSourceLabel.vue'
+import DataProviderLabel from '@/components/modules/lists/DataProviderLabel.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
 import SearchQuerySummary from '@/components/modules/SearchQuerySummary.vue'
@@ -26,7 +28,13 @@ describe('IssuePage content items', () => {
     route.name = 'issuePageOverview'
     service.find.mockReset().mockImplementation(({ query }) =>
       Promise.resolve({
-        data: [{ id: `${query.filters[0].q}-i0001` }],
+        data: [
+          {
+            id: `${query.filters[0].q}-i0001`,
+            meta: { date: '1900-01-02', mediaId: 'GDL', partnerId: 'prov-x' },
+            access: { copyright: 'pbl' }
+          }
+        ],
         pagination: { total: 1, offset: query.offset, limit: query.limit }
       })
     )
@@ -35,7 +43,7 @@ describe('IssuePage content items', () => {
   it('loads items for the current issue and reloads when the issue changes', async () => {
     const wrapper = shallowMount(IssuePage, {
       global: {
-        mocks: { $t: (key: string) => key, $n: (number: number) => String(number) },
+        mocks: { $t: (key: string) => key, $n: (number: number) => String(number), $d: (d: Date) => String(d) },
         stubs: {
           'i-layout': { template: '<div><slot /></div>' },
           'i-layout-section': { template: '<section><slot name="header" /><slot /></section>' },
@@ -52,7 +60,7 @@ describe('IssuePage content items', () => {
     })
     await flushPromises()
 
-    expect(service.find).toHaveBeenLastCalledWith({
+    expect(service.find).toHaveBeenCalledWith({
       query: {
         limit: 10,
         offset: 0,
@@ -62,6 +70,8 @@ describe('IssuePage content items', () => {
     })
     expect(wrapper.getComponent(ContentItem).props('contentItem').id).toBe('issue-1-i0001')
     expect(wrapper.get('h3').text()).toBe('issue-1')
+    expect(wrapper.getComponent(MediaSourceLabel).props('item')).toMatchObject({ id: 'GDL' })
+    expect(wrapper.getComponent(DataProviderLabel).props('item')).toMatchObject({ id: 'prov-x' })
     expect(wrapper.getComponent(overview).props()).toEqual({
       item: { id: 'issue-1' },
       listFilters: [{ type: 'issue', q: 'issue-1' }]
@@ -78,8 +88,8 @@ describe('IssuePage content items', () => {
     route.params.issue_id = 'issue-2'
     await flushPromises()
 
-    expect(service.find).toHaveBeenCalledTimes(2)
-    expect(service.find).toHaveBeenLastCalledWith({
+    expect(service.find).toHaveBeenCalledTimes(4)
+    expect(service.find).toHaveBeenCalledWith({
       query: {
         limit: 10,
         offset: 0,
@@ -101,7 +111,7 @@ describe('IssuePage content items', () => {
     route.params.issue_id = ''
     await flushPromises()
     expect(wrapper.findComponent(ListOfFindResponseItems).exists()).toBe(false)
-    expect(service.find).toHaveBeenCalledTimes(2)
+    expect(service.find).toHaveBeenCalledTimes(4)
     wrapper.unmount()
   })
 

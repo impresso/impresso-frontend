@@ -12,7 +12,7 @@
     </div>
 
     <!-- mediaSource -->
-    <div v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages">
+    <div v-if="shouldShowMediaSource || shouldShowDate || shouldShowPages" class="pt-1">
       <MediaSourceLabel
         v-if="shouldShowMediaSource"
         :item="{

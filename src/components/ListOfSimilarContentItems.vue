@@ -23,17 +23,6 @@
         >
           {{ $t('actions.fetchSimilarItems') }}
         </button>
-
-        <AddContentItemToSearch
-          :disabled="!contentItemEmbedding"
-          :content-item-id="props.contentItem?.id"
-          :embedding="contentItemEmbedding"
-          :additional-filters="timeframeFilter ? [timeframeFilter] : []"
-          :disabledReason="$t('fetchingSimilarContentItems.noEmbeddingsForThisContentItem')"
-          class="ml-auto"
-          >{{ $t('actions.showInSearch') }}
-          <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
-        </AddContentItemToSearch>
       </div>
     </div>
     <slot v-bind:items="similarItems">

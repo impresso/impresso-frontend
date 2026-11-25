@@ -27,16 +27,16 @@
         :title="$t('contentItem')"
         :reduce-label="$t('reduce')"
         :restore-label="$t('restore')"
-        handle-class="p-2 bg-dark text-white rounded-top"
+        handle-class="p-2 rounded-top"
       >
         <template #header-actions>
           <button
             type="button"
-            class="btn btn-sm btn-outline-light"
+            class="btn btn-sm btn-outline"
             :aria-label="$t('close')"
             @click.stop="clearSelectedArticle"
           >
-            &times;
+            <Icon name="cross" :scale="0.75" :stroke-width="1.5" />
           </button>
         </template>
         <div class="IssueViewer_panelBody p-3">
@@ -49,8 +49,18 @@
             show-icon
             show-meta
             show-snippet
-            show-semantic-enrichments
+            show-specs
           />
+          <div v-if="contentItem && !isContentItemLoading && !contentItemError" class="d-flex mt-2">
+            <AddContentItemToSearch
+              :content-item-id="contentItem.id"
+              :disabled-reason="$t('noEmbeddings')"
+              class="ml-auto"
+            >
+              {{ $t('showInSearch') }}
+              <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
+            </AddContentItemToSearch>
+          </div>
         </div>
       </ModalDraggable>
     </template>
@@ -62,6 +72,8 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LoadingBlock from '@/components/LoadingBlock.vue'
 import ModalDraggable from '@/components/ModalDraggable.vue'
+import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import Icon from '@/components/base/Icon.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import OpenSeadragonArticleViewer, {
   type Region
@@ -79,6 +91,7 @@ const issueError = ref(false)
 const regionsError = ref(false)
 const panel = ref<InstanceType<typeof ModalDraggable> | null>(null)
 const contentItem = ref<ContentItemData | null>(null)
+
 const isContentItemLoading = ref(false)
 const contentItemError = ref(false)
 const pageRegions = ref<Region[]>([])
@@ -105,7 +118,9 @@ watch(
   issueId,
   async (id, _previousId, onCleanup) => {
     let cancelled = false
-    onCleanup(() => { cancelled = true })
+    onCleanup(() => {
+      cancelled = true
+    })
     issue.value = null
     issueError.value = false
     if (!id) {
@@ -137,7 +152,9 @@ watch(
   currentPage,
   async (page, _previousPage, onCleanup) => {
     let cancelled = false
-    onCleanup(() => { cancelled = true })
+    onCleanup(() => {
+      cancelled = true
+    })
     pageRegions.value = []
     regionsError.value = false
     if (!page) return
@@ -172,7 +189,9 @@ watch(
   () => selectedArticle.value.id,
   async (id, _previousId, onCleanup) => {
     let cancelled = false
-    onCleanup(() => { cancelled = true })
+    onCleanup(() => {
+      cancelled = true
+    })
     contentItem.value = null
     contentItemError.value = false
     if (!id) {
@@ -245,6 +264,8 @@ async function clearSelectedArticle() {
     "noPages": "This issue has no pages.",
     "contentItem": "Content item",
     "contentItemError": "Could not load the content item.",
+    "noEmbeddings": "No semantic embeddings available for this content item.",
+    "showInSearch": "Find similar items in search",
     "close": "Close",
     "reduce": "Reduce",
     "restore": "Restore"

@@ -85,31 +85,38 @@
           </section>
         </b-navbar>
         <b-navbar-nav class="container ml-0 pb-2">
-          <ul class="nav nav-pills border-0">
-            <li
-              class="nav-item px-3"
-              v-for="nestedRoute in AvailableNestedRoutes"
-              :key="nestedRoute.name"
-            >
-              <router-link
-                :to="{ name: nestedRoute.name }"
-                exact-active-class="active"
-                active-class=""
-                :active="route.name === nestedRoute.name"
-                class="nav-link"
+          <div class="d-flex flex-wrap align-items-center justify-content-between w-100">
+            <ul class="nav nav-pills border-0">
+              <li
+                class="nav-item px-3"
+                v-for="nestedRoute in AvailableNestedRoutes"
+                :key="nestedRoute.name"
               >
-                <span>{{ $t('routes.' + nestedRoute.name) }}</span>
-              </router-link>
-            </li>
-            <li v-if="issueLink" class="nav-item px-3">
+                <router-link
+                  :to="{ name: nestedRoute.name }"
+                  exact-active-class="active"
+                  active-class=""
+                  :active="route.name === nestedRoute.name"
+                  class="nav-link"
+                >
+                  <span>{{ $t('routes.' + nestedRoute.name) }}</span>
+                </router-link>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+              <AddContentItemToSearch v-if="contentItem" :content-item-id="contentItem.id">
+                {{ $t('showInSearch') }}
+                <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
+              </AddContentItemToSearch>
               <router-link
                 :to="issueLink"
-                class="nav-link"
+                class="btn btn-sm btn-outline-secondary"
+                v-if="issueLink"
               >
-                <span>view issue</span>
+                <span>{{ $t('actions.viewInIssue') }}</span>
               </router-link>
-            </li>
-          </ul>
+            </div>
+          </div>
         </b-navbar-nav>
       </template>
 
@@ -128,6 +135,8 @@ import { Routes } from '@/router/routes'
 import { contentItems as contentItemService } from '@/services'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import FilterFactory from '@/models/FilterFactory'
+import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import Icon from '@/components/base/Icon.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import { Filter } from '@/models'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
@@ -153,6 +162,9 @@ const AvailableNestedRoutes = [
 ] as const
 
 const { contentItem, fetchContentItem } = useContentItem()
+const contentItemEmbedding = computed(
+  () => contentItem.value?.semanticEnrichments?.embeddings?.[0] ?? ''
+)
 const sidebarItemsContainerRef = ref<HTMLElement | null>(null)
 
 const title = computed(() => {
@@ -214,7 +226,6 @@ const scrollSidebarSelectedItemIntoView = () => {
   el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
-
 const issueLink = computed(() => {
   const item = contentItem.value
   if (!item?.issueId) return null
@@ -259,12 +270,17 @@ watch(
   "en": {
     "contentItem": "Content Item",
     "inPrintSameDay": "In print, same day",
+    "noEmbeddings": "No semantic embeddings available for this content item.",
+    "showInSearch": "Find similar items in search",
     "noContentItems": "No content items found",
     "errorLoadingContentItems": "Error loading content items",
     "routes": {
       "contentItemTranscript": "Transcript",
       "contentItemCiteAs": "Cite As",
       "contentItemSimilarItems": "Similar Items"
+    },
+    "actions": {
+      "viewInIssue": "View in issue"
     }
   }
 }
