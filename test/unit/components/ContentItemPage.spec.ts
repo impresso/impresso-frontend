@@ -39,7 +39,7 @@ describe('ContentItemPage issue link', () => {
       }
     })
     const issueLink = () =>
-      wrapper.findAllComponents(RouterLinkStub).find(link => link.text().includes('view issue'))
+      wrapper.findAllComponents(RouterLinkStub).find(link => link.text().includes('actions.viewInIssue'))
 
     expect(issueLink()?.props('to')).toEqual({
       name: 'issuePageViewer',
