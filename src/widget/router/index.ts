@@ -1,39 +1,40 @@
 import { WidgetBaseUrl } from '@/constants'
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteLocationNormalized } from 'vue-router'
 import { helpers, maxLength, required } from '@vuelidate/validators'
 
 const routeParamsValidators = {
-  backgroundColor: {
-    // naming the rule 'format' or 'hex'
-    format: helpers.regex(/^([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[a-z]+)$/)
-  },
   contentItemId: {
     required,
-    format: helpers.regex(/^[a-zA-Z0-9\-]+$/)
+    format: helpers.regex(/^[\w-]+$/)
   },
   alternativeTitle: {
     maxLength: maxLength(200),
-    format: helpers.regex(/^[\w\s\-.,'"]*$/)
+    // letters in any script, digits and common punctuation, but no markup
+    format: helpers.regex(/^[\p{L}\p{N}\s\-.,'"!?:;()&’–—]*$/u)
   }
 }
-// Extend the RouteMeta interface
+
 declare module 'vue-router' {
   interface RouteMeta {
-    requiresValidation?: boolean
-    // Changed from ValidationRule to a nested object structure
     validators?: Record<string, Record<string, any>>
   }
 }
 
-const propsFromRoute = ({ query, params }) => ({
-  backgroundColor: query.backgroundColor,
-  backgroundSize: query.backgroundSize,
-  alternativeTitle: query.alternativeTitle,
-  cssFilter: query.cssFilter,
-  overlayBackgroundColor: query.overlayBackgroundColor,
-  coordsMargin: query.coordsMargin,
-  coords: query.coords,
-  contentItemId: params?.contentItemId
+const queryString = (value: unknown): string | undefined =>
+  typeof value === 'string' ? value : undefined
+
+const propsFromRoute = ({ query, params }: RouteLocationNormalized) => ({
+  contentItemId: String(params.contentItemId ?? ''),
+  pageId: queryString(query.pageId),
+  backgroundColor: queryString(query.backgroundColor),
+  backgroundSize: queryString(query.backgroundSize),
+  alternativeTitle: queryString(query.alternativeTitle),
+  cssFilter: queryString(query.cssFilter),
+  overlayBackgroundColor: queryString(query.overlayBackgroundColor),
+  coordsMargin: queryString(query.coordsMargin),
+  coords: queryString(query.coords),
+  hideCitation: query.hideCitation === 'true'
 })
 
 const router = createRouter({
@@ -42,12 +43,26 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: () => import('../views/About.vue')
+      component: () => import('../views/ErrorView.vue')
     },
     {
-      path: '/test/:path',
-      name: 'TestFrame',
-      component: () => import('../views/TestFrame.vue')
+      path: '/ci/:contentItemId',
+      name: 'ContentItemViewer',
+      component: () => import('../views/ContentItemViewer.vue'),
+      props: propsFromRoute,
+      meta: {
+        validators: routeParamsValidators
+      }
+    },
+    {
+      // Legacy embed links generated before the widget used /ci/
+      path: '/p/:pageId/a/:articleId/',
+      name: 'ArticleViewer',
+      redirect: to => ({
+        name: 'ContentItemViewer',
+        params: { contentItemId: to.params.articleId },
+        query: { ...to.query, pageId: to.params.pageId }
+      })
     },
     {
       path: '/p/:pageId/:coords/',
@@ -56,97 +71,43 @@ const router = createRouter({
       props: propsFromRoute
     },
     {
-      path: '/ci/:contentItemId',
-      name: 'ContentItemViewer',
-      component: () => import('../views/ContentItemViewer.vue'),
-      beforeEnter: (to, from, next) => {
-        const { contentItemId } = to.params
-        // content item id is "-" separated string, e.g., "ci-12345". Check with regex
-        if (!/^[a-zA-Z0-9\-]+$/.test(String(contentItemId))) {
-          console.warn(
-            `[router] Invalid contentItemId format: ${contentItemId}. Redirecting to NotFound.`
-          )
-          next({ name: 'NotFound' })
-        } else {
-          next()
-        }
-      },
-      props: propsFromRoute,
-      meta: {
-        validators: {
-          contentItemId: routeParamsValidators.contentItemId,
-          backgroundColor: routeParamsValidators.backgroundColor
-        }
-      }
-    },
-    {
-      path: '/p/:pageId/a/:articleId/',
-      name: 'ArticleViewer',
-      component: () => import('../views/ArticleViewer.vue'),
-      props: propsFromRoute
-    },
-    {
-      path: '/about',
-      name: 'About',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/About.vue')
+      path: '/error',
+      name: 'Error',
+      component: () => import('../views/ErrorView.vue'),
+      props: { errorType: 'validation' }
     },
     {
       path: '/:catchAll(.*)',
       name: 'NotFound',
-      component: () => import('../views/About.vue')
-    },
-    {
-      path: '/error',
-      name: 'Error',
-      component: () => import('../views/ErrorView.vue'),
-      props: route => ({
-        errorType: 'validation',
-        message: route.query.message
-      })
+      component: () => import('../views/ErrorView.vue')
     }
   ]
 })
-router.beforeEach(async (to, from, next) => {
-  const validators = to.meta.validators
-  if (!validators) return next()
 
-  const dataToValidate = {
+router.beforeEach(async to => {
+  const validators = to.meta.validators
+  if (!validators) return true
+
+  const dataToValidate: Record<string, unknown> = {
     contentItemId: to.params.contentItemId,
-    backgroundColor: to.query.backgroundColor
+    alternativeTitle: to.query.alternativeTitle ?? ''
   }
 
-  let isValid = true
   const errorMessages: string[] = []
-  // Manually iterate through the validators defined in meta
   for (const [field, rules] of Object.entries(validators)) {
-    const value = dataToValidate[field as keyof typeof dataToValidate]
-
-    console.debug(`[router] Validating field: ${field} with rules:`, rules, value)
-    // Each rule in the validators object (e.g., 'required', 'format')
-    for (const [ruleName, ruleFunc] of Object.entries(rules as any)) {
-      // Vuelidate rules are functions that return boolean or a promise
-      if (typeof ruleFunc === 'function') {
-        const result = await ruleFunc(value)
-        if (!result) {
-          isValid = false
-          errorMessages.push(`${field}: Failed ${ruleName}`)
-        }
+    for (const [ruleName, rule] of Object.entries(rules)) {
+      const validator = typeof rule === 'function' ? rule : rule?.$validator
+      if (typeof validator === 'function' && !(await validator(dataToValidate[field]))) {
+        errorMessages.push(`${field}: failed ${ruleName}`)
       }
     }
   }
 
-  if (!isValid) {
-    console.warn('[router] Validation failed:', errorMessages)
-    return next({
-      name: 'Error',
-      query: { message: errorMessages.join(', ') }
-    })
+  if (errorMessages.length) {
+    console.warn('[widget/router] Validation failed:', errorMessages)
+    return { name: 'Error' }
   }
-
-  next()
+  return true
 })
 
 export default router

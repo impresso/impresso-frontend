@@ -269,23 +269,24 @@ const availablePageRegions = computed<null | [number, number, number, number][]>
   return page?.regionCoordinates ?? null
 })
 
-const iframeSrcParams = computed<string[]>(() => {
-  const params: string[] = [
-    `backgroundColor=${form.backgroundColor.replace('#', '')}`,
-    `overlayBackgroundColor=${fitCoords.value ? form.overlayBackgroundColor.replace('#', '') : 'ffffffff'}`,
-    `coordsMargin=${form.coordsMargin}`
-  ]
-  if (fitCoords.value && form.coords.w > 0) {
-    params.push(`fitCoords=true`)
-    params.push(`coords=${form.coords.x},${form.coords.y},${form.coords.w},${form.coords.h}`)
-  }
-
-  return params
-})
-
 const iframeSrc = computed(() => {
-  const pageId = selectedPageId.value ?? ''
-  return `${WebAppHost}${WidgetBaseUrl}p/${pageId}/a/${props.item.id}?${iframeSrcParams.value.join('&')}`
+  const widgetBaseUrl = WidgetBaseUrl.endsWith('/') ? WidgetBaseUrl : `${WidgetBaseUrl}/`
+  const url = new URL(`${widgetBaseUrl}ci/${encodeURIComponent(props.item.id)}`, WebAppHost)
+  if (selectedPageId.value) {
+    url.searchParams.set('pageId', selectedPageId.value)
+  }
+  url.searchParams.set('backgroundColor', form.backgroundColor.replace('#', ''))
+  url.searchParams.set(
+    'overlayBackgroundColor',
+    fitCoords.value ? form.overlayBackgroundColor.replace('#', '') : '00000000'
+  )
+  url.searchParams.set('coordsMargin', String(form.coordsMargin))
+  if (fitCoords.value && form.coords.w > 0) {
+    const { x, y, w, h } = form.coords
+    url.searchParams.set('coords', `${x},${y},${w},${h}`)
+  }
+  url.searchParams.set('hideCitation', 'true')
+  return url.toString()
 })
 
 const isIframeLoaded = ref(false)

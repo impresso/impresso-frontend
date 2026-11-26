@@ -1,60 +1,44 @@
 <template>
-  <div class="error-page">
-    <h1>{{ errorTitle }}</h1>
-    <p>{{ errorMessage }}</p>
-    <button @click="goHome">Go to Home</button>
+  <div class="ErrorView h-100 d-flex align-items-center justify-content-center p-3" role="alert">
+    <div class="ErrorView__message">
+      <p class="mb-1 fw-bold">{{ $t(`title.${props.errorType}`) }}</p>
+      <p class="mb-0 small text-muted">{{ $t(`description.${props.errorType}`) }}</p>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-
-const props = defineProps({
-  errorType: {
-    type: String,
-    default: 'unknown'
-  },
-  message: {
-    type: String,
-    default: ''
-  }
-})
-
-const router = useRouter()
-
-const errorTitle = computed(() => {
-  const titles = {
-    validation: 'Invalid Parameters',
-    404: 'Page Not Found',
-    unknown: 'An Error Occurred'
-  }
-  return titles[props.errorType] || titles.unknown
-})
-
-const errorMessage = computed(() => {
-  return props.message || 'Something went wrong. Please try again.'
-})
-
-const goHome = () => {
-  router.push({ name: 'Home' })
+<script setup lang="ts">
+export interface ErrorViewProps {
+  errorType?: 'notFound' | 'validation'
 }
+
+const props = withDefaults(defineProps<ErrorViewProps>(), {
+  errorType: 'notFound'
+})
 </script>
 
-<style scoped>
-.error-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+<style>
+.ErrorView__message {
+  max-width: 28rem;
+  padding: 1rem 1.5rem;
   text-align: center;
-  padding: 0px;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  cursor: pointer;
+  background-color: var(--clr-white, #fff);
+  border-radius: var(--impresso-border-radius-sm, 4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 </style>
+
+<i18n lang="json">
+{
+  "en": {
+    "title": {
+      "notFound": "Nothing to show here",
+      "validation": "Invalid embed link"
+    },
+    "description": {
+      "notFound": "This Impresso widget link does not point to any content item.",
+      "validation": "Some parameters of this embed link are not valid. Please generate a new embed code from Impresso."
+    }
+  }
+}
+</i18n>

@@ -176,7 +176,11 @@
           <ContentItemOcrQuality :contentItem="props.contentItem" />
         </div>
       </div>
-      <div v-if="props.enableAddToCollection">
+      <div
+        v-if="props.enableAddToCollection || props.enableShare"
+        class="d-flex flex-wrap align-items-center gap-1"
+      >
+        <ShareContentItemModalButton v-if="props.enableShare" :item="props.contentItem" />
         <CollectionAddTo
           :contentItem="props.contentItem"
           right
@@ -208,6 +212,7 @@ import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
 import { ItemWithCollections } from '../modules/CollectionAddToList.vue'
 import ContentItemOcrQuality from './ContentItemOcrQuality.vue'
 import ContentItemIdLabel from '../ContentItemIdLabel.vue'
+import ShareContentItemModalButton from '../ShareContentItemModalButton.vue'
 
 export interface ContentItemCommonProps {
   contentItem: ContentItem
@@ -231,6 +236,7 @@ export interface ContentItemCommonProps {
   showType?: boolean
   showTopics?: boolean
   enableAddToCollection?: boolean
+  enableShare?: boolean
   entityTypes?: Array<keyof ContentItemSemanticEnrichments['namedEntities']>
   contentItemTopicClasses?: string
 }
@@ -238,7 +244,8 @@ const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   dateFormatter: 'long',
   ocrQualityThreshold: 0.5,
   entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies'],
-  contentItemTopicClasses: 'col-12 col-lg-6 col-xl-4'
+  contentItemTopicClasses: 'col-12 col-lg-6 col-xl-4',
+  enableShare: true
 })
 
 const emit = defineEmits<{
