@@ -14,6 +14,7 @@
         v-if="props.contentItem"
         :contentItem="props.contentItem"
         :enableAddToCollection="props.enableAddToCollection"
+        :enableShare="props.enableShare"
         :showCollections="props.showCollections"
         :showDate="props.showDate"
         :showId="props.showId"
@@ -49,12 +50,14 @@ import ContentItemCommon, {
 
 export interface ContentItemProps extends ContentItemCommonProps {
   showIIIFThumbnail?: boolean
+  enableShare?: boolean
   contentItemTopicClasses?: string
 }
 
 const props = withDefaults(defineProps<ContentItemProps>(), {
   showTitle: true,
-  showType: true
+  showType: true,
+  enableShare: true
 })
 const emit = defineEmits<{
   click: [item: ContentItem]
