@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 import { delay, http, HttpResponse } from 'msw'
 import { vueRouter } from 'storybook-vue3-router'
-import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
 
 const SEARCH_ERROR_MARKER = 'trigger-search-error'
 
@@ -10,8 +10,8 @@ const SEARCH_ERROR_MARKER = 'trigger-search-error'
 const flakyAttempts = new Map<string, number>()
 
 const meta = {
-  title: 'components/contentItem/AddContentItemToSearch',
-  component: AddContentItemToSearch,
+  title: 'components/contentItem/AddContentItemToSearchButton',
+  component: AddContentItemToSearchButton,
   tags: ['autodocs'],
   decorators: [
     vueRouter([
@@ -59,11 +59,11 @@ const meta = {
     }
   },
   render: args => ({
-    components: { AddContentItemToSearch },
+    components: { AddContentItemToSearchButton },
     setup: () => ({ args }),
-    template: '<div class="p-3"><AddContentItemToSearch v-bind="args" /></div>'
+    template: '<div class="p-3"><AddContentItemToSearchButton v-bind="args" /></div>'
   })
-} satisfies Meta<typeof AddContentItemToSearch>
+} satisfies Meta<typeof AddContentItemToSearchButton>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -142,7 +142,7 @@ export const EmbeddingFilterNotAllowed: Story = {
     docs: {
       description: {
         story:
-          '`additionalFilters` contains an embedding filter, which is not allowed. Click "Confirm and search" to see the `embeddingFilterNotAllowed` error.'
+          '`additionalFilters` contains an embedding filter, which is not allowed. Confirm the selected action to see the `embeddingFilterNotAllowed` error.'
       }
     }
   }
@@ -157,7 +157,7 @@ export const SearchNavigationError: Story = {
     docs: {
       description: {
         story:
-          'The router guard of the mocked `search` route throws, so `router.push` rejects. Click "Confirm and search" to see the `searchFailed` error.'
+          'The router guard of the mocked `search` route throws, so `router.push` rejects. Confirm the selected action to see the `searchFailed` error.'
       }
     }
   }

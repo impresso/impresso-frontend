@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import AddContentItemToSearch from './AddContentItemToSearch.vue'
-import type { AddContentItemToSearchProps } from './AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from './AddContentItemToSearchButton.vue'
+import type { AddContentItemToSearchButtonProps } from './AddContentItemToSearchButton.vue'
 import FilterFactory from '@/models/FilterFactory'
 import { deserializeFilters, serializeFilters } from '@/logic/filters'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
@@ -22,7 +22,7 @@ function deferred<T>() {
   return { promise, resolve }
 }
 
-function render(props: Partial<AddContentItemToSearchProps> = {}) {
+function render(props: Partial<AddContentItemToSearchButtonProps> = {}, useRealModal = false) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -33,18 +33,22 @@ function render(props: Partial<AddContentItemToSearchProps> = {}) {
 
   return {
     router,
-    wrapper: mount(AddContentItemToSearch, {
+    wrapper: mount(AddContentItemToSearchButton, {
+      attachTo: useRealModal ? document.body : undefined,
       props: { contentItemId: 'content-item-1', ...props },
       global: {
         plugins: [router],
         stubs: {
           teleport: true,
-          Modal: {
-            props: ['show'],
-            emits: ['close'],
-            template:
-              '<div v-if="show"><slot /><slot name="modal-footer" :close="() => $emit(\'close\')" /></div>'
-          }
+          Modal: useRealModal
+            ? false
+            : {
+                name: 'Modal',
+                props: ['show'],
+                emits: ['close'],
+                template:
+                  '<div v-if="show"><slot /><slot name="modal-footer" :close="() => $emit(\'close\')" /></div>'
+              }
         },
         mocks: { $t: (key: string) => key }
       }
@@ -54,20 +58,13 @@ function render(props: Partial<AddContentItemToSearchProps> = {}) {
 
 type Wrapper = ReturnType<typeof render>['wrapper']
 
-const openButton = (wrapper: Wrapper) =>
-  wrapper.get('[data-testid="add-content-item-to-search-button"]')
 const confirmButton = (wrapper: Wrapper) =>
   wrapper.get('[data-testid="confirm-add-content-item-to-search-button"]')
 const isConfirmDisabled = (wrapper: Wrapper) =>
   (confirmButton(wrapper).element as HTMLButtonElement).disabled
-const cancelButton = (wrapper: Wrapper) => {
-  const button = wrapper.findAll('button').find(b => b.text() === 'cancel')
-  if (!button) throw new Error('Cancel button not found')
-  return button
-}
 
-async function openModal(wrapper: Wrapper) {
-  await openButton(wrapper).trigger('click')
+async function openModal(wrapper: Wrapper, mode: 'add' | 'replace' = 'add') {
+  await wrapper.get(`[data-testid="${mode}-search-item"]`).trigger('click')
 }
 
 async function goToContentItem(router: ReturnType<typeof render>['router']) {
@@ -75,7 +72,7 @@ async function goToContentItem(router: ReturnType<typeof render>['router']) {
   await router.isReady()
 }
 
-describe('AddContentItemToSearch', () => {
+describe('AddContentItemToSearchButton', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     getContentItem.mockReset()
@@ -87,6 +84,33 @@ describe('AddContentItemToSearch', () => {
     vi.restoreAllMocks()
   })
 
+  it('offers only add when there is no current search', () => {
+    const { wrapper } = render()
+    expect(wrapper.find('[data-testid="replace-search-item"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="add-search-item"]').exists()).toBe(true)
+  })
+
+  it.each([false, true])(
+    'focuses the action when ready unless focus moved (move focus: %s)',
+    async moveFocus => {
+      const pending = deferred<any>()
+      getContentItem.mockReturnValue(pending.promise)
+      const { wrapper } = render({}, true)
+      try {
+        await openModal(wrapper)
+        const dialog = wrapper.get('[role="dialog"]')
+        await vi.waitFor(() => expect(document.activeElement).toBe(dialog.element))
+        const close = dialog.get<HTMLButtonElement>('button[aria-label="Close"]').element
+        if (moveFocus) close.focus()
+        pending.resolve({ semanticEnrichments: { embeddings: ['item-embedding'] } })
+        await vi.waitFor(() => expect(isConfirmDisabled(wrapper)).toBe(false))
+        expect(document.activeElement).toBe(moveFocus ? close : confirmButton(wrapper).element)
+      } finally {
+        wrapper.unmount()
+      }
+    }
+  )
+
   it('fetches the embedding as soon as the modal opens and adds its filter to the current search', async () => {
     const pendingContentItem = deferred<any>()
     getContentItem.mockReturnValue(pendingContentItem.promise)
@@ -95,7 +119,8 @@ describe('AddContentItemToSearch', () => {
       serializeFilters([
         FilterFactory.create({ type: 'year', q: ['1900'] }),
         FilterFactory.create({ type: 'embedding', q: ['previous-item-embedding'] })
-      ])
+      ]),
+      '1900 · Retrieved by semantic similarity'
     )
     const { router, wrapper } = render()
 
@@ -103,6 +128,7 @@ describe('AddContentItemToSearch', () => {
     expect(getContentItem).not.toHaveBeenCalled()
 
     await openModal(wrapper)
+    expect(wrapper.text()).toContain('1900 · Retrieved by semantic similarity')
 
     // Fetch starts on open, without waiting for the confirm click.
     expect(getContentItem).toHaveBeenCalledOnce()
@@ -120,7 +146,7 @@ describe('AddContentItemToSearch', () => {
 
     pendingContentItem.resolve({ semanticEnrichments: { embeddings: ['item-embedding'] } })
     await vi.waitFor(() => expect(isConfirmDisabled(wrapper)).toBe(false))
-    expect(confirmButton(wrapper).text()).toBe('confirm')
+    expect(confirmButton(wrapper).text()).toBe('addToCurrentSearch')
 
     await confirmButton(wrapper).trigger('click')
     await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('search'))
@@ -142,6 +168,28 @@ describe('AddContentItemToSearch', () => {
     )
     await vi.waitFor(() =>
       expect(wrapper.find('[data-testid="embedding-generation-message"]').exists()).toBe(false)
+    )
+  })
+
+  it('replaces the current search instead of merging with it', async () => {
+    useSearchQueriesStore().recordHash(
+      serializeFilters([FilterFactory.create({ type: 'year', q: ['1900'] })])
+    )
+    const { router, wrapper } = render({ embedding: 'provided-embedding' })
+
+    await goToContentItem(router)
+    await openModal(wrapper, 'replace')
+    expect(confirmButton(wrapper).text()).toBe('replaceSearch')
+    expect(wrapper.get('[data-testid="embedding-generation-message"]').text()).toBe(
+      'confirmReplaceSearch'
+    )
+    await confirmButton(wrapper).trigger('click')
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('search'))
+
+    const filters = deserializeFilters(router.currentRoute.value.query.sq as string)
+    expect(filters).toHaveLength(1)
+    expect(filters[0]).toEqual(
+      expect.objectContaining({ type: 'embedding', q: 'provided-embedding' })
     )
   })
 
@@ -178,7 +226,7 @@ describe('AddContentItemToSearch', () => {
     // Retry: the error clears and the embedding is loaded.
     await confirmButton(wrapper).trigger('click')
     await vi.waitFor(() => expect(wrapper.text()).not.toContain('embeddingFetchFailed'))
-    await vi.waitFor(() => expect(confirmButton(wrapper).text()).toBe('confirm'))
+    await vi.waitFor(() => expect(confirmButton(wrapper).text()).toBe('addToCurrentSearch'))
     expect(getContentItem).toHaveBeenCalledTimes(2)
     expect(router.currentRoute.value.name).toBe('contentItem')
 
@@ -303,8 +351,8 @@ describe('AddContentItemToSearch', () => {
 
     // Open, then cancel while the first request is still pending.
     await openModal(wrapper)
-    expect(cancelButton(wrapper).element).toHaveProperty('disabled', false)
-    await cancelButton(wrapper).trigger('click')
+    wrapper.getComponent({ name: 'Modal' }).vm.$emit('close')
+    await wrapper.vm.$nextTick()
     expect(wrapper.find('[data-testid="confirm-add-content-item-to-search-button"]').exists()).toBe(
       false
     )

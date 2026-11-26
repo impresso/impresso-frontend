@@ -10,6 +10,7 @@
         :show-type="false"
         showSemanticEnrichments
         showTopics
+        showCollections
       />
     </section>
 

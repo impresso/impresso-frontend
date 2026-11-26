@@ -7,17 +7,27 @@
     :shift-options="{ padding: 20 }"
     strategy="fixed"
   >
-    <div class="ContentItemOcrQuality very-small cursor-pointer">
-      <span
-        class="px-2 py-1 rounded-md"
-        :style="{ backgroundColor: ocrQualityInfo.color, color: ocrQualityInfo.textColor }"
-      >
+    <div class="ContentItemOcrQuality very-small cursor-pointer d-flex align-items-center gap-1">
+      <div :style="{ color: ocrQualityInfo.textColor }">
+        <Icon name="ocrQuality" :width="16" :height="16" />
+      </div>
+      <div
+        :style="{
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          backgroundColor: ocrQualityInfo.color,
+          color: ocrQualityInfo.textColor
+        }"
+      ></div>
+
+      <div>
         {{
           ocrQualityInfo.rating !== 0
             ? $n(ocrQualityInfo.rating * 100, { maximumFractionDigits: 0 }) + '%'
             : 'N/A'
-        }}</span
-      >
+        }}
+      </div>
     </div>
   </WithTooltip>
 </template>
@@ -27,6 +37,7 @@ import { computed } from 'vue'
 import type { ContentItem } from '@/models/generated/canonical/contentItem'
 import WithTooltip from '@/components/base/WithTooltip.vue'
 import type { TooltipPlacement } from '@/components/base/WithTooltip.vue'
+import Icon from '../base/Icon.vue'
 
 export interface ContentItemOcrQualityProps {
   contentItem: ContentItem
@@ -103,6 +114,7 @@ const ocrQualityInfo = computed(() => {
 <i18n lang="json">
 {
   "en": {
+    "ocrQuality": "OCR quality",
     "Good OCR quality": "Good OCR quality: <br/>{rating}",
     "Medium OCR quality": "Medium OCR quality: <br/>{rating}",
     "Bad OCR quality": "Bad OCR quality: <br/>{rating}",

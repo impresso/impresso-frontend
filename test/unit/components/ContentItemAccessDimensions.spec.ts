@@ -33,11 +33,11 @@ describe('ContentItemAccessDimensions', () => {
     [false, false, false, 'No access', 'No access'],
     [true, false, false, 'Web App access', 'Only Web App access'],
     [false, true, false, 'Transcript access', 'Partial access'],
-    [false, false, true, 'Facsimile access', 'Partial access'],
-    [true, true, false, 'Web App & transcript access', 'Partial access'],
-    [true, false, true, 'Web App & facsimile access', 'Partial access'],
-    [false, true, true, 'Transcript & facsimile access', 'Partial access'],
-    [true, true, true, 'Web App, transcript & facsimile access', 'Full access']
+    [false, false, true, 'No access', 'No access'],
+    [true, true, false, 'Web App & transcript access', 'Full access'],
+    [true, false, true, 'Web App access', 'Only Web App access'],
+    [false, true, true, 'Transcript access', 'Partial access'],
+    [true, true, true, 'Web App & transcript access', 'Full access']
   ])('summarizes compact access %#', async (explore, transcript, facsimile, label, tooltip) => {
     const wrapper = mountComponent({
       exploreGranted: explore,
@@ -50,11 +50,10 @@ describe('ContentItemAccessDimensions', () => {
     expect(wrapper.get('.compact-access-badge').text()).toBe('')
     expect(wrapper.get('.compact-access-badge').attributes('aria-label')).toBe(label)
     const dots = wrapper.findAll('.compact-access-badge__dot')
-    expect(dots).toHaveLength(3)
+    expect(dots).toHaveLength(2)
     expect(dots.map(dot => dot.classes().includes('compact-access-badge__dot--granted'))).toEqual([
       explore,
-      transcript,
-      facsimile
+      transcript
     ])
     await wrapper.get('.info-button-trigger > div > div').trigger('mouseenter')
     expect(wrapper.get('[role="tooltip"]').text()).toBe(
@@ -72,11 +71,11 @@ describe('ContentItemAccessDimensions', () => {
     })
     await wrapper.setProps({ transcriptGranted: true, facsimileGranted: true })
     expect(wrapper.get('.compact-access-badge').attributes('aria-label')).toBe(
-      'Web App, transcript & facsimile access'
+      'Web App & transcript access'
     )
     await wrapper.get('.info-button-trigger > div > div').trigger('mouseenter')
     expect(wrapper.get('[role="tooltip"]').text()).toBe(
-      'Full access: Web App, transcript & facsimile access'
+      'Full access: Web App & transcript access'
     )
     wrapper.unmount()
   })
@@ -95,7 +94,7 @@ describe('ContentItemAccessDimensions', () => {
     const popover = wrapper.get('.info-button-popover')
     expect(popover.text()).toContain('Web App: You can view this item')
     expect(popover.text()).toContain('Transcript: Log in or create an account')
-    expect(popover.text()).toContain('Facsimile: You can view this item')
+    expect(popover.text()).not.toContain('Facsimile:')
     await trigger.trigger('keydown.space')
     expect(wrapper.find('.info-button-popover').exists()).toBe(false)
     wrapper.unmount()
@@ -137,7 +136,7 @@ describe('ContentItemAccessDimensions', () => {
     const popover = document.body.querySelector('.info-button-popover')
     expect(popover?.textContent).toContain('Web App: Your current user plan does not include')
     expect(popover?.textContent).toContain('Transcript: You can access and export')
-    expect(popover?.textContent).toContain('Facsimile: Your current user plan does not include')
+    expect(popover?.textContent).not.toContain('Facsimile:')
     wrapper.unmount()
   })
 
@@ -149,8 +148,8 @@ describe('ContentItemAccessDimensions', () => {
       teleport: true
     })
     const badges = wrapper.findAllComponents(ContentItemAccessBadge)
-    expect(badges).toHaveLength(3)
-    expect(badges.map(badge => badge.props('granted'))).toEqual([true, false, true])
+    expect(badges.map(badge => badge.props('label'))).toEqual(['Web App', 'Transcript'])
+    expect(badges.map(badge => badge.props('granted'))).toEqual([true, false])
     expect(badges.every(badge => badge.props('teleport'))).toBe(true)
     expect(wrapper.find('.compact-access-badge').exists()).toBe(false)
     wrapper.unmount()

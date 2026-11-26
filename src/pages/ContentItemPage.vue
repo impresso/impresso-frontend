@@ -48,13 +48,10 @@
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
               :class="{ 'border-dark': item.id === contentItem.id }"
               :showDate="item.id !== contentItem.id"
-              :showMediaSource="item.id !== contentItem.id"
               showLink
               showIcon
               :showMeta="item.id !== contentItem.id"
               :showSnippet="item.id !== contentItem.id"
-              :showSemanticEnrichments="item.id !== contentItem.id"
-              :showProvider="item.id !== contentItem.id"
               :showType="item.id !== contentItem.id"
             />
           </div>
@@ -81,11 +78,13 @@
               showProvider
               showSpecs
               showType
+              enableShare
+              enableAddToCollection
             />
           </section>
         </b-navbar>
-        <b-navbar-nav class="container ml-0 pb-2">
-          <div class="d-flex flex-wrap align-items-center justify-content-between w-100">
+        <div class="container ml-0 pb-2">
+          <div class="d-flex align-items-center justify-content-between w-100">
             <ul class="nav nav-pills border-0">
               <li
                 class="nav-item px-3"
@@ -103,11 +102,13 @@
                 </router-link>
               </li>
             </ul>
-            <div class="d-flex align-items-center gap-2">
-              <AddContentItemToSearch v-if="contentItem" :content-item-id="contentItem.id">
-                {{ $t('showInSearch') }}
-                <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
-              </AddContentItemToSearch>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+              <div>
+                <AddContentItemToSearchButton
+                  v-if="contentItem"
+                  :content-item-id="contentItem.id"
+                />
+              </div>
               <router-link
                 :to="issueLink"
                 class="btn btn-sm btn-outline-secondary"
@@ -117,10 +118,10 @@
               </router-link>
             </div>
           </div>
-        </b-navbar-nav>
+        </div>
       </template>
 
-      <div class="container ml-0 py-4 pr-5">
+      <div class="container ml-0 pb-4 pr-5">
         <router-view :content-item="contentItem"></router-view>
       </div>
     </i-layout-section>
@@ -135,8 +136,7 @@ import { Routes } from '@/router/routes'
 import { contentItems as contentItemService } from '@/services'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import FilterFactory from '@/models/FilterFactory'
-import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
-import Icon from '@/components/base/Icon.vue'
+import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import { Filter } from '@/models'
 import SearchResultsSummary from '@/components/modules/SearchResultsSummary.vue'
@@ -157,8 +157,8 @@ const props = withDefaults(defineProps<ContentItemPageProps>(), {
 
 const AvailableNestedRoutes = [
   Routes.contentItem.children.transcript,
-  Routes.contentItem.children.citeAs,
-  Routes.contentItem.children.similarItems
+  Routes.contentItem.children.citeAs
+  // Routes.contentItem.children.similarItems
 ] as const
 
 const { contentItem, fetchContentItem } = useContentItem()
@@ -271,7 +271,6 @@ watch(
     "contentItem": "Content Item",
     "inPrintSameDay": "In print, same day",
     "noEmbeddings": "No semantic embeddings available for this content item.",
-    "showInSearch": "Find similar items in search",
     "noContentItems": "No content items found",
     "errorLoadingContentItems": "Error loading content items",
     "routes": {

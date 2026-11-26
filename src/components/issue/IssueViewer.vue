@@ -52,14 +52,11 @@
             show-specs
           />
           <div v-if="contentItem && !isContentItemLoading && !contentItemError" class="d-flex mt-2">
-            <AddContentItemToSearch
+            <AddContentItemToSearchButton
               :content-item-id="contentItem.id"
               :disabled-reason="$t('noEmbeddings')"
               class="ml-auto"
-            >
-              {{ $t('showInSearch') }}
-              <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
-            </AddContentItemToSearch>
+            />
           </div>
         </div>
       </ModalDraggable>
@@ -72,7 +69,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LoadingBlock from '@/components/LoadingBlock.vue'
 import ModalDraggable from '@/components/ModalDraggable.vue'
-import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
 import Icon from '@/components/base/Icon.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import OpenSeadragonArticleViewer, {
@@ -265,7 +262,6 @@ async function clearSelectedArticle() {
     "contentItem": "Content item",
     "contentItemError": "Could not load the content item.",
     "noEmbeddings": "No semantic embeddings available for this content item.",
-    "showInSearch": "Find similar items in search",
     "close": "Close",
     "reduce": "Reduce",
     "restore": "Restore"

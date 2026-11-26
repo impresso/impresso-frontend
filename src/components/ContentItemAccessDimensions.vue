@@ -39,7 +39,7 @@
       </WithTooltip>
     </template>
     <template #details>
-      <div v-for="dimension in accessDimensions" :key="dimension.key" class="text-start mt-2">
+      <div v-for="dimension in accessDimensions" :key="dimension.key" class="text-left mt-2">
         <strong>{{ $t(dimension.labelKey) }}:</strong> {{ $t(dimension.descriptionKey) }}
       </div>
     </template>
@@ -87,8 +87,8 @@ const accessDimensions = computed(() => {
 
   return [
     buildDimension('explore', props.exploreGranted),
-    buildDimension('transcript', props.transcriptGranted),
-    buildDimension('facsimile', props.facsimileGranted)
+    buildDimension('transcript', props.transcriptGranted)
+    // buildDimension('facsimile', props.facsimileGranted)
   ]
 })
 
@@ -99,7 +99,7 @@ const compactLabelKey = computed(() => {
 
 const compactTooltipKey = computed(() => {
   const grantedCount = accessDimensions.value.filter(dimension => dimension.granted).length
-  if (grantedCount === 3) return 'compact_tooltip_full'
+  if (grantedCount === accessDimensions.value.length) return 'compact_tooltip_full'
   if (grantedCount === 0) return 'compact_tooltip_none'
   if (grantedCount === 1 && props.exploreGranted) return 'compact_tooltip_web_only'
   return 'compact_tooltip_partial'
