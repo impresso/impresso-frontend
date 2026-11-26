@@ -37,14 +37,12 @@ describe('ShareContentItemModalButton', () => {
     const wrapper = mountButton('in_cpy')
     const button = wrapper.find('[data-testid="share-content-item-button"]')
     expect(button.attributes('disabled')).toBeDefined()
-    expect(button.attributes('title')).toContain('cannot be shared')
     expect(button.attributes('aria-label')).toContain('cannot be shared')
   })
 
   it('labels the button as share when the item is public domain', () => {
     const button = mountButton().find('[data-testid="share-content-item-button"]')
     expect(button.attributes('disabled')).toBeUndefined()
-    expect(button.attributes('title')).toBe('Share')
     expect(button.attributes('aria-label')).toBe('Share')
   })
 

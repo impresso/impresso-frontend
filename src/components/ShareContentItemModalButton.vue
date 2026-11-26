@@ -3,7 +3,6 @@
     <button
       type="button"
       class="btn btn-outline-secondary btn-sm px-2 gap-2 d-inline-flex align-items-center"
-      :title="label"
       :aria-label="label"
       :disabled="!isSharable"
       data-testid="share-content-item-button"
