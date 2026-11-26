@@ -71,7 +71,19 @@
             v-for="(ci, index) in contentItemsResponse.data"
             v-bind:key="`${index}-${ci.id}`"
           >
-            <SearchResultsListItem v-model="contentItemsResponse.data[index]" />
+            <ContentItemListItem
+              :contentItem="ci"
+              class="py-3 border-bottom"
+              show-iiif-thumbnail
+              show-meta
+              show-snippet
+              show-semantic-enrichments
+              show-matches
+              show-link
+              show-collections
+              show-content-item-access
+              enable-add-to-collection
+            />
           </b-col>
         </div>
       </div>
@@ -157,7 +169,7 @@ import { watch } from 'vue'
 import FacetModel from '@/models/Facet'
 import type { Filter } from '@/models'
 import List from './modules/lists/List.vue'
-import SearchResultsListItem from './modules/SearchResultsListItem.vue'
+import ContentItemListItem from './modules/lists/ContentItem.vue'
 import { FindQuery } from '@/services/types/contentItems'
 import { ContentItem } from '@/models/generated/canonical/contentItem'
 import { TextContentItemFacets } from '@/logic/filters.js'

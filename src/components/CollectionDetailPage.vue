@@ -194,21 +194,6 @@
             class="float-right ml-2"
           />
         </b-navbar-nav>
-        <b-navbar-nav v-if="tab.name === TAB_ARTICLES" class="ml-auto mr-2">
-          <!-- <b-navbar-form class="p-2 border-right">
-            <label class="mr-1">{{ $t('label_order') }}</label>
-            <i-dropdown v-model="orderBy" v-bind:options="orderByOptions" size="sm" variant="outline-primary"></i-dropdown>
-          </b-navbar-form> -->
-          <div class="p-2 m-auto">
-            <label class="mr-1">{{ $t('label_display') }}</label>
-            <radio-group
-              :modelValue="displayStyle"
-              @update:modelValue="displayStyle = $event"
-              :options="displayStyleOptions"
-              type="button"
-            />
-          </div>
-        </b-navbar-nav>
       </b-navbar>
     </template>
 
@@ -218,39 +203,39 @@
       </div>
 
       <b-container v-else-if="paginationTotalRows > 0" fluid>
-        <b-row v-if="displayStyle === 'list'">
+        <b-row>
           <b-col
             cols="12"
             v-for="(contentItem, index) in contentItems"
             v-bind:key="`${index}-${contentItem.id}`"
           >
-            <search-results-list-item v-model="contentItems[index]" />
+            <div class="p-3 border rounded my-2 shadow-sm">
+              <ContentItemListItem
+                :contentItem="contentItem"
+                showCollections
+                showProvider
+                showSpecs
+                showMeta
+                showIcon
+                showLink
+                showTitle
+                showMediaSource
+                showDate
+                showTopics
+                showType
+                showSnippet
+                showMatches
+                showContentItemAccess
+                showOcrQuality
+                showIIIFThumbnail
+                showSemanticEnrichments
+                enableAddToCollection
+                contentItemTopicClasses="col-12 col-xxl-6"
+              />
+            </div>
           </b-col>
         </b-row>
 
-        <b-row class="pb-5" v-if="displayStyle === 'tiles'">
-          <b-col
-            cols="6"
-            sm="12"
-            md="4"
-            lg="3"
-            v-for="(contentItem, index) in contentItems"
-            v-bind:key="`${index}-${contentItem.id}`"
-          >
-            <search-results-tiles-item v-model="contentItems[index]" />
-            <!-- 
-              v-if="contentItem.text?.itemType === 'ar'"
-
-            TODO: add support for other content types.
-              The image type below does not work.
-             -->
-            <!-- <search-results-image-item
-              v-if="article.type !== 'ar'"
-              v-bind:searchResult="article"
-              v-model="articles[index]"
-            /> -->
-          </b-col>
-        </b-row>
       </b-container>
 
       <div v-else class="p-4">
@@ -322,26 +307,10 @@
     <div v-else-if="tab.name === TAB_RECOMMENDATIONS" class="collection-recommendations h-100">
       <collection-recommendations-panel
         :collection-id="$route.params.collection_id"
-        :display-style="displayStyle"
         :collection="collection"
         :collection-recommenders-settings="recommendersSettings"
         @settings-updated="handleRecommendersSettingsUpdated"
       >
-        <template v-slot:additional-navbar>
-          <b-navbar-nav class="ml-auto">
-            <li class="p-2 form-inline">
-              <form class="form-inline">
-                <label class="mr-1">{{ $t('label_display') }}</label>
-                <radio-group
-                  :modelValue="displayStyle"
-                  @update:modelValue="displayStyle = $event"
-                  :options="displayStyleOptions"
-                  type="button"
-                />
-              </form>
-            </li>
-          </b-navbar-nav>
-        </template>
       </collection-recommendations-panel>
     </div>
   </i-layout-section>
@@ -353,8 +322,7 @@ import { Filter, Facet, FacetType } from '@/models'
 import FacetModel from '@/models/Facet'
 
 import Collection from '@/models/Collection'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
+import ContentItemListItem from '@/components/modules/lists/ContentItem.vue'
 // import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
 // import Article from '@/models/Article'
 import Pagination from '@/components/modules/Pagination.vue'
@@ -375,7 +343,6 @@ import {
   searchFacets as searchFacetsService,
   contentItems as contentItemsService
 } from '@/services'
-import RadioGroup from '@/components/layout/RadioGroup.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import { useCollectionsStore } from '@/stores/collections'
 import { useSettingsStore } from '@/stores/settings'
@@ -449,8 +416,7 @@ export default defineComponent({
       shareLinkCopied: false
     }) as IData,
   components: {
-    SearchResultsListItem,
-    SearchResultsTilesItem,
+    ContentItemListItem,
     // SearchResultsImageItem,
     Pagination,
     Timeline,
@@ -459,19 +425,12 @@ export default defineComponent({
     InfoButton,
     ContentItemIdLabel,
     CopyToDatalabButton,
-    RadioGroup,
     Modal
   },
   computed: {
     ...mapStores(useCollectionsStore, useSettingsStore, useNotificationsStore, useUserStore),
     $navigation() {
       return new Navigation(this)
-    },
-    displayStyleOptions() {
-      return [
-        { value: 'list', text: this.$t('display_button_list') },
-        { value: 'tiles', text: this.$t('display_button_tiles') }
-      ]
     },
     publicApiUrl() {
       return DatalabPublicApiUrl
@@ -526,18 +485,6 @@ export default defineComponent({
     },
     collections() {
       return this.collectionsStore.collections
-    },
-    displayStyle: {
-      get() {
-        const style = this.settingsStore.searchDisplayStyle
-        if (['list', 'tiles'].includes(style)) {
-          return style
-        }
-        return 'list'
-      },
-      set(displayStyle) {
-        this.settingsStore.updateSearchDisplayStyle(displayStyle)
-      }
     },
     tabs() {
       const mainTabs = [
@@ -879,9 +826,6 @@ export default defineComponent({
     "sort_dateAdded": "Date Added",
     "sort_asc": "Ascending",
     "sort_desc": "Descending",
-    "label_display": "Display As",
-    "display_button_list": "List",
-    "display_button_tiles": "Tiles",
     "edit_collection": "Edit collection",
     "update_collection": "Update Collection Note",
     "delete_collection": "Delete Collection [alt/option to bypass confirmation]",

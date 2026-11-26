@@ -20,13 +20,23 @@
           <div>
             <b-row v-if="displayStyle === DisplayStyle.List">
               <b-col cols="12" v-for="(article, idx) in recommendedArticles" :key="article.id">
-                <search-results-list-item v-model="recommendedArticles[idx]">
-                  <template v-slot:secondary-action>
+                <ContentItem
+                  :contentItem="recommendedArticles[idx]"
+                  class="py-3 border-bottom"
+                  show-iiif-thumbnail
+                  show-meta
+                  show-snippet
+                  show-semantic-enrichments
+                  show-matches
+                  show-link
+                  show-content-item-access
+                >
+                  <template v-slot:actions>
                     <b-button variant="outline-primary" size="sm" @click="addToCollection(article)">
                       {{ $t('label.addToCollection') }}
                     </b-button>
                   </template>
-                </search-results-list-item>
+                </ContentItem>
               </b-col>
             </b-row>
             <b-row v-if="displayStyle === DisplayStyle.Tiles">
@@ -38,10 +48,13 @@
                 v-for="(article, idx) in recommendedArticles"
                 :key="article.id"
               >
-                <search-results-tiles-item
+                <ContentItem
                   v-if="article.type === ArticleType"
                   @click="goToArticle(article)"
-                  v-model="recommendedArticles[idx]"
+                  :contentItem="recommendedArticles[idx]"
+                  show-iiif-thumbnail
+                  show-meta
+                  show-link
                 />
                 <search-results-image-item
                   v-if="article.type !== ArticleType"
@@ -80,8 +93,7 @@
 
 <script>
 import RecommenderPill from './RecommenderPill.vue'
-import SearchResultsListItem from '@/components/modules/SearchResultsListItem.vue'
-import SearchResultsTilesItem from '@/components/modules/SearchResultsTilesItem.vue'
+import ContentItem from '@/components/modules/lists/ContentItem.vue'
 import SearchResultsImageItem from '@/components/modules/SearchResultsImageItem.vue'
 
 import Pagination from '@/components/modules/Pagination.vue'
@@ -110,8 +122,7 @@ const DisplayStyle = Object.freeze({
 export default {
   components: {
     RecommenderPill,
-    SearchResultsListItem,
-    SearchResultsTilesItem,
+    ContentItem,
     SearchResultsImageItem,
     Pagination,
     Spinner
