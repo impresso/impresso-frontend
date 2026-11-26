@@ -6,6 +6,7 @@ import type { ContentItem } from '@/models/generated/canonical/contentItem'
 
 vi.mock('@/services', () => ({
   contentItems: { path: 'content-items', find: vi.fn() },
+  images: { path: 'images', find: vi.fn() },
   filtersItems: { find: vi.fn() }
 }))
 vi.mock('@/composables/useContentItem', () => ({
@@ -13,7 +14,7 @@ vi.mock('@/composables/useContentItem', () => ({
 }))
 vi.mock('vue-router', async importOriginal => ({
   ...(await importOriginal<typeof import('vue-router')>()),
-  useRoute: () => ({ params: { content_item_id: 'issue-1-i0001' } })
+  useRoute: () => ({ params: { content_item_id: 'issue-1-i0001' }, query: {} })
 }))
 
 const contentItem = ref<ContentItem | null>(null)
