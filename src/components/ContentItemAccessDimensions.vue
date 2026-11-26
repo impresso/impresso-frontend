@@ -39,7 +39,7 @@
       </WithTooltip>
     </template>
     <template #details>
-      <div v-for="dimension in accessDimensions" :key="dimension.key" class="text-start mt-2">
+      <div v-for="dimension in accessDimensions" :key="dimension.key" class="text-left mt-2">
         <strong>{{ $t(dimension.labelKey) }}:</strong> {{ $t(dimension.descriptionKey) }}
       </div>
     </template>
@@ -87,8 +87,8 @@ const accessDimensions = computed(() => {
 
   return [
     buildDimension('explore', props.exploreGranted),
-    buildDimension('transcript', props.transcriptGranted),
-    buildDimension('facsimile', props.facsimileGranted)
+    buildDimension('transcript', props.transcriptGranted)
+    // buildDimension('facsimile', props.facsimileGranted)
   ]
 })
 
