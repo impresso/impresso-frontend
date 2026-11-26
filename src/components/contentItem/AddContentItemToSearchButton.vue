@@ -27,7 +27,11 @@
           <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
         </slot>
       </template>
-      <BDropdownItem data-testid="replace-search-item" @click="openModal('replace')">
+      <BDropdownItem
+        v-if="currentSearch"
+        data-testid="replace-search-item"
+        @click="openModal('replace')"
+      >
         {{ $t('replaceSearch') }}
       </BDropdownItem>
       <BDropdownItem data-testid="add-search-item" @click="openModal('add')">
@@ -38,14 +42,22 @@
     <Teleport to="body">
       <Modal
         :show="isModalOpen"
-        :title="$t('addToSearch')"
+        :title="$t('useInSearch')"
         dialogClass="modal-md modal-dialog-centered"
         @close="closeModal"
       >
         <template v-if="!errorKey">
           <p class="mb-0" data-testid="embedding-generation-message">
-            {{ $t(isSubmitting ? 'generatingSearchFilter' : 'confirmAddToSearch') }}
+            {{ $t(isSubmitting ? 'generatingSearchFilter' : confirmationMessageKey) }}
           </p>
+
+          <div
+            v-if="currentSearchFilters.length"
+            class="mt-3 bg-light p-2 shadow-sm rounded border"
+          >
+            <strong>{{ $t('currentSearchFilters') }}</strong>
+            {{ currentSearch.summary }}
+          </div>
 
           <Alert type="info" class="mt-3 mb-0">
             {{ $t('searchDurationNote') }}
@@ -56,18 +68,11 @@
           {{ $t(errorKey) }}
         </Alert>
 
-        <template #modal-footer="{ close }">
+        <template #modal-footer>
           <button
+            ref="confirmButton"
             type="button"
-            class="btn btn-sm btn-outline-secondary"
-            :disabled="isSubmitting"
-            @click="close()"
-          >
-            {{ $t('cancel') }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
+            class="m-2 btn btn-outline-secondary btn-md px-4 border border-dark d-inline-flex align-items-center gap-2"
             data-testid="confirm-add-content-item-to-search-button"
             :disabled="isLoading"
             @click="addContentItemToSearch"
@@ -78,7 +83,8 @@
               role="status"
               aria-hidden="true"
             />
-            <span>{{ $t(isLoading ? 'preparing' : canRetry ? 'retry' : 'confirm') }}</span>
+            <span>{{ $t(confirmButtonLabelKey) }}</span>
+            <Icon name="brainElectricity" :scale="0.75" :stroke-width="1.5" />
           </button>
         </template>
       </Modal>
@@ -87,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
@@ -117,11 +123,17 @@ type ErrorKey =
 const props = defineProps<AddContentItemToSearchButtonProps>()
 const router = useRouter()
 const searchQueriesStore = useSearchQueriesStore()
+const currentSearch = computed(() => searchQueriesStore.latest)
+const currentSearchFilters = computed(() => deserializeFilters(currentSearch.value?.hash))
 
 type SearchMode = 'replace' | 'add'
 
 const mode = ref<SearchMode>('add')
+const confirmationMessageKey = computed(() =>
+  mode.value === 'replace' ? 'confirmReplaceSearch' : 'confirmAddToSearch'
+)
 const isModalOpen = ref(false)
+const confirmButton = ref<HTMLButtonElement | null>(null)
 const isFetchingEmbedding = ref(false)
 const isSubmitting = ref(false)
 const errorKey = ref<ErrorKey | null>(null)
@@ -130,10 +142,41 @@ const fetchedEmbedding = ref<string | null>(null)
 const isLoading = computed(() => isFetchingEmbedding.value || isSubmitting.value)
 const embedding = computed(() => props.embedding || fetchedEmbedding.value)
 const canRetry = computed(() => errorKey.value !== null && !embedding.value)
+const confirmButtonLabelKey = computed(() => {
+  if (isLoading.value) return 'preparing'
+  if (canRetry.value) return 'retry'
+  return mode.value === 'replace' ? 'replaceSearch' : 'addToCurrentSearch'
+})
 
 // Incremented on every fetch and on close, so late responses from a
 // previous/closed modal session are ignored.
 let requestId = 0
+
+watch(
+  confirmButton,
+  button => {
+    const dialog = button?.closest<HTMLElement>('[role="dialog"]')
+    if (!isModalOpen.value || !button || !dialog || dialog.contains(document.activeElement)) return
+    if (button.disabled) dialog.focus()
+    else button.focus()
+  },
+  { flush: 'post' }
+)
+
+watch(
+  isLoading,
+  loading => {
+    const button = confirmButton.value
+    if (
+      !loading &&
+      isModalOpen.value &&
+      button?.closest('[role="dialog"]') === document.activeElement
+    ) {
+      button.focus()
+    }
+  },
+  { flush: 'post' }
+)
 
 async function loadEmbedding() {
   const currentRequest = ++requestId
@@ -200,9 +243,7 @@ async function addContentItemToSearch() {
     // In "replace" mode the current search is discarded altogether.
     const currentFilters =
       mode.value === 'add'
-        ? deserializeFilters(searchQueriesStore.latest?.hash).filter(
-            filter => filter.type !== 'embedding'
-          )
+        ? currentSearchFilters.value.filter(filter => filter.type !== 'embedding')
         : []
     const filters = optimizeFilters([
       ...currentFilters,
@@ -229,9 +270,10 @@ async function addContentItemToSearch() {
   "en": {
     "useInSearch": "Use this item",
     "replaceSearch": "Replace your current search",
+    "currentSearchFilters": "Current search filters:",
     "addToCurrentSearch": "Add to your current search",
-    "addToSearch": "Use this item in search",
-    "confirmAddToSearch": "Use this item as a similarity filter to find related content.",
+    "confirmReplaceSearch": "Start a new search for items similar to this one. Your current search filters will be cleared.",
+    "confirmAddToSearch": "Find similar items within your current search. If you already use an item as a similarity filter, this one will replace it. Your other filters will stay in place.",
     "generatingSearchFilter": "Preparing similarity filter and opening Search…",
     "searchDurationNote": "Loading the matching results may take a few seconds, depending on the complexity of your active filters.",
     "noEmbeddingAvailable": "No semantic embedding is available for this content item.",
@@ -239,7 +281,6 @@ async function addContentItemToSearch() {
     "embeddingFilterNotAllowed": "Additional filters cannot contain an embedding filter.",
     "searchFailed": "The search could not be opened. Please try again.",
     "cancel": "Cancel",
-    "confirm": "Confirm and search",
     "retry": "Retry",
     "preparing": "Preparing…"
   }

@@ -142,7 +142,7 @@ export const EmbeddingFilterNotAllowed: Story = {
     docs: {
       description: {
         story:
-          '`additionalFilters` contains an embedding filter, which is not allowed. Click "Confirm and search" to see the `embeddingFilterNotAllowed` error.'
+          '`additionalFilters` contains an embedding filter, which is not allowed. Confirm the selected action to see the `embeddingFilterNotAllowed` error.'
       }
     }
   }
@@ -157,7 +157,7 @@ export const SearchNavigationError: Story = {
     docs: {
       description: {
         story:
-          'The router guard of the mocked `search` route throws, so `router.push` rejects. Click "Confirm and search" to see the `searchFailed` error.'
+          'The router guard of the mocked `search` route throws, so `router.push` rejects. Confirm the selected action to see the `searchFailed` error.'
       }
     }
   }

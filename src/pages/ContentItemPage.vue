@@ -81,12 +81,11 @@
               showProvider
               showSpecs
               showType
-              enableAddToCollection
             />
           </section>
         </b-navbar>
         <div class="container ml-0 pb-2">
-          <div class="d-flex flex-wrap align-items-center justify-content-between w-100">
+          <div class="d-flex align-items-center justify-content-between w-100">
             <ul class="nav nav-pills border-0">
               <li
                 class="nav-item px-3"
@@ -104,12 +103,15 @@
                 </router-link>
               </li>
             </ul>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center flex-wrap gap-2">
               <div>
                 <AddContentItemToSearchButton
                   v-if="contentItem"
                   :content-item-id="contentItem.id"
                 />
+              </div>
+              <div>
+                <AddToCollectionButton :contentItem="contentItem" />
               </div>
               <router-link
                 :to="issueLink"
@@ -146,6 +148,7 @@ import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import { CommonQueryParameters } from '@/router/util'
+import AddToCollectionButton from '@/components/contentItem/AddToCollectionButton.vue'
 
 const route = useRoute()
 

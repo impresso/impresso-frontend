@@ -181,12 +181,9 @@
         class="d-flex flex-wrap align-items-center gap-1"
       >
         <ShareContentItemModalButton v-if="props.enableShare" :item="props.contentItem" />
-        <CollectionAddTo
+        <AddToCollectionButton
           v-if="props.enableAddToCollection"
-          :contentItem="props.contentItem"
-          right
-          :items="itemWithCollections"
-          :text="$t('actions.addToCollection')"
+          :content-item="props.contentItem"
         />
       </div>
     </div>
@@ -209,8 +206,7 @@ import InfoButton from '../base/InfoButton.vue'
 import ContentItemTopicItem from '../modules/lists/ContentItemTopicItem.vue'
 import Ellipsis from '../modules/Ellipsis.vue'
 import ItemSelector from '../modules/ItemSelector.vue'
-import CollectionAddTo from '@/components/modules/CollectionAddTo.vue'
-import { ItemWithCollections } from '../modules/CollectionAddToList.vue'
+import AddToCollectionButton from '@/components/contentItem/AddToCollectionButton.vue'
 import ContentItemOcrQuality from './ContentItemOcrQuality.vue'
 import ContentItemIdLabel from '../ContentItemIdLabel.vue'
 import ShareContentItemModalButton from '../ShareContentItemModalButton.vue'
@@ -346,15 +342,6 @@ const audioDuration = computed<number>(() => {
   } catch {
     return 0
   }
-})
-
-const itemWithCollections = computed(() => {
-  return [
-    {
-      itemId: props.contentItem.id,
-      collectionIds: props.contentItem.semanticEnrichments?.collections?.map(c => c.id)
-    }
-  ] as ItemWithCollections[]
 })
 
 const pages = computed(() => {
