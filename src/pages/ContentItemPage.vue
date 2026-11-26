@@ -3,17 +3,33 @@
     <i-layout-section width="380px">
       <template #header>
         <ul class="nav nav-pills mx-2 mt-2">
-          <li class="nav-item active">
+          <li class="nav-item">
             <router-link
               :to="{
                 name: Routes.contentItem.name,
                 params: { content_item_id: route.params.content_item_id }
               }"
-              exact-active-class="active"
               active-class=""
+              exact-active-class=""
               class="nav-link"
+              :class="{ active: listType === 'contentItems' }"
             >
               {{ $t('inPrintSameDay') }}
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link
+              :to="{
+                name: Routes.contentItem.name,
+                params: { content_item_id: route.params.content_item_id },
+                query: { ...route.query, list: 'images' }
+              }"
+              active-class=""
+              exact-active-class=""
+              class="nav-link"
+              :class="{ active: listType === 'images' }"
+            >
+              {{ $t('images') }}
             </router-link>
           </li>
         </ul>
@@ -21,10 +37,14 @@
 
       <ListOfFindResponseItems
         v-if="showSidebar && contentItem"
-        :service="contentItemService"
+        :key="listType"
+        :service="listService"
         :params="listParams"
-        :list-is-empty-message="$t('noContentItems')"
-        :error-loading-items-message="$t('errorLoadingContentItems')"
+        :order-by="listType === 'images' ? undefined : '-readingOrder'"
+        :list-is-empty-message="listType === 'images' ? $t('noImages') : $t('noContentItems')"
+        :error-loading-items-message="
+          listType === 'images' ? $t('errorLoadingImages') : $t('errorLoadingContentItems')
+        "
         items-class="p-0"
         @items-rendered="scrollSidebarSelectedItemIntoView"
       >
@@ -32,14 +52,32 @@
           <div class="my-3 mx-3">
             <SearchResultsSummary
               :is-loading="isLoading"
-              groupBy="articles"
+              :groupBy="listType === 'images' ? 'images' : 'articles'"
               :totalRows="total"
               :searchQuery="{ filters: sidebarFiltersWithItems }"
             />
           </div>
         </template>
         <template #default="{ items }">
-          <div ref="sidebarItemsContainerRef">
+          <div v-if="listType === 'images'" ref="sidebarItemsContainerRef">
+            <div
+              v-for="item in items"
+              :key="item.id"
+              :data-content-item-id="item.contentItemId"
+              class="m-3 p-2 rounded-md border shadow-sm mb-4"
+              :class="{ 'border-dark': item.contentItemId === contentItem.id }"
+            >
+              <ImageContentItem
+                :showMediaSource="false"
+                :showLink="true"
+                :showPreview="true"
+                :showImageTypes="true"
+                :showIcon="true"
+                :image="item"
+              />
+            </div>
+          </div>
+          <div v-else ref="sidebarItemsContainerRef">
             <ContentItem
               v-for="item in items"
               :key="item.id"
@@ -133,7 +171,8 @@ import { computed, ref, watch } from 'vue'
 import { useContentItem } from '@/composables/useContentItem'
 import { useRoute } from 'vue-router'
 import { Routes } from '@/router/routes'
-import { contentItems as contentItemService } from '@/services'
+import { contentItems as contentItemService, images as imagesService } from '@/services'
+import ImageContentItem from '@/components/images/ImageContentItem.vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
 import FilterFactory from '@/models/FilterFactory'
 import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
@@ -162,9 +201,15 @@ const AvailableNestedRoutes = [
 ] as const
 
 const { contentItem, fetchContentItem } = useContentItem()
-const contentItemEmbedding = computed(
-  () => contentItem.value?.semanticEnrichments?.embeddings?.[0] ?? ''
+
+const listType = computed<'contentItems' | 'images'>(() =>
+  route.query.list === 'images' ? 'images' : 'contentItems'
 )
+
+const listService = computed(() =>
+  listType.value === 'images' ? imagesService : contentItemService
+)
+
 const sidebarItemsContainerRef = ref<HTMLElement | null>(null)
 
 const title = computed(() => {
@@ -177,24 +222,11 @@ const sidebarFilters = computed<Filter[]>(() => {
     return []
   }
 
-  const publicationDate = new Date(contentItem.value.meta.date)
-
-  const startOfDay = new Date(publicationDate)
-  startOfDay.setUTCHours(0, 0, 0, 0)
-
-  const endOfDay = new Date(publicationDate)
-  endOfDay.setUTCHours(23, 59, 59, 999)
-
   return [
     FilterFactory.create({
-      type: 'daterange',
-      q: `${startOfDay.toISOString()} TO ${endOfDay.toISOString()}`
-    }),
-    {
-      /** @deprecated */
-      type: 'newspaper',
-      q: contentItem.value.meta.mediaId
-    }
+      type: 'issue',
+      q: contentItem.value.issueId
+    })
   ]
 })
 
@@ -205,7 +237,7 @@ const listParams = computed(() => ({
     limit: 10,
     offset: 0,
     filters: [...sidebarFilters.value],
-    order_by: 'id'
+    ...(listType.value === 'images' ? {} : { order_by: 'readingOrder' })
   }
 }))
 
@@ -269,8 +301,11 @@ watch(
 {
   "en": {
     "contentItem": "Content Item",
-    "inPrintSameDay": "In print, same day",
+    "inPrintSameDay": "Articles, same issue",
     "noEmbeddings": "No semantic embeddings available for this content item.",
+    "images": "Images, same issue",
+    "noImages": "No images found",
+    "errorLoadingImages": "Error loading images",
     "noContentItems": "No content items found",
     "errorLoadingContentItems": "Error loading content items",
     "routes": {
