@@ -260,6 +260,7 @@
                   showIIIFThumbnail
                   showSemanticEnrichments
                   enableAddToCollection
+                  enableShare
                   contentItemTopicClasses="col-12 col-xxl-6"
                 >
                 </ContentItemComponent>

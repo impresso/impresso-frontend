@@ -8,7 +8,7 @@
   <WithTooltip v-else :content="$t('selectItemFirst')">
     <button
       type="button"
-      class="btn btn-sm btn-outline-primary"
+      class="btn btn-sm btn-outline-secondary"
       disabled
       :aria-description="$t('selectItemFirst')"
     >

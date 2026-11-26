@@ -48,13 +48,10 @@
               class="m-3 p-2 rounded-md border shadow-sm mb-4"
               :class="{ 'border-dark': item.id === contentItem.id }"
               :showDate="item.id !== contentItem.id"
-              :showMediaSource="item.id !== contentItem.id"
               showLink
               showIcon
               :showMeta="item.id !== contentItem.id"
               :showSnippet="item.id !== contentItem.id"
-              :showSemanticEnrichments="item.id !== contentItem.id"
-              :showProvider="item.id !== contentItem.id"
               :showType="item.id !== contentItem.id"
             />
           </div>
@@ -81,6 +78,8 @@
               showProvider
               showSpecs
               showType
+              enableShare
+              enableAddToCollection
             />
           </section>
         </b-navbar>
@@ -110,9 +109,6 @@
                   :content-item-id="contentItem.id"
                 />
               </div>
-              <div>
-                <AddToCollectionButton :contentItem="contentItem" />
-              </div>
               <router-link
                 :to="issueLink"
                 class="btn btn-sm btn-outline-secondary"
@@ -125,7 +121,7 @@
         </div>
       </template>
 
-      <div class="container ml-0 py-4 pr-5">
+      <div class="container ml-0 pb-4 pr-5">
         <router-view :content-item="contentItem"></router-view>
       </div>
     </i-layout-section>
@@ -148,7 +144,6 @@ import { filtersItems as filterItemsService } from '@/services'
 import { joinFiltersWithItems, serializeFilters } from '@/logic/filters'
 import { getShortArticleId } from '@/logic/ids'
 import { CommonQueryParameters } from '@/router/util'
-import AddToCollectionButton from '@/components/contentItem/AddToCollectionButton.vue'
 
 const route = useRoute()
 

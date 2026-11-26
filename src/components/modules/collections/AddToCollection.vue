@@ -1,69 +1,53 @@
 <template>
-  <b-dropdown
+  <BDropdown
     size="sm"
     class="AddToCollection shadow-sm rounded"
     variant="outline-secondary"
-    v-on:shown="() => (show = true)"
-    v-on:hidden="() => (show = false)"
+    @shown="show = true"
+    @hidden="show = false"
     :text="title"
     :right="right"
   >
     <div v-if="!isLoggedIn" class="p-2 bg-light">
-      <b-button
-        size="sm"
-        class="w-100"
-        variant="outline-primary"
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary w-100"
         @click="$router.push({ name: 'login' })"
       >
         {{ $t('login') }}
-      </b-button>
+      </button>
     </div>
     <List
       :hide-pagination="total < paginationPerPage"
       :pagination-list="paginationList"
-      @change-page="
-        page => {
-          this.paginationCurrentPage = page
-        }
-      "
+      @change-page="paginationCurrentPage = $event"
     >
-      <template v-slot:header>
-        <!-- <slot name="new">
-          <b-button
-            size="sm"
-            class="shadow-sm rounded"
-            variant="outline-primary"
-            @click="() => $emit('create')"
-          >
-            {{ $t('actions.create') }}
-          </b-button>
-          or
-        </slot> -->
-        <!-- Using components -->
+      <template #header>
         <div class="input-group input-group-sm sans p-3">
-          <b-form-input v-model="q" placeholder="search collections ..."></b-form-input>
+          <BFormInput v-model="q" :placeholder="$t('searchCollections')" />
           <div class="input-group-append">
             <button
               class="btn btn-outline-secondary small btn-sm"
-              @click="() => $emit('create', { name: q })"
+              type="button"
+              @click="emit('create', { name: q })"
             >
               {{ $t('actions.create') }}
             </button>
           </div>
         </div>
       </template>
-      <template v-slot:default>
+      <template #default>
         <div
           class="text-small border-bottom AddToCollection_item"
           v-for="(item, i) in collections"
           :key="item.id"
-          @click="() => $emit('item:click', item)"
+          @click="emit('item:click', item)"
         >
           <span class="mr-1 text-muted sans">{{ i + 1 }} of {{ total }}</span>
           <ItemLabel type="collection" :item="item" />
         </div>
         <div v-if="isLoading" class="text-center p-3">
-          <i-spinner />
+          <LoadingBlock :height="32" />
         </div>
         <div
           v-if="!isLoading && !isPristine && !collections.length"
@@ -75,125 +59,87 @@
         </div>
       </template>
     </List>
-  </b-dropdown>
+  </BDropdown>
 </template>
 
-<script>
-import List from '../lists/List.vue'
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue'
+import BFormInput from '@/components/legacy/bootstrap/BFormInput.vue'
+import LoadingBlock from '@/components/LoadingBlock.vue'
+import List from '@/components/modules/lists/List.vue'
+import ItemLabel from '@/components/modules/lists/ItemLabel.vue'
 import { collections as collectionService } from '@/services'
 import Collection from '@/models/Collection'
-import ItemLabel from '../lists/ItemLabel.vue'
-import { mapStores } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-export default {
-  name: 'AddToCollection',
-  components: {
-    List,
-    ItemLabel
-  },
-  props: {
-    title: {
-      type: String,
-      required: true
-    },
-    right: {
-      type: Boolean,
-      default: false
-    }
-  },
-  emits: ['item:click', 'create'],
-  data() {
-    return {
-      isPristine: true,
-      show: false,
-      paginationCurrentPage: 1,
-      paginationPerPage: 10,
-      orderBy: '-date', // '-date', 'date', '-size', 'size'
-      q: '',
-      total: -1,
-      collections: [],
-      isLoading: false
-    }
-  },
-  computed: {
-    ...mapStores(useUserStore),
-    isLoggedIn() {
-      return !!this.userStore.userData
-    },
-    paginationList() {
-      return {
-        currentPage: this.paginationCurrentPage,
-        perPage: this.paginationPerPage,
-        totalRows: this.total
-      }
-    },
-    searchApiQueryParameters() {
-      if (!this.show) {
-        return {
-          query: {},
-          hash: ''
-        }
-      }
-      const query = {
-        offset: this.paginationPerPage * (this.paginationCurrentPage - 1),
-        page: this.paginationCurrentPage,
-        limit: this.paginationPerPage,
-        orderBy: this.orderBy,
-        q: this.q
-      }
-      return {
-        query,
-        hash: JSON.stringify(query).split('').sort().join('')
-      }
-    }
-  },
-  methods: {
-    loadCollections() {}
-  },
-  watch: {
-    searchApiQueryParameters: {
-      async handler({ query, hash }, previousValue) {
-        this.isPristine = true
-        if (!this.show || !this.isLoggedIn) {
-           
-          console.debug(
-            '[AddToCollection] @searchApiQueryParameters \n cannot be loaded now.... not loggedin or dialog not shown'
-          )
-          return
-        }
-        if (this.isLoading) {
-          return
-        }
-        if (previousValue && previousValue.hash === hash) {
-          return
-        }
-         
-        console.debug('[AddToCollection] @searchApiQueryParameters \n query:', query)
+defineProps<{ title: string; right?: boolean }>()
+const emit = defineEmits<{
+  'item:click': [item: Collection]
+  create: [payload: { name: string }]
+}>()
 
-        const [items, total] = await collectionService
-          .find({ query: this.searchApiQueryParameters.query })
-          .then(response => {
-            console.debug('[AddToCollection] @searchApiQueryParameters \n response:', response)
-            return [response.data, response.total]
+const userStore = useUserStore()
+const isLoggedIn = computed(() => !!userStore.userData)
+const show = ref(false)
+const q = ref('')
+const paginationCurrentPage = ref(1)
+const paginationPerPage = 10
+const total = ref(-1)
+const collections = ref<Collection[]>([])
+const isLoading = ref(false)
+const isPristine = ref(true)
+const paginationList = computed(() => ({
+  currentPage: paginationCurrentPage.value,
+  perPage: paginationPerPage,
+  totalRows: total.value
+}))
+
+type CollectionRow = NonNullable<ConstructorParameters<typeof Collection>[0]> & {
+  creation_date?: string
+  last_modified_date?: string
+  count_articles?: number
+}
+
+watch(
+  [show, isLoggedIn, q, paginationCurrentPage],
+  async ([open, loggedIn, search, page], _, onCleanup) => {
+    isPristine.value = true
+    isLoading.value = open && loggedIn
+    if (!open || !loggedIn) return
+
+    let stale = false
+    onCleanup(() => {
+      stale = true
+    })
+    try {
+      const { data, total: count }: { data: CollectionRow[]; total: number } =
+        await collectionService.find({
+          query: {
+            offset: paginationPerPage * (page - 1),
+            page,
+            limit: paginationPerPage,
+            orderBy: '-date',
+            q: search
+          }
+        })
+      if (stale) return
+      collections.value = data.map(
+        row =>
+          new Collection({
+            creationDate: row.creation_date ? new Date(row.creation_date) : undefined,
+            lastModifiedDate: row.last_modified_date ? new Date(row.last_modified_date) : undefined,
+            countArticles: row.count_articles,
+            ...row
           })
-
-        this.collections = items.map(
-          d =>
-            new Collection({
-              creationDate: d.creation_date,
-              lastModifiedDate: d.last_modified_date,
-              countArticles: d.count_articles,
-              ...d
-            })
-        )
-        this.total = total
-        this.isPristine = false
-      },
-      immediate: false
+      )
+      total.value = count
+      isPristine.value = false
+    } finally {
+      if (!stale) isLoading.value = false
     }
   }
-}
+)
 </script>
 <style lang="css">
 .AddToCollection .dropdown-menu {
@@ -221,6 +167,7 @@ export default {
 <i18n lang="json">
 {
   "en": {
+    "searchCollections": "Search collections…",
     "no_collections_found": "No collections found",
     "actions": {
       "create": "new..."
