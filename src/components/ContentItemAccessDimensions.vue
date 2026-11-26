@@ -99,7 +99,7 @@ const compactLabelKey = computed(() => {
 
 const compactTooltipKey = computed(() => {
   const grantedCount = accessDimensions.value.filter(dimension => dimension.granted).length
-  if (grantedCount === 3) return 'compact_tooltip_full'
+  if (grantedCount === accessDimensions.value.length) return 'compact_tooltip_full'
   if (grantedCount === 0) return 'compact_tooltip_none'
   if (grantedCount === 1 && props.exploreGranted) return 'compact_tooltip_web_only'
   return 'compact_tooltip_partial'
