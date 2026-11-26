@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import AddContentItemToSearch from './AddContentItemToSearch.vue'
-import type { AddContentItemToSearchProps } from './AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from './AddContentItemToSearchButton.vue'
+import type { AddContentItemToSearchButtonProps } from './AddContentItemToSearchButton.vue'
 import FilterFactory from '@/models/FilterFactory'
 import { deserializeFilters, serializeFilters } from '@/logic/filters'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
@@ -22,7 +22,7 @@ function deferred<T>() {
   return { promise, resolve }
 }
 
-function render(props: Partial<AddContentItemToSearchProps> = {}) {
+function render(props: Partial<AddContentItemToSearchButtonProps> = {}) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -33,7 +33,7 @@ function render(props: Partial<AddContentItemToSearchProps> = {}) {
 
   return {
     router,
-    wrapper: mount(AddContentItemToSearch, {
+    wrapper: mount(AddContentItemToSearchButton, {
       props: { contentItemId: 'content-item-1', ...props },
       global: {
         plugins: [router],
@@ -54,8 +54,6 @@ function render(props: Partial<AddContentItemToSearchProps> = {}) {
 
 type Wrapper = ReturnType<typeof render>['wrapper']
 
-const openButton = (wrapper: Wrapper) =>
-  wrapper.get('[data-testid="add-content-item-to-search-button"]')
 const confirmButton = (wrapper: Wrapper) =>
   wrapper.get('[data-testid="confirm-add-content-item-to-search-button"]')
 const isConfirmDisabled = (wrapper: Wrapper) =>
@@ -66,8 +64,8 @@ const cancelButton = (wrapper: Wrapper) => {
   return button
 }
 
-async function openModal(wrapper: Wrapper) {
-  await openButton(wrapper).trigger('click')
+async function openModal(wrapper: Wrapper, mode: 'add' | 'replace' = 'add') {
+  await wrapper.get(`[data-testid="${mode}-search-item"]`).trigger('click')
 }
 
 async function goToContentItem(router: ReturnType<typeof render>['router']) {
@@ -75,7 +73,7 @@ async function goToContentItem(router: ReturnType<typeof render>['router']) {
   await router.isReady()
 }
 
-describe('AddContentItemToSearch', () => {
+describe('AddContentItemToSearchButton', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     getContentItem.mockReset()
@@ -142,6 +140,24 @@ describe('AddContentItemToSearch', () => {
     )
     await vi.waitFor(() =>
       expect(wrapper.find('[data-testid="embedding-generation-message"]').exists()).toBe(false)
+    )
+  })
+
+  it('replaces the current search instead of merging with it', async () => {
+    useSearchQueriesStore().recordHash(
+      serializeFilters([FilterFactory.create({ type: 'year', q: ['1900'] })])
+    )
+    const { router, wrapper } = render({ embedding: 'provided-embedding' })
+
+    await goToContentItem(router)
+    await openModal(wrapper, 'replace')
+    await confirmButton(wrapper).trigger('click')
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('search'))
+
+    const filters = deserializeFilters(router.currentRoute.value.query.sq as string)
+    expect(filters).toHaveLength(1)
+    expect(filters[0]).toEqual(
+      expect.objectContaining({ type: 'embedding', q: 'provided-embedding' })
     )
   })
 

@@ -182,6 +182,7 @@
       >
         <ShareContentItemModalButton v-if="props.enableShare" :item="props.contentItem" />
         <CollectionAddTo
+          v-if="props.enableAddToCollection"
           :contentItem="props.contentItem"
           right
           :items="itemWithCollections"
@@ -244,8 +245,7 @@ const props = withDefaults(defineProps<ContentItemCommonProps>(), {
   dateFormatter: 'long',
   ocrQualityThreshold: 0.5,
   entityTypes: () => ['persons', 'locations', 'organisations', 'newsagencies'],
-  contentItemTopicClasses: 'col-12 col-lg-6 col-xl-4',
-  enableShare: true
+  contentItemTopicClasses: 'col-12 col-lg-6 col-xl-4'
 })
 
 const emit = defineEmits<{

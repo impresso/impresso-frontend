@@ -1,63 +1,89 @@
 <template>
-  <button
-    type="button"
-    class="btn btn-sm btn-outline-secondary"
-    :disabled="props.disabled"
-    data-testid="add-content-item-to-search-button"
-    :title="props.disabled ? props.disabledReason : undefined"
-    @click="openModal"
-  >
-    <slot>{{ $t('addToSearch') }}</slot>
-  </button>
-
-  <Teleport to="body">
-    <Modal
-      :show="isModalOpen"
-      :title="$t('addToSearch')"
-      dialogClass="modal-md modal-dialog-centered"
-      @close="closeModal"
+  <div class="AddContentItemToSearchButton">
+    <button
+      v-if="props.disabled"
+      type="button"
+      class="btn btn-sm btn-outline-secondary"
+      disabled
+      data-testid="add-content-item-to-search-button"
+      :title="props.disabledReason"
     >
-      <template v-if="!errorKey">
-        <p class="mb-0" data-testid="embedding-generation-message">
-          {{ $t(isSubmitting ? 'generatingSearchFilter' : 'confirmAddToSearch') }}
-        </p>
+      <slot>
+        {{ $t('useInSearch') }}
+        <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
+      </slot>
+    </button>
+    <BDropdown
+      v-else
+      right
+      class="position-relative"
+      size="sm"
+      variant="outline-secondary"
+      data-testid="add-content-item-to-search-button"
+    >
+      <template #button-content>
+        <slot>
+          {{ $t('useInSearch') }}
+          <Icon name="brainElectricity" class="ml-1" :scale="0.75" :stroke-width="1.5" />
+        </slot>
+      </template>
+      <BDropdownItem data-testid="replace-search-item" @click="openModal('replace')">
+        {{ $t('replaceSearch') }}
+      </BDropdownItem>
+      <BDropdownItem data-testid="add-search-item" @click="openModal('add')">
+        {{ $t('addToCurrentSearch') }}
+      </BDropdownItem>
+    </BDropdown>
 
-        <Alert type="info" class="mt-3 mb-0">
-          {{ $t('searchDurationNote') }}
+    <Teleport to="body">
+      <Modal
+        :show="isModalOpen"
+        :title="$t('addToSearch')"
+        dialogClass="modal-md modal-dialog-centered"
+        @close="closeModal"
+      >
+        <template v-if="!errorKey">
+          <p class="mb-0" data-testid="embedding-generation-message">
+            {{ $t(isSubmitting ? 'generatingSearchFilter' : 'confirmAddToSearch') }}
+          </p>
+
+          <Alert type="info" class="mt-3 mb-0">
+            {{ $t('searchDurationNote') }}
+          </Alert>
+        </template>
+
+        <Alert v-else type="error" class="border-danger" role="alert">
+          {{ $t(errorKey) }}
         </Alert>
-      </template>
 
-      <Alert v-else type="error" class="border-danger" role="alert">
-        {{ $t(errorKey) }}
-      </Alert>
-
-      <template #modal-footer="{ close }">
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary"
-          :disabled="isSubmitting"
-          @click="close()"
-        >
-          {{ $t('cancel') }}
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
-          data-testid="confirm-add-content-item-to-search-button"
-          :disabled="isLoading"
-          @click="addContentItemToSearch"
-        >
-          <span
-            v-if="isLoading"
-            class="spinner-border spinner-border-sm"
-            role="status"
-            aria-hidden="true"
-          />
-          <span>{{ $t(isLoading ? 'preparing' : canRetry ? 'retry' : 'confirm') }}</span>
-        </button>
-      </template>
-    </Modal>
-  </Teleport>
+        <template #modal-footer="{ close }">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            :disabled="isSubmitting"
+            @click="close()"
+          >
+            {{ $t('cancel') }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-primary d-inline-flex align-items-center gap-2"
+            data-testid="confirm-add-content-item-to-search-button"
+            :disabled="isLoading"
+            @click="addContentItemToSearch"
+          >
+            <span
+              v-if="isLoading"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            />
+            <span>{{ $t(isLoading ? 'preparing' : canRetry ? 'retry' : 'confirm') }}</span>
+          </button>
+        </template>
+      </Modal>
+    </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -65,6 +91,9 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
+import Icon from '@/components/base/Icon.vue'
+import BDropdown from '@/components/legacy/bootstrap/BDropdown.vue'
+import BDropdownItem from '@/components/legacy/bootstrap/BDropdownItem.vue'
 import { contentItems } from '@/services'
 import FilterFactory from '@/models/FilterFactory'
 import type { Filter } from '@/models'
@@ -72,7 +101,7 @@ import { deserializeFilters, optimizeFilters, serializeFilters } from '@/logic/f
 import { CommonQueryParameters } from '@/router/util'
 import { useSearchQueriesStore } from '@/stores/searchQueries'
 
-export interface AddContentItemToSearchProps {
+export interface AddContentItemToSearchButtonProps {
   contentItemId: string
   embedding?: string
   disabled?: boolean
@@ -85,10 +114,13 @@ export interface AddContentItemToSearchProps {
 type ErrorKey =
   'noEmbeddingAvailable' | 'embeddingFetchFailed' | 'embeddingFilterNotAllowed' | 'searchFailed'
 
-const props = defineProps<AddContentItemToSearchProps>()
+const props = defineProps<AddContentItemToSearchButtonProps>()
 const router = useRouter()
 const searchQueriesStore = useSearchQueriesStore()
 
+type SearchMode = 'replace' | 'add'
+
+const mode = ref<SearchMode>('add')
 const isModalOpen = ref(false)
 const isFetchingEmbedding = ref(false)
 const isSubmitting = ref(false)
@@ -130,7 +162,8 @@ async function loadEmbedding() {
   }
 }
 
-function openModal() {
+function openModal(selectedMode: SearchMode) {
+  mode.value = selectedMode
   errorKey.value = null
   isModalOpen.value = true
   // Start fetching right away, unless the embedding was provided by the parent.
@@ -164,9 +197,13 @@ async function addContentItemToSearch() {
 
     // A similarity search can use only one content-item vector. Replace any
     // prior embedding filter rather than merging its vector with this one.
-    const currentFilters = deserializeFilters(searchQueriesStore.latest?.hash).filter(
-      filter => filter.type !== 'embedding'
-    )
+    // In "replace" mode the current search is discarded altogether.
+    const currentFilters =
+      mode.value === 'add'
+        ? deserializeFilters(searchQueriesStore.latest?.hash).filter(
+            filter => filter.type !== 'embedding'
+          )
+        : []
     const filters = optimizeFilters([
       ...currentFilters,
       ...(props.additionalFilters ?? []),
@@ -190,8 +227,11 @@ async function addContentItemToSearch() {
 <i18n lang="json">
 {
   "en": {
-    "addToSearch": "Add to current search",
-    "confirmAddToSearch": "Add this item as a similarity filter to your active search to find related content.",
+    "useInSearch": "Use this item",
+    "replaceSearch": "Replace your current search",
+    "addToCurrentSearch": "Add to your current search",
+    "addToSearch": "Use this item in search",
+    "confirmAddToSearch": "Use this item as a similarity filter to find related content.",
     "generatingSearchFilter": "Preparing similarity filter and opening Search…",
     "searchDurationNote": "Loading the matching results may take a few seconds, depending on the complexity of your active filters.",
     "noEmbeddingAvailable": "No semantic embedding is available for this content item.",

@@ -56,8 +56,7 @@ export interface ContentItemProps extends ContentItemCommonProps {
 
 const props = withDefaults(defineProps<ContentItemProps>(), {
   showTitle: true,
-  showType: true,
-  enableShare: true
+  showType: true
 })
 const emit = defineEmits<{
   click: [item: ContentItem]

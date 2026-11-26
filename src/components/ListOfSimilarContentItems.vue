@@ -106,7 +106,7 @@ import LoadingBlock from '@/components/LoadingBlock.vue'
 import FeathersErrorManager from '@/components/FeathersErrorManager.vue'
 import Alert from 'impresso-ui-components/components/Alert.vue'
 import ContentItem from '@/components/modules/lists/ContentItem.vue'
-import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
 import Icon from '@/components/base/Icon.vue'
 export interface ListOfSimilarContentItemsProps {
   contentItem?: ContentItemType

@@ -306,7 +306,7 @@ import PageNavbarHeading from '@/components/PageNavbarHeading.vue'
 import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 import CopyToDatalabButton from '@/components/modules/datalab/CopyToDatalabButton.vue'
 import AudioContentItem from '@/components/audio/AudioContentItem.vue'
-import AddContentItemToSearch from '@/components/contentItem/AddContentItemToSearch.vue'
+import AddContentItemToSearchButton from '@/components/contentItem/AddContentItemToSearchButton.vue'
 import ContentItemComponent from '@/components/modules/lists/ContentItem.vue'
 import Modal from 'impresso-ui-components/components/legacy/BModal.vue'
 
