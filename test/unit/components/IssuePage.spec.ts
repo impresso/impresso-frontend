@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { flushPromises, shallowMount } from '@vue/test-utils'
+import { flushPromises, RouterLinkStub, shallowMount } from '@vue/test-utils'
 import { defineComponent, reactive } from 'vue'
 import IssuePage from '@/pages/IssuePage.vue'
 import ListOfFindResponseItems from '@/components/ListOfFindResponseItems.vue'
@@ -124,7 +124,7 @@ describe('IssuePage content items', () => {
       },
       global: {
         mocks: { $t: (key: string) => key },
-        stubs: { FilterLabel: false }
+        stubs: { FilterLabel: false, RouterLink: RouterLinkStub }
       }
     })
 

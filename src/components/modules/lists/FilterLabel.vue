@@ -3,7 +3,12 @@
   <template v-if="filterItems.length"
     >{{ ' ' }}
     <template v-for="(item, index) in filterItems" :key="index">
-      <span v-if="filter.type === 'issue'">{{ item.name ?? item.label ?? item.id }}</span>
+      <RouterLink
+        v-if="filter.type === 'issue'"
+        :to="{ name: Routes.issuePage.children.viewer.name, params: { issue_id: item.id } }"
+      >
+        {{ item.name ?? item.label ?? item.id }}
+      </RouterLink>
       <ItemSelector
         v-else-if="showItemSelector && String(item.id) !== 'undefined'"
         hideIcon
@@ -88,6 +93,7 @@ import ItemSelector from '../ItemSelector.vue'
 import type { Entity, FilterWithItems } from '@/models'
 import { isEntityWithDateRange } from '@/models/typeGuards'
 import { RouterLink } from 'vue-router'
+import { Routes } from '@/router/routes'
 import { NumericRangeFacets } from '@/logic/facets'
 import { includes } from '@/util/fn.js'
 
